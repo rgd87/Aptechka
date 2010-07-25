@@ -1,0 +1,12 @@
+## Interface: 30300
+## Title: Injector
+## Notes: raid frames
+## Author: d87
+## SavedVariablesPerCharacter: InjectorDB_Char
+## SavedVariables: InjectorDB_Global
+libs.xml
+helpers.lua
+config.lua
+loadables.lua
+InjectorPet.lua
+Injector.lua
