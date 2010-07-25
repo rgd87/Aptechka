@@ -1183,7 +1183,7 @@ local loader = CreateFrame("Frame")
 loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 loader:RegisterEvent("PLAYER_ENTERING_WORLD")
 local mapIDs = {
-    [609] = "Ruby Sanctum",
+    [610] = "Ruby Sanctum",
     [605] = "Icecrown Citadel",
     [544] = "Trial of the Crusader",
     [530] = "Ulduar",

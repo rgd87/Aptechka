@@ -9,7 +9,8 @@ local defaultIndicator = { type = "HARMFUL", indicator = { "left" }, color = col
 
 InjectorConfig.LoadableDebuffs = {
     ["Ruby Sanctum"] = function()
-        
+    A{ id = 74562, type = "HARMFUL", prototype = defaultIndicator } --Fiery Combustion
+    A{ id = 74792, type = "HARMFUL", prototype = defaultIndicator, color = color2 } --Soul Consumptio
     end,
 
     ["Icecrown Citadel"] = function()
