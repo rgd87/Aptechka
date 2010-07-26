@@ -29,6 +29,25 @@ helpers.AddTrace = function(data)
     InjectorConfig.TraceHeals[data.name] = data
 end
 
+helpers.ClickMacro = function(macro)
+    InjectorConfig.ClickCastingMacro = macro:gsub("spell:(%d+)",GetSpellInfo):gsub("([ \t]+)/",'/')
+end
+
+--~ helpers.AddClickCast = function(data)
+--~     if not InjectorConfig.enableClickCasting then return end
+--~     if not data.button then print("specify mouse button") return end
+--~     if not InjectorConfig.ClickCasting then InjectorConfig.ClickCasting = {} end
+--~     local seq = "type"..(data.button == 0 and "*" or data.button)
+--~     if data.shift then seq = "shift-"..seq end
+--~     if data.ctrl then seq = "ctrl-"..seq end
+--~     if data.alt then seq = "alt-"..seq end
+--~     local cc = {
+--~         [seq] = data.type,
+--~         [data.type] = data.value
+--~     }
+--~     table.insert(InjectorConfig.ClickCasting, cc)
+--~ end
+
 
 
 

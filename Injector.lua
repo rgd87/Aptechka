@@ -650,7 +650,13 @@ function Injector.CreateFrame(f)
     
     ClickCastFrames[f] = true
     
-    f:SetAttribute("*type1", "target")
+    f:SetAttribute("type1", "target")
+    
+    if InjectorConfig.enableClickCasting then
+        f:RegisterForClicks("AnyUp")
+        f:SetAttribute("*type*", "macro")
+        f:SetAttribute("macrotext", InjectorConfig.ClickCastingMacro)
+    end
     
     local backdrop = {
         bgFile = "Interface\\Addons\\Injector\\white", tile = true, tileSize = 0,

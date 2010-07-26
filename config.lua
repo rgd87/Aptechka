@@ -3,6 +3,7 @@ local _, playerClass = UnitClass("player")
 local isHealer = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "DRUID")
 local A = helpers.AddAura
 local DT = helpers.AddDispellType
+local ClickMacro = helpers.ClickMacro
 local Trace = helpers.AddTrace
 InjectorConfig = {}
 
@@ -26,7 +27,6 @@ InjectorConfig.incomingHealTimeframe = 1.5     -- incoming in next 1.5 seconds h
 InjectorConfig.incomingHealDisplayAmount = true  -- on second line
 InjectorConfig.incomingHealIgnoreHots = true
 InjectorConfig.raidIcons = true
-InjectorConfig.enableTraceHeals = true
 InjectorConfig.mouseoverTooltip = "outofcombat"      -- always / outofcombat / disabled
 
 -- layout
@@ -49,6 +49,8 @@ InjectorConfig.petFramesSeparation = false
 
 
 -- bells and whistles
+InjectorConfig.enableTraceHeals = true
+InjectorConfig.enableClickCasting = true
 InjectorConfig.useCombatLogFiltering = true
 -- useCombatLogFiltering provides a huge perfomance boost over default behavior, which would be to listen only to UNIT_AURA event.
 -- UNIT_AURA doesn't tell what exactly changed and every time addon had to scan current buffs/debuffs,
@@ -62,7 +64,8 @@ InjectorConfig.useCombatLogFiltering = true
 
 -- libs
 InjectorConfig.useHealComm = true -- incoming  heal library
-InjectorConfig.useQuickHealth = isHealer -- combat log event faster than UNIT_HEALTH event. And that's what this lib does, allows you to see health updates sooner.
+InjectorConfig.useQuickHealth = isHealer -- combat log event is faster than UNIT_HEALTH event.
+                                         -- And that's what this lib does, allows you to see health updates more often/sooner.
 
 InjectorConfig.SetupIndicators = {
     ["topleft"] =  { point = "TOPLEFT", size = 5, },
@@ -148,6 +151,11 @@ if playerClass == "PRIEST" then
     
     DT("Magic", { indicator = { "bottom" }, color = { 0.2, 0.6, 1}, priority = 81 })
     DT("Disease", { indicator = { "bottom" }, color = { 0.6, 0.4, 0} })
+   
+    ClickMacro[[
+        /cast [btn:2] spell:139
+        /cast [btn:2,mod:alt] spell:17
+    ]]
 end
 
 if playerClass == "WARLOCK" then
