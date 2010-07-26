@@ -153,8 +153,7 @@ if playerClass == "PRIEST" then
     DT("Disease", { indicator = { "bottom" }, color = { 0.6, 0.4, 0} })
    
     ClickMacro[[
-        /cast [btn:2] spell:139
-        /cast [btn:2,mod:alt] spell:17
+        /cast [target=mouseover,btn:2,mod:alt] spell:17; [target=mouseover,btn:2] spell:139;
     ]]
 end
 
@@ -233,6 +232,10 @@ if playerClass == "DRUID" then
 
     DT("Poison", { indicator = { "bottom" }, color = { 0, 0.6, 0} })
     DT("Curse", { indicator = { "bottom" }, color = { 0.6, 0, 1} })
+    
+    ClickMacro[[
+        /cast [target=mouseover,btn:2,mod:alt] spell:8936; [target=mouseover,btn:2] spell:774
+    ]] -- Default Example: Rejuvenation (id 774) on RMB
 end
 if playerClass == "MAGE" then
     A{ id = 1459,  type = "HELPFUL", indicator = { "topleft" }, color = { .4 , .4, 1} } --Arcane Intellect
