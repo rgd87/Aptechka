@@ -30,7 +30,7 @@ InjectorConfig.mouseoverTooltip = "outofcombat"      -- always / outofcombat / d
 
 InjectorConfig.maxgroups = 8
 InjectorConfig.showSolo = true     -- visible without group/raid
-InjectorConfig.showParty = true    -- in group
+InjectorConfig.showParty = false    -- in group
 InjectorConfig.unitGap = 10        -- gap between units
 InjectorConfig.groupGap = 10
 InjectorConfig.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT / RIGHT / TOP / BOTTOM
@@ -46,10 +46,11 @@ InjectorConfig.petFrames = false
 InjectorConfig.petScale = 1
 InjectorConfig.petFramesSeparation = false
 
-
 -- bells and whistles
 InjectorConfig.enableTraceHeals = true
-InjectorConfig.enableClickCasting = false
+InjectorConfig.enableClickCasting = false       -- enable click casting support, activates ClickMacro function.
+                                                -- ClickMacro syntax is like usual macro, but don't forget [target=mouseover]
+                                                -- spell:<id> is an alias for localized spellname.
 InjectorConfig.useCombatLogFiltering = true
 -- useCombatLogFiltering provides a huge perfomance boost over default behavior, which would be to listen only to UNIT_AURA event.
 -- UNIT_AURA doesn't tell what exactly changed and every time addon had to scan current buffs/debuffs,
@@ -153,7 +154,7 @@ if playerClass == "PRIEST" then
    
     ClickMacro[[
         /cast [target=mouseover,btn:2,mod:alt] spell:17; [target=mouseover,btn:2] spell:139;
-    ]]
+    ]] -- Default Example: PW:S (id 17) on Alt+RMB, Renew (id 139) on RMB
 end
 
 if playerClass == "WARLOCK" then
@@ -184,6 +185,10 @@ if playerClass == "PALADIN" then
     DT("Magic", { indicator = { "bottom" }, color = { 0.2, 0.6, 1} })
     DT("Disease", { indicator = { "bottom" }, color = { 0.6, 0.4, 0} })
     DT("Poison", { indicator = { "bottom" }, color = { 0, 0.6, 0} })
+    ClickMacro[[
+        /cast [target=mouseover,btn:2,mod:alt] spell:53563; [target=mouseover,btn:2] spell:19750;
+    ]] -- Default Example: Beacon of Light (id 53563) on Alt+RMB, Flash of Light (id 19750) on RMB
+    
 end
 if playerClass == "SHAMAN" then
     A{ id = 61295,  type = "HELPFUL", indicator = { "bottomright" }, showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide
@@ -210,6 +215,9 @@ if playerClass == "SHAMAN" then
     DT("Disease", { indicator = { "bottom" }, color = { 0.6, 0.4, 0} })
     DT("Poison", { indicator = { "bottom" }, color = { 0, 0.6, 0} })
     DT("Curse", { indicator = { "bottom" }, color = { 0.6, 0, 1} })
+    ClickMacro[[
+        /cast [target=mouseover,btn:2,mod:alt] spell:974; [target=mouseover,btn:2] spell:61295;
+    ]] -- Default Example: Earth Shield (id 974) on Alt+RMB, Riptide (id 61295) on RMB
 end
 if playerClass == "DRUID" then
     A{ id = 1126,  type = "HELPFUL", indicator = { "topleft" }, color = { 235/255 , 145/255, 199/255} } --Mark of the Wild

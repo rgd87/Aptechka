@@ -653,7 +653,7 @@ function Injector.CreateFrame(f)
     
     f:SetAttribute("type1", "target")
     
-    if InjectorConfig.enableClickCasting then
+    if InjectorConfig.ClickCastingMacro then
         f:RegisterForClicks("AnyUp")
         f:SetAttribute("*type*", "macro")
         f:SetAttribute("macrotext", InjectorConfig.ClickCastingMacro)

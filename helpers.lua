@@ -30,6 +30,7 @@ helpers.AddTrace = function(data)
 end
 
 helpers.ClickMacro = function(macro)
+    if not InjectorConfig.enableClickCasting then return end
     InjectorConfig.ClickCastingMacro = macro:gsub("spell:(%d+)",GetSpellInfo):gsub("([ \t]+)/",'/')
 end
 
