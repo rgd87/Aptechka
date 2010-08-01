@@ -6,6 +6,7 @@ end)
 
 InjectorConfig.SetupIndicators = InjectorConfig.SetupIndicators or {}
 
+InjectorConfig.showParty = (InjectorConfig.showParty == nil) or InjectorConfig.showParty
 InjectorConfig.unitGap = InjectorConfig.unitGap or 10
 InjectorConfig.groupGap = InjectorConfig.groupGap or 10
 InjectorConfig.unitGrowth = InjectorConfig.unitGrowth or "RIGHT"
@@ -192,7 +193,7 @@ function Injector.ADDON_LOADED(self,event,arg1)
             if i == 1 then
                 f:SetPoint(InjectorConfig.anchorpoint, self.anchor, reverse(InjectorConfig.anchorpoint), 0, 0)
 --~                 f:SetPoint(InjectorConfig.anchorpoint, self.backdrop, InjectorConfig.anchorpoint, 0, 0)
-                f:SetAttribute("showParty", true)
+                f:SetAttribute("showParty", InjectorConfig.showParty)
                 f:SetAttribute("showSolo", InjectorConfig.showSolo)
                 f:SetAttribute("showPlayer", true)
             else

@@ -12,7 +12,6 @@ InjectorConfig.width = 50
 InjectorConfig.height = 50
 InjectorConfig.scale = 1
 
--- frame config
 InjectorConfig.texture = [[Interface\AddOns\Injector\gradient]]
 InjectorConfig.font = [[Interface\AddOns\Injector\ClearFont.ttf]]
 InjectorConfig.fontsize = 12
@@ -29,9 +28,9 @@ InjectorConfig.incomingHealIgnoreHots = true
 InjectorConfig.raidIcons = true
 InjectorConfig.mouseoverTooltip = "outofcombat"      -- always / outofcombat / disabled
 
--- layout
 InjectorConfig.maxgroups = 8
-InjectorConfig.showSolo = true
+InjectorConfig.showSolo = true     -- visible without group/raid
+InjectorConfig.showParty = true    -- in group
 InjectorConfig.unitGap = 10        -- gap between units
 InjectorConfig.groupGap = 10
 InjectorConfig.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT / RIGHT / TOP / BOTTOM
@@ -50,7 +49,7 @@ InjectorConfig.petFramesSeparation = false
 
 -- bells and whistles
 InjectorConfig.enableTraceHeals = true
-InjectorConfig.enableClickCasting = true
+InjectorConfig.enableClickCasting = false
 InjectorConfig.useCombatLogFiltering = true
 -- useCombatLogFiltering provides a huge perfomance boost over default behavior, which would be to listen only to UNIT_AURA event.
 -- UNIT_AURA doesn't tell what exactly changed and every time addon had to scan current buffs/debuffs,
@@ -235,7 +234,7 @@ if playerClass == "DRUID" then
     
     ClickMacro[[
         /cast [target=mouseover,btn:2,mod:alt] spell:8936; [target=mouseover,btn:2] spell:774
-    ]] -- Default Example: Rejuvenation (id 774) on RMB
+    ]] -- Default Example: Regrowth (id 8936) on Alt+RMB, Rejuvenation (id 774) on RMB
 end
 if playerClass == "MAGE" then
     A{ id = 1459,  type = "HELPFUL", indicator = { "topleft" }, color = { .4 , .4, 1} } --Arcane Intellect
