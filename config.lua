@@ -30,7 +30,7 @@ InjectorConfig.mouseoverTooltip = "outofcombat"      -- always / outofcombat / d
 
 InjectorConfig.maxgroups = 8
 InjectorConfig.showSolo = true     -- visible without group/raid
-InjectorConfig.showParty = false    -- in group
+InjectorConfig.showParty = true    -- in group
 InjectorConfig.unitGap = 10        -- gap between units
 InjectorConfig.groupGap = 10
 InjectorConfig.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT / RIGHT / TOP / BOTTOM
