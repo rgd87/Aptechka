@@ -42,11 +42,12 @@ InjectorConfig.disableBlizzardParty = true
 
 -- pets 
 -- petframes suck in this addon, i know. It's more like outdated plugin.
-InjectorConfig.petFrames = false
+InjectorConfig.petFrames = false -- not updated for cataclysm
 InjectorConfig.petScale = 1
 InjectorConfig.petFramesSeparation = false
 
 -- bells and whistles
+InjectorConfig.enableIncomingHeals = true
 InjectorConfig.enableTraceHeals = true
 InjectorConfig.enableClickCasting = false       -- enable click casting support, activates ClickMacro function.
                                                 -- ClickMacro syntax is like usual macro, but don't forget [target=mouseover]
@@ -63,7 +64,6 @@ InjectorConfig.useCombatLogFiltering = true
 -- Dispel idicators still work from unit_aura, so you'll see plague regardless as disease if you can dispel it. Necrotic plague removed from default loadables.lua setup.
 
 -- libs
-InjectorConfig.useHealComm = true -- incoming  heal library
 InjectorConfig.useQuickHealth = isHealer -- combat log event is faster than UNIT_HEALTH event.
                                          -- And that's what this lib does, allows you to see health updates more often/sooner.
 
@@ -92,7 +92,7 @@ InjectorConfig.SetupIcons = {
 }
 --customizing stack label: stacktext = { font = [[Interface\AddOns\Injector\ClearFont.ttf]], size = 10, flags = "OUTLINE", color = {1,0,0} },
 
---InjectorConfig.TargetStatus = { name = "Target", type = "HELPFUL", indicator = BORDER, color = {1,0.7,0.7}, priority = 65 }
+InjectorConfig.TargetStatus = { name = "Target", type = "HELPFUL", indicator = BORDER, color = {1,0.7,0.7}, priority = 65 }
 InjectorConfig.IncomingHealStatus = nil  --{ name = "IncomingHeal", type = "HELPFUL", indicator = { "bottomleft" },  color = { 0, 1, 0}, priority = 60 }
 InjectorConfig.AggroStatus = { name = "Aggro", type = "HARMFUL", indicator = { "bottomleft" },  color = { 0.7, 0, 0} } -- InjectorConfig.AggroStatus = nil will disable aggro monitoring at all
 InjectorConfig.ReadyCheck = { name = "Readycheck", type = "HELPFUL", priority = 90, indicator = { "top" },  stackcolor =   {
@@ -159,6 +159,12 @@ end
 
 if playerClass == "WARLOCK" then
     A{ id = 20707, type = "HELPFUL", indicator = { "topleft" }, color = { 180/255, 0, 1 }, priority = 81 } --Soulstone Resurrection
+    --for cata testing
+--~     A{ id = 28176, type = "HELPFUL", indicator = { "top" }, color = { 180/255, 0, 1 }, priority = 81 } --FELARMOR
+--~     A{ id = 74434, type = "HELPFUL", indicator = { "topright" }, color = { 180/255, 0, 1 }, showDuration = true, priority = 81 } --Soulburn
+--~     ClickMacro[[
+--~         /cast [target=mouseover,btn:2,mod:alt] spell:28176; [target=mouseover,btn:2] spell:74434;
+--~     ]]
 --~     A{ id = 6307,  type = "HELPFUL", indicator = { "topleft" }, color = { 1, 0, 0 }, priority = 81 } --Blood Pact
 --~     A{ id = 54424, type = "HELPFUL", indicator = { "topleft" }, color = { .6 , .6, 1 } } --Fel Intelligence
 end

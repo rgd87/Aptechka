@@ -82,18 +82,19 @@ function Injector.ADDON_LOADED(self,event,arg1)
             helpers.DisableBlizzParty()
         end
     
-        if InjectorConfig.useHealComm then
-            HealComm = LibStub:GetLibrary("LibHealComm-4.0",true);
-            if HealComm then
-                if InjectorConfig.incomingHealIgnoreHots then
-                    HealComm.InjectorHealType = HealComm.CASTED_HEALS
-                else    
-                    HealComm.InjectorHealType = HealComm.ALL_HEALS
-                    HealComm.RegisterCallback(self, "HealComm_HealUpdated", "HealUpdated");     -- hots
-                end
-                HealComm.RegisterCallback(self, "HealComm_HealStarted", "HealUpdated");
-                HealComm.RegisterCallback(self, "HealComm_HealStopped", "HealUpdated");
-            end
+        if InjectorConfig.enableIncomingHeals then
+            self:RegisterEvent("UNIT_HEAL_PREDICTION")
+--~             HealComm = LibStub:GetLibrary("LibHealComm-4.0",true);
+--~             if HealComm then
+--~                 if InjectorConfig.incomingHealIgnoreHots then
+--~                     HealComm.InjectorHealType = HealComm.CASTED_HEALS
+--~                 else    
+--~                     HealComm.InjectorHealType = HealComm.ALL_HEALS
+--~                     HealComm.RegisterCallback(self, "HealComm_HealUpdated", "HealUpdated");     -- hots
+--~                 end
+--~                 HealComm.RegisterCallback(self, "HealComm_HealStarted", "HealUpdated");
+--~                 HealComm.RegisterCallback(self, "HealComm_HealStopped", "HealUpdated");
+--~             end
         end
         if InjectorConfig.useQuickHealth then
             QuickHealth = LibStub and LibStub("LibQuickHealth-2.0", true)
@@ -112,10 +113,10 @@ function Injector.ADDON_LOADED(self,event,arg1)
         Injector.UNIT_MAXHEALTH = Injector.UNIT_HEALTH
         
         if not InjectorConfig.disableManaBar then
-            self:RegisterEvent("UNIT_MANA")
-            self:RegisterEvent("UNIT_MAXMANA")
+            self:RegisterEvent("UNIT_POWER")
+            self:RegisterEvent("UNIT_MAXPOWER")
             self:RegisterEvent("UNIT_DISPLAYPOWER")
-            Injector.UNIT_MAXMANA = Injector.UNIT_MANA
+            Injector.UNIT_MAXPOWER = Injector.UNIT_POWER
         end
         if InjectorConfig.AggroStatus then
             self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
@@ -226,21 +227,22 @@ function Injector.ADDON_LOADED(self,event,arg1)
 end
 
 -- Incoming heal functions for HealComm
-function Injector.HealUpdated(self, event, casterGUID, spellID, healType, endTime, ...)
-    for i=1,select('#', ...) do
-        local targetGUID = select(i, ...)
-        local unit = guidMap[targetGUID]
-        if unit then Injector.UpdateIncomingHeals(unit, targetGUID) end
-    end
-end
+--~ function Injector.HealUpdated(self, event, casterGUID, spellID, healType, endTime, ...)
+--~     for i=1,select('#', ...) do
+--~         local targetGUID = select(i, ...)
+--~         local unit = guidMap[targetGUID]
+--~         if unit then Injector.UpdateIncomingHeals(unit, targetGUID) end
+--~     end
+--~ end
 local HealTextStatus = { name = "IncHealText", priority = 15 }
-function Injector.UpdateIncomingHeals(unit, guid)
+function Injector.UNIT_HEAL_PREDICTION(self,event,unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
-                local heal = HealComm:GetHealAmount(guid, HealComm.InjectorHealType, GetTime()+InjectorConfig.incomingHealTimeframe)
+                --local heal = HealComm:GetHealAmount(guid, HealComm.InjectorHealType, GetTime()+InjectorConfig.incomingHealTimeframe)
+                local heal = UnitGetIncomingHeals(unit)
                 self.incoming:SetValue(  heal and self.hp:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
                 if InjectorConfig.incomingHealDisplayAmount then
-                        if heal then
+                        if heal > 0 then
                             self.text2.jobs[HealTextStatus.name] = HealTextStatus
                         else
                             self.text2.jobs[HealTextStatus.name] = nil
@@ -248,7 +250,7 @@ function Injector.UpdateIncomingHeals(unit, guid)
                         Injector.UpdateStatus(self.text2, "text", heal and ("%.1fk"):format( heal / 1e3) )
                 end
                 if InjectorConfig.IncomingHealStatus then
-                    if heal then
+                    if heal > 0 then
                         Injector.UpdateAura(unit, InjectorConfig.IncomingHealStatus, true)
                     else
                         Injector.UpdateAura(unit, InjectorConfig.IncomingHealStatus, false)
@@ -256,6 +258,11 @@ function Injector.UpdateIncomingHeals(unit, guid)
                 end
     end
 end
+
+
+--~ function Injector.UpdateIncomingHeals(unit, guid)
+--~     
+--~ end
 
 --Health Text string updates
 function Injector.UpdateHealthText(self, h, hm)
@@ -303,7 +310,7 @@ function Injector.UNIT_HEALTH(self, event, unit)
     end
 end
 
-function Injector.UNIT_MANA(self, event, unit)
+function Injector.UNIT_POWER(self, event, unit, ptype)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
         if not self.mb:IsVisible() then return end
@@ -383,7 +390,7 @@ end
 --~             Injector:UNIT_HEALTH(nil,self.unit)
 --~             self:SetScript("OnUpdate", nil) 
 --~         end
---~         Injector:UNIT_MANA(nil,self.unit)
+--~         Injector:UNIT_POWER(nil,self.unit)
 --~     elseif( UnitIsConnected(self.unit) or UnitHealthMax(self.unit) > 0 ) then
 --~         if self.unit ~=  self.unitOwner then
 --~             Injector:Colorize(nil, self.unitOwner)
@@ -451,7 +458,7 @@ end
 function Injector.UpdateMainTanks( self )
     if InjectorConfig.MainTankStatus then
         for unit in pairs(Roster) do
-            if UnitExists(unit) and (GetPartyAssignment("MAINTANK", unit) or UnitGroupRolesAssigned(unit)) then
+            if UnitExists(unit) and (GetPartyAssignment("MAINTANK", unit) or UnitGroupRolesAssigned(unit) == "TANK") then
                 Injector.UpdateAura(unit, InjectorConfig.MainTankStatus, true)
             else
                 Injector.UpdateAura(unit, InjectorConfig.MainTankStatus, false)
@@ -574,7 +581,8 @@ end
 
 --UnitButton initialization
 local OnAttributeChanged = function(self, name, unit)
-    if name ~= "unit" then return end
+--~     if name ~= "unit" then return end
+    local unit = self:GetAttribute("unit")
       
         for unit, frames in pairs(Roster) do
             if frames[self] and self:GetAttribute("unit") ~= unit then
@@ -602,7 +610,7 @@ local OnAttributeChanged = function(self, name, unit)
         Injector:UNIT_HEALTH("ONATTR", unit)
         if not InjectorConfig.disableManaBar then
             Injector:UNIT_DISPLAYPOWER(nil, unit)
-            Injector:UNIT_MANA(nil, unit)
+            Injector:UNIT_POWER(nil, unit)
         end
         
         Injector:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
@@ -610,10 +618,17 @@ local OnAttributeChanged = function(self, name, unit)
             Injector:RAID_TARGET_UPDATE()
         end
         Injector:UpdateMainTanks()
-        if InjectorConfig.useHealComm then Injector.UpdateIncomingHeals(unit, UnitGUID(unit)) end
+        if InjectorConfig.enableIncomingHeals then Injector:UNIT_HEAL_PREDICTION(nil,unit) end
 end
 
 --building header, frame, anchor
+
+function Injector.Update1Textures(header,id)
+    local self = header[id]
+    --self.healthBar:SetStatusBarTexture("Interface\\AddOns\\Injector\\gradient")
+end
+
+
 function Injector.CreateHeader(self,group)
     local frameName = "NR"..group
     local xgap = InjectorConfig.unitGap
@@ -631,14 +646,27 @@ function Injector.CreateHeader(self,group)
     end
     f:SetAttribute("point", unitgr)
 	f:SetAttribute("groupFilter", group)
-	f:SetAttribute("showRaid", true)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
-    f.initialConfigFunction = Injector.CreateFrame
+    
+--~     f.initialConfigFunction = Injector.CreateFrame
+    f.initConf = Injector.UpdateTextures
+    f:SetAttribute("initialConfigFunction",[[
+        self:SetWidth(50)
+        self:SetHeight(50)
+        self:SetScale(1)
+
         
+        local id = tonumber(self:GetName():match(".+UnitButton(%d)"))
+        owner:CallMethod("initConf",id)    
+    ]])
+    
+
     return f
 end
-function Injector.CreateFrame(f)
+--function Injector.CreateFrame(f)
+function Injector.UpdateTextures(header,id)
+    local f = header[id]
     local texture = InjectorConfig.texture
     local font = InjectorConfig.font
     local fontsize = InjectorConfig.fontsize
@@ -791,7 +819,11 @@ function Injector.CreateFrame(f)
         end)
     end
         
-    f:SetScript("OnAttributeChanged", OnAttributeChanged)
+--~     f:SetScript("OnAttributeChanged", OnAttributeChanged)
+    f.onUnitChanged = OnAttributeChanged
+    f:SetAttribute('refreshUnitChange',[[
+        self:CallMethod("onUnitChanged")
+    ]])
     
     f.indicators = {}
     for name, opts in pairs(InjectorConfig.SetupIndicators) do
