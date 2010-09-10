@@ -12,10 +12,10 @@ InjectorConfig.width = 50
 InjectorConfig.height = 50
 InjectorConfig.scale = 1
 
+InjectorConfig.skin = "GridSkin"
 InjectorConfig.texture = [[Interface\AddOns\Injector\gradient]]
 InjectorConfig.font = [[Interface\AddOns\Injector\ClearFont.ttf]]
 InjectorConfig.fontsize = 12
-
 InjectorConfig.cropNamesLen = 7  -- maximum amount of characters in unit name
 InjectorConfig.manabarwidth = 6
 InjectorConfig.orientation = "VERTICAL"    -- HORIZONTAL / VERTICAL
@@ -160,11 +160,12 @@ end
 if playerClass == "WARLOCK" then
     A{ id = 20707, type = "HELPFUL", indicator = { "topleft" }, color = { 180/255, 0, 1 }, priority = 81 } --Soulstone Resurrection
     --for cata testing
---~     A{ id = 28176, type = "HELPFUL", indicator = { "top" }, color = { 180/255, 0, 1 }, priority = 81 } --FELARMOR
---~     A{ id = 74434, type = "HELPFUL", indicator = { "topright" }, color = { 180/255, 0, 1 }, showDuration = true, priority = 81 } --Soulburn
---~     ClickMacro[[
---~         /cast [target=mouseover,btn:2,mod:alt] spell:28176; [target=mouseover,btn:2] spell:74434;
---~     ]]
+    A{ id = 28176, type = "HELPFUL", indicator = { "top" }, pulse = true, color = { 180/255, 0, 1 }, showDuration = true, priority = 81 } --FELARMOR
+    A{ id = 74434, type = "HELPFUL", indicator = { "topright" }, color = { 180/255, 0, 1 }, showDuration = true, priority = 81 } --Soulburn
+    ClickMacro[[
+        /cast [target=mouseover,btn:2,mod:alt] spell:28176; [target=mouseover,btn:2] spell:74434;
+    ]]
+    Trace{id = 28176, type = "PERIODIC_HEAL", indicator = { "bottomright" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
 --~     A{ id = 6307,  type = "HELPFUL", indicator = { "topleft" }, color = { 1, 0, 0 }, priority = 81 } --Blood Pact
 --~     A{ id = 54424, type = "HELPFUL", indicator = { "topleft" }, color = { .6 , .6, 1 } } --Fel Intelligence
 end

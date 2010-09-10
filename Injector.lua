@@ -16,6 +16,7 @@ InjectorConfig.anchorpoint = InjectorConfig.anchorpoint or "BOTTOMLEFT"
 InjectorConfig.outOfRangeAlpha = InjectorConfig.outOfRangeAlpha or 0.4
 InjectorConfig.incomingHealTimeframe = InjectorConfig.incomingHealTimeframe or 1.5
 InjectorConfig.IndicatorAuras = InjectorConfig.IndicatorAuras or {}
+InjectorConfig.skin = InjectorConfig.skin or "GridSkin"
 local InjectorUnitInRange = InjectorConfig.UnitInRangeFunc or UnitInRange
 
 local auras = InjectorConfig.IndicatorAuras
@@ -45,8 +46,6 @@ local bit_band = bit.band
 local _, helpers = ...
 local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
-local UIFrameScale = helpers.UIFrameScale
-local UIFrameScaleOut = helpers.UIFrameScaleOut
 local InjectorDB = {}
 
 local QuickHealth
@@ -108,6 +107,16 @@ function Injector.ADDON_LOADED(self,event,arg1)
                 QuickHealth.RegisterCallback(self, "UnitHealthUpdated")
             end
         end
+        
+        self.initConfSnippet = string.format([[
+            self:SetWidth(%d)
+            self:SetHeight(%d)
+            self:SetScale(%d)
+        ]], InjectorConfig.width, InjectorConfig.height, InjectorConfig.scale)..[[
+            local id = tonumber(self:GetName():match(".+UnitButton(%d)"))
+            owner:CallMethod("initConf",id)    
+        ]]
+        
         self:RegisterEvent("UNIT_HEALTH")
         self:RegisterEvent("UNIT_MAXHEALTH")
         Injector.UNIT_MAXHEALTH = Injector.UNIT_HEALTH
@@ -641,15 +650,7 @@ function Injector.CreateHeader(self,group)
     
     --f.initialConfigFunction = Injector.CreateFrame
     f.initConf = Injector.CreateStuff
-    f:SetAttribute("initialConfigFunction",[[
-        self:SetWidth(50)
-        self:SetHeight(50)
-        self:SetScale(1)
-
-        
-        local id = tonumber(self:GetName():match(".+UnitButton(%d)"))
-        owner:CallMethod("initConf",id)    
-    ]])
+    f:SetAttribute("initialConfigFunction", self.initConfSnippet)
     
 
     return f
@@ -657,17 +658,14 @@ end
 --function Injector.CreateFrame(f)
 function Injector.CreateStuff(header,id)
     local f = header[id]
-    local texture = InjectorConfig.texture
-    local font = InjectorConfig.font
-    local fontsize = InjectorConfig.fontsize
-    local manabar_width = InjectorConfig.manabarwidth
+    
+--~     f:SetAttribute("initial-width", InjectorConfig.width)
+--~     f:SetAttribute("initial-height", InjectorConfig.height)
+--~     f:SetAttribute("initial-scale", InjectorConfig.scale)
 
-    f:SetAttribute("initial-width", InjectorConfig.width)
-    f:SetAttribute("initial-height", InjectorConfig.height)
-    f:SetAttribute("initial-scale", InjectorConfig.scale)
     f:SetAttribute("toggleForVehicle", true)
     
-    ClickCastFrames[f] = true
+    ClickCastFrames[f] = true -- autoadd to clique list
     
     f:SetAttribute("type1", "target")
     
@@ -677,37 +675,9 @@ function Injector.CreateStuff(header,id)
         f:SetAttribute("macrotext", InjectorConfig.ClickCastingMacro)
     end
     
-    local backdrop = {
-        bgFile = "Interface\\Addons\\Injector\\white", tile = true, tileSize = 0,
-        insets = {left = -2, right = -2, top = -2, bottom = -2},
-    }
-    f:SetBackdrop(backdrop)
-	f:SetBackdropColor(0, 0, 0, 1)
-    
-    local hpi = CreateFrame("StatusBar", nil, f)
-	hpi:SetAllPoints(f)
-    hpi:SetOrientation(InjectorConfig.orientation)
-	hpi:SetStatusBarTexture("Interface\\Tooltips\\UI-Tooltip-Background")
-    hpi:SetStatusBarColor(0,0,0,0.3)
-    hpi:SetMinMaxValues(0,100)
-    hpi:SetValue(0)
-    f.incoming = hpi
+    InjectorConfig[InjectorConfig.skin](f)
     
     
-    local hp = CreateFrame("StatusBar", nil, f)
-	hp:SetAllPoints(f)
-    hp:SetOrientation(InjectorConfig.orientation)
-	hp:SetStatusBarTexture(texture)
-
-    hp:SetStatusBarColor(1,1,1,1)
-    hp:SetMinMaxValues(0,100)
-    hp:SetValue(0)
-    
-    local hpbg = f:CreateTexture()
-	hpbg:SetAllPoints(hp)
-	hpbg:SetTexture(texture)
-
-    hp.bg = hpbg
     f.SetColor = function(self,r,g,b)
         if not InjectorConfig.invertColor then
             self.hp:SetStatusBarColor(0,0,0,0.8)
@@ -719,82 +689,6 @@ function Injector.CreateStuff(header,id)
             self.text:SetTextColor(r*0.75,g*0.75,b*0.75)
         end
     end
-    
-    
-    f.hp = hp
-    
-    --==< HEALTH BAR TEXT >==--
-        local text = hp:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        text:SetPoint("CENTER",0,0)
-        text:SetJustifyH"CENTER"
-        text:SetFont(font, fontsize)
-        text:SetTextColor(1, 1, 1)
-        f.text = text
-        
-    --==< HEALTH BAR TEXT - SECOND LINE >==--
-        local text2 = hp:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        text2:SetPoint("TOP",text,"BOTTOM",0,0)
-        text2:SetJustifyH"CENTER"
-        text2:SetFont(font, fontsize-3)
-        text2:SetTextColor(0.2, 1, 0.2)
-        text2.jobs = {}
-        f.text2 = text2
-        
-        
-    --- mana bar
-  if not InjectorConfig.disableManaBar then
-    
-    local mb = CreateFrame("StatusBar",nil, f)
-    
-    if InjectorConfig.orientation == "VERTICAL" then
-        InjectorConfig.mbst = {
-            x = manabar_width,
-            y = 0,
-            p1 = "TOPRIGHT",
-            p2 = "BOTTOMRIGHT",
-            p3 = "BOTTOMLEFT",
-        }
-    else
-        InjectorConfig.mbst = {
-            x = 0,
-            y = manabar_width,
-            p1 = "BOTTOMLEFT",
-            p2 = "BOTTOMRIGHT",
-            p3 = "TOPRIGHT",
-        }
-    end
-    
-    mb:SetPoint(InjectorConfig.mbst.p1,f,InjectorConfig.mbst.p1,0,0)
-    mb:SetPoint(InjectorConfig.mbst.p3,f,InjectorConfig.mbst.p2, -InjectorConfig.mbst.x , InjectorConfig.mbst.y)
---~     mb:SetWidth(manabar_width)
-    mb:SetOrientation(InjectorConfig.orientation)
-	mb:SetStatusBarTexture(texture)
-    mb:SetStatusBarColor(0,0,0,0.7)
-    mb:SetMinMaxValues(0,100)
-    mb:SetValue(100)
---~     mb:SetFrameLevel(2)
-    local mbbg = f:CreateTexture()
-    mbbg:SetAllPoints(mb)
-	mbbg:SetTexture(texture)
-    mbbg:SetVertexColor(0.2, 0.45, 0.75)
-
-    hp:ClearAllPoints()
-    hp:SetPoint("TOPRIGHT",f,"TOPRIGHT",-manabar_width,0)
-    hp:SetPoint("BOTTOMLEFT",f,"BOTTOMLEFT",0,0)
-    hp.bg:ClearAllPoints()
-    hp.bg:SetAllPoints(hp)
-    
-    
-    mb.bg = mbbg
-    mb.width = manabar_width
-    f.mb = mb
-    
-    
-    f.mb = mb
-  end
-    
---~     f:EnableMouse(true)  -- taint
-    f:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight","ADD")
     
     if InjectorConfig.mouseoverTooltip and InjectorConfig.mouseoverTooltip ~= "disabled" then
         if InjectorConfig.mouseoverTooltip == "always" then UnitAffectingCombat = function() return false end end
@@ -951,17 +845,70 @@ function Injector.CreateIndicator(f, name, opts)
     cd:SetAllPoints(ind)
     ind.cd = cd
     
-    ind.Pulse = function(frame)
-        UIFrameScale(frame,{
-            mode = "IN",
-            timeToScale = 0.2,
-            finishedFunc = function(frame) frame.shining = false; UIFrameScaleOut(frame, 0.8, 2, 1); end,
-            finishedArg1 = frame,
-            startScale = 1,
-            endScale = 2,
-        })
-        frame.shining = true 
-    end
+    local pag = ind:CreateAnimationGroup()
+    local pa1 = pag:CreateAnimation("Scale")
+    pa1:SetScale(2,2)
+    pa1:SetDuration(0.2)
+    pa1:SetOrder(1)
+    local pa2 = pag:CreateAnimation("Scale")
+    pa2:SetScale(0.5,0.5)
+    pa2:SetDuration(0.8)
+    pa2:SetOrder(2)
+    
+    ind.pulse = pag
+    
+    local bag = ind:CreateAnimationGroup()
+    local ba1 = bag:CreateAnimation("Alpha")
+    ba1:SetChange(1)
+    ba1:SetDuration(0.1)
+    ba1:SetOrder(1)
+    local ba2 = bag:CreateAnimation("Alpha")
+    ba2:SetChange(-1)
+    ba2:SetDuration(0.7)
+    ba2:SetOrder(2)
+    
+    bag:SetScript("OnFinished",function(self)
+        self:GetParent():Hide()
+    end)
+    
+    bag.a2 = ba2
+    ind.blink = bag
+    
+--~     local twag = ind:CreateAnimationGroup()
+--~     local twa1 = twag:CreateAnimation("Rotation")
+--~     twa1:SetDegrees(20)
+--~     twa1:SetDuration(0.2)
+--~     twa1:SetSmoothing("OUT")
+--~     twa1:SetOrder(1)
+--~     local twa2 = twag:CreateAnimation("Rotation")
+--~     twa2:SetDegrees(-40)
+--~     twa2:SetDuration(0.4)
+--~     twa2:SetSmoothing("IN_OUT")
+--~     twa2:SetOrder(2)
+--~     local twa3 = twag:CreateAnimation("Rotation")
+--~     twa3:SetDegrees(20)
+--~     twa3:SetDuration(0.2)
+--~     twa3:SetSmoothing("IN")
+--~     twa3:SetOrder(3)
+--~     twag:SetLooping("REPEAT")    
+--~     ind.twitch = twag
+
+--~     local bzzag = ind:CreateAnimationGroup()
+--~     local bzz1 = bzzag:CreateAnimation("Translation")
+--~     bzz1:SetOffset(2,2)
+--~     bzz1:SetDuration(0.05)
+--~     bzz1:SetOrder(1)
+--~     local bzz2 = bzzag:CreateAnimation("Translation")
+--~     bzz2:SetOffset(-5,-3)
+--~     bzz2:SetDuration(0.08)
+--~     bzz2:SetOrder(2)
+--~     local bzz3 = bzzag:CreateAnimation("Translation")
+--~     bzz3:SetOffset(2,4)
+--~     bzz3:SetDuration(0.05)
+--~     bzz3:SetOrder(3)
+    
+--~     local twa1 = twag:CreateAnimation("Rotation")
+    
     
 --~     if opts.stacktext then
 --~         local stacktext = icon:CreateFontString(nil, "OVERLAY")
@@ -1035,7 +982,7 @@ function Injector.UpdateStatus(self, statustype, arg1)
             self.color:SetVertexColor(color[1],color[2],color[3],color[4] or 1)
             self:SetBackdropColor(0,0,0,color[4] or 1)
             if job.pulse and self.currentPriority and job.priority > self.currentPriority then
-                self:Pulse()
+                if not self.pulse:IsPlaying() then self.pulse:Play() end
             end
             self.currentPriority = job.priority
         end
@@ -1054,24 +1001,26 @@ function Injector.UpdateStatus(self, statustype, arg1)
         end
         
         self:Show()
-        if job.fade and not self.fading then
-            self:SetAlpha(1);
-            self.fading = true
-            
-            UIFrameFade(self, {
-                mode = "OUT",
-                timeToFade = job.fade,
-                finishedFunc = function(self, name)
-                    --print("hiding")
-                    self:Hide();
-                    self:SetAlpha(1);
-                    self.jobs[name] = nil;
-                    self.fading = false;
-                    Injector.UpdateStatus(self, "indicator");
-                end,
-                finishedArg1 = self,
-                finishedArg2 = max,
-            });
+        if job.fade then
+            self.blink.a2:SetDuration(job.fade)
+            if not self.blink:IsPlaying() then self.blink:Play() end
+--~             self:SetAlpha(1);
+--~             self.fading = true
+--~             
+--~             UIFrameFade(self, {
+--~                 mode = "OUT",
+--~                 timeToFade = job.fade,
+--~                 finishedFunc = function(self, name)
+--~                     --print("hiding")
+--~                     self:Hide();
+--~                     self:SetAlpha(1);
+--~                     self.jobs[name] = nil;
+--~                     self.fading = false;
+--~                     Injector.UpdateStatus(self, "indicator");
+--~                 end,
+--~                 finishedArg1 = self,
+--~                 finishedArg2 = max,
+--~             });
         end
         
         if job.showDuration and job.start then
