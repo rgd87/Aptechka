@@ -226,14 +226,6 @@ function Injector.ADDON_LOADED(self,event,arg1)
     end
 end
 
--- Incoming heal functions for HealComm
---~ function Injector.HealUpdated(self, event, casterGUID, spellID, healType, endTime, ...)
---~     for i=1,select('#', ...) do
---~         local targetGUID = select(i, ...)
---~         local unit = guidMap[targetGUID]
---~         if unit then Injector.UpdateIncomingHeals(unit, targetGUID) end
---~     end
---~ end
 local HealTextStatus = { name = "IncHealText", priority = 15 }
 function Injector.UNIT_HEAL_PREDICTION(self,event,unit)
     if not Roster[unit] then return end
@@ -259,10 +251,6 @@ function Injector.UNIT_HEAL_PREDICTION(self,event,unit)
     end
 end
 
-
---~ function Injector.UpdateIncomingHeals(unit, guid)
---~     
---~ end
 
 --Health Text string updates
 function Injector.UpdateHealthText(self, h, hm)
@@ -622,13 +610,6 @@ local OnAttributeChanged = function(self, name, unit)
 end
 
 --building header, frame, anchor
-
-function Injector.Update1Textures(header,id)
-    local self = header[id]
-    --self.healthBar:SetStatusBarTexture("Interface\\AddOns\\Injector\\gradient")
-end
-
-
 function Injector.CreateHeader(self,group)
     local frameName = "NR"..group
     local xgap = InjectorConfig.unitGap
@@ -646,11 +627,12 @@ function Injector.CreateHeader(self,group)
     end
     f:SetAttribute("point", unitgr)
 	f:SetAttribute("groupFilter", group)
+    f:SetAttribute("showRaid", true)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
     
---~     f.initialConfigFunction = Injector.CreateFrame
-    f.initConf = Injector.UpdateTextures
+    --f.initialConfigFunction = Injector.CreateFrame
+    f.initConf = Injector.CreateStuff
     f:SetAttribute("initialConfigFunction",[[
         self:SetWidth(50)
         self:SetHeight(50)
@@ -665,7 +647,7 @@ function Injector.CreateHeader(self,group)
     return f
 end
 --function Injector.CreateFrame(f)
-function Injector.UpdateTextures(header,id)
+function Injector.CreateStuff(header,id)
     local f = header[id]
     local texture = InjectorConfig.texture
     local font = InjectorConfig.font
