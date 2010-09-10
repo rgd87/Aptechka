@@ -111,6 +111,7 @@ function Injector.ADDON_LOADED(self,event,arg1)
         self:RegisterEvent("UNIT_HEALTH")
         self:RegisterEvent("UNIT_MAXHEALTH")
         Injector.UNIT_MAXHEALTH = Injector.UNIT_HEALTH
+        self:RegisterEvent("UNIT_CONNECTION")
         
         if not InjectorConfig.disableManaBar then
             self:RegisterEvent("UNIT_POWER")
@@ -234,7 +235,7 @@ function Injector.UNIT_HEAL_PREDICTION(self,event,unit)
                 local heal = UnitGetIncomingHeals(unit)
                 self.incoming:SetValue(  heal and self.hp:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
                 if InjectorConfig.incomingHealDisplayAmount then
-                        if heal > 0 then
+                        if heal and heal > 0 then
                             self.text2.jobs[HealTextStatus.name] = HealTextStatus
                         else
                             self.text2.jobs[HealTextStatus.name] = nil
@@ -242,7 +243,7 @@ function Injector.UNIT_HEAL_PREDICTION(self,event,unit)
                         Injector.UpdateStatus(self.text2, "text", heal and ("%.1fk"):format( heal / 1e3) )
                 end
                 if InjectorConfig.IncomingHealStatus then
-                    if heal > 0 then
+                    if heal and heal > 0 then
                         Injector.UpdateAura(unit, InjectorConfig.IncomingHealStatus, true)
                     else
                         Injector.UpdateAura(unit, InjectorConfig.IncomingHealStatus, false)
@@ -287,14 +288,20 @@ function Injector.UNIT_HEALTH(self, event, unit)
                     self.text2.jobs[GhostStatus.name] = nil
                 end
             end
-            if not UnitIsConnected(unit) then
-                self.text2.jobs[OfflineStatus.name] = OfflineStatus
-            else
-                self.text2.jobs[OfflineStatus.name] = nil
-            end
             Injector.UpdateStatus(self.text2, "text")
         end
         
+    end
+end
+
+function Injector.UNIT_CONNECTION(self, event, unit)
+    if not Roster[unit] then return end
+    for self in pairs(Roster[unit]) do
+        if not UnitIsConnected(unit) then
+            self.text2.jobs[OfflineStatus.name] = OfflineStatus
+        else
+            self.text2.jobs[OfflineStatus.name] = nil
+        end
     end
 end
 
@@ -596,6 +603,7 @@ local OnAttributeChanged = function(self, name, unit)
         Injector:Colorize(nil, unit)
         Injector.ScanAuras(unit)
         Injector:UNIT_HEALTH("ONATTR", unit)
+        Injector:UNIT_CONNECTION(nil, unit)
         if not InjectorConfig.disableManaBar then
             Injector:UNIT_DISPLAYPOWER(nil, unit)
             Injector:UNIT_POWER(nil, unit)
@@ -910,7 +918,7 @@ function Injector.CreateIcon(f,name,opts)
     
     return icon
 end
---tonumber(string.sub(UnitGUID("target"),9,12),16)
+
 function Injector.CreateIndicator(f, name, opts)
     local ind = CreateFrame("Frame", f:GetName()..name, f)
     if not opts.nobackdrop then

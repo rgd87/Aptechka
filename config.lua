@@ -213,13 +213,13 @@ if playerClass == "SHAMAN" then
                                                                         foreigncolor = {0,0,.5}, } --Earth Shield
                                                                         
     Trace{id = 1064, type = "HEAL", indicator = { "topright" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
+    --Trace{id = 73921, type = "HEAL", indicator = { "topright" }, color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
     --Trace{id = 51558, type = "HEAL", indicator = { "topright" }, color = { 1, 0.6, 0.6 }, fade = 0.7, priority = 95 } -- Ancestral Awakening
                                                                         
     --InjectorConfig.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(331),unit) == 1) end
             --// Use Healing Wave for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
-    DT("Disease", { indicator = { "bottom" }, color = { 0.6, 0.4, 0} })
-    DT("Poison", { indicator = { "bottom" }, color = { 0, 0.6, 0} })
+    DT("Magic", { indicator = { "bottom" }, color = { 0.2, 0.6, 1} })
     DT("Curse", { indicator = { "bottom" }, color = { 0.6, 0, 1} })
     ClickMacro[[
         /cast [target=mouseover,btn:2,mod:alt] spell:974; [target=mouseover,btn:2] spell:61295;
@@ -245,6 +245,7 @@ if playerClass == "DRUID" then
 
     DT("Poison", { indicator = { "bottom" }, color = { 0, 0.6, 0} })
     DT("Curse", { indicator = { "bottom" }, color = { 0.6, 0, 1} })
+    DT("Magic", { indicator = { "bottom" }, color = { 0.2, 0.6, 1} })
     
     ClickMacro[[
         /cast [target=mouseover,btn:2,mod:alt] spell:8936; [target=mouseover,btn:2] spell:774
