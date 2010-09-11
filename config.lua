@@ -120,10 +120,8 @@ Spell parameters
 ]]
 
 if playerClass == "PRIEST" then
-        -- long buffs      
-    A{ id = 1243,  type = "HELPFUL", indicator = { "topleft" }, pulse = true, color = { 1, 1, 1} } --Power Word: Fortitude
-    A{ id = 21562, type = "HELPFUL", indicator = { "topleft" }, color = { 0.8, 1, 0.8} } --Prayer of Fortitude
-    A{ id = 14752, type = "HELPFUL", indicator = { "topleft2" }, color = { .6 , .6, 1} } --Divine Spirit
+        -- long buffs
+    A{ id = 21562, type = "HELPFUL", indicator = { "topleft" }, color = { 1, 1, 1} } --Power Word: Fortitude
     A{ id = 27681, type = "HELPFUL", indicator = { "topleft2" }, color = { .6 , .6, 1} } --Prayer of Spirit
     A{ id = 976,   type = "HELPFUL", indicator = { "topleft3" }, color = { 102/255 , 0, 187/255 } } --Shadow Protection
     A{ id = 27683, type = "HELPFUL", indicator = { "topleft3" }, color = { 102/255 , 0, 187/255 } } --Prayer of Shadow Protection
@@ -160,24 +158,20 @@ end
 if playerClass == "WARLOCK" then
     A{ id = 20707, type = "HELPFUL", indicator = { "topleft" }, color = { 180/255, 0, 1 }, priority = 81 } --Soulstone Resurrection
     --for cata testing
-    A{ id = 28176, type = "HELPFUL", indicator = { "top" }, pulse = true, color = { 180/255, 0, 1 }, showDuration = true, priority = 81 } --FELARMOR
-    A{ id = 74434, type = "HELPFUL", indicator = { "topright" }, color = { 180/255, 0, 1 }, showDuration = true, priority = 81 } --Soulburn
-    ClickMacro[[
-        /cast [target=mouseover,btn:2,mod:alt] spell:28176; [target=mouseover,btn:2] spell:74434;
-    ]]
-    Trace{id = 28176, type = "PERIODIC_HEAL", indicator = { "bottomright" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
+--~     A{ id = 28176, type = "HELPFUL", indicator = { "top" }, pulse = true, color = { 180/255, 0, 1 }, showDuration = true, priority = 81 } --FELARMOR
+--~     A{ id = 74434, type = "HELPFUL", indicator = { "topright" }, color = { 180/255, 0, 1 }, showDuration = true, priority = 81 } --Soulburn
+--~     ClickMacro[[
+--~         /cast [target=mouseover,btn:2,mod:alt] spell:28176; [target=mouseover,btn:2] spell:74434;
+--~     ]]
+--~     Trace{id = 28176, type = "PERIODIC_HEAL", indicator = { "bottomright" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
 --~     A{ id = 6307,  type = "HELPFUL", indicator = { "topleft" }, color = { 1, 0, 0 }, priority = 81 } --Blood Pact
 --~     A{ id = 54424, type = "HELPFUL", indicator = { "topleft" }, color = { .6 , .6, 1 } } --Fel Intelligence
 end
 if playerClass == "PALADIN" then
-    --A{ id = 20217, type = "HELPFUL", indicator = { "topleft" }, color = { .6 , .3, 1} } --Blessing of Kings
-    --A{ id = 25898, type = "HELPFUL", indicator = { "topleft" }, color = { .6 , .3, 1} } --Greater Blessing of Kings
+    A{ id = 20217, type = "HELPFUL", indicator = { "topleft" }, color = { .6 , .3, 1} } --Blessing of Kings
     
-    --A{ id = 19740, type = "HELPFUL", indicator = { "topleft2" }, color = { 1 , 0.5, 0.3} } --Blessing of Might
-    --A{ id = 25782, type = "HELPFUL", indicator = { "topleft2" }, color = { 1 , 0.5, 0.3} } --Greater Blessing of Might
+    A{ id = 19740, type = "HELPFUL", indicator = { "topleft2" }, color = { 1 , 0.5, 0.3} } --Blessing of Might
     
-    --A{ id = 19742, type = "HELPFUL", indicator = { "topleft3" }, color = { 0.4, 1, 0.4} } --Blessing of Wisdom
-    --A{ id = 25894, type = "HELPFUL", indicator = { "topleft3" }, color = { 0.4, 1, 0.4} } --Greater Blessing of Wisdom
     A{ id = 53563, type = "HELPFUL", indicator = { "top" }, showDuration = true,
                                                                             isMine = true,
                                                                             color = { 0,1,0 },
@@ -228,7 +222,6 @@ if playerClass == "SHAMAN" then
 end
 if playerClass == "DRUID" then
     A{ id = 1126,  type = "HELPFUL", indicator = { "topleft" }, color = { 235/255 , 145/255, 199/255} } --Mark of the Wild
-    A{ id = 21849, type = "HELPFUL", indicator = { "topleft" }, color = { 235/255 , 145/255, 199/255} } --Gift of the Wild
     A{ id = 467,   type = "HELPFUL", indicator = { "topleft3" }, color = { 150/255, 100/255, 0 } } --Thorns
     
     A{ id = 774,   type = "HELPFUL", indicator = { "bottomright" }, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true } --Rejuvenation

@@ -1004,23 +1004,6 @@ function Injector.UpdateStatus(self, statustype, arg1)
         if job.fade then
             self.blink.a2:SetDuration(job.fade)
             if not self.blink:IsPlaying() then self.blink:Play() end
---~             self:SetAlpha(1);
---~             self.fading = true
---~             
---~             UIFrameFade(self, {
---~                 mode = "OUT",
---~                 timeToFade = job.fade,
---~                 finishedFunc = function(self, name)
---~                     --print("hiding")
---~                     self:Hide();
---~                     self:SetAlpha(1);
---~                     self.jobs[name] = nil;
---~                     self.fading = false;
---~                     Injector.UpdateStatus(self, "indicator");
---~                 end,
---~                 finishedArg1 = self,
---~                 finishedArg2 = max,
---~             });
         end
         
         if job.showDuration and job.start then
@@ -1161,11 +1144,11 @@ local loader = CreateFrame("Frame")
 loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 loader:RegisterEvent("PLAYER_ENTERING_WORLD")
 local mapIDs = {
-    [610] = "Ruby Sanctum",
-    [605] = "Icecrown Citadel",
-    [544] = "Trial of the Crusader",
-    [530] = "Ulduar",
-    [536] = "Naxxramas",
+--~     [610] = "Ruby Sanctum",
+--~     [605] = "Icecrown Citadel",
+--~     [544] = "Trial of the Crusader",
+--~     [530] = "Ulduar",
+--~     [536] = "Naxxramas",
 }
 loader:SetScript("OnEvent",function (self,event)
     local instance

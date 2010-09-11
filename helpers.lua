@@ -9,6 +9,7 @@ helpers.AddDispellType = function(dtype, data)
 end
 helpers.AddAura = function (data)
     if data.id then data.name = GetSpellInfo(data.id) end
+    if data.name == nil then print (data.id.." spell id missing") return end
     if type(data.indicator) == "string" then data.indicator = { data.indicator } end
     if type(data.icon) == "table" then data.icon = data.icon[1] end
     if data.isMine then data.type = data.type.."|PLAYER" end
