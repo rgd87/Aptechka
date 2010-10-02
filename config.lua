@@ -122,17 +122,16 @@ Spell parameters
 if playerClass == "PRIEST" then
         -- long buffs
     A{ id = 21562, type = "HELPFUL", indicator = { "topleft" }, color = { 1, 1, 1} } --Power Word: Fortitude
-    A{ id = 27681, type = "HELPFUL", indicator = { "topleft2" }, color = { .6 , .6, 1} } --Prayer of Spirit
-    A{ id = 976,   type = "HELPFUL", indicator = { "topleft3" }, color = { 102/255 , 0, 187/255 } } --Shadow Protection
-    A{ id = 27683, type = "HELPFUL", indicator = { "topleft3" }, color = { 102/255 , 0, 187/255 } } --Prayer of Shadow Protection
+    A{ id = 27683, type = "HELPFUL", indicator = { "topleft2" }, color = { 102/255 , 0, 187/255 } } --Shadow Protection
     
     --A{ id = 1706,  type = "HELPFUL", indicator = { "topright" }, color = { 1, 1, 1}, priority = 60, showDuration = true } --Levitate
-    --A{ id = 552,   type = "HELPFUL", indicator = { "topleft3" }, priority = 82, color = { 0, 1, 0 } } --Abolish Disease
     
     A{ id = 139,   type = "HELPFUL", indicator = { "bottomright" }, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true } --Renew
+    A{ id = 88682, type = "HELPFUL", indicator = { "bottom" }, pulse = true, priority = 70, color = {1,0.7,0.5}, showDuration = true, isMine = true } --Aspire
+    A{ id = 7001,  type = "HELPFUL", indicator = { "bottom" }, pulse = true, priority = 72, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
     A{ id = 17,    type = "HELPFUL", indicator = { "top" }, color = { 1, 1, 0}, showDuration = true } --Power Word: Shield
     A{ id = 6788,  type = "HARMFUL", indicator = { "top" }, color = { 0.6, 0, 0}, showDuration = true, priority = 40 } --Weakened Soul
-    A{ id = 33076, type = "HELPFUL", indicator = { "topright" }, stackcolor =   {
+    A{ id = 33076, type = "HELPFUL", indicator = { "topright" }, priority = 90, stackcolor =   {
                                                                             [1] = { 0.4, 0, 0},
                                                                             [2] = { 0.7, 0, 0},
                                                                             [3] = { 1, 0, 0},
@@ -222,7 +221,6 @@ if playerClass == "SHAMAN" then
 end
 if playerClass == "DRUID" then
     A{ id = 1126,  type = "HELPFUL", indicator = { "topleft" }, color = { 235/255 , 145/255, 199/255} } --Mark of the Wild
-    A{ id = 467,   type = "HELPFUL", indicator = { "topleft3" }, color = { 150/255, 100/255, 0 } } --Thorns
     
     A{ id = 774,   type = "HELPFUL", indicator = { "bottomright" }, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true } --Rejuvenation
     A{ id = 8936,  type = "HELPFUL", indicator = { "topright" }, priority = 82, color = { 198/255, 233/255, 80/255}, showDuration = true, isMine = true } --Regrowth
@@ -232,7 +230,6 @@ if playerClass == "DRUID" then
                                                                             [3] = { 0.5, 1, 0.5},
                                                                         }} --Lifebloom
     A{ id = 48438, type = "HELPFUL", indicator = { "topright" }, color = { 0.4, 1, 0.4}, showDuration = true, isMine = true } --Wild Growth
-    --A{ id = 2893, type = "HELPFUL", indicator = { "topleft3" }, priority = 82, color = { 0, 1, 0 } } --Abolish Poison
     
     --InjectorConfig.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(774),unit) == 1) end
             --// Use Rejuvenation for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
