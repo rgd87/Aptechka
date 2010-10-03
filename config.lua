@@ -7,12 +7,11 @@ local ClickMacro = helpers.ClickMacro
 local Trace = helpers.AddTrace
 InjectorConfig = {}
 
--- size
+
+InjectorConfig.skin = "GridSkin"
 InjectorConfig.width = 50
 InjectorConfig.height = 50
 InjectorConfig.scale = 1
-
-InjectorConfig.skin = "GridSkin"
 InjectorConfig.texture = [[Interface\AddOns\Injector\gradient]]
 InjectorConfig.font = [[Interface\AddOns\Injector\ClearFont.ttf]]
 InjectorConfig.fontsize = 12
@@ -22,9 +21,7 @@ InjectorConfig.orientation = "VERTICAL"    -- HORIZONTAL / VERTICAL
 InjectorConfig.outOfRangeAlpha = 0.4
 InjectorConfig.disableManaBar = false
 InjectorConfig.invertColor = false             -- if true hp lost becomes dark, current hp becomes bright
-InjectorConfig.incomingHealTimeframe = 1.5     -- incoming in next 1.5 seconds heals are displayed, including hot ticks
 InjectorConfig.incomingHealDisplayAmount = true  -- on second line
-InjectorConfig.incomingHealIgnoreHots = true
 InjectorConfig.raidIcons = true
 InjectorConfig.mouseoverTooltip = "outofcombat"      -- always / outofcombat / disabled
 
@@ -40,18 +37,17 @@ InjectorConfig.anchorpoint = "BOTTOMLEFT" -- anchor position relative to 1st uni
 InjectorConfig.lockedOnStartUp = true
 InjectorConfig.disableBlizzardParty = true
 
--- pets 
--- petframes suck in this addon, i know. It's more like outdated plugin.
-InjectorConfig.petFrames = false -- not updated for cataclysm
-InjectorConfig.petScale = 1
-InjectorConfig.petFramesSeparation = false
+-- pets are broken
 
 -- bells and whistles
 InjectorConfig.enableIncomingHeals = true
 InjectorConfig.enableTraceHeals = true
-InjectorConfig.enableClickCasting = false       -- enable click casting support, activates ClickMacro function.
-                                                -- ClickMacro syntax is like usual macro, but don't forget [target=mouseover]
-                                                -- spell:<id> is an alias for localized spellname.
+InjectorConfig.enableClickCasting = false
+-- enable click casting support, activates ClickMacro function.
+-- ClickMacro syntax is like usual macro, but don't forget [target=mouseover]
+-- spell:<id> is an alias for localized spellname.
+-- Unmodified left click is reserved for targeting by default.
+-- Use helpers.BindTarget("shift 1") to change it. Syntax: any combination of "shift" "alt" "ctrl" and button number
 InjectorConfig.useCombatLogFiltering = true
 -- useCombatLogFiltering provides a huge perfomance boost over default behavior, which would be to listen only to UNIT_AURA event.
 -- UNIT_AURA doesn't tell what exactly changed and every time addon had to scan current buffs/debuffs,
@@ -148,23 +144,17 @@ if playerClass == "PRIEST" then
     
     DT("Magic", { indicator = { "bottom" }, color = { 0.2, 0.6, 1}, priority = 81 })
     DT("Disease", { indicator = { "bottom" }, color = { 0.6, 0.4, 0} })
-   
+
+    --helpers.BindTarget("shift 1")     -- Override target binding. Syntax: any combination of "shift" "alt" "ctrl" and button number
     ClickMacro[[
-        /cast [target=mouseover,btn:2,mod:alt] spell:17; [target=mouseover,btn:2] spell:139;
+        /cast [target=mouseover,btn:2,mod:alt] spell:17; [target=mouseover,btn:2] spell:139; [target=mouseover,btn:1,mod:alt] spell:139;
     ]] -- Default Example: PW:S (id 17) on Alt+RMB, Renew (id 139) on RMB
 end
 
 if playerClass == "WARLOCK" then
     A{ id = 20707, type = "HELPFUL", indicator = { "topleft" }, color = { 180/255, 0, 1 }, priority = 81 } --Soulstone Resurrection
-    --for cata testing
---~     A{ id = 28176, type = "HELPFUL", indicator = { "top" }, pulse = true, color = { 180/255, 0, 1 }, showDuration = true, priority = 81 } --FELARMOR
---~     A{ id = 74434, type = "HELPFUL", indicator = { "topright" }, color = { 180/255, 0, 1 }, showDuration = true, priority = 81 } --Soulburn
---~     ClickMacro[[
---~         /cast [target=mouseover,btn:2,mod:alt] spell:28176; [target=mouseover,btn:2] spell:74434;
---~     ]]
---~     Trace{id = 28176, type = "PERIODIC_HEAL", indicator = { "bottomright" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
---~     A{ id = 6307,  type = "HELPFUL", indicator = { "topleft" }, color = { 1, 0, 0 }, priority = 81 } --Blood Pact
---~     A{ id = 54424, type = "HELPFUL", indicator = { "topleft" }, color = { .6 , .6, 1 } } --Fel Intelligence
+    --A{ id = 6307,  type = "HELPFUL", indicator = { "topleft" }, color = { 1, 0, 0 }, priority = 81 } --Blood Pact
+    --A{ id = 54424, type = "HELPFUL", indicator = { "topleft" }, color = { .6 , .6, 1 } } --Fel Intelligence
 end
 if playerClass == "PALADIN" then
     A{ id = 20217, type = "HELPFUL", indicator = { "topleft" }, color = { .6 , .3, 1} } --Blessing of Kings
@@ -185,6 +175,8 @@ if playerClass == "PALADIN" then
     DT("Magic", { indicator = { "bottom" }, color = { 0.2, 0.6, 1} })
     DT("Disease", { indicator = { "bottom" }, color = { 0.6, 0.4, 0} })
     DT("Poison", { indicator = { "bottom" }, color = { 0, 0.6, 0} })
+    
+    --helpers.BindTarget("shift 1")     -- Override target binding. Syntax: any combination of "shift" "alt" "ctrl" and button number
     ClickMacro[[
         /cast [target=mouseover,btn:2,mod:alt] spell:53563; [target=mouseover,btn:2] spell:19750;
     ]] -- Default Example: Beacon of Light (id 53563) on Alt+RMB, Flash of Light (id 19750) on RMB
@@ -215,6 +207,7 @@ if playerClass == "SHAMAN" then
 
     DT("Magic", { indicator = { "bottom" }, color = { 0.2, 0.6, 1} })
     DT("Curse", { indicator = { "bottom" }, color = { 0.6, 0, 1} })
+    
     ClickMacro[[
         /cast [target=mouseover,btn:2,mod:alt] spell:974; [target=mouseover,btn:2] spell:61295;
     ]] -- Default Example: Earth Shield (id 974) on Alt+RMB, Riptide (id 61295) on RMB
@@ -238,6 +231,7 @@ if playerClass == "DRUID" then
     DT("Curse", { indicator = { "bottom" }, color = { 0.6, 0, 1} })
     DT("Magic", { indicator = { "bottom" }, color = { 0.2, 0.6, 1} })
     
+    --helpers.BindTarget("shift 1")     -- Override target binding. Syntax: any combination of "shift" "alt" "ctrl" and button number
     ClickMacro[[
         /cast [target=mouseover,btn:2,mod:alt] spell:8936; [target=mouseover,btn:2] spell:774
     ]] -- Default Example: Regrowth (id 8936) on Alt+RMB, Rejuvenation (id 774) on RMB

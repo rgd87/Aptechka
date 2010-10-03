@@ -35,6 +35,26 @@ helpers.ClickMacro = function(macro)
     InjectorConfig.ClickCastingMacro = macro:gsub("spell:(%d+)",GetSpellInfo):gsub("([ \t]+)/",'/')
 end
 
+helpers.BindTarget = function(str)
+    if not str then
+        InjectorConfig.TargetBinding = false
+        return
+    end
+    str = str:lower()
+    local alt = str:find("alt")
+    local shift = str:find("shift")
+    local ctrl = str:find("ctrl")
+    local btn = str:match("(%d+)")
+    if btn == "0" then btn = "*" end
+    local tar = "type"..btn
+    if shift then tar = "shift-"..tar end
+    if ctrl then tar = "ctrl-"..tar end
+    if alt then tar = "alt-"..tar end
+    InjectorConfig.TargetBinding = tar
+    --alt-ctrl-shift-type*     -- That order is required
+end
+
+
 --~ helpers.AddClickCast = function(data)
 --~     if not InjectorConfig.enableClickCasting then return end
 --~     if not data.button then print("specify mouse button") return end

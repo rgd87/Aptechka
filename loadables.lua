@@ -1,4 +1,19 @@
 local _, helpers = ...
+-- RAID/PVP config loading
+-- instances are identified by map id (assuming they have their own map).
+-- to find out current zone map id type: /dump GetCurrentMapAreaID()
+InjectorConfig.MapIDs = {    
+    [609] = "Ruby Sanctum",   -- In Cataclysm beta and 3.3.5 PTR it is 609, in Live version it's 610.. 
+    [610] = "Ruby Sanctum",   -- and looks like the same thing happens with other raids. I'll just include everything for now
+    [604] = "Icecrown Citadel",
+    [605] = "Icecrown Citadel",
+    [543] = "Trial of the Crusader",
+    [544] = "Trial of the Crusader",
+    [529] = "Ulduar",
+    [530] = "Ulduar",
+    [535] = "Naxxramas",
+    [536] = "Naxxramas",
+}
 
 local A = helpers.AddAura
 

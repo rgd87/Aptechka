@@ -9,5 +9,4 @@ helpers.lua
 config.lua
 frame.lua
 loadables.lua
-InjectorPet.lua
 Injector.lua

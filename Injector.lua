@@ -14,7 +14,6 @@ InjectorConfig.groupGrowth = InjectorConfig.groupGrowth or "TOP"
 InjectorConfig.resize = InjectorConfig.resize or { after = 27, to = 0.8 } -- = if number of players in raid exeeds 27 then resize to 0.8
 InjectorConfig.anchorpoint = InjectorConfig.anchorpoint or "BOTTOMLEFT"
 InjectorConfig.outOfRangeAlpha = InjectorConfig.outOfRangeAlpha or 0.4
-InjectorConfig.incomingHealTimeframe = InjectorConfig.incomingHealTimeframe or 1.5
 InjectorConfig.IndicatorAuras = InjectorConfig.IndicatorAuras or {}
 InjectorConfig.skin = InjectorConfig.skin or "GridSkin"
 local InjectorUnitInRange = InjectorConfig.UnitInRangeFunc or UnitInRange
@@ -83,17 +82,6 @@ function Injector.ADDON_LOADED(self,event,arg1)
     
         if InjectorConfig.enableIncomingHeals then
             self:RegisterEvent("UNIT_HEAL_PREDICTION")
---~             HealComm = LibStub:GetLibrary("LibHealComm-4.0",true);
---~             if HealComm then
---~                 if InjectorConfig.incomingHealIgnoreHots then
---~                     HealComm.InjectorHealType = HealComm.CASTED_HEALS
---~                 else    
---~                     HealComm.InjectorHealType = HealComm.ALL_HEALS
---~                     HealComm.RegisterCallback(self, "HealComm_HealUpdated", "HealUpdated");     -- hots
---~                 end
---~                 HealComm.RegisterCallback(self, "HealComm_HealStarted", "HealUpdated");
---~                 HealComm.RegisterCallback(self, "HealComm_HealStopped", "HealUpdated");
---~             end
         end
         if InjectorConfig.useQuickHealth then
             QuickHealth = LibStub and LibStub("LibQuickHealth-2.0", true)
@@ -240,7 +228,6 @@ local HealTextStatus = { name = "IncHealText", priority = 15 }
 function Injector.UNIT_HEAL_PREDICTION(self,event,unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
-                --local heal = HealComm:GetHealAmount(guid, HealComm.InjectorHealType, GetTime()+InjectorConfig.incomingHealTimeframe)
                 local heal = UnitGetIncomingHeals(unit)
                 self.incoming:SetValue(  heal and self.hp:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
                 if InjectorConfig.incomingHealDisplayAmount then
@@ -667,7 +654,11 @@ function Injector.CreateStuff(header,id)
     
     ClickCastFrames[f] = true -- autoadd to clique list
     
-    f:SetAttribute("type1", "target")
+    if InjectorConfig.TargetBinding ~= false then
+        if InjectorConfig.TargetBinding == nil then InjectorConfig.TargetBinding = "type1" end
+        f:SetAttribute(InjectorConfig.TargetBinding, "target")
+    end
+    
     
     if InjectorConfig.ClickCastingMacro then
         f:RegisterForClicks("AnyUp")
@@ -1121,11 +1112,6 @@ end
 
 if InjectorConfig.enableTraceHeals then
 
---~ local TraceHealEvents = {}
---~ for name, opts in pairs(traceheals) do
---~     TraceHealEvents[opts.type] = true
---~ end
-
 function Injector.COMBAT_LOG_EVENT_UNFILTERED( self, event, timestamp, eventType, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellID, spellName, spellSchool, amount, overhealing, absorbed, critical)    
     if (bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE) then
         local opts = traceheals[spellName]
@@ -1143,13 +1129,8 @@ end
 local loader = CreateFrame("Frame")
 loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 loader:RegisterEvent("PLAYER_ENTERING_WORLD")
-local mapIDs = {
---~     [610] = "Ruby Sanctum",
---~     [605] = "Icecrown Citadel",
---~     [544] = "Trial of the Crusader",
---~     [530] = "Ulduar",
---~     [536] = "Naxxramas",
-}
+local mapIDs = InjectorConfig.MapIDs
+
 loader:SetScript("OnEvent",function (self,event)
     local instance
     local _, instanceType = GetInstanceInfo()
@@ -1166,6 +1147,8 @@ loader:SetScript("OnEvent",function (self,event)
         loaded[instance] = true
     end
 end)
+
+
 
 
 if InjectorConfig.useCombatLogFiltering then

@@ -4,6 +4,4 @@
 <Script file="libs\LibStub.lua"/>
 <Script file="libs\CallbackHandler-1.0.lua"/>
 <Script file="libs\LibQuickHealth-2.0.lua"/>
-<Script file="libs\ChatThrottleLib.lua"/>
-<Script file="libs\LibHealComm-4.0.lua"/>
 </Ui>
