@@ -1,15 +1,15 @@
 -- Skins and configs aren't ready
-InjectorDefaultConfig.GridSkin = function(self)
+AptechkaDefaultConfig.GridSkin = function(self)
     local config
-    if InjectorUserConfig then config = InjectorUserConfig else config = InjectorDefaultConfig end
-    InjectorDefaultConfig.width = 50
-    InjectorDefaultConfig.height = 50
-    InjectorDefaultConfig.texture = [[Interface\AddOns\Injector\gradient]]
-    InjectorDefaultConfig.font = [[Interface\AddOns\Injector\ClearFont.ttf]]
-    InjectorDefaultConfig.fontsize = 12
-    InjectorDefaultConfig.manabarwidth = 6
-    InjectorDefaultConfig.orientation = "VERTICAL"
-    InjectorDefaultConfig.invertColor = false             -- if true hp lost becomes dark, current hp becomes bright
+    if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
+    AptechkaDefaultConfig.width = 50
+    AptechkaDefaultConfig.height = 50
+    AptechkaDefaultConfig.texture = [[Interface\AddOns\Aptechka\gradient]]
+    AptechkaDefaultConfig.font = [[Interface\AddOns\Aptechka\ClearFont.ttf]]
+    AptechkaDefaultConfig.fontsize = 12
+    AptechkaDefaultConfig.manabarwidth = 6
+    AptechkaDefaultConfig.orientation = "VERTICAL"
+    AptechkaDefaultConfig.invertColor = false             -- if true hp lost becomes dark, current hp becomes bright
     
     local texture = config.texture
     local font = config.font
@@ -20,7 +20,7 @@ InjectorDefaultConfig.GridSkin = function(self)
     self:SetHeight(config.height)
     
     local backdrop = {
-        bgFile = "Interface\\Addons\\Injector\\white", tile = true, tileSize = 0,
+        bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,
         insets = {left = -2, right = -2, top = -2, bottom = -2},
     }
     self:SetBackdrop(backdrop)

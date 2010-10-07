@@ -1,0 +1,12 @@
+## Interface: 40000
+## Title: Aptechka
+## Notes: raid frames
+## Author: d87
+## SavedVariablesPerCharacter: AptechkaDB_Char
+## SavedVariables: AptechkaDB_Global
+libs.xml
+helpers.lua
+config.lua
+frame.lua
+loadables.lua
+Aptechka.lua

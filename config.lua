@@ -5,16 +5,16 @@ local A = helpers.AddAura
 local DT = helpers.AddDispellType
 local ClickMacro = helpers.ClickMacro
 local Trace = helpers.AddTrace
-InjectorDefaultConfig = {}
-local config = InjectorDefaultConfig
+AptechkaDefaultConfig = {}
+local config = AptechkaDefaultConfig
 
 
 config.skin = "GridSkin"
 --config.width = 50
 --config.height = 50
 --config.scale = 1
---config.texture = [[Interface\AddOns\Injector\gradient]]
---config.font = [[Interface\AddOns\Injector\ClearFont.ttf]]
+--config.texture = [[Interface\AddOns\Aptechka\gradient]]
+--config.font = [[Interface\AddOns\Aptechka\ClearFont.ttf]]
 --config.fontsize = 12
 config.cropNamesLen = 7  -- maximum amount of characters in unit name
 --config.manabarwidth = 6
@@ -74,10 +74,10 @@ config.SetupIndicators = {
     ["top"] =  { point = "TOP", size = 10, },
     ["left"] =  { point = "LEFT", size = 10, },
     
-    ["border_right"] = { point = "RIGHT",  nobackdrop = true, xOffset = 4, init = function(self) self.width = 2; self.height = InjectorUserConfig.height+8; end },
-    ["border_left"] = { point = "LEFT", xOffset = -4 , nobackdrop = true, init = function(self) self.width = 2; self.height = InjectorUserConfig.height+8; end },
-    ["border_top"] = { point = "TOP", yOffset = 4 , nobackdrop = true, init = function(self) self.width = InjectorUserConfig.width+4; self.height = 2; end },
-    ["border_bottom"] = { point = "BOTTOM", yOffset = -4   , nobackdrop = true, init = function(self) self.width = InjectorUserConfig.width+4; self.height = 2; end },
+    ["border_right"] = { point = "RIGHT",  nobackdrop = true, xOffset = 4, init = function(self) self.width = 2; self.height = AptechkaUserConfig.height+8; end },
+    ["border_left"] = { point = "LEFT", xOffset = -4 , nobackdrop = true, init = function(self) self.width = 2; self.height = AptechkaUserConfig.height+8; end },
+    ["border_top"] = { point = "TOP", yOffset = 4 , nobackdrop = true, init = function(self) self.width = AptechkaUserConfig.width+4; self.height = 2; end },
+    ["border_bottom"] = { point = "BOTTOM", yOffset = -4   , nobackdrop = true, init = function(self) self.width = AptechkaUserConfig.width+4; self.height = 2; end },
 }
 -- so border actually is built from 4 indicators, you can use them separately
 local BORDER = { "border_left", "border_right", "border_top", "border_bottom" } -- shortcut, e.g. indicator = BORDER
@@ -86,7 +86,7 @@ config.SetupIcons = {
     ["raidicon"] = { point = "BOTTOMLEFT", size = 24, xOffset = -9, yOffset = -9, alpha = 0.6 },   --special icon for raid targets
     ["center"] = { point = "CENTER", size = 24, alpha = 0.6, omnicc = false, stacktext = true },
 }
---customizing stack label: stacktext = { font = [[Interface\AddOns\Injector\ClearFont.ttf]], size = 10, flags = "OUTLINE", color = {1,0,0} },
+--customizing stack label: stacktext = { font = [[Interface\AddOns\Aptechka\ClearFont.ttf]], size = 10, flags = "OUTLINE", color = {1,0,0} },
 
 config.TargetStatus = { name = "Target", type = "HELPFUL", indicator = BORDER, color = {1,0.7,0.7}, priority = 65 }
 config.IncomingHealStatus = { name = "IncomingHeal", type = "HELPFUL", indicator = { "bottomleft" },  color = { 0, 1, 0}, priority = 60 }

@@ -2,7 +2,7 @@ local _, helpers = ...
 local config
 
 helpers.AddDispellType = function(dtype, data)
-    if InjectorUserConfig then config = InjectorUserConfig else config = InjectorDefaultConfig end
+    if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not config.DebuffTypes then config.DebuffTypes = {} end
     if type(data.indicator) == "string" then data.indicator = { data.indicator } end
     if type(data.icon) == "table" then data.icon = data.icon[1] end
@@ -10,7 +10,7 @@ helpers.AddDispellType = function(dtype, data)
     config.DebuffTypes[dtype] = data
 end
 helpers.AddAura = function (data)
-    if InjectorUserConfig then config = InjectorUserConfig else config = InjectorDefaultConfig end
+    if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if data.id then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
     if type(data.indicator) == "string" then data.indicator = { data.indicator } end
@@ -23,7 +23,7 @@ helpers.AddAura = function (data)
 --~     table.insert(config.IndicatorAuras, data)
 end
 helpers.AddTrace = function(data)
-    if InjectorUserConfig then config = InjectorUserConfig else config = InjectorDefaultConfig end
+    if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not config.enableTraceHeals then return end
     if data.id then data.name = GetSpellInfo(data.id) end
     if type(data.indicator) == "string" then data.indicator = { data.indicator } end
@@ -35,13 +35,13 @@ helpers.AddTrace = function(data)
 end
 
 helpers.ClickMacro = function(macro)
-    if InjectorUserConfig then config = InjectorUserConfig else config = InjectorDefaultConfig end
+    if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not config.enableClickCasting then return end
     config.ClickCastingMacro = macro:gsub("spell:(%d+)",GetSpellInfo):gsub("([ \t]+)/",'/')
 end
 
 helpers.BindTarget = function(str)
-    if InjectorUserConfig then config = InjectorUserConfig else config = InjectorDefaultConfig end
+    if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not str then
         config.TargetBinding = false
         return

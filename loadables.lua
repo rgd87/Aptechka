@@ -2,7 +2,7 @@ local _, helpers = ...
 -- RAID/PVP config loading
 -- instances are identified by map id (assuming they have their own map).
 -- to find out current zone map id type: /dump GetCurrentMapAreaID()
-InjectorDefaultConfig.MapIDs = {    
+AptechkaDefaultConfig.MapIDs = {    
     [609] = "Ruby Sanctum",   -- In Cataclysm beta and 3.3.5 PTR it is 609, in Live version it's 610.. 
     [610] = "Ruby Sanctum",   -- and looks like the same thing happens with other raids. I'll just include everything for now
     [604] = "Icecrown Citadel",
@@ -22,7 +22,7 @@ local color2 = { 0.6, 0, 1}
 
 local defaultIndicator = { type = "HARMFUL", indicator = { "left" }, color = color1, priority = 40, pulse = true }
 
-InjectorDefaultConfig.LoadableDebuffs = {
+AptechkaDefaultConfig.LoadableDebuffs = {
     ["Ruby Sanctum"] = function()
     A{ id = 74562, type = "HARMFUL", prototype = defaultIndicator } --Fiery Combustion
     A{ id = 74792, type = "HARMFUL", prototype = defaultIndicator, color = color2 } --Soul Consumptio
@@ -45,7 +45,7 @@ InjectorDefaultConfig.LoadableDebuffs = {
     A{ id = 68980, prototype = defaultIndicator, showDuration = true, priority = 50 } --Harvest Soul, Lich King, phase 3
     A{ id = 70541, prototype = defaultIndicator, color = {230/255, 117/255, 230/255 }, priority = 20 } --Infest, Lich King
     A{ id = 69409, prototype = defaultIndicator, priority = 25, showDuration = true } --Soul Reaver debuff, Lich King
-    --InjectorConfig.LoadableDebuffs.tankcooldowns()
+    --AptechkaUserConfig.LoadableDebuffs.tankcooldowns()
     end,
     
     ["PvP"] = function(disable_damagereduction, disable_roots)
@@ -74,7 +74,6 @@ InjectorDefaultConfig.LoadableDebuffs = {
         A{ id = 339,   type = "HARMFUL", icon = "center", priority = 86 } --Entangling Roots
         A{ id = 122,   type = "HARMFUL", icon = "center", priority = 86 } --Frost Nova
         A{ id = 55080, type = "HARMFUL", icon = "center", priority = 86 } --Shattered Barrier
-        A{ id = 12494, type = "HARMFUL", icon = "center", priority = 86 } --Frostbite
     end
     
     end,
@@ -84,7 +83,7 @@ InjectorDefaultConfig.LoadableDebuffs = {
     A{ id = 68510, prototype = defaultIndicator } --Penetrating Cold, Anub'arak
     A{ id = 67281, prototype = defaultIndicator } --Touch of Darkness, Twin Val'kyrs
     A{ id = 67296, prototype = defaultIndicator } --Touch of Light, Twin Val'kyrs
-    InjectorConfig.LoadableDebuffs.PvP(true, true)
+    AptechkaUserConfig.LoadableDebuffs.PvP(true, true)
     end,
     
     ["Ulduar"] = function()
