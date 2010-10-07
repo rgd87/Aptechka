@@ -5,50 +5,50 @@ local A = helpers.AddAura
 local DT = helpers.AddDispellType
 local ClickMacro = helpers.ClickMacro
 local Trace = helpers.AddTrace
-InjectorConfig = {}
+InjectorDefaultConfig = {}
+local config = InjectorDefaultConfig
 
 
-InjectorConfig.skin = "GridSkin"
-InjectorConfig.width = 50
-InjectorConfig.height = 50
-InjectorConfig.scale = 1
-InjectorConfig.texture = [[Interface\AddOns\Injector\gradient]]
-InjectorConfig.font = [[Interface\AddOns\Injector\ClearFont.ttf]]
-InjectorConfig.fontsize = 12
-InjectorConfig.cropNamesLen = 7  -- maximum amount of characters in unit name
-InjectorConfig.manabarwidth = 6
-InjectorConfig.orientation = "VERTICAL"    -- HORIZONTAL / VERTICAL
-InjectorConfig.outOfRangeAlpha = 0.4
-InjectorConfig.disableManaBar = false
-InjectorConfig.invertColor = false             -- if true hp lost becomes dark, current hp becomes bright
-InjectorConfig.incomingHealDisplayAmount = true  -- on second line
-InjectorConfig.raidIcons = true
-InjectorConfig.mouseoverTooltip = "outofcombat"      -- always / outofcombat / disabled
+config.skin = "GridSkin"
+--config.width = 50
+--config.height = 50
+--config.scale = 1
+--config.texture = [[Interface\AddOns\Injector\gradient]]
+--config.font = [[Interface\AddOns\Injector\ClearFont.ttf]]
+--config.fontsize = 12
+config.cropNamesLen = 7  -- maximum amount of characters in unit name
+--config.manabarwidth = 6
+--config.orientation = "VERTICAL"    -- HORIZONTAL / VERTICAL
+config.outOfRangeAlpha = 0.4
+config.disableManaBar = false
+config.incomingHealDisplayAmount = true  -- on second line
+config.raidIcons = true
+config.mouseoverTooltip = "outofcombat"      -- always / outofcombat / disabled
 
-InjectorConfig.maxgroups = 8
-InjectorConfig.showSolo = true     -- visible without group/raid
-InjectorConfig.showParty = true    -- in group
-InjectorConfig.unitGap = 10        -- gap between units
-InjectorConfig.groupGap = 10
-InjectorConfig.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT / RIGHT / TOP / BOTTOM
-InjectorConfig.groupGrowth = "TOP" -- new groups direction. LEFT / RIGHT / TOP / BOTTOM
-InjectorConfig.resize = { after = 27, to = 0.8 } -- = if number of players in raid exeeds 27 then resize to 0.8.   "InjectorConfig.resize = nil" disables it
-InjectorConfig.anchorpoint = "BOTTOMLEFT" -- anchor position relative to 1st unit of 1st group. if you want to grow frames to TOP and RIGHT it better be BOTTOMLEFT.
-InjectorConfig.lockedOnStartUp = true
-InjectorConfig.disableBlizzardParty = true
+config.maxgroups = 8
+config.showSolo = false     -- visible without group/raid
+config.showParty = true    -- in group
+config.unitGap = 10        -- gap between units
+config.groupGap = 10
+config.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT / RIGHT / TOP / BOTTOM
+config.groupGrowth = "TOP" -- new groups direction. LEFT / RIGHT / TOP / BOTTOM
+config.resize = { after = 27, to = 0.8 } -- = if number of players in raid exeeds 27 then resize to 0.8.   "config.resize = false" disables it
+config.anchorpoint = "BOTTOMLEFT" -- anchor position relative to 1st unit of 1st group. if you want to grow frames to TOP and RIGHT it better be BOTTOMLEFT.
+config.lockedOnStartUp = true
+config.disableBlizzardParty = true
 
 -- pets are broken
 
 -- bells and whistles
-InjectorConfig.enableIncomingHeals = true
-InjectorConfig.enableTraceHeals = true
-InjectorConfig.enableClickCasting = false
+config.enableIncomingHeals = true
+config.enableTraceHeals = true
+config.enableClickCasting = false
 -- enable click casting support, activates ClickMacro function.
 -- ClickMacro syntax is like usual macro, but don't forget [target=mouseover]
 -- spell:<id> is an alias for localized spellname.
 -- Unmodified left click is reserved for targeting by default.
 -- Use helpers.BindTarget("shift 1") to change it. Syntax: any combination of "shift" "alt" "ctrl" and button number
-InjectorConfig.useCombatLogFiltering = true
+config.useCombatLogFiltering = true
 -- useCombatLogFiltering provides a huge perfomance boost over default behavior, which would be to listen only to UNIT_AURA event.
 -- UNIT_AURA doesn't tell what exactly changed and every time addon had to scan current buffs/debuffs,
 -- in raid combat unit_aura sometimes fired up to 8 times per second for each member with all the stacking trinkets and procs.
@@ -60,10 +60,10 @@ InjectorConfig.useCombatLogFiltering = true
 -- Dispel idicators still work from unit_aura, so you'll see plague regardless as disease if you can dispel it. Necrotic plague removed from default loadables.lua setup.
 
 -- libs
-InjectorConfig.useQuickHealth = isHealer -- combat log event is faster than UNIT_HEALTH event.
+config.useQuickHealth = isHealer -- combat log event is faster than UNIT_HEALTH event.
                                          -- And that's what this lib does, allows you to see health updates more often/sooner.
 
-InjectorConfig.SetupIndicators = {
+config.SetupIndicators = {
     ["topleft"] =  { point = "TOPLEFT", size = 5, },
     ["topleft2"] =  { point = "TOPLEFT", size = 5, xOffset = 7},
     ["topleft3"] =  { point = "TOPLEFT", size = 5, yOffset = -7},
@@ -74,32 +74,32 @@ InjectorConfig.SetupIndicators = {
     ["top"] =  { point = "TOP", size = 10, },
     ["left"] =  { point = "LEFT", size = 10, },
     
-    ["border_right"] = { point = "RIGHT", width = 2, height = InjectorConfig.height+8, xOffset = 4 , nobackdrop = true},
-    ["border_left"] = { point = "LEFT", width = 2, height = InjectorConfig.height+8, xOffset = -4 , nobackdrop = true},
-    ["border_top"] = { point = "TOP", width = InjectorConfig.width+4, height = 2, yOffset = 4 , nobackdrop = true},
-    ["border_bottom"] = { point = "BOTTOM", width = InjectorConfig.width+4, height = 2, yOffset = -4   , nobackdrop = true },
+    ["border_right"] = { point = "RIGHT",  nobackdrop = true, xOffset = 4, init = function(self) self.width = 2; self.height = InjectorUserConfig.height+8; end },
+    ["border_left"] = { point = "LEFT", xOffset = -4 , nobackdrop = true, init = function(self) self.width = 2; self.height = InjectorUserConfig.height+8; end },
+    ["border_top"] = { point = "TOP", yOffset = 4 , nobackdrop = true, init = function(self) self.width = InjectorUserConfig.width+4; self.height = 2; end },
+    ["border_bottom"] = { point = "BOTTOM", yOffset = -4   , nobackdrop = true, init = function(self) self.width = InjectorUserConfig.width+4; self.height = 2; end },
 }
 -- so border actually is built from 4 indicators, you can use them separately
 local BORDER = { "border_left", "border_right", "border_top", "border_bottom" } -- shortcut, e.g. indicator = BORDER
 
-InjectorConfig.SetupIcons = {
+config.SetupIcons = {
     ["raidicon"] = { point = "BOTTOMLEFT", size = 24, xOffset = -9, yOffset = -9, alpha = 0.6 },   --special icon for raid targets
     ["center"] = { point = "CENTER", size = 24, alpha = 0.6, omnicc = false, stacktext = true },
 }
 --customizing stack label: stacktext = { font = [[Interface\AddOns\Injector\ClearFont.ttf]], size = 10, flags = "OUTLINE", color = {1,0,0} },
 
-InjectorConfig.TargetStatus = { name = "Target", type = "HELPFUL", indicator = BORDER, color = {1,0.7,0.7}, priority = 65 }
-InjectorConfig.IncomingHealStatus = nil  --{ name = "IncomingHeal", type = "HELPFUL", indicator = { "bottomleft" },  color = { 0, 1, 0}, priority = 60 }
-InjectorConfig.AggroStatus = { name = "Aggro", type = "HARMFUL", indicator = { "bottomleft" },  color = { 0.7, 0, 0} } -- InjectorConfig.AggroStatus = nil will disable aggro monitoring at all
-InjectorConfig.ReadyCheck = { name = "Readycheck", type = "HELPFUL", priority = 90, indicator = { "top" },  stackcolor =   {
+config.TargetStatus = { name = "Target", type = "HELPFUL", indicator = BORDER, color = {1,0.7,0.7}, priority = 65 }
+config.IncomingHealStatus = { name = "IncomingHeal", type = "HELPFUL", indicator = { "bottomleft" },  color = { 0, 1, 0}, priority = 60 }
+config.AggroStatus = { name = "Aggro", type = "HARMFUL", indicator = { "bottomleft" },  color = { 0.7, 0, 0} } -- config.AggroStatus = false will disable aggro monitoring at all
+config.ReadyCheck = { name = "Readycheck", type = "HELPFUL", priority = 90, indicator = { "top" },  stackcolor =   {
                                                                             ['ready'] = { 0, 1, 0},
                                                                             ['notready'] = { 1, 0, 0},
                                                                             ['waiting'] = { 1, 1, 0},
                                                                         }}
-InjectorConfig.MainTankStatus = { name = "MainTank", type = "HELPFUL", priority = 60, indicator = BORDER, color = {0.6,0.6,0.6} }
+config.MainTankStatus = { name = "MainTank", type = "HELPFUL", priority = 60, indicator = BORDER, color = {0.6,0.6,0.6} }
 
 
-InjectorConfig.Colors = {
+config.Colors = {
     --["PRIEST"] = { r = 1, g = 1, b = 1 },
     ["VEHICLE"] = { r = 1, g = 0.5, b = 0.5 },
 }
@@ -139,7 +139,7 @@ if playerClass == "PRIEST" then
     Trace{id = 34861, type = "HEAL", indicator = { "topright" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
     Trace{id = 33076, type = "HEAL", indicator = { "topright" }, color = { 1, 0.6, 0.6}, fade = 1.5, priority = 97 } -- PoM Trace
                                                                         
-    --InjectorConfig.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(2061),unit) == 1) end
+    --config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(2061),unit) == 1) end
             --// Use Flash Heal for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
     
     DT("Magic", { indicator = { "bottom" }, color = { 0.2, 0.6, 1}, priority = 81 })
@@ -169,7 +169,7 @@ if playerClass == "PALADIN" then
     
     Trace{id = 54968, type = "HEAL", indicator = { "topright" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Glyph of Holy Light
     
-    --InjectorConfig.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(635),unit) == 1) end
+    --config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(635),unit) == 1) end
             --// Use Holy Light for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
     DT("Magic", { indicator = { "bottom" }, color = { 0.2, 0.6, 1} })
@@ -202,7 +202,7 @@ if playerClass == "SHAMAN" then
     --Trace{id = 73921, type = "HEAL", indicator = { "topright" }, color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
     --Trace{id = 51558, type = "HEAL", indicator = { "topright" }, color = { 1, 0.6, 0.6 }, fade = 0.7, priority = 95 } -- Ancestral Awakening
                                                                         
-    --InjectorConfig.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(331),unit) == 1) end
+    --config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(331),unit) == 1) end
             --// Use Healing Wave for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
     DT("Magic", { indicator = { "bottom" }, color = { 0.2, 0.6, 1} })
@@ -224,7 +224,7 @@ if playerClass == "DRUID" then
                                                                         }} --Lifebloom
     A{ id = 48438, type = "HELPFUL", indicator = { "topright" }, color = { 0.4, 1, 0.4}, showDuration = true, isMine = true } --Wild Growth
     
-    --InjectorConfig.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(774),unit) == 1) end
+    --config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(774),unit) == 1) end
             --// Use Rejuvenation for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
     DT("Poison", { indicator = { "bottom" }, color = { 0, 0.6, 0} })

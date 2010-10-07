@@ -2,7 +2,7 @@ local _, helpers = ...
 -- RAID/PVP config loading
 -- instances are identified by map id (assuming they have their own map).
 -- to find out current zone map id type: /dump GetCurrentMapAreaID()
-InjectorConfig.MapIDs = {    
+InjectorDefaultConfig.MapIDs = {    
     [609] = "Ruby Sanctum",   -- In Cataclysm beta and 3.3.5 PTR it is 609, in Live version it's 610.. 
     [610] = "Ruby Sanctum",   -- and looks like the same thing happens with other raids. I'll just include everything for now
     [604] = "Icecrown Citadel",
@@ -22,7 +22,7 @@ local color2 = { 0.6, 0, 1}
 
 local defaultIndicator = { type = "HARMFUL", indicator = { "left" }, color = color1, priority = 40, pulse = true }
 
-InjectorConfig.LoadableDebuffs = {
+InjectorDefaultConfig.LoadableDebuffs = {
     ["Ruby Sanctum"] = function()
     A{ id = 74562, type = "HARMFUL", prototype = defaultIndicator } --Fiery Combustion
     A{ id = 74792, type = "HARMFUL", prototype = defaultIndicator, color = color2 } --Soul Consumptio

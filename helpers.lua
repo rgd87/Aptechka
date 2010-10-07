@@ -1,43 +1,49 @@
 local _, helpers = ...
+local config
 
 helpers.AddDispellType = function(dtype, data)
-    if not InjectorConfig.DebuffTypes then InjectorConfig.DebuffTypes = {} end
+    if InjectorUserConfig then config = InjectorUserConfig else config = InjectorDefaultConfig end
+    if not config.DebuffTypes then config.DebuffTypes = {} end
     if type(data.indicator) == "string" then data.indicator = { data.indicator } end
     if type(data.icon) == "table" then data.icon = data.icon[1] end
     data.name = dtype
-    InjectorConfig.DebuffTypes[dtype] = data
+    config.DebuffTypes[dtype] = data
 end
 helpers.AddAura = function (data)
+    if InjectorUserConfig then config = InjectorUserConfig else config = InjectorDefaultConfig end
     if data.id then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
     if type(data.indicator) == "string" then data.indicator = { data.indicator } end
     if type(data.icon) == "table" then data.icon = data.icon[1] end
     if data.isMine then data.type = data.type.."|PLAYER" end
     if data.debuffType then DT(data.debuffType, data) end
-    if not InjectorConfig.IndicatorAuras then InjectorConfig.IndicatorAuras = {} end
+    if not config.IndicatorAuras then config.IndicatorAuras = {} end
     if data.prototype then setmetatable(data, { __index = function(t,k) return data.prototype[k] end }) end
-    InjectorConfig.IndicatorAuras[data.name] = data
---~     table.insert(InjectorConfig.IndicatorAuras, data)
+    config.IndicatorAuras[data.name] = data
+--~     table.insert(config.IndicatorAuras, data)
 end
 helpers.AddTrace = function(data)
-    if not InjectorConfig.enableTraceHeals then return end
+    if InjectorUserConfig then config = InjectorUserConfig else config = InjectorDefaultConfig end
+    if not config.enableTraceHeals then return end
     if data.id then data.name = GetSpellInfo(data.id) end
     if type(data.indicator) == "string" then data.indicator = { data.indicator } end
     --if type(data.type) == "string" then data.type = { data.type } end
     data.type = "SPELL_"..data.type
-    if not InjectorConfig.TraceHeals then InjectorConfig.TraceHeals = {} end
+    if not config.TraceHeals then config.TraceHeals = {} end
     if not data.name then print("id or name required") return end
-    InjectorConfig.TraceHeals[data.name] = data
+    config.TraceHeals[data.name] = data
 end
 
 helpers.ClickMacro = function(macro)
-    if not InjectorConfig.enableClickCasting then return end
-    InjectorConfig.ClickCastingMacro = macro:gsub("spell:(%d+)",GetSpellInfo):gsub("([ \t]+)/",'/')
+    if InjectorUserConfig then config = InjectorUserConfig else config = InjectorDefaultConfig end
+    if not config.enableClickCasting then return end
+    config.ClickCastingMacro = macro:gsub("spell:(%d+)",GetSpellInfo):gsub("([ \t]+)/",'/')
 end
 
 helpers.BindTarget = function(str)
+    if InjectorUserConfig then config = InjectorUserConfig else config = InjectorDefaultConfig end
     if not str then
-        InjectorConfig.TargetBinding = false
+        config.TargetBinding = false
         return
     end
     str = str:lower()
@@ -50,15 +56,15 @@ helpers.BindTarget = function(str)
     if shift then tar = "shift-"..tar end
     if ctrl then tar = "ctrl-"..tar end
     if alt then tar = "alt-"..tar end
-    InjectorConfig.TargetBinding = tar
+    config.TargetBinding = tar
     --alt-ctrl-shift-type*     -- That order is required
 end
 
 
 --~ helpers.AddClickCast = function(data)
---~     if not InjectorConfig.enableClickCasting then return end
+--~     if not config.enableClickCasting then return end
 --~     if not data.button then print("specify mouse button") return end
---~     if not InjectorConfig.ClickCasting then InjectorConfig.ClickCasting = {} end
+--~     if not config.ClickCasting then config.ClickCasting = {} end
 --~     local seq = "type"..(data.button == 0 and "*" or data.button)
 --~     if data.shift then seq = "shift-"..seq end
 --~     if data.ctrl then seq = "ctrl-"..seq end
@@ -67,7 +73,7 @@ end
 --~         [seq] = data.type,
 --~         [data.type] = data.value
 --~     }
---~     table.insert(InjectorConfig.ClickCasting, cc)
+--~     table.insert(config.ClickCasting, cc)
 --~ end
 
 
