@@ -1117,7 +1117,7 @@ function Aptechka.SlashCmd(msg)
     end
     if k == "setpos" then
         local fields = ParseOpts(v)
-        if not next(fields) then print("Usage: /inj setpos point=center x=0 y=0") return end
+        if not next(fields) then print("Usage: /apt setpos point=center x=0 y=0") return end
         Aptechka.anchor:SetPos(string.upper(fields['point'] or "CENTER"), fields['x'] or 0, fields['y'] or 0)
     end
     if k == "charspec" then
