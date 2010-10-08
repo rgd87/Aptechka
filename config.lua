@@ -10,15 +10,8 @@ local config = AptechkaDefaultConfig
 
 
 config.skin = "GridSkin"
---config.width = 50
---config.height = 50
---config.scale = 1
---config.texture = [[Interface\AddOns\Aptechka\gradient]]
---config.font = [[Interface\AddOns\Aptechka\ClearFont.ttf]]
---config.fontsize = 12
+--see frames.lua for skin's settings. you can force your values on them as always with userconfig
 config.cropNamesLen = 7  -- maximum amount of characters in unit name
---config.manabarwidth = 6
---config.orientation = "VERTICAL"    -- HORIZONTAL / VERTICAL
 config.outOfRangeAlpha = 0.4
 config.disableManaBar = false
 config.incomingHealDisplayAmount = true  -- on second line
@@ -238,9 +231,7 @@ if playerClass == "DRUID" then
 end
 if playerClass == "MAGE" then
     A{ id = 1459,  type = "HELPFUL", indicator = { "topleft" }, color = { .4 , .4, 1} } --Arcane Intellect
-    A{ id = 23028, type = "HELPFUL", indicator = { "topleft" }, color = { .4 , .4, 1} } --Arcane Brilliance
-    A{ id = 61316, type = "HELPFUL", indicator = { "topleft" }, color = { .4 , .4, 1} } --Dalaran Brilliance
-    A{ id = 61024, type = "HELPFUL", indicator = { "topleft" }, color = { .4 , .4, 1} } --Dalaran Intellect
+    A{ id = 61316, type = "HELPFUL", indicator = { "topleft" }, color = { .4 , .4, 1} } --Dalaran Intellect
     A{ id = 54648, type = "HELPFUL", indicator = { "topleft2" }, color = { 180/255, 0, 1 }, isMine = true } --Focus Magic
     
     DT("Curse", { indicator = { "bottom" }, color = { 0.6, 0, 1} })

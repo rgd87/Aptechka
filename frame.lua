@@ -1,4 +1,3 @@
--- Skins and configs aren't ready
 AptechkaDefaultConfig.GridSkin = function(self)
     local config
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
