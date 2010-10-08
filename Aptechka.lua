@@ -43,9 +43,9 @@ local QuickHealth
 Aptechka:RegisterEvent("PLAYER_LOGIN")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     AptechkaUnitInRange = config.UnitInRangeFunc or UnitInRange
-    auras = config.IndicatorAuras
-    dtypes = config.DebuffTypes
-    traceheals = config.TraceHeals
+    auras = config.IndicatorAuras or {}
+    dtypes = config.DebuffTypes or {}
+    traceheals = config.TraceHeals or {}
     colors = setmetatable(config.Colors or {},{ __index = function(t,k) return RAID_CLASS_COLORS[k] end })
     
     AptechkaDB_Global = AptechkaDB_Global or {}
@@ -432,53 +432,37 @@ function Aptechka.UNIT_AURA(self, event, unit)
 end
 
 
---STAY AWAY FROM DA VOODOO!!!
---~ local function VehicleHack(self, time)
---~     self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
---~     if self.OnUpdateCounter < 0.5 then return end
---~     self.OnUpdateCounter = 0
---~     self.count = (self.count or 0) +1
---~     
---~     if( self.count >= 6 or not UnitHasVehicleUI(self.unitOwner) ) then
---~         if self.unit ~=  self.unitOwner then
---~             Roster[self.unitOwner] = Roster[self.unit]
---~             Aptechka:Colorize(nil, self.unitOwner)
---~             Roster[self.unit] = nil
---~             self.unit = self.unitOwner
---~             self.unitOwner = nil
---~             Aptechka:UNIT_HEALTH(nil,self.unit)
---~             self:SetScript("OnUpdate", nil) 
---~         end
---~         Aptechka:UNIT_POWER(nil,self.unit)
---~     elseif( UnitIsConnected(self.unit) or UnitHealthMax(self.unit) > 0 ) then
---~         if self.unit ~=  self.unitOwner then
---~             Aptechka:Colorize(nil, self.unitOwner)
---~             Roster[self.unit] = Roster[self.unitOwner]
---~             Roster[self.unitOwner] = nil
---~             Aptechka:UNIT_HEALTH(nil,self.unit)
---~             self:SetScript("OnUpdate", nil)
---~         end
---~     end
---~ end
-
---~ local function TranslateModifiedUnit(unit)
---~     if unit == "player" then return "pet" end
---~     return gsub("raid1","(%w+)(%d+)","%1pet%2")
---~ end
-
 function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
     if not Roster[unit] then return end
     Aptechka:Colorize(nil, unit)
---~     for self in pairs(Roster[unit]) do
---~         self.unitOwner = unit
---~         self.unit = SecureButton_GetModifiedUnit(self)
---~         self:SetScript("OnUpdate",VehicleHack)
---~     end
+    for self in pairs(Roster[unit]) do
+        self.unitOwner = unit
+        local vehicleUnit = SecureButton_GetModifiedUnit(self)
+        self.unit = vehicleUnit
+        Roster[self.unit] = Roster[self.unitOwner]
+        Roster[self.unitOwner] = nil
+    end
 end
 function Aptechka.UNIT_EXITED_VEHICLE(self, event, unit)
---~     local modunit = TranslateModifiedUnit(unit)
-    if not Roster[unit] then return end
+    local vehicleUnit
+    for _, t in pairs(Roster) do
+        for self in pairs(t) do
+            if self.unitOwner == unit then
+                vehicleUnit = self.unit
+            end
+        end
+    end
+    if vehicleUnit then
+    for self in pairs(Roster[vehicleUnit]) do
+        self.unit = self.unitOwner
+        self.unitOwner = nil
+        Roster[self.unit] = Roster[vehicleUnit]
+        Roster[vehicleUnit] = nil
+    end
+    end
+    
     Aptechka:Colorize(nil, unit)
+    Aptechka:UNIT_HEALTH(nil, unit)
 end
 -- VOODOO ENDS HERE
 
