@@ -100,15 +100,6 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     end,
     
     ['tankcooldowns'] = function()
-    A{ id = 871,   type = "HELPFUL", icon = "center", priority = 90 } --Shield Wall
-    A{ id = 498,   type = "HELPFUL", icon = "center", priority = 90 } --Divine Protection
-    A{ id = 48792, type = "HELPFUL", icon = "center", priority = 90 } --Icebound Fortitude
-    A{ id = 33206, type = "HELPFUL", icon = "center", priority = 90 } --Pain Suppression
-    
-    A{ id = 55233, type = "HELPFUL", icon = "center", priority = 88 } --Vampiric Blood
-    A{ id = 47788, type = "HELPFUL", icon = "center", priority = 88 } --Guardian Spirit
-    
-    A{ id = 12975, type = "HELPFUL", icon = "center", priority = 86 } --Last Stand
-    A{ id = 61336, type = "HELPFUL", icon = "center", priority = 86 } --Survival Instincts
+
     end,
 }

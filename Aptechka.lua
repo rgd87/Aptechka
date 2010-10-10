@@ -202,7 +202,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
         Aptechka.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, srcGUID,
                                                     srcName, srcFlags, dstGUID, dstName, dstFlags, spellID, spellName,
-                                                    spellSchool, amount, overhealing, absorbed, critical)    
+                                                    spellSchool, amount, overhealing, absorbed, critical)
             if (bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE) then
                 local opts = traceheals[spellName]
                 if opts and eventType == opts.type then
@@ -295,9 +295,11 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
                 local heal = UnitGetIncomingHeals(unit)
-                self.incoming:SetValue(  heal and self.hp:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
+                local threshold = 3000
+                local showHeal = (heal and heal > threshold)
+                self.incoming:SetValue( showHeal and self.hp:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
                 if config.incomingHealDisplayAmount then
-                        if heal and heal > 0 then
+                        if showHeal then
                             self.text2.jobs[HealTextStatus.name] = HealTextStatus
                         else
                             self.text2.jobs[HealTextStatus.name] = nil
@@ -305,7 +307,7 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
                         Aptechka.UpdateStatus(self.text2, "text", heal and ("%.1fk"):format( heal / 1e3) )
                 end
                 if config.IncomingHealStatus then
-                    if heal and heal > 0 then
+                    if showHeal then
                         Aptechka.UpdateAura(unit, config.IncomingHealStatus, true)
                     else
                         Aptechka.UpdateAura(unit, config.IncomingHealStatus, false)
@@ -432,37 +434,75 @@ function Aptechka.UNIT_AURA(self, event, unit)
 end
 
 
-function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
-    if not Roster[unit] then return end
-    Aptechka:Colorize(nil, unit)
-    for self in pairs(Roster[unit]) do
-        self.unitOwner = unit
-        local vehicleUnit = SecureButton_GetModifiedUnit(self)
-        self.unit = vehicleUnit
-        Roster[self.unit] = Roster[self.unitOwner]
-        Roster[self.unitOwner] = nil
-    end
-end
-function Aptechka.UNIT_EXITED_VEHICLE(self, event, unit)
-    local vehicleUnit
-    for _, t in pairs(Roster) do
-        for self in pairs(t) do
-            if self.unitOwner == unit then
-                vehicleUnit = self.unit
-            end
+local vehicleHack = function (self, time)
+    self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
+    if self.OnUpdateCounter < 1 then return end
+    self.OnUpdateCounter = 0
+    self.secondsPassed = self.secondsPassed +1
+    
+    local normalUnit = SecureButton_GetUnit(self.parent)
+    --local vehicleUnit = SecureButton_GetModifiedUnit(self.parent)
+    if not UnitHasVehicleUI(normalUnit) then
+        print ("trying to swap", self.parent.unit)
+        if Roster[self.parent.unit] then
+            Roster[self.parent.unitOwner] = Roster[self.parent.unit]
+            Roster[self.parent.unit] = nil
+            print(self.parent.unitOwner,"Roster replaced", self.parent.unit)
+            self.parent.unit = self.parent.unitOwner
+            self:SetScript("OnUpdate",nil)
+            
+            Aptechka:Colorize(nil, self.parent.unit)
+            Aptechka:UNIT_HEALTH(nil, self.parent.unit)
+            Aptechka.ScanAuras(self.parent.unit)
         end
     end
-    if vehicleUnit then
-    for self in pairs(Roster[vehicleUnit]) do
-        self.unit = self.unitOwner
-        self.unitOwner = nil
-        Roster[self.unit] = Roster[vehicleUnit]
-        Roster[vehicleUnit] = nil
-    end
-    end
-    
-    Aptechka:Colorize(nil, unit)
-    Aptechka:UNIT_HEALTH(nil, unit)
+end
+function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
+--~     if not Roster[unit] then return end
+--~     Aptechka:Colorize(nil, unit)
+--~     
+--~     ROSTER = Roster
+--~     print(event,unit)
+--~     
+--~     for self in pairs(Roster[unit]) do
+--~         self.unitOwner = unit
+--~         local vehicleUnit = SecureButton_GetModifiedUnit(self)
+--~         if self.unitOwner == vehicleUnit then return end
+--~         self.unit = vehicleUnit
+--~         print ("switching to ", vehicleUnit)
+--~         Roster[self.unit] = Roster[self.unitOwner]
+--~         Roster[self.unitOwner] = nil
+--~         if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
+--~         self.vehicleFrame.secondsPassed = 0
+--~         self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
+--~         
+--~         Aptechka:UNIT_HEALTH(nil, self.unit)
+--~         Aptechka.ScanAuras(self.unit)
+--~     end
+--~     
+end
+function Aptechka.UNIT_EXITED_VEHICLE(self, event, unit)
+--~     print(event,unit)
+--~     local vehicleUnit
+--~     for _, t in pairs(Roster) do
+--~         for self in pairs(t) do
+--~             if self.unitOwner == unit then
+--~                 vehicleUnit = self.unit
+--~             end
+--~         end
+--~     end
+--~     if vehicleUnit then
+--~     for self in pairs(Roster[vehicleUnit]) do
+--~         self.unit = self.unitOwner
+--~         self.unitOwner = nil
+--~         Roster[self.unit] = Roster[vehicleUnit]
+--~         Roster[vehicleUnit] = nil
+--~     end
+--~     end
+--~     
+--~     Aptechka:Colorize(nil, unit)
+--~     Aptechka:UNIT_HEALTH(nil, unit)
+--~     Aptechka.ScanAuras(unit)
 end
 -- VOODOO ENDS HERE
 
@@ -718,6 +758,13 @@ function Aptechka.CreateStuff(header,id)
     
     config[config.skin](f)
     
+    -- kostyl'
+    if config.disableManaBar then
+        Aptechka:UnregisterEvent("UNIT_POWER")
+        Aptechka:UnregisterEvent("UNIT_MAXPOWER")
+        Aptechka:UnregisterEvent("UNIT_DISPLAYPOWER")
+    end
+    
     
     f.SetColor = f.SetColor or function(self,r,g,b)
         if not config.invertColor then
@@ -911,7 +958,10 @@ function Aptechka.CreateIndicator(f, name, opts)
     ba2:SetOrder(2)
     
     bag:SetScript("OnFinished",function(self)
-        self:GetParent():Hide()
+        self = self:GetParent()
+        self:Hide()
+        self.jobs[self.blink.jobname] = nil;
+        Aptechka.UpdateStatus(self, "indicator");
     end)
     
     bag.a2 = ba2
@@ -994,8 +1044,10 @@ function Aptechka.UpdateStatus(self, statustype, arg1)
         
         self:Show()
         if job.fade then
+            if self.blink:IsPlaying() then self.blink:Finish() end
             self.blink.a2:SetDuration(job.fade)
-            if not self.blink:IsPlaying() then self.blink:Play() end
+            self.blink.jobname = max
+            self.blink:Play()
         end
         
         if job.showDuration and job.start then

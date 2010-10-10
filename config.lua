@@ -126,7 +126,6 @@ if playerClass == "PRIEST" then
                                                                             [3] = { 1, 0, 0},
                                                                             [4] = { 1, 0.3, 0.3},
                                                                             [5] = { 1, 0.6, 0.6},
-                                                                            [6] = { 1, 0.9, 0.9}, -- Tier7 set bonus
                                                                         }} --Prayer of Mending
                                                                         
     Trace{id = 34861, type = "HEAL", indicator = { "topright" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
@@ -236,3 +235,15 @@ if playerClass == "MAGE" then
     
     DT("Curse", { indicator = { "bottom" }, color = { 0.6, 0, 1} })
 end
+
+
+    A{ id = 871,   type = "HELPFUL", icon = "center", showDuration = true,  priority = 90 } --Shield Wall
+    A{ id = 498,   type = "HELPFUL", icon = "center", showDuration = true, priority = 90 } --Divine Protection
+    A{ id = 48792, type = "HELPFUL", icon = "center", showDuration = true, priority = 90 } --Icebound Fortitude
+    A{ id = 33206, type = "HELPFUL", icon = "center", showDuration = true, priority = 90 } --Pain Suppression
+    
+    A{ id = 55233, type = "HELPFUL", icon = "center", showDuration = true, priority = 88 } --Vampiric Blood
+    A{ id = 47788, type = "HELPFUL", icon = "center", showDuration = true, priority = 88 } --Guardian Spirit
+    
+    A{ id = 12975, type = "HELPFUL", icon = "center", showDuration = true, priority = 86 } --Last Stand
+    A{ id = 61336, type = "HELPFUL", icon = "center", showDuration = true, priority = 86 } --Survival Instincts
