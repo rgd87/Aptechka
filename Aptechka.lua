@@ -279,7 +279,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                     if unit then
                         buffer[unit] = nil
                         inCL[unit] = GetTime()
-                        Aptechka.ScanAuras(unit) 
+                        Aptechka.ScanAuras(unit)
                     end
                 end
             end
@@ -377,108 +377,50 @@ function Aptechka.UNIT_POWER(self, event, unit, ptype)
     end
 end
 
-local name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable
-function Aptechka.ScanAuras(unit)
-    for auraname,opts in pairs(auras) do
-        name, rank, icon, count, debuffType, duration, expirationTime, caster = UnitAura(unit, auraname, nil, opts.type)
-        if name then
-            if opts.stackcolor then
-                opts.color = opts.stackcolor[count]
-            end
-            if opts.foreigncolor then
-                opts.isforeign = (caster ~= "player")
-            end
-            opts.start = expirationTime - duration
-            opts.duration = duration
-            opts.texture = opts.texture or icon
-            opts.stacks = count
-            Aptechka.UpdateAura(unit, opts, true)
-        else
-            Aptechka.UpdateAura(unit, opts, false)
-        end
-    end
-end
-function Aptechka.ScanDispels(unit)
-    if dtypes then
-        if UnitAura(unit, 1, "HARMFUL|RAID") then
-            for _,opts in pairs(dtypes) do
-                opts.gotone = false
-            end
-            for i = 1, 100 do
-                name, rank, icon, count, debuffType, duration, expirationTime, caster = UnitAura(unit, i, "HARMFUL|RAID")
-                if not name then break end
-                if dtypes[debuffType] then
-                    local opts = dtypes[debuffType]
-                    opts.gotone = true
-                    opts.start = expirationTime - duration
-                    opts.duration = duration
-                    opts.stacks = count
-                    opts.texture = icon
-                end
-            end
-            for _,opts in pairs(dtypes) do
-                Aptechka.UpdateAura(unit, opts, opts.gotone)
-            end
-        else
-            for _,opts in pairs(dtypes) do
-                Aptechka.UpdateAura(unit, opts, false)
-            end
-        end
-    end
-end
-
-function Aptechka.UNIT_AURA(self, event, unit)
-    if not Roster[unit] then return end
-    Aptechka.ScanAuras(unit)
-    Aptechka.ScanDispels(unit)
-end
-
-
 local vehicleHack = function (self, time)
     self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
     if self.OnUpdateCounter < 1 then return end
     self.OnUpdateCounter = 0
-    self.secondsPassed = self.secondsPassed +1
+--~     self.secondsPassed = self.secondsPassed +1
     
-    local normalUnit = SecureButton_GetUnit(self.parent)
+--~     local normalUnit = SecureButton_GetUnit(self.parent)
     --local vehicleUnit = SecureButton_GetModifiedUnit(self.parent)
-    if not UnitHasVehicleUI(normalUnit) then
-        print ("trying to swap", self.parent.unit)
+    if not UnitHasVehicleUI(self.parent.unitOwner) then
+--~         print ("Trying to swap back from", self.parent.unit)
         if Roster[self.parent.unit] then
             Roster[self.parent.unitOwner] = Roster[self.parent.unit]
             Roster[self.parent.unit] = nil
-            print(self.parent.unitOwner,"Roster replaced", self.parent.unit)
+--~             print(self.parent.unitOwner,"Roster replaced", self.parent.unit)
             self.parent.unit = self.parent.unitOwner
             self:SetScript("OnUpdate",nil)
             
-            Aptechka:Colorize(nil, self.parent.unit)
-            Aptechka:UNIT_HEALTH(nil, self.parent.unit)
-            Aptechka.ScanAuras(self.parent.unit)
+--~             Aptechka:Colorize(nil, self.parent.unit)
+--~             Aptechka:UNIT_HEALTH(nil, self.parent.unit)
+--~             Aptechka.ScanAuras(self.parent.unit)
         end
     end
 end
 function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
---~     if not Roster[unit] then return end
---~     Aptechka:Colorize(nil, unit)
---~     
+    if not Roster[unit] then return end
 --~     ROSTER = Roster
 --~     print(event,unit)
 --~     
---~     for self in pairs(Roster[unit]) do
---~         self.unitOwner = unit
---~         local vehicleUnit = SecureButton_GetModifiedUnit(self)
---~         if self.unitOwner == vehicleUnit then return end
---~         self.unit = vehicleUnit
---~         print ("switching to ", vehicleUnit)
---~         Roster[self.unit] = Roster[self.unitOwner]
---~         Roster[self.unitOwner] = nil
---~         if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
+    for self in pairs(Roster[unit]) do
+        self.unitOwner = unit
+        local vehicleUnit = SecureButton_GetModifiedUnit(self)
+        if self.unitOwner == vehicleUnit then print ("Vehicle and owner unit are the same. exiting."); return end
+        Aptechka:Colorize(nil, unit)
+        self.unit = vehicleUnit
+--~         print ("Switching roster to ", self.unit)
+        Roster[self.unit] = Roster[self.unitOwner]
+        Roster[self.unitOwner] = nil
+        if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
 --~         self.vehicleFrame.secondsPassed = 0
---~         self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
+        self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
 --~         
 --~         Aptechka:UNIT_HEALTH(nil, self.unit)
 --~         Aptechka.ScanAuras(self.unit)
---~     end
+    end
 --~     
 end
 function Aptechka.UNIT_EXITED_VEHICLE(self, event, unit)
@@ -668,7 +610,7 @@ end
 
 --UnitButton initialization
 local OnAttributeChanged = function(self, name, unit)
---~     if name ~= "unit" then return end
+    if name ~= "unit" then return end
     local unit = self:GetAttribute("unit")
       
     for unit, frames in pairs(Roster) do
@@ -792,11 +734,11 @@ function Aptechka.CreateStuff(header,id)
         end)
     end
         
---~     f:SetScript("OnAttributeChanged", OnAttributeChanged)
-    f.onUnitChanged = OnAttributeChanged
-    f:SetAttribute('refreshUnitChange',[[
-        self:CallMethod("onUnitChanged")
-    ]])
+    f:SetScript("OnAttributeChanged", OnAttributeChanged)
+--~     f.onUnitChanged = OnAttributeChanged
+--~     f:SetAttribute('refreshUnitChange',[[
+--~         self:CallMethod("onUnitChanged")
+--~     ]])
     
     f.indicators = {}
     for name, opts in pairs(config.SetupIndicators) do
@@ -1001,6 +943,7 @@ function Aptechka.UpdateAura(unit, opts, status)
     end
 end
 
+
 function Aptechka.UpdateStatus(self, statustype, arg1)
     if next(self.jobs) then -- if not empty
         local max
@@ -1062,7 +1005,70 @@ function Aptechka.UpdateStatus(self, statustype, arg1)
     end
 end
 
+local name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable
+function Aptechka.ScanAuras(unit)
+    for auraname,opts in pairs(auras) do
+        name, rank, icon, count, debuffType, duration, expirationTime, caster = UnitAura(unit, auraname, nil, opts.type)
+        if name then
+            if opts.stackcolor then
+                opts.color = opts.stackcolor[count]
+            end
+            if opts.foreigncolor then
+                opts.isforeign = (caster ~= "player")
+            end
+            local dur = opts.staticDuration and opts.staticDuration or duration
+            opts.start = expirationTime - dur
+            opts.duration = dur
+            opts.texture = opts.texture or icon
+            opts.stacks = count
+            Aptechka.UpdateAura(unit, opts, true)
+        else
+            Aptechka.UpdateAura(unit, opts, false)
+        end
+    end
+end
+--~ function Aptechka.RefreshAura(unit,opts,name)
+--~     if not Roster[unit] then return end
+--~     for self in pairs(Roster[unit]) do
+--~         if self.jobs[opts.name] then 
+--~         end
+--~     end
+--~ end
 
+function Aptechka.UNIT_AURA(self, event, unit)
+    if not Roster[unit] then return end
+    Aptechka.ScanAuras(unit)
+    Aptechka.ScanDispels(unit)
+end
+
+function Aptechka.ScanDispels(unit)
+    if dtypes then
+        if UnitAura(unit, 1, "HARMFUL|RAID") then
+            for _,opts in pairs(dtypes) do
+                opts.gotone = false
+            end
+            for i = 1, 100 do
+                name, rank, icon, count, debuffType, duration, expirationTime, caster = UnitAura(unit, i, "HARMFUL|RAID")
+                if not name then break end
+                if dtypes[debuffType] then
+                    local opts = dtypes[debuffType]
+                    opts.gotone = true
+                    opts.start = expirationTime - duration
+                    opts.duration = duration
+                    opts.stacks = count
+                    opts.texture = icon
+                end
+            end
+            for _,opts in pairs(dtypes) do
+                Aptechka.UpdateAura(unit, opts, opts.gotone)
+            end
+        else
+            for _,opts in pairs(dtypes) do
+                Aptechka.UpdateAura(unit, opts, false)
+            end
+        end
+    end
+end
 
 local ParseOpts = function(str)
     local fields = {}

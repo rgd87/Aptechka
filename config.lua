@@ -119,7 +119,12 @@ if playerClass == "PRIEST" then
     A{ id = 88682, type = "HELPFUL", indicator = { "bottom" }, pulse = true, priority = 70, color = {1,0.7,0.5}, showDuration = true, isMine = true } --Aspire
     A{ id = 7001,  type = "HELPFUL", indicator = { "bottom" }, pulse = true, priority = 72, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
     A{ id = 17,    type = "HELPFUL", indicator = { "top" }, color = { 1, 1, 0}, showDuration = true } --Power Word: Shield
-    A{ id = 6788,  type = "HARMFUL", indicator = { "top" }, color = { 0.6, 0, 0}, showDuration = true, priority = 40 } --Weakened Soul
+    A{ id = 6788,  type = "HARMFUL", indicator = { "top" }, color = { 0.6, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul
+--~     A{ id = 77613, type = "HELPFUL", indicator = { "top" }, showDuration = true, priority = 20, stackcolor =   {
+--~                                                                             [1] = { 0.5, 0.5, 1},
+--~                                                                             [2] = { 0.7, 0.7, 1},
+--~                                                                             [3] = { 0.9, 0.9, 1},
+--~                                                                         }} -- Grace
     A{ id = 33076, type = "HELPFUL", indicator = { "topright" }, priority = 90, stackcolor =   {
                                                                             [1] = { 0.4, 0, 0},
                                                                             [2] = { 0.7, 0, 0},
