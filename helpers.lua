@@ -4,8 +4,6 @@ local config
 helpers.AddDispellType = function(dtype, data)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not config.DebuffTypes then config.DebuffTypes = {} end
-    if type(data.indicator) == "string" then data.indicator = { data.indicator } end
-    if type(data.icon) == "table" then data.icon = data.icon[1] end
     data.name = dtype
     config.DebuffTypes[dtype] = data
 end
@@ -13,8 +11,6 @@ helpers.AddAura = function (data)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if data.id then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
-    if type(data.indicator) == "string" then data.indicator = { data.indicator } end
-    if type(data.icon) == "table" then data.icon = data.icon[1] end
     if data.isMine then data.type = data.type.."|PLAYER" end
     if data.debuffType then DT(data.debuffType, data) end
     if not config.IndicatorAuras then config.IndicatorAuras = {} end
@@ -26,12 +22,12 @@ helpers.AddTrace = function(data)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not config.enableTraceHeals then return end
     if data.id then data.name = GetSpellInfo(data.id) end
-    if type(data.indicator) == "string" then data.indicator = { data.indicator } end
-    --if type(data.type) == "string" then data.type = { data.type } end
     data.type = "SPELL_"..data.type
     if not config.TraceHeals then config.TraceHeals = {} end
     if not data.name then print("id or name required") return end
-    config.TraceHeals[data.name] = data
+    data.actualname = data.name
+    data.name = data.actualname.."Trace"
+    config.TraceHeals[data.actualname] = data
 end
 
 helpers.ClickMacro = function(macro)

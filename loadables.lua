@@ -20,31 +20,31 @@ local A = helpers.AddAura
 local color1 = { 0.9, 0, 0}
 local color2 = { 0.6, 0, 1}
 
-local defaultIndicator = { type = "HARMFUL", indicator = { "left" }, color = color1, priority = 40, pulse = true }
+AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bossdebuff" }, color = color1, priority = 40, pulse = true }
 
 AptechkaDefaultConfig.LoadableDebuffs = {
     ["Ruby Sanctum"] = function()
-    A{ id = 74562, type = "HARMFUL", prototype = defaultIndicator } --Fiery Combustion
-    A{ id = 74792, type = "HARMFUL", prototype = defaultIndicator, color = color2 } --Soul Consumptio
+    A{ id = 74562, type = "HARMFUL", prototype = AptechkaUserConfig.BossDebuffPrototype } --Fiery Combustion
+    A{ id = 74792, type = "HARMFUL", prototype = AptechkaUserConfig.BossDebuffPrototype, color = color2 } --Soul Consumptio
     end,
 
     ["Icecrown Citadel"] = function()
-    --A{ id = 69075, prototype = defaultIndicator } --Bone Storm dot, Lord Marrowgar
-    A{ id = 69062, prototype = defaultIndicator } --Impale, Lord Marrowgar
-    --A{ id = 71289, prototype = defaultIndicator } --Dominate Mind, Lady Deathwhisper
-    A{ id = 72442, prototype = defaultIndicator } --Boiling Blood, Deathbringer Saurfang
-    A{ id = 72444, prototype = defaultIndicator, color = color2, priority = 50 } --Mark of the Fallen Champion, Deathbringer Saurfang
-    A{ id = 69279, prototype = defaultIndicator } --Gas Cloud, Festergut
-    A{ id = 71288, prototype = defaultIndicator, color = color2, priority = 50 } --Vile Gas, Festergut
-    A{ id = 73022, prototype = defaultIndicator } --Mutated Infection, Rotface
-    A{ id = 71340, prototype = defaultIndicator } --Pact of the Darkfallen, Blood-Queen Lana'thel
-    A{ id = 71530, prototype = defaultIndicator, color = color2, priority = 30 } --Essence of the Blood Queen, Blood-Queen Lana'thel
-    A{ id = 70157, prototype = defaultIndicator } --Ice Tomb, Sindragosa
+    --A{ id = 69075, prototype = AptechkaUserConfig.BossDebuffPrototype } --Bone Storm dot, Lord Marrowgar
+    A{ id = 69062, prototype = AptechkaUserConfig.BossDebuffPrototype } --Impale, Lord Marrowgar
+    --A{ id = 71289, prototype = AptechkaUserConfig.BossDebuffPrototype } --Dominate Mind, Lady Deathwhisper
+    A{ id = 72442, prototype = AptechkaUserConfig.BossDebuffPrototype } --Boiling Blood, Deathbringer Saurfang
+    A{ id = 72444, prototype = AptechkaUserConfig.BossDebuffPrototype, color = color2, priority = 50 } --Mark of the Fallen Champion, Deathbringer Saurfang
+    A{ id = 69279, prototype = AptechkaUserConfig.BossDebuffPrototype } --Gas Cloud, Festergut
+    A{ id = 71288, prototype = AptechkaUserConfig.BossDebuffPrototype, color = color2, priority = 50 } --Vile Gas, Festergut
+    A{ id = 73022, prototype = AptechkaUserConfig.BossDebuffPrototype } --Mutated Infection, Rotface
+    A{ id = 71340, prototype = AptechkaUserConfig.BossDebuffPrototype } --Pact of the Darkfallen, Blood-Queen Lana'thel
+    A{ id = 71530, prototype = AptechkaUserConfig.BossDebuffPrototype, color = color2, priority = 30 } --Essence of the Blood Queen, Blood-Queen Lana'thel
+    A{ id = 70157, prototype = AptechkaUserConfig.BossDebuffPrototype } --Ice Tomb, Sindragosa
     
-    --A{ id = 70337, prototype = defaultIndicator } --Necrotic Plague, Lich King, phase 1 & 2  // still broken in 3.3.3
-    A{ id = 68980, prototype = defaultIndicator, showDuration = true, priority = 50 } --Harvest Soul, Lich King, phase 3
-    A{ id = 70541, prototype = defaultIndicator, color = {230/255, 117/255, 230/255 }, priority = 20 } --Infest, Lich King
-    A{ id = 69409, prototype = defaultIndicator, priority = 25, showDuration = true } --Soul Reaver debuff, Lich King
+    --A{ id = 70337, prototype = AptechkaUserConfig.BossDebuffPrototype } --Necrotic Plague, Lich King, phase 1 & 2  // still broken in 3.3.3
+    A{ id = 68980, prototype = AptechkaUserConfig.BossDebuffPrototype, showDuration = true, priority = 50 } --Harvest Soul, Lich King, phase 3
+    A{ id = 70541, prototype = AptechkaUserConfig.BossDebuffPrototype, color = {230/255, 117/255, 230/255 }, priority = 20 } --Infest, Lich King
+    A{ id = 69409, prototype = AptechkaUserConfig.BossDebuffPrototype, priority = 25, showDuration = true } --Soul Reaver debuff, Lich King
     --AptechkaUserConfig.LoadableDebuffs.tankcooldowns()
     end,
     
@@ -79,24 +79,24 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     end,
     
     ["Trial of the Crusader"] = function()
-    A{ id = 66237, prototype = defaultIndicator } --Incinerate Flesh, Lord Jaraxxus
-    A{ id = 68510, prototype = defaultIndicator } --Penetrating Cold, Anub'arak
-    A{ id = 67281, prototype = defaultIndicator } --Touch of Darkness, Twin Val'kyrs
-    A{ id = 67296, prototype = defaultIndicator } --Touch of Light, Twin Val'kyrs
+    A{ id = 66237, prototype = AptechkaUserConfig.BossDebuffPrototype } --Incinerate Flesh, Lord Jaraxxus
+    A{ id = 68510, prototype = AptechkaUserConfig.BossDebuffPrototype } --Penetrating Cold, Anub'arak
+    A{ id = 67281, prototype = AptechkaUserConfig.BossDebuffPrototype } --Touch of Darkness, Twin Val'kyrs
+    A{ id = 67296, prototype = AptechkaUserConfig.BossDebuffPrototype } --Touch of Light, Twin Val'kyrs
     AptechkaUserConfig.LoadableDebuffs.PvP(true, true)
     end,
     
     ["Ulduar"] = function()
-    A{ id = 64126, prototype = defaultIndicator } --Squeeze, Yogg-Saron
-    A{ id = 62717, prototype = defaultIndicator } --Slag Pot, Ignis
-    A{ id = 63493, prototype = defaultIndicator } --Fusion Punch, Assembly of Iron
-    A{ id = 64290, prototype = defaultIndicator } --Stone Grip, Kologarn
-    A{ id = 63018, prototype = defaultIndicator } --Searing Light, XT-002
+    A{ id = 64126, prototype = AptechkaUserConfig.BossDebuffPrototype } --Squeeze, Yogg-Saron
+    A{ id = 62717, prototype = AptechkaUserConfig.BossDebuffPrototype } --Slag Pot, Ignis
+    A{ id = 63493, prototype = AptechkaUserConfig.BossDebuffPrototype } --Fusion Punch, Assembly of Iron
+    A{ id = 64290, prototype = AptechkaUserConfig.BossDebuffPrototype } --Stone Grip, Kologarn
+    A{ id = 63018, prototype = AptechkaUserConfig.BossDebuffPrototype } --Searing Light, XT-002
     end,
     
     ["Naxxramas"] = function()
-    A{ id = 27808, prototype = defaultIndicator } --Frost Blast, Kel'Thuzad
-    A{ id = 28622, prototype = defaultIndicator } --Web Wrap, Maexxna
+    A{ id = 27808, prototype = AptechkaUserConfig.BossDebuffPrototype } --Frost Blast, Kel'Thuzad
+    A{ id = 28622, prototype = AptechkaUserConfig.BossDebuffPrototype } --Web Wrap, Maexxna
     end,
     
     ['tankcooldowns'] = function()
