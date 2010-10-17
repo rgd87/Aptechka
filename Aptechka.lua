@@ -103,7 +103,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER")
         self:RegisterEvent("UNIT_MAXPOWER")
-        --self:RegisterEvent("UNIT_DISPLAYPOWER")
+        self:RegisterEvent("UNIT_DISPLAYPOWER")
         Aptechka.UNIT_MAXPOWER = Aptechka.UNIT_POWER
     end
     if config.AggroStatus then
@@ -364,6 +364,15 @@ function Aptechka.UNIT_POWER(self, event, unit, ptype)
         end
     end
 end
+function Aptechka.UNIT_DISPLAYPOWER(self, event, unit)
+    if not Roster[unit] then return end
+    for self in pairs(Roster[unit]) do
+        if self.power and self.power.OnPowerTypeChange then
+            local tnum, tname = UnitPowerType(unit)
+            self.power:OnPowerTypeChange(tname)
+        end
+    end
+end
 
 -- STAY AWAY FROM DA VOODOO
 local vehicleHack = function (self, time)
@@ -581,7 +590,7 @@ local OnAttributeChanged = function(self, name, unit)
     Aptechka:UNIT_POWER("ONATTR", unit)
     Aptechka:UNIT_CONNECTION(nil, unit)
     if not config.disableManaBar then
-        --Aptechka:UNIT_DISPLAYPOWER(nil, unit)
+        Aptechka:UNIT_DISPLAYPOWER(nil, unit)
         Aptechka:UNIT_POWER(nil, unit)
     end
         
@@ -650,7 +659,7 @@ function Aptechka.CreateStuff(header,id)
     if not f.power then
         Aptechka:UnregisterEvent("UNIT_POWER")
         Aptechka:UnregisterEvent("UNIT_MAXPOWER")
-        --Aptechka:UnregisterEvent("UNIT_DISPLAYPOWER")
+        Aptechka:UnregisterEvent("UNIT_DISPLAYPOWER")
     end
     
     if f.raidicon then

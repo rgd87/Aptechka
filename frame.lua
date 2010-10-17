@@ -18,6 +18,18 @@ local SetJob_HealthBar = function(self, job)
         self.bg:SetVertexColor(unpack(c))
     end
 end
+local PowerBar_OnPowerTypeChange = function(self, powertype)
+    local self = self.parent
+    if powertype ~= "MANA" then
+        self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+        self.power:Hide()
+        self.power.bg:Hide()
+    else
+        self.health:SetPoint("TOPRIGHT",self.power,"TOPLEFT",0,0)
+        self.power:Show()
+        self.power.bg:Show()
+    end
+end
 local SetJob_Indicator = function(self,job)
     if job.showDuration then
         self.cd:SetCooldown(job.expirationTime - job.duration,job.duration)
@@ -211,6 +223,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     powerbar.parent = self
     powerbar:SetOrientation("VERTICAL")
     powerbar.SetJob = SetJob_HealthBar
+    powerbar.OnPowerTypeChange = PowerBar_OnPowerTypeChange
     
     local pbbg = self:CreateTexture()
 	pbbg:SetAllPoints(powerbar)

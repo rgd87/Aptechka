@@ -73,7 +73,7 @@ config.OutOfRangeStatus = { name = "OOR", assignto = { "self" }, color = {0.5,0.
 
 if playerClass == "PRIEST" then
         -- long buffs
-    A{ id = 21562, type = "HELPFUL", assignto = { "raidbuff" }, color = { 1, 1, 1}, isMissing = true } --Power Word: Fortitude
+    --A{ id = 21562, type = "HELPFUL", assignto = { "raidbuff" }, color = { 1, 1, 1}, isMissing = true } --Power Word: Fortitude
     --A{ id = 27683, type = "HELPFUL", assignto = { "raidbuff" }, color = { 102/255 , 0, 187/255 }, isMissing = true } --Shadow Protection
     
     A{ id = 139,   type = "HELPFUL", assignto = { "spell1" }, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true } --Renew
@@ -82,11 +82,11 @@ if playerClass == "PRIEST" then
     A{ id = 17,    type = "HELPFUL", assignto = { "spell2" }, color = { 1, 1, 0}, showDuration = true } --Power Word: Shield
     A{ id = 6788,  type = "HARMFUL", assignto = { "spell2" }, color = { 0.6, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul
     A{ id = 33076, type = "HELPFUL", assignto = { "spell3" }, priority = 70, stackcolor =   {
-                                                                            [1] = { 0.4, 0, 0},
-                                                                            [2] = { 0.7, 0, 0},
-                                                                            [3] = { 1, 0, 0},
-                                                                            [4] = { 1, 0.3, 0.3},
-                                                                            [5] = { 1, 0.6, 0.6},
+                                                                            [1] = { 1, 0, 0},
+                                                                            [2] = { 1, .2, .2},
+                                                                            [3] = { 1, .4, .4},
+                                                                            [4] = { 1, .6, .6},
+                                                                            [5] = { 1, .6, .6},
                                                                         }} --Prayer of Mending
                                                                         
     Trace{id = 34861, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
@@ -152,7 +152,7 @@ if playerClass == "SHAMAN" then
     DT("Curse", { assignto = { "dispel" }, color = { 0.6, 0, 1} })
 end
 if playerClass == "DRUID" then
-    A{ id = 1126,  type = "HELPFUL", assignto = { "raidbuff" }, color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
+    --A{ id = 1126,  type = "HELPFUL", assignto = { "raidbuff" }, color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
     
     A{ id = 774,   type = "HELPFUL", assignto = { "spell1"}, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true } --Rejuvenation
     --A{ id = 8936,  type = "HELPFUL", assignto = { "topright" }, priority = 82, color = { 198/255, 233/255, 80/255}, showDuration = true, isMine = true } --Regrowth
@@ -171,8 +171,8 @@ if playerClass == "DRUID" then
     DT("Magic", { assignto = { "dispel" }, color = { 0.2, 0.6, 1}, priority = 82 })
 end
 if playerClass == "MAGE" then
-    A{ id = 1459,  type = "HELPFUL", assignto = { "spell2" }, color = { .4 , .4, 1}, priority = 50 } --Arcane Intellect
-    A{ id = 61316, type = "HELPFUL", assignto = { "spell2" }, color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
+    --A{ id = 1459,  type = "HELPFUL", assignto = { "spell2" }, color = { .4 , .4, 1}, priority = 50 } --Arcane Intellect
+    --A{ id = 61316, type = "HELPFUL", assignto = { "spell2" }, color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
     A{ id = 54648, type = "HELPFUL", assignto = { "spell2" }, color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
     
     DT("Curse", { assignto = { "dispel" }, color = { 0.6, 0, 1} })
