@@ -342,9 +342,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
     
     self.health = hp
     self.health.incoming = hpi
-    self.healthtext = text
     self.text1 = text
     self.text2 = text2
+    self.healthtext = self.text2
     self.text3 = text3container
     self.power = powerbar
     self.spell1 = br

@@ -118,12 +118,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self.previousTarget = "player"
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
     end
-    if config.MainTankStatus then
-        self:RegisterEvent("PLAYER_ROLES_ASSIGNED")
-        self:RegisterEvent("PARTY_MEMBERS_CHANGED")
-        self.PLAYER_ROLES_ASSIGNED = self.UpdateMainTanks
-        self.PARTY_MEMBERS_CHANGED = self.UpdateMainTanks
-    end
     
     self:RegisterEvent("UNIT_AURA")
     
@@ -136,10 +130,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.raidIcons then
         self:RegisterEvent("RAID_TARGET_UPDATE")
     end
-    
     self:RegisterEvent("UNIT_ENTERED_VEHICLE")
-    --self:RegisterEvent("UNIT_EXITED_VEHICLE")
-    
     
     if config[config.skin.."Settings"] then  config[config.skin.."Settings"]() end
     --Create Anchor and headers
@@ -320,7 +311,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
     for self in pairs(Roster[unit]) do
         local h,hm = UnitHealth(unit), UnitHealthMax(unit)
         self.health:SetValue(h/hm*100)
-        self[config.HealthDificitStatus.getfrom] = string.format("%.1fk", (h-hm) / 1e3)
+        self[config.HealthDificitStatus.getfrom] = string.format("%.0fk", (hm-h) / 1e3)
         Aptechka.SetJob(unit,config.HealthDificitStatus, ((hm-h) > 1000) )
         
         
@@ -338,7 +329,6 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
                     self.isDead = false
                     if self.OnAlive then self:OnAlive() end
                     Aptechka.ScanAuras(unit)
-                    --Aptechka.UpdateHealthText(self, h, hm)
                     Aptechka.SetJob(unit, config.GhostStatus, false)
                     Aptechka.SetJob(unit, config.DeadStatus, false)
                 end
@@ -380,17 +370,11 @@ local vehicleHack = function (self, time)
     if self.OnUpdateCounter < 1 then return end
     self.OnUpdateCounter = 0
     if not UnitHasVehicleUI(self.parent.unitOwner) then
---~         print ("Trying to swap back from", self.parent.unit)
         if Roster[self.parent.unit] then
             Roster[self.parent.unitOwner] = Roster[self.parent.unit]
             Roster[self.parent.unit] = nil
---~             print(self.parent.unitOwner,"Roster replaced", self.parent.unit)
             self.parent.unit = self.parent.unitOwner
             self:SetScript("OnUpdate",nil)
-            
---~             Aptechka:Colorize(nil, self.parent.unit)
---~             Aptechka:UNIT_HEALTH(nil, self.parent.unit)
---~             Aptechka.ScanAuras(self.parent.unit)
         end
     end
 end
@@ -402,17 +386,13 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
         if self.unitOwner == vehicleUnit then return end
         Aptechka:Colorize(nil, unit)
         self.unit = vehicleUnit
---~         print ("Switching roster to ", self.unit)
         Roster[self.unit] = Roster[self.unitOwner]
         Roster[self.unitOwner] = nil
         if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
---~         self.vehicleFrame.secondsPassed = 0
+
         self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
---~         
---~         Aptechka:UNIT_HEALTH(nil, self.unit)
---~         Aptechka.ScanAuras(self.unit)
+
     end
---~     
 end
 -- VOODOO ENDS HERE
 
@@ -456,16 +436,9 @@ function Aptechka.UNIT_THREAT_SITUATION_UPDATE(self, event, unit)
 end
 
 -- maintanks, resize
-function Aptechka.UpdateMainTanks( self )
-    if config.MainTankStatus then
-        for unit in pairs(Roster) do
-            if UnitExists(unit) and (GetPartyAssignment("MAINTANK", unit) or UnitGroupRolesAssigned(unit) == "TANK") then
-                Aptechka.SetJob(unit, config.MainTankStatus, true)
-            else
-                Aptechka.SetJob(unit, config.MainTankStatus, false)
-            end
-        end
-    end
+function Aptechka.CheckLFDTank( self,unit )
+    if not config.MainTankStatus then return end
+    Aptechka.SetJob(unit, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
 end
 function Aptechka.RAID_ROSTER_UPDATE(self,event,arg1)
     if not InCombatLockdown() then
@@ -481,7 +454,6 @@ function Aptechka.RAID_ROSTER_UPDATE(self,event,arg1)
             end
         end
     end
-    self:UpdateMainTanks()
 end
 
 --raid icons
@@ -598,7 +570,7 @@ local OnAttributeChanged = function(self, name, unit)
     if config.raidIcons then
         Aptechka:RAID_TARGET_UPDATE()
     end
-    Aptechka:UpdateMainTanks()
+    Aptechka:CheckLFDTank(unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
 end
 
@@ -665,19 +637,6 @@ function Aptechka.CreateStuff(header,id)
     if f.raidicon then
         f.raidicon.texture:SetTexture[[Interface\TargetingFrame\UI-RaidTargetingIcons]]
     end
-    
-    
---~     f.SetColor = f.SetColor or function(self,r,g,b)
---~         if not config.invertColor then
---~             self.health:SetStatusBarColor(0,0,0,0.8)
---~             self.health.bg:SetVertexColor(r,g,b,1)
---~             self.text1:SetTextColor(r,g,b)
---~         else
---~             self.health:SetStatusBarColor(r,g,b,1)
---~             self.health.bg:SetVertexColor(r,g,b,0.2)
---~             self.text1:SetTextColor(r*0.75,g*0.75,b*0.75)
---~         end
---~     end
     
         f:SetScript("OnEnter", function(self)
             if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
@@ -774,7 +733,7 @@ function Aptechka.FrameSetJob(frame, opts, status)
                         max = name
                     end
                 end
-                self:Show()
+                if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
                 if self.SetJob  then self:SetJob(self.jobs[max]) end
                 self.currentJob = self.jobs[max]
                 

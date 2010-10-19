@@ -58,7 +58,7 @@ config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = { "spell3" 
                                                                             ['notready'] = { 1, 0, 0},
                                                                             ['waiting'] = { 1, 1, 0},
                                                                         }}
-config.MainTankStatus = { name = "MainTank", priority = 60, assignto = { "border" }, color = {1,0.4,0.6} }
+config.MainTankStatus = { name = "MainTank", priority = 60, assignto = { "border" }, color = {0.6,0.6,0.6} }
 config.DeadStatus = { name = "DEAD", assignto = { "text2","health","power" }, color = {.2,.2,.2}, text = "DEAD", priority = 60}
 config.GhostStatus = { name = "GHOST", assignto = { "text2","health","power" }, color = {.2,.2,.2}, text = "GHOST", priority = 62}
 config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","health","power" }, color = {.2,.2,.2}, text = "OFFLINE",  priority = 70}
