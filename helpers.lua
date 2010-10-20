@@ -7,8 +7,8 @@ helpers.AddDispellType = function(dtype, data)
     data.name = dtype
     config.DebuffTypes[dtype] = data
 end
-helpers.AddAura = function (data)
-    if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
+helpers.AddAura = function (data, todefault)
+    if AptechkaUserConfig and not todefault then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if data.id then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
     if data.isMine then data.type = data.type.."|PLAYER" end
@@ -17,6 +17,9 @@ helpers.AddAura = function (data)
     if data.prototype then setmetatable(data, { __index = function(t,k) return data.prototype[k] end }) end
     config.IndicatorAuras[data.name] = data
 --~     table.insert(config.IndicatorAuras, data)
+end
+helpers.AddAuraToDefault = function(data)
+    helpers.AddAura(data,true)
 end
 helpers.AddTrace = function(data)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
