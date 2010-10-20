@@ -113,6 +113,7 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     f:Hide()
     return f
 end
+AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
 local SetJob_Icon = function(self,job)
     if job.showDuration then
         self.cd:SetCooldown(job.expirationTime - job.duration,job.duration)
@@ -127,6 +128,36 @@ local SetJob_Icon = function(self,job)
         if job.stacks then self.stacktext:SetText(job.stacks > 1 and job.stacks or "") end
     end
 end
+local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
+    local icon = CreateFrame("Frame",nil,parent)
+    icon:SetWidth(w); icon:SetHeight(h)
+    icon:SetPoint(point,frame,to,x,y)
+    local icontex = icon:CreateTexture(nil,"OVERLAY")
+    icontex:SetAllPoints(icon)
+    icon.texture = icontex
+    icon:SetAlpha(alpha)
+    
+    local icd = CreateFrame("Cooldown",nil,icon)
+    icd.noCooldownCount = true -- disable OmniCC for this cooldown
+    icd:SetReverse(true)
+    icd:SetAllPoints(icon)
+    icon.cd = icd
+    
+    local stacktext = icon:CreateFontString(nil,"OVERLAY")
+    if AptechkaUserConfig.font then
+        stacktext:SetFont(AptechkaUserConfig.font,10,"OUTLINE")
+    else
+        stacktext:SetFontObject("NumberFontNormal")
+    end
+    stacktext:SetJustifyH"RIGHT"
+    stacktext:SetPoint("BOTTOMRIGHT",icon,"BOTTOMRIGHT",0,0)
+    stacktext:SetTextColor(1,1,1)
+    icon.stacktext = stacktext
+    icon.SetJob = SetJob_Icon
+    
+    return icon
+end
+AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 local SetJob_Text1 = function(self,job)
     if job.getfrom then
         self:SetText(self.parent[job.getfrom])
@@ -284,32 +315,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text2:SetTextColor(0.2, 1, 0.2)
     text2.parent = self
     
-    
-    local icon = CreateFrame("Frame",nil,self)
-    icon:SetWidth(24); icon:SetHeight(24)
-    icon:SetPoint("CENTER",hp,"CENTER",0,0)
-    local icontex = icon:CreateTexture(nil,"OVERLAY")
-    icontex:SetAllPoints(icon)
-    icon.texture = icontex
-    icon:SetAlpha(0.4)
-    
-    local icd = CreateFrame("Cooldown",nil,icon)
-    icd.noCooldownCount = true -- disable OmniCC for this cooldown
-    icd:SetReverse(true)
-    icd:SetAllPoints(icon)
-    icon.cd = icd
-    
-    local stacktext = icon:CreateFontString(nil,"OVERLAY")
-    if config.font then
-        stacktext:SetFont(config.font,10,"OUTLINE")
-    else
-        stacktext:SetFontObject("NumberFontNormal")
-    end
-    stacktext:SetJustifyH"RIGHT"
-    stacktext:SetPoint("BOTTOMRIGHT",icon,"BOTTOMRIGHT",0,0)
-    stacktext:SetTextColor(1,1,1)
-    icon.stacktext = stacktext
-    icon.SetJob = SetJob_Icon
+    local icon = CreateIcon(self,24,24,0.4,"CENTER",self,"CENTER",0,0)
     
     local raidicon = CreateFrame("Frame",nil,self)
     raidicon:SetWidth(20); raidicon:SetHeight(20)
