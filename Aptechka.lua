@@ -22,7 +22,8 @@ local auraUpdateEvents
 local Roster = {}
 local guidMap = {}
 local group_headers = {}
-
+local anchors = {}
+local skinAnchorsName
 
 if not ClickCastFrames then ClickCastFrames = {} end -- clique
 local AptechkaString = "|cffff7777Aptechka: |r"
@@ -133,53 +134,52 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     
     if config[config.skin.."Settings"] then  config[config.skin.."Settings"]() end
-    --Create Anchor and headers
-    if not config.anchorpoint then
-        local p1 = (config.unitGrowth == "TOP" or config.unitGrowth == "BOTTOM") and config.unitGrowth or config.groupGrowth
-        local p2 = (config.unitGrowth == "RIGHT" or config.unitGrowth == "LEFT") and config.unitGrowth or config.groupGrowth
-        -- and we're fucked if one axis is chosen on both
-        config.anchorpoint = reverse(p1..p2)
-    end
-    self.anchor = self:CreateAnchor("pos")
     
-    local arrangeHeaders = function(prv_group, notreverse)
-            local p1, p2
-            local xgap = 0
-            local ygap = config.groupGap
-            local point, direction = reverse(config.unitGrowth) 
-            local grgrowth = notreverse and reverse(config.groupGrowth) or config.groupGrowth
-            if grgrowth == "TOP" then
-                if direction == "VERTICAL" then point = "" end
-                p1 = "BOTTOM"..point; p2 = "TOP"..point;
-            elseif grgrowth == "BOTTOM" then
-                if direction == "VERTICAL" then point = "" end
-                p2 = "BOTTOM"..point; p1 = "TOP"..point
-                ygap = -ygap
-            elseif grgrowth == "RIGHT" then
-                if direction == "HORIZONTAL" then point = "" end
-                p1 = point.."LEFT"; p2 = point.."RIGHT"
-                xgap, ygap = ygap, xgap
-            elseif grgrowth == "LEFT" then
-                if direction == "HORIZONTAL" then point = "" end
-                p2 = point.."LEFT"; p1 = point.."RIGHT"
-                xgap, ygap = -ygap, xgap
-            end
-            return p1, prv_group, p2, xgap, ygap
-    end        
-        
+    
+--~     --Create Anchor and headers
+--~     if not config.anchorpoint then
+--~         local p1 = (config.unitGrowth == "TOP" or config.unitGrowth == "BOTTOM") and config.unitGrowth or config.groupGrowth
+--~         local p2 = (config.unitGrowth == "RIGHT" or config.unitGrowth == "LEFT") and config.unitGrowth or config.groupGrowth
+--~         -- and we're fucked if one axis is chosen on both
+--~         config.anchorpoint = reverse(p1..p2)
+--~     end
+--~     self.anchor = self:CreateAnchor("pos")
+--~     
+--~     local arrangeHeaders = function(prv_group, notreverse)
+--~             local p1, p2
+--~             local xgap = 0
+--~             local ygap = config.groupGap
+--~             local point, direction = reverse(config.unitGrowth) 
+--~             local grgrowth = notreverse and reverse(config.groupGrowth) or config.groupGrowth
+--~             if grgrowth == "TOP" then
+--~                 if direction == "VERTICAL" then point = "" end
+--~                 p1 = "BOTTOM"..point; p2 = "TOP"..point;
+--~             elseif grgrowth == "BOTTOM" then
+--~                 if direction == "VERTICAL" then point = "" end
+--~                 p2 = "BOTTOM"..point; p1 = "TOP"..point
+--~                 ygap = -ygap
+--~             elseif grgrowth == "RIGHT" then
+--~                 if direction == "HORIZONTAL" then point = "" end
+--~                 p1 = point.."LEFT"; p2 = point.."RIGHT"
+--~                 xgap, ygap = ygap, xgap
+--~             elseif grgrowth == "LEFT" then
+--~                 if direction == "HORIZONTAL" then point = "" end
+--~                 p2 = point.."LEFT"; p1 = point.."RIGHT"
+--~                 xgap, ygap = -ygap, xgap
+--~             end
+--~             return p1, prv_group, p2, xgap, ygap
+--~     end        
+    skinAnchorsName = config.useAnchors or config.skin
     local i = 1
     while (i <= config.maxgroups) do
         local f  = Aptechka:CreateHeader(i)
         
         group_headers[i] = f
-        if i == 1 then
-            f:SetPoint(config.anchorpoint, self.anchor, reverse(config.anchorpoint), 0, 0)
-            f:SetAttribute("showParty", config.showParty)
-            f:SetAttribute("showSolo", config.showSolo)
-            f:SetAttribute("showPlayer", true)
-        else
-            f:SetPoint(arrangeHeaders(group_headers[i-1]))
-        end
+--~         if i == 1 then
+--~             f:SetPoint(config.anchorpoint, self.anchor, reverse(config.anchorpoint), 0, 0)
+--~         else
+--~             f:SetPoint(arrangeHeaders(group_headers[i-1]))
+--~         end
         f:SetScale(AptechkaDB.scale)
         f:Show()
         i = i + 1
@@ -190,6 +190,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         
     SLASH_APTECHKA1= "/aptechka"
     SLASH_APTECHKA2= "/apt"
+    SLASH_APTECHKA3= "/inj"
     SlashCmdList["APTECHKA"] = Aptechka.SlashCmd
     
     
@@ -591,11 +592,17 @@ function Aptechka.CreateHeader(self,group)
     end
     f:SetAttribute("point", unitgr)
 	f:SetAttribute("groupFilter", group)
+ 	--f:SetAttribute("groupFilter", 1)
     f:SetAttribute("showRaid", true)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
+    f:SetAttribute("showParty", config.showParty)
+    f:SetAttribute("showSolo", config.showSolo)
+    f:SetAttribute("showPlayer", true)
     f.initConf = Aptechka.CreateStuff
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
+    
+    Aptechka:CreateAnchor(f,group)
 
     return f
 end
@@ -655,53 +662,53 @@ end
 
 
 
-function Aptechka.CreateAnchor(self, tbl)
-    local f = CreateFrame("Frame",nil,UIParent)
-    f:SetHeight(20)
-    f:SetWidth(20)
-    f.cols = cols
-    f.filter = filter
+--~ function Aptechka.CreateAnchor(self, tbl)
+--~     local f = CreateFrame("Frame",nil,UIParent)
+--~     f:SetHeight(20)
+--~     f:SetWidth(20)
+--~     f.cols = cols
+--~     f.filter = filter
 
-    f:RegisterForDrag("LeftButton")
-    f:EnableMouse(true)
-    f:SetMovable(true)
-    f:SetFrameStrata("HIGH")
-    f:SetFrameLevel(2)
-    if config.lockedOnStartUp then
-        f:Hide()
-    else
-        f:Show()
-    end
-    
-    local t = f:CreateTexture(nil,"BACKGROUND")
-    t:SetTexture("Interface\\Buttons\\UI-RadioButton")
-    t:SetTexCoord(0,0.25,0,1)
-    t:SetAllPoints(f)
-    
-    t = f:CreateTexture(nil,"BACKGROUND")
-    t:SetTexture("Interface\\Buttons\\UI-RadioButton")
-    t:SetTexCoord(0.25,0.49,0,1)
-    t:SetVertexColor(1, 0, 0)
-    t:SetAllPoints(f)
-    
-    f:SetScript("OnDragStart",function(self) self:StartMoving() end)
-    f:SetScript("OnDragStop",function(self)
-        self:StopMovingOrSizing();
-        _,_, AptechkaDB[tbl].point, AptechkaDB[tbl].x, AptechkaDB[tbl].y = self:GetPoint(1)
-    end)
-    
-    f.SetPos = function(self,point, x, y )
-        AptechkaDB[tbl].point = point
-        AptechkaDB[tbl].x = x
-        AptechkaDB[tbl].y = y
-        self:ClearAllPoints()
-        self:SetPoint(point, UIParent, point, x, y) 
-    end
-    
-    f:SetPos(AptechkaDB[tbl].point, AptechkaDB[tbl].x, AptechkaDB[tbl].y)
-    
-    return f
-end
+--~     f:RegisterForDrag("LeftButton")
+--~     f:EnableMouse(true)
+--~     f:SetMovable(true)
+--~     f:SetFrameStrata("HIGH")
+--~     f:SetFrameLevel(2)
+--~     if config.lockedOnStartUp then
+--~         f:Hide()
+--~     else
+--~         f:Show()
+--~     end
+--~     
+--~     local t = f:CreateTexture(nil,"BACKGROUND")
+--~     t:SetTexture("Interface\\Buttons\\UI-RadioButton")
+--~     t:SetTexCoord(0,0.25,0,1)
+--~     t:SetAllPoints(f)
+--~     
+--~     t = f:CreateTexture(nil,"BACKGROUND")
+--~     t:SetTexture("Interface\\Buttons\\UI-RadioButton")
+--~     t:SetTexCoord(0.25,0.49,0,1)
+--~     t:SetVertexColor(1, 0, 0)
+--~     t:SetAllPoints(f)
+--~     
+--~     f:SetScript("OnDragStart",function(self) self:StartMoving() end)
+--~     f:SetScript("OnDragStop",function(self)
+--~         self:StopMovingOrSizing();
+--~         _,_, AptechkaDB[tbl].point, AptechkaDB[tbl].x, AptechkaDB[tbl].y = self:GetPoint(1)
+--~     end)
+--~     
+--~     f.SetPos = function(self,point, x, y )
+--~         AptechkaDB[tbl].point = point
+--~         AptechkaDB[tbl].x = x
+--~         AptechkaDB[tbl].y = y
+--~         self:ClearAllPoints()
+--~         self:SetPoint(point, UIParent, point, x, y) 
+--~     end
+--~     
+--~     f:SetPos(AptechkaDB[tbl].point, AptechkaDB[tbl].x, AptechkaDB[tbl].y)
+--~     
+--~     return f
+--~ end
 
 function Aptechka.SetJob(unit, opts, status)
     if not Roster[unit] then return end
@@ -824,13 +831,18 @@ function Aptechka.SlashCmd(msg)
       |cff00ff00/aptechka toggle | show | hide
       |cff00ff00/aptechka togglegroup <1-8>]]
     )end
+    if k == "unlockall" then
+        for _,anchor in ipairs(anchors) do
+            anchor:Show()
+        end
+    end
     if k == "unlock" then
-        Aptechka.anchor:Show()
-        if AptechkaPet and Aptechka.petanchor then Aptechka.petanchor:Show() end
+        anchors[1]:Show()
     end
     if k == "lock" then
-        Aptechka.anchor:Hide()
-        if AptechkaPet and Aptechka.petanchor then Aptechka.petanchor:Hide() end
+        for _,anchor in ipairs(anchors) do
+            anchor:Hide()
+        end
     end
     if k == "reset" then
         Aptechka.anchor:SetPos("CENTER", 0, 0)
@@ -903,4 +915,62 @@ function Aptechka.SlashCmd(msg)
         end
         print (AptechkaString..(AptechkaDB_Global.charspec[user] and "Enabled" or "Disabled").." character specific options for this toon. Will take effect after ui reload",0.7,1,0.7)
     end
+end
+
+
+
+function Aptechka.CreateAnchor(self,hdr,num)
+    local f = CreateFrame("Frame",nil,UIParent)
+    local backdrop = {
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 0,
+        insets = {left = -2, right = -2, top = -2, bottom = -2},
+    }
+    f:SetBackdrop(backdrop)
+    if num == 1 then f:SetBackdropColor(1,0,0,0.8)
+    else f:SetBackdropColor(0,0,1,0.8) end
+    f:SetHeight(20)
+    f:SetWidth(20)
+    f:RegisterForDrag("LeftButton")
+    f:EnableMouse(true)
+    f:SetMovable(true)
+    f:SetFrameStrata("HIGH")
+    hdr:SetPoint("TOPLEFT",f,"TOPRIGHT",0,0)
+    anchors[num] = f
+    f:Hide()
+    
+    if not AptechkaDB[skinAnchorsName] then AptechkaDB[skinAnchorsName] = {} end
+    if not AptechkaDB[skinAnchorsName][num] then
+        if num == 1 then AptechkaDB[skinAnchorsName][num] = { point = "CENTER", x = 0, y = 0 }
+        else AptechkaDB[skinAnchorsName][num] = { point = "TOPLEFT", x = 0, y = 60} end
+    end
+    local san = AptechkaDB[skinAnchorsName][num]
+    if num == 1 then
+        f.root = true
+        f:SetPoint(san.point,UIParent,san.point,san.x,san.y)
+    else
+        f.prev = anchors[#anchors-1]
+        f:SetPoint(san.point,f.prev,san.point,san.x,san.y)
+    end
+    f.san = san
+    
+--~     f.SetPos = function(self,point, x, y )
+--~         self.san.point = point
+--~         self.san.x = x
+--~         self.san.y = y
+--~         self:ClearAllPoints()
+--~         self:SetPoint(point, UIParent, point, x, y) 
+--~     end
+    
+    f:SetScript("OnDragStart",function(self) self:StartMoving() end)
+    f:SetScript("OnDragStop",function(self)
+        self:StopMovingOrSizing();
+        if self.root then
+            _,_, self.san.point, self.san.x, self.san.y = self:GetPoint(1)
+        else
+            self.san.y = self:GetTop() - self.prev:GetTop()
+            self.san.x = self:GetLeft() - self.prev:GetLeft()
+            self:ClearAllPoints()
+            self:SetPoint(san.point,self.prev,san.point,san.x,san.y)
+        end
+    end)
 end

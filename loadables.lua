@@ -49,31 +49,31 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     end,
     
     ["PvP"] = function(disable_damagereduction, disable_roots)
-    A{ id = 118,   type = "HARMFUL", icon = "center", priority = 90 } --Polymorph
-    A{ id = 3355,  type = "HARMFUL", icon = "center", priority = 90 } --Freezing Trap
-    A{ id = 20066, type = "HARMFUL", icon = "center", priority = 90 } --Repentance
-    A{ id = 5782,  type = "HARMFUL", icon = "center", priority = 89 } --Fear
-    A{ id = 6770,  type = "HARMFUL", icon = "center", priority = 88 } --Sap
-    A{ id = 2094,  type = "HARMFUL", icon = "center", priority = 88 } --Blind
-    A{ id = 51514, type = "HARMFUL", icon = "center", priority = 87 } --Hex
-    A{ id = 853,   type = "HARMFUL", icon = "center", priority = 86 } --Hammer of Justice
-    A{ id = 44572, type = "HARMFUL", icon = "center", priority = 86 } --Deep Freeze
-    A{ id = 30108, type = "HARMFUL", icon = "center", priority = 86 } --Unstable Affliction
+    A{ id = 118,   type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Polymorph
+    A{ id = 3355,  type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Freezing Trap
+    A{ id = 20066, type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Repentance
+    A{ id = 5782,  type = "HARMFUL", assignto = { "icon" }, priority = 89 } --Fear
+    A{ id = 6770,  type = "HARMFUL", assignto = { "icon" }, priority = 88 } --Sap
+    A{ id = 2094,  type = "HARMFUL", assignto = { "icon" }, priority = 88 } --Blind
+    A{ id = 51514, type = "HARMFUL", assignto = { "icon" }, priority = 87 } --Hex
+    A{ id = 853,   type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Hammer of Justice
+    A{ id = 44572, type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Deep Freeze
+    A{ id = 30108, type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Unstable Affliction
     
     if not disable_damagereduction then
-        A{ id = 871,   type = "HELPFUL", icon = "center", priority = 84 } --Shield Wall
-        A{ id = 5277,  type = "HELPFUL", icon = "center", priority = 84 } --Evasion
-        A{ id = 31224, type = "HELPFUL", icon = "center", priority = 84 } --Cloak of Shadows
-        A{ id = 1022,  type = "HELPFUL", icon = "center", priority = 84 } --Hand of Protection
-        A{ id = 45438, type = "HELPFUL", icon = "center", priority = 85 } --Ice Block
-        A{ id = 642,   type = "HELPFUL", icon = "center", priority = 85 } --Divine Shield
-        A{ id = 1784,  type = "HELPFUL", icon = "center", priority = 85 } --Stealth
+        A{ id = 871,   type = "HELPFUL", assignto = { "icon" }, priority = 84 } --Shield Wall
+        A{ id = 5277,  type = "HELPFUL", assignto = { "icon" }, priority = 84 } --Evasion
+        A{ id = 31224, type = "HELPFUL", assignto = { "icon" }, priority = 84 } --Cloak of Shadows
+        A{ id = 1022,  type = "HELPFUL", assignto = { "icon" }, priority = 84 } --Hand of Protection
+        A{ id = 45438, type = "HELPFUL", assignto = { "icon" }, priority = 85 } --Ice Block
+        A{ id = 642,   type = "HELPFUL", assignto = { "icon" }, priority = 85 } --Divine Shield
+        A{ id = 1784,  type = "HELPFUL", assignto = { "icon" }, priority = 85 } --Stealth
     end
 
     if not disable_roots then
-        A{ id = 339,   type = "HARMFUL", icon = "center", priority = 86 } --Entangling Roots
-        A{ id = 122,   type = "HARMFUL", icon = "center", priority = 86 } --Frost Nova
-        A{ id = 55080, type = "HARMFUL", icon = "center", priority = 86 } --Shattered Barrier
+        A{ id = 339,   type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Entangling Roots
+        A{ id = 122,   type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Frost Nova
+        A{ id = 55080, type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Shattered Barrier
     end
     
     end,

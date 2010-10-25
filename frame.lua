@@ -196,6 +196,20 @@ local SetJob_Text3 = function(self,job) -- text2 is always green
     end
     self.text:SetTextColor(unpack(c))
 end
+local CreateTextTimer = function(parent,point,frame,to,x,y,hjustify,fontsize,font,flags)
+    local text3container = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
+    local text3 = text3container:CreateFontString(nil, "OVERLAY")
+    text3container.text = text3
+    text3:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
+    text3:SetJustifyH"LEFT"
+    text3:SetFont(font, fontsize or 11, flags)
+    text3container.SetJob = SetJob_Text3
+    text3container.HideFunc = Text3_HideFunc
+    text3container.parent = parent
+    text3container:Hide()
+    return text3container
+end
+AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
 local SetJob_Border = function(self,job)
     if job.color then
@@ -218,8 +232,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     AptechkaDefaultConfig.texture = [[Interface\AddOns\Aptechka\gradient]]
     AptechkaDefaultConfig.font = [[Interface\AddOns\Aptechka\ClearFont.ttf]]
     AptechkaDefaultConfig.fontsize = 12
-    --AptechkaDefaultConfig.manabarwidth = 6
-    AptechkaDefaultConfig.orientation = "VERTICAL"
     
     local texture = config.texture
     local font = config.font
@@ -331,17 +343,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local btm = CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0)
     local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
     local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
-    
-    local text3container = CreateFrame("Frame", nil, self) -- We need frame to create OnUpdate handler for time updates
-    local text3 = text3container:CreateFontString(nil, "OVERLAY")
-    text3container.text = text3
-    text3:SetPoint("TOPLEFT",self,"TOPLEFT",-2,0)
-    text3:SetJustifyH"LEFT"
-    text3:SetFont(font, fontsize-3, "OUTLINE")
-    text3container.SetJob = SetJob_Text3
-    text3container.HideFunc = Text3_HideFunc
-    text3container.parent = self
-    text3container:Hide()
+    local text3 = CreateTextTimer(self,"TOPLEFT",self,"TOPLEFT",-2,0,"LEFT",fontsize-3,font,"OUTLINE")
     
     self.SetJob = SetJob_Frame
     self.HideFunc = Frame_HideFunc
@@ -351,7 +353,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.text1 = text
     self.text2 = text2
     self.healthtext = self.text2
-    self.text3 = text3container
+    self.text3 = text3
     self.power = powerbar
     self.spell1 = br
     self.spell2 = topind
