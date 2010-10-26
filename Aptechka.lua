@@ -545,7 +545,6 @@ function Aptechka.CreateHeader(self,group)
     end
     f:SetAttribute("point", unitgr)
 	f:SetAttribute("groupFilter", group)
- 	--f:SetAttribute("groupFilter", 1)
     f:SetAttribute("showRaid", true)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
@@ -654,10 +653,12 @@ function Aptechka.CreateStuff(header,id)
     f.HideFunc = f.HideFunc or function() end
     
     --shit
-    if not f.power then
+    if config.disableManaBar or not f.power then
         Aptechka:UnregisterEvent("UNIT_POWER")
         Aptechka:UnregisterEvent("UNIT_MAXPOWER")
         Aptechka:UnregisterEvent("UNIT_DISPLAYPOWER")
+        if f.power.OnPowerTypeChange then f.power:OnPowerTypeChange("none") end
+        f.power = nil
     end
     
     if f.raidicon then
