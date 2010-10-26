@@ -405,7 +405,7 @@ function Aptechka.CheckLFDTank( self,unit )
 end
 function Aptechka.RAID_ROSTER_UPDATE(self,event,arg1)
     if not InCombatLockdown() then
-        if config.resize then
+        if config.resize and not config.useGroupAnchors then
             if GetNumRaidMembers() > config.resize.after then
                 for i = 1, config.maxgroups do
                     group_headers[i]:SetScale(config.resize.to)
@@ -530,6 +530,31 @@ local OnAttributeChanged = function(self, name, unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
 end
 
+
+local arrangeHeaders = function(prv_group, notreverse)
+        local p1, p2
+        local xgap = 0
+        local ygap = config.groupGap
+        local point, direction = reverse(config.unitGrowth) 
+        local grgrowth = notreverse and reverse(config.groupGrowth) or config.groupGrowth
+        if grgrowth == "TOP" then
+            if direction == "VERTICAL" then point = "" end
+            p1 = "BOTTOM"..point; p2 = "TOP"..point;
+        elseif grgrowth == "BOTTOM" then
+            if direction == "VERTICAL" then point = "" end
+            p2 = "BOTTOM"..point; p1 = "TOP"..point
+            ygap = -ygap
+        elseif grgrowth == "RIGHT" then
+            if direction == "HORIZONTAL" then point = "" end
+            p1 = point.."LEFT"; p2 = point.."RIGHT"
+            xgap, ygap = ygap, xgap
+        elseif grgrowth == "LEFT" then
+            if direction == "HORIZONTAL" then point = "" end
+            p2 = point.."LEFT"; p1 = point.."RIGHT"
+            xgap, ygap = -ygap, xgap
+        end
+        return p1, prv_group, p2, xgap, ygap
+end 
 function Aptechka.CreateHeader(self,group)
     local frameName = "NugRaid"..group
     local xgap = config.unitGap
@@ -556,7 +581,11 @@ function Aptechka.CreateHeader(self,group)
     f.initConf = Aptechka.CreateStuff
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
     
-    Aptechka:CreateAnchor(f,group)
+    if not config.useGroupAnchors and group ~= 1 then
+        f:SetPoint(arrangeHeaders(group_headers[group-1]))
+    else
+        Aptechka:CreateAnchor(f,group)
+    end
 
     return f
 end

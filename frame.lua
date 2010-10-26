@@ -188,6 +188,7 @@ end
     end
     local Text3_HideFunc = function(self)
         self.frame:SetScript("OnUpdate",nil)
+        self:Hide()
     end
 local SetJob_Text3 = function(self,job) -- text2 is always green
     self.expirationTime = job.expirationTime
