@@ -184,34 +184,34 @@ local SetJob_Text2 = function(self,job) -- text2 is always green
     end
 end
     local Text3_OnUpdate = function(self,time)
-        self.text:SetText(string.format("%.1f",self.expirationTime - GetTime()))
+        self.text:SetText(string.format("%.1f",self.text.expirationTime - GetTime()))
     end
     local Text3_HideFunc = function(self)
-        self:SetScript("OnUpdate",nil)
-        self:Hide()
+        self.frame:SetScript("OnUpdate",nil)
     end
 local SetJob_Text3 = function(self,job) -- text2 is always green
     self.expirationTime = job.expirationTime
-    self:SetScript("OnUpdate",Text3_OnUpdate)
+    self.frame:SetScript("OnUpdate",Text3_OnUpdate)
     
     local c
     if job.color then
         c = job.color
     end
-    self.text:SetTextColor(unpack(c))
+    self:SetTextColor(unpack(c))
 end
 local CreateTextTimer = function(parent,point,frame,to,x,y,hjustify,fontsize,font,flags)
     local text3container = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
     local text3 = text3container:CreateFontString(nil, "OVERLAY")
     text3container.text = text3
+--~     text3container:Hide()
     text3:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
     text3:SetJustifyH"LEFT"
     text3:SetFont(font, fontsize or 11, flags)
-    text3container.SetJob = SetJob_Text3
-    text3container.HideFunc = Text3_HideFunc
-    text3container.parent = parent
-    text3container:Hide()
-    return text3container
+    text3.SetJob = SetJob_Text3
+    text3.HideFunc = Text3_HideFunc
+    text3.parent = parent
+    text3.frame = text3container
+    return text3
 end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
