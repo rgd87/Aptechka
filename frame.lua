@@ -113,13 +113,13 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
 end
 AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
 local SetJob_Icon = function(self,job)
+    if job.fade then self.jobs[job.name] = nil; return end
     if job.showDuration then
         self.cd:SetCooldown(job.expirationTime - job.duration,job.duration)
         self.cd:Show()
     else
         self.cd:Hide()
     end
-    
     self.texture:SetTexture(job.texture)
     
     if self.stacktext then
@@ -404,6 +404,7 @@ AptechkaDefaultConfig.GridSkinHorizontal = function(self)
     self.power.OnPowerTypeChange = PowerBar_OnPowerTypeChange
 end
 
+
 --~ AptechkaDefaultConfig.GridSkinInverted = function(self)  -- oooh, it looks like shit
 --~     AptechkaDefaultConfig.GridSkin(self)
 --~     AptechkaDefaultConfig.useAnchors = "GridSkin" -- use parent skin anchors
@@ -422,6 +423,19 @@ end
 --~     self.health.SetJob = newSetJob_HealthBar
 --~     self.power.SetJob = newSetJob_HealthBar
 --~ end
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

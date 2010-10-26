@@ -134,7 +134,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     
     if config[config.skin.."Settings"] then  config[config.skin.."Settings"]() end
-          
     skinAnchorsName = config.useAnchors or config.skin
     local i = 1
     while (i <= config.maxgroups) do
@@ -151,6 +150,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     SLASH_APTECHKA1= "/aptechka"
     SLASH_APTECHKA2= "/apt"
     SLASH_APTECHKA3= "/inj"
+    SLASH_APTECHKA4= "/injector"
     SlashCmdList["APTECHKA"] = Aptechka.SlashCmd
     
     
@@ -252,7 +252,9 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
         local heal = UnitGetIncomingHeals(unit)
         local threshold = 3000
         local showHeal = (heal and heal > threshold)
-        self.health.incoming:SetValue( showHeal and self.health:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
+        if self.health.incoming then 
+            self.health.incoming:SetValue( showHeal and self.health:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
+        end
         if config.IncomingHealStatus then
             if showHeal then
                 self.vIncomingHeal = heal
@@ -657,7 +659,7 @@ function Aptechka.CreateStuff(header,id)
         Aptechka:UnregisterEvent("UNIT_POWER")
         Aptechka:UnregisterEvent("UNIT_MAXPOWER")
         Aptechka:UnregisterEvent("UNIT_DISPLAYPOWER")
-        if f.power.OnPowerTypeChange then f.power:OnPowerTypeChange("none") end
+        if f.power and f.power.OnPowerTypeChange then f.power:OnPowerTypeChange("none") end
         f.power = nil
     end
     

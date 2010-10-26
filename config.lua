@@ -16,9 +16,7 @@ config.maxgroups = 8
 config.showSolo = false     -- visible without group/raid
 config.showParty = true    -- in group
 config.unitGap = 10       -- gap between units
-config.groupGap = 10
 config.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT / RIGHT / TOP / BOTTOM
-config.groupGrowth = "TOP" -- new groups direction. LEFT / RIGHT / TOP / BOTTOM
 config.resize = { after = 27, to = 0.8 } -- = if number of players in raid exeeds 27 then resize to 0.8.   "config.resize = false" disables it
 config.lockedOnStartUp = true
 config.disableBlizzardParty = true

@@ -49,6 +49,10 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     end,
     
     ["PvP"] = function(disable_damagereduction, disable_roots)
+    A{ id = 23333, type = "HELPFUL", assignto = { "bossdebuff" }, color = {1,0,0}, priority = 95 } --Warsong Flag
+    A{ id = 23335, type = "HELPFUL", assignto = { "bossdebuff" }, color = {0,0,1}, priority = 95 } --Silverwing Flag
+    A{ id = 34976, type = "HELPFUL", assignto = { "bossdebuff" }, color = {0,1,0}, priority = 95 } --Netherstorm Flag
+    
     A{ id = 118,   type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Polymorph
     A{ id = 3355,  type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Freezing Trap
     A{ id = 20066, type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Repentance
