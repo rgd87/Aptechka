@@ -62,9 +62,9 @@ config.MainTankStatus = { name = "MainTank", priority = 60, assignto = { "border
 config.DeadStatus = { name = "DEAD", assignto = { "text2","health","power" }, color = {.2,.2,.2}, text = "DEAD", priority = 60}
 config.GhostStatus = { name = "GHOST", assignto = { "text2","health","power" }, color = {.2,.2,.2}, text = "GHOST", priority = 62}
 config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","health","power" }, color = {.2,.2,.2}, text = "OFFLINE",  priority = 70}
-config.IncomingHealStatus = { name = "IncomingHeal", assignto = { "text2" },  color = { 0, 1, 0}, priority = 15 }
-config.HealthDificitStatus = { name = "HPD", assignto = { "healthtext" }, getfrom = "gethdhere", priority = 80 }
-config.UnitNameStatus = { name = "UnitName", assignto = { "text1" }, getfrom = "getnamehere", classcolor = true, priority = 20 }
+config.IncomingHealStatus = { name = "IncomingHeal", assignto = { "text2" }, inchealtext = true,  color = { 0, 1, 0}, priority = 15 }
+config.HealthDificitStatus = { name = "HPD", assignto = { "healthtext" }, healthtext = true, priority = 80 }
+config.UnitNameStatus = { name = "UnitName", assignto = { "text1" }, nametext = true, classcolor = true, priority = 20 }
 config.HealthBarColor = { name = "HealthBar", assignto = { "health" }, color = {1, .3, .3}, classcolor = true, priority = 20 }
 config.PowerBarColor = { name = "PowerBar", assignto = { "power" }, color = {.5,.5,1}, priority = 20 }
 config.OutOfRangeStatus = { name = "OOR", assignto = { "self" }, color = {0.5,0.5,0.5}, alpha = 0.3, text = "OOR", priority = 50 }

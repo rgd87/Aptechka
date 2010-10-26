@@ -39,9 +39,7 @@ local SetJob_Indicator = function(self,job)
     end
 
     local color
-    if job.getfrom then
-        color = self.parent[job.getfrom]
-    elseif job.foreigncolor and job.isforeign then
+    if job.foreigncolor and job.isforeign then
         color = job.foreigncolor
     else
         color = job.color or { 1,1,1,1 }
@@ -159,8 +157,10 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
 end
 AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 local SetJob_Text1 = function(self,job)
-    if job.getfrom then
-        self:SetText(self.parent[job.getfrom])
+    if job.healthtext then
+        self:SetFormattedText("-%.0fk", (self.parent.vHealthMax - self.parent.vHealth) / 1e3)
+    elseif job.nametext then
+        self:SetText(self.parent.name)
     elseif job.text then
         self:SetText(job.text)
     end
@@ -173,8 +173,12 @@ local SetJob_Text1 = function(self,job)
     if c then self:SetTextColor(unpack(c)) end
 end
 local SetJob_Text2 = function(self,job) -- text2 is always green
-    if job.getfrom then
-        self:SetText(self.parent[job.getfrom])
+    if job.healthtext then
+        self:SetFormattedText("-%.0fk", (self.parent.vHealthMax - self.parent.vHealth) / 1e3)
+    elseif job.inchealtext then
+        self:SetFormattedText("+%.0fk", self.parent.vIncomingHeal / 1e3)
+    elseif job.nametext then
+        self:SetText(self.parent.name)
     elseif job.text then
         self:SetText(job.text)
     end
@@ -367,8 +371,59 @@ AptechkaDefaultConfig.GridSkin = function(self)
     
     self.OnMouseEnterFunc = OnMouseEnterFunc
     self.OnMouseLeaveFunc = OnMouseLeaveFunc
-    --self.border = 
 end
+
+AptechkaDefaultConfig.GridSkinHorizontal = function(self)
+    AptechkaDefaultConfig.GridSkin(self)
+    self.health:SetOrientation("HORIZONTAL")
+    self.health.incoming:SetOrientation("HORIZONTAL")
+    self.power:SetOrientation("HORIZONTAL")
+    
+    self.power:ClearAllPoints()
+    self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+    self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
+    self.power:SetHeight(5)
+    self.power:SetWidth(0)
+    
+    self.health:ClearAllPoints()
+    self.health:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
+    self.health:SetPoint("BOTTOMRIGHT",self.power,"TOPRIGHT",0,0)
+    
+    local PowerBar_OnPowerTypeChange = function(self, powertype)
+        local self = self.parent
+        if powertype ~= "MANA" then
+            self.health:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
+            self.power:Hide()
+            self.power.bg:Hide()
+        else
+            self.health:SetPoint("BOTTOMRIGHT",self.power,"TOPRIGHT",0,0)
+            self.power:Show()
+            self.power.bg:Show()
+        end
+    end
+    self.power.OnPowerTypeChange = PowerBar_OnPowerTypeChange
+end
+
+--~ AptechkaDefaultConfig.GridSkinInverted = function(self)  -- oooh, it looks like shit
+--~     AptechkaDefaultConfig.GridSkin(self)
+--~     AptechkaDefaultConfig.useAnchors = "GridSkin" -- use parent skin anchors
+--~     local newSetJob_HealthBar = function(self, job)
+--~         local c
+--~         if job.classcolor then
+--~             c = self.parent.classcolor
+--~         elseif job.color then
+--~             c = job.color
+--~         end
+--~         if c then
+--~             self:SetStatusBarColor(unpack(c))
+--~             self.bg:SetVertexColor(c[1]/3,c[2]/3,c[3]/3)
+--~         end
+--~     end
+--~     self.health.SetJob = newSetJob_HealthBar
+--~     self.power.SetJob = newSetJob_HealthBar
+--~ end
+
+
 
 
     --value dependant color
