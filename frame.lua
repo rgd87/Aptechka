@@ -315,7 +315,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     border:Hide()
     
     local text = hp:CreateFontString(nil, "OVERLAY") --, "GameFontNormal")
-    text:SetPoint("CENTER",0,0)
+    text:SetPoint("CENTER",self,"CENTER",0,0)
     text:SetJustifyH"CENTER"
     text:SetFont(font, fontsize)
     text:SetTextColor(1, 1, 1)

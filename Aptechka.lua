@@ -338,6 +338,10 @@ local vehicleHack = function (self, time)
             Roster[self.parent.unit] = nil
             self.parent.unit = self.parent.unitOwner
             self:SetScript("OnUpdate",nil)
+            
+            Aptechka:UNIT_HEALTH(nil,self.parent.unitOwner)
+            if self.parent.power then Aptechka:UNIT_POWER(nil,self.parent.unitOwner) end
+            Aptechka.ScanAuras(self.parent.unitOwner)
         end
     end
 end
@@ -352,9 +356,11 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
         Roster[self.unit] = Roster[self.unitOwner]
         Roster[self.unitOwner] = nil
         if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
-
         self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
-
+        
+        Aptechka:UNIT_HEALTH(nil,self.unit)
+        if self.power then Aptechka:UNIT_POWER(nil,self.unit) end
+        Aptechka.ScanAuras(self.unit)
     end
 end
 -- VOODOO ENDS HERE
