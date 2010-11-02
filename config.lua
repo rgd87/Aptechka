@@ -19,7 +19,7 @@ config.unitGap = 10       -- gap between units
 config.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT / RIGHT / TOP / BOTTOM
 config.groupGrowth = "TOP"
 config.groupGap = 10
-config.lockedOnStartUp = true
+config.unlocked = false  -- when addon initially loaded
 config.disableBlizzardParty = true
 config.useGroupAnchors = false
 config.resize = { after = 27, to = 0.8 } -- ONLY WORKS with group anchors disabled. If number of players in raid exeeds 27 then resize to 0.8.   "config.resize = false" disables it

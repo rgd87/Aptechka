@@ -13,6 +13,10 @@ AptechkaDefaultConfig.MapIDs = {
     [530] = "Ulduar",
     [535] = "Naxxramas",
     [536] = "Naxxramas",
+    [773] = "TotFW",
+    [774] = "TotFW",
+    [754] = "Blackwing Descent",
+    [755] = "Blackwing Descent",
 }
 
 local A = helpers.AddAura
@@ -23,9 +27,14 @@ local color2 = { 0.6, 0, 1}
 AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bossdebuff" }, color = color1, priority = 40, pulse = true }
 
 AptechkaDefaultConfig.LoadableDebuffs = {
+    ["TotFW"] = function()
+    A{ id = 89666, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Rod
+    A{ id = 89104, prototype = AptechkaUserConfig.BossDebuffPrototype } --Relentless Storm
+    end,
+    
     ["Ruby Sanctum"] = function()
-    A{ id = 74562, type = "HARMFUL", prototype = AptechkaUserConfig.BossDebuffPrototype } --Fiery Combustion
-    A{ id = 74792, type = "HARMFUL", prototype = AptechkaUserConfig.BossDebuffPrototype, color = color2 } --Soul Consumptio
+    A{ id = 74562, prototype = AptechkaUserConfig.BossDebuffPrototype } --Fiery Combustion
+    A{ id = 74792, prototype = AptechkaUserConfig.BossDebuffPrototype, color = color2 } --Soul Consumptio
     end,
 
     ["Icecrown Citadel"] = function()

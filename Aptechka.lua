@@ -57,19 +57,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         setmetatable(AptechkaDB,{ __index = function(t,k) return AptechkaDB_Char[k] end, __newindex = function(t,k,v) rawset(AptechkaDB_Char,k,v) end})
     else
         setmetatable(AptechkaDB,{ __index = function(t,k) return AptechkaDB_Global[k] end, __newindex = function(t,k,v) rawset(AptechkaDB_Global,k,v) end})
-    end
-    
-    AptechkaDB.pos = AptechkaDB.pos or {}
-    AptechkaDB.pos.x = AptechkaDB.pos.x or 0
-    AptechkaDB.pos.y = AptechkaDB.pos.y or 0
-    AptechkaDB.pos.point = AptechkaDB.pos.point or "CENTER"
-
-    AptechkaDB.pet_pos = AptechkaDB.pet_pos or {}
-    AptechkaDB.pet_pos.x = AptechkaDB.pet_pos.x or 0
-    AptechkaDB.pet_pos.y = AptechkaDB.pet_pos.y or 0
-    AptechkaDB.pet_pos.point = AptechkaDB.pet_pos.point or "CENTER"
-    
+    end    
     AptechkaDB.scale = AptechkaDB.scale or 1
+    
     
     if config.disableBlizzardParty then
         helpers.DisableBlizzParty()
@@ -143,6 +133,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         f:Show()
         i = i + 1
     end
+    if config.unlocked then anchors[1]:Show() end
                 
     Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
     Aptechka:Show()
@@ -276,8 +267,6 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         self.vHealthMax = hm
         self.health:SetValue(h/hm*100)
         Aptechka.SetJob(unit,config.HealthDificitStatus, ((hm-h) > 1000) )
-        
-        
         
         if event then -- quickhealth calls this function without event
             if UnitIsDeadOrGhost(unit) then
@@ -623,7 +612,7 @@ function Aptechka.CreateAnchor(self,hdr,num)
     text:SetPoint("RIGHT",f,"LEFT",0,0)
     text:SetFontObject("GameFontNormal")
     text:SetJustifyH("RIGHT")
-    text:SetText(num)
+    if numm ~= 1 then text:SetText(num) end
 
     f:RegisterForDrag("LeftButton")
     f:EnableMouse(true)
