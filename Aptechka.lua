@@ -790,7 +790,7 @@ function Aptechka.ScanDispels(unit)
                 if dtypes[debuffType] then
                     local opts = dtypes[debuffType]
                     opts.gotone = true
-                    opts.start = expirationTime - duration
+                    opts.expirationTime = expirationTime
                     opts.duration = duration
                     opts.stacks = count
                     opts.texture = icon
