@@ -612,7 +612,7 @@ function Aptechka.CreateAnchor(self,hdr,num)
     text:SetPoint("RIGHT",f,"LEFT",0,0)
     text:SetFontObject("GameFontNormal")
     text:SetJustifyH("RIGHT")
-    if numm ~= 1 then text:SetText(num) end
+    if num ~= 1 then text:SetText(num) end
 
     f:RegisterForDrag("LeftButton")
     f:EnableMouse(true)

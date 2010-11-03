@@ -27,6 +27,17 @@ local color2 = { 0.6, 0, 1}
 AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bossdebuff" }, color = color1, priority = 40, pulse = true }
 
 AptechkaDefaultConfig.LoadableDebuffs = {
+
+    ["Blackwing Descent"] = function()
+    A{ id = 82881, prototype = AptechkaUserConfig.BossDebuffPrototype } --Break, Chimaeron
+    
+    A{ id = 91431, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Conductor, Omnitron Defense System
+    A{ id = 91502, color = {230/255, 117/255, 230/255 }, prototype = AptechkaUserConfig.BossDebuffPrototype } --Poison Soaked Shell, Omnitron Defense System
+    
+    A{ id = 92973, prototype = AptechkaUserConfig.BossDebuffPrototype } --Consuming Flames, Maloriak
+    A{ id = 92978, color = color1, prototype = AptechkaUserConfig.BossDebuffPrototype } --Flash Freeze, Maloriak
+    end,
+
     ["TotFW"] = function()
     A{ id = 89666, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Rod
     A{ id = 89104, prototype = AptechkaUserConfig.BossDebuffPrototype } --Relentless Storm
