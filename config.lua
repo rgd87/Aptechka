@@ -26,6 +26,7 @@ config.resize = { after = 27, to = 0.8 } -- ONLY WORKS with group anchors disabl
 
 
 config.enableIncomingHeals = true
+config.incomingHealThreshold = 3000
 config.enableTraceHeals = true
 config.enableClickCasting = false
 -- if for some reason you don't want to use Clique you can
@@ -113,8 +114,8 @@ if playerClass == "PALADIN" then
                                                                             color = { 0,1,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         }
-    
-    Trace{id = 54968, type = "HEAL", assignto = { "topright" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Glyph of Holy Light
+                                                                        
+    Trace{id = 85222, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Light of Dawn
     
     --config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(635),unit) == 1) end
             --// Use Holy Light for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
@@ -139,12 +140,13 @@ if playerClass == "SHAMAN" then
                                                                             [6] = { 0, 0.9, 0},
                                                                             [7] = {.1, 1, .1},
                                                                             [8] = {.2, 1, .2},
+                                                                            [9] = {.4, 1, .4},
                                                                         },
                                                                         foreigncolor = {0,0,.5}, } --Earth Shield
                                                                         
-    Trace{id = 1064, type = "HEAL", assignto = { "topright" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
-    Trace{id = 73921, type = "HEAL", assignto = { "topright" }, color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
-    Trace{id = 51558, type = "HEAL", assignto = { "topright" }, color = { 1, 0.6, 0.6 }, fade = 0.7, priority = 95 } -- Ancestral Awakening
+    Trace{id = 1064, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
+    --Trace{id = 73921, type = "HEAL", assignto = { "spell3" }, color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
+    Trace{id = 52752, type = "HEAL", assignto = { "spell3" }, color = { 1, 0.6, 0.6 }, fade = 0.7, priority = 95 } -- Ancestral Awakening
                                                                         
     --config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(331),unit) == 1) end
             --// Use Healing Wave for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.

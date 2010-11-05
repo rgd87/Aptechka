@@ -216,6 +216,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             ["SPELL_AURA_REMOVED"] = true,
             ["SPELL_AURA_REMOVED_DOSE"] = true,
         }
+        if select(2,UnitClass("player")) == "SHAMAN" then auraUpdateEvents["SPELL_HEAL"] = true end
         local cleuEvent = CreateFrame("Frame")
         cleuEvent:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         cleuEvent:SetScript("OnEvent",
@@ -241,7 +242,7 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
         local heal = UnitGetIncomingHeals(unit)
-        local threshold = 3000
+        local threshold = config.incomingHealThreshold or 3000
         local showHeal = (heal and heal > threshold)
         if self.health.incoming then 
             self.health.incoming:SetValue( showHeal and self.health:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
