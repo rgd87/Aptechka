@@ -353,6 +353,7 @@ local vehicleHack = function (self, time)
             Aptechka:UNIT_HEALTH(nil,self.parent.unitOwner)
             if self.parent.power then Aptechka:UNIT_POWER(nil,self.parent.unitOwner) end
             Aptechka.ScanAuras(self.parent.unitOwner)
+            SetJob(self.parent.unitOwner,config.InVehicleStatus,false)
         end
     end
 end
@@ -372,6 +373,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
         Aptechka:UNIT_HEALTH(nil,self.unit)
         if self.power then Aptechka:UNIT_POWER(nil,self.unit) end
         Aptechka.ScanAuras(self.unit)
+        SetJob(self.unit,config.InVehicleStatus,true)
     end
 end
 -- VOODOO ENDS HERE
@@ -543,6 +545,7 @@ local OnAttributeChanged = function(self, name, unit)
     if config.raidIcons then
         Aptechka:RAID_TARGET_UPDATE()
     end
+    if UnitHasVehicleUI(unit) then Aptechka:UNIT_ENTERED_VEHICLE(nil,unit) end -- scary
     Aptechka:CheckLFDTank(unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
 end
