@@ -130,7 +130,8 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     local icon = CreateFrame("Frame",nil,parent)
     icon:SetWidth(w); icon:SetHeight(h)
     icon:SetPoint(point,frame,to,x,y)
-    local icontex = icon:CreateTexture(nil,"OVERLAY")
+    local icontex = icon:CreateTexture(nil,"ARTWORK")
+    icon:SetFrameLevel(6)
     icontex:SetAllPoints(icon)
     icon.texture = icontex
     icon:SetAlpha(alpha)
@@ -202,7 +203,7 @@ local SetJob_Text3 = function(self,job) -- text2 is always green
 end
 local CreateTextTimer = function(parent,point,frame,to,x,y,hjustify,fontsize,font,flags)
     local text3container = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
-    local text3 = text3container:CreateFontString(nil, "OVERLAY")
+    local text3 = text3container:CreateFontString(nil, "ARTWORK")
     text3container.text = text3
 --~     text3container:Hide()
     text3:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
@@ -314,7 +315,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     border.SetJob = SetJob_Border
     border:Hide()
     
-    local text = hp:CreateFontString(nil, "OVERLAY") --, "GameFontNormal")
+    local text = hp:CreateFontString(nil, "ARTWORK") --, "GameFontNormal")
     text:SetPoint("CENTER",self,"CENTER",0,0)
     text:SetJustifyH"CENTER"
     text:SetFont(font, fontsize)
@@ -324,7 +325,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text.SetJob = SetJob_Text1
     text.parent = self
     
-    local text2 = hp:CreateFontString(nil, "OVERLAY")
+    local text2 = hp:CreateFontString(nil, "ARTWORK")
     text2:SetPoint("TOP",text,"BOTTOM",0,0)
     text2:SetJustifyH"CENTER"
     text2:SetFont(font, fontsize-3)
@@ -423,272 +424,4 @@ end
 --~     end
 --~     self.health.SetJob = newSetJob_HealthBar
 --~     self.power.SetJob = newSetJob_HealthBar
---~ end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---~ AptechkaDefaultConfig.BBSkin = function(self)
---~     local config
---~     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
---~     AptechkaDefaultConfig.width = 50
---~     AptechkaDefaultConfig.height = 50
---~     AptechkaDefaultConfig.texture = [[Interface\AddOns\Aptechka\white]]
---~     AptechkaDefaultConfig.font = [[Interface\AddOns\Aptechka\ClearFont.ttf]]
---~     AptechkaDefaultConfig.fontsize = 12
---~     AptechkaDefaultConfig.manabarwidth = 6
---~     AptechkaDefaultConfig.orientation = "VERTICAL"
---~     AptechkaDefaultConfig.invertColor = false             -- if true hp lost becomes dark, current hp becomes bright
---~     
---~     local texture = config.texture
---~     local texture2 =  [[Interface\AddOns\Aptechka\gradient]]
---~     local font = config.font
---~     local fontsize = config.fontsize
---~     local manabar_width = config.manabarwidth
---~     
---~     self:SetWidth(config.width)
---~     self:SetHeight(config.height)
---~     
---~     local backdrop = {
---~         bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,
---~         insets = {left = -2, right = -2, top = -2, bottom = -2},
---~     }
---~     self:SetBackdrop(backdrop)
---~ 	self:SetBackdropColor(0, 0, 0, 0.5)
---~     
---~     local hpi = CreateFrame("StatusBar", nil, self)
---~     self.incoming = hpi
---~     
---~     
---~     local hp = CreateFrame("StatusBar", nil, self)
---~     hp:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
---~     hp:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",-14,0)
---~     hp:SetOrientation("VERTICAL")
---~ 	hp:SetStatusBarTexture(texture)
-
---~     hp:SetStatusBarColor(1,1,1,1)
---~     hp:SetMinMaxValues(0,100)
---~     hp:SetValue(0)
---~     hp:SetAlpha(0.5)
---~     
---~     
---~     local hpbg = self:CreateTexture()
-
-
---~     hp.bg = hpbg    
---~     self.health = hp
---~     
---~     --==< HEALTH BAR TEXT >==--
---~         local text = self:CreateFontString(nil, "OVERLAY", "GameFontNormal")
---~         text:SetPoint("BOTTOM",self,"TOP",0,0)
---~         text:SetShadowOffset(0,0)
---~         text:SetJustifyH"CENTER"
---~         text:SetFont(font, fontsize)
---~         text:SetTextColor(1, 1, 1)
---~         self.text = text
---~         
---~     --==< HEALTH BAR TEXT - SECOND LINE >==--
---~         local text2 = hp:CreateFontString(nil, "OVERLAY", "GameFontNormal")
---~         text2:SetPoint("TOP",text,"BOTTOM",0,0)
---~         text2:SetJustifyH"CENTER"
---~         text2:SetFont(font, fontsize-3)
---~         text2:SetTextColor(0.2, 1, 0.2)
---~         text2.jobs = {}
---~         self.text2 = text2
---~         
---~       
---~     self.SetColor = function(self,r,g,b)
---~         self.health:SetStatusBarColor(r,g,b)
---~         self.hp.bg:SetVertexColor(r/3,g/3,b/3)
---~         self.text:SetTextColor(r,g,b)
---~     end
---~         
---~         
---~         
---~     local mb = CreateFrame("StatusBar",nil,self)
---~     mb:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
---~     mb:SetPoint("BOTTOMLEFT",self,"BOTTOMRIGHT",-12,0)
---~     mb:SetOrientation("VERTICAL")
---~ 	mb:SetStatusBarTexture(texture)
-
---~     mb:SetStatusBarColor(0.5,0.5,1)
---~     mb:SetMinMaxValues(0,100)
---~     mb:SetValue(70)
---~     mb:SetAlpha(0.2)
---~     
---~     self.mb = mb
---~     
---~     
---~     local bars_onupdate = function(self,time)
---~         self.counter = (self.counter or 0) + time
---~         if self.counter < 0.1 then return end
---~         self.counter = 0
---~         
---~         local t  = self.expirationTime - GetTime()
---~         self:SetValue(t)
---~         --if t >= self.expirationTime then self:SetScript("OnUpdate",nil)
---~     end
---~     
---~     local i1 = CreateFrame("StatusBar", nil,self)
---~     i1:SetStatusBarTexture(texture)
---~     i1:SetStatusBarColor(0,1,0)
---~     i1:SetAlpha(1)
---~     i1:SetWidth(5)
---~     i1:SetFrameLevel(3)
---~     i1:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
---~     i1:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
---~     i1:SetMinMaxValues(0,100)
---~     i1:SetOrientation("VERTICAL")
---~     i1:SetValue(75)
---~     i1.onupdatefunc = bars_onupdate
---~     
---~     local i2 = CreateFrame("StatusBar", nil,self)
---~     i2:SetStatusBarTexture(texture)
---~     i2:SetStatusBarColor(1,1,0)
---~     i2:SetAlpha(1)
---~     i2:SetWidth(5)
---~     i2:SetFrameLevel(3)
---~     i2:SetPoint("TOPRIGHT",i1,"TOPLEFT",-2,0)
---~     i2:SetPoint("BOTTOMRIGHT",i1,"BOTTOMLEFT",-2,0)
---~     i2:SetMinMaxValues(0,100)
---~     i2:SetOrientation("VERTICAL")
---~     i2:SetValue(30)
---~     i2.onupdatefunc = bars_onupdate
---~     
---~     
---~     I1 = i1
---~     I2 = i2
---~     self.indicator2 = i2
---~     self.indicator1 = i1
---~     
---~     
---~     
---~     local StatusBar_GetAJob = function(self, job)
---~             self:SetMinMaxValues(0, job.duration)
---~             self.expirationTime = job.expirationTime
---~             self:SetScript("OnUpdate",self.onupdatefunc)
---~             self:SetStatusBarColor()
---~         
---~         local color
---~         if job.foreigncolor and job.isforeign then
---~             color = job.foreigncolor
---~         else
---~             color = job.color or { 1,1,1,1 }
---~         end
---~         self:SetStatusBarColor(unpack(color))
---~         
---~         -- pulse/fade ??
---~     end
---~     
---~     self.indicator2.GetAJob = StatusBar_GetAJob
---~     self.indicator1.GetAJob = StatusBar_GetAJob
---~     
---~     
---~     
---~     
---~     
---~     
-
---~     local i3 = CreateFrame("Frame",nil,self)
---~     i3:SetWidth(13); i3:SetHeight(13);
---~     i3:SetPoint("TOPLEFT",self,"TOPLEFT",2,-2)
---~     i3:SetFrameLevel(4)
---~     local i3t = i3:CreateTexture()
---~     i3t:SetTexture(texture)
---~     i3t:SetAllPoints(i3)
---~     i3t:SetVertexColor(1,0,0)
---~     i3:SetAlpha(1)
---~     i3.color = i3t
---~     
---~     local cd = CreateFrame("Cooldown",nil,i3)
---~     cd.noCooldownCount = true -- disable OmniCC for this cooldown
---~     cd:SetReverse(true)
---~     cd:SetAllPoints(icon)
---~     i3.cd = cd
---~     
---~     local Indicator_GetAJob = function (self,job)
---~         if job.showDuration then
---~             self.cd:SetCooldown(job.expirationTime - job.duration,job.duration)
---~             self.cd:Show()
---~         else
---~             self.cd:Hide()
---~         end
---~         
---~         local color
---~         if job.foreigncolor and job.isforeign then
---~             color = job.foreigncolor
---~         else
---~             color = job.color or { 1,1,1,1 }
---~         end
---~         self.color:SetVertexColor(unpack(color))
---~     end
---~     self.indicator3 = i3
---~     self.indicator3.GetAJob = Indicator_GetAJob
---~     
---~     
---~     local icon = CreateFrame("Frame",nil,self)
---~     icon:SetWidth(20); icon:SetHeight(20)
---~     icon:SetPoint("CENTER",hp,"CENTER",0,0)
---~     local icontex = icon:CreateTexture(nil,"ARTWORK")
---~     icontex:SetAllPoints(icon)
---~     icon.texture = icontex
---~     icon:SetAlpha(0.5)
---~     
---~     local icd = CreateFrame("Cooldown",nil,icon)
---~     icd.noCooldownCount = true -- disable OmniCC for this cooldown
---~     icd:SetReverse(true)
---~     icd:SetAllPoints(icon)
---~     icon.cd = icd
---~     
---~     local stacktext = icon:CreateFontString(nil,"OVERLAY")
---~     if config.font then
---~         stacktext:SetFont(config.font,10,"OUTLINE")
---~     else
---~         stacktext:SetFontObject("NumberFontNormal")
---~     end
---~     stacktext:SetJustifyH"RIGHT"
---~     stacktext:SetPoint("BOTTOMRIGHT",icon,"BOTTOMRIGHT",0,0)
---~     stacktext:SetTextColor(1,1,1)
---~     icon.stacktext = stacktext
---~     
---~     local Icon_GetAJob = function(self,job)
---~         if job.showDuration then
---~             self.cd:SetCooldown(job.expirationTime - job.duration,job.duration)
---~             self.cd:Show()
---~         else
---~             self.cd:Hide()
---~         end
---~         
---~         self.texture:SetTexture(job.texture)
---~         
---~         if self.stacktext then
---~             if job.stacks then self.stacktext:SetText(job.stacks > 1 and job.stacks or "") end
---~         end
---~     end
---~     self.icon = icon 
---~     icon.SetJob = SetJob_Icon
-
 --~ end

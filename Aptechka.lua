@@ -29,11 +29,19 @@ if not ClickCastFrames then ClickCastFrames = {} end -- clique
 local AptechkaString = "|cffff7777Aptechka: |r"
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
 local UnitAura = UnitAura
 local UnitAffectingCombat = UnitAffectingCombat
+local UnitGetIncomingHeals = UnitGetIncomingHeals
+local UnitThreatSituation = UnitThreatSituation
+local SetJob
+local FrameSetJob
+
 local bit_band = bit.band
+local pairs = pairs
+local next = next
 local _, helpers = ...
 Aptechka.helpers = helpers
 local utf8sub = helpers.utf8sub
@@ -47,6 +55,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     auras = config.IndicatorAuras or {}
     dtypes = config.DebuffTypes or {}
     traceheals = config.TraceHeals or {}
+    Aptechka.SetJob = SetJob
+    Aptechka.FrameSetJob = FrameSetJob
     colors = setmetatable(config.Colors or {},{ __index = function(t,k) return RAID_CLASS_COLORS[k] end })
     
     AptechkaDB_Global = AptechkaDB_Global or {}
@@ -154,7 +164,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 local opts = traceheals[spellName]
                 if opts and eventType == opts.type then
                     if guidMap[dstGUID] then
-                        Aptechka.SetJob(guidMap[dstGUID],opts,true)
+                        SetJob(guidMap[dstGUID],opts,true)
                     end
                 end
             end
@@ -250,10 +260,10 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
         if config.IncomingHealStatus then
             if showHeal then
                 self.vIncomingHeal = heal
-                Aptechka.SetJob(unit, config.IncomingHealStatus, true)
+                SetJob(unit, config.IncomingHealStatus, true)
             else
                 self.vIncomingHeal = 0
-                Aptechka.SetJob(unit, config.IncomingHealStatus, false)
+                SetJob(unit, config.IncomingHealStatus, false)
             end
         end
     end
@@ -267,14 +277,14 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         self.vHealth = h
         self.vHealthMax = hm
         self.health:SetValue(h/hm*100)
-        Aptechka.SetJob(unit,config.HealthDificitStatus, ((hm-h) > 1000) )
+        SetJob(unit,config.HealthDificitStatus, ((hm-h) > 1000) )
         
         if event then -- quickhealth calls this function without event
             if UnitIsDeadOrGhost(unit) then
-                Aptechka.SetJob(unit, config.AggroStatus, false)
+                SetJob(unit, config.AggroStatus, false)
                 local deadorghost = UnitIsGhost(unit) and config.GhostStatus or config.DeadStatus
-                Aptechka.SetJob(unit, deadorghost, true)
-                Aptechka.SetJob(unit,config.HealthDificitStatus, false )
+                SetJob(unit, deadorghost, true)
+                SetJob(unit,config.HealthDificitStatus, false )
                 self.isDead = true
                 if self.OnDead then self:OnDead() end
             else
@@ -282,8 +292,8 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
                     self.isDead = false
                     if self.OnAlive then self:OnAlive() end
                     Aptechka.ScanAuras(unit)
-                    Aptechka.SetJob(unit, config.GhostStatus, false)
-                    Aptechka.SetJob(unit, config.DeadStatus, false)
+                    SetJob(unit, config.GhostStatus, false)
+                    SetJob(unit, config.DeadStatus, false)
                 end
             end
         end
@@ -294,7 +304,7 @@ end
 function Aptechka.UNIT_CONNECTION(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
-        Aptechka.SetJob(unit, config.OfflineStatus, (not UnitIsConnected(unit)) )
+        SetJob(unit, config.OfflineStatus, (not UnitIsConnected(unit)) )
     end
 end
 
@@ -367,13 +377,13 @@ Aptechka.OnRangeUpdate = function (self, time)
             if AptechkaUnitInRange(unit) then
                 if not frame.inRange then
                     frame.inRange = true
-                    Aptechka.FrameSetJob(frame, config.OutOfRangeStatus, false)
+                    FrameSetJob(frame, config.OutOfRangeStatus, false)
                     OORUnits[unit] = nil
                 end
             else
                 if frame.inRange or frame.inRange == nil then
                     frame.inRange = false
-                    Aptechka.FrameSetJob(frame, config.OutOfRangeStatus, true)
+                    FrameSetJob(frame, config.OutOfRangeStatus, true)
                     OORUnits[unit] = true
                 end
             end
@@ -387,9 +397,9 @@ function Aptechka.UNIT_THREAT_SITUATION_UPDATE(self, event, unit)
     for self in pairs(Roster[unit]) do
         local sit = UnitThreatSituation(unit)
         if sit and sit > 1 then
-            Aptechka.SetJob(unit, config.AggroStatus, true)
+            SetJob(unit, config.AggroStatus, true)
         else
-            Aptechka.SetJob(unit, config.AggroStatus, false)
+            SetJob(unit, config.AggroStatus, false)
         end
     end
 end
@@ -397,7 +407,7 @@ end
 -- maintanks, resize
 function Aptechka.CheckLFDTank( self,unit )
     if not config.MainTankStatus then return end
-    Aptechka.SetJob(unit, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
+    SetJob(unit, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
 end
 function Aptechka.RAID_ROSTER_UPDATE(self,event,arg1)
     if not InCombatLockdown() then
@@ -437,11 +447,11 @@ end
 function Aptechka.PLAYER_TARGET_CHANGED(self, event)
     local newTargetUnit = guidMap[UnitGUID("target")]
     if newTargetUnit and Roster[newTargetUnit] then
-        Aptechka.SetJob(Aptechka.previousTarget, config.TargetStatus, false)
-        Aptechka.SetJob(newTargetUnit, config.TargetStatus, true)
+        SetJob(Aptechka.previousTarget, config.TargetStatus, false)
+        SetJob(newTargetUnit, config.TargetStatus, true)
         Aptechka.previousTarget = newTargetUnit
     else
-        Aptechka.SetJob(Aptechka.previousTarget, config.TargetStatus, false)
+        SetJob(Aptechka.previousTarget, config.TargetStatus, false)
     end
 end
 
@@ -458,12 +468,12 @@ function Aptechka.READY_CHECK_CONFIRM(self, event, unit)
         local status = GetReadyCheckStatus(unit)
         if not status or not rci.stackcolor[status] then return end
         rci.color = rci.stackcolor[status]
-        Aptechka.SetJob(unit, rci, true)
+        SetJob(unit, rci, true)
     end
 end
 function Aptechka.READY_CHECK_FINISHED(self, event)
     for unit in pairs(Roster) do
-        Aptechka.SetJob(unit, config.ReadyCheck, false)
+        SetJob(unit, config.ReadyCheck, false)
     end
 end
 
@@ -506,10 +516,10 @@ local OnAttributeChanged = function(self, name, unit)
     end
     
     Aptechka:Colorize(nil, unit)
-    Aptechka.FrameSetJob(self,config.HealthBarColor,true)
-    Aptechka.FrameSetJob(self,config.PowerBarColor,true)
+    FrameSetJob(self,config.HealthBarColor,true)
+    FrameSetJob(self,config.PowerBarColor,true)
     Aptechka.ScanAuras(unit)
-    Aptechka.FrameSetJob(self, config.UnitNameStatus, true)
+    FrameSetJob(self, config.UnitNameStatus, true)
     Aptechka:UNIT_HEALTH("ONATTR", unit)
     Aptechka:UNIT_POWER("ONATTR", unit)
     Aptechka:UNIT_CONNECTION(nil, unit)
@@ -707,24 +717,16 @@ function Aptechka.CreateStuff(header,id)
     f:SetScript("OnAttributeChanged", OnAttributeChanged)
 end
 
-function Aptechka.SetJob(unit, opts, status)
-    if not Roster[unit] then return end
-    for frame in pairs(Roster[unit]) do
-        Aptechka.FrameSetJob(frame, opts, status)
-    end
-end
-
-function Aptechka.FrameSetJob(frame, opts, status)
+FrameSetJob = function (frame, opts, status)
         if opts and opts.assignto then
         for _, slot in ipairs(opts.assignto) do
             local self = frame[slot]
             if self then
             if opts.isMissing then status = not status end
             if not self.jobs then self.jobs = {} end
-            if status then
-                self.jobs[opts.name] = opts
-            else
-                self.jobs[opts.name] = nil
+            if status
+            then self.jobs[opts.name] = opts
+            else self.jobs[opts.name] = nil
             end
             
             if next(self.jobs) then
@@ -750,11 +752,16 @@ function Aptechka.FrameSetJob(frame, opts, status)
         end
 end
 
+SetJob = function (unit, opts, status)
+    if not Roster[unit] then return end
+    for frame in pairs(Roster[unit]) do
+        FrameSetJob(frame, opts, status)
+    end
+end
 
-local name, rank, icon, count, debuffType, duration, expirationTime, caster, isStealable
 function Aptechka.ScanAuras(unit)
     for auraname,opts in pairs(auras) do
-        name, rank, icon, count, debuffType, duration, expirationTime, caster = UnitAura(unit, auraname, nil, opts.type)
+        local name, _, icon, count, _, duration, expirationTime, caster = UnitAura(unit, auraname, nil, opts.type)
         if name then
             if opts.stackcolor then
                 opts.color = opts.stackcolor[count]
@@ -766,9 +773,9 @@ function Aptechka.ScanAuras(unit)
             opts.duration = duration
             opts.texture = opts.texture or icon
             opts.stacks = count
-            Aptechka.SetJob(unit, opts, true)
+            SetJob(unit, opts, true)
         else
-            Aptechka.SetJob(unit, opts, false)
+            SetJob(unit, opts, false)
         end
     end
 end
@@ -786,7 +793,7 @@ function Aptechka.ScanDispels(unit)
                 opts.gotone = false
             end
             for i = 1, 100 do
-                name, rank, icon, count, debuffType, duration, expirationTime, caster = UnitAura(unit, i, "HARMFUL|RAID")
+                local name, _, icon, count, debuffType, duration, expirationTime = UnitAura(unit, i, "HARMFUL|RAID")
                 if not name then break end
                 if dtypes[debuffType] then
                     local opts = dtypes[debuffType]
@@ -798,11 +805,11 @@ function Aptechka.ScanDispels(unit)
                 end
             end
             for _,opts in pairs(dtypes) do
-                Aptechka.SetJob(unit, opts, opts.gotone)
+                SetJob(unit, opts, opts.gotone)
             end
         else
             for _,opts in pairs(dtypes) do
-                Aptechka.SetJob(unit, opts, false)
+                SetJob(unit, opts, false)
             end
         end
     end
