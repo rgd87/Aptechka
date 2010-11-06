@@ -134,6 +134,17 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     
     if config[config.skin.."Settings"] then  config[config.skin.."Settings"]() end
+    if not config.anchorpoint then
+        local ug = config.unitGrowth
+        local gg = config.groupGrowth
+        local rug, ud = reverse(ug)
+        local rgg, gd = reverse(gg)
+        if config.useGroupAnchors then config.anchorpoint = rug
+        elseif ud == gd then  config.anchorpoint = rug
+        elseif gd == "VERTICAL" and ud == "HORIZONTAL" then config.anchorpoint = rgg..rug
+        elseif ud == "VERTICAL" and gd == "HORIZONTAL" then config.anchorpoint = rug..rgg
+        end
+    end
     skinAnchorsName = config.useAnchors or config.skin
     local i = 1
     while (i <= config.maxgroups) do
@@ -629,7 +640,8 @@ function Aptechka.CreateAnchor(self,hdr,num)
     f:EnableMouse(true)
     f:SetMovable(true)
     f:SetFrameStrata("HIGH")
-    hdr:SetPoint("TOPLEFT",f,"TOPRIGHT",0,0)
+    
+    hdr:SetPoint(config.anchorpoint,f,reverse(config.anchorpoint),0,0)
     anchors[num] = f
     f:Hide()
     
