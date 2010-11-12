@@ -21,10 +21,12 @@ end
 local PowerBar_OnPowerTypeChange = function(self, powertype)
     local self = self.parent
     if powertype ~= "MANA" then
+        self.power.disabled = true
         self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
         self.power:Hide()
         self.power.bg:Hide()
     else
+        self.power.disabled = nil
         self.health:SetPoint("TOPRIGHT",self.power,"TOPLEFT",0,0)
         self.power:Show()
         self.power.bg:Show()

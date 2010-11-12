@@ -129,6 +129,8 @@ if playerClass == "PALADIN" then
     DT("Poison", { assignto = { "dispel" }, color = { 0, 0.6, 0} })    
 end
 if playerClass == "SHAMAN" then
+    config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
+    
     A{ id = 61295,  type = "HELPFUL", assignto = { "spell1" }, showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide
     A{ id = 974,    type = "HELPFUL", assignto = { "spell2" }, showDuration = true,
                                                                         --isMine = true,     

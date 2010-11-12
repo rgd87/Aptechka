@@ -27,7 +27,10 @@ local color2 = { 0.6, 0, 1}
 AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bossdebuff" }, color = color1, priority = 40, pulse = true }
 
 AptechkaDefaultConfig.LoadableDebuffs = {
-
+    ["Bastion"] = function()
+        A{ id = 92878, prototype = AptechkaUserConfig.BossDebuffPrototype } --Blackout, Valiona
+        A{ id = 88518, prototype = AptechkaUserConfig.BossDebuffPrototype } --Twilight Meteorite, Valiona
+    end,
     ["Blackwing Descent"] = function()
     A{ id = 82881, prototype = AptechkaUserConfig.BossDebuffPrototype } --Break, Chimaeron
     

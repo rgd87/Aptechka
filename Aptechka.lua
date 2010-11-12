@@ -12,6 +12,7 @@ local auras
 local dtypes
 local traceheals
 local colors
+local threshold --incoming heals
 
 local config = AptechkaUserConfig
 local OORUnits = setmetatable({},{__mode = 'k'})
@@ -57,6 +58,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     traceheals = config.TraceHeals or {}
     Aptechka.SetJob = SetJob
     Aptechka.FrameSetJob = FrameSetJob
+    threshold = config.incomingHealThreshold or 3000
     colors = setmetatable(config.Colors or {},{ __index = function(t,k) return RAID_CLASS_COLORS[k] end })
     
     AptechkaDB_Global = AptechkaDB_Global or {}
@@ -122,10 +124,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     
     self:RegisterEvent("UNIT_AURA")
     
-    if config.TraceHeals then
-        self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    end
-    
     self:RegisterEvent("RAID_ROSTER_UPDATE")
     
     if config.raidIcons then
@@ -166,9 +164,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     SlashCmdList["APTECHKA"] = Aptechka.SlashCmd
     
     
-    if config.enableTraceHeals then
-
-        Aptechka.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, srcGUID,
+    if config.enableTraceHeals and next(traceheals) then
+        self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+        self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, srcGUID,
                                                     srcName, srcFlags, dstGUID, dstName, dstFlags, spellID, spellName,
                                                     spellSchool, amount, overhealing, absorbed, critical)
             if (bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE) then
@@ -263,7 +261,6 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
         local heal = UnitGetIncomingHeals(unit)
-        local threshold = config.incomingHealThreshold or 3000
         local showHeal = (heal and heal > threshold)
         if self.health.incoming then 
             self.health.incoming:SetValue( showHeal and self.health:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
@@ -322,7 +319,7 @@ end
 function Aptechka.UNIT_POWER(self, event, unit, ptype)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
-        if self.power then
+        if self.power and not self.power.disabled then
             local mp = UnitPower(unit)/UnitPowerMax(unit)*100
             self.power:SetValue(mp)
         end
@@ -340,20 +337,22 @@ end
 
 -- STAY AWAY FROM DA VOODOO
 local vehicleHack = function (self, time)
-    self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
+    self.OnUpdateCounter = self.OnUpdateCounter + time
     if self.OnUpdateCounter < 1 then return end
     self.OnUpdateCounter = 0
-    if not UnitHasVehicleUI(self.parent.unitOwner) then
+    local owner = self.parent.unitOwner
+    if not UnitHasVehicleUI(owner) then
         if Roster[self.parent.unit] then
-            Roster[self.parent.unitOwner] = Roster[self.parent.unit]
+            Roster[owner] = Roster[self.parent.unit]
             Roster[self.parent.unit] = nil
-            self.parent.unit = self.parent.unitOwner
-            self:SetScript("OnUpdate",nil)
+            self.parent.unit = owner
             
-            Aptechka:UNIT_HEALTH(nil,self.parent.unitOwner)
-            if self.parent.power then Aptechka:UNIT_POWER(nil,self.parent.unitOwner) end
-            Aptechka.ScanAuras(self.parent.unitOwner)
-            SetJob(self.parent.unitOwner,config.InVehicleStatus,false)
+            SetJob(owner,config.InVehicleStatus,false)
+            Aptechka:UNIT_HEALTH(nil,owner)
+            if self.parent.power then Aptechka:UNIT_POWER(nil,owner) end
+            Aptechka.ScanAuras(owner)
+            
+            self:SetScript("OnUpdate",nil)
         end
     end
 end
@@ -368,12 +367,13 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
         Roster[self.unit] = Roster[self.unitOwner]
         Roster[self.unitOwner] = nil
         if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
+        self.vehicleFrame.OnUpdateCounter = -1.5
         self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
         
+        SetJob(self.unit,config.InVehicleStatus,true)
         Aptechka:UNIT_HEALTH(nil,self.unit)
         if self.power then Aptechka:UNIT_POWER(nil,self.unit) end
         Aptechka.ScanAuras(self.unit)
-        SetJob(self.unit,config.InVehicleStatus,true)
     end
 end
 -- VOODOO ENDS HERE
@@ -612,13 +612,7 @@ end
 
 function Aptechka.CreateAnchor(self,hdr,num)
     local f = CreateFrame("Frame",nil,UIParent)
---~     local backdrop = {
---~         bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 0,
---~         insets = {left = -2, right = -2, top = -2, bottom = -2},
---~     }
---~     f:SetBackdrop(backdrop)
---~     if num == 1 then f:SetBackdropColor(1,0,0,0.8)
---~     else f:SetBackdropColor(0,0,1,0.8) end
+
     f:SetHeight(20)
     f:SetWidth(20)
 
@@ -716,19 +710,19 @@ function Aptechka.CreateStuff(header,id)
     if f.raidicon then
         f.raidicon.texture:SetTexture[[Interface\TargetingFrame\UI-RaidTargetingIcons]]
     end
-    
-        f:SetScript("OnEnter", function(self)
-            if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
-            if UnitAffectingCombat("player") then return end
-            UnitFrame_OnEnter(self)
-            self:SetScript("OnUpdate", UnitFrame_OnUpdate)
-        end)
-        f:SetScript("OnLeave", function(self)
-            if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
-            UnitFrame_OnLeave(self)
-            self:SetScript("OnUpdate", nil)
-        end)
-        
+
+    f:SetScript("OnEnter", function(self)
+        if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
+        if UnitAffectingCombat("player") then return end
+        UnitFrame_OnEnter(self)
+        self:SetScript("OnUpdate", UnitFrame_OnUpdate)
+    end)
+    f:SetScript("OnLeave", function(self)
+        if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
+        UnitFrame_OnLeave(self)
+        self:SetScript("OnUpdate", nil)
+    end)
+
     f:SetScript("OnAttributeChanged", OnAttributeChanged)
 end
 
