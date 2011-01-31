@@ -341,7 +341,7 @@ local vehicleHack = function (self, time)
     if self.OnUpdateCounter < 1 then return end
     self.OnUpdateCounter = 0
     local owner = self.parent.unitOwner
-    if not UnitHasVehicleUI(owner) then
+    if not ( UnitHasVehicleUI(owner) or UnitInVehicle(owner) or UnitUsingVehicle(owner) )then -- bitch
         if Roster[self.parent.unit] then
             Roster[owner] = Roster[self.parent.unit]
             Roster[self.parent.unit] = nil

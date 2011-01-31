@@ -4,7 +4,7 @@ local _, helpers = ...
 -- to find out current zone map id type: /dump GetCurrentMapAreaID()
 AptechkaDefaultConfig.MapIDs = {    
     [609] = "Ruby Sanctum",   -- In Cataclysm beta and 3.3.5 PTR it is 609, in Live version it's 610.. 
-    [610] = "Ruby Sanctum",   -- and looks like the same thing happens with other raids. I'll just include everything for now
+    [610] = "Ruby Sanctum",   -- and looks like the same thing happens with other raids. I'll include everything for now
     [604] = "Icecrown Citadel",
     [605] = "Icecrown Citadel",
     [543] = "Trial of the Crusader",
@@ -17,6 +17,8 @@ AptechkaDefaultConfig.MapIDs = {
     [774] = "TotFW",
     [754] = "Blackwing Descent",
     [755] = "Blackwing Descent",
+    [757] = "Bastion of Twilight", -- ????
+    [758] = "Bastion of Twilight",
 }
 
 local A = helpers.AddAura
@@ -27,18 +29,34 @@ local color2 = { 0.6, 0, 1}
 AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bossdebuff" }, color = color1, priority = 40, pulse = true }
 
 AptechkaDefaultConfig.LoadableDebuffs = {
-    ["Bastion"] = function()
-        A{ id = 92878, prototype = AptechkaUserConfig.BossDebuffPrototype } --Blackout, Valiona
-        A{ id = 88518, prototype = AptechkaUserConfig.BossDebuffPrototype } --Twilight Meteorite, Valiona
+    ["Bastion of Twilight"] = function()
+    A{ id = 92878, prototype = AptechkaUserConfig.BossDebuffPrototype } --Blackout, Valiona
+    A{ id = 88518, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Twilight Meteorite, Valiona
+    
+    A{ id = 82762, color = {0.3,0.3,1}, priority = 38, prototype = AptechkaUserConfig.BossDebuffPrototype } --Waterlogged,Feludius
+    A{ id = 82660, color = {1,0.2,0.2}, priority = 38, prototype = AptechkaUserConfig.BossDebuffPrototype } --Burning Blood,Ignacious
+    A{ id = 83099, color = {0.3,0.3,1}, priority = 38, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Rod,Arion
+    A{ id = 92067, color = {1,1,0.2}, prototype = AptechkaUserConfig.BossDebuffPrototype } --Static Overload,Arion,Heroic
+    A{ id = 92075, color = {122/255,85/255,49/255}, prototype = AptechkaUserConfig.BossDebuffPrototype } --Gravity Core,Terrastra,Heroic
+    
+    --Magic--A{ id = 81836, prototype = AptechkaUserConfig.BossDebuffPrototype } --Corruption: Accelerated,Cho'gall
+    A{ id = 93202, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Corruption: Sickness,Cho'gall
+    A{ id = 93204, prototype = AptechkaUserConfig.BossDebuffPrototype } --Conversion,Cho'gall
+    --A{ id = 93133, prototype = AptechkaUserConfig.BossDebuffPrototype } --Debilitating Beam,Cho'gall
+        
+    A{ id = 93133, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Wrack,Lady Sinestra
     end,
+    
     ["Blackwing Descent"] = function()
+    A{ id = 91911, prototype = AptechkaUserConfig.BossDebuffPrototype } --Constricting Chains, Magmaw
+    
     A{ id = 82881, prototype = AptechkaUserConfig.BossDebuffPrototype } --Break, Chimaeron
     
     A{ id = 91431, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Conductor, Omnitron Defense System
     A{ id = 91502, color = {230/255, 117/255, 230/255 }, prototype = AptechkaUserConfig.BossDebuffPrototype } --Poison Soaked Shell, Omnitron Defense System
     
     A{ id = 92973, prototype = AptechkaUserConfig.BossDebuffPrototype } --Consuming Flames, Maloriak
-    A{ id = 92978, color = color1, prototype = AptechkaUserConfig.BossDebuffPrototype } --Flash Freeze, Maloriak
+    A{ id = 92978, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Flash Freeze, Maloriak
     end,
 
     ["TotFW"] = function()
