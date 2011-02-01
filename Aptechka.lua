@@ -343,13 +343,25 @@ local vehicleHack = function (self, time)
     local owner = self.parent.unitOwner
     if not ( UnitHasVehicleUI(owner) or UnitInVehicle(owner) or UnitUsingVehicle(owner) )then -- bitch
         if Roster[self.parent.unit] then
+            --print("L1>>Unit: "..self.parent.unit)
+            --print("L1>>Unit Owner: "..self.parent.unitOwner)
+            --print("D3>Dumping Roster")
+            --d87add.dump("ROSTER")
             Roster[owner] = Roster[self.parent.unit]
             Roster[self.parent.unit] = nil
             self.parent.unit = owner
+            self.parent.guid = UnitGUID(owner)
+            self.InVehicle = nil
+            
+            --print("D4>Dumping Roster")
+            --d87add.dump("ROSTER")
             
             SetJob(owner,config.InVehicleStatus,false)
             Aptechka:UNIT_HEALTH(nil,owner)
-            if self.parent.power then Aptechka:UNIT_POWER(nil,owner) end
+            if self.parent.power then
+                Aptechka:UNIT_DISPLAYPOWER(nil, owner)
+                Aptechka:UNIT_POWER(nil,owner)
+            end
             Aptechka.ScanAuras(owner)
             
             self:SetScript("OnUpdate",nil)
@@ -359,13 +371,20 @@ end
 function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
     if not Roster[unit] then return end  
     for self in pairs(Roster[unit]) do
+        --ROSTER = Roster
+        self.InVehicle = true
         self.unitOwner = unit
         local vehicleUnit = SecureButton_GetModifiedUnit(self)
         if self.unitOwner == vehicleUnit then return end
         Aptechka:Colorize(nil, unit)
         self.unit = vehicleUnit
+        self.guid = UnitGUID(vehicleUnit)
+        if self.guid then guidMap[self.guid] = vehicleUnit end
         Roster[self.unit] = Roster[self.unitOwner]
         Roster[self.unitOwner] = nil
+        --print("D1>Dumping Roster")
+        --d87add.dump("ROSTER")
+        
         if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
         self.vehicleFrame.OnUpdateCounter = -1.5
         self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
@@ -503,22 +522,28 @@ function Aptechka.Colorize(self, event, unit)
 end
 
 --UnitButton initialization
-local OnAttributeChanged = function(self, name, unit)
-    if name ~= "unit" then return end
-    local unit = self:GetAttribute("unit")
-      
+local OnAttributeChanged = function(self, attrname, unit)
+    if attrname ~= "unit" then return end
+
+    local owner = unit
+    if self.InVehicle and unit == self.unitOwner then
+        unit = self.unit
+        owner = self.unitOwner
+        --if for some reason game will decide to update unit whose frame is mapped to vehicleunit in roster
+    end
+    
     for unit, frames in pairs(Roster) do
         if frames[self] and self:GetAttribute("unit") ~= unit then
             frames[self] = nil
         end
     end
     
-    if self.OnUnitChanged then self:OnUnitChanged(unit) end
+    if self.OnUnitChanged then self:OnUnitChanged(owner) end
     if not unit then return end
-    local name, realm = UnitName(unit)
+    local name, realm = UnitName(owner)
     self.name = utf8sub(name,1,config.cropNamesLen)
 
-    self.guid = UnitGUID(unit)
+    self.guid = UnitGUID(unit) -- is it even needed?
     self.unit = unit
     Roster[unit] = Roster[unit] or {}
     Roster[unit][self] = true
@@ -528,14 +553,16 @@ local OnAttributeChanged = function(self, name, unit)
         if not Roster[gunit] or guid ~= UnitGUID(gunit) then guidMap[guid] = nil end
     end
     
-    Aptechka:Colorize(nil, unit)
+    if self.vehicleFrame then self.vehicleFrame:SetScript("OnUpdate",nil) end
+    
+    Aptechka:Colorize(nil, owner)
     FrameSetJob(self,config.HealthBarColor,true)
     FrameSetJob(self,config.PowerBarColor,true)
     Aptechka.ScanAuras(unit)
     FrameSetJob(self, config.UnitNameStatus, true)
     Aptechka:UNIT_HEALTH("ONATTR", unit)
     Aptechka:UNIT_POWER("ONATTR", unit)
-    Aptechka:UNIT_CONNECTION(nil, unit)
+    Aptechka:UNIT_CONNECTION(nil, owner)
     if not config.disableManaBar then
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
         Aptechka:UNIT_POWER(nil, unit)
@@ -545,7 +572,7 @@ local OnAttributeChanged = function(self, name, unit)
     if config.raidIcons then
         Aptechka:RAID_TARGET_UPDATE()
     end
-    if UnitHasVehicleUI(unit) then Aptechka:UNIT_ENTERED_VEHICLE(nil,unit) end -- scary
+    if UnitHasVehicleUI(owner) then Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) end -- scary
     Aptechka:CheckLFDTank(unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
 end
