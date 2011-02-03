@@ -58,6 +58,7 @@ local SetJob_Indicator = function(self,job)
         if not self.pulse:IsPlaying() then self.pulse:Play() end
     end
 end
+
 local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     local f = CreateFrame("Frame",nil,parent)
     f:SetWidth(w); f:SetHeight(h);

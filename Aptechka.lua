@@ -543,12 +543,11 @@ local OnAttributeChanged = function(self, attrname, unit)
     local name, realm = UnitName(owner)
     self.name = utf8sub(name,1,config.cropNamesLen)
 
-    self.guid = UnitGUID(unit) -- is it even needed?
     self.unit = unit
     Roster[unit] = Roster[unit] or {}
     Roster[unit][self] = true
-
-    guidMap[UnitGUID(unit)] = unit
+    self.guid = UnitGUID(unit) -- is it even needed?
+    if self.guid then guidMap[self.guid] = unit end
     for guid, gunit in pairs(guidMap) do
         if not Roster[gunit] or guid ~= UnitGUID(gunit) then guidMap[guid] = nil end
     end

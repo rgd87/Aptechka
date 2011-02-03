@@ -103,8 +103,8 @@ if playerClass == "PRIEST" then
 end
 
 if playerClass == "WARLOCK" then
-    A{ id = 20707, type = "HELPFUL", assignto = { "spell2" }, color = { 180/255, 0, 1 }, priority = 81 } --Soulstone Resurrection
-    A{ id = 85767, type = "HELPFUL", assignto = { "spell1" }, color = { 180/255, 0.5, 1 }, priority = 83 } --Dark Intent
+    A{ id = 20707, type = "HELPFUL", assignto = { "raidbuff" }, color = { 180/255, 0, 1 }, priority = 81 } --Soulstone Resurrection
+    A{ id = 85767, type = "HELPFUL", assignto = { "spell1" }, color = { 180/255, 0.5, 1 }, isMine = true, priority = 83 } --Dark Intent
 end
 if playerClass == "PALADIN" then
     --A{ id = 20217, type = "HELPFUL", assignto = { "raidbuff" }, color = { .6 , .3, 1}, isMissing = true } --Blessing of Kings
