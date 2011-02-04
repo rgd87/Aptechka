@@ -8,8 +8,9 @@ local Trace = helpers.AddTrace
 AptechkaDefaultConfig = {}
 local config = AptechkaDefaultConfig
 
-
 config.skin = "GridSkin"
+--config.width = 50 -- defined in skin module
+--config.height = 50
 config.cropNamesLen = 7  -- maximum amount of characters in unit name
 config.raidIcons = true
 config.maxgroups = 8

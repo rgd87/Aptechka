@@ -93,10 +93,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end
     end
     
-    self.initConfSnippet = [[
-        local id = tonumber(self:GetName():match(".+UnitButton(%d)"))
-        owner:CallMethod("initConf",id)    
-    ]]
+    config[config.skin.."Settings"]() -- receiving width and height for current skin
+    self.initConfSnippet = string.format([[
+        self:SetWidth(%d)
+        self:SetHeight(%d)
+    ]],config.width, config.height)
     
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_MAXHEALTH")
@@ -609,7 +610,7 @@ function Aptechka.CreateHeader(self,group)
 
     local f = CreateFrame("Button",frameName, UIParent, "SecureGroupHeaderTemplate")
 
-    f:SetAttribute("template", "SecureUnitButtonTemplate")
+    f:SetAttribute("template", "AptechkaUnitButtonTemplate")
     f:SetAttribute("templateType", "Button")
     if unitgr == "RIGHT" then
         xgap = -xgap
@@ -624,7 +625,7 @@ function Aptechka.CreateHeader(self,group)
     f:SetAttribute("showParty", config.showParty)
     f:SetAttribute("showSolo", config.showSolo)
     f:SetAttribute("showPlayer", true)
-    f.initConf = Aptechka.CreateStuff
+    f.initConf = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
     
     if not config.useGroupAnchors and group ~= 1 then
@@ -697,8 +698,9 @@ function Aptechka.CreateAnchor(self,hdr,num)
     end)
 end
 
-function Aptechka.CreateStuff(header,id)
-    local f = header[id]
+--~ function Aptechka.SetupFrame(header,id)
+function Aptechka.SetupFrame(f)
+--~     local f = header[id]
 
     f:SetAttribute("toggleForVehicle", true)
     

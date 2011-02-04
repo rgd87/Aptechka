@@ -233,22 +233,21 @@ local OnMouseLeaveFunc = function(self)
     self.mouseover:Hide()
 end
 
-AptechkaDefaultConfig.GridSkin = function(self)
-    local config
-    if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
+AptechkaDefaultConfig.GridSkinSettings = function(self)
     AptechkaDefaultConfig.width = 50
     AptechkaDefaultConfig.height = 50
     AptechkaDefaultConfig.texture = [[Interface\AddOns\Aptechka\gradient]]
     AptechkaDefaultConfig.font = [[Interface\AddOns\Aptechka\ClearFont.ttf]]
     AptechkaDefaultConfig.fontsize = 12
+end
+AptechkaDefaultConfig.GridSkin = function(self)
+    local config
+    if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     
     local texture = config.texture
     local font = config.font
     local fontsize = config.fontsize
     local manabar_width = config.manabarwidth
-    
-    self:SetWidth(config.width)
-    self:SetHeight(config.height)
     
     local backdrop = {
         bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,

@@ -3,8 +3,9 @@ local _, helpers = ...
 -- instances are identified by map id (assuming they have their own map).
 -- to find out current zone map id type: /dump GetCurrentMapAreaID()
 AptechkaDefaultConfig.MapIDs = {    
-    [609] = "Ruby Sanctum",   -- In Cataclysm beta and 3.3.5 PTR it is 609, in Live version it's 610.. 
-    [610] = "Ruby Sanctum",   -- and looks like the same thing happens with other raids. I'll include everything for now
+    --[609] = "Ruby Sanctum",   -- In Cataclysm beta and 3.3.5 PTR it is 609, in Live version it's 610.. 
+    --[610] = "Ruby Sanctum",   -- and looks like the same thing happens with other raids. I'll include everything for now
+                                -- In Release 610 is the area id of Vashj'ir
     [604] = "Icecrown Citadel",
     [605] = "Icecrown Citadel",
     [543] = "Trial of the Crusader",
