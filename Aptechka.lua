@@ -132,7 +132,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     
-    if config[config.skin.."Settings"] then  config[config.skin.."Settings"]() end
     if not config.anchorpoint then
         local ug = config.unitGrowth
         local gg = config.groupGrowth
@@ -442,6 +441,10 @@ function Aptechka.CheckLFDTank( self,unit )
     if not config.MainTankStatus then return end
     SetJob(unit, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
 end
+function Aptechka.PLAYER_REGEN_ENABLED(self,event)
+    self:RAID_ROSTER_UPDATE()
+    self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+end
 function Aptechka.RAID_ROSTER_UPDATE(self,event,arg1)
     if not InCombatLockdown() then
         if config.resize and not config.useGroupAnchors then
@@ -455,6 +458,8 @@ function Aptechka.RAID_ROSTER_UPDATE(self,event,arg1)
                 end
             end
         end
+    else
+        self:RegisterEvent("PLAYER_REGEN_ENABLED")
     end
 end
 
