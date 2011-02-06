@@ -93,7 +93,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end
     end
     
-    config[config.skin.."Settings"]() -- receiving width and height for current skin
+    if not config[config.skin.."Settings"]
+    then config["GridSkinSettings"]()
+    else config[config.skin.."Settings"]() -- receiving width and height for current skin
+    end
     self.initConfSnippet = string.format([[
         self:SetWidth(%d)
         self:SetHeight(%d)
@@ -282,6 +285,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
         local h,hm = UnitHealth(unit), UnitHealthMax(unit)
+        if hm == 0 then return end
         self.vHealth = h
         self.vHealthMax = hm
         self.health:SetValue(h/hm*100)
