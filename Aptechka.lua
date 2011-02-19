@@ -347,18 +347,18 @@ local vehicleHack = function (self, time)
     local owner = self.parent.unitOwner
     if not ( UnitHasVehicleUI(owner) or UnitInVehicle(owner) or UnitUsingVehicle(owner) )then -- bitch
         if Roster[self.parent.unit] then
---~             print("L1>>Unit: "..self.parent.unit)
---~             print("L1>>Unit Owner: "..self.parent.unitOwner)
---~             print("D3>Dumping Roster")
---~             d87add.dump("ROSTER")
+            --print("L1>>Unit: "..self.parent.unit)
+            --print("L1>>Unit Owner: "..self.parent.unitOwner)
+            --print("D3>Dumping Roster")
+            --d87add.dump("ROSTER")
             Roster[owner] = Roster[self.parent.unit]
             Roster[self.parent.unit] = nil
             self.parent.unit = owner
             self.parent.guid = UnitGUID(owner)
             self.InVehicle = nil
             
---~             print("D4>Dumping Roster")
---~             d87add.dump("ROSTER")
+            --print("D4>Dumping Roster")
+            --d87add.dump("ROSTER")
             
             SetJob(owner,config.InVehicleStatus,false)
             Aptechka:UNIT_HEALTH(nil,owner)
@@ -375,7 +375,7 @@ end
 function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
     if not Roster[unit] then return end  
     for self in pairs(Roster[unit]) do
---~         ROSTER = Roster
+        ROSTER = Roster
         self.InVehicle = true
         self.unitOwner = unit
         local vehicleUnit = SecureButton_GetModifiedUnit(self)
@@ -385,9 +385,9 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
         self.guid = UnitGUID(vehicleUnit)
         if self.guid then guidMap[self.guid] = vehicleUnit end
         Roster[self.unit] = Roster[self.unitOwner]
---~         Roster[self.unitOwner] = nil
---~         print("D1>Dumping Roster")
---~         d87add.dump("ROSTER")
+        Roster[self.unitOwner] = nil
+        --print("D1>Dumping Roster")
+        --d87add.dump("ROSTER")
         
         if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
         self.vehicleFrame.OnUpdateCounter = -1.5
@@ -543,7 +543,9 @@ local OnAttributeChanged = function(self, attrname, unit)
     else
         if self.vehicleFrame then
             self.vehicleFrame:SetScript("OnUpdate",nil)
-            print ("Killing orphan vehicle frame")
+            self.vehicleFrame = nil
+            FrameSetJob(self,config.InVehicleStatus,false)
+            --print ("Killing orphan vehicle frame")
         end
     end
     
