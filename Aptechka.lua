@@ -550,7 +550,7 @@ local OnAttributeChanged = function(self, attrname, unit)
     end
     
     for unit, frames in pairs(Roster) do
-        if frames[self] and self:GetAttribute("unit") ~= unit then
+        if frames[self] and (  self:GetAttribute("unit") ~= unit  or (self.InVehicle and self.unitOwner ~= unit)  ) then
             frames[self] = nil
         end
     end
