@@ -712,6 +712,22 @@ function Aptechka.CreateAnchor(self,hdr,num)
     end)
 end
 
+local function InitBindings(f)
+    if config.TargetBinding ~= false then
+        if config.TargetBinding == nil then config.TargetBinding = "type1" end
+        f:SetAttribute(config.TargetBinding, "target")
+    end
+    if config.ClickCastingMacro then
+        f:RegisterForClicks("AnyUp")
+        f:SetAttribute("*type*", "macro")
+        f:SetAttribute("macrotext", config.ClickCastingMacro)
+    end
+end
+local function BindingsAfterCombatFunc(self)
+    InitBindings(self)
+    self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    self:SetScript("OnEvent",nil)
+end
 --~ function Aptechka.SetupFrame(header,id)
 function Aptechka.SetupFrame(f)
 --~     local f = header[id]
@@ -720,16 +736,11 @@ function Aptechka.SetupFrame(f)
     
     ClickCastFrames[f] = true -- autoadd to clique list
     
-    if config.TargetBinding ~= false then
-        if config.TargetBinding == nil then config.TargetBinding = "type1" end
-        f:SetAttribute(config.TargetBinding, "target")
-    end
-    
-    
-    if config.ClickCastingMacro then
-        f:RegisterForClicks("AnyUp")
-        f:SetAttribute("*type*", "macro")
-        f:SetAttribute("macrotext", config.ClickCastingMacro)
+    if InCombatLockdown() then
+        f:RegisterEvent("PLAYER_REGEN_ENABLED")
+        f:SetScript("OnEvent",BindingsAfterCombatFunc)
+    else
+        InitBindings(f)
     end
     
     if config[config.skin] then
@@ -740,7 +751,6 @@ function Aptechka.SetupFrame(f)
     f.self = f
     f.HideFunc = f.HideFunc or function() end
     
-    --shit
     if config.disableManaBar or not f.power then
         Aptechka:UnregisterEvent("UNIT_POWER")
         Aptechka:UnregisterEvent("UNIT_MAXPOWER")
