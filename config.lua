@@ -13,7 +13,6 @@ config.skin = "GridSkin"
 --config.height = 50
 config.cropNamesLen = 7  -- maximum amount of characters in unit name
 config.raidIcons = true
-config.maxgroups = 8
 config.showSolo = false     -- visible without group/raid
 config.showParty = true    -- in group
 config.unitGap = 10       -- gap between units
@@ -22,9 +21,14 @@ config.groupGrowth = "TOP"
 config.groupGap = 10
 config.unlocked = false  -- when addon initially loaded
 config.disableBlizzardParty = true
-config.useGroupAnchors = false
+config.useGroupAnchors = false -- use separate anchors for each group
 config.resize = { after = 27, to = 0.8 } -- ONLY WORKS with group anchors disabled. If number of players in raid exeeds 27 then resize to 0.8.   "config.resize = false" disables it
-
+config.maxgroups = 8
+config.petgroup = false
+--Pet group is always on separate anchor. Use /apt unlockall.
+--A maximum of 5 pets can be displayed. 
+--Note that there's a /apt createpets command,
+--it creates pet group on the fly when you're out of combat and actually need it.
 
 config.enableIncomingHeals = true
 config.incomingHealThreshold = 3000
@@ -81,8 +85,8 @@ if playerClass == "PRIEST" then
     --A{ id = 27683, type = "HELPFUL", assignto = { "raidbuff" }, color = { 102/255 , 0, 187/255 }, isMissing = true } --Shadow Protection
     
     A{ id = 139,   type = "HELPFUL", assignto = { "spell1" }, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true } --Renew
-    A{ id = 88682, type = "HELPFUL", assignto = { "spell2" }, pulse = true, priority = 70, color = {1,0.7,0.5}, showDuration = true, isMine = true } --Aspire
-    A{ id = 7001,  type = "HELPFUL", assignto = { "spell2" }, pulse = true, priority = 72, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
+    A{ id = 88684, type = "HELPFUL", assignto = { "spell2" }, priority = 60, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Serenity
+    A{ id = 7001,  type = "HELPFUL", assignto = { "spell2" }, pulse = true, priority = 62, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
     A{ id = 17,    type = "HELPFUL", assignto = { "spell2" }, color = { 1, 1, 0}, showDuration = true } --Power Word: Shield
     A{ id = 6788,  type = "HARMFUL", assignto = { "spell2" }, color = { 0.6, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul
     A{ id = 33076, type = "HELPFUL", assignto = { "spell3" }, priority = 70, stackcolor =   {

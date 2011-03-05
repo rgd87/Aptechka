@@ -49,6 +49,7 @@ local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
 local AptechkaDB = {}
 local QuickHealth
+local CreatePetsFunc
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
@@ -70,7 +71,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     else
         setmetatable(AptechkaDB,{ __index = function(t,k) return AptechkaDB_Global[k] end, __newindex = function(t,k,v) rawset(AptechkaDB_Global,k,v) end})
     end    
-    AptechkaDB.scale = AptechkaDB.scale or 1
+    --AptechkaDB.scale = AptechkaDB.scale or 1
     
     
     if config.disableBlizzardParty then
@@ -149,11 +150,17 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     skinAnchorsName = config.useAnchors or config.skin
     local i = 1
     while (i <= config.maxgroups) do
-        local f  = Aptechka:CreateHeader(i)
+        local f  = Aptechka:CreateHeader(i) -- if second arg is true then it's petgroup
         group_headers[i] = f
-        f:SetScale(AptechkaDB.scale)
-        f:Show()
+--~         f:SetScale(AptechkaDB.scale)
         i = i + 1
+    end    
+    CreatePetsFunc = function()
+        local pets  = Aptechka:CreateHeader(9,true)
+        group_headers[9] = pets
+    end
+    if config.petgroup then
+        CreatePetsFunc()
     end
     if config.unlocked then anchors[1]:Show() end
                 
@@ -458,7 +465,7 @@ function Aptechka.RAID_ROSTER_UPDATE(self,event,arg1)
                 end
             else
                 for i = 1, config.maxgroups do
-                    group_headers[i]:SetScale(AptechkaDB.scale)
+                    group_headers[i]:SetScale(1)
                 end
             end
         end
@@ -616,13 +623,15 @@ local arrangeHeaders = function(prv_group, notreverse)
         end
         return p1, prv_group, p2, xgap, ygap
 end 
-function Aptechka.CreateHeader(self,group)
+function Aptechka.CreateHeader(self,group,petgroup)
     local frameName = "NugRaid"..group
     local xgap = config.unitGap
     local ygap = config.unitGap
     local unitgr = reverse(config.unitGrowth)
 
-    local f = CreateFrame("Button",frameName, UIParent, "SecureGroupHeaderTemplate")
+    local HeaderTemplate = petgroup and "SecureGroupPetHeaderTemplate" or "SecureGroupHeaderTemplate"
+    local f = CreateFrame("Button",frameName, UIParent, HeaderTemplate)
+    
 
     f:SetAttribute("template", "AptechkaUnitButtonTemplate")
     f:SetAttribute("templateType", "Button")
@@ -632,7 +641,13 @@ function Aptechka.CreateHeader(self,group)
         ygap = -ygap
     end
     f:SetAttribute("point", unitgr)
-	f:SetAttribute("groupFilter", group)
+	if not petgroup
+    then f:SetAttribute("groupFilter", group)
+    else
+        f:SetAttribute("maxColumns", 1 )
+        f:SetAttribute("unitsPerColumn", 5)
+        --f:SetAttribute("startingIndex", 5*((group - config.maxgroups)-1))
+    end
     f:SetAttribute("showRaid", true)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
@@ -641,12 +656,14 @@ function Aptechka.CreateHeader(self,group)
     f:SetAttribute("showPlayer", true)
     f.initConf = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
-    
-    if not config.useGroupAnchors and group ~= 1 then
-        f:SetPoint(arrangeHeaders(group_headers[group-1]))
-    else
+
+    if config.useGroupAnchors or group == 1 or petgroup then
         Aptechka:CreateAnchor(f,group)
+    else
+        f:SetPoint(arrangeHeaders(group_headers[group-1]))
     end
+    
+    f:Show()
 
     return f
 end
@@ -665,7 +682,9 @@ function Aptechka.CreateAnchor(self,hdr,num)
     t = f:CreateTexture(nil,"BACKGROUND")
     t:SetTexture("Interface\\Buttons\\UI-RadioButton")
     t:SetTexCoord(0.25,0.49,0,1)
-    if num == 1 then t:SetVertexColor(1, 0, 0) else t:SetVertexColor(0, 1, 0) end
+    if num == 1 then t:SetVertexColor(1, 0, 0)
+    elseif num == 9 then t:SetVertexColor(1, 0.6, 0)
+    else t:SetVertexColor(0, 1, 0) end
     t:SetAllPoints(f)
     
     local text = f:CreateFontString()
@@ -673,6 +692,7 @@ function Aptechka.CreateAnchor(self,hdr,num)
     text:SetFontObject("GameFontNormal")
     text:SetJustifyH("RIGHT")
     if num ~= 1 then text:SetText(num) end
+    if num == 9 then text:SetText("P") end
 
     f:RegisterForDrag("LeftButton")
     f:EnableMouse(true)
@@ -686,6 +706,7 @@ function Aptechka.CreateAnchor(self,hdr,num)
     if not AptechkaDB[skinAnchorsName] then AptechkaDB[skinAnchorsName] = {} end
     if not AptechkaDB[skinAnchorsName][num] then
         if num == 1 then AptechkaDB[skinAnchorsName][num] = { point = "CENTER", x = 0, y = 0 }
+        elseif num == 9 then AptechkaDB[skinAnchorsName][num] = { point = "BOTTOMLEFT", x = 0, y = -90 }
         else AptechkaDB[skinAnchorsName][num] = { point = "TOPLEFT", x = 0, y = 60} end
     end
     local san = AptechkaDB[skinAnchorsName][num]
@@ -694,6 +715,7 @@ function Aptechka.CreateAnchor(self,hdr,num)
         f:SetPoint(san.point,UIParent,san.point,san.x,san.y)
     else
         f.prev = anchors[#anchors-1]
+        if num == 9 then f.prev = anchors[1] end
         f:SetPoint(san.point,f.prev,san.point,san.x,san.y)
     end
     f.san = san
@@ -712,22 +734,30 @@ function Aptechka.CreateAnchor(self,hdr,num)
     end)
 end
 
-local function InitBindings(f)
-    if config.TargetBinding ~= false then
-        if config.TargetBinding == nil then config.TargetBinding = "type1" end
-        f:SetAttribute(config.TargetBinding, "target")
-    end
-    if config.ClickCastingMacro then
-        f:RegisterForClicks("AnyUp")
-        f:SetAttribute("*type*", "macro")
-        f:SetAttribute("macrotext", config.ClickCastingMacro)
-    end
-end
 local function BindingsAfterCombatFunc(self)
-    InitBindings(self)
     self:UnregisterEvent("PLAYER_REGEN_ENABLED")
     self:SetScript("OnEvent",nil)
+    InitBindings(self)
 end
+local function InitBindings(f)
+    if InCombatLockdown() then
+        f:RegisterEvent("PLAYER_REGEN_ENABLED")
+        f:SetScript("OnEvent",BindingsAfterCombatFunc)
+    else
+        --InitBindings(f)
+        if config.TargetBinding ~= false then
+            if config.TargetBinding == nil then config.TargetBinding = "type1" end
+            f:SetAttribute(config.TargetBinding, "target")
+        end
+        if config.ClickCastingMacro then
+        f:RegisterForClicks("AnyUp")
+            f:SetAttribute("*type*", "macro")
+            f:SetAttribute("macrotext", config.ClickCastingMacro)
+        end
+    
+    end
+end
+
 --~ function Aptechka.SetupFrame(header,id)
 function Aptechka.SetupFrame(f)
 --~     local f = header[id]
@@ -736,12 +766,7 @@ function Aptechka.SetupFrame(f)
     
     ClickCastFrames[f] = true -- autoadd to clique list
     
-    if InCombatLockdown() then
-        f:RegisterEvent("PLAYER_REGEN_ENABLED")
-        f:SetScript("OnEvent",BindingsAfterCombatFunc)
-    else
-        InitBindings(f)
-    end
+    InitBindings(f)
     
     if config[config.skin] then
         config[config.skin](f)
@@ -890,15 +915,15 @@ function Aptechka.SlashCmd(msg)
       |cff00ff00/aptechka|r unlock
       |cff00ff00/aptechka|r unlock|cffff7777all|r
       |cff00ff00/aptechka|r reset|r
-      |cff00ff00/aptechka|r scale <0-2+>
       |cff00ff00/aptechka|r setpos <point=center x=0 y=0>
       |cff00ff00/aptechka|r load <setname>
       |cff00ff00/aptechka|r charspec
       |cff00ff00/aptechka|r toggle | show | hide
+      |cff00ff00/aptechka|r createpets
       |cff00ff00/aptechka|r togglegroup <1-8>]]
     )end
     if k == "unlockall" then
-        for _,anchor in ipairs(anchors) do
+        for _,anchor in pairs(anchors) do
             anchor:Show()
         end
     end
@@ -906,7 +931,7 @@ function Aptechka.SlashCmd(msg)
         anchors[1]:Show()
     end
     if k == "lock" then
-        for _,anchor in ipairs(anchors) do
+        for _,anchor in pairs(anchors) do
             anchor:Hide()
         end
     end
@@ -917,17 +942,17 @@ function Aptechka.SlashCmd(msg)
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(anchors[1].san.point, UIParent, anchors[1].san.point, anchors[1].san.x, anchors[1].san.y)
     end
-    if k == "scale" then
-        local s = tonumber(v)
-        if not s then
-            print(AptechkaString.."Current scale = "..AptechkaDB.scale)
-            return
-        end
-        AptechkaDB.scale = s
-        for i = 1, config.maxgroups do
-            group_headers[i]:SetScale(s)
-        end
-    end
+--~     if k == "scale" then
+--~         local s = tonumber(v)
+--~         if not s then
+--~             print(AptechkaString.."Current scale = "..AptechkaDB.scale)
+--~             return
+--~         end
+--~         AptechkaDB.scale = s
+--~         for i = 1, config.maxgroups do
+--~             group_headers[i]:SetScale(s)
+--~         end
+--~     end
     if k == "togglegroup" then
         local group = tonumber(v)
         if group then
@@ -939,17 +964,31 @@ function Aptechka.SlashCmd(msg)
             end
         end
     end
+    if k == "createpets" then
+        if not config.petgroup then
+            if not InCombatLockdown() then
+                CreatePetsFunc()
+            else
+                local f = CreateFrame('Frame')
+                f:SetScript("OnEvent",function(self)
+                    CreatePetsFunc()
+                    self:SetScript("OnEvent",nil)
+                end)
+                f:RegisterEvent("PLAYER_REGEN_ENABLED")
+            end
+        end
+    end
     if k == "toggle" then
         if group_headers[1]:IsVisible() then k = "hide" else k = "show" end
     end
     if k == "show" then
-        for i=1,config.maxgroups do
-            group_headers[i]:Show()
+        for i,hdr in pairs(group_headers) do
+            hdr:Show()
         end
     end
     if k == "hide" then
-        for i=1,config.maxgroups do
-            group_headers[i]:Hide()
+        for i,hdr in pairs(group_headers) do
+            hdr:Hide()
         end
     end
     if k == "load" then
