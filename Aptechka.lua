@@ -98,10 +98,27 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     then config["GridSkinSettings"]()
     else config[config.skin.."Settings"]() -- receiving width and height for current skin
     end
+    
+    local tbind, ccmacro
+    if config.TargetBinding == nil then tbind = "type1" end
+    if config.TargetBinding == false then tbind = "__none__" end
+    if not config.ClickCastingMacro then ccmacro = "__none__" end
     self.initConfSnippet = string.format([[
-        self:SetWidth(%d)
-        self:SetHeight(%d)
-    ]],config.width, config.height)
+        self:SetWidth(%f)
+        self:SetHeight(%f)
+        
+        local hdr = self:GetParent()   -- idk where to put it aside from here
+        if not hdr:GetAttribute("custom_scale") then hdr:SetScale(%f) end
+        
+        self:SetAttribute("toggleForVehicle", true)
+        local tbind = "%s"
+        local ccmacro = "%s"
+        if tbind ~= "__none__" then self:SetAttribute(tbind,"target") end
+        if ccmacro ~= "__none__" then
+            self:SetAttribute("*type*", "macro")
+            self:SetAttribute("macrotext", ccmacro)
+        end
+    ]],config.width, config.height,config.scale,tbind,ccmacro)
     
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_MAXHEALTH")
@@ -461,11 +478,13 @@ function Aptechka.RAID_ROSTER_UPDATE(self,event,arg1)
         if config.resize and not config.useGroupAnchors then
             if GetNumRaidMembers() > config.resize.after then
                 for i = 1, config.maxgroups do
+                    group_headers[i]:SetAttribute("custom_scale",true)
                     group_headers[i]:SetScale(config.resize.to)
                 end
             else
                 for i = 1, config.maxgroups do
-                    group_headers[i]:SetScale(1)
+                    group_headers[i]:SetAttribute("custom_scale",nil)
+                    group_headers[i]:SetScale(config.scale)
                 end
             end
         end
@@ -635,6 +654,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
 
     f:SetAttribute("template", "AptechkaUnitButtonTemplate")
     f:SetAttribute("templateType", "Button")
+
     if unitgr == "RIGHT" then
         xgap = -xgap
     elseif unitgr == "TOP" then
@@ -706,7 +726,7 @@ function Aptechka.CreateAnchor(self,hdr,num)
     if not AptechkaDB[skinAnchorsName] then AptechkaDB[skinAnchorsName] = {} end
     if not AptechkaDB[skinAnchorsName][num] then
         if num == 1 then AptechkaDB[skinAnchorsName][num] = { point = "CENTER", x = 0, y = 0 }
-        elseif num == 9 then AptechkaDB[skinAnchorsName][num] = { point = "BOTTOMLEFT", x = 0, y = -90 }
+        elseif num == 9 then AptechkaDB[skinAnchorsName][num] = { point = "BOTTOMLEFT", x = 0, y = -60 }
         else AptechkaDB[skinAnchorsName][num] = { point = "TOPLEFT", x = 0, y = 60} end
     end
     local san = AptechkaDB[skinAnchorsName][num]
@@ -734,39 +754,13 @@ function Aptechka.CreateAnchor(self,hdr,num)
     end)
 end
 
-local function BindingsAfterCombatFunc(self)
-    self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-    self:SetScript("OnEvent",nil)
-    InitBindings(self)
-end
-local function InitBindings(f)
-    if InCombatLockdown() then
-        f:RegisterEvent("PLAYER_REGEN_ENABLED")
-        f:SetScript("OnEvent",BindingsAfterCombatFunc)
-    else
-        --InitBindings(f)
-        if config.TargetBinding ~= false then
-            if config.TargetBinding == nil then config.TargetBinding = "type1" end
-            f:SetAttribute(config.TargetBinding, "target")
-        end
-        if config.ClickCastingMacro then
-        f:RegisterForClicks("AnyUp")
-            f:SetAttribute("*type*", "macro")
-            f:SetAttribute("macrotext", config.ClickCastingMacro)
-        end
-    
-    end
-end
-
 --~ function Aptechka.SetupFrame(header,id)
 function Aptechka.SetupFrame(f)
 --~     local f = header[id]
 
-    f:SetAttribute("toggleForVehicle", true)
+    f:RegisterForClicks("AnyUp")
     
-    ClickCastFrames[f] = true -- autoadd to clique list
-    
-    InitBindings(f)
+    ClickCastFrames[f] = true -- add to clique list
     
     if config[config.skin] then
         config[config.skin](f)
