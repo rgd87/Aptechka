@@ -1,7 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
     <Script file="Aptechka.lua"/>
-    <Button name="AptechkaUnitButtonTemplate" virtual="true" inherits="SecureUnitButtonTemplate">
+    <Button name="AptechkaUnitButtonTemplate" virtual="true" inherits="SecureHandlerEnterLeaveTemplate,SecureUnitButtonTemplate">
         <Scripts>
             <OnLoad>
                 Aptechka.SetupFrame(self)

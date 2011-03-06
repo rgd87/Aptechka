@@ -26,7 +26,7 @@ local group_headers = {}
 local anchors = {}
 local skinAnchorsName
 
-if not ClickCastFrames then ClickCastFrames = {} end -- clique
+--if not ClickCastFrames then ClickCastFrames = {} end -- clique
 local AptechkaString = "|cffff7777Aptechka: |r"
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
@@ -99,15 +99,17 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     else config[config.skin.."Settings"]() -- receiving width and height for current skin
     end
     
-    local tbind, ccmacro
-    if config.TargetBinding == nil then tbind = "type1" end
-    if config.TargetBinding == false then tbind = "__none__" end
-    if not config.ClickCastingMacro then ccmacro = "__none__" end
-    self.initConfSnippet = string.format([[
+    local tbind
+    if config.TargetBinding == nil then tbind = "*type1"
+    elseif config.TargetBinding == false then tbind = "__none__"
+    else tbind = config.TargetBinding end
+    
+    local ccmacro = config.ClickCastingMacro or "__none__"
+    self.initConfSnippet = string.format([=[
         self:SetWidth(%f)
         self:SetHeight(%f)
         
-        local hdr = self:GetParent()   -- idk where to put it aside from here
+        local hdr = self:GetParent()
         if not hdr:GetAttribute("custom_scale") then hdr:SetScale(%f) end
         
         self:SetAttribute("toggleForVehicle", true)
@@ -118,7 +120,14 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:SetAttribute("*type*", "macro")
             self:SetAttribute("macrotext", ccmacro)
         end
-    ]],config.width, config.height,config.scale,tbind,ccmacro)
+        
+        local ccheader = self:GetParent():GetFrameRef("clickcast_header")
+        if ccheader then
+            ccheader:SetAttribute("clickcast_button", self)
+            ccheader:RunAttribute("clickcast_register")
+        end
+        
+    ]=],config.width, config.height,config.scale,tbind,ccmacro)
     
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_MAXHEALTH")
@@ -668,6 +677,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
         f:SetAttribute("unitsPerColumn", 5)
         --f:SetAttribute("startingIndex", 5*((group - config.maxgroups)-1))
     end
+    --our group header doesn't really inherits SecureHandlerBaseTemplate
+    if ClickCastHeader then SecureHandlerSetFrameRef(f,"clickcast_header", ClickCastHeader) end
     f:SetAttribute("showRaid", true)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
@@ -754,13 +765,38 @@ function Aptechka.CreateAnchor(self,hdr,num)
     end)
 end
 
+
+local onenter = function(self)
+    if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
+    if UnitAffectingCombat("player") then return end
+    UnitFrame_OnEnter(self)
+    self:SetScript("OnUpdate", UnitFrame_OnUpdate)
+end
+local onleave = function(self)
+    if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
+    UnitFrame_OnLeave(self)
+    self:SetScript("OnUpdate", nil)
+end
 --~ function Aptechka.SetupFrame(header,id)
 function Aptechka.SetupFrame(f)
 --~     local f = header[id]
 
+    f.onenter = onenter
+    f.onleave = onleave
+    --self:SetScale(1.3)
+    f:SetAttribute("_onenter",[[
+        local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
+        self:CallMethod("onenter")
+    ]])
+    --self:SetScale( 1 )
+    f:SetAttribute("_onleave",[[
+        local snippet = self:GetAttribute('clickcast_onleave'); if snippet then self:Run(snippet) end
+        self:CallMethod("onleave")
+    ]])
+
     f:RegisterForClicks("AnyUp")
     
-    ClickCastFrames[f] = true -- add to clique list
+    --ClickCastFrames[f] = true -- add to clique list
     
     if config[config.skin] then
         config[config.skin](f)
@@ -781,18 +817,6 @@ function Aptechka.SetupFrame(f)
     if f.raidicon then
         f.raidicon.texture:SetTexture[[Interface\TargetingFrame\UI-RaidTargetingIcons]]
     end
-
-    f:SetScript("OnEnter", function(self)
-        if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
-        if UnitAffectingCombat("player") then return end
-        UnitFrame_OnEnter(self)
-        self:SetScript("OnUpdate", UnitFrame_OnUpdate)
-    end)
-    f:SetScript("OnLeave", function(self)
-        if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
-        UnitFrame_OnLeave(self)
-        self:SetScript("OnUpdate", nil)
-    end)
 
     f:SetScript("OnAttributeChanged", OnAttributeChanged)
 end

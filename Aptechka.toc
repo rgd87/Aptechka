@@ -4,6 +4,7 @@
 ## Author: d87
 ## SavedVariablesPerCharacter: AptechkaDB_Char
 ## SavedVariables: AptechkaDB_Global
+## OptionalDeps: Clique
 libs.xml
 helpers.lua
 config.lua

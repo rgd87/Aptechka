@@ -260,6 +260,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local mot = self:CreateTexture(nil,"OVERLAY")
     mot:SetAllPoints(self)
     mot:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+    --mot:SetTexture[[Interface\AddOns\Aptechka\shine]]
+    --mot:SetVertexColor(0.7,0.7,1)
     mot:SetBlendMode("ADD")
     mot:Hide()
     self.mouseover = mot
