@@ -29,6 +29,10 @@ local skinAnchorsName
 --if not ClickCastFrames then ClickCastFrames = {} end -- clique
 local AptechkaString = "|cffff7777Aptechka: |r"
 local UnitHealth = UnitHealth
+local __UnitHealth = UnitHealth
+local CLHealth = setmetatable({},{__mode = 'k' })
+-- , __index = function (t,k) return { __UnitHealth(k), 0 } end
+local CLHealthUpdate
 local UnitHealthMax = UnitHealthMax
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitPower = UnitPower
@@ -202,6 +206,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     
     if config.enableTraceHeals and next(traceheals) then
         self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+        --self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, hideCaster, srcGUID,
         self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, srcGUID,
                                                     srcName, srcFlags, dstGUID, dstName, dstFlags, spellID, spellName,
                                                     spellSchool, amount, overhealing, absorbed, critical)
@@ -275,6 +280,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         local cleuEvent = CreateFrame("Frame")
         cleuEvent:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         cleuEvent:SetScript("OnEvent",
+        --function( self, event, timestamp, eventType, hideCaster, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellID, spellName, spellSchool, auraType, amount)
         function( self, event, timestamp, eventType, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellID, spellName, spellSchool, auraType, amount)
             if auras[spellName] then
                 if auraUpdateEvents[eventType] then
@@ -289,6 +295,71 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end)
     end
     
+    
+    if config.useCombatLogHealthUpdates then
+    
+        UnitHealth = function(unit)
+            return CLHealth[unit][1] or __UnitHealth(unit)
+        end
+        CLHealthUpdate = function(unit)
+            local new = __UnitHealth(unit)
+            if APTECHKA_CLH_DEBUG then print (string.format("UH> CLog: %d  new: %d time: %f",CLHealth[unit][1],new,GetTime())) end
+            local clh = CLHealth[unit]
+            if not clh then CLHealth[unit] = { __UnitHealth(unit), 0, 0 }; clh = CLHealth[unit]; end
+            if clh[1] ~= new then
+                local diff = new-CLHealth[unit][1] -- if this value is positive then it's a pending heal or something
+                if APTECHKA_CLH_DEBUG then print ("Health conflict! ",diff) end
+                if diff > 0 then clh[3] = 1 else clh[3] = -1 end
+                clh[2] = -diff
+                clh[1] = new
+            else
+                clh[2] = 0
+            end
+        end
+        -- When mismatch between current estimated health value from combat log and new UNIT_HEALTH value occurs,
+        -- it is assumed that combat log messages about that is still pending, so we ignore that amount of damage/healing from following updates
+        -- So basically in unclear situations we prioritize UNIT_HEALTH values and no harm is done from incorrect CL updates
+        -- I hope...
+        local cleuHealth = CreateFrame("Frame")
+        cleuHealth:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+        cleuHealth:SetScript("OnEvent",
+        function( self, event, timestamp, eventType, --hideCaster,
+                srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
+            local dstUnit = guidMap[dstGUID]
+            if dstUnit and Roster[dstUnit] then
+            
+                local amount
+                if(eventType == "SWING_DAMAGE") then --autoattack dmg
+                    amount = -(...); -- putting in braces will autoselect the first arg, no need to use select(1, ...);
+                elseif(eventType == "SPELL_PERIODIC_DAMAGE" or eventType == "SPELL_DAMAGE"
+                or eventType == "DAMAGE_SPLIT" or eventType == "DAMAGE_SHIELD") then -- all kinds of spelldamage
+                    amount = -select(4, ...);
+                elseif(eventType == "ENVIRONMENTAL_DAMAGE") then --environmental damage
+                    amount = -select(2, ...);
+                elseif(eventType == "SPELL_HEAL" or eventType == "SPELL_PERIODIC_HEAL") then
+                    amount = select(4, ...) - select(5, ...) -- heal amount - overheal
+                end
+                if amount then
+                    local clh = CLHealth[dstUnit]
+                    if not clh then CLHealth[dstUnit] = { __UnitHealth(dstUnit), 0, 0 }; clh = CLHealth[dstUnit]; end
+                    if APTECHKA_CLH_DEBUG then print (string.format("CL> CLog: %d  UH: %d amount: %d time: %f",clh[1],__UnitHealth(dstUnit),amount,GetTime())) end
+                    if clh[2] == 0 then
+                        clh[1] = clh[1] + amount
+                        Aptechka:UNIT_HEALTH(nil,dstUnit)
+                    elseif (clh[3] < 0 and clh[2] > 0) or (clh[3] > 0 and clh[2] < 0) then 
+                        if APTECHKA_CLH_DEBUG then print(string.format("CL>       CurDiff: %d  + %d",clh[2],amount)) end
+                        clh[2] = clh[2] + amount
+                    elseif (clh[3] < 0 and clh[2] < 0) or (clh[3] > 0 and clh[2] > 0)then
+                        clh[1] = clh[1] + clh[2]
+                        clh[2] = 0
+                        Aptechka:UNIT_HEALTH(nil,dstUnit)
+                    end
+                end
+            
+            end
+        end)
+        
+    end
     
         
 end  -- END PLAYER_LOGIN
@@ -316,6 +387,7 @@ end
 
 function Aptechka.UNIT_HEALTH(self, event, unit)
     if not Roster[unit] then return end
+    if event and CLHealthUpdate then CLHealthUpdate(unit) end
     for self in pairs(Roster[unit]) do
         local h,hm = UnitHealth(unit), UnitHealthMax(unit)
         if hm == 0 then return end
@@ -394,7 +466,7 @@ local vehicleHack = function (self, time)
             --d87add.dump("ROSTER")
             
             SetJob(owner,config.InVehicleStatus,false)
-            Aptechka:UNIT_HEALTH(nil,owner)
+            Aptechka:UNIT_HEALTH("VEHICLE",owner)
             if self.parent.power then
                 Aptechka:UNIT_DISPLAYPOWER(nil, owner)
                 Aptechka:UNIT_POWER(nil,owner)
@@ -427,7 +499,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
         self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
         
         SetJob(self.unit,config.InVehicleStatus,true)
-        Aptechka:UNIT_HEALTH(nil,self.unit)
+        Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
         if self.power then Aptechka:UNIT_POWER(nil,self.unit) end
         Aptechka.ScanAuras(self.unit)
     end
@@ -558,6 +630,11 @@ end
 function Aptechka.Colorize(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
+        local hdr = self:GetParent()
+        if hdr.isPetGroup then
+            local unit = string.gsub(unit,"pet","")
+            if unit == "" then unit = "player" end
+        end
         local _,class = UnitClass(unit)
         if class then
             local color = colors[class] -- or { r = 1, g = 1, b = 0}
@@ -671,7 +748,9 @@ function Aptechka.CreateHeader(self,group,petgroup)
     end
     f:SetAttribute("point", unitgr)
 	if not petgroup
-    then f:SetAttribute("groupFilter", group)
+    then
+        f:SetAttribute("groupFilter", group)
+        f.isPetGroup = true
     else
         f:SetAttribute("maxColumns", 1 )
         f:SetAttribute("unitsPerColumn", 5)

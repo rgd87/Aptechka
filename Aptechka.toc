@@ -5,7 +5,6 @@
 ## SavedVariablesPerCharacter: AptechkaDB_Char
 ## SavedVariables: AptechkaDB_Global
 ## OptionalDeps: Clique
-libs.xml
 helpers.lua
 config.lua
 frame.lua

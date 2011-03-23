@@ -1,7 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w4.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
-..\FrameXML\UI.xsd">
-
-<Script file="libs\LibStub.lua"/>
-<Script file="libs\CallbackHandler-1.0.lua"/>
-<Script file="libs\LibQuickHealth-2.0.lua"/>
-</Ui>

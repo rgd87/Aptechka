@@ -51,10 +51,7 @@ config.useCombatLogFiltering = true
 -- On lich king there was an issue, and maybe it's still present, that necrotic plague removal event didn't appear in combat log
 -- and that caused glitches with boss debuff assignto. But that's a rare blizzard side bug.
 -- Dispel idicators still work from unit_aura, so you'll see plague regardless as disease if you can dispel it. Necrotic plague removed from default loadables.lua setup.
-
--- libs
-config.useQuickHealth = isHealer -- combat log event is faster than UNIT_HEALTH event.
-                                         -- And that's what this lib does, allows you to see health updates more often/sooner.
+config.useCombatLogHealthUpdates = isHealer
 
                                          
                                          
