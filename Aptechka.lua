@@ -196,10 +196,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     
     if config.enableTraceHeals and next(traceheals) then
         self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-        --self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, hideCaster, srcGUID,
-        self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, srcGUID,
-                                                    srcName, srcFlags, dstGUID, dstName, dstFlags, spellID, spellName,
-                                                    spellSchool, amount, overhealing, absorbed, critical)
+        self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, --hideCaster
+                                                    srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags,
+                                                    spellID, spellName, spellSchool, amount, overhealing, absorbed, critical)
             if (bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE) then
                 local opts = traceheals[spellName]
                 if opts and eventType == opts.type then
@@ -270,8 +269,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         local cleuEvent = CreateFrame("Frame")
         cleuEvent:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         cleuEvent:SetScript("OnEvent",
-        --function( self, event, timestamp, eventType, hideCaster, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellID, spellName, spellSchool, auraType, amount)
-        function( self, event, timestamp, eventType, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, spellID, spellName, spellSchool, auraType, amount)
+        function( self, event, timestamp, eventType, --hideCaster
+                        srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags,
+                        spellID, spellName, spellSchool, auraType, amount)
             if auras[spellName] then
                 if auraUpdateEvents[eventType] then
                     local unit = guidMap[dstGUID]
