@@ -26,7 +26,6 @@ local group_headers = {}
 local anchors = {}
 local skinAnchorsName
 
---if not ClickCastFrames then ClickCastFrames = {} end -- clique
 local AptechkaString = "|cffff7777Aptechka: |r"
 local UnitHealth = UnitHealth
 local __UnitHealth = UnitHealth
@@ -77,8 +76,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     else
         setmetatable(AptechkaDB,{ __index = function(t,k) return AptechkaDB_Global[k] end, __newindex = function(t,k,v) rawset(AptechkaDB_Global,k,v) end})
     end    
-    --AptechkaDB.scale = AptechkaDB.scale or 1
-    
     
     if config.disableBlizzardParty then
         helpers.DisableBlizzParty()
@@ -172,7 +169,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     while (i <= config.maxgroups) do
         local f  = Aptechka:CreateHeader(i) -- if second arg is true then it's petgroup
         group_headers[i] = f
---~         f:SetScale(AptechkaDB.scale)
         i = i + 1
     end    
     CreatePetsFunc = function()
@@ -546,14 +542,14 @@ function Aptechka.RAID_ROSTER_UPDATE(self,event,arg1)
     if not InCombatLockdown() then
         if config.resize and not config.useGroupAnchors then
             if GetNumRaidMembers() > config.resize.after then
-                for i = 1, config.maxgroups do
-                    group_headers[i]:SetAttribute("custom_scale",true)
-                    group_headers[i]:SetScale(config.resize.to)
+                for i,hdr in pairs(group_headers) do
+                    hdr:SetAttribute("custom_scale",true)
+                    hdr:SetScale(config.resize.to)
                 end
             else
-                for i = 1, config.maxgroups do
-                    group_headers[i]:SetAttribute("custom_scale",nil)
-                    group_headers[i]:SetScale(config.scale)
+                for i,hdr in pairs(group_headers) do
+                    hdr:SetAttribute("custom_scale",nil)
+                    hdr:SetScale(config.scale)
                 end
             end
         end
@@ -850,7 +846,6 @@ function Aptechka.SetupFrame(f)
 
     f.onenter = onenter
     f.onleave = onleave
-    --self:SetScale(1.3)
     f:SetAttribute("_onenter",[[
         local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
         self:CallMethod("onenter")
