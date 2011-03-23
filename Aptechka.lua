@@ -30,8 +30,10 @@ local skinAnchorsName
 local AptechkaString = "|cffff7777Aptechka: |r"
 local UnitHealth = UnitHealth
 local __UnitHealth = UnitHealth
-local CLHealth = setmetatable({},{__mode = 'k' })
--- , __index = function (t,k) return { __UnitHealth(k), 0 } end
+local CLHealth = setmetatable({},{__mode = 'k', __index = function (t,k)
+            rawset(t,k, { __UnitHealth(k), 0, 0 } )
+            return t[k]
+        end })
 local CLHealthUpdate
 local UnitHealthMax = UnitHealthMax
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
@@ -84,18 +86,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     
     if config.enableIncomingHeals then
         self:RegisterEvent("UNIT_HEAL_PREDICTION")
-    end
-    if config.useQuickHealth then
-        QuickHealth = LibStub and LibStub("LibQuickHealth-2.0", true)
-        if QuickHealth then
-            UnitHealth = QuickHealth.UnitHealth
-            Aptechka.UnitHealthUpdated = function(self, event, unit, h, hm)
-                if Roster[unit] then
-                    self:UNIT_HEALTH(nil, unit)
-                end
-            end
-            QuickHealth.RegisterCallback(self, "UnitHealthUpdated")
-        end
     end
     
     if not config[config.skin.."Settings"]
@@ -303,12 +293,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end
         CLHealthUpdate = function(unit)
             local new = __UnitHealth(unit)
-            if APTECHKA_CLH_DEBUG then print (string.format("UH> CLog: %d  new: %d time: %f",CLHealth[unit][1],new,GetTime())) end
+            --if APTECHKA_CLH_DEBUG then print (string.format("UH> CLog: %d  new: %d time: %f",CLHealth[unit][1],new,GetTime())) end
             local clh = CLHealth[unit]
-            if not clh then CLHealth[unit] = { __UnitHealth(unit), 0, 0 }; clh = CLHealth[unit]; end
             if clh[1] ~= new then
                 local diff = new-CLHealth[unit][1] -- if this value is positive then it's a pending heal or something
-                if APTECHKA_CLH_DEBUG then print ("Health conflict! ",diff) end
+                --if APTECHKA_CLH_DEBUG then print ("Health conflict! ",diff) end
                 if diff > 0 then clh[3] = 1 else clh[3] = -1 end
                 clh[2] = -diff
                 clh[1] = new
@@ -329,25 +318,24 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             if dstUnit and Roster[dstUnit] then
             
                 local amount
-                if(eventType == "SWING_DAMAGE") then --autoattack dmg
+                if(eventType == "SWING_DAMAGE") then --autoattack
                     amount = -(...); -- putting in braces will autoselect the first arg, no need to use select(1, ...);
                 elseif(eventType == "SPELL_PERIODIC_DAMAGE" or eventType == "SPELL_DAMAGE"
-                or eventType == "DAMAGE_SPLIT" or eventType == "DAMAGE_SHIELD") then -- all kinds of spelldamage
+                or eventType == "DAMAGE_SPLIT" or eventType == "DAMAGE_SHIELD") then
                     amount = -select(4, ...);
-                elseif(eventType == "ENVIRONMENTAL_DAMAGE") then --environmental damage
+                elseif(eventType == "ENVIRONMENTAL_DAMAGE") then
                     amount = -select(2, ...);
                 elseif(eventType == "SPELL_HEAL" or eventType == "SPELL_PERIODIC_HEAL") then
                     amount = select(4, ...) - select(5, ...) -- heal amount - overheal
                 end
                 if amount then
                     local clh = CLHealth[dstUnit]
-                    if not clh then CLHealth[dstUnit] = { __UnitHealth(dstUnit), 0, 0 }; clh = CLHealth[dstUnit]; end
-                    if APTECHKA_CLH_DEBUG then print (string.format("CL> CLog: %d  UH: %d amount: %d time: %f",clh[1],__UnitHealth(dstUnit),amount,GetTime())) end
+                    --if APTECHKA_CLH_DEBUG then print (string.format("CL> CLog: %d  UH: %d amount: %d time: %f",clh[1],__UnitHealth(dstUnit),amount,GetTime())) end
                     if clh[2] == 0 then
                         clh[1] = clh[1] + amount
                         Aptechka:UNIT_HEALTH(nil,dstUnit)
                     elseif (clh[3] < 0 and clh[2] > 0) or (clh[3] > 0 and clh[2] < 0) then 
-                        if APTECHKA_CLH_DEBUG then print(string.format("CL>       CurDiff: %d  + %d",clh[2],amount)) end
+                        --if APTECHKA_CLH_DEBUG then print(string.format("CL>       CurDiff: %d  + %d",clh[2],amount)) end
                         clh[2] = clh[2] + amount
                     elseif (clh[3] < 0 and clh[2] < 0) or (clh[3] > 0 and clh[2] > 0)then
                         clh[1] = clh[1] + clh[2]
