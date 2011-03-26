@@ -26,10 +26,10 @@ config.useGroupAnchors = false -- use separate anchors for each group
 config.resize = { after = 27, to = 0.8 } -- ONLY WORKS with group anchors disabled. If number of players in raid exeeds 27 then resize to 0.8.   "config.resize = false" disables it
 config.maxgroups = 8
 config.petgroup = false
+config.petcolor = {1,.5,.5}
 --Pet group is always on separate anchor. Use /apt unlockall.
 --A maximum of 5 pets can be displayed. 
---Note that there's a /apt createpets command,
---it creates pet group on the fly when you're out of combat and actually need it.
+--You also can use /apt createpets command, it creates pet group on the fly
 
 config.enableIncomingHeals = true
 config.incomingHealThreshold = 3000

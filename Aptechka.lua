@@ -615,14 +615,18 @@ function Aptechka.Colorize(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
         local hdr = self:GetParent()
+        --if hdr.isPetGroup then   -- use owner color
+        --    unit = string.gsub(unit,"pet","")
+        --    if unit == "" then unit = "player" end
+        --end
         if hdr.isPetGroup then
-            local unit = string.gsub(unit,"pet","")
-            if unit == "" then unit = "player" end
-        end
-        local _,class = UnitClass(unit)
-        if class then
-            local color = colors[class] -- or { r = 1, g = 1, b = 0}
-            self.classcolor = {color.r,color.g,color.b}
+            self.classcolor = config.petcolor
+        else
+            local _,class = UnitClass(unit)
+            if class then
+                local color = colors[class] -- or { r = 1, g = 1, b = 0}
+                self.classcolor = {color.r,color.g,color.b}
+            end
         end
     end
 end
@@ -734,8 +738,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
 	if not petgroup
     then
         f:SetAttribute("groupFilter", group)
-        f.isPetGroup = true
     else
+        f.isPetGroup = true
         f:SetAttribute("maxColumns", 1 )
         f:SetAttribute("unitsPerColumn", 5)
         --f:SetAttribute("startingIndex", 5*((group - config.maxgroups)-1))
