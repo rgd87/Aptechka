@@ -44,6 +44,7 @@ local UnitGetIncomingHeals = UnitGetIncomingHeals
 local UnitThreatSituation = UnitThreatSituation
 local SetJob
 local FrameSetJob
+local DispelFilter
 
 local bit_band = bit.band
 local pairs = pairs
@@ -179,6 +180,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         CreatePetsFunc()
     end
     if config.unlocked then anchors[1]:Show() end
+    
+    if config.DispelFilterAll
+    then DispelFilter = "HARMFUL"
+    else DispelFilter = "HARMFUL|RAID"
+    end
                 
     Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
     Aptechka:Show()
@@ -192,7 +198,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     
     if config.enableTraceHeals and next(traceheals) then
         self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-        self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, --hideCaster
+        self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, hideCaster,
                                                     srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags,
                                                     spellID, spellName, spellSchool, amount, overhealing, absorbed, critical)
             if (bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE) then
@@ -265,7 +271,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         local cleuEvent = CreateFrame("Frame")
         cleuEvent:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         cleuEvent:SetScript("OnEvent",
-        function( self, event, timestamp, eventType, --hideCaster
+        function( self, event, timestamp, eventType, hideCaster,
                         srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags,
                         spellID, spellName, spellSchool, auraType, amount)
             if auras[spellName] then
@@ -308,7 +314,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         local cleuHealth = CreateFrame("Frame")
         cleuHealth:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         cleuHealth:SetScript("OnEvent",
-        function( self, event, timestamp, eventType, --hideCaster,
+        function( self, event, timestamp, eventType, hideCaster,
                 srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
             local dstUnit = guidMap[dstGUID]
             if dstUnit and Roster[dstUnit] then
@@ -958,12 +964,12 @@ end
 
 function Aptechka.ScanDispels(unit)
     if dtypes then
-        if UnitAura(unit, 1, "HARMFUL|RAID") then
+        if UnitAura(unit, 1, DispelFilter) then
             for _,opts in pairs(dtypes) do
                 opts.gotone = false
             end
             for i = 1, 100 do
-                local name, _, icon, count, debuffType, duration, expirationTime = UnitAura(unit, i, "HARMFUL|RAID")
+                local name, _, icon, count, debuffType, duration, expirationTime = UnitAura(unit, i, DispelFilter)
                 if not name then break end
                 if dtypes[debuffType] then
                     local opts = dtypes[debuffType]

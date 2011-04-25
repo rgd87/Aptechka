@@ -83,7 +83,12 @@ if playerClass == "PRIEST" then
     --A{ id = 27683, type = "HELPFUL", assignto = { "raidbuff" }, color = { 102/255 , 0, 187/255 }, isMissing = true } --Shadow Protection
     
     A{ id = 139,   type = "HELPFUL", assignto = { "spell1" }, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true } --Renew
-    A{ id = 88684, type = "HELPFUL", assignto = { "spell2" }, priority = 60, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Serenity
+    A{ id = 88684, type = "HELPFUL", assignto = { "spell3" }, priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Serenity
+    A{ id = 77613, type = "HELPFUL", assignto = { "spell3" }, priority = 75, showDuration = true, stackcolor = {
+                                                                            [1] = {0.4,0.5,1},
+                                                                            [2] = {0.5,0.7,1},
+                                                                            [3] = {0.7,0.8,1},
+                                                                        }} --Grace
     A{ id = 7001,  type = "HELPFUL", assignto = { "spell2" }, pulse = true, priority = 62, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
     A{ id = 17,    type = "HELPFUL", assignto = { "spell2" }, color = { 1, 1, 0}, showDuration = true } --Power Word: Shield
     A{ id = 6788,  type = "HARMFUL", assignto = { "spell2" }, color = { 0.6, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul

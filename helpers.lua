@@ -4,6 +4,22 @@ local config
 helpers.AddDispellType = function(dtype, data)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not config.DebuffTypes then config.DebuffTypes = {} end
+    local _,class = UnitClass("player")
+    --If all required debuff types are dispelable by class then we're using HARMFUL|RAID filter to optimize dispel checks
+    --ugliness
+    if class == "PRIEST" then
+        if dtype ~= "Disease" and dtype ~= "Magic" then config.DispelFilterAll = true end
+    elseif class == "DRUID" then
+        if dtype ~= "Curse" and dtype ~= "Magic" and dtype ~= "Poison" then config.DispelFilterAll = true end
+    elseif class == "PALADIN" then
+        if dtype ~= "Disease" and dtype ~= "Magic" and dtype ~= "Poison" then config.DispelFilterAll = true end
+    elseif class == "SHAMAN" then
+        if dtype ~= "Curse" and dtype ~= "Magic" then config.DispelFilterAll = true end
+    elseif class == "MAGE" then
+        if dtype ~= "Curse" then config.DispelFilterAll = true end
+    else
+        config.DispelFilterAll = true
+    end
     data.name = dtype
     config.DebuffTypes[dtype] = data
 end
@@ -110,10 +126,10 @@ function helpers.DisableBlizzParty(self)
         _G[party..'ManaBar']:UnregisterAllEvents()
     end
     
-    CompactRaidFrameContainer:Hide()
-    CompactRaidFrameContainer.Show = function()end
-    CompactRaidFrameManager:Hide()
-    CompactRaidFrameManager.Show = function()end
+--~     CompactRaidFrameContainer:Hide()
+--~     CompactRaidFrameContainer.Show = function()end
+--~     CompactRaidFrameManager:Hide()
+--~     CompactRaidFrameManager.Show = function()end
 end
 
 function helpers.Reverse(p1)
