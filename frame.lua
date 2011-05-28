@@ -119,6 +119,7 @@ AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
 local SetJob_Icon = function(self,job)
     if job.fade then self.jobs[job.name] = nil; return end
     if job.showDuration then
+        self.cd:SetReverse(not job.reverseDuration)
         self.cd:SetCooldown(job.expirationTime - job.duration,job.duration)
         self.cd:Show()
     else
