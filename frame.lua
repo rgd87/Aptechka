@@ -34,6 +34,7 @@ local PowerBar_OnPowerTypeChange = function(self, powertype)
 end
 local SetJob_Indicator = function(self,job)
     if job.showDuration then
+        self.cd:SetReverse(not job.reverseDuration)
         self.cd:SetCooldown(job.expirationTime - job.duration,job.duration)
         self.cd:Show()
     else

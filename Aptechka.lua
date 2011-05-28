@@ -199,7 +199,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.enableTraceHeals and next(traceheals) then
         self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, hideCaster,
-                                                    srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags,
+                                                    srcGUID, srcName, srcFlags, --srcFlags2,
+                                                    dstGUID, dstName, dstFlags, --dstFlags2,
                                                     spellID, spellName, spellSchool, amount, overhealing, absorbed, critical)
             if (bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE) then
                 local opts = traceheals[spellName]
@@ -272,7 +273,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         cleuEvent:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         cleuEvent:SetScript("OnEvent",
         function( self, event, timestamp, eventType, hideCaster,
-                        srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags,
+                        srcGUID, srcName, srcFlags, --srcFlags2,
+                        dstGUID, dstName, dstFlags, --dstFlags2,
                         spellID, spellName, spellSchool, auraType, amount)
             if auras[spellName] then
                 if auraUpdateEvents[eventType] then
@@ -315,7 +317,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         cleuHealth:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         cleuHealth:SetScript("OnEvent",
         function( self, event, timestamp, eventType, hideCaster,
-                srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
+                srcGUID, srcName, srcFlags, --srcFlags2,
+                dstGUID, dstName, dstFlags, --dstFlags2,
+                ...)
             local dstUnit = guidMap[dstGUID]
             if dstUnit and Roster[dstUnit] then
             
