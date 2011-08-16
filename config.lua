@@ -41,7 +41,7 @@ config.enableClickCasting = false
 -- spell:<id> is an alias for localized spellname.
 -- Unmodified left click is reserved for targeting by default.
 -- Use helpers.BindTarget("shift 1") to change it. Syntax: any combination of "shift" "alt" "ctrl" and button number
-config.useCombatLogFiltering = true
+config.useCombatLogFiltering = false
 -- useCombatLogFiltering provides a huge perfomance boost over default behavior, which would be to listen only to UNIT_AURA event.
 -- UNIT_AURA doesn't tell what exactly changed and every time addon had to scan current buffs/debuffs,
 -- in raid combat unit_aura sometimes fired up to 8 times per second for each member with all the stacking trinkets and procs.
@@ -195,13 +195,7 @@ if not isHealer or playerClass == "PALADIN" then
     config.redirectPowerBar = "spell1"
 end
 
-A{ id = 871,   type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Shield Wall
-A{ id = 498,   type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Divine Protection
-A{ id = 48792, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Icebound Fortitude
-A{ id = 33206, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Pain Suppression
- 
-A{ id = 55233, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 88 } --Vampiric Blood
-A{ id = 47788, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 88 } --Guardian Spirit
-    
-A{ id = 12975, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 86 } --Last Stand
-A{ id = 61336, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 86 } --Survival Instincts
+config.autoload = {
+    "HealingReduction",
+    "TankCooldowns"
+}

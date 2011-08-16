@@ -214,6 +214,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     end
 
+    --autoloading
+    for _,spell_group in pairs(config.autoload) do
+        config.LoadableDebuffs[spell_group]()
+        loaded[spell_group] = true
+    end
     --raid/pvp debuffs loading 
     local loader = CreateFrame("Frame")
     loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
@@ -446,18 +451,21 @@ local vehicleHack = function (self, time)
     local owner = self.parent.unitOwner
     if not ( UnitHasVehicleUI(owner) or UnitInVehicle(owner) or UnitUsingVehicle(owner) )then -- bitch
         if Roster[self.parent.unit] then
-            --print("L1>>Unit: "..self.parent.unit)
-            --print("L1>>Unit Owner: "..self.parent.unitOwner)
-            --print("D3>Dumping Roster")
-            --d87add.dump("ROSTER")
+            -- local original_unit = self.parent.unit
+            -- print(string.format("L1>>Unit: %s-",original_unit))
+            -- print(string.format("L1>>Unit- Owner: %s",self.parent.unitOwner))
+            -- print(string.format("D3>>-Dumping Roster"))
+            -- d87add.dump("ROSTER")-
             Roster[owner] = Roster[self.parent.unit]
             Roster[self.parent.unit] = nil
             self.parent.unit = owner
             self.parent.guid = UnitGUID(owner)
             self.InVehicle = nil
             
-            --print("D4>Dumping Roster")
-            --d87add.dump("ROSTER")
+
+            -- print(string.format("L1>>Unit: %-s",original_unit))
+            -- print(string.format("D4>[%s]>Dumping- Roster",NAME))
+            -- d87add.dump("ROSTER")-
             
             SetJob(owner,config.InVehicleStatus,false)
             Aptechka:UNIT_HEALTH("VEHICLE",owner)
@@ -474,7 +482,7 @@ end
 function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
     if not Roster[unit] then return end  
     for self in pairs(Roster[unit]) do
-        ROSTER = Roster
+        if self.InVehicle then return end --print("Already in vehicle")
         self.InVehicle = true
         self.unitOwner = unit
         local vehicleUnit = SecureButton_GetModifiedUnit(self)
@@ -485,8 +493,11 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
         if self.guid then guidMap[self.guid] = vehicleUnit end
         Roster[self.unit] = Roster[self.unitOwner]
         Roster[self.unitOwner] = nil
-        --print("D1>Dumping Roster")
-        --d87add.dump("ROSTER")
+
+        -- ROSTER = Roster
+        -- local NAME = UnitName(unit)
+        -- print(string.format("D1>[%s]>Dumping Roster",NAME))
+        -- d87add.dump("ROSTER")
         
         if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
         self.vehicleFrame.OnUpdateCounter = -1.5
@@ -1011,6 +1022,7 @@ function Aptechka.SlashCmd(msg)
       |cff00ff00/aptechka|r reset|r
       |cff00ff00/aptechka|r setpos <point=center x=0 y=0>
       |cff00ff00/aptechka|r load <setname>
+      |cff00ff00/aptechka|r spells
       |cff00ff00/aptechka|r charspec
       |cff00ff00/aptechka|r toggle | show | hide
       |cff00ff00/aptechka|r createpets
@@ -1083,6 +1095,14 @@ function Aptechka.SlashCmd(msg)
     if k == "hide" then
         for i,hdr in pairs(group_headers) do
             hdr:Hide()
+        end
+    end
+    if k == "spells" then
+        print("=== Spells ===")
+        local spellset = AptechkaUserConfig.IndicatorAuras or AptechkaDefaultConfig.IndicatorAuras
+        for spellName,opts in pairs(spellset) do
+            local format = string.find(opts.type,"HARMFUL") and "|cffff7777%s|r" or "|cff77ff77%s|r"
+            print(string.format(format,spellName))
         end
     end
     if k == "load" then
