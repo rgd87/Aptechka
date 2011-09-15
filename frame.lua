@@ -22,14 +22,15 @@ local PowerBar_OnPowerTypeChange = function(self, powertype)
     local self = self.parent
     if powertype ~= "MANA" then
         self.power.disabled = true
-        self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+        -- self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+        -- self.power:SetValue(0)
         self.power:Hide()
-        self.power.bg:Hide()
+        -- self.power.bg:Hide()
     else
-        self.power.disabled = nil
-        self.health:SetPoint("TOPRIGHT",self.power,"TOPLEFT",0,0)
+        -- self.power.disabled = nil
+        -- self.health:SetPoint("TOPRIGHT",self.power,"TOPLEFT",0,0)
         self.power:Show()
-        self.power.bg:Show()
+        -- self.power.bg:Show()
     end
 end
 local SetJob_Indicator = function(self,job)
@@ -115,6 +116,86 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     f:Hide()
     return f
 end
+local SetJob_StatusBar = function(self,job)
+    -- if job.showDuration then
+        -- self.cd:SetReverse(not job.reverseDuration)
+        -- self.cd:SetCooldown(job.expirationTime - job.duration,job.duration)
+        -- self.cd:Show()
+    -- else
+        -- self.cd:Hide()
+    -- end
+    self.expires = job.expirationTime
+    self:SetMinMaxValues(0, job.duration)
+    self:SetValue(self.expires - GetTime())
+
+    local color
+    if job.foreigncolor and job.isforeign then
+        color = job.foreigncolor
+    else
+        color = job.color or { 1,1,1,1 }
+    end
+    self.bg:SetVertexColor(color[1]/3, color[2]/3, color[3]/3)
+    self:SetStatusBarColor(unpack(color))
+    
+    -- if job.fade then
+    --     if self.blink:IsPlaying() then self.blink:Finish() end
+    --     self.traceJob = job
+    --     self.blink.a2:SetDuration(job.fade)
+    --     self.blink:Play()
+    -- end
+    -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
+    --     if not self.pulse:IsPlaying() then self.pulse:Play() end
+    -- end
+end
+local StatusBarOnUpdate = function(self, time)
+    self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
+    if self.OnUpdateCounter < 0.05 then return end
+    self.OnUpdateCounter = 0
+
+    self:SetValue(self.expires - GetTime())
+end
+local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop)
+    local f = CreateFrame("StatusBar",nil,parent)
+    f:SetWidth(w); f:SetHeight(h);
+    if not nobackdrop then
+    f:SetBackdrop{
+        bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,
+        insets = {left = -2, right = -2, top = -2, bottom = -2},
+    }
+    f:SetBackdropColor(0, 0, 0, 1)
+    end
+    f:SetFrameLevel(6)
+
+    f:SetStatusBarTexture[[Interface\AddOns\Aptechka\white]]
+    -- f:SetMinMaxValues(0,100)
+    -- f:SetStatusBarColor(1,1,1)
+
+    local bg = f:CreateTexture(nil,"ARTWORK",nil,-1)
+    bg:SetTexture[[Interface\AddOns\Aptechka\white]]
+    bg:SetAllPoints(f)
+    f.bg = bg
+
+    f:SetPoint(point,frame,to,x,y)
+    f.parent = parent
+    f.SetJob = SetJob_StatusBar
+    f:SetScript("OnUpdate", StatusBarOnUpdate)
+
+    -- local pag = f:CreateAnimationGroup()
+    -- local pa1 = pag:CreateAnimation("Scale")
+    -- pa1:SetScale(2,2)
+    -- pa1:SetDuration(0.2)
+    -- pa1:SetOrder(1)
+    -- local pa2 = pag:CreateAnimation("Scale")
+    -- pa2:SetScale(0.5,0.5)
+    -- pa2:SetDuration(0.8)
+    -- pa2:SetOrder(2)
+    
+    -- f.pulse = pag
+
+    f:Hide()
+    return f
+end
+
 AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
 local SetJob_Icon = function(self,job)
     if job.fade then self.jobs[job.name] = nil; return end
@@ -270,17 +351,18 @@ AptechkaDefaultConfig.GridSkin = function(self)
     
         
     local powerbar = CreateFrame("StatusBar", nil, self)
-	powerbar:SetWidth(5)
+	powerbar:SetWidth(4)
     powerbar:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
     powerbar:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
 	powerbar:SetStatusBarTexture(texture)
+    powerbar:GetStatusBarTexture():SetDrawLayer("ARTWORK",-2)
     powerbar:SetMinMaxValues(0,100)
     powerbar.parent = self
     powerbar:SetOrientation("VERTICAL")
     powerbar.SetJob = SetJob_HealthBar
     powerbar.OnPowerTypeChange = PowerBar_OnPowerTypeChange
     
-    local pbbg = self:CreateTexture()
+    local pbbg = powerbar:CreateTexture(nil,"ARTWORK",nil,-3)
 	pbbg:SetAllPoints(powerbar)
 	pbbg:SetTexture(texture)
     powerbar.bg = pbbg
@@ -289,15 +371,17 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local hp = CreateFrame("StatusBar", nil, self)
 	--hp:SetAllPoints(self)
     hp:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-    hp:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
+    -- hp:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
+    hp:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
 	hp:SetStatusBarTexture(texture)
+    hp:GetStatusBarTexture():SetDrawLayer("ARTWORK",-4)
     hp:SetMinMaxValues(0,100)
     hp:SetOrientation("VERTICAL")
     hp.parent = self
     hp.SetJob = SetJob_HealthBar
     --hp:SetValue(0)
     
-    local hpbg = self:CreateTexture()
+    local hpbg = hp:CreateTexture(nil,"ARTWORK",nil,-5)
 	hpbg:SetAllPoints(hp)
 	hpbg:SetTexture(texture)
     hp.bg = hpbg
@@ -356,6 +440,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
     local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
     local text3 = CreateTextTimer(self,"TOPLEFT",self,"TOPLEFT",-2,0,"LEFT",fontsize-3,font,"OUTLINE")
+
+    local bar1 = CreateStatusBar(self, 19, 7, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
     
     self.SetJob = SetJob_Frame
     self.HideFunc = Frame_HideFunc
@@ -370,6 +456,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.spell1 = br
     self.spell2 = topind
     self.spell3 = tr
+    self.bar1 = bar1
     self.bossdebuff = left
     self.raidbuff = tl
     self.border = border
