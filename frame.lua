@@ -27,7 +27,7 @@ local PowerBar_OnPowerTypeChange = function(self, powertype)
         self.power:Hide()
         -- self.power.bg:Hide()
     else
-        -- self.power.disabled = nil
+        self.power.disabled = nil
         -- self.health:SetPoint("TOPRIGHT",self.power,"TOPLEFT",0,0)
         self.power:Show()
         -- self.power.bg:Show()
