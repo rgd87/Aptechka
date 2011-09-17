@@ -164,7 +164,7 @@ local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     }
     f:SetBackdropColor(0, 0, 0, 1)
     end
-    f:SetFrameLevel(6)
+    f:SetFrameLevel(7)
 
     f:SetStatusBarTexture[[Interface\AddOns\Aptechka\white]]
     -- f:SetMinMaxValues(0,100)

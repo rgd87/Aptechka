@@ -75,6 +75,7 @@ config.HealthBarColor = { name = "HealthBar", assignto = { "health" }, color = {
 config.PowerBarColor = { name = "PowerBar", assignto = { "power" }, color = {.5,.5,1}, priority = 20 }
 config.OutOfRangeStatus = { name = "OOR", assignto = { "self" }, color = {0.5,0.5,0.5}, alpha = 0.3, text = "OOR", priority = 50 }
 config.InVehicleStatus = { name = "InVehicle", assignto = { "border" }, color = {0.3,1,0.3}, priority = 21 }
+config.LOSStatus = { name = "OutOfSight", assignto = { "spell2" }, color = {1,0.1,0.1}, priority = 95, fade = 1.0 }
 
 -- default priority is 80
 

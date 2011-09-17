@@ -26,6 +26,9 @@ local group_headers = {}
 local anchors = {}
 local skinAnchorsName
 
+local LastCastSentTime
+local LastCastTargetName
+
 local AptechkaString = "|cffff7777Aptechka: |r"
 local UnitHealth = UnitHealth
 local __UnitHealth = UnitHealth
@@ -182,8 +185,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.unlocked then anchors[1]:Show() end
     
     if config.DispelFilterAll
-    then DispelFilter = "HARMFUL"
-    else DispelFilter = "HARMFUL|RAID"
+        then DispelFilter = "HARMFUL"
+        else DispelFilter = "HARMFUL|RAID"
     end
                 
     Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
@@ -194,7 +197,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     SLASH_APTECHKA3= "/inj"
     SLASH_APTECHKA4= "/injector"
     SlashCmdList["APTECHKA"] = Aptechka.SlashCmd
-    
+
+    if config.LOSStatus then
+        self:RegisterEvent("UNIT_SPELLCAST_SENT")
+        self:RegisterEvent("UI_ERROR_MESSAGE")
+    end
     
     if config.enableTraceHeals and next(traceheals) then
         self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -202,7 +209,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                                                     srcGUID, srcName, srcFlags, srcFlags2,
                                                     dstGUID, dstName, dstFlags, dstFlags2,
                                                     spellID, spellName, spellSchool, amount, overhealing, absorbed, critical)
-            if (bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE) then
+            if bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE then
                 local opts = traceheals[spellName]
                 if opts and eventType == opts.type then
                     if guidMap[dstGUID] then
@@ -547,6 +554,24 @@ function Aptechka.UNIT_THREAT_SITUATION_UPDATE(self, event, unit)
         else
             SetJob(unit, config.AggroStatus, false)
         end
+    end
+end
+
+function Aptechka.UNIT_SPELLCAST_SENT(self, event, unit, spell, rank, targetName, lineID)
+    if unit ~= "player" or not targetName then return end
+    LastCastTargetName = targetName
+    LastCastSentTime = GetTime()
+end
+function Aptechka.UI_ERROR_MESSAGE(self, event, errmsg)
+    if errmsg == SPELL_FAILED_LINE_OF_SIGHT then -- amount var here is actually failedType
+        if LastCastSentTime > GetTime() - 0.5 then
+            for unit in pairs(Roster) do
+                if UnitName(unit) == LastCastTargetName then
+                    SetJob(unit, config.LOSStatus, true)
+                    return
+                end
+            end
+        end 
     end
 end
 
