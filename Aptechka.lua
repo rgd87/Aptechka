@@ -413,10 +413,10 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
             else
                 if self.isDead then
                     self.isDead = false
-                    if self.OnAlive then self:OnAlive() end
                     Aptechka.ScanAuras(unit)
                     SetJob(unit, config.GhostStatus, false)
                     SetJob(unit, config.DeadStatus, false)
+                    if self.OnAlive then self:OnAlive() end
                 end
             end
         end

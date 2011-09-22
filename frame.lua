@@ -18,19 +18,24 @@ local SetJob_HealthBar = function(self, job)
         self.bg:SetVertexColor(unpack(c))
     end
 end
+local OnDead = function(self)
+    self.power:Hide()
+end
+local OnAlive = function(self)
+    if not self.power.disabled then
+        self.power:Show()
+    else
+        self.power:Hide()
+    end
+end
 local PowerBar_OnPowerTypeChange = function(self, powertype)
     local self = self.parent
     if powertype ~= "MANA" then
         self.power.disabled = true
-        -- self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-        -- self.power:SetValue(0)
         self.power:Hide()
-        -- self.power.bg:Hide()
     else
         self.power.disabled = nil
-        -- self.health:SetPoint("TOPRIGHT",self.power,"TOPLEFT",0,0)
         self.power:Show()
-        -- self.power.bg:Show()
     end
 end
 local SetJob_Indicator = function(self,job)
@@ -466,6 +471,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     
     self.OnMouseEnterFunc = OnMouseEnterFunc
     self.OnMouseLeaveFunc = OnMouseLeaveFunc
+    self.OnDead = OnDead
+    self.OnAlive = OnAlive
 end
 
 AptechkaDefaultConfig.GridSkinHorizontal = function(self)
@@ -480,20 +487,14 @@ AptechkaDefaultConfig.GridSkinHorizontal = function(self)
     self.power:SetHeight(5)
     self.power:SetWidth(0)
     
-    self.health:ClearAllPoints()
-    self.health:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
-    self.health:SetPoint("BOTTOMRIGHT",self.power,"TOPRIGHT",0,0)
-    
     local PowerBar_OnPowerTypeChange = function(self, powertype)
         local self = self.parent
         if powertype ~= "MANA" then
-            self.health:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
+            self.power.disabled = true
             self.power:Hide()
-            self.power.bg:Hide()
         else
-            self.health:SetPoint("BOTTOMRIGHT",self.power,"TOPRIGHT",0,0)
+            self.power.disabled = nil
             self.power:Show()
-            self.power.bg:Show()
         end
     end
     self.power.OnPowerTypeChange = PowerBar_OnPowerTypeChange
