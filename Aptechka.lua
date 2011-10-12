@@ -680,6 +680,8 @@ end
 --UnitButton initialization
 local OnAttributeChanged = function(self, attrname, unit)
     if attrname ~= "unit" then return end
+    local name = unit and UnitName(unit)
+    -- print(self:GetName(), "AttrChanged", attrname, unit, name)
     --DEFAULT_CHAT_FRAME:AddMessage(string.format("OnAttributeChanged>>> %s = %s",attrname,unit or ""),1,0.4,0.4)
     local owner = unit
     if self.InVehicle and unit == self.unitOwner then
@@ -696,7 +698,9 @@ local OnAttributeChanged = function(self, attrname, unit)
     end
     
     for unit, frames in pairs(Roster) do
-        if frames[self] and (  self:GetAttribute("unit") ~= unit  or (self.InVehicle and self.unitOwner ~= unit)  ) then
+        --self:GetAttribute("unit")
+        if frames[self] and (  self.unit ~= unit  or (self.InVehicle and self.unitOwner ~= unit)  ) then
+            -- print ("Removing frame", self:GetName(), self:GetAttribute("unit"))
             frames[self] = nil
         end
     end
