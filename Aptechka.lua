@@ -677,12 +677,37 @@ function Aptechka.Colorize(self, event, unit)
     end
 end
 
+local UnitUpdateQueue = {}
+local UnitUpdateBusy = false
 --UnitButton initialization
 local OnAttributeChanged = function(self, attrname, unit)
     if attrname ~= "unit" then return end
-    local name = unit and UnitName(unit)
+    -- if self:GetAttribute("unit") == unit then return end
+    if UnitUpdateBusy then
+        -- print("queueing", self:GetName(), unit)
+        table.insert(UnitUpdateQueue, {self, unit})
+        Aptechka.UnitUpdate()
+    else
+        Aptechka.UnitUpdate(self, unit)
+    end
+    -- local name = unit and UnitName(unit)
     -- print(self:GetName(), "AttrChanged", attrname, unit, name)
-    --DEFAULT_CHAT_FRAME:AddMessage(string.format("OnAttributeChanged>>> %s = %s",attrname,unit or ""),1,0.4,0.4)
+    UPD = UnitUpdateQueue
+    ROSTER = Roster
+    -- DEFAULT_CHAT_FRAME:AddMessage(string.format("OnAttributeChanged>>> %s = %s",attrname,unit or ""),1,0.4,0.4)
+end
+
+function Aptechka.UnitUpdate(self, unit)
+    if not self then
+        if not UnitUpdateQueue[1] then
+            UnitUpdateBusy = false
+            return
+        end
+        self, unit = unpack(table.remove(UnitUpdateQueue,1))
+    end
+
+    UnitUpdateBusy = true
+
     local owner = unit
     if self.InVehicle and unit == self.unitOwner then
         unit = self.unit
@@ -698,8 +723,7 @@ local OnAttributeChanged = function(self, attrname, unit)
     end
     
     for unit, frames in pairs(Roster) do
-        --self:GetAttribute("unit")
-        if frames[self] and (  self.unit ~= unit  or (self.InVehicle and self.unitOwner ~= unit)  ) then
+        if frames[self] and (  self:GetAttribute("unit") ~= unit  or (self.InVehicle and self.unitOwner ~= unit)  ) then
             -- print ("Removing frame", self:GetName(), self:GetAttribute("unit"))
             frames[self] = nil
         end
@@ -739,6 +763,8 @@ local OnAttributeChanged = function(self, attrname, unit)
     if UnitHasVehicleUI(owner) then Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) end -- scary
     Aptechka:CheckLFDTank(unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
+
+    return Aptechka.UnitUpdate()
 end
 
 
@@ -817,7 +843,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
 end
 
 function Aptechka.CreateAnchor(self,hdr,num)
-    local f = CreateFrame("Frame",nil,UIParent)
+    local f = CreateFrame("Frame","NugRaidAnchor"..num,UIParent)
 
     f:SetHeight(20)
     f:SetWidth(20)
