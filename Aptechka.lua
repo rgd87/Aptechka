@@ -84,6 +84,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.disableBlizzardParty then
         helpers.DisableBlizzParty()
     end
+    if config.hideBlizzardRaid then
+	   CompactRaidFrameContainer:Hide()
+	   CompactRaidFrameContainer.Show = function()end
+	end
     
     if config.enableIncomingHeals then
         self:RegisterEvent("UNIT_HEAL_PREDICTION")

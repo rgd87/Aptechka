@@ -22,7 +22,8 @@ config.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT /
 config.groupGrowth = "TOP"
 config.groupGap = 10
 config.unlocked = false  -- when addon initially loaded
-config.disableBlizzardParty = false
+config.disableBlizzardParty = true
+config.hideBlizzardRaid = true
 config.useGroupAnchors = false -- use separate anchors for each group
 config.resize = { after = 27, to = 0.8 } -- ONLY WORKS with group anchors disabled. If number of players in raid exeeds 27 then resize to 0.8.   "config.resize = false" disables it
 config.maxgroups = 8
