@@ -26,6 +26,8 @@ AptechkaDefaultConfig.MapIDs = {
     [793] = "ZulGurub",
     [799] = "Firelands",
     [800] = "Firelands",
+    [823] = "DragonSoul",
+    [824] = "DragonSoul",
 }
 
 local A = helpers.AddAura
@@ -37,6 +39,23 @@ local healred = { 147/255, 54/255, 115/255 }
 AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bossdebuff" }, color = color1, priority = 40, pulse = true }
 
 AptechkaDefaultConfig.LoadableDebuffs = {
+    ["DragonSoul"] = function()
+        A{ id = 100460, prototype = AptechkaUserConfig.BossDebuffPrototype } --Disrupting Shadows, Warlord Zon'ozz
+
+        A{ id = 109325, priority = 35, prototype = AptechkaUserConfig.BossDebuffPrototype } --Frostflake, Hagara the Stormbinder
+        A{ id = 104451, color = { 0.2, 0.2, 1 }, priority = 50, prototype = AptechkaUserConfig.BossDebuffPrototype } --Ice Tomb, Hagara the Stormbinder
+        A{ id = 105369, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Conduit, Hagara the Stormbinder
+        A{ id = 105927, prototype = AptechkaUserConfig.BossDebuffPrototype } --Faded into Twilight, Hagara the Stormbinder
+
+        A{ id = 107558, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Degeneration, Warmaster Blackhorn
+        A{ id = 107567, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Brutal Strike, Warmaster Blackhorn
+        A{ id = 108043, priority = 50, prototype = AptechkaUserConfig.BossDebuffPrototype } --Sunder Armor, Warmaster Blackhorn
+
+        A{ id = 105479, priority = 50, color = color2,  prototype = AptechkaUserConfig.BossDebuffPrototype } --Searing Plasma, Spine of Deathwing
+        A{ id = 105490, priority = 51, prototype = AptechkaUserConfig.BossDebuffPrototype } --Fiery Grip, Spine of Deathwing
+
+        A{ id = 106730, prototype = AptechkaUserConfig.BossDebuffPrototype } --Tetanus, Madness of Deathwing        
+    end,
     ["Firelands"] = function()
         --A{ id = 100249, prototype = AptechkaUserConfig.BossDebuffPrototype } --Combustion, Ragnaros
         A{ id = 98981, showDuration = true, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lava Bolt, Ragnaros
