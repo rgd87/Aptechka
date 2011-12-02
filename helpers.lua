@@ -125,11 +125,6 @@ function helpers.DisableBlizzParty(self)
         _G[party..'HealthBar']:UnregisterAllEvents()
         _G[party..'ManaBar']:UnregisterAllEvents()
     end
-    
-    CompactRaidFrameContainer:Hide()
-    CompactRaidFrameContainer.Show = function()end
-    CompactRaidFrameManager:Hide()
-    CompactRaidFrameManager.Show = function()end
 end
 
 function helpers.Reverse(p1)

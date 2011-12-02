@@ -79,7 +79,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         setmetatable(AptechkaDB,{ __index = function(t,k) return AptechkaDB_Char[k] end, __newindex = function(t,k,v) rawset(AptechkaDB_Char,k,v) end})
     else
         setmetatable(AptechkaDB,{ __index = function(t,k) return AptechkaDB_Global[k] end, __newindex = function(t,k,v) rawset(AptechkaDB_Global,k,v) end})
-    end    
+    end
+    Aptechka.Roster = Roster
     
     if config.disableBlizzardParty then
         helpers.DisableBlizzParty()
@@ -307,7 +308,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     
     
     if config.useCombatLogHealthUpdates then
-    
         UnitHealth = function(unit)
             return CLHealth[unit][1] or __UnitHealth(unit)
         end
@@ -681,36 +681,9 @@ function Aptechka.Colorize(self, event, unit)
     end
 end
 
-local UnitUpdateQueue = {}
-local UnitUpdateBusy = false
 --UnitButton initialization
 local OnAttributeChanged = function(self, attrname, unit)
     if attrname ~= "unit" then return end
-    -- if self:GetAttribute("unit") == unit then return end
-    if UnitUpdateBusy then
-        -- print("queueing", self:GetName(), unit)
-        table.insert(UnitUpdateQueue, {self, unit})
-        Aptechka.UnitUpdate()
-    else
-        Aptechka.UnitUpdate(self, unit)
-    end
-    -- local name = unit and UnitName(unit)
-    -- print(self:GetName(), "AttrChanged", attrname, unit, name)
-    UPD = UnitUpdateQueue
-    ROSTER = Roster
-    -- DEFAULT_CHAT_FRAME:AddMessage(string.format("OnAttributeChanged>>> %s = %s",attrname,unit or ""),1,0.4,0.4)
-end
-
-function Aptechka.UnitUpdate(self, unit)
-    if not self then
-        if not UnitUpdateQueue[1] then
-            UnitUpdateBusy = false
-            return
-        end
-        self, unit = unpack(table.remove(UnitUpdateQueue,1))
-    end
-
-    UnitUpdateBusy = true
 
     local owner = unit
     if self.InVehicle and unit == self.unitOwner then
@@ -726,8 +699,8 @@ function Aptechka.UnitUpdate(self, unit)
         end
     end
     
-    for unit, frames in pairs(Roster) do
-        if frames[self] and (  self:GetAttribute("unit") ~= unit  or (self.InVehicle and self.unitOwner ~= unit)  ) then
+    for roster_unit, frames in pairs(Roster) do
+        if frames[self] and (  self:GetAttribute("unit") ~= roster_unit   ) then -- or (self.InVehicle and self.unitOwner ~= roster_unit) 
             -- print ("Removing frame", self:GetName(), self:GetAttribute("unit"))
             frames[self] = nil
         end
@@ -766,11 +739,8 @@ function Aptechka.UnitUpdate(self, unit)
     end
     if UnitHasVehicleUI(owner) then Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) end -- scary
     Aptechka:CheckLFDTank(unit)
-    if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
-
-    return Aptechka.UnitUpdate()
+    if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end    
 end
-
 
 local arrangeHeaders = function(prv_group, notreverse)
         local p1, p2
