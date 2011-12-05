@@ -160,7 +160,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.raidIcons then
         self:RegisterEvent("RAID_TARGET_UPDATE")
     end
-    self:RegisterEvent("UNIT_ENTERED_VEHICLE")
+    if config.enableVehicleSwap then
+        self:RegisterEvent("UNIT_ENTERED_VEHICLE")
+    end
     
     if not config.anchorpoint then
         local ug = config.unitGrowth
@@ -460,19 +462,20 @@ local vehicleHack = function (self, time)
     if self.OnUpdateCounter < 1 then return end
     self.OnUpdateCounter = 0
     local owner = self.parent.unitOwner
-    if not ( UnitHasVehicleUI(owner) or UnitInVehicle(owner) or UnitUsingVehicle(owner) )then -- bitch
+    if not ( UnitHasVehicleUI(owner) or UnitInVehicle(owner) or UnitUsingVehicle(owner) ) then
         if Roster[self.parent.unit] then
             -- local original_unit = self.parent.unit
             -- print(string.format("L1>>Unit: %s-",original_unit))
             -- print(string.format("L1>>Unit- Owner: %s",self.parent.unitOwner))
             -- print(string.format("D3>>-Dumping Roster"))
             -- d87add.dump("ROSTER")-
+            -- print(string.format("Restoring %s <- %s", owner, self.parent.unit) )
             Roster[owner] = Roster[self.parent.unit]
             Roster[self.parent.unit] = nil
             self.parent.unit = owner
+            self.parent.unitOwner = nil
             self.parent.guid = UnitGUID(owner)
-            self.InVehicle = nil
-            
+            self.parent.InVehicle = nil
 
             -- print(string.format("L1>>Unit: %-s",original_unit))
             -- print(string.format("D4>[%s]>Dumping- Roster",NAME))
@@ -493,31 +496,36 @@ end
 function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
     if not Roster[unit] then return end  
     for self in pairs(Roster[unit]) do
-        if self.InVehicle then return end --print("Already in vehicle")
-        self.InVehicle = true
-        self.unitOwner = unit
-        local vehicleUnit = SecureButton_GetModifiedUnit(self)
-        if self.unitOwner == vehicleUnit then return end
-        Aptechka:Colorize(nil, unit)
-        self.unit = vehicleUnit
-        self.guid = UnitGUID(vehicleUnit)
-        if self.guid then guidMap[self.guid] = vehicleUnit end
-        Roster[self.unit] = Roster[self.unitOwner]
-        Roster[self.unitOwner] = nil
+        if not self.InVehicle then --print("Already in vehicle")            
+            local vehicleUnit = SecureButton_GetModifiedUnit(self)
+            if unit ~= vehicleUnit then
+                self.InVehicle = true
+                self.unitOwner = unit --original unit
+                self.unit = vehicleUnit
+                
+                Aptechka:Colorize(nil, self.unitOwner)
+                self.guid = UnitGUID(vehicleUnit)
+                if self.guid then guidMap[self.guid] = vehicleUnit end
 
-        -- ROSTER = Roster
-        -- local NAME = UnitName(unit)
-        -- print(string.format("D1>[%s]>Dumping Roster",NAME))
-        -- d87add.dump("ROSTER")
-        
-        if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
-        self.vehicleFrame.OnUpdateCounter = -1.5
-        self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
-        
-        SetJob(self.unit,config.InVehicleStatus,true)
-        Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
-        if self.power then Aptechka:UNIT_POWER(nil,self.unit) end
-        Aptechka.ScanAuras(self.unit)
+                -- print(string.format("Overriding %s with %s", self.unitOwner, self.unit))
+                Roster[self.unit] = Roster[self.unitOwner]
+                Roster[self.unitOwner] = nil
+
+                -- ROSTER = Roster
+                -- local NAME = UnitName(unit)
+                -- print(string.format("D1>[%s]>Dumping Roster",NAME))
+                -- d87add.dump("ROSTER")
+                
+                if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
+                self.vehicleFrame.OnUpdateCounter = -1.5
+                self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
+                
+                SetJob(self.unit,config.InVehicleStatus,true)
+                Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
+                if self.power then Aptechka:UNIT_POWER(nil,self.unit) end
+                Aptechka.ScanAuras(self.unit)
+            end
+        end
     end
 end
 -- VOODOO ENDS HERE
@@ -686,28 +694,32 @@ local OnAttributeChanged = function(self, attrname, unit)
     if attrname ~= "unit" then return end
 
     local owner = unit
-    if self.InVehicle and unit == self.unitOwner then
+    if self.InVehicle and unit and unit == self.unitOwner then
         unit = self.unit
         owner = self.unitOwner
+        -- print("InVehicle:", self.InVehicle, "  unitOwner:", self.unitOwner, "  unit:", unit)
         --if for some reason game will decide to update unit whose frame is mapped to vehicleunit in roster
     else
         if self.vehicleFrame then
             self.vehicleFrame:SetScript("OnUpdate",nil)
             self.vehicleFrame = nil
+            self.InVehicle = nil
             FrameSetJob(self,config.InVehicleStatus,false)
-            --print ("Killing orphan vehicle frame")
+            -- print ("Killing orphan vehicle frame")
         end
     end
-    
+
+    -- Removing frames that no longer associated with this unit from Roster
     for roster_unit, frames in pairs(Roster) do
         if frames[self] and (  self:GetAttribute("unit") ~= roster_unit   ) then -- or (self.InVehicle and self.unitOwner ~= roster_unit) 
-            -- print ("Removing frame", self:GetName(), self:GetAttribute("unit"))
+            -- print ("Removing frame", self:GetName(), roster_unit, "=>", self:GetAttribute("unit"))
             frames[self] = nil
         end
     end
     
     if self.OnUnitChanged then self:OnUnitChanged(owner) end
     if not unit then return end
+    
     local name, realm = UnitName(owner)
     self.name = utf8sub(name,1,config.cropNamesLen)
 
@@ -732,12 +744,13 @@ local OnAttributeChanged = function(self, attrname, unit)
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
         Aptechka:UNIT_POWER(nil, unit)
     end
-        
     Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
     if config.raidIcons then
         Aptechka:RAID_TARGET_UPDATE()
     end
-    if UnitHasVehicleUI(owner) then Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) end -- scary
+    if config.enableVehicleSwap and UnitHasVehicleUI(owner) then
+        Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
+    end
     Aptechka:CheckLFDTank(unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end    
 end
@@ -1044,7 +1057,7 @@ local ParseOpts = function(str)
 end
 function Aptechka.SlashCmd(msg)
     k,v = string.match(msg, "([%w%+%-%=]+) ?(.*)")
-    if not k or k == "help" then print([[Usage:
+    if not k or k == "help" then print([=[Usage:
       |cff00ff00/aptechka|r lock
       |cff00ff00/aptechka|r unlock
       |cff00ff00/aptechka|r unlock|cffff7777all|r
@@ -1055,7 +1068,7 @@ function Aptechka.SlashCmd(msg)
       |cff00ff00/aptechka|r charspec
       |cff00ff00/aptechka|r toggle | show | hide
       |cff00ff00/aptechka|r createpets
-      |cff00ff00/aptechka|r togglegroup <1-8>]]
+      |cff00ff00/aptechka|r togglegroup <1-8>]=]
     )end
     if k == "unlockall" then
         for _,anchor in pairs(anchors) do

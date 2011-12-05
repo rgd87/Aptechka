@@ -37,6 +37,7 @@ config.enableIncomingHeals = true
 config.incomingHealThreshold = 3000
 config.enableTraceHeals = true
 config.enableClickCasting = false
+config.enableVehicleSwap = true
 -- if for some reason you don't want to use Clique you can
 -- enable native click casting support here, it activates ClickMacro function.
 -- ClickMacro syntax is like usual macro, but don't forget [@mouseover] for every command

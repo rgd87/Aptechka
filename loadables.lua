@@ -26,7 +26,6 @@ AptechkaDefaultConfig.MapIDs = {
     [793] = "ZulGurub",
     [799] = "Firelands",
     [800] = "Firelands",
-    [823] = "DragonSoul",
     [824] = "DragonSoul",
 }
 
