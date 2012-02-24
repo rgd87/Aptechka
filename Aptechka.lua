@@ -13,6 +13,7 @@ local dtypes
 local traceheals
 local colors
 local threshold --incoming heals
+local ignoreplayer 
 
 local config = AptechkaUserConfig
 local OORUnits = setmetatable({},{__mode = 'k'})
@@ -69,6 +70,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.SetJob = SetJob
     Aptechka.FrameSetJob = FrameSetJob
     threshold = config.incomingHealThreshold or 3000
+    ignoreplayer = config.incomingHealIgnorePlayer or false
     colors = setmetatable(config.Colors or {},{ __index = function(t,k) return RAID_CLASS_COLORS[k] end })
     
     AptechkaDB_Global = AptechkaDB_Global or {}
@@ -380,6 +382,10 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
         local heal = UnitGetIncomingHeals(unit)
+        if ignoreplayer then
+            local myheal = UnitGetIncomingHeals(unit, "player")
+            if heal and myheal then heal = heal - myheal end
+        end
         local showHeal = (heal and heal > threshold)
         if self.health.incoming then 
             self.health.incoming:SetValue( showHeal and self.health:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)

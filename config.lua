@@ -35,6 +35,7 @@ config.petcolor = {1,.5,.5}
 
 config.enableIncomingHeals = true
 config.incomingHealThreshold = 3000
+config.incomingHealIgnorePlayer = false
 config.enableTraceHeals = true
 config.enableClickCasting = false
 config.enableVehicleSwap = true
