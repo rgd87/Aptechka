@@ -229,7 +229,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
 
     ['HealingReduction'] = function()
         A{ id = 12294, color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Mortal Strike
-        A{ id = 13218, color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Wound Poison
+        A{ id = 8680,  color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Wound Poison
         A{ id = 24674, color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Veil of Shadow
         A{ id = 25646, color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Mortal Wound
 

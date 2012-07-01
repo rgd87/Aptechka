@@ -108,20 +108,34 @@ if playerClass == "PRIEST" then
     Trace{id = 34861, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
     Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { 1, 0.6, 0.6}, fade = 1.5, priority = 97 } -- PoM Trace
                                                                         
-    --config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(2061),unit) == 1) end
+    config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(2061),unit) == 1) end
             --// Use Flash Heal for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
     
     DT("Magic", { assignto = { "dispel" }, color = { 0.2, 0.6, 1}, priority = 81 })
     DT("Disease", { assignto = { "dispel" }, color = { 0.6, 0.4, 0} })
 end
 
+if playerClass == "MONK" then
+    A{ id = 119611, type = "HELPFUL", assignto = { "bar1" }, color = { 0, 1, 0} } --Renewing Mist
+    A{ id = 124682, type = "HELPFUL", assignto = { "spell3" }, showDuration = true, color = {38/255, 221/255, 163/255}, priority = 92 } --Enveloping Mist
+
+    A{ id = 115175, type = "HELPFUL", assignto = { "spell2" }, showDuration = true, color = {38/255, 221/255, 163/255}, priority = 92 } --Soothing Mist
+
+    A{ id = 116849, type = "HELPFUL", assignto = { "spell2" }, showDuration = true, color = { 1, 1, 0}, priority = 89 } --Life Cocoon
+    A{ id = 124081, type = "HELPFUL", assignto = { "spell3" }, showDuration = true, color = {0.7,0.8,1}, priority = 88 } --Zen Sphere
+
+    config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(115450),unit) == 1) end
+            --// Use Detox for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
+
+    DT("Disease", { assignto = { "dispel" }, color = { 0.6, 0.4, 0} })
+    DT("Poison", { assignto = { "dispel" }, color = { 0, 0.6, 0} })
+    DT("Magic", { assignto = { "dispel" }, color = { 0.2, 0.6, 1}, priority = 81 })
+end
+
 if playerClass == "WARLOCK" then
     A{ id = 20707, type = "HELPFUL", assignto = { "raidbuff" }, color = { 180/255, 0, 1 }, priority = 81 } --Soulstone Resurrection
-    A{ id = 85767, type = "HELPFUL", assignto = { "bar1" }, color = { 180/255, 0.5, 1 }, isMine = true, priority = 83 } --Dark Intent
 end
-if playerClass == "WARRIOR" then
-    A{ id = 50720, type = "HELPFUL", assignto = { "bar1" }, color = { 180/255, 0.5, 1 }, isMine = true, priority = 83 } --Vigilance
-end
+
 if playerClass == "PALADIN" then
     --A{ id = 20217, type = "HELPFUL", assignto = { "raidbuff" }, color = { .6 , .3, 1}, isMissing = true } --Blessing of Kings
     --A{ id = 19740, type = "HELPFUL", assignto = { "raidbuff" }, color = { 1 , 0.5, 0.3}, isMissing = true } --Blessing of Might
@@ -134,7 +148,7 @@ if playerClass == "PALADIN" then
                                                                         
     Trace{id = 85222, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Light of Dawn
     
-    --config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(635),unit) == 1) end
+    config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(635),unit) == 1) end
             --// Use Holy Light for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
     ClickMacro[[
         /cast [@mouseover,btn:2,mod:alt] spell:53563; [@mouseover,btn:2] spell:19750;
@@ -167,7 +181,7 @@ if playerClass == "SHAMAN" then
     --Trace{id = 73921, type = "HEAL", assignto = { "spell3" }, color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
     Trace{id = 52752, type = "HEAL", assignto = { "spell3" }, color = { 1, 0.6, 0.6 }, fade = 0.7, priority = 95 } -- Ancestral Awakening
                                                                         
-    --config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(331),unit) == 1) end
+    config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(331),unit) == 1) end
             --// Use Healing Wave for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
     DT("Magic", { assignto = { "dispel" }, color = { 0.2, 0.6, 1}, priority = 82 })
@@ -176,6 +190,7 @@ end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = { "raidbuff" }, color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
     
+    A{ id = 102351, type = "HELPFUL", assignto = { "spell3" }, priority = 70, color = {38/255, 221/255, 163/255} }
     A{ id = 774,   type = "HELPFUL", assignto = { "bar1"}, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true } --Rejuvenation
     --A{ id = 8936,  type = "HELPFUL", assignto = { "topright" }, priority = 82, color = { 198/255, 233/255, 80/255}, showDuration = true, isMine = true } --Regrowth
     A{ id = 33763, type = "HELPFUL", assignto = { "spell2","text3" }, showDuration = true, isMine = true, stackcolor = {
@@ -185,7 +200,7 @@ if playerClass == "DRUID" then
                                                                         }} --Lifebloom
     A{ id = 48438, type = "HELPFUL", assignto = { "spell3" }, color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true } --Wild Growth
     
-    --config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(774),unit) == 1) end
+    config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(774),unit) == 1) end
             --// Use Rejuvenation for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
     DT("Poison",{ assignto = { "dispel" }, color = { 0, 0.6, 0},priority = 80 })
