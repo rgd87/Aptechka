@@ -63,7 +63,13 @@ local CreatePetsFunc
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
-    AptechkaUnitInRange = config.UnitInRangeFunc or UnitInRange
+    local uir = function(unit) --or UnitInRange
+        if unit == "player"
+            then return true
+            else return UnitInRange(unit)
+        end
+    end
+    AptechkaUnitInRange = config.UnitInRangeFunc or uir
     auras = config.IndicatorAuras or {}
     dtypes = config.DebuffTypes or {}
     traceheals = config.TraceHeals or {}
@@ -157,7 +163,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     
     self:RegisterEvent("UNIT_AURA")
     
-    self:RegisterEvent("RAID_ROSTER_UPDATE")
+    self:RegisterEvent("GROUP_ROSTER_UPDATE")
     
     if config.raidIcons then
         self:RegisterEvent("RAID_TARGET_UPDATE")
@@ -599,10 +605,10 @@ function Aptechka.CheckLFDTank( self,unit )
     SetJob(unit, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
 end
 function Aptechka.PLAYER_REGEN_ENABLED(self,event)
-    self:RAID_ROSTER_UPDATE()
+    self:GROUP_ROSTER_UPDATE()
     self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 end
-function Aptechka.RAID_ROSTER_UPDATE(self,event,arg1)
+function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
     if not InCombatLockdown() then
         if config.resize and not config.useGroupAnchors then
             if GetNumRaidMembers() > config.resize.after then
