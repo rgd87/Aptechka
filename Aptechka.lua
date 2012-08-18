@@ -611,7 +611,7 @@ end
 function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
     if not InCombatLockdown() then
         if config.resize and not config.useGroupAnchors then
-            if GetNumRaidMembers() > config.resize.after then
+            if GetNumGroupMembers() > config.resize.after then
                 for i,hdr in pairs(group_headers) do
                     hdr:SetAttribute("custom_scale",true)
                     hdr:SetScale(config.resize.to)
