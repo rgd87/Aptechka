@@ -27,6 +27,8 @@ AptechkaDefaultConfig.MapIDs = {
     [799] = "Firelands",
     [800] = "Firelands",
     [824] = "DragonSoul",
+    [896] = "MogushanVaults",
+    [897] = "MogushanVaults",
 }
 
 local A = helpers.AddAura
@@ -188,7 +190,6 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         if not disable_roots then
             A{ id = 339,   type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Entangling Roots
             A{ id = 122,   type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Frost Nova
-            A{ id = 55080, type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Shattered Barrier
         end
     
     end,
