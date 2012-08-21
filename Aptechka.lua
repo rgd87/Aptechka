@@ -160,6 +160,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self.previousTarget = "player"
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
     end
+    if config.ResurrectStatus then
+        self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
+    end
     
     self:RegisterEvent("UNIT_AURA")
     
@@ -643,6 +646,14 @@ function Aptechka.RAID_TARGET_UPDATE(self, event)
             end
             end
         end
+    end
+end
+
+
+function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
+    if not Roster[unit] then return end
+    for self in pairs(Roster[unit]) do
+        SetJob(unit, config.ResurrectStatus, UnitHasIncomingResurrection(unit))
     end
 end
 
