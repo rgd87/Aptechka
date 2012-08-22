@@ -222,6 +222,7 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     icon:SetWidth(w); icon:SetHeight(h)
     icon:SetPoint(point,frame,to,x,y)
     local icontex = icon:CreateTexture(nil,"ARTWORK")
+    icontex:SetTexCoord(.07, .93, .07, .93)
     icon:SetFrameLevel(6)
     icontex:SetAllPoints(icon)
     icon.texture = icontex

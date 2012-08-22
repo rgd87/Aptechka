@@ -63,13 +63,15 @@ local CreatePetsFunc
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
-    local uir = function(unit) --or UnitInRange
+    local uir = config.UnitInRangeFunc or UnitInRange
+    local uir2 = function(unit) --or UnitInRange
         if unit == "player"
             then return true
-            else return UnitInRange(unit)
+            else return uir(unit)
         end
     end
-    AptechkaUnitInRange = config.UnitInRangeFunc or uir
+
+    AptechkaUnitInRange = uir2
     auras = config.IndicatorAuras or {}
     dtypes = config.DebuffTypes or {}
     traceheals = config.TraceHeals or {}
@@ -84,9 +86,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     AptechkaDB_Global.charspec = AptechkaDB_Global.charspec or {}
     user = UnitName("player").."@"..GetRealmName()
     if AptechkaDB_Global.charspec[user] then
-        setmetatable(AptechkaDB,{ __index = function(t,k) return AptechkaDB_Char[k] end, __newindex = function(t,k,v) rawset(AptechkaDB_Char,k,v) end})
+        AptechkaDB = AptechkaDB_Char
     else
-        setmetatable(AptechkaDB,{ __index = function(t,k) return AptechkaDB_Global[k] end, __newindex = function(t,k,v) rawset(AptechkaDB_Global,k,v) end})
+        AptechkaDB = AptechkaDB_Global
     end
     Aptechka.Roster = Roster
     
@@ -103,8 +105,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     
     if not config[config.skin.."Settings"]
-    then config["GridSkinSettings"]()
-    else config[config.skin.."Settings"]() -- receiving width and height for current skin
+        then config["GridSkinSettings"]()
+        else config[config.skin.."Settings"]() -- receiving width and height for current skin
     end
     
     local tbind
@@ -651,8 +653,10 @@ end
 
 
 function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
+    -- print(event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
+        -- print(unit,UnitHasIncomingResurrection(unit))
         SetJob(unit, config.ResurrectStatus, UnitHasIncomingResurrection(unit))
     end
 end
