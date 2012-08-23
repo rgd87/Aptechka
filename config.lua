@@ -140,14 +140,18 @@ end
 if playerClass == "PALADIN" then
     --A{ id = 20217, type = "HELPFUL", assignto = { "raidbuff" }, color = { .6 , .3, 1}, isMissing = true } --Blessing of Kings
     --A{ id = 19740, type = "HELPFUL", assignto = { "raidbuff" }, color = { 1 , 0.5, 0.3}, isMissing = true } --Blessing of Might
-    
+    A{ id = 114163, type = "HELPFUL", assignto = { "spell3" }, color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true } --Eternal Flame
+    A{ id =114917,  type = "HELPFUL", assignto = { "bar1" }, showDuration = true, isMine = true, color = { 1 , .9, 0} } --Stay of Execution
     A{ id = 53563, type = "HELPFUL", assignto = { "spell2" }, showDuration = true,
                                                                             isMine = true,
                                                                             color = { 0,1,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
-                                                                        }
+                                                                        } -- Beacon
                                                                         
     Trace{id = 85222, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Light of Dawn
+    Trace{id = 82327, type = "HEAL", assignto = { "spell3" }, color = { .8, .5, 1}, fade = 0.7, priority = 96 } -- Holy Radiance
+    Trace{id =121129, type = "HEAL", assignto = { "spell3" }, color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
+
     
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(635),unit) == 1) end
             --// Use Holy Light for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
@@ -162,7 +166,7 @@ end
 if playerClass == "SHAMAN" then
     config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
     
-    A{ id = 61295,  type = "HELPFUL", assignto = { "spell1" }, showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide
+    A{ id = 61295,  type = "HELPFUL", assignto = { "spell1" }, showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide    
     A{ id = 974,    type = "HELPFUL", assignto = { "spell2" }, showDuration = true,
                                                                         --isMine = true,     
                                                                         stackcolor =   {
