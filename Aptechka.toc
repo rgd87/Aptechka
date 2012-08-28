@@ -5,6 +5,11 @@
 ## SavedVariablesPerCharacter: AptechkaDB_Char
 ## SavedVariables: AptechkaDB_Global
 ## OptionalDeps: Clique
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibCLHealth-1.0\LibCLHealth-1.0.lua
+
 helpers.lua
 config.lua
 frame.lua

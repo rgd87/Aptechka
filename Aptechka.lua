@@ -323,65 +323,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     
     
     if config.useCombatLogHealthUpdates then
-        UnitHealth = function(unit)
-            return CLHealth[unit][1] or __UnitHealth(unit)
-        end
-        CLHealthUpdate = function(unit)
-            local new = __UnitHealth(unit)
-            --if APTECHKA_CLH_DEBUG then print (string.format("UH> CLog: %d  new: %d time: %f",CLHealth[unit][1],new,GetTime())) end
-            local clh = CLHealth[unit]
-            if clh[1] ~= new then
-                local diff = new-CLHealth[unit][1] -- if this value is positive then it's a pending heal or something
-                --if APTECHKA_CLH_DEBUG then print ("Health conflict! ",diff) end
-                if diff > 0 then clh[3] = 1 else clh[3] = -1 end
-                clh[2] = -diff
-                clh[1] = new
-            else
-                clh[2] = 0
-            end
-        end
-        -- When mismatch between current estimated health value from combat log and new UNIT_HEALTH value occurs,
-        -- it is assumed that combat log messages about that is still pending, so we ignore that amount of damage/healing from following updates
-        -- So basically in unclear situations we prioritize UNIT_HEALTH values and no harm is done from incorrect CL updates
-        -- I hope...
-        local cleuHealth = CreateFrame("Frame")
-        cleuHealth:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-        cleuHealth:SetScript("OnEvent",
-        function( self, event, timestamp, eventType, hideCaster,
-                srcGUID, srcName, srcFlags, srcFlags2,
-                dstGUID, dstName, dstFlags, dstFlags2,
-                ...)
-            local dstUnit = guidMap[dstGUID]
-            if dstUnit and Roster[dstUnit] then
-            
-                local amount
-                if(eventType == "SWING_DAMAGE") then --autoattack
-                    amount = -(...); -- putting in braces will autoselect the first arg, no need to use select(1, ...);
-                elseif(eventType == "SPELL_PERIODIC_DAMAGE" or eventType == "SPELL_DAMAGE"
-                or eventType == "DAMAGE_SPLIT" or eventType == "DAMAGE_SHIELD") then
-                    amount = -select(4, ...);
-                elseif(eventType == "ENVIRONMENTAL_DAMAGE") then
-                    amount = -select(2, ...);
-                elseif(eventType == "SPELL_HEAL" or eventType == "SPELL_PERIODIC_HEAL") then
-                    amount = select(4, ...) - select(5, ...) -- heal amount - overheal
-                end
-                if amount then
-                    local clh = CLHealth[dstUnit]
-                    --if APTECHKA_CLH_DEBUG then print (string.format("CL> CLog: %d  UH: %d amount: %d time: %f",clh[1],__UnitHealth(dstUnit),amount,GetTime())) end
-                    if clh[2] == 0 then
-                        clh[1] = clh[1] + amount
-                        Aptechka:UNIT_HEALTH(nil,dstUnit)
-                    elseif (clh[3] < 0 and clh[2] > 0) or (clh[3] > 0 and clh[2] < 0) then 
-                        --if APTECHKA_CLH_DEBUG then print(string.format("CL>       CurDiff: %d  + %d",clh[2],amount)) end
-                        clh[2] = clh[2] + amount
-                    elseif (clh[3] < 0 and clh[2] < 0) or (clh[3] > 0 and clh[2] > 0)then
-                        clh[1] = clh[1] + clh[2]
-                        clh[2] = 0
-                        Aptechka:UNIT_HEALTH(nil,dstUnit)
-                    end
-                end
-            
-            end
+        local CLH = LibStub("LibCLHealth-1.0")
+        UnitHealth = function(unit) return CLH:UnitHealth(unit) end
+        CLH.RegisterCallback(self, "COMBAT_LOG_HEALTH", function(event, unit, health)
+            return Aptechka:UNIT_HEALTH(nil, unit)
         end)
         
     end
@@ -416,7 +361,7 @@ end
 
 function Aptechka.UNIT_HEALTH(self, event, unit)
     if not Roster[unit] then return end
-    if event and CLHealthUpdate then CLHealthUpdate(unit) end
+    -- print(event, unit, UnitHealth(unit))
     for self in pairs(Roster[unit]) do
         local h,hm = UnitHealth(unit), UnitHealthMax(unit)
         if hm == 0 then return end
