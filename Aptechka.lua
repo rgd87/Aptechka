@@ -139,8 +139,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         
     ]=],config.width, config.height,config.scale,tbind,ccmacro)
     
-    self:RegisterEvent("UNIT_HEALTH")
+    self:RegisterEvent("UNIT_HEALTH_FREQUENT")
     self:RegisterEvent("UNIT_MAXHEALTH")
+    Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
     Aptechka.UNIT_MAXHEALTH = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
     

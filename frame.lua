@@ -261,7 +261,7 @@ local SetJob_Text1 = function(self,job)
     if job.classcolor then
         c = self.parent.classcolor
     elseif job.color then
-        c = job.color
+        c = job.textcolor or job.color
     end
     if c then self:SetTextColor(unpack(c)) end
 end
@@ -274,6 +274,12 @@ local SetJob_Text2 = function(self,job) -- text2 is always green
         self:SetText(self.parent.name)
     elseif job.text then
         self:SetText(job.text)
+    end
+
+    local c
+    if job.color then
+        c = job.textcolor or job.color
+        self:SetTextColor(unpack(c))
     end
 end
     local Text3_OnUpdate = function(self,time)

@@ -45,7 +45,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
 
         A{ id = 109325, priority = 35, prototype = AptechkaUserConfig.BossDebuffPrototype } --Frostflake, Hagara the Stormbinder
         A{ id = 104451, color = { 0.2, 0.2, 1 }, priority = 50, prototype = AptechkaUserConfig.BossDebuffPrototype } --Ice Tomb, Hagara the Stormbinder
-        A{ id = 105369, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Conduit, Hagara the Stormbinder
+        -- A{ id = 105369, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Conduit, Hagara the Stormbinder
         A{ id = 105927, prototype = AptechkaUserConfig.BossDebuffPrototype } --Faded into Twilight, Hagara the Stormbinder
 
         A{ id = 107558, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Degeneration, Warmaster Blackhorn
