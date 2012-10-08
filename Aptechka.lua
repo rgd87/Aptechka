@@ -77,7 +77,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     traceheals = config.TraceHeals or {}
     Aptechka.SetJob = SetJob
     Aptechka.FrameSetJob = FrameSetJob
-    threshold = config.incomingHealThreshold or 3000
+    threshold = config.incomingHealThreshold or 10000
     ignoreplayer = config.incomingHealIgnorePlayer or false
     colors = setmetatable(config.Colors or {},{ __index = function(t,k) return RAID_CLASS_COLORS[k] end })
     
@@ -96,8 +96,14 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         helpers.DisableBlizzParty()
     end
     if config.hideBlizzardRaid then
-	   CompactRaidFrameContainer:Hide()
-	   CompactRaidFrameContainer.Show = function()end
+	   -- disable Blizzard party & raid frame if our Raid Frames are loaded
+       -- InterfaceOptionsFrameCategoriesButton11:SetScale(0.00001)
+       -- InterfaceOptionsFrameCategoriesButton11:SetAlpha(0)
+       -- raid
+       local hider = CreateFrame("Frame")
+       hider:Hide()
+       CompactRaidFrameManager:SetParent(hider)
+       CompactUnitFrameProfiles:UnregisterAllEvents()
 	end
     
     if config.enableIncomingHeals then
@@ -385,6 +391,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
                     Aptechka.ScanAuras(unit)
                     SetJob(unit, config.GhostStatus, false)
                     SetJob(unit, config.DeadStatus, false)
+                    SetJob(unit, config.ResurrectStatus, false)
                     if self.OnAlive then self:OnAlive() end
                 end
             end

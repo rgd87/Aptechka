@@ -34,7 +34,7 @@ config.petcolor = {1,.5,.5}
 --You also can use /apt createpets command, it creates pet group on the fly
 
 config.enableIncomingHeals = true
-config.incomingHealThreshold = 3000
+config.incomingHealThreshold = 15000
 config.incomingHealIgnorePlayer = false
 config.enableTraceHeals = true
 config.enableClickCasting = false
@@ -73,7 +73,7 @@ config.GhostStatus = { name = "GHOST", assignto = { "text2","health","power" }, 
 config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","health","power" }, color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.IncomingHealStatus = { name = "IncomingHeal", assignto = { "text2" }, inchealtext = true, color = { 0, 1, 0}, priority = 15 }
 config.HealthDificitStatus = { name = "HPD", assignto = { "healthtext" }, healthtext = true, color = { 54/255, 201/255, 99/256 }, priority = 10 }
-config.ResurrectStatus = { name = "Resurrection", assignto = { "icon" }, texture = "Interface\\Icons\\spell_holy_resurrection", priority = 80 }
+-- config.ResurrectStatus = { name = "Resurrection", assignto = { "icon" }, texture = "Interface\\Icons\\spell_holy_resurrection", priority = 80 } -- disabled, buggy
 config.UnitNameStatus = { name = "UnitName", assignto = { "text1" }, nametext = true, classcolor = true, priority = 20 }
 config.HealthBarColor = { name = "HealthBar", assignto = { "health" }, color = {1, .3, .3}, classcolor = true, priority = 20 }
 config.PowerBarColor = { name = "PowerBar", assignto = { "power" }, color = {.5,.5,1}, priority = 20 }
@@ -98,16 +98,24 @@ if playerClass == "PRIEST" then
     A{ id = 7001,  type = "HELPFUL", assignto = { "spell2" }, pulse = true, priority = 62, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
     A{ id = 17,    type = "HELPFUL", assignto = { "spell2" }, color = { 1, 1, 0}, showDuration = true } --Power Word: Shield
     A{ id = 6788,  type = "HARMFUL", assignto = { "spell2" }, color = { 0.6, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul
-    A{ id = 33076, type = "HELPFUL", assignto = { "spell3" }, priority = 70, stackcolor =   {
+    A{ id = 33076, type = "HELPFUL", assignto = { "spell3" }, priority = 70, 
+                                                                        stackcolor =   {
                                                                             [1] = { 1, 0, 0},
-                                                                            [2] = { 1, .2, .2},
-                                                                            [3] = { 1, .4, .4},
-                                                                            [4] = { 1, .6, .6},
-                                                                            [5] = { 1, .6, .6},
+                                                                            [2] = { 1, 0, 102/255},
+                                                                            [3] = { 1, 0, 190/255},
+                                                                            [4] = { 204/255, 0, 1},
+                                                                            [5] = { 108/255, 0, 1},
                                                                         }} --Prayer of Mending
+                                                                        -- stackcolor =   {
+                                                                        --     [1] = { .8, 0, 0},
+                                                                        --     [2] = { 1, 0, 0},
+                                                                        --     [3] = { 1, .2, .2},
+                                                                        --     [4] = { 1, .4, .4},
+                                                                        --     [5] = { 1, .6, .6},
+                                                                        -- }} --Prayer of Mending
                                                                         
     Trace{id = 34861, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
-    Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { 1, 0.6, 0.6}, fade = 1.5, priority = 97 } -- PoM Trace
+    Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { .3, 1, .3}, fade = 1.5, priority = 97 } -- PoM Trace
                                                                         
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(2061),unit) == 1) end
             --// Use Flash Heal for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
