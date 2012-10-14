@@ -894,15 +894,15 @@ function Aptechka.SetupFrame(f)
 
     f.onenter = onenter
     f.onleave = onleave
-    f:SetAttribute("_onenter",[[
-        local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
-        self:CallMethod("onenter")
-    ]])
-    --self:SetScale( 1 )
-    f:SetAttribute("_onleave",[[
-        local snippet = self:GetAttribute('clickcast_onleave'); if snippet then self:Run(snippet) end
-        self:CallMethod("onleave")
-    ]])
+    -- f:SetAttribute("_onenter",[[
+    --     local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
+    --     self:CallMethod("onenter")
+    -- ]])
+    -- --self:SetScale( 1 )
+    -- f:SetAttribute("_onleave",[[
+    --     local snippet = self:GetAttribute('clickcast_onleave'); if snippet then self:Run(snippet) end
+    --     self:CallMethod("onleave")
+    -- ]])
 
     f:RegisterForClicks("AnyUp")
     
