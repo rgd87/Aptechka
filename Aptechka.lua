@@ -65,7 +65,7 @@ Aptechka:RegisterEvent("PLAYER_LOGIN")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local uir = config.UnitInRangeFunc or UnitInRange
     local uir2 = function(unit) --or UnitInRange
-        if unit == "player"
+        if unit == "player" or unit == "pet"
             then return true
             else return uir(unit)
         end
