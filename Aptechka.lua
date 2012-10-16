@@ -51,6 +51,7 @@ local FrameSetJob
 local DispelFilter
 
 local bit_band = bit.band
+local IsInGroup = IsInGroup
 local pairs = pairs
 local next = next
 local _, helpers = ...
@@ -65,7 +66,7 @@ Aptechka:RegisterEvent("PLAYER_LOGIN")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local uir = config.UnitInRangeFunc or UnitInRange
     local uir2 = function(unit) --or UnitInRange
-        if unit == "player" or unit == "pet"
+        if not IsInGroup()
             then return true
             else return uir(unit)
         end
