@@ -106,7 +106,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
        CompactRaidFrameManager:SetParent(hider)
        CompactUnitFrameProfiles:UnregisterAllEvents()
 	end
-    
+
     if config.enableIncomingHeals then
         self:RegisterEvent("UNIT_HEAL_PREDICTION")
     end
@@ -173,6 +173,16 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     if config.ResurrectStatus then
         self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
+    end
+
+    if config.useCombatLogHealthUpdates then
+        local CLH = LibStub("LibCLHealth-1.0")
+        UnitHealth = function(unit) return CLH:UnitHealth(unit) end
+        -- table.insert(config.HealthBarColor.assignto, "health2")
+        CLH.RegisterCallback(self, "COMBAT_LOG_HEALTH", function(event, unit, health)
+            return Aptechka:UNIT_HEALTH(nil, unit)
+            -- return Aptechka:COMBAT_LOG_HEALTH(nil, unit, health)
+        end)
     end
     
     self:RegisterEvent("UNIT_AURA")
@@ -328,19 +338,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 end
             end
         end)
-    end
-    
-    
-    if config.useCombatLogHealthUpdates then
-        local CLH = LibStub("LibCLHealth-1.0")
-        UnitHealth = function(unit) return CLH:UnitHealth(unit) end
-        CLH.RegisterCallback(self, "COMBAT_LOG_HEALTH", function(event, unit, health)
-            return Aptechka:UNIT_HEALTH(nil, unit)
-        end)
-        
-    end
-    
-        
+    end     
 end  -- END PLAYER_LOGIN
 
 function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
@@ -367,6 +365,15 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     end
 end
 
+-- function Aptechka.COMBAT_LOG_HEALTH(self, event, unit, h)
+--     if not Roster[unit] then return end
+--     -- print(event, unit, UnitHealth(unit))
+--     for self in pairs(Roster[unit]) do
+--         local hm = UnitHealthMax(unit)
+--         if hm == 0 then return end
+--         self.health2:SetValue(h/hm*100)
+--     end
+-- end
 
 function Aptechka.UNIT_HEALTH(self, event, unit)
     if not Roster[unit] then return end

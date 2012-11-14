@@ -1,6 +1,13 @@
 local SetJob_Frame = function(self, job)
     if job.alpha then
         self:SetAlpha(job.alpha)
+        -- if self.health2 then
+        --     if job.alpha < 1 then
+        --         self.health2:Hide()
+        --     else
+        --         self.health2:Show()
+        --     end
+        -- end
     end
 end
 local Frame_HideFunc = function(self)
@@ -386,18 +393,38 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- hp:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
     hp:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
 	hp:SetStatusBarTexture(texture)
-    hp:GetStatusBarTexture():SetDrawLayer("ARTWORK",-4)
+    hp:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     hp:SetMinMaxValues(0,100)
     hp:SetOrientation("VERTICAL")
     hp.parent = self
     hp.SetJob = SetJob_HealthBar
     --hp:SetValue(0)
     
-    local hpbg = hp:CreateTexture(nil,"ARTWORK",nil,-5)
+    local hpbg = hp:CreateTexture(nil,"ARTWORK",nil,-7)
 	hpbg:SetAllPoints(hp)
 	hpbg:SetTexture(texture)
     hp.bg = hpbg
-    
+
+    -- if AptechkaUserConfig.useCombatLogHealthUpdates or AptechkaDefaultConfig.useCombatLogHealthUpdates then
+        -- local hp2 = CreateFrame("StatusBar", nil, self)
+        -- --hp:SetAllPoints(self)
+        -- hp2:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+        -- -- hp:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
+        -- hp2:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
+        -- hp2:SetWidth(13)
+        -- hp2:SetStatusBarTexture(texture)
+        -- hp2:GetStatusBarTexture():SetDrawLayer("ARTWORK",-4)
+        -- hp2:SetMinMaxValues(0,100)
+        -- hp2:SetOrientation("VERTICAL")
+        -- hp2.parent = self
+        -- hp2.SetJob = SetJob_HealthBar
+        -- --hp:SetValue(0)
+        
+        -- local hp2bg = hp:CreateTexture(nil,"ARTWORK",nil,-5)
+        -- hp2bg:SetAllPoints(hp2)
+        -- hp2bg:SetTexture(texture)
+        -- hp2.bg = hp2bg
+    -- end
     local hpi = CreateFrame("StatusBar", nil, self)
 	hpi:SetAllPoints(self)
 	hpi:SetStatusBarTexture("Interface\\Tooltips\\UI-Tooltip-Background")
@@ -460,6 +487,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     
     self.health = hp
     self.health.incoming = hpi
+    self.health2 = hp2
     self.text1 = text
     self.text2 = text2
     self.healthtext = self.text2

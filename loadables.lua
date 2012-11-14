@@ -3,32 +3,21 @@ local _, helpers = ...
 -- instances are identified by map id (assuming they have their own map).
 -- to find out current zone map id type: /dump GetCurrentMapAreaID()
 AptechkaDefaultConfig.MapIDs = {    
-    --[609] = "Ruby Sanctum",   -- In Cataclysm beta and 3.3.5 PTR it is 609, in Live version it's 610.. 
-    --[610] = "Ruby Sanctum",   -- and looks like the same thing happens with other raids. I'll include everything for now
-                                -- In Release 610 is the area id of Vashj'ir
+    [609] = "Ruby Sanctum",
     [604] = "Icecrown Citadel",
-    [605] = "Icecrown Citadel",
     [543] = "Trial of the Crusader",
-    [544] = "Trial of the Crusader",
     [529] = "Ulduar",
-    [530] = "Ulduar",
     [535] = "Naxxramas",
-    [536] = "Naxxramas",
     [773] = "TotFW",
-    [774] = "TotFW",
     [754] = "Blackwing Descent",
-    [755] = "Blackwing Descent",
-    [757] = "Bastion of Twilight", -- ????
     [758] = "Bastion of Twilight",
-    [780] = "ZulAman",
     [781] = "ZulAman",
-    [792] = "ZulGurub",
     [793] = "ZulGurub",
-    [799] = "Firelands",
     [800] = "Firelands",
     [824] = "DragonSoul",
     [896] = "MogushanVaults",
-    [897] = "MogushanVaults",
+    [897] = "Heart of Fear",
+    [886] = "Terrace of Endless Spring",
 }
 
 local A = helpers.AddAura
@@ -40,6 +29,12 @@ local healred = { 147/255, 54/255, 115/255 }
 AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bossdebuff" }, color = color1, priority = 40, pulse = true }
 
 AptechkaDefaultConfig.LoadableDebuffs = {
+    ["Terrace of Endless Spring"] = function()
+    end,
+    ["Heart of Fear"] = function()
+    end,
+    ["MogushanVaults"] = function()
+    end,
     ["DragonSoul"] = function()
         A{ id = 100460, prototype = AptechkaUserConfig.BossDebuffPrototype } --Disrupting Shadows, Warlord Zon'ozz
 
