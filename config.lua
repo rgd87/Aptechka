@@ -25,7 +25,26 @@ config.unlocked = false  -- when addon initially loaded
 config.disableBlizzardParty = true
 config.hideBlizzardRaid = true
 config.useGroupAnchors = false -- use separate anchors for each group
-config.resize = { after = 27, to = 0.8 } -- ONLY WORKS with group anchors disabled. If number of players in raid exeeds 27 then resize to 0.8.   "config.resize = false" disables it
+config.layouts = {  -- works ONLY with group anchors disabled.
+                    -- layout functions are checked from first to last. function should return true to be accepted.
+    function(self, members, role, spec)
+        if role == "HEALER" and members > 27 then --resize after 27 for healers
+            self:SetScale(.8); return true
+        end
+    end,
+    function(self, members, role, spec)
+        if role ~= "HEALER" and members > 11 then --after 11 for non-healers
+            self:SetScale(.65); return true
+        end
+    end,
+    -- function(self, members, role, spec) -- Example: scale to .8 for non-healer specs regardless of group size
+    --     if role ~= "HEALER" then
+    --         self:SetScale(.8)
+    --         self:SwitchAnchors("GridSkinCustom")
+    --         return true
+    --     end
+    -- end
+}
 config.maxgroups = 8
 config.petgroup = false
 config.petcolor = {1,.5,.5}

@@ -186,7 +186,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     
     self:RegisterEvent("UNIT_AURA")
-    
+    self:RegisterEvent("SPELLS_CHANGED")
     self:RegisterEvent("GROUP_ROSTER_UPDATE")
     
     if config.raidIcons then
@@ -571,28 +571,44 @@ function Aptechka.CheckLFDTank( self,unit )
     if not config.MainTankStatus then return end
     SetJob(unit, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
 end
+
+function Aptechka.SetScale(self, scale)
+    if InCombatLockdown() then return end
+    if scale and scale > 0 then
+        for i,hdr in pairs(group_headers) do
+            hdr:SetAttribute("custom_scale",true)
+            hdr:SetScale(scale)
+        end
+    else
+        for i,hdr in pairs(group_headers) do
+            hdr:SetAttribute("custom_scale",nil)
+            hdr:SetScale(config.scale)
+        end
+    end
+end
 function Aptechka.PLAYER_REGEN_ENABLED(self,event)
     self:GROUP_ROSTER_UPDATE()
     self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 end
 function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
     if not InCombatLockdown() then
-        if config.resize and not config.useGroupAnchors then
-            if GetNumGroupMembers() > config.resize.after then
-                for i,hdr in pairs(group_headers) do
-                    hdr:SetAttribute("custom_scale",true)
-                    hdr:SetScale(config.resize.to)
-                end
-            else
-                for i,hdr in pairs(group_headers) do
-                    hdr:SetAttribute("custom_scale",nil)
-                    hdr:SetScale(config.scale)
-                end
-            end
+        if not config.useGroupAnchors then -- config.resize and 
+            Aptechka:LayoutUpdate()
         end
     else
         self:RegisterEvent("PLAYER_REGEN_ENABLED")
     end
+end
+Aptechka.SPELLS_CHANGED = Aptechka.GROUP_ROSTER_UPDATE
+
+function Aptechka.LayoutUpdate(self)
+    local numMembers = GetNumGroupMembers()
+    local spec = GetSpecialization()
+    local role = select(6,GetSpecializationInfo(spec))
+    for _, layout in ipairs(config.layouts) do
+        if layout(self, numMembers, role, spec) then return end
+    end
+    self:SetScale(nil)
 end
 
 --raid icons
@@ -884,6 +900,29 @@ function Aptechka.CreateAnchor(self,hdr,num)
     end)
 end
 
+function Aptechka.SwitchAnchors(self, newAnchors)
+    skinAnchorsName = newAnchors
+    for num, f in ipairs(anchors) do
+        if not AptechkaDB[skinAnchorsName] then AptechkaDB[skinAnchorsName] = {} end
+        if not AptechkaDB[skinAnchorsName][num] then
+            if num == 1 then AptechkaDB[skinAnchorsName][num] = { point = "CENTER", x = 0, y = 0 }
+            elseif num == 9 then AptechkaDB[skinAnchorsName][num] = { point = "BOTTOMLEFT", x = 0, y = -60 }
+            else AptechkaDB[skinAnchorsName][num] = { point = "TOPLEFT", x = 0, y = 60} end
+        end
+        local san = AptechkaDB[skinAnchorsName][num]
+        if num == 1 then
+            f.root = true
+            f:ClearAllPoints()
+            f:SetPoint(san.point,UIParent,san.point,san.x,san.y)
+        else
+            f.prev = anchors[num-1]
+            if num == 9 then f.prev = anchors[1] end
+            f:ClearAllPoints()
+            f:SetPoint(san.point,f.prev,san.point,san.x,san.y)
+        end
+        f.san = san
+    end
+end
 
 local onenter = function(self)
     if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
