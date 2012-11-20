@@ -38,7 +38,7 @@ config.layouts = {  -- works ONLY with group anchors disabled.
         end
     end,
     -- function(self, members, role, spec) -- Example: scale to .8 for non-healer specs regardless of group size
-    --     if role ~= "HEALER" then
+    --     if role ~= "HEALER" then                    and switch to another anchor that you can place in the corner
     --         self:SetScale(.8)
     --         self:SwitchAnchors("GridSkinCustom")
     --         return true

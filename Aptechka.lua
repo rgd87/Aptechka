@@ -604,7 +604,7 @@ Aptechka.SPELLS_CHANGED = Aptechka.GROUP_ROSTER_UPDATE
 function Aptechka.LayoutUpdate(self)
     local numMembers = GetNumGroupMembers()
     local spec = GetSpecialization()
-    local role = select(6,GetSpecializationInfo(spec))
+    local role = spec and select(6,GetSpecializationInfo(spec)) or "DAMAGER"
     for _, layout in ipairs(config.layouts) do
         if layout(self, numMembers, role, spec) then return end
     end
