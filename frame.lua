@@ -128,6 +128,34 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     f:Hide()
     return f
 end
+
+
+local SetJob_Corner = function(self,job)
+    local color
+    if job.foreigncolor and job.isforeign then
+        color = job.foreigncolor
+    else
+        color = job.color or { 1,1,1,1 }
+    end
+    self.color:SetVertexColor(unpack(color))
+end
+local CreateCorner = function (parent,w,h,point,frame,to,x,y,nobackdrop)
+    local f = CreateFrame("Frame",nil,parent)
+    f:SetWidth(w); f:SetHeight(h);
+
+    f:SetFrameLevel(5)
+    local t = f:CreateTexture(nil,"ARTWORK")
+    t:SetTexture[[Interface\AddOns\Aptechka\corner]]
+    t:SetAllPoints(f)
+    f.color = t
+    f:SetPoint(point,frame,to,x,y)
+    f.parent = parent
+    f.SetJob = SetJob_Corner
+        
+    f:Hide()
+    return f
+end
+
 local SetJob_StatusBar = function(self,job)
     -- if job.showDuration then
         -- self.cd:SetReverse(not job.reverseDuration)
@@ -208,6 +236,8 @@ local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     return f
 end
 
+
+
 AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
 local SetJob_Icon = function(self,job)
     if job.fade then self.jobs[job.name] = nil; return end
@@ -229,16 +259,18 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     icon:SetWidth(w); icon:SetHeight(h)
     icon:SetPoint(point,frame,to,x,y)
     local icontex = icon:CreateTexture(nil,"ARTWORK")
-    icontex:SetTexCoord(.07, .93, .07, .93)
+    icontex:SetTexCoord(.1, .9, .1, .9)
     icon:SetFrameLevel(6)
-    icontex:SetAllPoints(icon)
+    icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
+    icontex:SetWidth(h);
+    icontex:SetHeight(h);
     icon.texture = icontex
     icon:SetAlpha(alpha)
     
     local icd = CreateFrame("Cooldown",nil,icon)
     icd.noCooldownCount = true -- disable OmniCC for this cooldown
     icd:SetReverse(true)
-    icd:SetAllPoints(icon)
+    icd:SetAllPoints(icontex)
     icon.cd = icd
     
     local stacktext = icon:CreateFontString(nil,"OVERLAY")
@@ -256,6 +288,40 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     return icon
 end
 AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
+
+
+local DebuffTypeColor = DebuffTypeColor
+local function SetJob_DebuffIcon(self, job)
+    SetJob_Icon(self, job)
+    local debuffType = job.debuffType
+    local color = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
+    self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 0.6)
+end
+local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
+    local icon = CreateIcon(parent, w,h, alpha, point, frame, to, x, y)
+
+    icon.texture:SetTexCoord(.2, .8, .2, .8)
+    
+    local dttex = icon:CreateTexture(nil, "ARTWORK")
+    dttex:SetTexture("Interface\\Addons\\Aptechka\\white")
+    dttex:SetPoint("TOPLEFT", icon, "TOPRIGHT", h-w, 0) -- filling all the space left from icon
+    dttex:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT",0,0)
+    icon.debuffTypeTexture = dttex
+
+    -- icon:SetBackdrop{
+        -- bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,
+        -- insets = {left = 0, right = -2, top = 0, bottom = 0},
+    -- }
+    -- icon:SetBackdropColor(0, 0, 0, 1)
+
+    icon.SetJob = SetJob_DebuffIcon
+
+    icon:Hide()
+
+    return icon
+end
+
+
 local SetJob_Text1 = function(self,job)
     if job.healthtext then
         self:SetFormattedText("-%.0fk", (self.parent.vHealthMax - self.parent.vHealth) / 1e3)
@@ -322,11 +388,14 @@ local CreateTextTimer = function(parent,point,frame,to,x,y,hjustify,fontsize,fon
 end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
+
 local SetJob_Border = function(self,job)
     if job.color then
         self:SetBackdropColor(unpack(job.color))
     end
 end
+
+
 
 local OnMouseEnterFunc = function(self)
     self.mouseover:Show()
@@ -476,11 +545,17 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local tr = CreateIndicator(self,7,7,"TOPRIGHT",self,"TOPRIGHT",0,0)
     local br = CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
     local btm = CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0)
-    local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
+    -- local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
     local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
     local text3 = CreateTextTimer(self,"TOPLEFT",self,"TOPLEFT",-2,0,"LEFT",fontsize-3,font,"OUTLINE")
 
     local bar1 = CreateStatusBar(self, 19, 7, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
+
+    local brcorner = CreateCorner(self, 17, 17, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
+
+    self.dicon1 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
+    self.dicon2 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
+    self.dicon3 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
     
     self.SetJob = SetJob_Frame
     self.HideFunc = Frame_HideFunc
@@ -497,12 +572,13 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.spell2 = topind
     self.spell3 = tr
     self.bar1 = bar1
-    self.bossdebuff = left
     self.raidbuff = tl
     self.border = border
-    self.dispel = btm
+    self.bossdebuff = brcorner
+    self.dispel = brcorner
     self.icon = icon
     self.raidicon = raidicon
+
     
     self.OnMouseEnterFunc = OnMouseEnterFunc
     self.OnMouseLeaveFunc = OnMouseLeaveFunc

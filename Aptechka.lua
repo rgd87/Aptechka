@@ -10,6 +10,7 @@ AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDe
 local AptechkaUnitInRange
 local auras
 local dtypes
+local debuffs
 local traceheals
 local colors
 local threshold --incoming heals
@@ -46,6 +47,7 @@ local UnitAura = UnitAura
 local UnitAffectingCombat = UnitAffectingCombat
 local UnitGetIncomingHeals = UnitGetIncomingHeals
 local UnitThreatSituation = UnitThreatSituation
+local table_wipe = table.wipe
 local SetJob
 local FrameSetJob
 local DispelFilter
@@ -75,6 +77,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     AptechkaUnitInRange = uir2
     auras = config.IndicatorAuras or {}
     dtypes = config.DebuffTypes or {}
+    debuffs = config.DebuffDisplay or {}
     traceheals = config.TraceHeals or {}
     Aptechka.SetJob = SetJob
     Aptechka.FrameSetJob = FrameSetJob
@@ -197,16 +200,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     
     if not config.anchorpoint then
-        local ug = config.unitGrowth
-        local gg = config.groupGrowth
-        local rug, ud = reverse(ug)
-        local rgg, gd = reverse(gg)
-        if config.useGroupAnchors then config.anchorpoint = rug
-        elseif ud == gd then  config.anchorpoint = rug
-        elseif gd == "VERTICAL" and ud == "HORIZONTAL" then config.anchorpoint = rgg..rug
-        elseif ud == "VERTICAL" and gd == "HORIZONTAL" then config.anchorpoint = rug..rgg
-        end
+        config.anchorpoint = Aptechka:SetAnchorpoint()
     end
+
     skinAnchorsName = config.useAnchors or config.skin
     local i = 1
     while (i <= config.maxgroups) do
@@ -760,12 +756,12 @@ local OnAttributeChanged = function(self, attrname, unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end    
 end
 
-local arrangeHeaders = function(prv_group, notreverse)
+local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         local p1, p2
         local xgap = 0
         local ygap = config.groupGap
-        local point, direction = reverse(config.unitGrowth) 
-        local grgrowth = notreverse and reverse(config.groupGrowth) or config.groupGrowth
+        local point, direction = reverse(unitGrowth or config.unitGrowth) 
+        local grgrowth = groupGrowth or (notreverse and reverse(config.groupGrowth) or config.groupGrowth)
         if grgrowth == "TOP" then
             if direction == "VERTICAL" then point = "" end
             p1 = "BOTTOM"..point; p2 = "TOP"..point;
@@ -786,9 +782,6 @@ local arrangeHeaders = function(prv_group, notreverse)
 end 
 function Aptechka.CreateHeader(self,group,petgroup)
     local frameName = "NugRaid"..group
-    local xgap = config.unitGap
-    local ygap = config.unitGap
-    local unitgr = reverse(config.unitGrowth)
 
     local HeaderTemplate = petgroup and "SecureGroupPetHeaderTemplate" or "SecureGroupHeaderTemplate"
     local f = CreateFrame("Button",frameName, UIParent, HeaderTemplate)
@@ -797,12 +790,19 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetAttribute("template", "AptechkaUnitButtonTemplate")
     f:SetAttribute("templateType", "Button")
 
+
+    local xgap = config.unitGap
+    local ygap = config.unitGap
+    local unitgr = reverse(config.unitGrowth)
     if unitgr == "RIGHT" then
         xgap = -xgap
     elseif unitgr == "TOP" then
         ygap = -ygap
     end
     f:SetAttribute("point", unitgr)
+    f:SetAttribute("xOffset", xgap)
+    f:SetAttribute("yOffset", ygap)
+
 	if not petgroup
     then
         f:SetAttribute("groupFilter", group)
@@ -815,8 +815,6 @@ function Aptechka.CreateHeader(self,group,petgroup)
     --our group header doesn't really inherits SecureHandlerBaseTemplate
     if ClickCastHeader then SecureHandlerSetFrameRef(f,"clickcast_header", ClickCastHeader) end
     f:SetAttribute("showRaid", true)
-    f:SetAttribute("xOffset", xgap)
-    f:SetAttribute("yOffset", ygap)
     f:SetAttribute("showParty", config.showParty)
     f:SetAttribute("showSolo", config.showSolo)
     f:SetAttribute("showPlayer", true)
@@ -832,6 +830,53 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:Show()
 
     return f
+end
+
+do -- this function supposed to be called from layout switchers
+    -- local reversed = false
+    function Aptechka:SetGrowth(unitGrowth, groupGrowth)
+        if config.useGroupAnchors then return end
+        -- reversed = to or (not reversed)
+
+        local anchorpoint = self:SetAnchorpoint(unitGrowth, groupGrowth)
+
+        local xgap = config.unitGap
+        local ygap = config.unitGap
+        local unitgr = reverse(unitGrowth)
+        if unitgr == "RIGHT" then
+            xgap = -xgap
+        elseif unitgr == "TOP" then
+            ygap = -ygap
+        end
+
+        for group,hdr in ipairs(group_headers) do
+            for _,button in ipairs{ hdr:GetChildren() } do -- group header doesn't clear points when attribute value changes
+                button:ClearAllPoints()
+            end
+            hdr:SetAttribute("point", unitgr)
+            hdr:SetAttribute("xOffset", xgap)
+            hdr:SetAttribute("yOffset", ygap)
+
+            hdr:ClearAllPoints()
+            if group == 1 then
+                hdr:SetPoint(anchorpoint, anchors[group], reverse(anchorpoint),0,0)
+            else
+                hdr:SetPoint(arrangeHeaders(group_headers[group-1], nil, unitGrowth, groupGrowth))
+            end
+        end
+    end
+end
+
+function Aptechka:SetAnchorpoint(unitGrowth, groupGrowth)
+    local ug = unitGrowth or config.unitGrowth
+    local gg = groupGrowth or config.groupGrowth
+    local rug, ud = reverse(ug)
+    local rgg, gd = reverse(gg)
+    if config.useGroupAnchors then return rug
+    elseif ud == gd then return rug
+    elseif gd == "VERTICAL" and ud == "HORIZONTAL" then return rgg..rug
+    elseif ud == "VERTICAL" and gd == "HORIZONTAL" then return rug..rgg
+    end
 end
 
 function Aptechka.CreateAnchor(self,hdr,num)
@@ -1020,23 +1065,36 @@ SetJob = function (unit, opts, status)
     end
 end
 
+local encountered = {}
 function Aptechka.ScanAuras(unit)
-    for auraname,opts in pairs(auras) do
-        local name, _, icon, count, _, duration, expirationTime, caster = UnitAura(unit, auraname, nil, opts.type)
-        if name then
-            if opts.stackcolor then
-                opts.color = opts.stackcolor[count]
+    for auraType, auraNames in pairs(auras) do
+        table_wipe(encountered)
+        for i=1,100 do
+            local name, _, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
+            local opts = auraNames[spellID]
+            if opts then
+                if caster == "player" or not data.isMine then
+                    encountered[spellID] = true
+
+                    if opts.stackcolor then
+                        opts.color = opts.stackcolor[count]
+                    end
+                    if opts.foreigncolor then
+                        opts.isforeign = (caster ~= "player")
+                    end
+                    opts.expirationTime = expirationTime
+                    opts.duration = duration
+                    opts.texture = opts.texture or icon
+                    opts.stacks = count
+                    SetJob(unit, opts, true)
+                end
             end
-            if opts.foreigncolor then
-                opts.isforeign = (caster ~= "player")
+        end
+
+        for spellID, opts in pairs(auraNames) do
+            if not encountered[spellID] then
+                SetJob(unit, opts, false)
             end
-            opts.expirationTime = expirationTime
-            opts.duration = duration
-            opts.texture = opts.texture or icon
-            opts.stacks = count
-            SetJob(unit, opts, true)
-        else
-            SetJob(unit, opts, false)
         end
     end
 end
@@ -1047,33 +1105,74 @@ function Aptechka.UNIT_AURA(self, event, unit)
     Aptechka.ScanDispels(unit)
 end
 
+local presentDebuffs = {}
+local blacklist = {
+    [57724] = true, -- Sated
+    [80354] = true, -- Temporal Displacement
+    [95223] = true, -- Mass Res
+    [71041] = true, -- Deserter
+    [8326] = true, -- Ghost
+    [6788] = true, -- ws
+    [119050] = true, -- kj
+    [113942] = true, -- demonic gates debuff
+}
+
 function Aptechka.ScanDispels(unit)
-    if dtypes then
-        if UnitAura(unit, 1, DispelFilter) then
-            for _,opts in pairs(dtypes) do
-                opts.gotone = false
+        table_wipe(presentDebuffs)
+
+        local debuffLineLenght = #debuffs
+        -- local lastIndex
+        local shown = 0
+
+        for i=1,100 do
+            local name, _, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID = UnitAura(unit, i, "HARMFUL")
+            if not name then
+                -- lastIndex = i
+                break
             end
-            for i = 1, 100 do
-                local name, _, icon, count, debuffType, duration, expirationTime = UnitAura(unit, i, DispelFilter)
-                if not name then break end
-                if dtypes[debuffType] then
-                    local opts = dtypes[debuffType]
-                    opts.gotone = true
+
+            if shown < debuffLineLenght then
+                if not blacklist[aura_spellID] then
+                    shown = shown + 1
+
+                    local opts = debuffs[shown]
+                    -- local dtcolor = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
+                    opts.debuffType = debuffType
+                    -- opts.name = name
+                    opts.debuffType = debuffType
                     opts.expirationTime = expirationTime
                     opts.duration = duration
                     opts.stacks = count
                     opts.texture = icon
+                    -- print("showing", shown)
+                    SetJob(unit, opts, true)
                 end
             end
-            for _,opts in pairs(dtypes) do
-                SetJob(unit, opts, opts.gotone)
+
+            local opts = dtypes[debuffType]
+            if opts and not presentDebuffs[debuffType] then
+                presentDebuffs[debuffType] = true
+
+                opts.expirationTime = expirationTime
+                opts.duration = duration
+                opts.stacks = count
+                opts.texture = icon
+
+                SetJob(unit, opts, true)
             end
-        else
-            for _,opts in pairs(dtypes) do
+        end
+
+        for i=shown+1, debuffLineLenght do
+            -- print("hiding", i)
+            local opts = debuffs[i]
+            SetJob(unit, opts, false)
+        end
+
+        for debuffType, opts in pairs(dtypes) do
+            if not presentDebuffs[debuffType] then
                 SetJob(unit, opts, false)
             end
         end
-    end
 end
 
 local ParseOpts = function(str)

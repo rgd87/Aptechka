@@ -5,8 +5,7 @@ helpers.AddDispellType = function(dtype, data)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not config.DebuffTypes then config.DebuffTypes = {} end
     local _,class = UnitClass("player")
-    --If all required debuff types are dispelable by class then we're using HARMFUL|RAID filter to optimize dispel checks
-    --ugliness
+    
     if class == "PRIEST" then
         if dtype ~= "Disease" and dtype ~= "Magic" then config.DispelFilterAll = true end
     elseif class == "DRUID" then
@@ -27,11 +26,14 @@ helpers.AddAura = function (data, todefault)
     if AptechkaUserConfig and not todefault then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if data.id then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
-    if data.isMine then data.type = data.type.."|PLAYER" end
+    -- if data.isMine then data.type = data.type.."|PLAYER" end
     if data.debuffType then DT(data.debuffType, data) end
+
+    data.type = data.type or "HELPFUL"
     if not config.IndicatorAuras then config.IndicatorAuras = {} end
+    if not config.IndicatorAuras[data.type] then config.IndicatorAuras[data.type] = {} end
     if data.prototype then setmetatable(data, { __index = function(t,k) return data.prototype[k] end }) end
-    config.IndicatorAuras[data.name] = data
+    config.IndicatorAuras[data.type][data.id] = data
 --~     table.insert(config.IndicatorAuras, data)
 end
 helpers.AddAuraToDefault = function(data)
@@ -48,6 +50,15 @@ helpers.AddTrace = function(data)
     data.name = data.actualname.."Trace"
     config.TraceHeals[data.actualname] = data
 end
+
+helpers.AddDebuff = function (index, data)
+    if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
+    if not config.DebuffDisplay then config.DebuffDisplay = {} end
+
+    config.DebuffDisplay[index] = data
+--~     table.insert(config.IndicatorAuras, data)
+end
+
 
 helpers.ClickMacro = function(macro)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
