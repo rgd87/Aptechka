@@ -1073,7 +1073,6 @@ function Aptechka.ScanAuras(unit)
     for auraType, auraNames in pairs(auras) do
         table_wipe(encountered)
         for i=1,100 do
-            print(
             local name, _, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
             local opts = auraNames[spellID]
             if opts then
