@@ -218,11 +218,14 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         CreatePetsFunc()
     end
     if config.unlocked then anchors[1]:Show() end
-    
-    if config.DispelFilterAll
-        then DispelFilter = "HARMFUL"
-        else DispelFilter = "HARMFUL|RAID"
-    end
+
+    if not next(debuffs) and not next(dtypes) then
+        Aptechka.ScanDispels = function() end
+    end    
+    -- if config.DispelFilterAll
+    --     then DispelFilter = "HARMFUL"
+    --     else DispelFilter = "HARMFUL|RAID"
+    -- end
                 
     Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
     Aptechka:Show()
@@ -996,7 +999,7 @@ function Aptechka.SetupFrame(f)
     --     self:CallMethod("onleave")
     -- ]])
 
-    f:RegisterForClicks("AnyUp")
+    f:RegisterForClicks(unpack(config.registerForClicks))
     
     --ClickCastFrames[f] = true -- add to clique list
     
@@ -1070,10 +1073,11 @@ function Aptechka.ScanAuras(unit)
     for auraType, auraNames in pairs(auras) do
         table_wipe(encountered)
         for i=1,100 do
+            print(
             local name, _, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
             local opts = auraNames[spellID]
             if opts then
-                if caster == "player" or not data.isMine then
+                if caster == "player" or not opts.isMine then
                     encountered[spellID] = true
 
                     if opts.stackcolor then
@@ -1115,6 +1119,9 @@ local blacklist = {
     [6788] = true, -- ws
     [119050] = true, -- kj
     [113942] = true, -- demonic gates debuff
+    [123981] = true, -- dk cooldown debuff
+    [87024] = true, -- mage cooldown debuff
+    [36032] = true, -- arcane charge
 }
 
 function Aptechka.ScanDispels(unit)

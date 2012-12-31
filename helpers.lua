@@ -29,12 +29,13 @@ helpers.AddAura = function (data, todefault)
     -- if data.isMine then data.type = data.type.."|PLAYER" end
     if data.debuffType then DT(data.debuffType, data) end
 
-    data.type = data.type or "HELPFUL"
+    if data.prototype then setmetatable(data, { __index = function(t,k) return data.prototype[k] end }) end
+
+    if not data.type then data.type = "HELPFUL" end
+
     if not config.IndicatorAuras then config.IndicatorAuras = {} end
     if not config.IndicatorAuras[data.type] then config.IndicatorAuras[data.type] = {} end
-    if data.prototype then setmetatable(data, { __index = function(t,k) return data.prototype[k] end }) end
     config.IndicatorAuras[data.type][data.id] = data
---~     table.insert(config.IndicatorAuras, data)
 end
 helpers.AddAuraToDefault = function(data)
     helpers.AddAura(data,true)
@@ -56,7 +57,6 @@ helpers.AddDebuff = function (index, data)
     if not config.DebuffDisplay then config.DebuffDisplay = {} end
 
     config.DebuffDisplay[index] = data
---~     table.insert(config.IndicatorAuras, data)
 end
 
 

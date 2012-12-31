@@ -53,6 +53,7 @@ config.petcolor = {1,.5,.5}
 --A maximum of 5 pets can be displayed. 
 --You also can use /apt createpets command, it creates pet group on the fly
 
+config.registerForClicks = { "AnyUp" }
 config.enableIncomingHeals = true
 config.incomingHealThreshold = 15000
 config.incomingHealIgnorePlayer = false
