@@ -4,15 +4,20 @@ Provides unit health updates from combat log event.
 
 Combat log events occur a lot more frequentrly than UNIT_HEALTH
 This library tracks incoming healing and damage and adjusts health values.
-As a result you can see health updates more frequent and sooner.
+As a result you can see health updates sooner and more often.
 
-It's experimental and I haven't even tested it in actual raid or even dungeon.
-But at worst you'll get incorrect value until next UNIT_HEALTH in case of messed up event order
+This implementation should be safe and accurate.
+For each unit we keep history of health values after each damaging/healing
+combat log event. When UNIT_HEALTH arrives, UnitHealth value is searched in this log.
+If it's found, then chain is valid, and library proceeds to return latest value from it.
+If not it falls back onto UnitHealth value. If UnitHealth values in the next 1.4 seconds
+also could not be found, then chain is resetted with current UnitHealth value as starting point.
 
 Usage:
 local f = CreateFrame("Frame") -- your addon
 local LibCLHealth = LibStub("LibCLHealth-1.0")
-LibCLHealth.RegisterCallback(f, "COMBAT_LOG_HEALTH", function(event, unit, health)
+LibCLHealth.RegisterCallback(f, "COMBAT_LOG_HEALTH", function(event, unit)
+    local health = LibCLHealth:UnitHealth(unit)
     print(event, unit, health)
 end)
 
@@ -57,11 +62,6 @@ local table_wipe = table.wipe
 local select, unpack = select, unpack
 local LOGLEN = 10
 
--- local DEBUG = true
--- local print = function(...)
---     if DEBUG then return print(...) end
--- end
-
 f:SetScript("OnEvent", function(self, event, ...)
     return self[event](self, event, ...)
 end)
@@ -93,17 +93,17 @@ end
 f.PLAYER_LOGIN = f.GROUP_ROSTER_UPDATE
 
 
-local function debug_mark_value(log, value)
-    local str
-    for i=1,#log do
-        if log[i] == value then
-            log[i] = string.format("|cffff2222%s|r",value)
-            str = table.concat(log, " ")
-            log[i] = value
-        end
-    end
-    return str or "<NO MATCH>"
-end
+-- local function debug_mark_value(log, value)
+--     local str
+--     for i=1,#log do
+--         if log[i] == value then
+--             log[i] = string.format("|cffff2222%s|r",value)
+--             str = table.concat(log, " ")
+--             log[i] = value
+--         end
+--     end
+--     return str or "<NO MATCH>"
+-- end
 
 
 local olduh = 0
@@ -169,16 +169,17 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(
             amount = select(4, ...) - select(5, ...) -- heal amount - overheal
             if amount == 0 then return end
         end
-        -- print(GetTime(), eventType, amount)
+
         if amount then
             local clh = CLHealth[unit]
             if not clh then
                 clh = blank_data(unit)
                 CLHealth[unit] = clh
             end
-            local log, logtime, synced = unpack(clh)
+            local log, logtime, was_synced = unpack(clh)
             local health = log[1]
 
+            -- add new health value to chain
             local newhealth = health + amount
             while #log > LOGLEN do table_remove(log); table_remove(logtime) end
             table_insert(log, 1, newhealth)
@@ -190,7 +191,9 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(
             --     ChatFrame3:AddMessage(table.concat({GetTime(), eventType, newhealth,  diffstr}, "   "))
             -- end
 
-            callbacks:Fire("COMBAT_LOG_HEALTH", unit)
+            if was_synced then
+                callbacks:Fire("COMBAT_LOG_HEALTH", unit)
+            end
         end
     end
 end
