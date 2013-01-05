@@ -150,9 +150,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     ]=],config.width, config.height,config.scale,tbind,ccmacro)
     
     self:RegisterEvent("UNIT_HEALTH")
-    -- self:RegisterEvent("UNIT_HEALTH_FREQUENT")
+    self:RegisterEvent("UNIT_HEALTH_FREQUENT")
     self:RegisterEvent("UNIT_MAXHEALTH")
-    -- Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
+    Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
     Aptechka.UNIT_MAXHEALTH = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
     
@@ -181,6 +181,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.useCombatLogHealthUpdates then
         local CLH = LibStub("LibCLHealth-1.0")
         UnitHealth = function(unit) return CLH:UnitHealth(unit) end
+        self:UnregisterEvent("UNIT_HEALTH")
+        self:UnregisterEvent("UNIT_HEALTH_FREQUENT")
         -- table.insert(config.HealthBarColor.assignto, "health2")
         CLH.RegisterCallback(self, "COMBAT_LOG_HEALTH", function(event, unit, health)
             return Aptechka:UNIT_HEALTH(nil, unit)
@@ -397,6 +399,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
                 if self.isDead then
                     self.isDead = false
                     Aptechka.ScanAuras(unit)
+                    Aptechka.ScanDispels(unit)
                     SetJob(unit, config.GhostStatus, false)
                     SetJob(unit, config.DeadStatus, false)
                     SetJob(unit, config.ResurrectStatus, false)
@@ -999,6 +1002,7 @@ function Aptechka.SetupFrame(f)
     --     self:CallMethod("onleave")
     -- ]])
 
+    -- print(unpack(config.registerForClicks))
     f:RegisterForClicks(unpack(config.registerForClicks))
     
     --ClickCastFrames[f] = true -- add to clique list
@@ -1121,6 +1125,7 @@ local blacklist = {
     [123981] = true, -- dk cooldown debuff
     [87024] = true, -- mage cooldown debuff
     [36032] = true, -- arcane charge
+    [97821] = true, -- dk battleres debuff
 }
 
 function Aptechka.ScanDispels(unit)

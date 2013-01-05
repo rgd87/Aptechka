@@ -30,12 +30,18 @@ lib.frame = lib.frame or CreateFrame("Frame")
 lib.guidMap = lib.guidMap or {}
 lib.unitMap = lib.unitMap or {}
 
+
+local function blank_data(unit)
+    return {
+        { UnitHealth(unit) }, -- health log
+        { GetTime() }, -- corresponding time log
+        false, -- synchronization status
+        0, -- first sync lost time
+    }
+end
+
 lib.data = lib.data or  setmetatable({},{
     __mode = 'k',
-    __index = function (t,k)
-        rawset(t,k, { {UnitHealth(k)}, { GetTime() } } )
-        return t[k]
-    end
 })
 
 local f = lib.frame
@@ -47,8 +53,9 @@ local UnitGUID = UnitGUID
 local UnitHealth = UnitHealth
 local table_insert = table.insert
 local table_remove = table.remove
+local table_wipe = table.wipe
 local select, unpack = select, unpack
-
+local LOGLEN = 10
 
 -- local DEBUG = true
 -- local print = function(...)
@@ -59,15 +66,13 @@ f:SetScript("OnEvent", function(self, event, ...)
     return self[event](self, event, ...)
 end)
 
-f:RegisterEvent"GROUP_ROSTER_UPDATE"
-f:RegisterEvent"PLAYER_LOGIN"
-
 function f:GROUP_ROSTER_UPDATE()
     table.wipe(guidMap)
     if IsInRaid() then
         for i=1,GetNumGroupMembers() do
             local unit = "raid"..i
             local guid = UnitGUID(unit)
+            CLHealth[unit] = blank_data(unit)
             if guid then guidMap[guid] = unit end
         end
     else
@@ -75,47 +80,75 @@ function f:GROUP_ROSTER_UPDATE()
             for i=1, GetNumGroupMembers() - 1 do
                 local unit = "party"..i
                 local guid = UnitGUID(unit)
+                CLHealth[unit] = blank_data(unit)
                 if guid then guidMap[guid] = unit end
             end
         end
         local unit = "player"
         local guid = UnitGUID(unit)
+        CLHealth[unit] = blank_data(unit)
         guidMap[guid] = unit
     end
 end
 f.PLAYER_LOGIN = f.GROUP_ROSTER_UPDATE
 
-f:RegisterEvent"COMBAT_LOG_EVENT_UNFILTERED"
-f:RegisterEvent"UNIT_HEALTH"
 
+local function debug_mark_value(log, value)
+    local str
+    for i=1,#log do
+        if log[i] == value then
+            log[i] = string.format("|cffff2222%s|r",value)
+            str = table.concat(log, " ")
+            log[i] = value
+        end
+    end
+    return str or "<NO MATCH>"
+end
+
+
+local olduh = 0
 function f:UNIT_HEALTH(event, unit)
     local clh = rawget(CLHealth, unit)
     if not clh then return end
 
     local uh = UnitHealth(unit)
     local uht = GetTime()
+    -- if unit == 'player' then
+    --     local diff = uh - olduh
+    --     local diffstr = string.format("|cff%s%s|r", diff > 0 and "00ff00" or "ff0000", diff)
+    --     ChatFrame1:AddMessage(table.concat({GetTime(), "|cffffff55UNIT_HEALTH|r", uh,  diffstr}, "   "))
+    --     ChatFrame3:AddMessage(table.concat({GetTime(), "|cffffff55----------------------|r"}, "   "))
+    --     olduh = uh
+    -- end
 
-    local log, logtime, was_synced = unpack(clh)
+    local log, logtime, was_synced, sync_lost_time = unpack(clh)
 
-    local synced = false
     for i,hval in ipairs(log) do
         if hval == uh then
             if uht - logtime[i] < 2 then 
-                synced = true
-                -- print(now, "synced", uh, "  |   ", unpack(log))
+                clh[3] = true -- synchronized
+                clh[4] = nil
+                -- print(now, "synced", uh, "  |   ", debug_mark_value(log, uh))
                 return true
             end
         end
     end
-    if not synced then
-        -- print(now, "__lost__", uh, "  |   ", unpack(log))
-        table_insert(log, 1, uh)
-        table_insert(logtime, 1, uht)
-    end
-    clh[3] = synced
-    callbacks:Fire("COMBAT_LOG_HEALTH", unit, log[1])
-end
 
+    clh[3] = false -- not synchronized
+    if was_synced then
+        clh[4] = GetTime()
+    elseif uht - sync_lost_time > 1.3 then
+        if log[2] then
+            table_wipe(log)
+            table_wipe(logtime)
+        end
+        log[1] = uh
+        logtime[1] = uht
+    end
+    -- print(now, "__lost__", uh, "  |   ", unpack(log))
+
+    callbacks:Fire("COMBAT_LOG_HEALTH", unit)
+end
 
 function f:COMBAT_LOG_EVENT_UNFILTERED(
                 event, timestamp, eventType, hideCaster,
@@ -136,19 +169,28 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(
             amount = select(4, ...) - select(5, ...) -- heal amount - overheal
             if amount == 0 then return end
         end
+        -- print(GetTime(), eventType, amount)
         if amount then
             local clh = CLHealth[unit]
+            if not clh then
+                clh = blank_data(unit)
+                CLHealth[unit] = clh
+            end
             local log, logtime, synced = unpack(clh)
             local health = log[1]
-            -- local health = synced and log[1] or UnitHealth(unit)
 
             local newhealth = health + amount
-            while #log > 7 do table_remove(log); table_remove(logtime) end
+            while #log > LOGLEN do table_remove(log); table_remove(logtime) end
             table_insert(log, 1, newhealth)
             table_insert(logtime, 1, GetTime())
-            clh[3] = true
 
-            callbacks:Fire("COMBAT_LOG_HEALTH", unit, newhealth)
+            -- if unit == 'player' then
+            --     local diff = amount
+            --     local diffstr = string.format("|cff%s%s|r", diff > 0 and "00ff00" or "ff0000", amount)
+            --     ChatFrame3:AddMessage(table.concat({GetTime(), eventType, newhealth,  diffstr}, "   "))
+            -- end
+
+            callbacks:Fire("COMBAT_LOG_HEALTH", unit)
         end
     end
 end
@@ -160,4 +202,17 @@ function lib:UnitHealth(unit)
     else
         return UnitHealth(unit)
     end
+end
+
+function callbacks.OnUsed()
+    f:RegisterEvent"GROUP_ROSTER_UPDATE"
+    f:RegisterEvent"PLAYER_LOGIN"
+    f:RegisterEvent"COMBAT_LOG_EVENT_UNFILTERED"
+    -- f:RegisterEvent"UNIT_HEALTH_FREQUENT"
+    f:RegisterEvent"UNIT_HEALTH"
+    f:GROUP_ROSTER_UPDATE()
+end
+
+function callbacks.OnUnused()
+    f:UnregisterAllEvents()
 end

@@ -15,6 +15,7 @@ AptechkaDefaultConfig.MapIDs = {
     -- [793] = "ZulGurub",
     -- [800] = "Firelands",
     -- [824] = "DragonSoul",
+    [877] = "ShadoPanMonastery",
     [896] = "MogushanVaults",
     [897] = "Heart of Fear",
     [886] = "Terrace of Endless Spring",
@@ -35,6 +36,10 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         A{ id = 122370, prototype = AptechkaUserConfig.BossDebuffPrototype } --abomination
     end,
     ["MogushanVaults"] = function()
+    end,
+    ["ShadoPanMonastery"] = function()
+        A{ id = 115509, prototype = AptechkaUserConfig.BossDebuffPrototype } --Thundering Fist, first adds
+        A{ id = 106872, prototype = AptechkaUserConfig.BossDebuffPrototype } --Sha of Violence, Disorient
     end,
     -- ["DragonSoul"] = function()
     --     A{ id = 100460, prototype = AptechkaUserConfig.BossDebuffPrototype } --Disrupting Shadows, Warlord Zon'ozz
@@ -213,23 +218,31 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     end,
     
     ['TankCooldowns'] = function()
-        A{ id = 871,   type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Shield Wall
-        A{ id = 498,   type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Divine Protection
-        A{ id = 48792, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Icebound Fortitude
-        A{ id = 33206, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Pain Suppression
-         
-        A{ id = 55233, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 88 } --Vampiric Blood
-        A{ id = 47788, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 88 } --Guardian Spirit
+        A{ id = 871,   type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Shield Wall 40%
+        A{ id = 115203,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Fortifying Brew 20% + something
+        A{ id = 86659, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Guardian of Ancient Kings 50%
+        -- A{ id = 498,   type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Divine Protection 40% magical
+        A{ id = 48792, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Icebound Fortitude 50%
+        A{ id = 61336, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Survival Instincts 50%
+        -- A{ id = 22812, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Barkskin 20%
+
+        A{ id = 33206, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Pain Suppression
+        A{ id = 102342,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 93 } --Ironbark
+        A{ id = 98007, type = "HELPFUL", assignto = { "icon" }, showDuration = false, priority = 93 } --Spirit Link Totem
+    
+        A{ id = 31850, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 88 } --Ardent Defender
+        A{ id = 116849,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 88 } --Life Cocoon
+        A{ id = 55233, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Vampiric Blood
+        A{ id = 47788, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Guardian Spirit
             
-        A{ id = 12975, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 86 } --Last Stand
-        A{ id = 61336, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 86 } --Survival Instincts
+        A{ id = 12975, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 85 } --Last Stand
+        A{ id = 106922,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 85 } --Might of Ursoc
     end,
 
     ['HealingReduction'] = function()
-        A{ id = 12294, color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Mortal Strike
         A{ id = 8680,  color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Wound Poison
-        A{ id = 24674, color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Veil of Shadow
-        A{ id = 25646, color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Mortal Wound
+        -- A{ id = 24674, color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Veil of Shadow
+        A{ id = 115804, color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Mortal Wounds
 
         -- A{ id = 30213, color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Legion Strike
         -- A{ id = 54680, color = healred, prototype = AptechkaUserConfig.BossDebuffPrototype } --Monstrous Bite

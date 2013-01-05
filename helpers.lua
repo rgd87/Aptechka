@@ -43,7 +43,7 @@ end
 helpers.AddTrace = function(data)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not config.enableTraceHeals then return end
-    if data.id then data.name = GetSpellInfo(data.id) end
+    if data.id then data.name = GetSpellInfo(data.id) or data.name end
     data.type = "SPELL_"..data.type
     if not config.TraceHeals then config.TraceHeals = {} end
     if not data.name then print("id or name required") return end

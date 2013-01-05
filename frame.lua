@@ -138,6 +138,10 @@ local SetJob_Corner = function(self,job)
         color = job.color or { 1,1,1,1 }
     end
     self.color:SetVertexColor(unpack(color))
+
+    if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
+        if not self.pulse:IsPlaying() then self.pulse:Play() end
+    end
 end
 local CreateCorner = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     local f = CreateFrame("Frame",nil,parent)
@@ -151,6 +155,20 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     f:SetPoint(point,frame,to,x,y)
     f.parent = parent
     f.SetJob = SetJob_Corner
+
+    local pag = f:CreateAnimationGroup()
+    local pa1 = pag:CreateAnimation("Scale")
+    pa1:SetOrigin(point,0,0)
+    pa1:SetScale(2,2)
+    pa1:SetDuration(0.2)
+    pa1:SetOrder(1)
+    local pa2 = pag:CreateAnimation("Scale")
+    pa2:SetOrigin(point,0,0)
+    pa2:SetScale(0.5,0.5)
+    pa2:SetDuration(0.8)
+    pa2:SetOrder(2)
+    
+    f.pulse = pag
         
     f:Hide()
     return f
@@ -475,24 +493,26 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp.bg = hpbg
 
     -- if AptechkaUserConfig.useCombatLogHealthUpdates or AptechkaDefaultConfig.useCombatLogHealthUpdates then
-        -- local hp2 = CreateFrame("StatusBar", nil, self)
-        -- --hp:SetAllPoints(self)
-        -- hp2:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-        -- -- hp:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
-        -- hp2:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
-        -- hp2:SetWidth(13)
-        -- hp2:SetStatusBarTexture(texture)
-        -- hp2:GetStatusBarTexture():SetDrawLayer("ARTWORK",-4)
-        -- hp2:SetMinMaxValues(0,100)
-        -- hp2:SetOrientation("VERTICAL")
-        -- hp2.parent = self
-        -- hp2.SetJob = SetJob_HealthBar
-        -- --hp:SetValue(0)
+    --     print('p2')
+    --     local hp2 = CreateFrame("StatusBar", nil, self)
+    --     --hp:SetAllPoints(self)
+    --     hp2:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+    --     -- hp:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
+    --     hp2:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
+    --     hp2:SetWidth(13)
+    --     hp2:SetStatusBarTexture(texture)
+    --     hp2:GetStatusBarTexture():SetDrawLayer("ARTWORK",-4)
+    --     hp2:SetMinMaxValues(0,100)
+    --     hp2:SetOrientation("VERTICAL")
+    --     hp2.parent = self
+    --     hp2.SetJob = SetJob_HealthBar
+    --     --hp:SetValue(0)
         
-        -- local hp2bg = hp:CreateTexture(nil,"ARTWORK",nil,-5)
-        -- hp2bg:SetAllPoints(hp2)
-        -- hp2bg:SetTexture(texture)
-        -- hp2.bg = hp2bg
+    --     local hp2bg = hp:CreateTexture(nil,"ARTWORK",nil,-5)
+    --     hp2bg:SetAllPoints(hp2)
+    --     hp2bg:SetTexture(texture)
+    --     hp2.bg = hp2bg
+    --     self.health2 = hp2
     -- end
     local hpi = CreateFrame("StatusBar", nil, self)
 	hpi:SetAllPoints(self)
@@ -562,7 +582,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     
     self.health = hp
     self.health.incoming = hpi
-    self.health2 = hp2
     self.text1 = text
     self.text2 = text2
     self.healthtext = self.text2

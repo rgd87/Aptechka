@@ -16,7 +16,7 @@ config.scale = 1
 --config.height = 50
 config.cropNamesLen = 7  -- maximum amount of characters in unit name
 config.raidIcons = true
-config.showSolo = false     -- visible without group/raid
+config.showSolo = true     -- visible without group/raid
 config.showParty = true    -- in group
 config.unitGap = 10       -- gap between units
 config.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT / RIGHT / TOP / BOTTOM
@@ -58,14 +58,15 @@ config.enableIncomingHeals = true
 config.incomingHealThreshold = 15000
 config.incomingHealIgnorePlayer = false
 config.enableTraceHeals = true
-config.enableClickCasting = false
 config.enableVehicleSwap = true
+config.enableClickCasting = false
 -- if for some reason you don't want to use Clique you can
 -- enable native click casting support here, it activates ClickMacro function.
 -- ClickMacro syntax is like usual macro, but don't forget [@mouseover] for every command
 -- spell:<id> is an alias for localized spellname.
 -- Unmodified left click is reserved for targeting by default.
 -- Use helpers.BindTarget("shift 1") to change it. Syntax: any combination of "shift" "alt" "ctrl" and button number
+
 -- config.useCombatLogFiltering = false
 -- useCombatLogFiltering provides a huge perfomance boost over default behavior, which would be to listen only to UNIT_AURA event.
 -- UNIT_AURA doesn't tell what exactly changed and every time addon had to scan current buffs/debuffs,
@@ -82,7 +83,7 @@ config.enableVehicleSwap = true
                                          
                                          
 config.TargetStatus = { name = "Target", assignto = { "border" }, color = {1,0.7,0.7}, priority = 65 }
-config.AggroStatus = { name = "Aggro", assignto = { },  color = { 0.7, 0, 0},priority = 55 }
+config.AggroStatus = { name = "Aggro", assignto = { "raidbuff" },  color = { 0.7, 0, 0},priority = 55 }
 config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = { "spell3" }, stackcolor = {
                                                                             ['ready'] = { 0, 1, 0},
                                                                             ['notready'] = { 1, 0, 0},
@@ -108,6 +109,14 @@ D(1, { name = "DI1", assignto = { "dicon1" }, pulse = true, color = { 0, 1, 0}, 
 D(2, { name = "DI2", assignto = { "dicon2" }, pulse = true, color = { 0, 1, 0}, showDuration = true })
 D(3, { name = "DI3", assignto = { "dicon3" }, pulse = true, color = { 0, 1, 0}, showDuration = true })
 
+function DispelTypes(str)
+    str = str:upper()
+    if str:find("MAGIC") then DT("Magic", { assignto = { "dispel" }, color = { 0.2, 0.6, 1}, priority = 6 }) end
+    if str:find("CURSE") then DT("Curse", { assignto = { "dispel" }, color = { 0.6, 0, 1}, priority = 5 }) end
+    if str:find("POISON") then DT("Poison", { assignto = { "dispel" }, color = { 0, 0.6, 0}, priority = 4 }) end
+    if str:find("DISEASE") then DT("Disease", { assignto = { "dispel" }, color = { 0.6, 0.4, 0}, priority = 3}) end
+end
+
 if playerClass == "PRIEST" then
         -- long buffs
     --A{ id = 21562, type = "HELPFUL", assignto = { "raidbuff" }, color = { 1, 1, 1}, isMissing = true } --Power Word: Fortitude
@@ -122,9 +131,9 @@ if playerClass == "PRIEST" then
                                                                         }} --Grace
     A{ id = 7001,  type = "HELPFUL", assignto = { "spell2" }, pulse = true, priority = 62, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
     A{ id = 17,    type = "HELPFUL", assignto = { "spell2" }, color = { 1, .85, 0}, showDuration = true } --Power Word: Shield
-    A{ id = 114908,type = "HELPFUL", assignto = { "bar1" }, priority = 82, color = { 188/255, 37/255, 186/255 }, showDuration = true } --Spirit Shell absorb
+    A{ id = 114908,type = "HELPFUL", assignto = { "bar1" }, priority = 82, color = { 188/255, 37/255, 186/255 }, foreigncolor = { 164/255, 125/255, 169/255}, showDuration = true } --Spirit Shell absorb
     A{ id = 6788,  type = "HARMFUL", assignto = { "spell2" }, color = { 0.6, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul
-    A{ id = 41635, type = "HELPFUL", assignto = { "spell3" }, priority = 70, 
+    A{ id = 41635, type = "HELPFUL", assignto = { "spell3" }, priority = 70, foreigncolor = { 164/255, 125/255, 169/255 },
                                                                         stackcolor =   {
                                                                             [1] = { 1, 0, 0},
                                                                             [2] = { 1, 0, 102/255},
@@ -139,15 +148,15 @@ if playerClass == "PRIEST" then
                                                                         --     [4] = { 1, .4, .4},
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
-                                                                        
+    
+    -- Trace{id = 94472, type = "HEAL", assignto = { "raidbuff" }, color = { 1, 1, 0}, fade = 0.4, priority = 96 } -- Atonement
     Trace{id = 34861, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
     Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { .3, 1, .3}, fade = 1.5, priority = 97 } -- PoM Trace
                                                                         
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(2061),unit) == 1) end
             --// Use Flash Heal for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
     
-    DT("Magic", { assignto = { "dispel" }, color = { 0.2, 0.6, 1}, priority = 6 })
-    DT("Disease", { assignto = { "dispel" }, color = { 0.6, 0.4, 0}, priority = 5})
+    DispelTypes("MAGIC|DISEASE")
 end
 
 if playerClass == "MONK" then
@@ -162,9 +171,7 @@ if playerClass == "MONK" then
     config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(115450),unit) == 1) end
             --// Use Detox for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
-    DT("Disease", { assignto = { "dispel" }, color = { 0.6, 0.4, 0}, priority = 4 })
-    DT("Poison", { assignto = { "dispel" }, color = { 0, 0.6, 0}, priority = 5 })
-    DT("Magic", { assignto = { "dispel" }, color = { 0.2, 0.6, 1}, priority = 6 })
+    DispelTypes("MAGIC|DISEASE|POISON")
 end
 
 if playerClass == "WARLOCK" then
@@ -189,18 +196,16 @@ if playerClass == "PALADIN" then
     
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(635),unit) == 1) end
             --// Use Holy Light for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
-    ClickMacro[[
-        /cast [@mouseover,btn:2,mod:alt] spell:53563; [@mouseover,btn:2] spell:19750;
-    ]] -- Beacon of Light (id 53563) Flash of Light (id 19750)
+    -- ClickMacro[[
+    --     /cast [@mouseover,btn:2,mod:alt] spell:53563; [@mouseover,btn:2] spell:19750;
+    -- ]] -- Beacon of Light (id 53563) Flash of Light (id 19750)
 
-    DT("Magic", { assignto = { "dispel" }, color = { 0.2, 0.6, 1}, priority = 6 })
-    DT("Disease", { assignto = { "dispel" }, color = { 0.6, 0.4, 0}, priority = 4 })
-    DT("Poison", { assignto = { "dispel" }, color = { 0, 0.6, 0}, priority = 5 })    
+    DispelTypes("MAGIC|DISEASE|POISON")
 end
 if playerClass == "SHAMAN" then
-    config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
+    -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
     
-    A{ id = 61295,  type = "HELPFUL", assignto = { "spell1" }, showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide    
+    A{ id = 61295,  type = "HELPFUL", assignto = { "bar1" }, showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide    
     A{ id = 974,    type = "HELPFUL", assignto = { "spell2" }, showDuration = true,
                                                                         --isMine = true,     
                                                                         stackcolor =   {
@@ -215,6 +220,7 @@ if playerClass == "SHAMAN" then
                                                                             [9] = {.4, 1, .4},
                                                                         },
                                                                         foreigncolor = {0,0,.5}, } --Earth Shield
+    Trace{id = 52042, type = "PERIODIC_HEAL", assignto = { "spell3" }, color = { 0.4 , 0.4, 1}, fade = 0.7, priority = 93 } -- Chain Heal
                                                                         
     Trace{id = 1064, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = { "spell3" }, color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
@@ -223,8 +229,8 @@ if playerClass == "SHAMAN" then
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(8004),unit) == 1) end
             --// Use Healing Surge for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
-    DT("Magic", { assignto = { "dispel" }, color = { 0.2, 0.6, 1}, priority = 6 })
-    DT("Curse", { assignto = { "dispel" }, color = { 0.6, 0, 1}, priority = 5 })
+
+    DispelTypes("MAGIC|CURSE")
 end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = { "raidbuff" }, color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
@@ -242,20 +248,18 @@ if playerClass == "DRUID" then
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(774),unit) == 1) end
             --// Use Rejuvenation for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
-    DT("Poison",{ assignto = { "dispel" }, color = { 0, 0.6, 0},priority = 80 })
-    DT("Curse", { assignto = { "dispel" }, color = { 0.6, 0, 1}, priority = 81 })
-    DT("Magic", { assignto = { "dispel" }, color = { 0.2, 0.6, 1}, priority = 82 })
+    DispelTypes("MAGIC|CURSE|POISON")
 end
 if playerClass == "MAGE" then
     --A{ id = 1459,  type = "HELPFUL", assignto = { "spell2" }, color = { .4 , .4, 1}, priority = 50 } --Arcane Intellect
     --A{ id = 61316, type = "HELPFUL", assignto = { "spell2" }, color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
     --A{ id = 54648, type = "HELPFUL", assignto = { "spell2" }, color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
     
-    DT("Curse", { assignto = { "dispel" }, color = { 0.6, 0, 1} })
+    DispelTypes("CURSE")
 end
-if not isHealer or playerClass == "PALADIN" then
-    config.redirectPowerBar = "spell1"
-end
+-- if not isHealer or playerClass == "PALADIN" then
+    -- config.redirectPowerBar = "spell1"
+-- end
 
 config.autoload = {
     "HealingReduction",
