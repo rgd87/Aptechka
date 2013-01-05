@@ -1119,8 +1119,8 @@ local blacklist = {
     [95223] = true, -- Mass Res
     [71041] = true, -- Deserter
     [8326] = true, -- Ghost
-    [6788] = true, -- ws
-    [119050] = true, -- kj
+    [6788] = true, -- Weakened Soul
+    [119050] = true, -- Kil'Jaeden Cunning
     [113942] = true, -- demonic gates debuff
     [123981] = true, -- dk cooldown debuff
     [87024] = true, -- mage cooldown debuff
@@ -1132,13 +1132,11 @@ function Aptechka.ScanDispels(unit)
         table_wipe(presentDebuffs)
 
         local debuffLineLenght = #debuffs
-        -- local lastIndex
         local shown = 0
 
         for i=1,100 do
             local name, _, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID = UnitAura(unit, i, "HARMFUL")
             if not name then
-                -- lastIndex = i
                 break
             end
 
@@ -1147,15 +1145,12 @@ function Aptechka.ScanDispels(unit)
                     shown = shown + 1
 
                     local opts = debuffs[shown]
-                    -- local dtcolor = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
                     opts.debuffType = debuffType
-                    -- opts.name = name
                     opts.debuffType = debuffType
                     opts.expirationTime = expirationTime
                     opts.duration = duration
                     opts.stacks = count
                     opts.texture = icon
-                    -- print("showing", shown)
                     SetJob(unit, opts, true)
                 end
             end
@@ -1174,7 +1169,6 @@ function Aptechka.ScanDispels(unit)
         end
 
         for i=shown+1, debuffLineLenght do
-            -- print("hiding", i)
             local opts = debuffs[i]
             SetJob(unit, opts, false)
         end
