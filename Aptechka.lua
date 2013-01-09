@@ -33,12 +33,6 @@ local LastCastTargetName
 
 local AptechkaString = "|cffff7777Aptechka: |r"
 local UnitHealth = UnitHealth
-local __UnitHealth = UnitHealth
-local CLHealth = setmetatable({},{__mode = 'k', __index = function (t,k)
-            rawset(t,k, { __UnitHealth(k), 0, 0 } )
-            return t[k]
-        end })
-local CLHealthUpdate
 local UnitHealthMax = UnitHealthMax
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitPower = UnitPower
@@ -180,7 +174,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     if config.useCombatLogHealthUpdates then
         local CLH = LibStub("LibCLHealth-1.0")
-        UnitHealth = function(unit) return CLH:UnitHealth(unit) end
+        UnitHealth = CLH.UnitHealth
         self:UnregisterEvent("UNIT_HEALTH")
         self:UnregisterEvent("UNIT_HEALTH_FREQUENT")
         -- table.insert(config.HealthBarColor.assignto, "health2")

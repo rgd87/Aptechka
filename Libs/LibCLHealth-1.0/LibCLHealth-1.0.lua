@@ -1,27 +1,38 @@
 --[================[
 LibCLHealth-1.0 
-Provides unit health updates from combat log event.
+Author: d87
+Description: Provides unit health updates from combat log event.
 
 Combat log events occur a lot more frequentrly than UNIT_HEALTH
 This library tracks incoming healing and damage and adjusts health values.
 As a result you can see health updates sooner and more often.
 
 This implementation should be safe and accurate.
-For each unit we keep history of health values after each damaging/healing
-combat log event. When UNIT_HEALTH arrives, UnitHealth value is searched in this log.
+For each unit we keep history of health values after each change from combat log.
+When UNIT_HEALTH arrives, UnitHealth value is searched in this log.
 If it's found, then chain is valid, and library proceeds to return latest value from it.
 If not it falls back onto UnitHealth value. If UnitHealth values in the next 1.4 seconds
-also could not be found, then chain is resetted with current UnitHealth value as starting point.
+also could not be found to re-validate combat log chain,
+then it is reset with current UnitHealth value as a starting point.
+
+Why it's like that and not simplier
+------------------------------------
+UNIT_HEALTH and CLEU are asynchronous, UNIT_AURA throttles and usually is slower,
+but sometimes it comes first, and with CLEU immediately after it, double damage/healing
+occurs, giving healers a heart attack. I'm avoiding that, keeping them separate
+and only checking whether combat log value has deviated from UnitHealth.
+
 
 Usage:
 local f = CreateFrame("Frame") -- your addon
 local LibCLHealth = LibStub("LibCLHealth-1.0")
-LibCLHealth.RegisterCallback(f, "COMBAT_LOG_HEALTH", function(event, unit)
-    local health = LibCLHealth:UnitHealth(unit)
-    print(event, unit, health)
-end)
-
-LibCLHealth:UnitHealth(unit) -- get unit current combatlog health
+if LibCLHealth then
+    f:UnregisterEvent("UNIT_HEALTH")
+    LibCLHealth.RegisterCallback(f, "COMBAT_LOG_HEALTH", function(event, unit)
+        local health = LibCLHealth.UnitHealth(unit)
+        print(event, unit, health)
+    end)
+end
 --]================]
 
 
@@ -33,21 +44,22 @@ if not lib then return end
 lib.callbacks = lib.callbacks or LibStub("CallbackHandler-1.0"):New(lib)
 lib.frame = lib.frame or CreateFrame("Frame")
 lib.guidMap = lib.guidMap or {}
-lib.unitMap = lib.unitMap or {}
 
+local LOG_HEALTH = 1
+local LOG_TIME = 2
+local SYNC = 3
+local SYNC_TIME = 4
 
 local function blank_data(unit)
     return {
         { UnitHealth(unit) }, -- health log
         { GetTime() }, -- corresponding time log
-        false, -- synchronization status
-        0, -- first sync lost time
+        true, -- synchronization status
+        nil, -- time when sync was lost
     }
 end
 
-lib.data = lib.data or  setmetatable({},{
-    __mode = 'k',
-})
+lib.data = lib.data or  {}
 
 local f = lib.frame
 local callbacks = lib.callbacks
@@ -60,14 +72,15 @@ local table_insert = table.insert
 local table_remove = table.remove
 local table_wipe = table.wipe
 local select, unpack = select, unpack
-local LOGLEN = 10
+local LOG_LENGTH = 8
 
 f:SetScript("OnEvent", function(self, event, ...)
     return self[event](self, event, ...)
 end)
 
 function f:GROUP_ROSTER_UPDATE()
-    table.wipe(guidMap)
+    table_wipe(guidMap)
+    table_wipe(CLHealth)
     if IsInRaid() then
         for i=1,GetNumGroupMembers() do
             local unit = "raid"..i
@@ -105,8 +118,7 @@ f.PLAYER_LOGIN = f.GROUP_ROSTER_UPDATE
 --     return str or "<NO MATCH>"
 -- end
 
-
-local olduh = 0
+-- local olduh = 0
 function f:UNIT_HEALTH(event, unit)
     local clh = rawget(CLHealth, unit)
     if not clh then return end
@@ -126,17 +138,20 @@ function f:UNIT_HEALTH(event, unit)
     for i,hval in ipairs(log) do
         if hval == uh then
             if uht - logtime[i] < 2 then 
-                clh[3] = true -- synchronized
-                clh[4] = nil
-                -- print(now, "synced", uh, "  |   ", debug_mark_value(log, uh))
+                clh[SYNC] = true -- synchronized
+                clh[SYNC_TIME] = nil
+                if not was_synced then
+                    callbacks:Fire("COMBAT_LOG_HEALTH", unit)
+                end
+                -- print(GetTime(), "synced", uh, "  |   ", debug_mark_value(log, uh))
                 return true
             end
         end
     end
 
-    clh[3] = false -- not synchronized
+    clh[SYNC] = false -- not synchronized
     if was_synced then
-        clh[4] = GetTime()
+        clh[SYNC_TIME] = GetTime()
     elseif uht - sync_lost_time > 1.3 then
         if log[2] then
             table_wipe(log)
@@ -145,7 +160,7 @@ function f:UNIT_HEALTH(event, unit)
         log[1] = uh
         logtime[1] = uht
     end
-    -- print(now, "__lost__", uh, "  |   ", unpack(log))
+    -- print(GetTime(), "__lost__", uh, "  |   ", unpack(log))
 
     callbacks:Fire("COMBAT_LOG_HEALTH", unit)
 end
@@ -181,7 +196,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(
 
             -- add new health value to chain
             local newhealth = health + amount
-            while #log > LOGLEN do table_remove(log); table_remove(logtime) end
+            while #log > LOG_LENGTH do table_remove(log); table_remove(logtime) end
             table_insert(log, 1, newhealth)
             table_insert(logtime, 1, GetTime())
 
@@ -198,10 +213,10 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(
     end
 end
 
-function lib:UnitHealth(unit)
+function lib.UnitHealth(unit)
     local clh = rawget(CLHealth, unit)
-    if clh and clh[3] then
-        return clh[1][1]
+    if clh and clh[SYNC] then
+        return clh[LOG_HEALTH][1]
     else
         return UnitHealth(unit)
     end
