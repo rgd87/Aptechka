@@ -178,7 +178,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:UnregisterEvent("UNIT_HEALTH")
         self:UnregisterEvent("UNIT_HEALTH_FREQUENT")
         -- table.insert(config.HealthBarColor.assignto, "health2")
-        CLH.RegisterCallback(self, "COMBAT_LOG_HEALTH", function(event, unit, health)
+        CLH.RegisterCallback(self, "COMBAT_LOG_HEALTH", function(event, unit)
             return Aptechka:UNIT_HEALTH(nil, unit)
             -- return Aptechka:COMBAT_LOG_HEALTH(nil, unit, health)
         end)
@@ -381,26 +381,26 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         self.health:SetValue(h/hm*100)
         SetJob(unit,config.HealthDificitStatus, ((hm-h) > 1000) )
         
-        if event then -- quickhealth calls this function without event
-            if UnitIsDeadOrGhost(unit) then
-                SetJob(unit, config.AggroStatus, false)
-                local deadorghost = UnitIsGhost(unit) and config.GhostStatus or config.DeadStatus
-                SetJob(unit, deadorghost, true)
-                SetJob(unit,config.HealthDificitStatus, false )
-                self.isDead = true
-                if self.OnDead then self:OnDead() end
-            else
-                if self.isDead then
-                    self.isDead = false
-                    Aptechka.ScanAuras(unit)
-                    Aptechka.ScanDispels(unit)
-                    SetJob(unit, config.GhostStatus, false)
-                    SetJob(unit, config.DeadStatus, false)
-                    SetJob(unit, config.ResurrectStatus, false)
-                    if self.OnAlive then self:OnAlive() end
-                end
-            end
+        -- if event then 
+        -- print(h, UnitIsDeadOrGhost(unit))
+        if UnitIsDeadOrGhost(unit) then
+            SetJob(unit, config.AggroStatus, false)
+            local deadorghost = UnitIsGhost(unit) and config.GhostStatus or config.DeadStatus
+            SetJob(unit, deadorghost, true)
+            SetJob(unit,config.HealthDificitStatus, false )
+            self.isDead = true
+            if self.OnDead then self:OnDead() end
+        elseif self.isDead then
+
+            self.isDead = false
+            Aptechka.ScanAuras(unit)
+            Aptechka.ScanDispels(unit)
+            SetJob(unit, config.GhostStatus, false)
+            SetJob(unit, config.DeadStatus, false)
+            SetJob(unit, config.ResurrectStatus, false)
+            if self.OnAlive then self:OnAlive() end
         end
+        -- end
         
     end
 end

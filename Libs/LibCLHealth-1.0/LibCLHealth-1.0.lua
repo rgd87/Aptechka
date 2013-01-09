@@ -140,7 +140,10 @@ function f:UNIT_HEALTH(event, unit)
             if uht - logtime[i] < 2 then 
                 clh[SYNC] = true -- synchronized
                 clh[SYNC_TIME] = nil
-                if not was_synced then
+                if not was_synced or uh == 0 then
+                    -- Second condition: Library already sent update with 0,
+                    -- but UnitIsDeadOrGhost function at that time still
+                    -- returned old data. Sending it again.
                     callbacks:Fire("COMBAT_LOG_HEALTH", unit)
                 end
                 -- print(GetTime(), "synced", uh, "  |   ", debug_mark_value(log, uh))
