@@ -149,6 +149,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
     Aptechka.UNIT_MAXHEALTH = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
+
+    self:RegisterEvent("PLAYER_ENTERING_WORLD") -- Update stuff after zoning
     
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER")
@@ -172,14 +174,17 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
     end
 
+        self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+
+
     if config.useCombatLogHealthUpdates then
-        local CLH = LibStub("LibCLHealth-1.0")
+        local CLH = LibStub("LibCombatLogHealth-1.0")
         UnitHealth = CLH.UnitHealth
         self:UnregisterEvent("UNIT_HEALTH")
         self:UnregisterEvent("UNIT_HEALTH_FREQUENT")
         -- table.insert(config.HealthBarColor.assignto, "health2")
-        CLH.RegisterCallback(self, "COMBAT_LOG_HEALTH", function(event, unit)
-            return Aptechka:UNIT_HEALTH(nil, unit)
+        CLH.RegisterCallback(self, "COMBAT_LOG_HEALTH", function(event, unit, eventType)
+            return Aptechka:UNIT_HEALTH(eventType, unit)
             -- return Aptechka:COMBAT_LOG_HEALTH(nil, unit, health)
         end)
     end
@@ -247,7 +252,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 local opts = traceheals[spellName]
                 if opts and eventType == opts.type then
                     if guidMap[dstGUID] then
-                        SetJob(guidMap[dstGUID],opts,true)
+                        local minamount = opts.minamount
+                        if not minamount or amount > minamount then
+                            SetJob(guidMap[dstGUID],opts,true)
+                        end
                     end
                 end
             end
@@ -370,10 +378,27 @@ end
 --     end
 -- end
 
+function Aptechka.PLAYER_ENTERING_WORLD(self, event)
+    Aptechka:UNIT_POWER(nil, "player")
+    Aptechka:UNIT_HEALTH(nil, "player")
+    Aptechka:UNIT_AURA(nil, "player")
+    Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, "player")
+end
+
+
+function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
+    local rosterunit = Roster[unit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
+        local a,hm = UnitGetTotalAbsorbs(unit), UnitHealthMax(unit)
+        self.absorb:SetValue(a/hm*100)
+    end
+end
+
 function Aptechka.UNIT_HEALTH(self, event, unit)
-    if not Roster[unit] then return end
-    -- print(event, unit, UnitHealth(unit))
-    for self in pairs(Roster[unit]) do
+    local rosterunit = Roster[unit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
         local h,hm = UnitHealth(unit), UnitHealthMax(unit)
         if hm == 0 then return end
         self.vHealth = h
@@ -381,26 +406,24 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         self.health:SetValue(h/hm*100)
         SetJob(unit,config.HealthDificitStatus, ((hm-h) > 1000) )
         
-        -- if event then 
-        -- print(h, UnitIsDeadOrGhost(unit))
-        if UnitIsDeadOrGhost(unit) then
-            SetJob(unit, config.AggroStatus, false)
-            local deadorghost = UnitIsGhost(unit) and config.GhostStatus or config.DeadStatus
-            SetJob(unit, deadorghost, true)
-            SetJob(unit,config.HealthDificitStatus, false )
-            self.isDead = true
-            if self.OnDead then self:OnDead() end
-        elseif self.isDead then
-
-            self.isDead = false
-            Aptechka.ScanAuras(unit)
-            Aptechka.ScanDispels(unit)
-            SetJob(unit, config.GhostStatus, false)
-            SetJob(unit, config.DeadStatus, false)
-            SetJob(unit, config.ResurrectStatus, false)
-            if self.OnAlive then self:OnAlive() end
+        if event then
+            if UnitIsDeadOrGhost(unit) then
+                SetJob(unit, config.AggroStatus, false)
+                local deadorghost = UnitIsGhost(unit) and config.GhostStatus or config.DeadStatus
+                SetJob(unit, deadorghost, true)
+                SetJob(unit,config.HealthDificitStatus, false )
+                self.isDead = true
+                if self.OnDead then self:OnDead() end
+            elseif self.isDead then
+                self.isDead = false
+                Aptechka.ScanAuras(unit)
+                Aptechka.ScanDispels(unit)
+                SetJob(unit, config.GhostStatus, false)
+                SetJob(unit, config.DeadStatus, false)
+                SetJob(unit, config.ResurrectStatus, false)
+                if self.OnAlive then self:OnAlive() end
+            end
         end
-        -- end
         
     end
 end
@@ -413,8 +436,9 @@ function Aptechka.UNIT_CONNECTION(self, event, unit)
 end
 
 function Aptechka.UNIT_POWER(self, event, unit, ptype)
-    if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
+    local rosterunit = Roster[unit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
         if self.power and not self.power.disabled then
             local mp = UnitPower(unit)/UnitPowerMax(unit)*100
             self.power:SetValue(mp)
@@ -1025,39 +1049,42 @@ function Aptechka.SetupFrame(f)
 end
 
 FrameSetJob = function (frame, opts, status)
-        if opts and opts.assignto then
+    if opts and opts.assignto then
         for _, slot in ipairs(opts.assignto) do
             local self = frame[slot]
             if self then
-            if opts.isMissing then status = not status end
-            if not self.jobs then self.jobs = {} end
-            if status
-            then self.jobs[opts.name] = opts
-            else self.jobs[opts.name] = nil
-            end
-            
-            if next(self.jobs) then
-                local max
-                local max_priority = 0
-                for name, opts in pairs(self.jobs) do
-                    if not opts.priority then opts.priority = 80 end
-                    if max_priority < opts.priority then
-                        max_priority = opts.priority
-                        max = name
-                    end
+                if opts.isMissing then status = not status end
+                if not self.jobs then self.jobs = {} end
+
+                if status
+                    then self.jobs[opts.name] = opts
+                    else self.jobs[opts.name] = nil
                 end
-                if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
-                if self.SetJob  then self:SetJob(self.jobs[max]) end
-                self.currentJob = self.jobs[max]
                 
-            else
-                if self.HideFunc then self:HideFunc() else self:Hide() end
-                self.currentJob = nil
-            end
+                    if next(self.jobs) then
+                        local max
+                        local max_priority = 0
+                        for name, opts in pairs(self.jobs) do
+                            if not opts.priority then opts.priority = 80 end
+                            if max_priority < opts.priority then
+                                max_priority = opts.priority
+                                max = name
+                            end
+                        end
+                        if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
+                        if self.SetJob  then self:SetJob(self.jobs[max]) end
+                        self.currentJob = self.jobs[max]
+                        
+                    else
+                        if self.HideFunc then self:HideFunc() else self:Hide() end
+                        self.currentJob = nil
+                    end
             end
         end
-        end
+    end
 end
+
+Aptechka.FrameSetJob = FrameSetJob
 
 SetJob = function (unit, opts, status)
     if not Roster[unit] then return end
@@ -1108,8 +1135,11 @@ end
 
 local presentDebuffs = {}
 local blacklist = {
+    [114216] = true, -- priest talent cooldown debuff
+    [139485] = true, -- Throne of Thudner passive debuff
     [57724] = true, -- Sated
     [80354] = true, -- Temporal Displacement
+    [95809] = true, -- Hunter bloodlust debuff
     [95223] = true, -- Mass Res
     [71041] = true, -- Deserter
     [8326] = true, -- Ghost
@@ -1120,6 +1150,7 @@ local blacklist = {
     [87024] = true, -- mage cooldown debuff
     [36032] = true, -- arcane charge
     [97821] = true, -- dk battleres debuff
+    [124275] = true, -- brewmaster stagger debuff
 }
 
 function Aptechka.ScanDispels(unit)

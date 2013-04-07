@@ -63,8 +63,18 @@ local SetJob_Indicator = function(self,job)
     self.color:SetVertexColor(unpack(color))
     
     if job.fade then
-        if self.blink:IsPlaying() then self.blink:Finish() end
+        if self.blink:IsPlaying() then
+            self.blink:Stop()
+            if self.traceJob ~= job then
+                Aptechka.FrameSetJob(self.parent,self.traceJob, false)
+            end
+        end
         self.traceJob = job
+        if job.noshine then
+            self.blink.a2:SetChange(1)
+        else
+            self.blink.a2:SetChange(-1)
+        end
         self.blink.a2:SetDuration(job.fade)
         self.blink:Play()
     end
@@ -110,6 +120,7 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     f.pulse = pag
     
     local bag = f:CreateAnimationGroup()
+    bag:SetLooping("NONE")
     local ba1 = bag:CreateAnimation("Alpha")
     ba1:SetChange(1)
     ba1:SetDuration(0.1)
@@ -486,6 +497,58 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp.parent = self
     hp.SetJob = SetJob_HealthBar
     --hp:SetValue(0)
+
+
+    local absorb = CreateFrame("Frame", nil, self)
+    absorb:SetParent(hp)
+    -- absorb:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+    absorb:SetPoint("TOPLEFT",self,"TOPLEFT",-3,0)
+    absorb:SetWidth(3)
+
+    local at = absorb:CreateTexture(nil, "ARTWORK", nil, -4)
+    at:SetTexture[[Interface\AddOns\Aptechka\white]]
+    at:SetVertexColor(.7, .7, 1, 1)
+    at:SetAllPoints(absorb)
+
+    local atbg = absorb:CreateTexture(nil, "ARTWORK", nil, -5)
+    atbg:SetTexture[[Interface\AddOns\Aptechka\white]]
+    atbg:SetVertexColor(0,0,0,1)
+    atbg:SetPoint("TOPLEFT", at, "TOPLEFT", -1,1)
+    atbg:SetPoint("BOTTOMRIGHT", at, "BOTTOMRIGHT", 1,-1)
+
+    absorb.maxheight = config.height
+    absorb.SetValue = function(self, v)
+        local p = v/100
+        if p > 1 then p = 1 end
+        if p < 0 then p = 0 end
+        if p == 0 then self:Hide() else self:Show() end
+        self:SetHeight(p*self.maxheight)
+    end
+    absorb:SetValue(0)
+    hp.absorb = absorb
+
+    -- local absorb = CreateFrame("StatusBar", nil, self)
+    -- absorb:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+    -- absorb:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
+    -- absorb:SetWidth(1)
+    -- -- absorb:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+    -- absorb:SetStatusBarTexture[[Interface\AddOns\Aptechka\white]]  --absorbOverlay]]
+    -- absorb:GetStatusBarTexture():SetDrawLayer("ARTWORK",-4)
+    -- absorb:SetStatusBarColor(.6, .6, 1)
+    -- absorb:SetMinMaxValues(0,100)
+    -- absorb:SetOrientation("VERTICAL")
+    -- absorb:SetReverseFill(true)
+    -- absorb:SetValue(50)
+    -- hp.absorb = absorb
+    -- self.absorb = absorb
+
+    -- local abg = hp:CreateTexture(nil,"ARTWORK",nil,-5)
+    -- abg:SetPoint("BOTTOMLEFT",absorb,"BOTTOMLEFT",0,0)
+    -- abg:SetPoint("TOPLEFT",absorb,"TOPLEFT",0,0)
+    -- abg:SetWidth(2)
+    -- abg:SetTexture("Interface\\Addons\\Aptechka\\gradient")
+    -- abg:SetVertexColor(0,0,0, .3)
+    -- absorb.bg = abg
     
     local hpbg = hp:CreateTexture(nil,"ARTWORK",nil,-7)
 	hpbg:SetAllPoints(hp)
@@ -597,6 +660,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.dispel = brcorner
     self.icon = icon
     self.raidicon = raidicon
+    self.absorb = absorb
 
     
     self.OnMouseEnterFunc = OnMouseEnterFunc

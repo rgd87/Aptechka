@@ -31,9 +31,13 @@ AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bo
 
 AptechkaDefaultConfig.LoadableDebuffs = {
     ["Terrace of Endless Spring"] = function()
+        A{ id = 111850, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Prison
     end,
     ["Heart of Fear"] = function()
+        A{ id = 125390, prototype = AptechkaUserConfig.BossDebuffPrototype } --fixate, empress, windblades
+        A{ id = 124862, prototype = AptechkaUserConfig.BossDebuffPrototype } --visions of demise, empress
         A{ id = 122370, prototype = AptechkaUserConfig.BossDebuffPrototype } --abomination
+        A{ id = 122740, prototype = AptechkaUserConfig.BossDebuffPrototype } --zor'loc mc
     end,
     ["MogushanVaults"] = function()
     end,
@@ -228,7 +232,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
 
         A{ id = 33206, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Pain Suppression
         A{ id = 102342,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 93 } --Ironbark
-        A{ id = 98007, type = "HELPFUL", assignto = { "icon" }, showDuration = false, priority = 93 } --Spirit Link Totem
+        -- A{ id = 98007, type = "HELPFUL", assignto = { "icon" }, showDuration = false, priority = 93 } --Spirit Link Totem
     
         A{ id = 31850, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 88 } --Ardent Defender
         A{ id = 116849,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 88 } --Life Cocoon

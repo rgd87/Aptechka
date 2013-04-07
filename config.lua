@@ -79,9 +79,6 @@ config.enableClickCasting = false
 -- Dispel idicators still work from unit_aura, so you'll see plague regardless as disease if you can dispel it. Necrotic plague removed from default loadables.lua setup.
 config.useCombatLogHealthUpdates = isHealer
 
-                                         
-                                         
-                                         
 config.TargetStatus = { name = "Target", assignto = { "border" }, color = {1,0.7,0.7}, priority = 65 }
 config.AggroStatus = { name = "Aggro", assignto = { "raidbuff" },  color = { 0.7, 0, 0},priority = 55 }
 config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = { "spell3" }, stackcolor = {
@@ -149,7 +146,7 @@ if playerClass == "PRIEST" then
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
     
-    -- Trace{id = 94472, type = "HEAL", assignto = { "raidbuff" }, color = { 1, 1, 0}, fade = 0.4, priority = 96 } -- Atonement
+    -- Trace{id = 94472, type = "HEAL", minamount = 10000, assignto = { "spell3" }, color = { .2, 1, .2}, fade = .5, priority = 90 } -- Atonement
     Trace{id = 34861, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
     Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { .3, 1, .3}, fade = 1.5, priority = 97 } -- PoM Trace
                                                                         
