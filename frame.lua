@@ -162,6 +162,15 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     local t = f:CreateTexture(nil,"ARTWORK")
     t:SetTexture[[Interface\AddOns\Aptechka\corner]]
     t:SetAllPoints(f)
+
+    if point == "TOPRIGHT" then
+        t:SetTexCoord(0,1,1,0)
+    elseif point == "TOPLEFT" then
+        t:SetTexCoord(1,0,1,0)
+    elseif point == "BOTTOMLEFT" then
+        t:SetTexCoord(1,0,0,1)
+    end
+
     f.color = t
     f:SetPoint(point,frame,to,x,y)
     f.parent = parent
@@ -653,6 +662,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.spell1 = br
     self.spell2 = topind
     self.spell3 = tr
+    self.spell4 = btm
     self.bar1 = bar1
     self.raidbuff = tl
     self.border = border
