@@ -59,6 +59,7 @@ config.incomingHealThreshold = 15000
 config.incomingHealIgnorePlayer = false
 config.enableTraceHeals = true
 config.enableVehicleSwap = true
+config.enableAbsorbBar = true
 config.enableClickCasting = false
 -- if for some reason you don't want to use Clique you can
 -- enable native click casting support here, it activates ClickMacro function.

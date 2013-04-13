@@ -174,8 +174,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
     end
 
+    if config.enableAbsorbBar then
         self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
-
+    end
 
     if config.useCombatLogHealthUpdates then
         local CLH = LibStub("LibCombatLogHealth-1.0")
@@ -382,7 +383,9 @@ function Aptechka.PLAYER_ENTERING_WORLD(self, event)
     Aptechka:UNIT_POWER(nil, "player")
     Aptechka:UNIT_HEALTH(nil, "player")
     Aptechka:UNIT_AURA(nil, "player")
-    Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, "player")
+    if config.enableAbsorbBar then
+        Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, "player")
+    end
 end
 
 
