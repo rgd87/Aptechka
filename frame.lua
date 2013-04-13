@@ -300,8 +300,9 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     icontex:SetTexCoord(.1, .9, .1, .9)
     icon:SetFrameLevel(6)
     icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
-    icontex:SetWidth(h);
-    icontex:SetHeight(h);
+    icontex:SetPoint("BOTTOMRIGHT",icon, "BOTTOMRIGHT",0,0)
+    -- icontex:SetWidth(h);
+    -- icontex:SetHeight(h);
     icon.texture = icontex
     icon:SetAlpha(alpha)
     
