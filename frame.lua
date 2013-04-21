@@ -339,6 +339,12 @@ end
 local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
     local icon = CreateIcon(parent, w,h, alpha, point, frame, to, x, y)
 
+    local icontex = icon.texture
+    icontex:ClearAllPoints()
+    icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
+    icontex:SetWidth(h);
+    icontex:SetHeight(h);
+
     icon.texture:SetTexCoord(.2, .8, .2, .8)
     
     local dttex = icon:CreateTexture(nil, "ARTWORK")

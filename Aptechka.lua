@@ -1025,6 +1025,8 @@ function Aptechka.SetupFrame(f)
 
     -- print(unpack(config.registerForClicks))
     f:RegisterForClicks(unpack(config.registerForClicks))
+    f.vHealthMax = 1
+    f.vHealth = 1
     
     --ClickCastFrames[f] = true -- add to clique list
     
