@@ -149,8 +149,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
     Aptechka.UNIT_MAXHEALTH = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
-
-    self:RegisterEvent("PLAYER_ENTERING_WORLD") -- Update stuff after zoning
     
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER")
@@ -378,15 +376,6 @@ end
 --         self.health2:SetValue(h/hm*100)
 --     end
 -- end
-
-function Aptechka.PLAYER_ENTERING_WORLD(self, event)
-    Aptechka:UNIT_POWER(nil, "player")
-    Aptechka:UNIT_HEALTH(nil, "player")
-    Aptechka:UNIT_AURA(nil, "player")
-    if config.enableAbsorbBar then
-        Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, "player")
-    end
-end
 
 
 function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
@@ -767,6 +756,9 @@ local OnAttributeChanged = function(self, attrname, unit)
     FrameSetJob(self, config.UnitNameStatus, true)
     Aptechka:UNIT_HEALTH("ONATTR", unit)
     Aptechka:UNIT_POWER("ONATTR", unit)
+    if config.enableAbsorbBar then
+        Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
+    end
     Aptechka:UNIT_CONNECTION(nil, owner)
     if not config.disableManaBar then
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
