@@ -760,6 +760,7 @@ local OnAttributeChanged = function(self, attrname, unit)
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
     Aptechka:UNIT_CONNECTION(nil, owner)
+    SetJob(unit, config.ReadyCheck, false)
     if not config.disableManaBar then
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
         Aptechka:UNIT_POWER(nil, unit)
