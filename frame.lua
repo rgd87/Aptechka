@@ -612,7 +612,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     border.SetJob = SetJob_Border
     border:Hide()
     
-    local text = hp:CreateFontString(nil, "ARTWORK") --, "GameFontNormal")
+    local text = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     text:SetPoint("CENTER",self,"CENTER",0,0)
     text:SetJustifyH"CENTER"
     text:SetFont(font, fontsize)
@@ -622,7 +622,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text.SetJob = SetJob_Text1
     text.parent = self
     
-    local text2 = hp:CreateFontString(nil, "ARTWORK")
+    local text2 = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     text2:SetPoint("TOP",text,"BOTTOM",0,0)
     text2:SetJustifyH"CENTER"
     text2:SetFont(font, fontsize-3)
