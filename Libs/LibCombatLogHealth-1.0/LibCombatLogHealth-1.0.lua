@@ -136,7 +136,10 @@ f.PLAYER_LOGIN = f.GROUP_ROSTER_UPDATE
 -- local olduh = 0
 function f:UNIT_HEALTH(event, unit)
     local clh = rawget(CLHealth, unit)
-    if not clh then return end
+    if not clh then
+        callbacks:Fire("COMBAT_LOG_HEALTH", unit, event)
+        return
+    end
 
     local uh = UnitHealth(unit)
     local uht = GetTime()
