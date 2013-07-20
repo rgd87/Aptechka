@@ -1139,6 +1139,7 @@ local blacklist = {
     [80354] = true, -- Temporal Displacement
     [95809] = true, -- Hunter bloodlust debuff
     [95223] = true, -- Mass Res
+    [26013] = true, -- PVP Deserter
     [71041] = true, -- Deserter
     [8326] = true, -- Ghost
     [6788] = true, -- Weakened Soul

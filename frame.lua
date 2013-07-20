@@ -644,7 +644,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local tr = CreateIndicator(self,7,7,"TOPRIGHT",self,"TOPRIGHT",0,0)
     local br = CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
     local btm = CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0)
-    -- local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
+    local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
     local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
     local text3 = CreateTextTimer(self,"TOPLEFT",self,"TOPLEFT",-2,0,"LEFT",fontsize-3,font,"OUTLINE")
 
@@ -670,6 +670,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.spell2 = topind
     self.spell3 = tr
     self.spell4 = btm
+    self.spell5 = left
     self.bar1 = bar1
     self.raidbuff = tl
     self.border = border
