@@ -246,6 +246,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     SLASH_APTECHKA4= "/injector"
     SlashCmdList["APTECHKA"] = Aptechka.SlashCmd
 
+    SLASH_APTROLEPOLL1= "/rolepoll"
+    SLASH_APTROLEPOLL2= "/rolecheck"
+    SlashCmdList["APTROLEPOLL"] = InitiateRolePoll
+
     if config.LOSStatus then
         self:RegisterEvent("UNIT_SPELLCAST_SENT")
         self:RegisterEvent("UI_ERROR_MESSAGE")
@@ -1388,6 +1392,10 @@ function Aptechka.SlashCmd(msg)
         else AptechkaDB_Global.charspec[user] = true
         end
         print (AptechkaString..(AptechkaDB_Global.charspec[user] and "Enabled" or "Disabled").." character specific options for this toon. Will take effect after ui reload",0.7,1,0.7)
+    end
+
+    if k == "rolepoll" or k == "rolecheck" then
+        InitiateRolePoll();
     end
 
     if k == "roles" then
