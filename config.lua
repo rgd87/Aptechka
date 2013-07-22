@@ -24,7 +24,7 @@ config.groupGrowth = "TOP"
 config.groupGap = 10
 config.unlocked = false  -- when addon initially loaded
 config.disableBlizzardParty = true
-config.hideBlizzardRaid = true
+config.hideBlizzardRaid = false
 config.useGroupAnchors = false -- use separate anchors for each group
 config.layouts = {  -- works ONLY with group anchors disabled.
                     -- layout functions are checked from first to last. function should return true to be accepted.
@@ -90,10 +90,11 @@ config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = { "spell3" 
 config.MainTankStatus = { name = "MainTank", priority = 60, assignto = { "border" }, color = {0.6,0.6,0.6} }
 config.DeadStatus = { name = "DEAD", assignto = { "text2","health","power" }, color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
 config.GhostStatus = { name = "GHOST", assignto = { "text2","health","power" }, color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
+config.ResIncomingStatus = { name = "ResIncoming", assignto = { "text2", "text3" }, text = "INC RES", color = { 1,1,.4 }, priority = 80 }
+config.ResPendingStatus = { name = "ResPending", assignto = { "text2" }, text = "PENDING", color = { 0.6,0.6,1 }, priority = 82 }
 config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","health","power" }, color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.IncomingHealStatus = { name = "IncomingHeal", assignto = { "text2" }, inchealtext = true, color = { 0, 1, 0}, priority = 15 }
 config.HealthDificitStatus = { name = "HPD", assignto = { "healthtext" }, healthtext = true, color = { 54/255, 201/255, 99/256 }, priority = 10 }
--- config.ResurrectStatus = { name = "Resurrection", assignto = { "icon" }, texture = "Interface\\Icons\\spell_holy_resurrection", priority = 80 } -- disabled, buggy
 config.UnitNameStatus = { name = "UnitName", assignto = { "text1" }, nametext = true, classcolor = true, priority = 20 }
 config.HealthBarColor = { name = "HealthBar", assignto = { "health" }, color = {1, .3, .3}, classcolor = true, priority = 20 }
 config.PowerBarColor = { name = "PowerBar", assignto = { "power" }, color = {.5,.5,1}, priority = 20 }
@@ -103,9 +104,9 @@ config.LOSStatus = { name = "OutOfSight", assignto = { "spell2", "dispel" }, col
 
 -- default priority is 80
 
-D(1, { name = "DI1", assignto = { "dicon1" }, pulse = true, color = { 0, 1, 0}, showDuration = true })
-D(2, { name = "DI2", assignto = { "dicon2" }, pulse = true, color = { 0, 1, 0}, showDuration = true })
-D(3, { name = "DI3", assignto = { "dicon3" }, pulse = true, color = { 0, 1, 0}, showDuration = true })
+D(1, { name = "DI1", assignto = { "dicon1" }, pulse = true, showDuration = true })
+D(2, { name = "DI2", assignto = { "dicon2" }, pulse = true, showDuration = true })
+D(3, { name = "DI3", assignto = { "dicon3" }, pulse = true, showDuration = true })
 
 function DispelTypes(str)
     str = str:upper()

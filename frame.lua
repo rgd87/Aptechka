@@ -332,9 +332,15 @@ AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 local DebuffTypeColor = DebuffTypeColor
 local function SetJob_DebuffIcon(self, job)
     SetJob_Icon(self, job)
-    local debuffType = job.debuffType
-    local color = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
-    self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 0.6)
+    print(job.texture)
+    local color = job.color
+    if color then
+        self.debuffTypeTexture:SetVertexColor(color[1], color[2], color[3], color[4] or 0.6)
+    else
+        local debuffType = job.debuffType
+        color = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
+        self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 0.6)
+    end
 end
 local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
     local icon = CreateIcon(parent, w,h, alpha, point, frame, to, x, y)
@@ -408,8 +414,12 @@ end
         self:Hide()
     end
 local SetJob_Text3 = function(self,job) -- text2 is always green
+    -- if job.startTime then
+        -- self.expirationTime = nil
+        -- self.startTime = job.startTime
+    -- end
     self.expirationTime = job.expirationTime
-    self.frame:SetScript("OnUpdate",Text3_OnUpdate)
+    self.frame:SetScript("OnUpdate",Text3_OnUpdate) --.frame is for text3 container
     
     local c
     if job.color then

@@ -55,7 +55,7 @@ Aptechka.helpers = helpers
 local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
 local AptechkaDB = {}
-local QuickHealth
+local LRI -- LibResInfo
 local CreatePetsFunc
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
@@ -168,8 +168,18 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self.previousTarget = "player"
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
     end
-    if config.ResurrectStatus then
-        self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
+
+    if config.ResIncomingStatus then
+        LRI = LibStub("LibResInfo-1.0")
+        LRI.RegisterCallback(self, "LibResInfo_ResCastStarted", Aptechka.LibResInfo_ResCastStarted)
+        LRI.RegisterCallback(self, "LibResInfo_ResCastFinished", Aptechka.LibResInfo_ResCastFinished)
+        LRI.RegisterCallback(self, "LibResInfo_ResCastCancelled", Aptechka.LibResInfo_ResCastFinished)
+
+        if config.ResPendingStatus then
+            LRI.RegisterCallback(self, "LibResInfo_ResPending", Aptechka.LibResInfo_ResPending)
+            LRI.RegisterCallback(self, "LibResInfo_ResExpired", Aptechka.LibResInfo_ResExpired)
+            LRI.RegisterCallback(self, "LibResInfo_ResUsed", Aptechka.LibResInfo_ResExpired)
+        end
     end
 
     if config.enableAbsorbBar then
@@ -378,6 +388,48 @@ end
 -- end
 
 
+function Aptechka.LibResInfo_ResCastStarted(event, dstUnit, dstGUID, srcUnit, srcGUID, endTime)
+    local rosterunit = Roster[dstUnit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
+        if not self.jobs[config.ResIncomingStatus.name] then
+            config.ResIncomingStatus.expirationTime = endTime
+            FrameSetJob(self, config.ResIncomingStatus, true)
+        end
+    end
+end
+
+function Aptechka.LibResInfo_ResCastFinished(event, dstUnit, dstGUID)
+--or cancelled
+    local rosterunit = Roster[dstUnit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
+        if LRI:UnitHasIncomingRes(dstUnit) then
+            config.ResIncomingStatus.expirationTime = endTime
+            FrameSetJob(self, config.ResIncomingStatus, true)
+        else
+            FrameSetJob(self, config.ResIncomingStatus, false)
+        end
+    end
+end
+
+function Aptechka.LibResInfo_ResPending(event, dstUnit, dstGUID)
+    local rosterunit = Roster[dstUnit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
+        FrameSetJob(self, config.ResPendingStatus, true)
+    end
+end
+function Aptechka.LibResInfo_ResExpired(event, dstUnit, dstGUID)
+    local rosterunit = Roster[dstUnit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
+        FrameSetJob(self, config.ResPendingStatus, False)
+    end
+end
+
+
+
 function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     local rosterunit = Roster[unit]
     if not rosterunit then return end
@@ -412,7 +464,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
                 Aptechka.ScanDispels(unit)
                 SetJob(unit, config.GhostStatus, false)
                 SetJob(unit, config.DeadStatus, false)
-                SetJob(unit, config.ResurrectStatus, false)
+                -- SetJob(unit, config.ResurrectStatus, false)
                 if self.OnAlive then self:OnAlive() end
             end
         end
@@ -642,14 +694,14 @@ function Aptechka.RAID_TARGET_UPDATE(self, event)
 end
 
 
-function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
-    -- print(event, unit)
-    if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
-        -- print(unit,UnitHasIncomingResurrection(unit))
-        SetJob(unit, config.ResurrectStatus, UnitHasIncomingResurrection(unit))
-    end
-end
+-- function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
+--     -- print(event, unit)
+--     if not Roster[unit] then return end
+--     for self in pairs(Roster[unit]) do
+--         -- print(unit,UnitHasIncomingResurrection(unit))
+--         SetJob(unit, config.ResurrectStatus, UnitHasIncomingResurrection(unit))
+--     end
+-- end
 
 --Target Indicator
 function Aptechka.PLAYER_TARGET_CHANGED(self, event)
@@ -1336,5 +1388,35 @@ function Aptechka.SlashCmd(msg)
         else AptechkaDB_Global.charspec[user] = true
         end
         print (AptechkaString..(AptechkaDB_Global.charspec[user] and "Enabled" or "Disabled").." character specific options for this toon. Will take effect after ui reload",0.7,1,0.7)
+    end
+
+    if k == "roles" then
+        local empty1 = { name = "Empty", color = {0,0,0,0}, assignto = {"dicon1"}, priority = 999}
+        local empty2 = { name = "Empty", color = {0,0,0,0}, assignto = {"dicon2"}, priority = 999}
+        local empty3 = { name = "Empty", color = {0,0,0,0}, assignto = {"dicon3"}, priority = 999}
+        local leader = { name = "PartyLeader", color = {1,1,0,0}, assignto = {"dicon2"},  texture = "Interface\\Icons\\Ability_Mage_LivingBomb", priority = 999}
+        local RoleStatus = {
+            ["TANK"] = { name = "TankRole", color = {.5,.5,1,0}, assignto = {"dicon1"}, texture = "Interface\\Icons\\INV_Cloudserpent_Egg_Blue", priority = 999},
+            ["HEALER"] = { name = "HealerRole", color = {.5,1,.5,0}, assignto = {"dicon1"}, texture = "Interface\\Icons\\INV_Cloudserpent_Egg_Green", priority = 999},
+            ["DAMAGER"] = { name = "DamagerRole", color = {.5,1,.5,0}, assignto = {"dicon1"}, texture = "Interface\\Icons\\INV_Cloudserpent_Egg_Red", priority = 999},
+            ["NONE"] = empty1,
+        }
+        for unit, frames in pairs(Roster) do
+            local j1 = RoleStatus[UnitGroupRolesAssigned(unit)]
+            print(j1.name)
+            local j2 = UnitIsGroupLeader(unit) and leader or empty2
+            local j3 = empty3
+            -- if IsInRaid() and string.find(unit, "raid") then
+                -- local raidIndex = tonumbre(string.match(unit, "(%d+)"))
+                -- local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, loot = GetRaidRosterInfo(raidIndex)
+                -- if loot then j3 =
+            
+
+            for self in pairs(frames) do
+                FrameSetJob(self, j1, true)
+                FrameSetJob(self, j2, true)
+                FrameSetJob(self, j3, true)
+            end
+        end
     end
 end

@@ -19,6 +19,7 @@ AptechkaDefaultConfig.MapIDs = {
     [896] = "MogushanVaults",
     [897] = "Heart of Fear",
     [886] = "Terrace of Endless Spring",
+    [930] = "Throne of Thunder",
 }
 
 local A = helpers.AddAura
@@ -30,6 +31,25 @@ local healred = { 147/255, 54/255, 115/255 }
 AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bossdebuff" }, color = color1, priority = 40, pulse = true }
 
 AptechkaDefaultConfig.LoadableDebuffs = {
+    ["Throne of Thunder"] = function()
+        A{ id = 138006, prototype = AptechkaUserConfig.BossDebuffPrototype } --Electrified Waters
+        A{ id = 137399, prototype = AptechkaUserConfig.BossDebuffPrototype } --Focused Lightning 
+        A{ id = 138732, prototype = AptechkaUserConfig.BossDebuffPrototype } --Ionization
+        A{ id = 138349, prototype = AptechkaUserConfig.BossDebuffPrototype } --Static Wound 
+        A{ id = 137371, prototype = AptechkaUserConfig.BossDebuffPrototype } --Thundering Throw 
+        A{ id = 136769, prototype = AptechkaUserConfig.BossDebuffPrototype } --Charge
+        A{ id = 136767, prototype = AptechkaUserConfig.BossDebuffPrototype } --Triple Puncture 
+        A{ id = 136708, prototype = AptechkaUserConfig.BossDebuffPrototype } --Stone Gaze
+        A{ id = 136723, prototype = AptechkaUserConfig.BossDebuffPrototype } --Sand Trap
+        A{ id = 136587, prototype = AptechkaUserConfig.BossDebuffPrototype } --Venom Bolt Volley (dispellable)
+        A{ id = 136710, prototype = AptechkaUserConfig.BossDebuffPrototype } --Deadly Plague 
+        A{ id = 136670, prototype = AptechkaUserConfig.BossDebuffPrototype } --Mortal Strike
+        A{ id = 136573, prototype = AptechkaUserConfig.BossDebuffPrototype } --Frozen Bolt (Debuff used by frozen orb)
+        A{ id = 136512, prototype = AptechkaUserConfig.BossDebuffPrototype } --Hex of Confusion
+        A{ id = 136719, prototype = AptechkaUserConfig.BossDebuffPrototype } --Blazing Sunlight
+        A{ id = 136654, prototype = AptechkaUserConfig.BossDebuffPrototype } --Rending Charge
+        A{ id = 140946, prototype = AptechkaUserConfig.BossDebuffPrototype } --Dire Fixation (Heroic Only)
+    end,
     ["Terrace of Endless Spring"] = function()
         A{ id = 111850, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Prison
     end,
