@@ -406,8 +406,13 @@ local SetJob_Text2 = function(self,job) -- text2 is always green
         self:SetTextColor(unpack(c))
     end
 end
-    local Text3_OnUpdate = function(self,time)
-        self.text:SetText(string.format("%.1f",self.text.expirationTime - GetTime()))
+    local Text3_OnUpdate = function(t3frame,time)
+        local remains = t3frame.text.expirationTime - GetTime()
+        if remains >= 0 then
+            t3frame.text:SetText(string.format("%.1f", remains))
+        else
+            t3frame:SetScript("OnUpdate", nil)
+        end
     end
     local Text3_HideFunc = function(self)
         self.frame:SetScript("OnUpdate",nil)
@@ -419,7 +424,11 @@ local SetJob_Text3 = function(self,job) -- text2 is always green
         -- self.startTime = job.startTime
     -- end
     self.expirationTime = job.expirationTime
-    self.frame:SetScript("OnUpdate",Text3_OnUpdate) --.frame is for text3 container
+    if self.expirationTime then
+        self.frame:SetScript("OnUpdate",Text3_OnUpdate) --.frame is for text3 container
+    else
+        self.frame:SetScript("OnUpdate",nil)
+    end
     
     local c
     if job.color then
