@@ -332,7 +332,6 @@ AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 local DebuffTypeColor = DebuffTypeColor
 local function SetJob_DebuffIcon(self, job)
     SetJob_Icon(self, job)
-    print(job.texture)
     local color = job.color
     if color then
         self.debuffTypeTexture:SetVertexColor(color[1], color[2], color[3], color[4] or 0.6)

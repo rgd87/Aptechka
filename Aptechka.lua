@@ -421,6 +421,7 @@ function Aptechka.LibResInfo_ResPending(event, dstUnit, dstGUID)
     local rosterunit = Roster[dstUnit]
     if not rosterunit then return end
     for self in pairs(rosterunit) do
+        FrameSetJob(self, config.ResIncomingStatus, false)
         FrameSetJob(self, config.ResPendingStatus, true)
     end
 end
@@ -428,7 +429,8 @@ function Aptechka.LibResInfo_ResExpired(event, dstUnit, dstGUID)
     local rosterunit = Roster[dstUnit]
     if not rosterunit then return end
     for self in pairs(rosterunit) do
-        FrameSetJob(self, config.ResPendingStatus, False)
+        FrameSetJob(self, config.ResIncomingStatus, false)
+        FrameSetJob(self, config.ResPendingStatus, false)
     end
 end
 
@@ -468,7 +470,8 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
                 Aptechka.ScanDispels(unit)
                 SetJob(unit, config.GhostStatus, false)
                 SetJob(unit, config.DeadStatus, false)
-                -- SetJob(unit, config.ResurrectStatus, false)
+                SetJob(unit, config.ResPendingStatus, false)
+                SetJob(unit, config.ResIncomingStatus, false)
                 if self.OnAlive then self:OnAlive() end
             end
         end
