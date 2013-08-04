@@ -1,6 +1,6 @@
 local _, helpers = ...
 local _, playerClass = UnitClass("player")
-local isHealer = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "DRUID")
+local isHealer = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "DRUID" or playerClass == "MONK")
 local A = helpers.AddAura
 local DT = helpers.AddDispellType
 local D = helpers.AddDebuff

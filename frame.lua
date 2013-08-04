@@ -291,6 +291,9 @@ local SetJob_Icon = function(self,job)
     if self.stacktext then
         if job.stacks then self.stacktext:SetText(job.stacks > 1 and job.stacks or "") end
     end
+    if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
+        if not self.pulse:IsPlaying() then self.pulse:Play() end
+    end
 end
 local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     local icon = CreateFrame("Frame",nil,parent)
@@ -311,6 +314,19 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     icd:SetReverse(true)
     icd:SetAllPoints(icontex)
     icon.cd = icd
+
+    local pag = icon:CreateAnimationGroup()
+    local pa1 = pag:CreateAnimation("Scale")
+    pa1:SetScale(2,2)
+    pa1:SetDuration(.2)
+    pa1:SetOrder(1)
+    local pa2 = pag:CreateAnimation("Scale")
+    pa2:SetScale(.5,.5)
+    pa2:SetDuration(.8)
+    -- pa2:SetSmoothing("OUT")
+    pa2:SetOrder(2)
+
+    icon.pulse = pag
     
     local stacktext = icon:CreateFontString(nil,"OVERLAY")
     if AptechkaUserConfig.font then
@@ -352,10 +368,12 @@ local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
 
     icon.texture:SetTexCoord(.2, .8, .2, .8)
     
-    local dttex = icon:CreateTexture(nil, "ARTWORK")
+    local dttex = icon:CreateTexture(nil, "ARTWORK", nil, -2)
     dttex:SetTexture("Interface\\Addons\\Aptechka\\white")
-    dttex:SetPoint("TOPLEFT", icon, "TOPRIGHT", h-w, 0) -- filling all the space left from icon
-    dttex:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT",0,0)
+    dttex:SetWidth(h)
+    dttex:SetHeight(h)
+    dttex:SetPoint("TOPRIGHT", icon, "TOPRIGHT", 0, 0)
+    -- dttex:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT",0,0)
     icon.debuffTypeTexture = dttex
 
     -- icon:SetBackdrop{
