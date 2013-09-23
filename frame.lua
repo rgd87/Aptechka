@@ -291,9 +291,9 @@ local SetJob_Icon = function(self,job)
     if self.stacktext then
         if job.stacks then self.stacktext:SetText(job.stacks > 1 and job.stacks or "") end
     end
-    if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
-        if not self.pulse:IsPlaying() then self.pulse:Play() end
-    end
+    -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
+        -- if not self.pulse:IsPlaying() then self.pulse:Play() end
+    -- end
 end
 local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     local icon = CreateFrame("Frame",nil,parent)
@@ -327,8 +327,10 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     pa2:SetOrder(2)
 
     icon.pulse = pag
-    
+
     local stacktext = icon:CreateFontString(nil,"OVERLAY")
+    -- stacktext:SetWidth(w)
+    -- stacktext:SetHeight(h)
     if AptechkaUserConfig.font then
         stacktext:SetFont(AptechkaUserConfig.font,10,"OUTLINE")
     else
@@ -336,6 +338,8 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     end
     stacktext:SetJustifyH"RIGHT"
     stacktext:SetPoint("BOTTOMRIGHT",icon,"BOTTOMRIGHT",0,0)
+    -- /script NugRaid1UnitButton1.dicon1:Show(); NugRaid1UnitButton1.dicon1.stacktext:Show(); NugRaid1UnitButton1.dicon1.stacktext:SetText"3"
+    -- stacktext:SetPoint("TOPLEFT",icon,"TOPLEFT",-w,h)
     stacktext:SetTextColor(1,1,1)
     icon.stacktext = stacktext
     icon.SetJob = SetJob_Icon
