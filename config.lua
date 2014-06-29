@@ -159,7 +159,7 @@ if playerClass == "PRIEST" then
 end
 
 if playerClass == "MONK" then
-    A{ id = 119611, type = "HELPFUL", assignto = { "spell2" }, color = {38/255, 221/255, 163/255} } --Renewing Mist
+    A{ id = 119611, type = "HELPFUL", assignto = { "spell2" }, color = {38/255, 221/255, 163/255}, showDuration = true } --Renewing Mist
     A{ id = 132120, type = "HELPFUL", assignto = { "spell3" }, showDuration = true, color = {38/255, 221/255, 163/255}, priority = 92 } --Enveloping Mist
 
     A{ id = 115175, type = "HELPFUL", assignto = { "bar1" }, showDuration = true, color = { 0, .8, 0}, priority = 92 } --Soothing Mist
