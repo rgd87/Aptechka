@@ -122,16 +122,14 @@ if playerClass == "PRIEST" then
     
     A{ id = 139,   type = "HELPFUL", assignto = { "bar1" }, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true } --Renew
     A{ id = 88684, type = "HELPFUL", assignto = { "spell3" }, priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Serenity
-    A{ id = 77613, type = "HELPFUL", assignto = { "spell3" }, priority = 75, showDuration = true, stackcolor = {
-                                                                            [1] = {0.4,0.5,1},
-                                                                            [2] = {0.5,0.7,1},
-                                                                            [3] = {0.7,0.8,1},
-                                                                        }} --Grace
-    A{ id = 7001,  type = "HELPFUL", assignto = { "bar1" }, priority = 62, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
-    A{ id = 126154,type = "HELPFUL", assignto = { "bar1" }, priority = 62, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightspring
+    -- A{ id = 7001,  type = "HELPFUL", assignto = { "bar2" }, priority = 65, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
+    A{ id = 126154,type = "HELPFUL", assignto = { "bar1" }, priority = 62, color = { 1, 1, 0}, showDuration = true, isMine } --Lightspring
+
     A{ id = 17,    type = "HELPFUL", assignto = { "spell2" }, color = { 1, .85, 0}, showDuration = true } --Power Word: Shield
-    A{ id = 114908,type = "HELPFUL", assignto = { "bar1" }, priority = 82, color = { 188/255, 37/255, 186/255 }, foreigncolor = { 164/255, 125/255, 169/255}, showDuration = true } --Spirit Shell absorb
     A{ id = 6788,  type = "HARMFUL", assignto = { "spell2" }, color = { 0.6, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul
+    A{ id = 152118,type = "HELPFUL", assignto = { "bar1" }, priority = 90, color = { 1, .65, 0}, showDuration = true } --Clarity of WIll
+
+    A{ id = 114908,type = "HELPFUL", assignto = { "bar1" }, priority = 82, color = { 188/255, 37/255, 186/255 }, foreigncolor = { 164/255, 125/255, 169/255}, showDuration = true } --Spirit Shell absorb
     A{ id = 41635, type = "HELPFUL", assignto = { "spell3" }, priority = 70, foreigncolor = { 164/255, 125/255, 169/255 },
                                                                         stackcolor =   {
                                                                             [1] = { 1, 0, 0},
@@ -160,14 +158,17 @@ end
 
 if playerClass == "MONK" then
     A{ id = 119611, type = "HELPFUL", assignto = { "spell2" }, color = {38/255, 221/255, 163/255}, showDuration = true } --Renewing Mist
-    A{ id = 132120, type = "HELPFUL", assignto = { "spell3" }, showDuration = true, color = {38/255, 221/255, 163/255}, priority = 92 } --Enveloping Mist
+    A{ id = 132120, type = "HELPFUL", assignto = { "bar2" }, showDuration = true, color = {38/255, 221/255, 163/255}, priority = 92 } --Enveloping Mist
 
     A{ id = 115175, type = "HELPFUL", assignto = { "bar1" }, showDuration = true, color = { 0, .8, 0}, priority = 92 } --Soothing Mist
+    A{ id = 125950, type = "HELPFUL", assignto = { "spell3" }, priority = 60, color = { 0, .4, 0} } --Statue's Soothing Mist
 
     A{ id = 124081, type = "HELPFUL", assignto = { "spell3" }, showDuration = true, color = {0.7,0.8,1}, priority = 88 } --Zen Sphere
 
-    Trace{id = 115464, type = "HEAL", assignto = { "spell3" }, color = { 1, .7, .2}, fade = 0.7, priority = 96 } -- Light of Dawn
-    Trace{id = 116670, type = "HEAL", assignto = { "spell3" }, color = { 1, .7, .2}, fade = 0.7, priority = 96 } -- Light of Dawn
+    Trace{id = 116670, type = "HEAL", assignto = { "spell3" }, color = { 1, .7, .2}, fade = 0.7, priority = 96 } -- Uplift
+
+    A{ id = 157627, type = "HELPFUL", assignto = { "bar2" }, showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
+    
 
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(115450),unit) == 1) end
             --// Use Detox for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
@@ -182,15 +183,25 @@ end
 if playerClass == "PALADIN" then
     --A{ id = 20217, type = "HELPFUL", assignto = { "raidbuff" }, color = { .6 , .3, 1}, isMissing = true } --Blessing of Kings
     --A{ id = 19740, type = "HELPFUL", assignto = { "raidbuff" }, color = { 1 , 0.5, 0.3}, isMissing = true } --Blessing of Might
-    A{ id = 114163, type = "HELPFUL", assignto = { "spell3" }, color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true } --Eternal Flame
+    A{ id = 156322, type = "HELPFUL", assignto = { "spell3" }, color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true } --Eternal Flame
     A{ id =114917,  type = "HELPFUL", assignto = { "bar1" }, showDuration = true, isMine = true, color = { 1 , .9, 0} } --Stay of Execution
     A{ id = 53563, type = "HELPFUL", assignto = { "raidbuff" }, showDuration = true,
                                                                             isMine = true,
                                                                             color = { 0,.9,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
-                                                                        } -- Beacon
+                                                                        } -- Beacon of Light
+
+    A{ id = 156910, type = "HELPFUL", assignto = { "raidbuff" }, showDuration = true,
+                                                                            isMine = true,
+                                                                            color = { 1,.7,0 },
+                                                                            foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
+                                                                        } -- Beacon of Faith
+    A{ id = 157007,  type = "HELPFUL", assignto = { "spell3" }, priority = 80, showDuration = true, isMine = true, color = {0.5,0.7,1} } --Stay of Execution                                                                    
                                                                         
     Trace{id = 85222, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Light of Dawn
+
+    A{ id = 157128, type = "HELPFUL", assignto = { "icon" }, showDuration = true } --Saved by the Light
+
     -- Trace{id = 82327, type = "HEAL", assignto = { "spell3" }, color = { .8, .5, 1}, fade = 0.7, priority = 96 } -- Holy Radiance
     -- Trace{id =121129, type = "HEAL", assignto = { "spell3" }, color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
 
@@ -225,7 +236,6 @@ if playerClass == "SHAMAN" then
                                                                         
     Trace{id = 1064, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = { "spell3" }, color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
-    Trace{id = 52752, type = "HEAL", assignto = { "spell3" }, color = { 1, 0.6, 0.6 }, fade = 0.7, priority = 95 } -- Ancestral Awakening
                                                                         
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(8004),unit) == 1) end
             --// Use Healing Surge for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
@@ -238,12 +248,9 @@ if playerClass == "DRUID" then
     
     A{ id = 102351, type = "HELPFUL", assignto = { "spell3" }, priority = 70, color = {38/255, 221/255, 163/255} }
     A{ id = 774,   type = "HELPFUL", assignto = { "bar1"}, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true } --Rejuvenation
+    A{ id = 155777,type = "HELPFUL", assignto = { "bar2"}, pulse = true, color = { 1, 0.4, 1}, showDuration = true, isMine = true } --Germination
     --A{ id = 8936,  type = "HELPFUL", assignto = { "topright" }, priority = 82, color = { 198/255, 233/255, 80/255}, showDuration = true, isMine = true } --Regrowth
-    A{ id = 33763, type = "HELPFUL", assignto = { "spell2","text3" }, showDuration = true, isMine = true, stackcolor = {
-                                                                            [1] = { 0, 0.8, 0},
-                                                                            [2] = { 0.2, 1, 0.2},
-                                                                            [3] = { 0.5, 1, 0.5},
-                                                                        }} --Lifebloom
+    A{ id = 33763, type = "HELPFUL", assignto = { "spell2","text3","dispel" }, showDuration = true, isMine = true, color = { 0.5, 1, 0.5}, } --Lifebloom
     A{ id = 48438, type = "HELPFUL", assignto = { "spell3" }, color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true } --Wild Growth
     
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(774),unit) == 1) end

@@ -100,6 +100,11 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     f.color = t
     local icd = CreateFrame("Cooldown",nil,f)
     icd.noCooldownCount = true -- disable OmniCC for this cooldown
+    icd:SetEdgeTexture("Interface\\Cooldown\\edge");
+    icd:SetSwipeColor(0, 0, 0);
+    -- icd:SetDrawEdge(true);
+    -- icd:SetDrawSwipe(true);
+    icd:SetHideCountdownNumbers(true);
     icd:SetReverse(true)
     icd:SetAllPoints(f)
     f.cd = icd
@@ -154,13 +159,21 @@ local SetJob_Corner = function(self,job)
         if not self.pulse:IsPlaying() then self.pulse:Play() end
     end
 end
-local CreateCorner = function (parent,w,h,point,frame,to,x,y,nobackdrop)
+local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation)
     local f = CreateFrame("Frame",nil,parent)
     f:SetWidth(w); f:SetHeight(h);
 
     f:SetFrameLevel(5)
     local t = f:CreateTexture(nil,"ARTWORK")
     t:SetTexture[[Interface\AddOns\Aptechka\corner]]
+    if orientation == "BOTTOMLEFT" then
+        -- (ULx,ULy,LLx,LLy,URx,URy,LRx,LRy); 
+        t:SetTexCoord(1,0,1,1,0,0,0,1)
+    elseif orientation == "TOPRIGHT" then
+        t:SetTexCoord(0,1,0,0,1,1,1,0)
+    elseif orientation == "TOPLEFT" then
+        t:SetTexCoord(1,1,0,1,1,0,0,0)
+    end
     t:SetAllPoints(f)
 
     if point == "TOPRIGHT" then
@@ -688,9 +701,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
     local text3 = CreateTextTimer(self,"TOPLEFT",self,"TOPLEFT",-2,0,"LEFT",fontsize-3,font,"OUTLINE")
 
-    local bar1 = CreateStatusBar(self, 19, 7, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
+    local bar1 = CreateStatusBar(self, 19, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
+    local bar2 = CreateStatusBar(self, 19, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)
 
-    local brcorner = CreateCorner(self, 17, 17, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
+    -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
+    local blcorner = CreateCorner(self, 20, 20, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0, "BOTTOMLEFT") --last arg changes orientation
 
     self.dicon1 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
     self.dicon2 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
@@ -712,10 +727,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.spell4 = btm
     self.spell5 = left
     self.bar1 = bar1
+    self.bar2 = bar2
     self.raidbuff = tl
     self.border = border
-    self.bossdebuff = brcorner
-    self.dispel = brcorner
+    self.bossdebuff = blcorner
+    self.dispel = blcorner
     self.icon = icon
     self.raidicon = raidicon
     self.absorb = absorb

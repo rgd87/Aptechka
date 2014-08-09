@@ -1,6 +1,13 @@
 local _, helpers = ...
 local config
 
+local _GetSpellInfo = GetSpellInfo
+local GetSpellInfo = function(...)
+    local name = _GetSpellInfo(...)
+    if name == "" then return nil end
+    return _GetSpellInfo(...)
+end
+
 helpers.AddDispellType = function(dtype, data)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not config.DebuffTypes then config.DebuffTypes = {} end
@@ -24,6 +31,7 @@ helpers.AddDispellType = function(dtype, data)
 end
 helpers.AddAura = function (data, todefault)
     if AptechkaUserConfig and not todefault then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
+
     if data.id then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
     -- if data.isMine then data.type = data.type.."|PLAYER" end
@@ -46,7 +54,7 @@ helpers.AddTrace = function(data)
     if data.id then data.name = GetSpellInfo(data.id) or data.name end
     data.type = "SPELL_"..data.type
     if not config.TraceHeals then config.TraceHeals = {} end
-    if not data.name then print("id or name required") return end
+    if not data.name then print((data.id or "nil").."id or name required") return end
     data.actualname = data.name
     data.name = data.actualname.."Trace"
     config.TraceHeals[data.actualname] = data
