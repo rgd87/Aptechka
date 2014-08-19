@@ -1,12 +1,6 @@
 local _, helpers = ...
 local config
 
-local _GetSpellInfo = GetSpellInfo
-local GetSpellInfo = function(...)
-    local name = _GetSpellInfo(...)
-    if name == "" then return nil end
-    return _GetSpellInfo(...)
-end
 
 helpers.AddDispellType = function(dtype, data)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
