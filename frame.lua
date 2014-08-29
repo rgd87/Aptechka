@@ -70,13 +70,19 @@ local SetJob_Indicator = function(self,job)
             end
         end
         self.traceJob = job
-        if job.noshine then
-            self.blink.a2:SetChange(1)
-        else
+        -- if job.noshine then
+        --     self.blink.a2:SetChange(1)
+        -- else
             self.blink.a2:SetChange(-1)
-        end
+        -- end
         self.blink.a2:SetDuration(job.fade)
         self.blink:Play()
+    else
+        if self.traceJob then
+            self.jobs[self.traceJob] = nil
+            self.blink:Stop()
+            self.traceJob = nil
+        end
     end
     if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
         if not self.pulse:IsPlaying() then self.pulse:Play() end
