@@ -638,9 +638,10 @@ function Aptechka.UI_ERROR_MESSAGE(self, event, errmsg)
 end
 
 -- maintanks, resize
-function Aptechka.CheckLFDTank( self,unit )
-    if not config.MainTankStatus then return end
-    SetJob(unit, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
+function Aptechka.CheckRoles( self,unit )
+    if config.MainTankStatus then
+        SetJob(unit, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
+    end
 end
 
 function Aptechka.SetScale(self, scale)
@@ -668,6 +669,35 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
         end
     else
         self:RegisterEvent("PLAYER_REGEN_ENABLED")
+    end
+
+    for unit, frames in pairs(Roster) do
+        for self in pairs(frames) do
+            if config.MainTankStatus then
+                FrameSetJob(self, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
+            end
+
+            if config.displayRoles then
+                local isLeader = UnitIsGroupLeader(unit)
+                local role = UnitGroupRolesAssigned(unit)
+                self.text3:SetFormattedText("%s%s", isLeader and "L" or "",
+                    (role == "HEALER" and "|cff88ff88H|r") or
+                    (role == "TANK" and "|cff8888ffH|r") or ""
+                )
+
+                -- local icon = self.roleicon.texture
+                -- if icon then
+                    -- if UnitGroupRolesAssigned(unit) == "HEALER" then
+                    --     icon:SetTexCoord(0, 0.25, 0, 1); icon:Show()
+                    --     self.text3:SetFormattedText("L/H")
+                    -- elseif UnitGroupRolesAssigned(unit) == "TANK" then
+                    --     icon:SetTexCoord(0.25, 0.5, 0, 1); icon:Show()
+                    -- else
+                    --     icon:Hide()
+                    -- end
+                -- end
+            end
+        end
     end
 end
 Aptechka.SPELLS_CHANGED = Aptechka.GROUP_ROSTER_UPDATE
@@ -831,7 +861,7 @@ local OnAttributeChanged = function(self, attrname, unit)
     if config.enableVehicleSwap and UnitHasVehicleUI(owner) then
         Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
     end
-    Aptechka:CheckLFDTank(unit)
+    Aptechka:CheckRoles(unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end    
 end
 

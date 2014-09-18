@@ -260,7 +260,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         A{ id = 47788, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Guardian Spirit
             
         A{ id = 12975, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 85 } --Last Stand
-        A{ id = 106922,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 85 } --Might of Ursoc
+        -- A{ id = 106922,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 85 } --Might of Ursoc
     end,
 
     ['HealingReduction'] = function()

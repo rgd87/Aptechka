@@ -57,6 +57,7 @@ config.registerForClicks = { "AnyUp" }
 config.enableIncomingHeals = true
 config.incomingHealThreshold = 15000
 config.incomingHealIgnorePlayer = false
+config.displayRoles = true
 config.enableTraceHeals = true
 config.enableVehicleSwap = true
 config.enableAbsorbBar = true
@@ -100,7 +101,7 @@ config.HealthBarColor = { name = "HealthBar", assignto = { "health" }, color = {
 config.PowerBarColor = { name = "PowerBar", assignto = { "power" }, color = {.5,.5,1}, priority = 20 }
 config.OutOfRangeStatus = { name = "OOR", assignto = { "self" }, color = {0.5,0.5,0.5}, alpha = 0.3, text = "OOR", priority = 50 }
 config.InVehicleStatus = { name = "InVehicle", assignto = { "border" }, color = {0.3,1,0.3}, priority = 21 }
-config.LOSStatus = { name = "OutOfSight", assignto = { "spell2", "dispel" }, color = {1,0.1,0.1}, priority = 95, fade = 1.0 }
+config.LOSStatus = { name = "OutOfSight", assignto = { "spell2" }, color = {1,0.1,0.1}, priority = 95, fade = 1.0 }
 
 -- default priority is 80
 
@@ -149,6 +150,8 @@ if playerClass == "PRIEST" then
     -- Trace{id = 94472, type = "HEAL", minamount = 10000, assignto = { "spell3" }, color = { .2, 1, .2}, fade = .5, priority = 90 } -- Atonement
     Trace{id = 34861, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
     Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { .3, 1, .3}, fade = 1.5, priority = 97 } -- PoM Trace
+
+    -- Trace{id = 47750, type = "HEAL", assignto = { "spell2", "spell3" }, color = { .3, 1, .3}, fade = 1.5, priority = 97 } -- PoM Trace
                                                                         
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(2061),unit) == 1) end
             --// Use Flash Heal for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
@@ -250,7 +253,7 @@ if playerClass == "DRUID" then
     A{ id = 774,   type = "HELPFUL", assignto = { "bar1"}, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true } --Rejuvenation
     A{ id = 155777,type = "HELPFUL", assignto = { "bar2"}, pulse = true, color = { 1, 0.4, 1}, showDuration = true, isMine = true } --Germination
     --A{ id = 8936,  type = "HELPFUL", assignto = { "topright" }, priority = 82, color = { 198/255, 233/255, 80/255}, showDuration = true, isMine = true } --Regrowth
-    A{ id = 33763, type = "HELPFUL", assignto = { "spell2","text3" }, showDuration = true, isMine = true, color = { 0.5, 1, 0.5}, } --Lifebloom
+    A{ id = 33763, type = "HELPFUL", assignto = { "spell2" }, showDuration = true, isMine = true, color = { 0.5, 1, 0.5}, } --Lifebloom
     A{ id = 48438, type = "HELPFUL", assignto = { "spell3" }, color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true } --Wild Growth
     
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(774),unit) == 1) end
