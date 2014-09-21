@@ -685,17 +685,18 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
                     (role == "TANK" and "|cff8888ffT|r") or ""
                 )
 
-                -- local icon = self.roleicon.texture
-                -- if icon then
-                    -- if UnitGroupRolesAssigned(unit) == "HEALER" then
-                    --     icon:SetTexCoord(0, 0.25, 0, 1); icon:Show()
-                    --     self.text3:SetFormattedText("L/H")
-                    -- elseif UnitGroupRolesAssigned(unit) == "TANK" then
-                    --     icon:SetTexCoord(0.25, 0.5, 0, 1); icon:Show()
-                    -- else
-                    --     icon:Hide()
-                    -- end
-                -- end
+                local icon = self.roleicon.texture
+                if icon then
+                    if UnitGroupRolesAssigned(unit) == "HEALER" then
+                        -- icon:SetTexCoord(0, 0.25, 0, 1); icon:Show()
+                        icon:SetTexCoord(GetTexCoordsForRoleSmallCircle("HEALER")); icon:Show()
+                    elseif UnitGroupRolesAssigned(unit) == "TANK" then
+                        -- icon:SetTexCoord(0.25, 0.5, 0, 1); icon:Show()
+                        icon:SetTexCoord(GetTexCoordsForRoleSmallCircle("TANK")); icon:Show()
+                    else
+                        icon:Hide()
+                    end
+                end
             end
         end
     end

@@ -708,15 +708,15 @@ AptechkaDefaultConfig.GridSkin = function(self)
     raidicon.texture = raidicontex
     raidicon:SetAlpha(0.3)
 
-    -- local roleicon = CreateFrame("Frame",nil,self)
-    -- roleicon:SetWidth(11); roleicon:SetHeight(11)
-    -- roleicon:SetPoint("BOTTOMLEFT",hp,"CENTER",-20,-23)
-    -- local roleicontex = roleicon:CreateTexture(nil,"OVERLAY")
-    -- roleicontex:SetAllPoints(roleicon)
-    -- roleicontex:SetTexture("Interface\\AddOns\\Aptechka\\roles")
-    -- roleicontex:SetTexCoord(0.25, 0.5, 0,1)
+    local roleicon = CreateFrame("Frame",nil,self)
+    roleicon:SetWidth(11); roleicon:SetHeight(11)
+    roleicon:SetPoint("BOTTOMLEFT",hp,"CENTER",-20,-23)
+    local roleicontex = roleicon:CreateTexture(nil,"OVERLAY")
+    roleicontex:SetAllPoints(roleicon)
+    roleicontex:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES"); --("Interface\\AddOns\\Aptechka\\roles")
+    roleicontex:SetTexCoord(GetTexCoordsForRoleSmallCircle("TANK"));--(0.25, 0.5, 0,1)
     -- roleicontex:SetVertexColor(0,0,0,0.2)
-    -- roleicon.texture = roleicontex
+    roleicon.texture = roleicontex
     
     local topind = CreateIndicator(self,10,10,"TOP",self,"TOP",0,0)
     local tr = CreateIndicator(self,7,7,"TOPRIGHT",self,"TOPRIGHT",0,0)
@@ -759,7 +759,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.dispel = blcorner
     self.icon = icon
     self.raidicon = raidicon
-    -- self.roleicon = roleicon
+    self.roleicon = roleicon
     self.absorb = absorb
 
     
