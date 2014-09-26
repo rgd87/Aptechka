@@ -354,7 +354,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 end
             end
         end)
-    end     
+    end 
+
+
+    self:GROUP_ROSTER_UPDATE()
 end  -- END PLAYER_LOGIN
 
 function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
@@ -680,10 +683,12 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
             if config.displayRoles then
                 local isLeader = UnitIsGroupLeader(unit)
                 local role = UnitGroupRolesAssigned(unit)
-                self.text3:SetFormattedText("%s%s", isLeader and "L" or "",
-                    (role == "HEALER" and "|cff88ff88H|r") or
-                    (role == "TANK" and "|cff8888ffT|r") or ""
-                )
+
+                FrameSetJob(self, config.LeaderStatus, isLeader)  
+                -- self.text3:SetFormattedText("%s%s", isLeader and "L" or "",
+                    -- (role == "HEALER" and "|cff88ff88H|r") or
+                    -- (role == "TANK" and "|cff8888ffT|r") or ""
+                -- )
 
                 local icon = self.roleicon.texture
                 if icon then

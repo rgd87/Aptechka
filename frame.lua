@@ -478,6 +478,10 @@ local SetJob_Text3 = function(self,job)
     else
         self.frame:SetScript("OnUpdate",nil)
     end
+
+    if job.text then
+        self:SetText(job.text)
+    end
     
     local c
     if job.color then
@@ -710,7 +714,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local roleicon = CreateFrame("Frame",nil,self)
     roleicon:SetWidth(11); roleicon:SetHeight(11)
-    roleicon:SetPoint("BOTTOMLEFT",hp,"CENTER",-20,-23)
+    -- roleicon:SetPoint("BOTTOMLEFT",hp,"CENTER",-20,-23)
+    -- roleicon:SetPoint("TOPLEFT",hp,"TOPLEFT",1,-8)
+    roleicon:SetPoint("BOTTOMLEFT",hp,"BOTTOMLEFT",-8, -8)
     local roleicontex = roleicon:CreateTexture(nil,"OVERLAY")
     roleicontex:SetAllPoints(roleicon)
     roleicontex:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES"); --("Interface\\AddOns\\Aptechka\\roles")
