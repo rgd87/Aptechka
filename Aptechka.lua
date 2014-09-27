@@ -355,9 +355,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             end
         end)
     end 
-
-
-    self:GROUP_ROSTER_UPDATE()
 end  -- END PLAYER_LOGIN
 
 function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
@@ -640,10 +637,34 @@ function Aptechka.UI_ERROR_MESSAGE(self, event, errmsg)
     end
 end
 
--- maintanks, resize
-function Aptechka.CheckRoles( self,unit )
+function Aptechka.CheckRoles(apt, self, unit )
+    --self is UnitButton here
     if config.MainTankStatus then
-        SetJob(unit, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
+        FrameSetJob(self, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
+    end
+
+    if config.displayRoles then
+        local isLeader = UnitIsGroupLeader(unit)
+        local role = UnitGroupRolesAssigned(unit)
+
+        FrameSetJob(self, config.LeaderStatus, isLeader)  
+        -- self.text3:SetFormattedText("%s%s", isLeader and "L" or "",
+            -- (role == "HEALER" and "|cff88ff88H|r") or
+            -- (role == "TANK" and "|cff8888ffT|r") or ""
+        -- )
+
+        local icon = self.roleicon.texture
+        if icon then
+            if UnitGroupRolesAssigned(unit) == "HEALER" then
+                -- icon:SetTexCoord(0, 0.25, 0, 1); icon:Show()
+                icon:SetTexCoord(GetTexCoordsForRoleSmallCircle("HEALER")); icon:Show()
+            elseif UnitGroupRolesAssigned(unit) == "TANK" then
+                -- icon:SetTexCoord(0.25, 0.5, 0, 1); icon:Show()
+                icon:SetTexCoord(GetTexCoordsForRoleSmallCircle("TANK")); icon:Show()
+            else
+                icon:Hide()
+            end
+        end
     end
 end
 
@@ -666,43 +687,19 @@ function Aptechka.PLAYER_REGEN_ENABLED(self,event)
     self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 end
 function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
+    --raid autoscaling
     if not InCombatLockdown() then
-        if not config.useGroupAnchors then -- config.resize and 
+        if not config.useGroupAnchors then
             Aptechka:LayoutUpdate()
         end
     else
         self:RegisterEvent("PLAYER_REGEN_ENABLED")
     end
 
+
     for unit, frames in pairs(Roster) do
-        for self in pairs(frames) do
-            if config.MainTankStatus then
-                FrameSetJob(self, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
-            end
-
-            if config.displayRoles then
-                local isLeader = UnitIsGroupLeader(unit)
-                local role = UnitGroupRolesAssigned(unit)
-
-                FrameSetJob(self, config.LeaderStatus, isLeader)  
-                -- self.text3:SetFormattedText("%s%s", isLeader and "L" or "",
-                    -- (role == "HEALER" and "|cff88ff88H|r") or
-                    -- (role == "TANK" and "|cff8888ffT|r") or ""
-                -- )
-
-                local icon = self.roleicon.texture
-                if icon then
-                    if UnitGroupRolesAssigned(unit) == "HEALER" then
-                        -- icon:SetTexCoord(0, 0.25, 0, 1); icon:Show()
-                        icon:SetTexCoord(GetTexCoordsForRoleSmallCircle("HEALER")); icon:Show()
-                    elseif UnitGroupRolesAssigned(unit) == "TANK" then
-                        -- icon:SetTexCoord(0.25, 0.5, 0, 1); icon:Show()
-                        icon:SetTexCoord(GetTexCoordsForRoleSmallCircle("TANK")); icon:Show()
-                    else
-                        icon:Hide()
-                    end
-                end
-            end
+        for frame in pairs(frames) do
+            Aptechka:CheckRoles(frame, unit)
         end
     end
 end
@@ -867,7 +864,7 @@ local OnAttributeChanged = function(self, attrname, unit)
     if config.enableVehicleSwap and UnitHasVehicleUI(owner) then
         Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
     end
-    Aptechka:CheckRoles(unit)
+    Aptechka:CheckRoles(self, unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end    
 end
 
