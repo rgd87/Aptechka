@@ -149,6 +149,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
     Aptechka.UNIT_MAXHEALTH = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
+
+    self:RegisterEvent("UNIT_PHASE")
     
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER")
@@ -476,6 +478,22 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
             end
         end
         
+    end
+end
+
+function Aptechka.UNIT_PHASE(self, event, unit)
+    -- print('unit:', unit)
+
+    for unit, frames in pairs(Roster) do
+        for frame in pairs(frames) do
+            if not UnitInPhase(unit) then
+                frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
+                frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
+                frame.centericon:Show()
+            else
+                frame.centericon:Hide()
+            end
+        end
     end
 end
 

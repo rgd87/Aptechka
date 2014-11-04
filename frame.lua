@@ -63,20 +63,25 @@ local SetJob_Indicator = function(self,job)
     self.color:SetVertexColor(unpack(color))
     
     if job.fade then
-        if self.blink:IsPlaying() then
-            self.blink:Stop()
-            if self.traceJob ~= job then
-                self.jobs[self.traceJob] = nil
+        if self.traceJob ~= job or not self.blink:IsPlaying() then
+
+
+            if self.blink:IsPlaying() then
+                self.blink:Stop()
+                if self.traceJob ~= job then
+                    self.jobs[self.traceJob] = nil
+                end
             end
+            self.traceJob = job
+            -- if job.noshine then
+            --     self.blink.a2:SetChange(1)
+            -- else
+                self.blink.a2:SetChange(-1)
+            -- end
+            self.blink.a2:SetDuration(job.fade)
+            self.blink:Play()
+
         end
-        self.traceJob = job
-        -- if job.noshine then
-        --     self.blink.a2:SetChange(1)
-        -- else
-            self.blink.a2:SetChange(-1)
-        -- end
-        self.blink.a2:SetDuration(job.fade)
-        self.blink:Play()
     else
         if self.traceJob then
             self.jobs[self.traceJob] = nil
@@ -712,6 +717,16 @@ AptechkaDefaultConfig.GridSkin = function(self)
     raidicon.texture = raidicontex
     raidicon:SetAlpha(0.3)
 
+
+    local centericon = CreateFrame("Frame",nil,self)
+    centericon:SetWidth(20); centericon:SetHeight(20)
+    centericon:SetPoint("CENTER",hp,"CENTER",0,-14)
+    centericon:SetFrameLevel(7)
+    local centericontex = centericon:CreateTexture(nil,"OVERLAY")
+    centericontex:SetAllPoints(centericon)
+    centericon.texture = centericontex
+    centericon:SetAlpha(0.4)
+
     local roleicon = CreateFrame("Frame",nil,self)
     roleicon:SetWidth(11); roleicon:SetHeight(11)
     -- roleicon:SetPoint("BOTTOMLEFT",hp,"CENTER",-20,-23)
@@ -767,6 +782,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.raidicon = raidicon
     self.roleicon = roleicon
     self.absorb = absorb
+    self.centericon = centericon
 
     
     self.OnMouseEnterFunc = OnMouseEnterFunc

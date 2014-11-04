@@ -10,6 +10,7 @@ Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\LibCombatLogHealth-1.0\LibCombatLogHealth-1.0.lua
 Libs\LibResInfo-1.0\LibResInfo-1.0.lua
+Libs\LibMapData-1.0\library.lua
 
 helpers.lua
 config.lua
