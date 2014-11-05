@@ -48,7 +48,7 @@ end
 local SetJob_Indicator = function(self,job)
     if job.showDuration then
         self.cd:SetReverse(not job.reverseDuration)
-        self.cd:SetCooldown(job.expirationTime - job.duration,job.duration)
+        self.cd:SetCooldown(job.expirationTime - job.duration,job.duration,0,0)
         self.cd:Show()
     else
         self.cd:Hide()
@@ -109,16 +109,16 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     t:SetTexture[[Interface\AddOns\Aptechka\white]]
     t:SetAllPoints(f)
     f.color = t
-    local icd = CreateFrame("Cooldown",nil,f)
+    local icd = CreateFrame("Cooldown",nil,f, "CooldownFrameTemplate")
     icd.noCooldownCount = true -- disable OmniCC for this cooldown
 
-    if select(4,GetBuildInfo()) >= 60000 then
         icd:SetEdgeTexture("Interface\\Cooldown\\edge");
         icd:SetSwipeColor(0, 0, 0);
-        -- icd:SetDrawEdge(true);
+        icd:SetDrawEdge(false);
         -- icd:SetDrawSwipe(true);
         icd:SetHideCountdownNumbers(true);
-    end
+
+
     icd:SetReverse(true)
     icd:SetAllPoints(f)
     f.cd = icd
@@ -342,9 +342,10 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     icon.texture = icontex
     icon:SetAlpha(alpha)
     
-    local icd = CreateFrame("Cooldown",nil,icon)
+    local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
     icd.noCooldownCount = true -- disable OmniCC for this cooldown
     icd:SetReverse(true)
+    icd:SetDrawEdge(false)
     icd:SetAllPoints(icontex)
     icon.cd = icd
 
