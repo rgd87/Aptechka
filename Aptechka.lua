@@ -150,7 +150,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.UNIT_MAXHEALTH = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
 
-    self:RegisterEvent("UNIT_PHASE")
+    if config.showPhaseIcon then
+        self:RegisterEvent("UNIT_PHASE")
+    else
+        Aptechka.CheckPhase = function() end
+    end
     
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER")
@@ -481,18 +485,31 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
     end
 end
 
-function Aptechka.UNIT_PHASE(self, event, unit)
-    -- print('unit:', unit)
 
-    for unit, frames in pairs(Roster) do
-        for frame in pairs(frames) do
-            if not UnitInPhase(unit) then
+function Aptechka.CheckPhase(frame, unit)
+    if not UnitInPhase(unit) and not frame.InVehicle then
+        -- not UnitGUID(unit) == UnitGUID("player")
                 frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
                 frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
                 frame.centericon:Show()
             else
                 frame.centericon:Hide()
             end
+end
+function Aptechka.CheckPhase1(unit)
+    local rosterunit = Roster[unit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
+        Aptechka.CheckPhase(self, unit)
+    end
+end
+
+function Aptechka.UNIT_PHASE(self, event, unit)
+    -- print('unit:', unit)
+
+    for unit, frames in pairs(Roster) do
+        for frame in pairs(frames) do
+            Aptechka.CheckPhase(frame,unit)
         end
     end
 end
@@ -591,6 +608,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 SetJob(self.unit,config.InVehicleStatus,true)
                 Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
                 if self.power then Aptechka:UNIT_POWER(nil,self.unit) end
+                Aptechka.CheckPhase1(self.unit)
                 Aptechka.ScanAuras(self.unit)
             end
         end
@@ -870,6 +888,7 @@ local OnAttributeChanged = function(self, attrname, unit)
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
     Aptechka:UNIT_CONNECTION(nil, owner)
+    Aptechka.CheckPhase(self, unit)
     SetJob(unit, config.ReadyCheck, false)
     if not config.disableManaBar then
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)

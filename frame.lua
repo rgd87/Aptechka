@@ -721,7 +721,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local centericon = CreateFrame("Frame",nil,self)
     centericon:SetWidth(20); centericon:SetHeight(20)
-    centericon:SetPoint("CENTER",hp,"CENTER",0,-14)
+    centericon:SetPoint("CENTER",hp,"CENTER",0,14)
     centericon:SetFrameLevel(7)
     local centericontex = centericon:CreateTexture(nil,"OVERLAY")
     centericontex:SetAllPoints(centericon)

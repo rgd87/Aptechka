@@ -242,7 +242,9 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     end,
     
     ['TankCooldowns'] = function()
+    
         A{ id = 871,   type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Shield Wall 40%
+        A{ id = 114030,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Vigilance
         A{ id = 115203,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Fortifying Brew 20% + something
         A{ id = 86659, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Guardian of Ancient Kings 50%
         -- A{ id = 498,   type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Divine Protection 40% magical
@@ -260,7 +262,6 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         A{ id = 47788, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Guardian Spirit
             
         A{ id = 12975, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 85 } --Last Stand
-        -- A{ id = 106922,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 85 } --Might of Ursoc
     end,
 
     ['HealingReduction'] = function()
