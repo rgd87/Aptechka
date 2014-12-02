@@ -125,7 +125,7 @@ if playerClass == "PRIEST" then
     --A{ id = 21562, type = "HELPFUL", assignto = { "raidbuff" }, color = { 1, 1, 1}, isMissing = true } --Power Word: Fortitude
     
     A{ id = 139,   type = "HELPFUL", assignto = { "bar1" }, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true } --Renew
-    A{ id = 88684, type = "HELPFUL", assignto = { "spell3" }, priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Serenity
+    A{ id = 88684, type = "HELPFUL", assignto = { "bar2" }, priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Serenity
     -- A{ id = 7001,  type = "HELPFUL", assignto = { "bar2" }, priority = 65, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
     A{ id = 126154,type = "HELPFUL", assignto = { "bar1" }, priority = 62, color = { 1, 1, 0}, showDuration = true, isMine } --Lightspring
 
@@ -141,7 +141,7 @@ if playerClass == "PRIEST" then
                                                                             [3] = { 1, 0, 190/255},
                                                                             [4] = { 204/255, 0, 1},
                                                                             [5] = { 108/255, 0, 1},
-                                                                        }} --Prayer of Mending
+                                                                        }, showStacks = 5} --Prayer of Mending
                                                                         -- stackcolor =   {
                                                                         --     [1] = { .8, 0, 0},
                                                                         --     [2] = { 1, 0, 0},
@@ -152,7 +152,7 @@ if playerClass == "PRIEST" then
     
     -- Trace{id = 94472, type = "HEAL", minamount = 10000, assignto = { "spell3" }, color = { .2, 1, .2}, fade = .5, priority = 90 } -- Atonement
     Trace{id = 34861, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
-    Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { .3, 1, .3}, fade = 1, priority = 97 } -- PoM Trace
+    -- Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { .3, 1, .3}, fade = 1, priority = 97 } -- PoM Trace
 
     -- Trace{id = 47750, type = "HEAL", assignto = { "spell2", "spell3" }, color = { .3, 1, .3}, fade = 1.5, priority = 97 } -- PoM Trace
                                                                         

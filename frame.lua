@@ -21,7 +21,7 @@ local SetJob_HealthBar = function(self, job)
         c = job.color
     end
     if c then
-        self:SetStatusBarColor(0,0,0,0.8)
+        self:SetStatusBarColor(c[1]*.2, c[2]*.2, c[3]*.2)
         self.bg:SetVertexColor(unpack(c))
     end
 end
@@ -50,6 +50,10 @@ local SetJob_Indicator = function(self,job)
         self.cd:SetReverse(not job.reverseDuration)
         self.cd:SetCooldown(job.expirationTime - job.duration,job.duration,0,0)
         self.cd:Show()
+    elseif job.showStacks then
+        self.cd:SetReverse(false)
+        self:SetMinMaxValues(0, job.showStacks)
+        self:SetValue(job.stacks)
     else
         self.cd:Hide()
     end
@@ -159,6 +163,19 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
         -- self.traceJob = nil
     end)
     f.blink = bag
+
+
+    f.SetMinMaxValues = function(self, min, max )
+        self._min = min
+        self._max = max
+    end
+    f:SetMinMaxValues(0,1)
+    f.SetValue = function(self, val)
+        local duration = 259200 -- 3 days
+        local progress = (val - self._min) / (self._max - self._min)
+        local start = GetTime() - duration * progress
+        self.cd:SetCooldown(start, duration,0,0)
+    end
     
     f:Hide()
     return f
@@ -227,17 +244,25 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation)
     return f
 end
 
-local SetJob_StatusBar = function(self,job)
-    -- if job.showDuration then
-        -- self.cd:SetReverse(not job.reverseDuration)
-        -- self.cd:SetCooldown(job.expirationTime - job.duration,job.duration)
-        -- self.cd:Show()
-    -- else
-        -- self.cd:Hide()
-    -- end
-    self.expires = job.expirationTime
-    self:SetMinMaxValues(0, job.duration)
+
+local StatusBarOnUpdate = function(self, time)
+    self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
+    if self.OnUpdateCounter < 0.05 then return end
+    self.OnUpdateCounter = 0
+
     self:SetValue(self.expires - GetTime())
+end
+local SetJob_StatusBar = function(self,job)
+    if job.showStacks then
+        self:SetMinMaxValues(0, job.showStacks)
+        self:SetValue(job.stacks)
+        self:SetScript("OnUpdate", nil)
+    else        
+        self.expires = job.expirationTime
+        self:SetMinMaxValues(0, job.duration)
+        self:SetValue(self.expires - GetTime())
+        self:SetScript("OnUpdate", StatusBarOnUpdate)
+    end
 
     local color
     if job.foreigncolor and job.isforeign then
@@ -257,13 +282,6 @@ local SetJob_StatusBar = function(self,job)
     -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
     --     if not self.pulse:IsPlaying() then self.pulse:Play() end
     -- end
-end
-local StatusBarOnUpdate = function(self, time)
-    self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
-    if self.OnUpdateCounter < 0.05 then return end
-    self.OnUpdateCounter = 0
-
-    self:SetValue(self.expires - GetTime())
 end
 local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     local f = CreateFrame("StatusBar",nil,parent)
@@ -741,7 +759,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     roleicon.texture = roleicontex
     
     local topind = CreateIndicator(self,10,10,"TOP",self,"TOP",0,0)
-    local tr = CreateIndicator(self,7,7,"TOPRIGHT",self,"TOPRIGHT",0,0)
+    local tr = CreateIndicator(self,10,10,"TOPRIGHT",self,"TOPRIGHT",0,0)
     local br = CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
     local btm = CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0)
     local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
@@ -750,13 +768,14 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local bar1 = CreateStatusBar(self, 19, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
     local bar2 = CreateStatusBar(self, 19, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)
-
-    -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
-    local blcorner = CreateCorner(self, 20, 20, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0, "BOTTOMLEFT") --last arg changes orientation
+    local bar3 = CreateStatusBar(self, 19, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
 
     self.dicon1 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
     self.dicon2 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
     self.dicon3 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
+
+    -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
+    local blcorner = CreateCorner(self, 12, 12, "BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation
     
     self.SetJob = SetJob_Frame
     self.HideFunc = Frame_HideFunc
@@ -775,6 +794,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.spell5 = left
     self.bar1 = bar1
     self.bar2 = bar2
+    self.bar3 = bar3
     self.raidbuff = tl
     self.border = border
     self.bossdebuff = blcorner

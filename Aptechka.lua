@@ -1279,6 +1279,7 @@ local blacklist = {
     [36032] = true, -- arcane charge
     [97821] = true, -- dk battleres debuff
     [124275] = true, -- brewmaster stagger debuff
+    [174528] = true, -- Griefer debuff
 }
 
 function Aptechka.ScanDispels(unit)
