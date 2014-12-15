@@ -1,13 +1,14 @@
 --[[--------------------------------------------------------------------
 LibResInfo-1.0
 Library to provide information about resurrections in your group.
-Copyright (c) 2012-2013 A. Kinley <addons@phanx.net>. All rights reserved.
+Copyright (c) 2012-2014 Phanx. All rights reserved.
 See the accompanying README and LICENSE files for more information.
 http://www.wowinterface.com/downloads/info21467-LibResInfo-1.0.html
 http://wow.curseforge.com/addons/libresinfo/
 ------------------------------------------------------------------------
 TODO:
-* Handle Reincarnation
+* Handle Reincarnation with some guesswork?
+* Clear data when releasing spirit
 ----------------------------------------------------------------------]]
 
 local DEBUG_LEVEL = GetAddOnMetadata("LibResInfo-1.0", "Version") and 1 or 0
@@ -15,7 +16,7 @@ local DEBUG_FRAME = ChatFrame3
 
 ------------------------------------------------------------------------
 
-local MAJOR, MINOR = "LibResInfo-1.0", 18
+local MAJOR, MINOR = "LibResInfo-1.0", 22
 assert(LibStub, MAJOR.." requires LibStub")
 assert(LibStub("CallbackHandler-1.0"), MAJOR.." requires CallbackHandler-1.0")
 local lib, oldminor = LibStub:NewLibrary(MAJOR, MINOR)
@@ -67,10 +68,10 @@ local resSpells = {
 	[8342]   = GetSpellInfo(8342),   -- Defibrillate (item: Goblin Jumper Cables)
 	[22999]  = GetSpellInfo(22999),  -- Defibrillate (item: Goblin Jumper Cables XL)
 	[54732]  = GetSpellInfo(54732),  -- Defibrillate (item: Gnomish Army Knife)
+	[54732]  = GetSpellInfo(164729), -- Defibrillate (item: Ultimate Gnomish Army Knife)
 	[126393] = GetSpellInfo(126393), -- Eternal Guardian (hunter pet: quilien)
 	[61999]  = GetSpellInfo(61999),  -- Raise Ally (death knight)
 	[20484]  = GetSpellInfo(20484),  -- Rebirth (druid)
-	[113269] = GetSpellInfo(113269), -- Rebirth (prot/holy paladin symbiosis)
 	[7328]   = GetSpellInfo(7328),   -- Redemption (paladin)
 	[2006]   = GetSpellInfo(2006),   -- Resurrection (priest)
 	[115178] = GetSpellInfo(115178), -- Resuscitate (monk)
@@ -154,14 +155,14 @@ function callbacks:OnUnused(lib, callback)
 		wipe(guidFromUnit)
 		wipe(nameFromGUID)
 		wipe(unitFromGUID)
+		for caster, data in pairs(castingSingle) do
+			castingSingle[caster] = remTable(data)
+		end
 		wipe(castingMass)
 		wipe(hasPending)
 		wipe(hasSoulstone)
 		wipe(isDead)
 		wipe(isGhost)
-		for caster, data in pairs(castingSingle) do
-			castingSingle[caster] = remTable(data)
-		end
 	end
 end
 
@@ -176,6 +177,7 @@ function lib.RegisterAllCallbacks(handler, method, includeMassRes)
 		lib.RegisterCallback(handler, "LibResInfo_MassResStarted", method)
 		lib.RegisterCallback(handler, "LibResInfo_MassResCancelled", method)
 		lib.RegisterCallback(handler, "LibResInfo_MassResFinished", method)
+		lib.RegisterCallback(handler, "LibResInfo_UnitUpdate", method)
 	end
 
 	lib.RegisterCallback(handler, "LibResInfo_ResPending", method)
@@ -198,7 +200,7 @@ end
 function lib:UnitHasIncomingRes(unit)
 	if type(unit) ~= "string" then return end
 	local guid
-	if strmatch(unit, "^0x") then
+	if strmatch(unit, "^Player%-") then
 		guid = unit
 		unit = unitFromGUID[guid]
 	else
@@ -210,7 +212,7 @@ function lib:UnitHasIncomingRes(unit)
 	end
 	if hasPending[guid] then
 		local state = hasSoulstone[guid] and "SELFRES" or "PENDING"
-		--debug(2, "UnitHasIncomingRes", nameFromGUID[guid], state)
+		debug(2, "UnitHasIncomingRes", nameFromGUID[guid], state)
 		return state, hasPending[guid]
 	end
 
@@ -230,7 +232,7 @@ function lib:UnitHasIncomingRes(unit)
 		end
 	end
 	if state and firstCaster and firstEnd then
-		--debug(2, "UnitHasIncomingRes", nameFromGUID[guid], state, nameFromGUID[firstCaster])
+		debug(2, "UnitHasIncomingRes", nameFromGUID[guid], state, nameFromGUID[firstCaster])
 		return state, firstEnd, unitFromGUID[firstCaster], firstCaster
 	end
 	--debug(3, "UnitHasIncomingRes", nameFromGUID[guid], "nil")
@@ -247,7 +249,7 @@ end
 function lib:UnitIsCastingRes(unit)
 	if type(unit) ~= "string" then return end
 	local guid
-	if strmatch(unit, "^0x") then
+	if strmatch(unit, "^Player%-") then
 		guid = unit
 		unit = unitFromGUID[guid]
 	else
@@ -268,7 +270,7 @@ function lib:UnitIsCastingRes(unit)
 				break
 			end
 		end
-		--debug(2, "UnitIsCastingRes", nameFromGUID[guid], "casting on", nameFromGUID[casting.target], isFirst and "(first)" or "(duplicate)")
+		debug(2, "UnitIsCastingRes", nameFromGUID[guid], "casting on", nameFromGUID[casting.target], isFirst and "(first)" or "(duplicate)")
 		return endTime, unitFromGUID[casting.target], casting.target, isFirst
 	end
 
@@ -281,7 +283,7 @@ function lib:UnitIsCastingRes(unit)
 				break
 			end
 		end
-		--debug(2, "UnitIsCastingRes", nameFromGUID[guid], "casting Mass Res", isFirst and "(first)" or "(duplicate)")
+		debug(2, "UnitIsCastingRes", nameFromGUID[guid], "casting Mass Res", isFirst and "(first)" or "(duplicate)")
 		return endTime, nil, nil, isFirst
 	end
 
@@ -575,6 +577,8 @@ function eventFrame:UNIT_AURA(event, unit)
 			debug(1, ">> ResExpired", nameFromGUID[guid], "(released)")
 			callbacks:Fire("LibResInfo_ResExpired", unit, guid)
 		end
+		-- No need to check next(castingMass) and fire a UnitUpdate here
+		-- since Mass Resurrection will still hit units who released.
 	end
 end
 
@@ -587,6 +591,14 @@ function eventFrame:UNIT_CONNECTION(event, unit)
 		hasPending[guid] = nil
 		debug(1, ">> ResExpired", nameFromGUID[guid], "(offline)")
 		callbacks:Fire("LibResInfo_ResExpired", unit, guid)
+	elseif next(castingMass) then
+		for caster, data in pairs(castingSingle) do
+			if data.target == guid then
+				return
+			end
+		end
+		debug(1, ">> UnitUpdate", nameFromGUID[guid], "(offline)")
+		callbacks:Fire("LibResInfo_UnitUpdate", unit, guid)
 	end
 end
 
@@ -605,6 +617,9 @@ function eventFrame:UNIT_HEALTH(event, unit)
 			hasPending[guid] = endTime
 			debug(1, ">> ResPending", nameFromGUID[guid], SOULSTONE)
 			callbacks:Fire("LibResInfo_ResPending", unit, guid, endTime, true)
+		elseif next(castingMass) then
+			debug(1, ">> UnitUpdate", nameFromGUID[guid], "(dead)")
+			callbacks:Fire("LibResInfo_UnitUpdate", unit, guid)
 		end
 
 	elseif isDead[guid] and not dead then
@@ -615,6 +630,14 @@ function eventFrame:UNIT_HEALTH(event, unit)
 			hasPending[guid] = nil
 			debug(1, ">> ResUsed", nameFromGUID[guid])
 			callbacks:Fire("LibResInfo_ResUsed", unit, guid)
+		elseif next(castingMass) then
+			for caster, data in pairs(castingSingle) do
+				if data.target == guid then
+					return
+				end
+			end
+			debug(1, ">> UnitUpdate", nameFromGUID[guid], "(alive)")
+			callbacks:Fire("LibResInfo_UnitUpdate", unit, guid)
 		end
 	end
 end

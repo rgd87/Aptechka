@@ -94,6 +94,7 @@ config.LeaderStatus = { name = "Leader", priority = 59, assignto = { "text3" }, 
 config.MainTankStatus = { name = "MainTank", priority = 60, assignto = { "border" }, color = {0.6,0.6,0.6} }
 config.DeadStatus = { name = "DEAD", assignto = { "text2","health","power" }, color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
 config.GhostStatus = { name = "GHOST", assignto = { "text2","health","power" }, color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
+config.CastingMassResStatus = { name = "MassResCast", assignto = { "icon", "text3" }, text = "MASSRES", color = { .4,1,.4 }, texture = "INTERFACE\\ICONS\\achievement_guildperk_massresurrection", priority = 96 }
 config.ResIncomingStatus = { name = "ResIncoming", assignto = { "text2", "text3" }, text = "INC RES", color = { 1,1,.4 }, priority = 80 }
 config.ResPendingStatus = { name = "ResPending", assignto = { "text2" }, text = "PENDING", color = { 0.6,0.6,1 }, priority = 82 }
 config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","health","power" }, color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
@@ -167,7 +168,7 @@ if playerClass == "MONK" then
     A{ id = 132120, type = "HELPFUL", assignto = { "bar2" }, showDuration = true, color = {38/255, 221/255, 163/255}, priority = 92 } --Enveloping Mist
 
     A{ id = 115175, type = "HELPFUL", assignto = { "bar1" }, showDuration = true, color = { 0, .8, 0}, priority = 92 } --Soothing Mist
-    A{ id = 125950, type = "HELPFUL", assignto = { "spell3" }, priority = 60, color = { 0, .4, 0} } --Statue's Soothing Mist
+    -- A{ id = 125950, type = "HELPFUL", assignto = { "spell3" }, priority = 60, color = { 0, .4, 0} } --Statue's Soothing Mist
 
     A{ id = 124081, type = "HELPFUL", assignto = { "spell3" }, showDuration = true, color = {0.7,0.8,1}, priority = 88 } --Zen Sphere
 

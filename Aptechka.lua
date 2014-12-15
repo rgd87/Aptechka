@@ -181,6 +181,13 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         LRI.RegisterCallback(self, "LibResInfo_ResCastFinished", Aptechka.LibResInfo_ResCastFinished)
         LRI.RegisterCallback(self, "LibResInfo_ResCastCancelled", Aptechka.LibResInfo_ResCastFinished)
 
+        if config.CastingMassResStatus then
+            LRI.RegisterCallback(self, "LibResInfo_MassResStarted", Aptechka.LibResInfo_MassResStarted)
+            LRI.RegisterCallback(self, "LibResInfo_MassResFinished", Aptechka.LibResInfo_MassResFinished)
+            LRI.RegisterCallback(self, "LibResInfo_MassResCancelled", Aptechka.LibResInfo_MassResFinished)
+            LRI.RegisterCallback(self, "LibResInfo_UnitUpdate", Aptechka.LibResInfo_MassResFinished)
+        end
+
         if config.ResPendingStatus then
             LRI.RegisterCallback(self, "LibResInfo_ResPending", Aptechka.LibResInfo_ResPending)
             LRI.RegisterCallback(self, "LibResInfo_ResExpired", Aptechka.LibResInfo_ResExpired)
@@ -439,6 +446,25 @@ function Aptechka.LibResInfo_ResExpired(event, dstUnit, dstGUID)
         FrameSetJob(self, config.ResPendingStatus, false)
     end
 end
+
+
+
+function Aptechka.LibResInfo_MassResStarted(event, srcUnit, srcGUID, endTime)
+    local rosterunit = Roster[srcUnit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
+        config.CastingMassResStatus.expirationTime = endTime
+        FrameSetJob(self, config.CastingMassResStatus, true)
+    end
+end
+function Aptechka.LibResInfo_MassResFinished(event, srcUnit, srcGUID, endTime)
+    local rosterunit = Roster[srcUnit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
+        FrameSetJob(self, config.CastingMassResStatus, false)
+    end
+end
+
 
 
 
