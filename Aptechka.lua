@@ -683,7 +683,7 @@ end
 
 function Aptechka.UNIT_SPELLCAST_SENT(self, event, unit, spell, rank, targetName, lineID)
     if unit ~= "player" or not targetName then return end
-    LastCastTargetName = targetName
+    LastCastTargetName = string.match(targetName, "(.+)-") or targetName
     LastCastSentTime = GetTime()
 end
 function Aptechka.UI_ERROR_MESSAGE(self, event, errmsg)
