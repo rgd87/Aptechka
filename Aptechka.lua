@@ -456,6 +456,13 @@ function Aptechka.LibResInfo_MassResStarted(event, srcUnit, srcGUID, endTime)
         config.CastingMassResStatus.expirationTime = endTime
         FrameSetJob(self, config.CastingMassResStatus, true)
     end
+
+    C_Timer.After(11, function()
+        local rosterunit = Roster[srcUnit]
+        for self in pairs(rosterunit) do
+            FrameSetJob(self, config.CastingMassResStatus, false)
+        end
+    end)
 end
 function Aptechka.LibResInfo_MassResFinished(event, srcUnit, srcGUID, endTime)
     local rosterunit = Roster[srcUnit]

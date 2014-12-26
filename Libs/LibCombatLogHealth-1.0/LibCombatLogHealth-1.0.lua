@@ -36,7 +36,7 @@ that's a decent compromise.
 Usage:
 
     local f = CreateFrame("Frame") -- your addon
-    local LibCLHealth = LibStub("LibCLHealth-1.0")
+    local LibCLHealth = LibStub("LibCombatLogHealth-1.0")
     if LibCLHealth then
         f:UnregisterEvent("UNIT_HEALTH")
         LibCLHealth.RegisterCallback(f, "COMBAT_LOG_HEALTH", function(event, unit, eventType)
@@ -51,7 +51,7 @@ eventType - either nil when event comes from combat log, or "UNIT_AURA" to indic
 --]================]
 
 
-local MAJOR, MINOR = "LibCombatLogHealth-1.0", 1
+local MAJOR, MINOR = "LibCombatLogHealth-1.0", 1.1
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -89,6 +89,8 @@ local table_wipe = table.wipe
 local select, unpack = select, unpack
 local LOG_LENGTH = 8
 
+local isGlobal = true
+
 f:SetScript("OnEvent", function(self, event, ...)
     return self[event](self, event, ...)
 end)
@@ -96,7 +98,12 @@ end)
 function f:GROUP_ROSTER_UPDATE()
     table_wipe(guidMap)
     table_wipe(CLHealth)
-    if IsInRaid() then
+    if not isGlobal then
+        local unit = "player"
+        local guid = UnitGUID(unit)
+        CLHealth[unit] = blank_data(unit)
+        guidMap[guid] = unit
+    elseif IsInRaid() then
         for i=1,GetNumGroupMembers() do
             local unit = "raid"..i
             local guid = UnitGUID(unit)
@@ -243,12 +250,17 @@ function lib.UnitHealth(unit)
     end
 end
 
+-- function lib.RegisterUnit(unit)
+    -- allowedUnits[unit] = true
+-- end
+
 function callbacks.OnUsed()
     f:RegisterEvent"GROUP_ROSTER_UPDATE"
     f:RegisterEvent"PLAYER_LOGIN"
     f:RegisterEvent"COMBAT_LOG_EVENT_UNFILTERED"
     -- f:RegisterEvent"UNIT_HEALTH_FREQUENT"
     f:RegisterEvent"UNIT_HEALTH"
+    if not UnitGUID("player") then return end -- for cases when they aren't available yet
     f:GROUP_ROSTER_UPDATE()
 end
 
