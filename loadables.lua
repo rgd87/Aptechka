@@ -245,7 +245,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     
         A{ id = 871,   type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Shield Wall 40%
         A{ id = 114030,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Vigilance
-        A{ id = 115203,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Fortifying Brew 20% + something
+        A{ id = 120954,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Fortifying Brew 20%
         A{ id = 86659, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Guardian of Ancient Kings 50%
         -- A{ id = 498,   type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Divine Protection 40% magical
         A{ id = 48792, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Icebound Fortitude 50%
@@ -261,7 +261,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         A{ id = 55233, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Vampiric Blood
         A{ id = 47788, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Guardian Spirit
             
-        A{ id = 12975, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 85 } --Last Stand
+        A{ id = 12975, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 85 } --Last Stand        
     end,
 
     ['HealingReduction'] = function()
