@@ -1295,24 +1295,24 @@ end
 
 local presentDebuffs = {}
 local blacklist = {
-    -- [114216] = true, -- priest talent cooldown debuff
-    -- [139485] = true, -- Throne of Thudner passive debuff
-    -- [57724] = true, -- Sated
-    -- [80354] = true, -- Temporal Displacement
-    -- [95809] = true, -- Hunter bloodlust debuff
-    -- [95223] = true, -- Mass Res
-    -- [26013] = true, -- PVP Deserter
-    -- [71041] = true, -- Deserter
-    -- [8326] = true, -- Ghost
-    -- [6788] = true, -- Weakened Soul
-    -- [119050] = true, -- Kil'Jaeden Cunning
-    -- [113942] = true, -- demonic gates debuff
-    -- [123981] = true, -- dk cooldown debuff
-    -- [87024] = true, -- mage cooldown debuff
-    -- [36032] = true, -- arcane charge
-    -- [97821] = true, -- dk battleres debuff
-    -- [124275] = true, -- brewmaster stagger debuff
-    -- [174528] = true, -- Griefer debuff
+    [114216] = true, -- priest talent cooldown debuff
+    [139485] = true, -- Throne of Thudner passive debuff
+    [57724] = true, -- Sated
+    [80354] = true, -- Temporal Displacement
+    [95809] = true, -- Hunter bloodlust debuff
+    [95223] = true, -- Mass Res
+    [26013] = true, -- PVP Deserter
+    [71041] = true, -- Deserter
+    [8326] = true, -- Ghost
+    [6788] = true, -- Weakened Soul
+    [119050] = true, -- Kil'Jaeden Cunning
+    [113942] = true, -- demonic gates debuff
+    [123981] = true, -- dk cooldown debuff
+    [87024] = true, -- mage cooldown debuff
+    [36032] = true, -- arcane charge
+    [97821] = true, -- dk battleres debuff
+    [124275] = true, -- brewmaster stagger debuff
+    [174528] = true, -- Griefer debuff
 }
 
 local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, icon, count, isBossAura)

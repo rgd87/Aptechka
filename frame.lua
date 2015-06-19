@@ -402,7 +402,7 @@ AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 
 local DebuffTypeColor = DebuffTypeColor
-local helpful_color = { r = 0, g = 1, b = 0)
+local helpful_color = { r = 0, g = 1, b = 0}
 local function SetJob_DebuffIcon(self, job)
     SetJob_Icon(self, job)
     local color = job.color
