@@ -30,7 +30,7 @@ config.layouts = {  -- works ONLY with group anchors disabled.
                     -- layout functions are checked from first to last. function should return true to be accepted.
     function(self, members, role, spec)
         if role == "HEALER" and members > 27 then --resize after 27 for healers
-            self:SetScale(.7); return true
+            self:SetScale(.8); return true
         end
     end,
     function(self, members, role, spec)

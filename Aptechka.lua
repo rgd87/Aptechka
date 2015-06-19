@@ -1295,25 +1295,36 @@ end
 
 local presentDebuffs = {}
 local blacklist = {
-    [114216] = true, -- priest talent cooldown debuff
-    [139485] = true, -- Throne of Thudner passive debuff
-    [57724] = true, -- Sated
-    [80354] = true, -- Temporal Displacement
-    [95809] = true, -- Hunter bloodlust debuff
-    [95223] = true, -- Mass Res
-    [26013] = true, -- PVP Deserter
-    [71041] = true, -- Deserter
-    [8326] = true, -- Ghost
-    [6788] = true, -- Weakened Soul
-    [119050] = true, -- Kil'Jaeden Cunning
-    [113942] = true, -- demonic gates debuff
-    [123981] = true, -- dk cooldown debuff
-    [87024] = true, -- mage cooldown debuff
-    [36032] = true, -- arcane charge
-    [97821] = true, -- dk battleres debuff
-    [124275] = true, -- brewmaster stagger debuff
-    [174528] = true, -- Griefer debuff
+    -- [114216] = true, -- priest talent cooldown debuff
+    -- [139485] = true, -- Throne of Thudner passive debuff
+    -- [57724] = true, -- Sated
+    -- [80354] = true, -- Temporal Displacement
+    -- [95809] = true, -- Hunter bloodlust debuff
+    -- [95223] = true, -- Mass Res
+    -- [26013] = true, -- PVP Deserter
+    -- [71041] = true, -- Deserter
+    -- [8326] = true, -- Ghost
+    -- [6788] = true, -- Weakened Soul
+    -- [119050] = true, -- Kil'Jaeden Cunning
+    -- [113942] = true, -- demonic gates debuff
+    -- [123981] = true, -- dk cooldown debuff
+    -- [87024] = true, -- mage cooldown debuff
+    -- [36032] = true, -- arcane charge
+    -- [97821] = true, -- dk battleres debuff
+    -- [124275] = true, -- brewmaster stagger debuff
+    -- [174528] = true, -- Griefer debuff
 }
+
+local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, icon, count, isBossAura)
+    local opts = debuffs[index]
+    opts.debuffType = debuffType
+    opts.expirationTime = expirationTime
+    opts.duration = duration
+    opts.stacks = count
+    opts.texture = icon
+    opts.isBossAura = isBossAura
+    SetJob(unit, opts, true)
+end
 
 function Aptechka.ScanDispels(unit)
         table_wipe(presentDebuffs)
@@ -1321,26 +1332,48 @@ function Aptechka.ScanDispels(unit)
         local debuffLineLenght = #debuffs
         local shown = 0
 
+        -- scan for boss buffs only
         for i=1,100 do
-            local name, _, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID = UnitAura(unit, i, "HARMFUL")
+            local name, _, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HELPFUL")
+            if not name then break end
+            if isBossAura and shown < debuffLineLenght then
+                if not blacklist[aura_spellID] then
+                    shown = shown + 1
+
+                    SetDebuffIcon(unit, shown, "Helpful", expirationTime, duration, icon, count)
+                end
+            end
+        end
+
+        -- scan for boss debuffs only
+        for i=1,100 do
+            local name, _, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
+            if not name then break end
+            if isBossAura and shown < debuffLineLenght then
+                if not blacklist[aura_spellID] then
+                    shown = shown + 1
+
+                    SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count)
+                end
+            end
+        end
+
+        -- scan debuffs
+        for i=1,100 do
+            local name, _, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
             if not name then
                 break
             end
 
-            if shown < debuffLineLenght then
+          -- while shown < debuffLineLenght do ------------------------------------------------ DEBUG
+            if not isBossAura and shown < debuffLineLenght then
                 if not blacklist[aura_spellID] then
                     shown = shown + 1
 
-                    local opts = debuffs[shown]
-                    opts.debuffType = debuffType
-                    opts.debuffType = debuffType
-                    opts.expirationTime = expirationTime
-                    opts.duration = duration
-                    opts.stacks = count
-                    opts.texture = icon
-                    SetJob(unit, opts, true)
+                    SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count)
                 end
             end
+          -- end
 
             local opts = dtypes[debuffType]
             if opts and not presentDebuffs[debuffType] then

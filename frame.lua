@@ -402,6 +402,7 @@ AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 
 local DebuffTypeColor = DebuffTypeColor
+local helpful_color = { r = 0, g = 1, b = 0)
 local function SetJob_DebuffIcon(self, job)
     SetJob_Icon(self, job)
     local color = job.color
@@ -409,8 +410,18 @@ local function SetJob_DebuffIcon(self, job)
         self.debuffTypeTexture:SetVertexColor(color[1], color[2], color[3], color[4] or 0.6)
     else
         local debuffType = job.debuffType
-        color = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
+        if debuffType == "Helpful" then
+            color = helpful_color
+        else
+            color = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
+        end
         self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 0.6)
+    end
+
+    if job.isBossAura then
+        self:SetScale(1.4)
+    else
+        self:SetScale(1)
     end
 end
 local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
