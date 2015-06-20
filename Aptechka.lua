@@ -1340,7 +1340,7 @@ function Aptechka.ScanDispels(unit)
                 if not blacklist[aura_spellID] then
                     shown = shown + 1
 
-                    SetDebuffIcon(unit, shown, "Helpful", expirationTime, duration, icon, count)
+                    SetDebuffIcon(unit, shown, "Helpful", expirationTime, duration, icon, count, isBossAura)
                 end
             end
         end
@@ -1353,7 +1353,7 @@ function Aptechka.ScanDispels(unit)
                 if not blacklist[aura_spellID] then
                     shown = shown + 1
 
-                    SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count)
+                    SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura)
                 end
             end
         end
@@ -1370,7 +1370,7 @@ function Aptechka.ScanDispels(unit)
                 if not blacklist[aura_spellID] then
                     shown = shown + 1
 
-                    SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count)
+                    SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura)
                 end
             end
           -- end
