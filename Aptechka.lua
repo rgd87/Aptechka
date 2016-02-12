@@ -113,6 +113,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         else config[config.skin.."Settings"]() -- receiving width and height for current skin
     end
     
+    do
+        self.mapframe:Enable()
+    
+    end
+
     local tbind
     if config.TargetBinding == nil then tbind = "*type1"
     elseif config.TargetBinding == false then tbind = "__none__"
@@ -1155,11 +1160,13 @@ local onenter = function(self)
     if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
     if UnitAffectingCombat("player") then return end
     UnitFrame_OnEnter(self)
+    Aptechka.mapframe:Bind(self)
     self:SetScript("OnUpdate", UnitFrame_OnUpdate)
 end
 local onleave = function(self)
     if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
     UnitFrame_OnLeave(self)
+    Aptechka.mapframe:Unbind(self)
     self:SetScript("OnUpdate", nil)
 end
 --~ function Aptechka.SetupFrame(header,id)
@@ -1568,3 +1575,107 @@ function Aptechka.SlashCmd(msg)
         end
     end
 end
+
+
+local MapData = LibStub("LibMapData-1.0")
+local mapwidth, mapheight = 0, 0
+local mapframe = CreateFrame("Frame")
+Aptechka.mapframe = mapframe
+-- mapframe:SetScript("OnEvent", function(self, event, ...)
+mapframe:SetScript("OnEvent", function(self, event, ...)
+    self[event](self, event, ...)
+end)
+
+function mapframe:Enable()
+    self.isEnabled = true
+    self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    self:Create()
+    -- self:RegisterEvent("GROUP_ROSTER_UPDATE")
+end
+
+function mapframe:Create()
+    -- local arrow = CreateFrame("Frame", nil, self)
+    if self.created then return end
+    self.created = true
+    local self = self
+    self:SetWidth(20)
+    self:SetHeight(20)
+    local atex = self:CreateTexture(nil, "OVERLAY")
+    atex:SetAllPoints(self)
+    atex:SetTexture("Interface\\Addons\\Aptechka\\arrow")
+    self.texture = atex
+    self.Rotate = function(self, degrees)
+        local angle = math.rad(degrees)
+        self.texture:SetRotation(angle)
+        -- local cos, sin = math.cos(angle), math.sin(angle)
+        -- print((sin - cos), -(cos + sin), -cos, -sin, sin, -cos, 0, 0)
+        -- self.texture:SetTexCoord((sin - cos), -(cos + sin), -cos, -sin, sin, -cos, 0, 0)
+    end
+    self:Rotate(0)
+    self:Hide()
+end
+
+
+function mapframe.ZONE_CHANGED_NEW_AREA(self, event)
+    local px, py = 0, 0
+    px, py = GetPlayerMapPosition("player")
+    if((px or 0)+(py or 0) <= 0) then
+        if WorldMapFrame:IsVisible() then return end
+        SetMapToCurrentZone()
+        px, py = GetPlayerMapPosition("player")
+        if((px or 0)+(py or 0) <= 0) then return end
+    end
+
+    if px > 0 or py > 0 then
+        local map, level = GetMapInfo(), GetCurrentMapDungeonLevel()
+        mapwidth, mapheight = MapData:MapArea(map, level)
+        print('changed map', map, level, mapwidth, mapheight)
+    end
+end
+mapframe.PLAYER_ENTERING_WORLD = mapframe.ZONE_CHANGED_NEW_AREA
+
+local function vectorDegree(x1, y1, x2, y2)
+    return math.deg(math.acos((x1*x2 + y1*y2)/(math.sqrt(math.pow(x1,2) + math.pow(y1,2)) + math.sqrt(math.pow(x2,2) + math.pow(y2,2)))))
+end
+
+function mapframe:Bind(frame)
+    self.frame = frame
+    self:SetPoint("BOTTOM", frame,  "TOP",0,0)
+    self:Show()
+end
+
+function mapframe:Unbind(frame)
+    -- self.frame = frame
+    -- self:SetPoint("BOTTOM", frame,  "TOP",0,0)
+    -- self:Hide()
+end
+
+
+local mfcounter = 0
+mapframe:SetScript("OnUpdate", function(self, elapsed)
+    mfcounter = mfcounter + elapsed
+    if mfcounter < 0.3 then return end
+
+    local frame = self.frame
+    local unit = frame.unit
+    local px, py = GetPlayerMapPosition("player")
+    local facing = 360 - math.deg(GetPlayerFacing())
+
+    local ux, uy = GetPlayerMapPosition(unit)
+    if ux == 0 and uy == 0 then
+        self.texture:Hide()
+    else
+        self.texture:Show()
+    end
+    local x = (px - ux) * mapwidth
+    local y = -(py - uy) * mapheight
+    -- print(math.floor(x),math.floor(y))
+    print(x,y)
+    local angle = vectorDegree(0, 1, x,y)
+    if x < 0 then angle = 360 - angle end
+    local angleToUnit = (angle - facing) + 180
+    print(unit, math.floor(facing), math.floor(angle), math.floor(angleToUnit))
+
+    self:Rotate(-angleToUnit)
+end)

@@ -768,6 +768,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     roleicontex:SetTexCoord(GetTexCoordsForRoleSmallCircle("TANK"));--(0.25, 0.5, 0,1)
     -- roleicontex:SetVertexColor(0,0,0,0.2)
     roleicon.texture = roleicontex
+
     
     local topind = CreateIndicator(self,10,10,"TOP",self,"TOP",0,0)
     local tr = CreateIndicator(self,10,10,"TOPRIGHT",self,"TOPRIGHT",0,0)
