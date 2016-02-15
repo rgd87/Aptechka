@@ -1630,7 +1630,7 @@ function mapframe.ZONE_CHANGED_NEW_AREA(self, event)
     if px > 0 or py > 0 then
         local map, level = GetMapInfo(), GetCurrentMapDungeonLevel()
         mapwidth, mapheight = MapData:MapArea(map, level)
-        print('changed map', map, level, mapwidth, mapheight)
+        -- print('changed map', map, level, mapwidth, mapheight)
     end
 end
 mapframe.PLAYER_ENTERING_WORLD = mapframe.ZONE_CHANGED_NEW_AREA
@@ -1640,22 +1640,46 @@ local function vectorDegree(x1, y1, x2, y2)
 end
 
 function mapframe:Bind(frame)
+    if frame.unit == "player" then return end
     self.frame = frame
     self:SetPoint("BOTTOM", frame,  "TOP",0,0)
+    self.OnUpdateCounter = 1
     self:Show()
 end
 
 function mapframe:Unbind(frame)
-    -- self.frame = frame
-    -- self:SetPoint("BOTTOM", frame,  "TOP",0,0)
-    -- self:Hide()
+    self:Hide()
+end
+
+local gray = { 50, 50, 50 }
+local yellow = { 200, 100, 40 }
+local red = { 230, 50, 50 }
+
+function GetGradientColor(v)
+    if v > 1 then v = 1 end
+    if v < 0 then v = 0 end
+    local c1,c2
+    if v < 0.6 then
+        v = v/0.6
+        c1 = gray
+        c2 = yellow
+    else
+        v = (v - 0.6)/0.4
+        c1 = yellow
+        c2 = red
+    end
+
+    local r = c1[1] + v*(c2[1]-c1[1])
+    local g = c1[2] + v*(c2[2]-c1[2])
+    local b = c1[3] + v*(c2[3]-c1[3])
+    return r,g,b
 end
 
 
-local mfcounter = 0
+mapframe.OnUpdateCounter = 0
 mapframe:SetScript("OnUpdate", function(self, elapsed)
-    mfcounter = mfcounter + elapsed
-    if mfcounter < 0.3 then return end
+    self.OnUpdateCounter = self.OnUpdateCounter + elapsed
+    if self.OnUpdateCounter < 0.3 then return end
 
     local frame = self.frame
     local unit = frame.unit
@@ -1670,12 +1694,17 @@ mapframe:SetScript("OnUpdate", function(self, elapsed)
     end
     local x = (px - ux) * mapwidth
     local y = -(py - uy) * mapheight
+    local dist = (x*x + y*y)^0.5
+    -- print(dist)
+    local r,g,b = GetGradientColor((dist-40)/20)
+    -- print((dist-40)/20)
     -- print(math.floor(x),math.floor(y))
-    print(x,y)
+    -- print(x,y)
     local angle = vectorDegree(0, 1, x,y)
     if x < 0 then angle = 360 - angle end
     local angleToUnit = (angle - facing) + 180
-    print(unit, math.floor(facing), math.floor(angle), math.floor(angleToUnit))
+    -- print(unit, math.floor(facing), math.floor(angle), math.floor(angleToUnit))
 
     self:Rotate(-angleToUnit)
+    self.texture:SetVertexColor(r,g,b)
 end)
