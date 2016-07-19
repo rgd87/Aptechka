@@ -114,7 +114,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     
     do
-        self.mapframe:Enable()
+        -- self.mapframe:Enable()
     
     end
 
@@ -1577,7 +1577,7 @@ function Aptechka.SlashCmd(msg)
 end
 
 
-local MapData = LibStub("LibMapData-1.0")
+-- local MapData = LibStub("LibMapData-1.0")
 local mapwidth, mapheight = 0, 0
 local mapframe = CreateFrame("Frame")
 Aptechka.mapframe = mapframe
@@ -1676,35 +1676,35 @@ function GetGradientColor(v)
 end
 
 
-mapframe.OnUpdateCounter = 0
-mapframe:SetScript("OnUpdate", function(self, elapsed)
-    self.OnUpdateCounter = self.OnUpdateCounter + elapsed
-    if self.OnUpdateCounter < 0.3 then return end
+-- mapframe.OnUpdateCounter = 0
+-- mapframe:SetScript("OnUpdate", function(self, elapsed)
+--     self.OnUpdateCounter = self.OnUpdateCounter + elapsed
+--     if self.OnUpdateCounter < 0.3 then return end
 
-    local frame = self.frame
-    local unit = frame.unit
-    local px, py = GetPlayerMapPosition("player")
-    local facing = 360 - math.deg(GetPlayerFacing())
+--     local frame = self.frame
+--     local unit = frame.unit
+--     local px, py = GetPlayerMapPosition("player")
+--     local facing = 360 - math.deg(GetPlayerFacing())
 
-    local ux, uy = GetPlayerMapPosition(unit)
-    if ux == 0 and uy == 0 then
-        self.texture:Hide()
-    else
-        self.texture:Show()
-    end
-    local x = (px - ux) * mapwidth
-    local y = -(py - uy) * mapheight
-    local dist = (x*x + y*y)^0.5
-    -- print(dist)
-    local r,g,b = GetGradientColor((dist-40)/20)
-    -- print((dist-40)/20)
-    -- print(math.floor(x),math.floor(y))
-    -- print(x,y)
-    local angle = vectorDegree(0, 1, x,y)
-    if x < 0 then angle = 360 - angle end
-    local angleToUnit = (angle - facing) + 180
-    -- print(unit, math.floor(facing), math.floor(angle), math.floor(angleToUnit))
+--     local ux, uy = GetPlayerMapPosition(unit)
+--     if ux == 0 and uy == 0 then
+--         self.texture:Hide()
+--     else
+--         self.texture:Show()
+--     end
+--     local x = (px - ux) * mapwidth
+--     local y = -(py - uy) * mapheight
+--     local dist = (x*x + y*y)^0.5
+--     -- print(dist)
+--     local r,g,b = GetGradientColor((dist-40)/20)
+--     -- print((dist-40)/20)
+--     -- print(math.floor(x),math.floor(y))
+--     -- print(x,y)
+--     local angle = vectorDegree(0, 1, x,y)
+--     if x < 0 then angle = 360 - angle end
+--     local angleToUnit = (angle - facing) + 180
+--     -- print(unit, math.floor(facing), math.floor(angle), math.floor(angleToUnit))
 
-    self:Rotate(-angleToUnit)
-    self.texture:SetVertexColor(r,g,b)
-end)
+--     self:Rotate(-angleToUnit)
+--     self.texture:SetVertexColor(r,g,b)
+-- end)

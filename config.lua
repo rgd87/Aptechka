@@ -126,12 +126,11 @@ if playerClass == "PRIEST" then
     --A{ id = 21562, type = "HELPFUL", assignto = { "raidbuff" }, color = { 1, 1, 1}, isMissing = true } --Power Word: Fortitude
     
     A{ id = 139,   type = "HELPFUL", assignto = { "bar1" }, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true } --Renew
-    A{ id = 88684, type = "HELPFUL", assignto = { "bar2" }, priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Serenity
+    A{ id = 208065, type = "HELPFUL", assignto = { "bar2" }, priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true } --artifact
     -- A{ id = 7001,  type = "HELPFUL", assignto = { "bar2" }, priority = 65, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
-    A{ id = 126154,type = "HELPFUL", assignto = { "bar1" }, priority = 62, color = { 1, 1, 0}, showDuration = true, isMine } --Lightspring
 
     A{ id = 17,    type = "HELPFUL", assignto = { "spell2" }, color = { 1, .85, 0}, showDuration = true } --Power Word: Shield
-    A{ id = 6788,  type = "HARMFUL", assignto = { "spell2" }, color = { 0.4, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul
+    -- A{ id = 6788,  type = "HARMFUL", assignto = { "spell2" }, color = { 0.4, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul
     A{ id = 152118,type = "HELPFUL", assignto = { "bar1" }, priority = 90, color = { 1, .65, 0}, showDuration = true, isMine = true } --Clarity of WIll
 
     A{ id = 114908,type = "HELPFUL", assignto = { "bar1" }, priority = 82, color = { 188/255, 37/255, 186/255 }, foreigncolor = { 164/255, 125/255, 169/255}, showDuration = true } --Spirit Shell absorb
@@ -150,9 +149,10 @@ if playerClass == "PRIEST" then
                                                                         --     [4] = { 1, .4, .4},
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
+    A{ id = 194384,type = "HELPFUL", assignto = { "bar1" }, color = { 0, 1, 0}, showDuration = true, isMine = true} 
     
     -- Trace{id = 94472, type = "HEAL", minamount = 10000, assignto = { "spell3" }, color = { .2, 1, .2}, fade = .5, priority = 90 } -- Atonement
-    Trace{id = 34861, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
+    Trace{id = 204883, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
     -- Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { .3, 1, .3}, fade = 1, priority = 97 } -- PoM Trace
 
     -- Trace{id = 47750, type = "HEAL", assignto = { "spell2", "spell3" }, color = { .3, 1, .3}, fade = 1.5, priority = 97 } -- PoM Trace
@@ -164,17 +164,18 @@ if playerClass == "PRIEST" then
 end
 
 if playerClass == "MONK" then
-    A{ id = 119611, type = "HELPFUL", assignto = { "spell2" }, color = {38/255, 221/255, 163/255}, showDuration = true } --Renewing Mist
-    A{ id = 132120, type = "HELPFUL", assignto = { "bar2" }, showDuration = true, color = {38/255, 221/255, 163/255}, priority = 92 } --Enveloping Mist
+    A{ id = 119611, type = "HELPFUL", assignto = { "bar1" }, color = {38/255, 221/255, 163/255}, showDuration = true } --Renewing Mist
+    A{ id = 124682, type = "HELPFUL", assignto = { "bar2" }, showDuration = true, color = { 1,1,0 }, priority = 92 } --Enveloping Mist
 
-    A{ id = 115175, type = "HELPFUL", assignto = { "bar1" }, showDuration = true, color = { 0, .8, 0}, priority = 92 } --Soothing Mist
-    -- A{ id = 125950, type = "HELPFUL", assignto = { "spell3" }, priority = 60, color = { 0, .4, 0} } --Statue's Soothing Mist
+    A{ id = 115175, type = "HELPFUL", assignto = { "spell2" }, showDuration = false, color = { 0, .8, 0}, priority = 92 } --Soothing Mist
+    -- A{ id = 198533, type = "HELPFUL", assignto = { "spell3" }, priority = 60, color = { 0, .4, 0} } --Statue's Soothing Mist
+    A{ id = 191840, type = "HELPFUL", assignto = { "spell3" }, priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Essence Font
 
     A{ id = 124081, type = "HELPFUL", assignto = { "spell3" }, showDuration = true, color = {0.7,0.8,1}, priority = 88 } --Zen Sphere
 
-    Trace{id = 116670, type = "HEAL", assignto = { "spell3" }, color = { 1, .7, .2}, fade = 0.7, priority = 96 } -- Uplift
+    Trace{id = 116670, type = "HEAL", assignto = { "spell3" }, color = { 1, .7, .2}, fade = 0.7, priority = 96 } -- Vivify
 
-    A{ id = 157627, type = "HELPFUL", assignto = { "bar2" }, showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
+    -- A{ id = 157627, type = "HELPFUL", assignto = { "bar2" }, showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
     
 
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(115450),unit) == 1) end
@@ -188,26 +189,24 @@ if playerClass == "WARLOCK" then
 end
 
 if playerClass == "PALADIN" then
-    --A{ id = 20217, type = "HELPFUL", assignto = { "raidbuff" }, color = { .6 , .3, 1}, isMissing = true } --Blessing of Kings
-    --A{ id = 19740, type = "HELPFUL", assignto = { "raidbuff" }, color = { 1 , 0.5, 0.3}, isMissing = true } --Blessing of Might
-    A{ id = 156322, type = "HELPFUL", assignto = { "spell3" }, color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true } --Eternal Flame
-    A{ id =114917,  type = "HELPFUL", assignto = { "bar1" }, showDuration = true, isMine = true, color = { 1 , .9, 0} } --Stay of Execution
-    A{ id = 53563, type = "HELPFUL", assignto = { "raidbuff" }, showDuration = true,
+    A{ id = 200654, type = "HELPFUL", assignto = { "spell3" }, color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true } --Tyr's Deliverance
+    A{ id = 223306,  type = "HELPFUL", assignto = { "bar1" }, showDuration = true, isMine = true, color = { 1 , .9, 0} } --Bestow Faith
+    A{ id = 53563, type = "HELPFUL", assignto = { "spell2" }, showDuration = true,
                                                                             isMine = true,
                                                                             color = { 0,.9,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Light
 
-    A{ id = 156910, type = "HELPFUL", assignto = { "raidbuff" }, showDuration = true,
+    A{ id = 156910, type = "HELPFUL", assignto = { "spell2" }, showDuration = true,
                                                                             isMine = true,
                                                                             color = { 1,.7,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Faith
-    A{ id = 157007,  type = "HELPFUL", assignto = { "spell3" }, priority = 80, showDuration = true, isMine = true, color = {0.5,0.7,1} } --Stay of Execution                                                                    
+
+    A{ id = 210320,  type = "HELPFUL", assignto = { "raidbuff" }, isMine = true, color = { .4, .4, 1} } --Devotion Aura
+    A{ id = 183416,  type = "HELPFUL", assignto = { "raidbuff" }, isMine = true, color = { 1, .4, .4} } --Aura of Sacrifice
                                                                         
     Trace{id = 85222, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Light of Dawn
-
-    A{ id = 157128, type = "HELPFUL", assignto = { "icon" }, showDuration = true } --Saved by the Light
 
     -- Trace{id = 82327, type = "HEAL", assignto = { "spell3" }, color = { .8, .5, 1}, fade = 0.7, priority = 96 } -- Holy Radiance
     -- Trace{id =121129, type = "HEAL", assignto = { "spell3" }, color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
@@ -225,7 +224,7 @@ if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
     
     A{ id = 61295,  type = "HELPFUL", assignto = { "bar1" }, showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide    
-    A{ id = 974,    type = "HELPFUL", assignto = { "spell2" }, showDuration = true,
+    A{ id = 204288,    type = "HELPFUL", assignto = { "spell2" }, showDuration = true,
                                                                         --isMine = true,     
                                                                         stackcolor =   {
                                                                             [1] = { 0,.4, 0},

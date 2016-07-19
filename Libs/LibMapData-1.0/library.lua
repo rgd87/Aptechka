@@ -2652,7 +2652,7 @@ mapData[941] = {
 		end
 		SetMapByID(k)
 		local _,l,t,r,b = GetCurrentMapZone()
-		local floors = GetNumDungeonMapLevels();
+		local floors = GetNumDungeonMapLevels() or 0;
 		local width, height = 0,0
 		width = math.abs((-l) - (-r))
 		height = math.abs(t - b)
