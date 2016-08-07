@@ -129,18 +129,22 @@ if playerClass == "PRIEST" then
     A{ id = 208065, type = "HELPFUL", assignto = { "bar2" }, priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true } --artifact
     -- A{ id = 7001,  type = "HELPFUL", assignto = { "bar2" }, priority = 65, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
 
-    A{ id = 17,    type = "HELPFUL", assignto = { "spell2" }, color = { 1, .85, 0}, showDuration = true } --Power Word: Shield
+    A{ id = 17,    type = "HELPFUL", assignto = { "spell2" }, isMine = true, color = { 1, .85, 0}, showDuration = true } --Power Word: Shield
     -- A{ id = 6788,  type = "HARMFUL", assignto = { "spell2" }, color = { 0.4, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul
     A{ id = 152118,type = "HELPFUL", assignto = { "bar1" }, priority = 90, color = { 1, .65, 0}, showDuration = true, isMine = true } --Clarity of WIll
 
     A{ id = 114908,type = "HELPFUL", assignto = { "bar1" }, priority = 82, color = { 188/255, 37/255, 186/255 }, foreigncolor = { 164/255, 125/255, 169/255}, showDuration = true } --Spirit Shell absorb
-    A{ id = 41635, type = "HELPFUL", assignto = { "spell3" }, priority = 70, foreigncolor = { 164/255, 125/255, 169/255 },
-                                                                        stackcolor =   {
+    A{ id = 41635, type = "HELPFUL", assignto = { "spell3" }, priority = 70, stackcolor =   {
                                                                             [1] = { 1, 0, 0},
                                                                             [2] = { 1, 0, 102/255},
                                                                             [3] = { 1, 0, 190/255},
                                                                             [4] = { 204/255, 0, 1},
                                                                             [5] = { 108/255, 0, 1},
+                                                                            [6] = { 148/255, 0, 1},
+                                                                            [7] = { 148/255, 0, 1},
+                                                                            [8] = { 148/255, 0, 1},
+                                                                            [9] = { 148/255, 0, 1},
+                                                                            [10] = { 148/255, 0, 1},
                                                                         }, showStacks = 5} --Prayer of Mending
                                                                         -- stackcolor =   {
                                                                         --     [1] = { .8, 0, 0},

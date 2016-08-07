@@ -14,7 +14,7 @@ local debuffs
 local traceheals
 local colors
 local threshold --incoming heals
-local ignoreplayer 
+local ignoreplayer
 
 local config = AptechkaUserConfig
 local OORUnits = setmetatable({},{__mode = 'k'})
@@ -78,7 +78,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     threshold = config.incomingHealThreshold or 10000
     ignoreplayer = config.incomingHealIgnorePlayer or false
     colors = setmetatable(config.Colors or {},{ __index = function(t,k) return RAID_CLASS_COLORS[k] end })
-    
+
     AptechkaDB_Global = AptechkaDB_Global or {}
     AptechkaDB_Char = AptechkaDB_Char or {}
     AptechkaDB_Global.charspec = AptechkaDB_Global.charspec or {}
@@ -89,7 +89,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         AptechkaDB = AptechkaDB_Global
     end
     Aptechka.Roster = Roster
-    
+
     if config.disableBlizzardParty then
         helpers.DisableBlizzParty()
     end
@@ -107,30 +107,30 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.enableIncomingHeals then
         self:RegisterEvent("UNIT_HEAL_PREDICTION")
     end
-    
+
     if not config[config.skin.."Settings"]
         then config["GridSkinSettings"]()
         else config[config.skin.."Settings"]() -- receiving width and height for current skin
     end
-    
+
     do
-        -- self.mapframe:Enable()
-    
+        self.mapframe:Enable()
+
     end
 
     local tbind
     if config.TargetBinding == nil then tbind = "*type1"
     elseif config.TargetBinding == false then tbind = "__none__"
     else tbind = config.TargetBinding end
-    
+
     local ccmacro = config.ClickCastingMacro or "__none__"
     self.initConfSnippet = string.format([=[
         self:SetWidth(%f)
         self:SetHeight(%f)
-        
+
         local hdr = self:GetParent()
         if not hdr:GetAttribute("custom_scale") then hdr:SetScale(%f) end
-        
+
         self:SetAttribute("toggleForVehicle", true)
         local tbind = "%s"
         local ccmacro = "%s"
@@ -139,15 +139,15 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:SetAttribute("*type*", "macro")
             self:SetAttribute("macrotext", ccmacro)
         end
-        
+
         local ccheader = self:GetParent():GetFrameRef("clickcast_header")
         if ccheader then
             ccheader:SetAttribute("clickcast_button", self)
             ccheader:RunAttribute("clickcast_register")
         end
-        
+
     ]=],config.width, config.height,config.scale,tbind,ccmacro)
-    
+
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_HEALTH_FREQUENT")
     self:RegisterEvent("UNIT_MAXHEALTH")
@@ -160,7 +160,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     else
         Aptechka.CheckPhase = function() end
     end
-    
+
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER")
         self:RegisterEvent("UNIT_MAXPOWER")
@@ -215,18 +215,18 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             -- return Aptechka:COMBAT_LOG_HEALTH(nil, unit, health)
         end)
     end
-    
+
     self:RegisterEvent("UNIT_AURA")
     self:RegisterEvent("SPELLS_CHANGED")
     self:RegisterEvent("GROUP_ROSTER_UPDATE")
-    
+
     if config.raidIcons then
         self:RegisterEvent("RAID_TARGET_UPDATE")
     end
     if config.enableVehicleSwap then
         self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     end
-    
+
     if not config.anchorpoint then
         config.anchorpoint = Aptechka:SetAnchorpoint()
     end
@@ -237,7 +237,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         local f  = Aptechka:CreateHeader(i) -- if second arg is true then it's petgroup
         group_headers[i] = f
         i = i + 1
-    end    
+    end
     CreatePetsFunc = function()
         local pets  = Aptechka:CreateHeader(9,true)
         group_headers[9] = pets
@@ -249,15 +249,15 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     if not next(debuffs) and not next(dtypes) then
         Aptechka.ScanDispels = function() end
-    end    
+    end
     -- if config.DispelFilterAll
     --     then DispelFilter = "HARMFUL"
     --     else DispelFilter = "HARMFUL|RAID"
     -- end
-                
+
     Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
     Aptechka:Show()
-        
+
     SLASH_APTECHKA1= "/aptechka"
     SLASH_APTECHKA2= "/apt"
     SLASH_APTECHKA3= "/inj"
@@ -272,7 +272,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_SPELLCAST_SENT")
         self:RegisterEvent("UI_ERROR_MESSAGE")
     end
-    
+
     if config.enableTraceHeals and next(traceheals) then
         self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
         self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, hideCaster,
@@ -299,7 +299,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         config.LoadableDebuffs[spell_group]()
         loaded[spell_group] = true
     end
-    --raid/pvp debuffs loading 
+    --raid/pvp debuffs loading
     local loader = CreateFrame("Frame")
     loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
     loader:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -339,7 +339,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end)
 
         Aptechka.UNIT_AURA = function(self, event, unit)
-            if not Roster[unit] then return end    
+            if not Roster[unit] then return end
             Aptechka.ScanDispels(unit)
             if OORUnits[unit] and inCL[unit] +5 < GetTime() then
                 buffer[unit] = true
@@ -372,7 +372,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 end
             end
         end)
-    end 
+    end
 end  -- END PLAYER_LOGIN
 
 function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
@@ -384,7 +384,7 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
             if heal and myheal then heal = heal - myheal end
         end
         local showHeal = (heal and heal > threshold)
-        if self.health.incoming then 
+        if self.health.incoming then
             self.health.incoming:SetValue( showHeal and self.health:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
         end
         if config.IncomingHealStatus then
@@ -499,7 +499,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         self.vHealthMax = hm
         self.health:SetValue(h/hm*100)
         SetJob(unit,config.HealthDificitStatus, ((hm-h) > 1000) )
-        
+
         if event then
             if UnitIsDeadOrGhost(unit) then
                 SetJob(unit, config.AggroStatus, false)
@@ -519,7 +519,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
                 if self.OnAlive then self:OnAlive() end
             end
         end
-        
+
     end
 end
 
@@ -603,29 +603,32 @@ local vehicleHack = function (self, time)
             -- print(string.format("L1>>Unit: %-s",original_unit))
             -- print(string.format("D4>[%s]>Dumping- Roster",NAME))
             -- d87add.dump("ROSTER")-
-            
+
             SetJob(owner,config.InVehicleStatus,false)
             Aptechka:UNIT_HEALTH("VEHICLE",owner)
             if self.parent.power then
                 Aptechka:UNIT_DISPLAYPOWER(nil, owner)
                 Aptechka:UNIT_POWER(nil,owner)
             end
+			if self.parent.absorb then
+				Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
+			end
             Aptechka.ScanAuras(owner)
-            
+
             self:SetScript("OnUpdate",nil)
         end
     end
 end
 function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
-    if not Roster[unit] then return end  
+    if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
-        if not self.InVehicle then --print("Already in vehicle")            
+        if not self.InVehicle then --print("Already in vehicle")
             local vehicleUnit = SecureButton_GetModifiedUnit(self)
             if unit ~= vehicleUnit then
                 self.InVehicle = true
                 self.unitOwner = unit --original unit
                 self.unit = vehicleUnit
-                
+
                 Aptechka:Colorize(nil, self.unitOwner)
                 self.guid = UnitGUID(vehicleUnit)
                 if self.guid then guidMap[self.guid] = vehicleUnit end
@@ -638,14 +641,15 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 -- local NAME = UnitName(unit)
                 -- print(string.format("D1>[%s]>Dumping Roster",NAME))
                 -- d87add.dump("ROSTER")
-                
+
                 if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
                 self.vehicleFrame.OnUpdateCounter = -1.5
                 self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
-                
+
                 SetJob(self.unit,config.InVehicleStatus,true)
                 Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
                 if self.power then Aptechka:UNIT_POWER(nil,self.unit) end
+				if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
                 Aptechka.CheckPhase1(self.unit)
                 Aptechka.ScanAuras(self.unit)
             end
@@ -660,7 +664,7 @@ Aptechka.OnRangeUpdate = function (self, time)
     self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
     if self.OnUpdateCounter < 0.5 then return end
     self.OnUpdateCounter = 0
-    
+
     for unit, frames in pairs(Roster) do
         for frame in pairs(frames) do
             if AptechkaUnitInRange(unit) then
@@ -707,21 +711,21 @@ function Aptechka.UI_ERROR_MESSAGE(self, event, errmsg)
                     return
                 end
             end
-        end 
+        end
     end
 end
 
 function Aptechka.CheckRoles(apt, self, unit )
     --self is UnitButton here
     if config.MainTankStatus then
-        FrameSetJob(self, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK") 
+        FrameSetJob(self, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK")
     end
 
     if config.displayRoles then
         local isLeader = UnitIsGroupLeader(unit)
         local role = UnitGroupRolesAssigned(unit)
 
-        FrameSetJob(self, config.LeaderStatus, isLeader)  
+        FrameSetJob(self, config.LeaderStatus, isLeader)
         -- self.text3:SetFormattedText("%s%s", isLeader and "L" or "",
             -- (role == "HEALER" and "|cff88ff88H|r") or
             -- (role == "TANK" and "|cff8888ffT|r") or ""
@@ -894,15 +898,15 @@ local OnAttributeChanged = function(self, attrname, unit)
 
     -- Removing frames that no longer associated with this unit from Roster
     for roster_unit, frames in pairs(Roster) do
-        if frames[self] and (  self:GetAttribute("unit") ~= roster_unit   ) then -- or (self.InVehicle and self.unitOwner ~= roster_unit) 
+        if frames[self] and (  self:GetAttribute("unit") ~= roster_unit   ) then -- or (self.InVehicle and self.unitOwner ~= roster_unit)
             -- print ("Removing frame", self:GetName(), roster_unit, "=>", self:GetAttribute("unit"))
             frames[self] = nil
         end
     end
-    
+
     if self.OnUnitChanged then self:OnUnitChanged(owner) end
     if not unit then return end
-    
+
     local name, realm = UnitName(owner)
     self.name = utf8sub(name,1,config.cropNamesLen)
 
@@ -914,14 +918,13 @@ local OnAttributeChanged = function(self, attrname, unit)
     for guid, gunit in pairs(guidMap) do
         if not Roster[gunit] or guid ~= UnitGUID(gunit) then guidMap[guid] = nil end
     end
-    
+
     Aptechka:Colorize(nil, owner)
     FrameSetJob(self,config.HealthBarColor,true)
     FrameSetJob(self,config.PowerBarColor,true)
     Aptechka.ScanAuras(unit)
     FrameSetJob(self, config.UnitNameStatus, true)
-    Aptechka:UNIT_HEALTH("ONATTR", unit)
-    Aptechka:UNIT_POWER("ONATTR", unit)
+    Aptechka:UNIT_HEALTH(nil, unit)
     if config.enableAbsorbBar then
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
@@ -940,14 +943,27 @@ local OnAttributeChanged = function(self, attrname, unit)
         Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
     end
     Aptechka:CheckRoles(self, unit)
-    if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end    
+    if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
+end
+
+function Aptechka:PLAYER_ENTERING_WORLD(self)
+	for unit in pairs(Roster) do
+		Aptechka:UNIT_HEALTH(nil, unit)
+		if not config.disableManaBar then
+	        Aptechka:UNIT_DISPLAYPOWER(nil, unit)
+	        Aptechka:UNIT_POWER(nil, unit)
+	    end
+		if config.enableAbsorbBar then
+			Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
+		end
+    end
 end
 
 local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         local p1, p2
         local xgap = 0
         local ygap = config.groupGap
-        local point, direction = reverse(unitGrowth or config.unitGrowth) 
+        local point, direction = reverse(unitGrowth or config.unitGrowth)
         local grgrowth = groupGrowth or (notreverse and reverse(config.groupGrowth) or config.groupGrowth)
         if grgrowth == "TOP" then
             if direction == "VERTICAL" then point = "" end
@@ -966,13 +982,13 @@ local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
             xgap, ygap = -ygap, xgap
         end
         return p1, prv_group, p2, xgap, ygap
-end 
+end
 function Aptechka.CreateHeader(self,group,petgroup)
     local frameName = "NugRaid"..group
 
     local HeaderTemplate = petgroup and "SecureGroupPetHeaderTemplate" or "SecureGroupHeaderTemplate"
     local f = CreateFrame("Button",frameName, UIParent, HeaderTemplate)
-    
+
 
     f:SetAttribute("template", "AptechkaUnitButtonTemplate")
     f:SetAttribute("templateType", "Button")
@@ -1013,7 +1029,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     else
         f:SetPoint(arrangeHeaders(group_headers[group-1]))
     end
-    
+
     f:Show()
 
     return f
@@ -1076,7 +1092,7 @@ function Aptechka.CreateAnchor(self,hdr,num)
     t:SetTexture("Interface\\Buttons\\UI-RadioButton")
     t:SetTexCoord(0,0.25,0,1)
     t:SetAllPoints(f)
-    
+
     t = f:CreateTexture(nil,"BACKGROUND")
     t:SetTexture("Interface\\Buttons\\UI-RadioButton")
     t:SetTexCoord(0.25,0.49,0,1)
@@ -1084,7 +1100,7 @@ function Aptechka.CreateAnchor(self,hdr,num)
     elseif num == 9 then t:SetVertexColor(1, 0.6, 0)
     else t:SetVertexColor(0, 1, 0) end
     t:SetAllPoints(f)
-    
+
     local text = f:CreateFontString()
     text:SetPoint("RIGHT",f,"LEFT",0,0)
     text:SetFontObject("GameFontNormal")
@@ -1096,11 +1112,11 @@ function Aptechka.CreateAnchor(self,hdr,num)
     f:EnableMouse(true)
     f:SetMovable(true)
     f:SetFrameStrata("HIGH")
-    
+
     hdr:SetPoint(config.anchorpoint,f,reverse(config.anchorpoint),0,0)
     anchors[num] = f
     f:Hide()
-    
+
     if not AptechkaDB[skinAnchorsName] then AptechkaDB[skinAnchorsName] = {} end
     if not AptechkaDB[skinAnchorsName][num] then
         if num == 1 then AptechkaDB[skinAnchorsName][num] = { point = "CENTER", x = 0, y = 0 }
@@ -1117,7 +1133,7 @@ function Aptechka.CreateAnchor(self,hdr,num)
         f:SetPoint(san.point,f.prev,san.point,san.x,san.y)
     end
     f.san = san
-    
+
     f:SetScript("OnDragStart",function(self) self:StartMoving() end)
     f:SetScript("OnDragStop",function(self)
         self:StopMovingOrSizing();
@@ -1158,15 +1174,15 @@ end
 
 local onenter = function(self)
     if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
+	Aptechka.mapframe:Bind(self)
     if UnitAffectingCombat("player") then return end
     UnitFrame_OnEnter(self)
-    Aptechka.mapframe:Bind(self)
     self:SetScript("OnUpdate", UnitFrame_OnUpdate)
 end
 local onleave = function(self)
     if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
+	Aptechka.mapframe:Unbind(self)
     UnitFrame_OnLeave(self)
-    Aptechka.mapframe:Unbind(self)
     self:SetScript("OnUpdate", nil)
 end
 --~ function Aptechka.SetupFrame(header,id)
@@ -1175,23 +1191,23 @@ function Aptechka.SetupFrame(f)
 
     f.onenter = onenter
     f.onleave = onleave
-    -- f:SetAttribute("_onenter",[[
-    --     local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
-    --     self:CallMethod("onenter")
-    -- ]])
-    -- --self:SetScale( 1 )
-    -- f:SetAttribute("_onleave",[[
-    --     local snippet = self:GetAttribute('clickcast_onleave'); if snippet then self:Run(snippet) end
-    --     self:CallMethod("onleave")
-    -- ]])
+    f:SetAttribute("_onenter",[[
+        local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
+        self:CallMethod("onenter")
+    ]])
+    --self:SetScale( 1 )
+    f:SetAttribute("_onleave",[[
+        local snippet = self:GetAttribute('clickcast_onleave'); if snippet then self:Run(snippet) end
+        self:CallMethod("onleave")
+    ]])
 
     -- print(unpack(config.registerForClicks))
     f:RegisterForClicks(unpack(config.registerForClicks))
     f.vHealthMax = 1
     f.vHealth = 1
-    
+
     --ClickCastFrames[f] = true -- add to clique list
-    
+
     if config[config.skin] then
         config[config.skin](f)
     else
@@ -1199,7 +1215,7 @@ function Aptechka.SetupFrame(f)
     end
     f.self = f
     f.HideFunc = f.HideFunc or function() end
-    
+
     if config.disableManaBar or not f.power then
         Aptechka:UnregisterEvent("UNIT_POWER")
         Aptechka:UnregisterEvent("UNIT_MAXPOWER")
@@ -1207,7 +1223,7 @@ function Aptechka.SetupFrame(f)
         if f.power and f.power.OnPowerTypeChange then f.power:OnPowerTypeChange("none") end
         f.power = nil
     end
-    
+
     if f.raidicon then
         f.raidicon.texture:SetTexture[[Interface\TargetingFrame\UI-RaidTargetingIcons]]
     end
@@ -1227,7 +1243,7 @@ FrameSetJob = function (frame, opts, status)
                     then self.jobs[opts.name] = opts
                     else self.jobs[opts.name] = nil
                 end
-                
+
                     if next(self.jobs) then
                         local max
                         local max_priority = 0
@@ -1241,7 +1257,7 @@ FrameSetJob = function (frame, opts, status)
                         if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
                         if self.SetJob  then self:SetJob(self.jobs[max]) end
                         self.currentJob = self.jobs[max]
-                        
+
                     else
                         if self.HideFunc then self:HideFunc() else self:Hide() end
                         self.currentJob = nil
@@ -1565,7 +1581,7 @@ function Aptechka.SlashCmd(msg)
                 -- local raidIndex = tonumbre(string.match(unit, "(%d+)"))
                 -- local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, loot = GetRaidRosterInfo(raidIndex)
                 -- if loot then j3 =
-            
+
 
             for self in pairs(frames) do
                 FrameSetJob(self, j1, true)
@@ -1577,25 +1593,19 @@ function Aptechka.SlashCmd(msg)
 end
 
 
--- local MapData = LibStub("LibMapData-1.0")
-local mapwidth, mapheight = 0, 0
+
 local mapframe = CreateFrame("Frame")
 Aptechka.mapframe = mapframe
--- mapframe:SetScript("OnEvent", function(self, event, ...)
 mapframe:SetScript("OnEvent", function(self, event, ...)
     self[event](self, event, ...)
 end)
 
 function mapframe:Enable()
     self.isEnabled = true
-    self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-    self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:Create()
-    -- self:RegisterEvent("GROUP_ROSTER_UPDATE")
 end
 
 function mapframe:Create()
-    -- local arrow = CreateFrame("Frame", nil, self)
     if self.created then return end
     self.created = true
     local self = self
@@ -1616,27 +1626,9 @@ function mapframe:Create()
     self:Hide()
 end
 
-
-function mapframe.ZONE_CHANGED_NEW_AREA(self, event)
-    local px, py = 0, 0
-    px, py = GetPlayerMapPosition("player")
-    if((px or 0)+(py or 0) <= 0) then
-        if WorldMapFrame:IsVisible() then return end
-        SetMapToCurrentZone()
-        px, py = GetPlayerMapPosition("player")
-        if((px or 0)+(py or 0) <= 0) then return end
-    end
-
-    if px > 0 or py > 0 then
-        local map, level = GetMapInfo(), GetCurrentMapDungeonLevel()
-        mapwidth, mapheight = MapData:MapArea(map, level)
-        -- print('changed map', map, level, mapwidth, mapheight)
-    end
-end
-mapframe.PLAYER_ENTERING_WORLD = mapframe.ZONE_CHANGED_NEW_AREA
-
 local function vectorDegree(x1, y1, x2, y2)
-    return math.deg(math.acos((x1*x2 + y1*y2)/(math.sqrt(math.pow(x1,2) + math.pow(y1,2)) + math.sqrt(math.pow(x2,2) + math.pow(y2,2)))))
+	local angle = math.atan2(y1,x1) - math.atan2(y2,x2)
+	return math.deg(angle)
 end
 
 function mapframe:Bind(frame)
@@ -1676,35 +1668,32 @@ function GetGradientColor(v)
 end
 
 
--- mapframe.OnUpdateCounter = 0
--- mapframe:SetScript("OnUpdate", function(self, elapsed)
---     self.OnUpdateCounter = self.OnUpdateCounter + elapsed
---     if self.OnUpdateCounter < 0.3 then return end
+mapframe.OnUpdateCounter = 0
+mapframe:SetScript("OnUpdate", function(self, elapsed)
+    self.OnUpdateCounter = self.OnUpdateCounter + elapsed
+    if self.OnUpdateCounter < 0.3 then return end
 
---     local frame = self.frame
---     local unit = frame.unit
---     local px, py = GetPlayerMapPosition("player")
---     local facing = 360 - math.deg(GetPlayerFacing())
+    local frame = self.frame
+    local unit = frame.unit
+    local py, px = UnitPosition("player")--GetPlayerMapPosition("player")
+    local facing = 360 - math.deg(GetPlayerFacing())
 
---     local ux, uy = GetPlayerMapPosition(unit)
---     if ux == 0 and uy == 0 then
---         self.texture:Hide()
---     else
---         self.texture:Show()
---     end
---     local x = (px - ux) * mapwidth
---     local y = -(py - uy) * mapheight
---     local dist = (x*x + y*y)^0.5
---     -- print(dist)
---     local r,g,b = GetGradientColor((dist-40)/20)
---     -- print((dist-40)/20)
---     -- print(math.floor(x),math.floor(y))
---     -- print(x,y)
---     local angle = vectorDegree(0, 1, x,y)
---     if x < 0 then angle = 360 - angle end
---     local angleToUnit = (angle - facing) + 180
---     -- print(unit, math.floor(facing), math.floor(angle), math.floor(angleToUnit))
+    local uy, ux = UnitPosition(unit)--GetPlayerMapPosition(unit)
+	if not uy then self:Hide() end
+    if ux == 0 and uy == 0 then
+        self.texture:Hide()
+    else
+        self.texture:Show()
+    end
+    local x = (ux - px)-- * mapwidth
+    local y = -(uy - py)-- * mapheight
+    local dist = (x*x + y*y)^0.5
+    local r,g,b = GetGradientColor((dist-40)/20)
 
---     self:Rotate(-angleToUnit)
---     self.texture:SetVertexColor(r,g,b)
--- end)
+    local angle = vectorDegree(0, 1, x,y)
+    local angleToUnit = (angle - facing) + 180
+
+
+    self:Rotate(-angleToUnit)
+    self.texture:SetVertexColor(r,g,b)
+end)

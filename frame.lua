@@ -51,9 +51,12 @@ local SetJob_Indicator = function(self,job)
         self.cd:SetCooldown(job.expirationTime - job.duration,job.duration,0,0)
         self.cd:Show()
     elseif job.showStacks then
-        self.cd:SetReverse(false)
-        self:SetMinMaxValues(0, job.showStacks)
-        self:SetValue(job.stacks)
+        local stime = 300
+        local completed = (job.showStacks - job.stacks) * stime
+        local total = job.showStacks * stime
+        local start = GetTime() - completed
+        self.cd:SetReverse(true)
+        self.cd:SetCooldown(start, total)
     else
         self.cd:Hide()
     end
