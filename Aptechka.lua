@@ -113,9 +113,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         else config[config.skin.."Settings"]() -- receiving width and height for current skin
     end
 
-    do
-        self.mapframe:Enable()
-
+    if config.enableDirectionArrow then
+        self.arrowframe:Enable()
     end
 
     local tbind
@@ -1178,14 +1177,14 @@ end
 
 local onenter = function(self)
     if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
-	Aptechka.mapframe:Bind(self)
+	Aptechka.arrowframe:Bind(self)
     if UnitAffectingCombat("player") then return end
     UnitFrame_OnEnter(self)
     self:SetScript("OnUpdate", UnitFrame_OnUpdate)
 end
 local onleave = function(self)
     if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
-	Aptechka.mapframe:Unbind(self)
+	Aptechka.arrowframe:Unbind(self)
     UnitFrame_OnLeave(self)
     self:SetScript("OnUpdate", nil)
 end
@@ -1598,37 +1597,15 @@ end
 
 
 
-local mapframe = CreateFrame("Frame")
-Aptechka.mapframe = mapframe
-mapframe:SetScript("OnEvent", function(self, event, ...)
-    self[event](self, event, ...)
-end)
+local arrowframe = CreateFrame("Frame")
+Aptechka.arrowframe = arrowframe
+-- arrowframe:SetScript("OnEvent", function(self, event, ...)
+--     self[event](self, event, ...)
+-- end)
 
-function mapframe:Enable()
+function arrowframe:Enable()
     self.isEnabled = true
     self:Create()
-end
-
-function mapframe:Create()
-    if self.created then return end
-    self.created = true
-    local self = self
-    self:SetWidth(20)
-    self:SetHeight(20)
-	self:SetFrameLevel(4)
-    local atex = self:CreateTexture(nil, "OVERLAY")
-    atex:SetAllPoints(self)
-    atex:SetTexture("Interface\\Addons\\Aptechka\\arrow")
-    self.texture = atex
-    self.Rotate = function(self, degrees)
-        local angle = math.rad(degrees)
-        self.texture:SetRotation(angle)
-        -- local cos, sin = math.cos(angle), math.sin(angle)
-        -- print((sin - cos), -(cos + sin), -cos, -sin, sin, -cos, 0, 0)
-        -- self.texture:SetTexCoord((sin - cos), -(cos + sin), -cos, -sin, sin, -cos, 0, 0)
-    end
-    self:Rotate(0)
-    self:Hide()
 end
 
 local function vectorDegree(x1, y1, x2, y2)
@@ -1636,7 +1613,7 @@ local function vectorDegree(x1, y1, x2, y2)
 	return math.deg(angle)
 end
 
-function mapframe:Bind(frame)
+function arrowframe:Bind(frame)
     if frame.unit == "player" then return end
     self.frame = frame
     self:SetPoint("BOTTOM", frame,  "TOP",0,0)
@@ -1644,7 +1621,7 @@ function mapframe:Bind(frame)
     self:Show()
 end
 
-function mapframe:Unbind(frame)
+function arrowframe:Unbind(frame)
     self:Hide()
 end
 
@@ -1672,33 +1649,53 @@ function GetGradientColor(v)
     return r,g,b
 end
 
-
-mapframe.OnUpdateCounter = 0
-mapframe:SetScript("OnUpdate", function(self, elapsed)
-    self.OnUpdateCounter = self.OnUpdateCounter + elapsed
-    if self.OnUpdateCounter < 0.3 then return end
-
-    local frame = self.frame
-    local unit = frame.unit
-    local py, px = UnitPosition("player")--GetPlayerMapPosition("player")
-    local facing = 360 - math.deg(GetPlayerFacing())
-
-    local uy, ux = UnitPosition(unit)--GetPlayerMapPosition(unit)
-	if not uy then self:Hide(); return end
-    if ux == 0 and uy == 0 then
-        self.texture:Hide()
-    else
-        self.texture:Show()
+function arrowframe:Create()
+    if self.created then return end
+    self.created = true
+    self:SetWidth(20)
+    self:SetHeight(20)
+	self:SetFrameLevel(4)
+    local atex = self:CreateTexture(nil, "OVERLAY")
+    atex:SetAllPoints(self)
+    atex:SetTexture("Interface\\Addons\\Aptechka\\arrow")
+    self.texture = atex
+    self.Rotate = function(self, degrees)
+        local angle = math.rad(degrees)
+        self.texture:SetRotation(angle)
+        -- local cos, sin = math.cos(angle), math.sin(angle)
+        -- print((sin - cos), -(cos + sin), -cos, -sin, sin, -cos, 0, 0)
+        -- self.texture:SetTexCoord((sin - cos), -(cos + sin), -cos, -sin, sin, -cos, 0, 0)
     end
-    local x = (ux - px)-- * mapwidth
-    local y = -(uy - py)-- * mapheight
-    local dist = (x*x + y*y)^0.5
-    local r,g,b = GetGradientColor((dist-40)/20)
+    self:Rotate(0)
+    self:Hide()
 
-    local angle = vectorDegree(0, 1, x,y)
-    local angleToUnit = (angle - facing) + 180
+	self.OnUpdateCounter = 0
+	self:SetScript("OnUpdate", function(self, elapsed)
+	    self.OnUpdateCounter = self.OnUpdateCounter + elapsed
+	    if self.OnUpdateCounter < 0.3 then return end
+
+	    local frame = self.frame
+	    local unit = frame.unit
+	    local py, px = UnitPosition("player")--GetPlayerMapPosition("player")
+	    local facing = 360 - math.deg(GetPlayerFacing())
+
+	    local uy, ux = UnitPosition(unit)--GetPlayerMapPosition(unit)
+		if not uy then self:Hide(); return end
+	    if ux == 0 and uy == 0 then
+	        self.texture:Hide()
+	    else
+	        self.texture:Show()
+	    end
+	    local x = (ux - px)-- * mapwidth
+	    local y = -(uy - py)-- * mapheight
+	    local dist = (x*x + y*y)^0.5
+	    local r,g,b = GetGradientColor((dist-40)/20)
+
+	    local angle = vectorDegree(0, 1, x,y)
+	    local angleToUnit = (angle - facing) + 180
 
 
-    self:Rotate(-angleToUnit)
-    self.texture:SetVertexColor(r,g,b)
-end)
+	    self:Rotate(-angleToUnit)
+	    self.texture:SetVertexColor(r,g,b)
+	end)
+end

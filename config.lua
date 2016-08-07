@@ -55,6 +55,7 @@ config.petcolor = {1,.5,.5}
 
 config.registerForClicks = { "AnyUp" }
 config.enableIncomingHeals = true
+config.enableDirectionArrow = true
 config.incomingHealThreshold = 15000
 config.incomingHealIgnorePlayer = false
 config.showPhaseIcon = true
