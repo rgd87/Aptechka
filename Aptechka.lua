@@ -149,6 +149,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     ]=],config.width, config.height,config.scale,tbind,ccmacro)
 
     self:RegisterEvent("UNIT_HEALTH")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("UNIT_HEALTH_FREQUENT")
     self:RegisterEvent("UNIT_MAXHEALTH")
     Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
@@ -946,17 +947,20 @@ local OnAttributeChanged = function(self, attrname, unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
 end
 
-function Aptechka:PLAYER_ENTERING_WORLD(self)
+local UpdateHealthAfterInstance = function()
 	for unit in pairs(Roster) do
 		Aptechka:UNIT_HEALTH(nil, unit)
 		if not config.disableManaBar then
-	        Aptechka:UNIT_DISPLAYPOWER(nil, unit)
-	        Aptechka:UNIT_POWER(nil, unit)
-	    end
+			Aptechka:UNIT_DISPLAYPOWER(nil, unit)
+			Aptechka:UNIT_POWER(nil, unit)
+		end
 		if config.enableAbsorbBar then
 			Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
 		end
-    end
+	end
+end
+function Aptechka:PLAYER_ENTERING_WORLD(self)
+	C_Timer.After(2, UpdateHealthAfterInstance)
 end
 
 local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
@@ -1611,6 +1615,7 @@ function mapframe:Create()
     local self = self
     self:SetWidth(20)
     self:SetHeight(20)
+	self:SetFrameLevel(4)
     local atex = self:CreateTexture(nil, "OVERLAY")
     atex:SetAllPoints(self)
     atex:SetTexture("Interface\\Addons\\Aptechka\\arrow")
@@ -1679,7 +1684,7 @@ mapframe:SetScript("OnUpdate", function(self, elapsed)
     local facing = 360 - math.deg(GetPlayerFacing())
 
     local uy, ux = UnitPosition(unit)--GetPlayerMapPosition(unit)
-	if not uy then self:Hide() end
+	if not uy then self:Hide(); return end
     if ux == 0 and uy == 0 then
         self.texture:Hide()
     else
