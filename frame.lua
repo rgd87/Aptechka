@@ -65,7 +65,7 @@ local SetJob_Indicator = function(self,job)
         color = job.color or { 1,1,1,1 }
     end
     self.color:SetVertexColor(unpack(color))
-    
+
     if job.fade then
         if self.traceJob ~= job or not self.blink:IsPlaying() then
 
@@ -130,7 +130,7 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     f:SetPoint(point,frame,to,x,y)
     f.parent = parent
     f.SetJob = SetJob_Indicator
-    
+
     local pag = f:CreateAnimationGroup()
     local pa1 = pag:CreateAnimation("Scale")
     pa1:SetScale(2,2)
@@ -140,9 +140,9 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     pa2:SetScale(0.5,0.5)
     pa2:SetDuration(0.8)
     pa2:SetOrder(2)
-    
+
     f.pulse = pag
-    
+
     local bag = f:CreateAnimationGroup()
     bag:SetLooping("NONE")
     local ba1 = bag:CreateAnimation("Alpha")
@@ -179,7 +179,7 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
         local start = GetTime() - duration * progress
         self.cd:SetCooldown(start, duration,0,0)
     end
-    
+
     f:Hide()
     return f
 end
@@ -207,7 +207,7 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation)
     t:SetTexture[[Interface\AddOns\Aptechka\corner]]
     if orientation == "BOTTOMLEFT" then
         -- (ULx,ULy,LLx,LLy,URx,URy,LRx,LRy);
-        -- 00 1 
+        -- 00 1
         t:SetTexCoord(1,0,1,1,0,0,0,1)
     elseif orientation == "TOPRIGHT" then
         t:SetTexCoord(0,1,0,0,1,1,1,0)
@@ -240,9 +240,9 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation)
     pa2:SetScale(0.5,0.5)
     pa2:SetDuration(0.8)
     pa2:SetOrder(2)
-    
+
     f.pulse = pag
-        
+
     f:Hide()
     return f
 end
@@ -260,7 +260,7 @@ local SetJob_StatusBar = function(self,job)
         self:SetMinMaxValues(0, job.showStacks)
         self:SetValue(job.stacks)
         self:SetScript("OnUpdate", nil)
-    else        
+    else
         self.expires = job.expirationTime
         self:SetMinMaxValues(0, job.duration)
         self:SetValue(self.expires - GetTime())
@@ -275,7 +275,7 @@ local SetJob_StatusBar = function(self,job)
     end
     self.bg:SetVertexColor(color[1]/3, color[2]/3, color[3]/3)
     self:SetStatusBarColor(unpack(color))
-    
+
     -- if job.fade then
     --     if self.blink:IsPlaying() then self.blink:Finish() end
     --     self.traceJob = job
@@ -321,7 +321,7 @@ local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     -- pa2:SetScale(0.5,0.5)
     -- pa2:SetDuration(0.8)
     -- pa2:SetOrder(2)
-    
+
     -- f.pulse = pag
 
     f:Hide()
@@ -341,7 +341,7 @@ local SetJob_Icon = function(self,job)
         self.cd:Hide()
     end
     self.texture:SetTexture(job.texture)
-    
+
     if self.stacktext then
         if job.stacks then self.stacktext:SetText(job.stacks > 1 and job.stacks or "") end
     end
@@ -362,7 +362,7 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     -- icontex:SetHeight(h);
     icon.texture = icontex
     icon:SetAlpha(alpha)
-    
+
     local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
     icd.noCooldownCount = true -- disable OmniCC for this cooldown
     icd:SetReverse(true)
@@ -398,7 +398,7 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     stacktext:SetTextColor(1,1,1)
     icon.stacktext = stacktext
     icon.SetJob = SetJob_Icon
-    
+
     return icon
 end
 AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
@@ -437,7 +437,7 @@ local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
     icontex:SetHeight(h);
 
     icon.texture:SetTexCoord(.2, .8, .2, .8)
-    
+
     local dttex = icon:CreateTexture(nil, "ARTWORK", nil, -2)
     dttex:SetTexture("Interface\\Addons\\Aptechka\\white")
     dttex:SetWidth(h)
@@ -520,7 +520,7 @@ local SetJob_Text3 = function(self,job)
     if job.text then
         self:SetText(job.text)
     end
-    
+
     local c
     if job.color then
         c = job.color
@@ -569,20 +569,20 @@ end
 AptechkaDefaultConfig.GridSkin = function(self)
     local config
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
-    
+
     local texture = config.texture
     local font = config.font
     local fontsize = config.fontsize
     local manabar_width = config.manabarwidth
-    
+
     local backdrop = {
         bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,
         insets = {left = -2, right = -2, top = -2, bottom = -2},
     }
     self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, 1)
-    
-    
+
+
     local mot = self:CreateTexture(nil,"OVERLAY")
     mot:SetAllPoints(self)
     mot:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
@@ -591,8 +591,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     mot:SetBlendMode("ADD")
     mot:Hide()
     self.mouseover = mot
-    
-        
+
+
     local powerbar = CreateFrame("StatusBar", nil, self)
 	powerbar:SetWidth(4)
     powerbar:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
@@ -604,13 +604,13 @@ AptechkaDefaultConfig.GridSkin = function(self)
     powerbar:SetOrientation("VERTICAL")
     powerbar.SetJob = SetJob_HealthBar
     powerbar.OnPowerTypeChange = PowerBar_OnPowerTypeChange
-    
+
     local pbbg = powerbar:CreateTexture(nil,"ARTWORK",nil,-3)
 	pbbg:SetAllPoints(powerbar)
 	pbbg:SetTexture(texture)
     powerbar.bg = pbbg
-    
-    
+
+
     local hp = CreateFrame("StatusBar", nil, self)
 	--hp:SetAllPoints(self)
     hp:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
@@ -675,7 +675,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- abg:SetTexture("Interface\\Addons\\Aptechka\\gradient")
     -- abg:SetVertexColor(0,0,0, .3)
     -- absorb.bg = abg
-    
+
     local hpbg = hp:CreateTexture(nil,"ARTWORK",nil,-7)
 	hpbg:SetAllPoints(hp)
 	hpbg:SetTexture(texture)
@@ -696,7 +696,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     --     hp2.parent = self
     --     hp2.SetJob = SetJob_HealthBar
     --     --hp:SetValue(0)
-        
+
     --     local hp2bg = hp:CreateTexture(nil,"ARTWORK",nil,-5)
     --     hp2bg:SetAllPoints(hp2)
     --     hp2bg:SetTexture(texture)
@@ -710,7 +710,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hpi:SetStatusBarColor(0,0,0,0.3)
     hpi:SetMinMaxValues(0,100)
     --hpi:SetValue(0)
-    
+
     local border = CreateFrame("Frame",nil,self)
     border:SetAllPoints(self)
     border:SetFrameStrata("LOW")
@@ -721,7 +721,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     border:SetAlpha(0.5)
     border.SetJob = SetJob_Border
     border:Hide()
-    
+
     local text = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     text:SetPoint("CENTER",self,"CENTER",0,0)
     text:SetJustifyH"CENTER"
@@ -731,7 +731,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text:SetShadowOffset(1,-1)
     text.SetJob = SetJob_Text1
     text.parent = self
-    
+
     local text2 = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     text2:SetPoint("TOP",text,"BOTTOM",0,0)
     text2:SetJustifyH"CENTER"
@@ -739,9 +739,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text2.SetJob = SetJob_Text2
     text2:SetTextColor(0.2, 1, 0.2)
     text2.parent = self
-    
+
     local icon = CreateIcon(self,24,24,0.4,"CENTER",self,"CENTER",0,0)
-    
+
     local raidicon = CreateFrame("Frame",nil,self)
     raidicon:SetWidth(20); raidicon:SetHeight(20)
     raidicon:SetPoint("CENTER",hp,"TOPLEFT",0,0)
@@ -772,14 +772,14 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- roleicontex:SetVertexColor(0,0,0,0.2)
     roleicon.texture = roleicontex
 
-    
+
     local topind = CreateIndicator(self,10,10,"TOP",self,"TOP",0,0)
     local tr = CreateIndicator(self,10,10,"TOPRIGHT",self,"TOPRIGHT",0,0)
     local br = CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
     local btm = CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0)
     local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
     local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
-    local text3 = CreateTextTimer(self,"TOPLEFT",self,"TOPLEFT",0,0,"LEFT",fontsize-3,font)--,"OUTLINE")
+    local text3 = CreateTextTimer(self,"TOPRIGHT",self,"TOPRIGHT",-5,0,"LEFT",fontsize-3,font)--,"OUTLINE")
 
     local bar1 = CreateStatusBar(self, 19, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
     local bar2 = CreateStatusBar(self, 19, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)
@@ -791,10 +791,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     local blcorner = CreateCorner(self, 12, 12, "BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation
-    
+
     self.SetJob = SetJob_Frame
     self.HideFunc = Frame_HideFunc
-    
+
     self.health = hp
     self.health.incoming = hpi
     self.text1 = text
@@ -820,7 +820,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.absorb = absorb
     self.centericon = centericon
 
-    
+
     self.OnMouseEnterFunc = OnMouseEnterFunc
     self.OnMouseLeaveFunc = OnMouseLeaveFunc
     self.OnDead = OnDead
@@ -832,13 +832,13 @@ AptechkaDefaultConfig.GridSkinHorizontal = function(self)
     self.health:SetOrientation("HORIZONTAL")
     self.health.incoming:SetOrientation("HORIZONTAL")
     self.power:SetOrientation("HORIZONTAL")
-    
+
     self.power:ClearAllPoints()
     self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
     self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
     self.power:SetHeight(5)
     self.power:SetWidth(0)
-    
+
     local PowerBar_OnPowerTypeChange = function(self, powertype)
         local self = self.parent
         if powertype ~= "MANA" then

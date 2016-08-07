@@ -50,7 +50,7 @@ config.maxgroups = 8
 config.petgroup = false
 config.petcolor = {1,.5,.5}
 --Pet group is always on separate anchor. Use /apt unlockall.
---A maximum of 5 pets can be displayed. 
+--A maximum of 5 pets can be displayed.
 --You also can use /apt createpets command, it creates pet group on the fly
 
 config.registerForClicks = { "AnyUp" }
@@ -124,7 +124,7 @@ end
 if playerClass == "PRIEST" then
         -- long buffs
     --A{ id = 21562, type = "HELPFUL", assignto = { "raidbuff" }, color = { 1, 1, 1}, isMissing = true } --Power Word: Fortitude
-    
+
     A{ id = 139,   type = "HELPFUL", assignto = { "bar1" }, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true } --Renew
     A{ id = 208065, type = "HELPFUL", assignto = { "bar2" }, priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true } --artifact
     -- A{ id = 7001,  type = "HELPFUL", assignto = { "bar2" }, priority = 65, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
@@ -149,34 +149,34 @@ if playerClass == "PRIEST" then
                                                                         --     [4] = { 1, .4, .4},
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
-    A{ id = 194384,type = "HELPFUL", assignto = { "bar1" }, color = { 0, 1, 0}, showDuration = true, isMine = true} 
-    
+    A{ id = 194384,type = "HELPFUL", assignto = { "bar1" }, color = { 0, 1, 0}, showDuration = true, isMine = true}
+
     -- Trace{id = 94472, type = "HEAL", minamount = 10000, assignto = { "spell3" }, color = { .2, 1, .2}, fade = .5, priority = 90 } -- Atonement
     Trace{id = 204883, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
     -- Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { .3, 1, .3}, fade = 1, priority = 97 } -- PoM Trace
 
     -- Trace{id = 47750, type = "HEAL", assignto = { "spell2", "spell3" }, color = { .3, 1, .3}, fade = 1.5, priority = 97 } -- PoM Trace
-                                                                        
+
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(2061),unit) == 1) end
             --// Use Flash Heal for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
-    
+
     DispelTypes("MAGIC|DISEASE")
 end
 
 if playerClass == "MONK" then
-    A{ id = 119611, type = "HELPFUL", assignto = { "bar1" }, color = {38/255, 221/255, 163/255}, showDuration = true } --Renewing Mist
-    A{ id = 124682, type = "HELPFUL", assignto = { "bar2" }, showDuration = true, color = { 1,1,0 }, priority = 92 } --Enveloping Mist
+    A{ id = 119611, type = "HELPFUL", assignto = { "bar1" }, isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true } --Renewing Mist
+    A{ id = 124682, type = "HELPFUL", assignto = { "spell2", "text3" }, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 92 } --Enveloping Mist
 
-    A{ id = 115175, type = "HELPFUL", assignto = { "spell2" }, showDuration = false, color = { 0, .8, 0}, priority = 92 } --Soothing Mist
+    -- A{ id = 115175, type = "HELPFUL", assignto = { "spell2" }, showDuration = false, color = { 0, .8, 0}, priority = 92 } --Soothing Mist
     -- A{ id = 198533, type = "HELPFUL", assignto = { "spell3" }, priority = 60, color = { 0, .4, 0} } --Statue's Soothing Mist
     A{ id = 191840, type = "HELPFUL", assignto = { "spell3" }, priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Essence Font
 
-    A{ id = 124081, type = "HELPFUL", assignto = { "spell3" }, showDuration = true, color = {0.7,0.8,1}, priority = 88 } --Zen Sphere
+    A{ id = 124081, type = "HELPFUL", assignto = { "spell3" }, showDuration = true, color = {0.7,0.8,1}, priority = 88, isMine = true } --Zen Sphere
 
     Trace{id = 116670, type = "HEAL", assignto = { "spell3" }, color = { 1, .7, .2}, fade = 0.7, priority = 96 } -- Vivify
 
     -- A{ id = 157627, type = "HELPFUL", assignto = { "bar2" }, showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
-    
+
 
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(115450),unit) == 1) end
             --// Use Detox for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
@@ -205,13 +205,13 @@ if playerClass == "PALADIN" then
 
     A{ id = 210320,  type = "HELPFUL", assignto = { "raidbuff" }, isMine = true, color = { .4, .4, 1} } --Devotion Aura
     A{ id = 183416,  type = "HELPFUL", assignto = { "raidbuff" }, isMine = true, color = { 1, .4, .4} } --Aura of Sacrifice
-                                                                        
+
     Trace{id = 85222, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Light of Dawn
 
     -- Trace{id = 82327, type = "HEAL", assignto = { "spell3" }, color = { .8, .5, 1}, fade = 0.7, priority = 96 } -- Holy Radiance
     -- Trace{id =121129, type = "HEAL", assignto = { "spell3" }, color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
 
-    
+
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(635),unit) == 1) end
             --// Use Holy Light for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
     -- ClickMacro[[
@@ -222,10 +222,10 @@ if playerClass == "PALADIN" then
 end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
-    
-    A{ id = 61295,  type = "HELPFUL", assignto = { "bar1" }, showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide    
+
+    A{ id = 61295,  type = "HELPFUL", assignto = { "bar1" }, showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide
     A{ id = 204288,    type = "HELPFUL", assignto = { "spell2" }, showDuration = true,
-                                                                        --isMine = true,     
+                                                                        --isMine = true,
                                                                         stackcolor =   {
                                                                             [1] = { 0,.4, 0},
                                                                             [2] = { 0,.5, 0},
@@ -239,10 +239,10 @@ if playerClass == "SHAMAN" then
                                                                         },
                                                                         foreigncolor = {0,0,.5}, } --Earth Shield
     Trace{id = 52042, type = "PERIODIC_HEAL", assignto = { "spell3" }, color = { 0.4 , 0.4, 1}, fade = 0.7, priority = 93 } -- Chain Heal
-                                                                        
+
     Trace{id = 1064, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = { "spell3" }, color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
-                                                                        
+
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(8004),unit) == 1) end
             --// Use Healing Surge for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
@@ -251,14 +251,15 @@ if playerClass == "SHAMAN" then
 end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = { "raidbuff" }, color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
-    
-    A{ id = 102351, type = "HELPFUL", assignto = { "spell3" }, priority = 70, color = {38/255, 221/255, 163/255} }
+
+    A{ id = 102351, type = "HELPFUL", assignto = { "spell3" }, priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
     A{ id = 774,   type = "HELPFUL", assignto = { "bar1"}, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true } --Rejuvenation
     A{ id = 155777,type = "HELPFUL", assignto = { "bar2"}, pulse = true, color = { 1, 0.4, 1}, showDuration = true, isMine = true } --Germination
     --A{ id = 8936,  type = "HELPFUL", assignto = { "topright" }, priority = 82, color = { 198/255, 233/255, 80/255}, showDuration = true, isMine = true } --Regrowth
     A{ id = 33763, type = "HELPFUL", assignto = { "spell2", }, showDuration = true, isMine = true, color = { 0.5, 1, 0.5}, } --Lifebloom
+    A{ id = 8936, type = "HELPFUL", assignto = { "raidbuf", }, isMine = true, color = { 0.5, 1, 0.5}, } --Lifebloom
     A{ id = 48438, type = "HELPFUL", assignto = { "spell3" }, color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true } --Wild Growth
-    
+
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(774),unit) == 1) end
             --// Use Rejuvenation for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
@@ -268,7 +269,7 @@ if playerClass == "MAGE" then
     --A{ id = 1459,  type = "HELPFUL", assignto = { "spell2" }, color = { .4 , .4, 1}, priority = 50 } --Arcane Intellect
     --A{ id = 61316, type = "HELPFUL", assignto = { "spell2" }, color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
     --A{ id = 54648, type = "HELPFUL", assignto = { "spell2" }, color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
-    
+
     DispelTypes("CURSE")
 end
 -- if not isHealer or playerClass == "PALADIN" then
