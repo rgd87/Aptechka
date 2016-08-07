@@ -255,9 +255,8 @@ if playerClass == "DRUID" then
     A{ id = 102351, type = "HELPFUL", assignto = { "spell3" }, priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
     A{ id = 774,   type = "HELPFUL", assignto = { "bar1"}, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true } --Rejuvenation
     A{ id = 155777,type = "HELPFUL", assignto = { "bar2"}, pulse = true, color = { 1, 0.4, 1}, showDuration = true, isMine = true } --Germination
-    --A{ id = 8936,  type = "HELPFUL", assignto = { "topright" }, priority = 82, color = { 198/255, 233/255, 80/255}, showDuration = true, isMine = true } --Regrowth
     A{ id = 33763, type = "HELPFUL", assignto = { "spell2", }, showDuration = true, isMine = true, color = { 0.5, 1, 0.5}, } --Lifebloom
-    A{ id = 8936, type = "HELPFUL", assignto = { "raidbuf", }, isMine = true, color = { 0.5, 1, 0.5}, } --Lifebloom
+    A{ id = 8936, type = "HELPFUL", assignto = { "spell3", }, isMine = true, color = { 0.2, 1, 0.2},priority = 60, showDuration = true } --Regrowth
     A{ id = 48438, type = "HELPFUL", assignto = { "spell3" }, color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true } --Wild Growth
 
     -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(774),unit) == 1) end
