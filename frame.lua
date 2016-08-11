@@ -775,6 +775,16 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- roleicontex:SetVertexColor(0,0,0,0.2)
     roleicon.texture = roleicontex
 
+    local aoemarker = hp:CreateTexture(nil, "ARTWORK")
+    aoemarker:SetDrawLayer("ARTWORK", 5)
+    aoemarker:SetTexture("Interface\\Addons\\Aptechka\\white")
+    aoemarker:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
+    aoemarker:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
+    aoemarker:SetHeight(1.5)
+    aoemarker:SetVertexColor(1,1,0)
+    aoemarker:Hide()
+
+
 
     local topind = CreateIndicator(self,10,10,"TOP",self,"TOP",0,0)
     local tr = CreateIndicator(self,10,10,"TOPRIGHT",self,"TOPRIGHT",0,0)
@@ -822,6 +832,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.roleicon = roleicon
     self.absorb = absorb
     self.centericon = centericon
+    self.smartheal = aoemarker
 
 
     self.OnMouseEnterFunc = OnMouseEnterFunc

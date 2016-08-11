@@ -59,8 +59,9 @@ config.enableDirectionArrow = true
 config.incomingHealThreshold = 15000
 config.incomingHealIgnorePlayer = false
 config.showPhaseIcon = true
+config.smartHealHelper = true
 config.displayRoles = true
-config.enableTraceHeals = false
+config.enableTraceHeals = true
 config.enableVehicleSwap = true
 config.enableAbsorbBar = true
 config.enableClickCasting = false
@@ -158,6 +159,7 @@ if playerClass == "PRIEST" then
 
     -- Trace{id = 94472, type = "HEAL", minamount = 10000, assignto = { "spell3" }, color = { .2, 1, .2}, fade = .5, priority = 90 } -- Atonement
     Trace{id = 204883, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
+    Trace{id = 596, type = "HEAL", assignto = { "spell3" }, color = { .5, .5, 1}, fade = 0.7, priority = 96 } -- Circle of Healing
     -- Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { .3, 1, .3}, fade = 1, priority = 97 } -- PoM Trace
 
     -- Trace{id = 47750, type = "HEAL", assignto = { "spell2", "spell3" }, color = { .3, 1, .3}, fade = 1.5, priority = 97 } -- PoM Trace
@@ -166,6 +168,23 @@ if playerClass == "PRIEST" then
             --// Use Flash Heal for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
     DispelTypes("MAGIC|DISEASE")
+
+    config.SmartHeals = {
+        [2] = { -- holy
+        	[1] = { -- Prayer of Healing
+        		spellID = 596,
+        		range = 19.5 ^ 2,
+        		maxtargets = 5,
+        		color = {0.5,0.5,1}
+        	},
+        	-- [2] = { -- Circle of Healing
+        	-- 	spellID = 204883,
+        	-- 	range = 30 ^ 2,
+        	-- 	maxtargets = 5,
+        	-- 	color = {1,1,0}
+        	-- },
+        }
+    }
 end
 
 if playerClass == "MONK" then
@@ -187,6 +206,17 @@ if playerClass == "MONK" then
             --// Use Detox for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
     DispelTypes("MAGIC|DISEASE|POISON")
+
+    config.SmartHeals = {
+        [2] = { -- Mistweaver
+        	[1] = { -- Vivify
+        		spellID = 116670,
+        		range = 40 ^ 2,
+        		maxtargets = 3,
+        		color = {38/255, 221/255, 163/255}
+        	},
+        }
+    }
 end
 
 if playerClass == "WARLOCK" then
@@ -268,6 +298,17 @@ if playerClass == "DRUID" then
             --// Use Rejuvenation for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
     DispelTypes("MAGIC|CURSE|POISON")
+
+    config.SmartHeals = {
+        [4] = { -- Restoratin
+        	[1] = { -- Wild Growth
+        		spellID = 48438,
+        		range = 30 ^ 2,
+        		maxtargets = 6,
+        		color = { 0.4, 1, 0.4}
+        	},
+        }
+    }
 end
 if playerClass == "MAGE" then
     --A{ id = 1459,  type = "HELPFUL", assignto = { "spell2" }, color = { .4 , .4, 1}, priority = 50 } --Arcane Intellect
