@@ -170,22 +170,6 @@ if playerClass == "PRIEST" then
 
     DispelTypes("MAGIC|DISEASE")
 
-    config.SmartHeals = {
-        [2] = { -- holy
-        	[1] = { -- Prayer of Healing
-        		spellID = 596,
-        		range = 19.5 ^ 2,
-        		maxtargets = 5,
-        		color = {0.5,0.5,1}
-        	},
-        	-- [2] = { -- Circle of Healing
-        	-- 	spellID = 204883,
-        	-- 	range = 30 ^ 2,
-        	-- 	maxtargets = 5,
-        	-- 	color = {1,1,0}
-        	-- },
-        }
-    }
 end
 
 if playerClass == "MONK" then
@@ -207,17 +191,6 @@ if playerClass == "MONK" then
             --// Use Detox for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
 
     DispelTypes("MAGIC|DISEASE|POISON")
-
-    config.SmartHeals = {
-        [2] = { -- Mistweaver
-        	[1] = { -- Vivify
-        		spellID = 116670,
-        		range = 40 ^ 2,
-        		maxtargets = 3,
-        		color = {38/255, 221/255, 163/255}
-        	},
-        }
-    }
 end
 
 if playerClass == "WARLOCK" then
@@ -299,17 +272,6 @@ if playerClass == "DRUID" then
     config.UnitInRangeFunc = function(unit) return (IsSpellInRange(healing_touch,unit) == 1) end
 
     DispelTypes("MAGIC|CURSE|POISON")
-
-    config.SmartHeals = {
-        [4] = { -- Restoratin
-        	[1] = { -- Wild Growth
-        		spellID = 48438,
-        		range = 30 ^ 2,
-        		maxtargets = 6,
-        		color = { 0.4, 1, 0.4}
-        	},
-        }
-    }
 end
 if playerClass == "MAGE" then
     --A{ id = 1459,  type = "HELPFUL", assignto = { "spell2" }, color = { .4 , .4, 1}, priority = 50 } --Arcane Intellect
