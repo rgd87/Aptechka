@@ -8,6 +8,7 @@ AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDe
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
 
 local AptechkaUnitInRange
+local uir -- current range check function
 local auras
 local dtypes
 local debuffs
@@ -60,8 +61,8 @@ local CreatePetsFunc
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
-    local uir = config.UnitInRangeFunc or UnitInRange
-    local uir2 = function(unit) --or UnitInRange
+    Aptechka:UpdateRangeChecker()
+    local uir2 = function(unit)
         if not IsInGroup()
             then return true
             else return uir(unit)
@@ -662,8 +663,10 @@ end
 --Range check
 Aptechka.OnRangeUpdate = function (self, time)
     self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
-    if self.OnUpdateCounter < 0.5 then return end
+    if self.OnUpdateCounter < 0.3 then return end
     self.OnUpdateCounter = 0
+
+	-- print('uir')
 
     for unit, frames in pairs(Roster) do
         for frame in pairs(frames) do
@@ -764,6 +767,17 @@ function Aptechka.PLAYER_REGEN_ENABLED(self,event)
     self:GROUP_ROSTER_UPDATE()
     self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 end
+
+function Aptechka:UpdateRangeChecker()
+	local spec = GetSpecialization()
+	if config.UnitInRangeFunctions and config.UnitInRangeFunctions[spec] then
+		-- print('using function')
+		uir = config.UnitInRangeFunctions[spec]
+	else
+		uir = UnitInRange
+	end
+end
+
 function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
     --raid autoscaling
     if not InCombatLockdown() then
@@ -779,6 +793,8 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
             Aptechka:CheckRoles(frame, unit)
         end
     end
+
+	Aptechka:UpdateRangeChecker()
 end
 Aptechka.SPELLS_CHANGED = Aptechka.GROUP_ROSTER_UPDATE
 

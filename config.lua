@@ -115,12 +115,19 @@ D(1, { name = "DI1", assignto = { "dicon1" }, pulse = true, showDuration = true 
 D(2, { name = "DI2", assignto = { "dicon2" }, pulse = true, showDuration = true })
 D(3, { name = "DI3", assignto = { "dicon3" }, pulse = true, showDuration = true })
 
-function DispelTypes(str)
+local function DispelTypes(str)
     str = str:upper()
     if str:find("MAGIC") then DT("Magic", { assignto = { "dispel" }, color = { 0.2, 0.6, 1}, priority = 6 }) end
     if str:find("CURSE") then DT("Curse", { assignto = { "dispel" }, color = { 0.6, 0, 1}, priority = 5 }) end
     if str:find("POISON") then DT("Poison", { assignto = { "dispel" }, color = { 0, 0.6, 0}, priority = 4 }) end
     if str:find("DISEASE") then DT("Disease", { assignto = { "dispel" }, color = { 0.6, 0.4, 0}, priority = 3}) end
+end
+
+local function RangeCheckBySpell(spellID)
+    local spellName = GetSpellInfo(spellID)
+    return function(unit)
+        return (IsSpellInRange(spellName,unit) == 1)
+    end
 end
 
 if playerClass == "PRIEST" then
@@ -165,8 +172,11 @@ if playerClass == "PRIEST" then
 
     -- Trace{id = 47750, type = "HEAL", assignto = { "spell2", "spell3" }, color = { .3, 1, .3}, fade = 1.5, priority = 97 } -- PoM Trace
 
-    -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(2061),unit) == 1) end
-            --// Use Flash Heal for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
+    config.UnitInRangeFunctions = {
+        RangeCheckBySpell(17), -- Disc: PWS
+        RangeCheckBySpell(139),-- Holy: Renew
+        RangeCheckBySpell(17), -- Shadow: PWS
+    }
 
     DispelTypes("MAGIC|DISEASE")
 
@@ -187,8 +197,11 @@ if playerClass == "MONK" then
     -- A{ id = 157627, type = "HELPFUL", assignto = { "bar2" }, showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
 
 
-    -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(115450),unit) == 1) end
-            --// Use Detox for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
+    config.UnitInRangeFunctions = {
+        RangeCheckBySpell(116694), -- Effuse
+        RangeCheckBySpell(116694),
+        RangeCheckBySpell(116694),
+    }
 
     DispelTypes("MAGIC|DISEASE|POISON")
 end
@@ -221,8 +234,13 @@ if playerClass == "PALADIN" then
     -- Trace{id =121129, type = "HEAL", assignto = { "spell3" }, color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
 
 
-    -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(635),unit) == 1) end
-            --// Use Holy Light for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
+    config.UnitInRangeFunctions = {
+        RangeCheckBySpell(19750), -- Flash of Light
+        RangeCheckBySpell(19750),
+        RangeCheckBySpell(19750),
+    }
+
+
     -- ClickMacro[[
     --     /cast [@mouseover,btn:2,mod:alt] spell:53563; [@mouseover,btn:2] spell:19750;
     -- ]] -- Beacon of Light (id 53563) Flash of Light (id 19750)
@@ -252,8 +270,11 @@ if playerClass == "SHAMAN" then
     Trace{id = 1064, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = { "spell3" }, color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
 
-    -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(8004),unit) == 1) end
-            --// Use Healing Surge for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
+    config.UnitInRangeFunctions = {
+        RangeCheckBySpell(8004), -- Healing Surge
+        RangeCheckBySpell(188070), -- Enh Healing Surge
+        RangeCheckBySpell(8004),
+    }
 
 
     DispelTypes("MAGIC|CURSE")
@@ -268,8 +289,12 @@ if playerClass == "DRUID" then
     A{ id = 8936, type = "HELPFUL", assignto = { "spell3", }, isMine = true, color = { 0.2, 1, 0.2},priority = 60, showDuration = true } --Regrowth
     A{ id = 48438, type = "HELPFUL", assignto = { "spell3" }, color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true } --Wild Growth
 
-    local healing_touch = GetSpellInfo(5185)
-    config.UnitInRangeFunc = function(unit) return (IsSpellInRange(healing_touch,unit) == 1) end
+    config.UnitInRangeFunctions = {
+        RangeCheckBySpell(5185),
+        RangeCheckBySpell(5185),
+        RangeCheckBySpell(5185),
+        RangeCheckBySpell(5185),
+    }
 
     DispelTypes("MAGIC|CURSE|POISON")
 end
