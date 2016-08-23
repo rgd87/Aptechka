@@ -135,6 +135,7 @@ if playerClass == "PRIEST" then
     -- A{ id = 6788,  type = "HARMFUL", assignto = { "spell2" }, color = { 0.4, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul
     A{ id = 152118,type = "HELPFUL", assignto = { "bar1" }, priority = 90, color = { 1, .65, 0}, showDuration = true, isMine = true } --Clarity of WIll
 
+
     A{ id = 114908,type = "HELPFUL", assignto = { "bar1" }, priority = 82, color = { 188/255, 37/255, 186/255 }, foreigncolor = { 164/255, 125/255, 169/255}, showDuration = true } --Spirit Shell absorb
     A{ id = 41635, type = "HELPFUL", assignto = { "spell3" }, priority = 70, stackcolor =   {
                                                                             [1] = { 1, 0, 0},
@@ -155,7 +156,7 @@ if playerClass == "PRIEST" then
                                                                         --     [4] = { 1, .4, .4},
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
-    A{ id = 194384,type = "HELPFUL", assignto = { "bar1" }, color = { 0, 1, 0}, showDuration = true, isMine = true}
+    A{ id = 194384,type = "HELPFUL", assignto = { "bar1" }, color = { 1, .3, .3}, showDuration = true, isMine = true}
 
     -- Trace{id = 94472, type = "HEAL", minamount = 10000, assignto = { "spell3" }, color = { .2, 1, .2}, fade = .5, priority = 90 } -- Atonement
     Trace{id = 204883, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
@@ -294,8 +295,8 @@ if playerClass == "DRUID" then
     A{ id = 8936, type = "HELPFUL", assignto = { "spell3", }, isMine = true, color = { 0.2, 1, 0.2},priority = 60, showDuration = true } --Regrowth
     A{ id = 48438, type = "HELPFUL", assignto = { "spell3" }, color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true } --Wild Growth
 
-    -- config.UnitInRangeFunc = function(unit) return (IsSpellInRange(GetSpellInfo(774),unit) == 1) end
-            --// Use Rejuvenation for range check. Usual UnitInRange is about 38yd, not 41, tho it's probably good to have that margin. Disabled by default.
+    local healing_touch = GetSpellInfo(5185)
+    config.UnitInRangeFunc = function(unit) return (IsSpellInRange(healing_touch,unit) == 1) end
 
     DispelTypes("MAGIC|CURSE|POISON")
 
