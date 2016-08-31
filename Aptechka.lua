@@ -41,6 +41,7 @@ local UnitPowerMax = UnitPowerMax
 local UnitAura = UnitAura
 local UnitAffectingCombat = UnitAffectingCombat
 local UnitGetIncomingHeals = UnitGetIncomingHeals
+local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs
 local UnitThreatSituation = UnitThreatSituation
 local table_wipe = table.wipe
 local SetJob
@@ -63,10 +64,11 @@ Aptechka:RegisterEvent("PLAYER_LOGIN")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
     local uir2 = function(unit)
-        if not IsInGroup()
-            then return true
-            else return uir(unit)
-        end
+		if UnitIsDeadOrGhost(unit) then --IsSpellInRange doesn't work with dead people
+			return UnitInRange(unit)
+		else
+			return uir(unit)
+		end
     end
 
     AptechkaUnitInRange = uir2
@@ -486,7 +488,8 @@ function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     if not rosterunit then return end
     for self in pairs(rosterunit) do
         local a,hm = UnitGetTotalAbsorbs(unit), UnitHealthMax(unit)
-        self.absorb:SetValue(a/hm*100)
+		local p = (hm ~= 0) and a/hm*100 or 0
+        self.absorb:SetValue(p)
     end
 end
 
@@ -665,8 +668,6 @@ Aptechka.OnRangeUpdate = function (self, time)
     self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
     if self.OnUpdateCounter < 0.3 then return end
     self.OnUpdateCounter = 0
-
-	-- print('uir')
 
     for unit, frames in pairs(Roster) do
         for frame in pairs(frames) do
@@ -939,7 +940,7 @@ local OnAttributeChanged = function(self, attrname, unit)
     FrameSetJob(self,config.PowerBarColor,true)
     Aptechka.ScanAuras(unit)
     FrameSetJob(self, config.UnitNameStatus, true)
-    Aptechka:UNIT_HEALTH(nil, unit)
+    Aptechka:UNIT_HEALTH("UNIT_HEALTH", unit)
     if config.enableAbsorbBar then
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
@@ -963,7 +964,7 @@ end
 
 local UpdateHealthAfterInstance = function()
 	for unit in pairs(Roster) do
-		Aptechka:UNIT_HEALTH(nil, unit)
+		Aptechka:UNIT_HEALTH("UNIT_HEALTH", unit)
 		if not config.disableManaBar then
 			Aptechka:UNIT_DISPLAYPOWER(nil, unit)
 			Aptechka:UNIT_POWER(nil, unit)
