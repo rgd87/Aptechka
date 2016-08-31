@@ -669,6 +669,19 @@ Aptechka.OnRangeUpdate = function (self, time)
     if self.OnUpdateCounter < 0.3 then return end
     self.OnUpdateCounter = 0
 
+	if not IsInGroup() then --UnitInRange returns false when not grouped
+		for unit, frames in pairs(Roster) do
+        	for frame in pairs(frames) do
+				if not frame.inRange then
+                    frame.inRange = true
+                    FrameSetJob(frame, config.OutOfRangeStatus, false)
+                    OORUnits[unit] = nil
+                end
+			end
+		end
+		return
+	end
+
     for unit, frames in pairs(Roster) do
         for frame in pairs(frames) do
             if AptechkaUnitInRange(unit) then
