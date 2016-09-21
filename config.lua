@@ -184,13 +184,12 @@ end
 
 if playerClass == "MONK" then
     A{ id = 119611, type = "HELPFUL", assignto = { "bar1" }, isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true } --Renewing Mist
-    A{ id = 124682, type = "HELPFUL", assignto = { "spell2", "text3" }, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 92 } --Enveloping Mist
+    A{ id = 124682, type = "HELPFUL", assignto = { "bar4" }, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 92 } --Enveloping Mist
 
     -- A{ id = 115175, type = "HELPFUL", assignto = { "spell2" }, showDuration = false, color = { 0, .8, 0}, priority = 92 } --Soothing Mist
     -- A{ id = 198533, type = "HELPFUL", assignto = { "spell3" }, priority = 60, color = { 0, .4, 0} } --Statue's Soothing Mist
     A{ id = 191840, type = "HELPFUL", assignto = { "spell3" }, priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Essence Font
 
-    A{ id = 124081, type = "HELPFUL", assignto = { "spell3" }, showDuration = true, color = {0.7,0.8,1}, priority = 88, isMine = true } --Zen Sphere
 
     Trace{id = 116670, type = "HEAL", assignto = { "spell3" }, color = { 1, .7, .2}, fade = 0.7, priority = 96 } -- Vivify
 
@@ -285,9 +284,9 @@ if playerClass == "DRUID" then
     A{ id = 102351, type = "HELPFUL", assignto = { "spell3" }, priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
     A{ id = 774,   type = "HELPFUL", assignto = { "bar1"}, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true } --Rejuvenation
     A{ id = 155777,type = "HELPFUL", assignto = { "bar2"}, pulse = true, color = { 1, 0.4, 1}, showDuration = true, isMine = true } --Germination
-    A{ id = 33763, type = "HELPFUL", assignto = { "spell2", }, showDuration = true, isMine = true, color = { 0.5, 1, 0.5}, } --Lifebloom
-    A{ id = 8936, type = "HELPFUL", assignto = { "spell3", }, isMine = true, color = { 0.2, 1, 0.2},priority = 60, showDuration = true } --Regrowth
-    A{ id = 48438, type = "HELPFUL", assignto = { "spell3" }, color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true } --Wild Growth
+    A{ id = 33763, type = "HELPFUL", assignto = { "bar3", }, showDuration = true, isMine = true, color = { 0.5, 1, 0.5}, } --Lifebloom
+    -- A{ id = 8936, type = "HELPFUL", assignto = { "spell3", }, isMine = true, color = { 0.2, 1, 0.2},priority = 60, showDuration = true } --Regrowth
+    A{ id = 48438, type = "HELPFUL", assignto = { "spell2" }, color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true } --Wild Growth
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(5185),

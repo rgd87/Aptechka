@@ -289,7 +289,7 @@ local SetJob_StatusBar = function(self,job)
     --     if not self.pulse:IsPlaying() then self.pulse:Play() end
     -- end
 end
-local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop)
+local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop, isVertical)
     local f = CreateFrame("StatusBar",nil,parent)
     f:SetWidth(w); f:SetHeight(h);
     if not nobackdrop then
@@ -300,6 +300,10 @@ local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     f:SetBackdropColor(0, 0, 0, 1)
     end
     f:SetFrameLevel(7)
+
+    if isVertical then
+        f:SetOrientation("VERTICAL")
+    end
 
     f:SetStatusBarTexture[[Interface\AddOns\Aptechka\white]]
     -- f:SetMinMaxValues(0,100)
@@ -786,17 +790,23 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
 
 
-    local topind = CreateIndicator(self,10,10,"TOP",self,"TOP",0,0)
-    local tr = CreateIndicator(self,10,10,"TOPRIGHT",self,"TOPRIGHT",0,0)
+    local topind = CreateIndicator(self,9,9,"TOP",self,"TOP",0,0)
+    local tr = CreateIndicator(self,9,9,"TOPRIGHT",self,"TOPRIGHT",0,0)
     local br = CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
-    local btm = CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0)
-    local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
+    -- local btm = CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0)
+    -- local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
     local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
     local text3 = CreateTextTimer(self,"TOPRIGHT",self,"TOPRIGHT",-5,0,"LEFT",fontsize-3,font)--,"OUTLINE")
 
-    local bar1 = CreateStatusBar(self, 19, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
-    local bar2 = CreateStatusBar(self, 19, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)
-    local bar3 = CreateStatusBar(self, 19, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
+    local bar1 = CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
+    local bar2 = CreateStatusBar(self, 21, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)
+    local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
+    local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
+
+    local bars = {}
+    bars.OverrideStatusHandler = function(frame, self, opts, status)
+        print(opts.name, status)
+    end
 
     self.dicon1 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
     self.dicon2 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
@@ -823,6 +833,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.bar1 = bar1
     self.bar2 = bar2
     self.bar3 = bar3
+    self.bar4 = vbar1
+    self.bars = bars
     self.raidbuff = tl
     self.border = border
     self.bossdebuff = blcorner

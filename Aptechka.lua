@@ -29,7 +29,7 @@ local group_headers = {}
 local anchors = {}
 local skinAnchorsName
 
-local LastCastSentTime
+local LastCastSentTime = 0
 local LastCastTargetName
 
 local AptechkaString = "|cffff7777Aptechka: |r"
@@ -719,8 +719,8 @@ function Aptechka.UNIT_SPELLCAST_SENT(self, event, unit, spell, rank, targetName
     LastCastTargetName = string.match(targetName, "(.+)-") or targetName
     LastCastSentTime = GetTime()
 end
-function Aptechka.UI_ERROR_MESSAGE(self, event, errmsg)
-    if errmsg == SPELL_FAILED_LINE_OF_SIGHT then -- amount var here is actually failedType
+function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
+    if errcode == 359 then -- Out of Range code
         if LastCastSentTime > GetTime() - 0.5 then
             for unit in pairs(Roster) do
                 if UnitName(unit) == LastCastTargetName then
@@ -1268,13 +1268,16 @@ FrameSetJob = function (frame, opts, status)
         for _, slot in ipairs(opts.assignto) do
             local self = frame[slot]
             if self then
-                if opts.isMissing then status = not status end
-                if not self.jobs then self.jobs = {} end
+				if self.OverrideStatusHandler then
+					self.OverrideStatusHandler(frame, self, opts, status)
+				else
+	                if opts.isMissing then status = not status end
+	                if not self.jobs then self.jobs = {} end
 
-                if status
-                    then self.jobs[opts.name] = opts
-                    else self.jobs[opts.name] = nil
-                end
+	                if status
+	                    then self.jobs[opts.name] = opts
+	                    else self.jobs[opts.name] = nil
+	                end
 
                     if next(self.jobs) then
                         local max
@@ -1294,6 +1297,7 @@ FrameSetJob = function (frame, opts, status)
                         if self.HideFunc then self:HideFunc() else self:Hide() end
                         self.currentJob = nil
                     end
+				end
             end
         end
     end

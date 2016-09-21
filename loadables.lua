@@ -2,7 +2,7 @@ local _, helpers = ...
 -- RAID/PVP config loading
 -- instances are identified by map id (assuming they have their own map).
 -- to find out current zone map id type: /dump GetCurrentMapAreaID()
-AptechkaDefaultConfig.MapIDs = {    
+AptechkaDefaultConfig.MapIDs = {
     -- [609] = "Ruby Sanctum",
     -- [604] = "Icecrown Citadel",
     -- [543] = "Trial of the Crusader",
@@ -20,36 +20,53 @@ AptechkaDefaultConfig.MapIDs = {
     [897] = "Heart of Fear",
     [886] = "Terrace of Endless Spring",
     [930] = "Throne of Thunder",
+    [1094] = "Emerald Nightmare",
 }
 
 local A = helpers.AddAura
 
 local color1 = { 0.9, 0, 0 }
 local color2 = { 0.6, 0, 1 }
+local green = {0,1,0}
+local light = { 178/255, 150/255, 150/255}
 local healred = { 147/255, 54/255, 115/255 }
 
 AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bossdebuff" }, color = color1, priority = 40, pulse = true }
 
 AptechkaDefaultConfig.LoadableDebuffs = {
-    ["Throne of Thunder"] = function()
-        A{ id = 138006, prototype = AptechkaUserConfig.BossDebuffPrototype } --Electrified Waters
-        A{ id = 137399, prototype = AptechkaUserConfig.BossDebuffPrototype } --Focused Lightning 
-        A{ id = 138732, prototype = AptechkaUserConfig.BossDebuffPrototype } --Ionization
-        A{ id = 138349, prototype = AptechkaUserConfig.BossDebuffPrototype } --Static Wound 
-        A{ id = 137371, prototype = AptechkaUserConfig.BossDebuffPrototype } --Thundering Throw 
-        A{ id = 136769, prototype = AptechkaUserConfig.BossDebuffPrototype } --Charge
-        A{ id = 136767, prototype = AptechkaUserConfig.BossDebuffPrototype } --Triple Puncture 
-        A{ id = 136708, prototype = AptechkaUserConfig.BossDebuffPrototype } --Stone Gaze
-        A{ id = 136723, prototype = AptechkaUserConfig.BossDebuffPrototype } --Sand Trap
-        A{ id = 136587, prototype = AptechkaUserConfig.BossDebuffPrototype } --Venom Bolt Volley (dispellable)
-        A{ id = 136710, prototype = AptechkaUserConfig.BossDebuffPrototype } --Deadly Plague 
-        A{ id = 136670, prototype = AptechkaUserConfig.BossDebuffPrototype } --Mortal Strike
-        A{ id = 136573, prototype = AptechkaUserConfig.BossDebuffPrototype } --Frozen Bolt (Debuff used by frozen orb)
-        A{ id = 136512, prototype = AptechkaUserConfig.BossDebuffPrototype } --Hex of Confusion
-        A{ id = 136719, prototype = AptechkaUserConfig.BossDebuffPrototype } --Blazing Sunlight
-        A{ id = 136654, prototype = AptechkaUserConfig.BossDebuffPrototype } --Rending Charge
-        A{ id = 140946, prototype = AptechkaUserConfig.BossDebuffPrototype } --Dire Fixation (Heroic Only)
+
+    ["Emerald Nightmare"] = function()
+        A{ id = 203097, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Rot
+        A{ id = 204470, color = green, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Volatile Rot
+        A{ id = 205043, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Infested Mind
+
+        A{ id = 215449, color = green, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Necrotic Venom
+        A{ id = 210863, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Twisting Shadows
+        A{ id = 212993, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Shimmering Feather
+
+
     end,
+
+    -- ["Throne of Thunder"] = function()
+    --     A{ id = 138006, prototype = AptechkaUserConfig.BossDebuffPrototype } --Electrified Waters
+    --     A{ id = 137399, prototype = AptechkaUserConfig.BossDebuffPrototype } --Focused Lightning
+    --     A{ id = 138732, prototype = AptechkaUserConfig.BossDebuffPrototype } --Ionization
+    --     A{ id = 138349, prototype = AptechkaUserConfig.BossDebuffPrototype } --Static Wound
+    --     A{ id = 137371, prototype = AptechkaUserConfig.BossDebuffPrototype } --Thundering Throw
+    --     A{ id = 136769, prototype = AptechkaUserConfig.BossDebuffPrototype } --Charge
+    --     A{ id = 136767, prototype = AptechkaUserConfig.BossDebuffPrototype } --Triple Puncture
+    --     A{ id = 136708, prototype = AptechkaUserConfig.BossDebuffPrototype } --Stone Gaze
+    --     A{ id = 136723, prototype = AptechkaUserConfig.BossDebuffPrototype } --Sand Trap
+    --     A{ id = 136587, prototype = AptechkaUserConfig.BossDebuffPrototype } --Venom Bolt Volley (dispellable)
+    --     A{ id = 136710, prototype = AptechkaUserConfig.BossDebuffPrototype } --Deadly Plague
+    --     A{ id = 136670, prototype = AptechkaUserConfig.BossDebuffPrototype } --Mortal Strike
+    --     A{ id = 136573, prototype = AptechkaUserConfig.BossDebuffPrototype } --Frozen Bolt (Debuff used by frozen orb)
+    --     A{ id = 136512, prototype = AptechkaUserConfig.BossDebuffPrototype } --Hex of Confusion
+    --     A{ id = 136719, prototype = AptechkaUserConfig.BossDebuffPrototype } --Blazing Sunlight
+    --     A{ id = 136654, prototype = AptechkaUserConfig.BossDebuffPrototype } --Rending Charge
+    --     A{ id = 140946, prototype = AptechkaUserConfig.BossDebuffPrototype } --Dire Fixation (Heroic Only)
+    -- end,
+
     ["Terrace of Endless Spring"] = function()
         A{ id = 111850, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Prison
     end,
@@ -80,7 +97,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     --     A{ id = 105479, priority = 50, color = color2,  prototype = AptechkaUserConfig.BossDebuffPrototype } --Searing Plasma, Spine of Deathwing
     --     A{ id = 105490, priority = 51, prototype = AptechkaUserConfig.BossDebuffPrototype } --Fiery Grip, Spine of Deathwing
 
-    --     A{ id = 106730, prototype = AptechkaUserConfig.BossDebuffPrototype } --Tetanus, Madness of Deathwing        
+    --     A{ id = 106730, prototype = AptechkaUserConfig.BossDebuffPrototype } --Tetanus, Madness of Deathwing
     -- end,
     -- ["Firelands"] = function()
     --     --A{ id = 100249, prototype = AptechkaUserConfig.BossDebuffPrototype } --Combustion, Ragnaros
@@ -97,7 +114,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     --     A{ id = 99936, showDuration = true, prototype = AptechkaUserConfig.BossDebuffPrototype } --Jagged Tear, Shannox
     --     A{ id = 99837, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Crystal Prison Trap Effect, Shannox
     --     A{ id = 101208, color = { 1, 0.27, 0}, prototype = AptechkaUserConfig.BossDebuffPrototype } --Immolation Trap, Shannox
-        
+
     --     A{ id = 99308, showDuration = true, prototype = AptechkaUserConfig.BossDebuffPrototype } --Gushing Wound, Alysrazor
 
     --     A{ id = 98492, showDuration = true, prototype = AptechkaUserConfig.BossDebuffPrototype } --Eruption, Lord Rhyolith
@@ -119,7 +136,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
 
     --     A{ id = 97490, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Flame Shock, Halazzi
     --     A{ id = 99284, prototype = AptechkaUserConfig.BossDebuffPrototype } --Fixate, Halazzi
-        
+
     --     A{ id = 97639, prototype = AptechkaUserConfig.BossDebuffPrototype } --Grievous Throw, Daakara
     --     A{ id = 97672, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Claw Rage, Daakara
     --     A{ id = 97639, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lynx Rush, Daakara (dot)
@@ -129,29 +146,29 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     -- ["Bastion of Twilight"] = function()
     --     A{ id = 92878, prototype = AptechkaUserConfig.BossDebuffPrototype } --Blackout, Valiona
     --     A{ id = 88518, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Twilight Meteorite, Valiona
-        
+
     --     A{ id = 82762, color = {0.3,0.3,1}, priority = 38, prototype = AptechkaUserConfig.BossDebuffPrototype } --Waterlogged,Feludius
     --     A{ id = 82660, color = {1,0.2,0.2}, priority = 38, prototype = AptechkaUserConfig.BossDebuffPrototype } --Burning Blood,Ignacious
     --     A{ id = 83099, color = {0.3,0.3,1}, priority = 38, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Rod,Arion
     --     A{ id = 92067, color = {1,1,0.2}, prototype = AptechkaUserConfig.BossDebuffPrototype } --Static Overload,Arion,Heroic
     --     A{ id = 92075, color = {122/255,85/255,49/255}, prototype = AptechkaUserConfig.BossDebuffPrototype } --Gravity Core,Terrastra,Heroic
-        
+
     --     --Magic--A{ id = 81836, prototype = AptechkaUserConfig.BossDebuffPrototype } --Corruption: Accelerated,Cho'gall
     --     A{ id = 93202, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Corruption: Sickness,Cho'gall
     --     A{ id = 93204, prototype = AptechkaUserConfig.BossDebuffPrototype } --Conversion,Cho'gall
     --     --A{ id = 93133, prototype = AptechkaUserConfig.BossDebuffPrototype } --Debilitating Beam,Cho'gall
-            
+
     --     A{ id = 93133, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Wrack,Lady Sinestra
     -- end,
-    
+
     -- ["Blackwing Descent"] = function()
     --     A{ id = 91911, prototype = AptechkaUserConfig.BossDebuffPrototype } --Constricting Chains, Magmaw
-        
+
     --     A{ id = 82881, prototype = AptechkaUserConfig.BossDebuffPrototype } --Break, Chimaeron
-        
+
     --     A{ id = 91431, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Conductor, Omnitron Defense System
     --     A{ id = 91502, color = {230/255, 117/255, 230/255 }, prototype = AptechkaUserConfig.BossDebuffPrototype } --Poison Soaked Shell, Omnitron Defense System
-        
+
     --     A{ id = 92973, prototype = AptechkaUserConfig.BossDebuffPrototype } --Consuming Flames, Maloriak
     --     A{ id = 92978, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } --Flash Freeze, Maloriak
     -- end,
@@ -160,7 +177,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     --     A{ id = 89666, prototype = AptechkaUserConfig.BossDebuffPrototype } --Lightning Rod
     --     A{ id = 89104, prototype = AptechkaUserConfig.BossDebuffPrototype } --Relentless Storm
     -- end,
-    
+
     -- ["Ruby Sanctum"] = function()
     --     A{ id = 74562, prototype = AptechkaUserConfig.BossDebuffPrototype } --Fiery Combustion
     --     A{ id = 74792, prototype = AptechkaUserConfig.BossDebuffPrototype, color = color2 } --Soul Consumptio
@@ -178,7 +195,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     --     A{ id = 71340, prototype = AptechkaUserConfig.BossDebuffPrototype } --Pact of the Darkfallen, Blood-Queen Lana'thel
     --     A{ id = 71530, prototype = AptechkaUserConfig.BossDebuffPrototype, color = color2, priority = 30 } --Essence of the Blood Queen, Blood-Queen Lana'thel
     --     A{ id = 70157, prototype = AptechkaUserConfig.BossDebuffPrototype } --Ice Tomb, Sindragosa
-        
+
     --     --A{ id = 70337, prototype = AptechkaUserConfig.BossDebuffPrototype } --Necrotic Plague, Lich King, phase 1 & 2  // still broken in 3.3.3
     --     A{ id = 68980, prototype = AptechkaUserConfig.BossDebuffPrototype, showDuration = true, priority = 50 } --Harvest Soul, Lich King, phase 3
     --     A{ id = 70541, prototype = AptechkaUserConfig.BossDebuffPrototype, color = {230/255, 117/255, 230/255 }, priority = 20 } --Infest, Lich King
@@ -186,7 +203,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     --     --AptechkaUserConfig.LoadableDebuffs.tankcooldowns()
     -- end,
 
-    
+
     -- ["Trial of the Crusader"] = function()
     --     A{ id = 66237, prototype = AptechkaUserConfig.BossDebuffPrototype } --Incinerate Flesh, Lord Jaraxxus
     --     A{ id = 68510, prototype = AptechkaUserConfig.BossDebuffPrototype } --Penetrating Cold, Anub'arak
@@ -194,7 +211,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     --     A{ id = 67296, prototype = AptechkaUserConfig.BossDebuffPrototype } --Touch of Light, Twin Val'kyrs
     --     AptechkaUserConfig.LoadableDebuffs.PvP(true, true)
     -- end,
-    
+
     -- ["Ulduar"] = function()
     --     A{ id = 64126, prototype = AptechkaUserConfig.BossDebuffPrototype } --Squeeze, Yogg-Saron
     --     A{ id = 62717, prototype = AptechkaUserConfig.BossDebuffPrototype } --Slag Pot, Ignis
@@ -202,17 +219,20 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     --     A{ id = 64290, prototype = AptechkaUserConfig.BossDebuffPrototype } --Stone Grip, Kologarn
     --     A{ id = 63018, prototype = AptechkaUserConfig.BossDebuffPrototype } --Searing Light, XT-002
     -- end,
-    
+
     -- ["Naxxramas"] = function()
     --     A{ id = 27808, prototype = AptechkaUserConfig.BossDebuffPrototype } --Frost Blast, Kel'Thuzad
     --     A{ id = 28622, prototype = AptechkaUserConfig.BossDebuffPrototype } --Web Wrap, Maexxna
     -- end,
 
+
+
+
         ["PvP"] = function(disable_damagereduction, disable_roots)
         A{ id = 23333, type = "HELPFUL", assignto = { "bossdebuff" }, color = {1,0,0}, priority = 95 } --Warsong Flag
         A{ id = 23335, type = "HELPFUL", assignto = { "bossdebuff" }, color = {0,0,1}, priority = 95 } --Silverwing Flag
         A{ id = 34976, type = "HELPFUL", assignto = { "bossdebuff" }, color = {0,1,0}, priority = 95 } --Netherstorm Flag
-        
+
         A{ id = 118,   type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Polymorph
         A{ id = 3355,  type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Freezing Trap
         A{ id = 20066, type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Repentance
@@ -223,7 +243,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         A{ id = 853,   type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Hammer of Justice
         A{ id = 44572, type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Deep Freeze
         A{ id = 30108, type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Unstable Affliction
-        
+
         if not disable_damagereduction then
             A{ id = 871,   type = "HELPFUL", assignto = { "icon" }, priority = 84 } --Shield Wall
             A{ id = 5277,  type = "HELPFUL", assignto = { "icon" }, priority = 84 } --Evasion
@@ -238,11 +258,11 @@ AptechkaDefaultConfig.LoadableDebuffs = {
             A{ id = 339,   type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Entangling Roots
             A{ id = 122,   type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Frost Nova
         end
-    
+
     end,
-    
+
     ['TankCooldowns'] = function()
-    
+
         A{ id = 871,   type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Shield Wall 40%
         A{ id = 114030,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Vigilance
         A{ id = 120954,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Fortifying Brew 20%
@@ -255,13 +275,13 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         A{ id = 33206, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 94 } --Pain Suppression
         A{ id = 102342,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 93 } --Ironbark
         -- A{ id = 98007, type = "HELPFUL", assignto = { "icon" }, showDuration = false, priority = 93 } --Spirit Link Totem
-    
+
         A{ id = 31850, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 88 } --Ardent Defender
         A{ id = 116849,type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 88 } --Life Cocoon
         A{ id = 55233, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Vampiric Blood
         A{ id = 47788, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 90 } --Guardian Spirit
-            
-        A{ id = 12975, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 85 } --Last Stand        
+
+        A{ id = 12975, type = "HELPFUL", assignto = { "icon" }, showDuration = true, priority = 85 } --Last Stand
     end,
 
     ['HealingReduction'] = function()
