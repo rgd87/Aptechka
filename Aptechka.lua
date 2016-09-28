@@ -308,8 +308,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     loader:RegisterEvent("PLAYER_ENTERING_WORLD")
     local mapIDs = config.MapIDs
 
-    loader:SetScript("OnEvent",function (self,event)
-        local instance
+	local CheckCurrentMap = function()
+		local instance
         local _, instanceType = GetInstanceInfo()
         if instanceType == "arena" or instanceType == "pvp" then
             instance = "PvP"
@@ -323,6 +323,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             print (AptechkaString..instance.." debuffs loaded.")
             loaded[instance] = true
         end
+	end
+
+    loader:SetScript("OnEvent",function (self,event)
+		C_Timer.After(2, CheckCurrentMap)
     end)
 
 

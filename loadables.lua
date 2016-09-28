@@ -101,6 +101,9 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         -- Trace{id = 193460, type = "DAMAGE", assignto = { "bossdebuff" }, color = color2, fade = 0.7, priority = 45 } -- Bane, Ymiron
     end,
 
+    ["Vault of the Wardens"] = function()
+
+    end,
 
 
     -- ["Throne of Thunder"] = function()
