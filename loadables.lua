@@ -46,6 +46,8 @@ AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bo
 AptechkaDefaultConfig.LoadableDebuffs = {
 
     ["Emerald Nightmare"] = function()
+        A{ id = 222719, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Осквернение, треш
+
         A{ id = 203097, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Rot
         A{ id = 204470, color = green, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Volatile Rot
         A{ id = 205043, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Infested Mind
@@ -53,6 +55,8 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         A{ id = 215449, color = green, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Necrotic Venom
         A{ id = 210863, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Twisting Shadows
         A{ id = 212993, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Shimmering Feather
+
+        A{ id = 210099, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Il'gynoth, Ooze fixate
     end,
 
     ["Black Rook Hold"] = function()

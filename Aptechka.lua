@@ -447,7 +447,9 @@ function Aptechka.LibResInfo_ResPending(event, dstUnit, dstGUID)
     if not rosterunit then return end
     for self in pairs(rosterunit) do
         FrameSetJob(self, config.ResIncomingStatus, false)
-        FrameSetJob(self, config.ResPendingStatus, true)
+		if UnitIsDead(dstUnit) then
+        	FrameSetJob(self, config.ResPendingStatus, true)
+		end
     end
 end
 function Aptechka.LibResInfo_ResExpired(event, dstUnit, dstGUID)

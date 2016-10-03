@@ -796,7 +796,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local btm = CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0)
     -- local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
     local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
-    local text3 = CreateTextTimer(self,"TOPRIGHT",self,"TOPRIGHT",-5,0,"LEFT",fontsize-3,font)--,"OUTLINE")
+    local text3 = CreateTextTimer(self,"TOPLEFT",self,"TOPLEFT",2,0,"LEFT",fontsize-3,font)--,"OUTLINE")
 
     local bar1 = CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
     local bar2 = CreateStatusBar(self, 21, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)
