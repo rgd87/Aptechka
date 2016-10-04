@@ -29,7 +29,7 @@ AptechkaDefaultConfig.MapIDs = {
     [1046] = "Eye of Azshara",
     [1045] = "Vault of the Wardens",
     [1042] = "Maw of Souls",
-
+    [1041] = "Halls of Valor",
 }
 
 local A = helpers.AddAura
@@ -109,7 +109,10 @@ AptechkaDefaultConfig.LoadableDebuffs = {
 
     end,
 
-
+    ["Halls of Valor"] = function()
+        A{ id = 198599, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Громовой удар, треш
+        A{ id = 196838, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Fenrir, Scent of Blood
+    end,
     -- ["Throne of Thunder"] = function()
     --     A{ id = 138006, prototype = AptechkaUserConfig.BossDebuffPrototype } --Electrified Waters
     --     A{ id = 137399, prototype = AptechkaUserConfig.BossDebuffPrototype } --Focused Lightning

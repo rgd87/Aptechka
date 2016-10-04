@@ -78,7 +78,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     traceheals = config.TraceHeals or {}
     Aptechka.SetJob = SetJob
     Aptechka.FrameSetJob = FrameSetJob
-    threshold = config.incomingHealThreshold or 10000
+    threshold = config.incomingHealThreshold or UnitHealthMax("player")/20
     ignoreplayer = config.incomingHealIgnorePlayer or false
     colors = setmetatable(config.Colors or {},{ __index = function(t,k) return RAID_CLASS_COLORS[k] end })
 
@@ -386,13 +386,19 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
         local heal = UnitGetIncomingHeals(unit)
+		-- print(heal)
         if ignoreplayer then
             local myheal = UnitGetIncomingHeals(unit, "player")
             if heal and myheal then heal = heal - myheal end
         end
         local showHeal = (heal and heal > threshold)
         if self.health.incoming then
-            self.health.incoming:SetValue( showHeal and self.health:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
+			local h = UnitHealth(unit)
+			local hi = showHeal and heal or 0
+			local hm = UnitHealthMax(unit)
+			self.health.incoming.current = hi
+            self.health.incoming:Update(h, hi, hm)
+			-- SetValue( showHeal and self.health:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
         end
         if config.IncomingHealStatus then
             if showHeal then
@@ -508,6 +514,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         self.vHealth = h
         self.vHealthMax = hm
         self.health:SetValue(h/hm*100)
+		self.health.incoming:Update(h, nil, hm)
         SetJob(unit,config.HealthDificitStatus, ((hm-h) > 1000) )
 
         if event then
@@ -1374,10 +1381,10 @@ local blacklist = {
     [113942] = true, -- demonic gates debuff
     [123981] = true, -- dk cooldown debuff
     [87024] = true, -- mage cooldown debuff
-    [36032] = true, -- arcane charge
     [97821] = true, -- dk battleres debuff
     [124275] = true, -- brewmaster stagger debuff
     [174528] = true, -- Griefer debuff
+	[206151] = true, -- Challenger's Burden
 }
 
 local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, icon, count, isBossAura)

@@ -683,7 +683,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- abg:SetVertexColor(0,0,0, .3)
     -- absorb.bg = abg
 
-    local hpbg = hp:CreateTexture(nil,"ARTWORK",nil,-7)
+    local hpbg = hp:CreateTexture(nil,"ARTWORK",nil,-8)
 	hpbg:SetAllPoints(hp)
 	hpbg:SetTexture(texture)
     hp.bg = hpbg
@@ -713,10 +713,19 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local hpi = CreateFrame("StatusBar", nil, self)
 	hpi:SetAllPoints(self)
 	hpi:SetStatusBarTexture("Interface\\Tooltips\\UI-Tooltip-Background")
+    -- hpi:SetOrientation("VERTICAL")
+    hpi:SetStatusBarColor(0, 0, 0, 0.5)
+    -- hpi:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\white")
+    hpi:GetStatusBarTexture():SetDrawLayer("ARTWORK",-7)
     hpi:SetOrientation("VERTICAL")
-    hpi:SetStatusBarColor(0,0,0,0.3)
+    -- hpi:SetStatusBarColor(0,1,0)
     hpi:SetMinMaxValues(0,100)
     --hpi:SetValue(0)
+    hpi.current = 0
+    hpi.Update = function(self, h, hi, hm)
+        hi = hi or self.current
+        self:SetValue((h+hi)/hm*100)
+    end
 
     local border = CreateFrame("Frame",nil,self)
     border:SetAllPoints(self)
