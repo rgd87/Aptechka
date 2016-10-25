@@ -116,10 +116,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         else config[config.skin.."Settings"]() -- receiving width and height for current skin
     end
 
-    if config.enableDirectionArrow then
-        self.arrowframe:Enable()
-    end
-
     local tbind
     if config.TargetBinding == nil then tbind = "*type1"
     elseif config.TargetBinding == false then tbind = "__none__"
@@ -1219,14 +1215,12 @@ end
 
 local onenter = function(self)
     if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
-	Aptechka.arrowframe:Bind(self)
     if UnitAffectingCombat("player") then return end
     UnitFrame_OnEnter(self)
     self:SetScript("OnUpdate", UnitFrame_OnUpdate)
 end
 local onleave = function(self)
     if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
-	Aptechka.arrowframe:Unbind(self)
     UnitFrame_OnLeave(self)
     self:SetScript("OnUpdate", nil)
 end
@@ -1372,6 +1366,7 @@ local blacklist = {
     [57724] = true, -- Sated
     [80354] = true, -- Temporal Displacement
     [95809] = true, -- Hunter bloodlust debuff
+	[57723] = true, -- Drums BL debuff
     [95223] = true, -- Mass Res
     [26013] = true, -- PVP Deserter
     [71041] = true, -- Deserter
@@ -1639,109 +1634,4 @@ function Aptechka.SlashCmd(msg)
             end
         end
     end
-end
-
-
-
-local arrowframe = CreateFrame("Frame", nil, Aptechka)
-Aptechka.arrowframe = arrowframe
--- arrowframe:SetScript("OnEvent", function(self, event, ...)
---     self[event](self, event, ...)
--- end)
-
-function arrowframe:Enable()
-    self.isEnabled = true
-    self:Create()
-end
-
-local function vectorDegree(x1, y1, x2, y2)
-	local angle = math.atan2(y1,x1) - math.atan2(y2,x2)
-	return math.deg(angle)
-end
-
-function arrowframe:Bind(frame)
-    if frame.unit == "player" then return end
-    self.frame = frame
-    self:SetPoint("BOTTOM", frame,  "TOP",0,0)
-    self.OnUpdateCounter = 1
-    self:Show()
-end
-
-function arrowframe:Unbind(frame)
-    self:Hide()
-end
-
-local gray = { 50, 50, 50 }
-local yellow = { 200, 100, 40 }
-local red = { 230, 50, 50 }
-
-function GetGradientColor(v)
-    if v > 1 then v = 1 end
-    if v < 0 then v = 0 end
-    local c1,c2
-    if v < 0.6 then
-        v = v/0.6
-        c1 = gray
-        c2 = yellow
-    else
-        v = (v - 0.6)/0.4
-        c1 = yellow
-        c2 = red
-    end
-
-    local r = c1[1] + v*(c2[1]-c1[1])
-    local g = c1[2] + v*(c2[2]-c1[2])
-    local b = c1[3] + v*(c2[3]-c1[3])
-    return r,g,b
-end
-
-function arrowframe:Create()
-    if self.created then return end
-    self.created = true
-    self:SetWidth(30)
-    self:SetHeight(30)
-	self:SetFrameLevel(4)
-    local atex = self:CreateTexture(nil, "OVERLAY")
-    atex:SetAllPoints(self)
-    atex:SetTexture("Interface\\Addons\\Aptechka\\arrow")
-    self.texture = atex
-    self.Rotate = function(self, degrees)
-        local angle = math.rad(degrees)
-        self.texture:SetRotation(angle)
-        -- local cos, sin = math.cos(angle), math.sin(angle)
-        -- print((sin - cos), -(cos + sin), -cos, -sin, sin, -cos, 0, 0)
-        -- self.texture:SetTexCoord((sin - cos), -(cos + sin), -cos, -sin, sin, -cos, 0, 0)
-    end
-    self:Rotate(0)
-    self:Hide()
-
-	self.OnUpdateCounter = 0
-	self:SetScript("OnUpdate", function(self, elapsed)
-	    self.OnUpdateCounter = self.OnUpdateCounter + elapsed
-	    if self.OnUpdateCounter < 0.3 then return end
-
-	    local frame = self.frame
-	    local unit = frame.unit
-	    local py, px = UnitPosition("player")--GetPlayerMapPosition("player")
-	    local facing = 360 - math.deg(GetPlayerFacing())
-
-	    local uy, ux = UnitPosition(unit)--GetPlayerMapPosition(unit)
-		if not uy then self:Hide(); return end
-	    if ux == 0 and uy == 0 then
-	        self.texture:Hide()
-	    else
-	        self.texture:Show()
-	    end
-	    local x = (ux - px)-- * mapwidth
-	    local y = -(uy - py)-- * mapheight
-	    local dist = (x*x + y*y)^0.5
-	    local r,g,b = GetGradientColor((dist-40)/20)
-
-	    local angle = vectorDegree(0, 1, x,y)
-	    local angleToUnit = (angle - facing) + 180
-
-
-	    self:Rotate(-angleToUnit)
-	    self.texture:SetVertexColor(r,g,b)
-	end)
 end

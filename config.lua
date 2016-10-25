@@ -55,7 +55,6 @@ config.petcolor = {1,.5,.5}
 
 config.registerForClicks = { "AnyUp" }
 config.enableIncomingHeals = true
-config.enableDirectionArrow = true
 config.incomingHealThreshold = 15000
 config.incomingHealIgnorePlayer = false
 config.showPhaseIcon = true
@@ -289,10 +288,10 @@ if playerClass == "DRUID" then
     A{ id = 48438, type = "HELPFUL", assignto = { "spell2" }, color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true } --Wild Growth
 
     config.UnitInRangeFunctions = {
-        RangeCheckBySpell(5185),
-        RangeCheckBySpell(5185),
-        RangeCheckBySpell(5185),
-        RangeCheckBySpell(5185),
+        RangeCheckBySpell(8936),
+        RangeCheckBySpell(8936),
+        RangeCheckBySpell(8936),
+        RangeCheckBySpell(8936),
     }
 
     DispelTypes("MAGIC|CURSE|POISON")

@@ -57,6 +57,8 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         A{ id = 212993, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Shimmering Feather
 
         A{ id = 210099, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Il'gynoth, Ooze fixate
+
+        A{ id = 198006, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Ursoc, charge target
     end,
 
     ["Black Rook Hold"] = function()

@@ -1,4 +1,4 @@
-## Interface: 70000
+## Interface: 70100
 ## Title: Aptechka
 ## Notes: raid frames
 ## Author: d87
@@ -16,4 +16,3 @@ config.lua
 frame.lua
 loadables.lua
 Aptechka.xml
- 
