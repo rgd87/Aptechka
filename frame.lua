@@ -590,6 +590,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 	self:SetBackdropColor(0, 0, 0, 1)
 
     self:SetFrameStrata(config.frameStrata)
+    self:SetFrameLevel(3)
 
     local mot = self:CreateTexture(nil,"OVERLAY")
     mot:SetAllPoints(self)
@@ -731,6 +732,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local border = CreateFrame("Frame",nil,self)
     border:SetAllPoints(self)
     border:SetFrameStrata("LOW")
+    border:SetFrameLevel(0)
     border:SetBackdrop{
         bgFile = "Interface\\AddOns\\Aptechka\\white", tile = true, tileSize = 0,
         insets = {left = -4, right = -4, top = -4, bottom = -4},

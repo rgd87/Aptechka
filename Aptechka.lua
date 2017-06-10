@@ -1030,6 +1030,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     local HeaderTemplate = petgroup and "SecureGroupPetHeaderTemplate" or "SecureGroupHeaderTemplate"
     local f = CreateFrame("Button",frameName, UIParent, HeaderTemplate)
 
+    f:SetFrameStrata("BACKGROUND")
 
     f:SetAttribute("template", "AptechkaUnitButtonTemplate")
     f:SetAttribute("templateType", "Button")
