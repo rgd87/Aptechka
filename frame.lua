@@ -589,7 +589,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self:SetBackdrop(backdrop)
 	self:SetBackdropColor(0, 0, 0, 1)
 
-    self:SetFrameStrata(config.frameStrata)
+    self:SetFrameStrata(config.frameStrata or "LOW")
     self:SetFrameLevel(3)
 
     local mot = self:CreateTexture(nil,"OVERLAY")
