@@ -23,6 +23,7 @@ config.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT /
 config.groupGrowth = "TOP"
 config.groupGap = 10
 config.unlocked = false  -- when addon initially loaded
+config.frameStrata = "LOW"
 config.disableBlizzardParty = true
 config.hideBlizzardRaid = true
 config.useGroupAnchors = false -- use separate anchors for each group
@@ -185,7 +186,7 @@ if playerClass == "MONK" then
     A{ id = 119611, type = "HELPFUL", assignto = { "bar1" }, isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true } --Renewing Mist
     A{ id = 124682, type = "HELPFUL", assignto = { "bar4" }, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 92 } --Enveloping Mist
 
-    -- A{ id = 115175, type = "HELPFUL", assignto = { "spell2" }, showDuration = false, color = { 0, .8, 0}, priority = 92 } --Soothing Mist
+    A{ id = 115175, type = "HELPFUL", assignto = { "bar2" }, showDuration = false, color = { 0, .8, 0}, priority = 38 } --Soothing Mist
     -- A{ id = 198533, type = "HELPFUL", assignto = { "spell3" }, priority = 60, color = { 0, .4, 0} } --Statue's Soothing Mist
     A{ id = 191840, type = "HELPFUL", assignto = { "spell3" }, priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Essence Font
 
