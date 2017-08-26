@@ -1,4 +1,5 @@
 Aptechka = CreateFrame("Frame","Aptechka",UIParent)
+local Aptechka = Aptechka
 
 Aptechka:SetScript("OnEvent", function(self, event, ...)
 	self[event](self, event, ...)
@@ -85,7 +86,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     AptechkaDB_Global = AptechkaDB_Global or {}
     AptechkaDB_Char = AptechkaDB_Char or {}
     AptechkaDB_Global.charspec = AptechkaDB_Global.charspec or {}
-    user = UnitName("player").."@"..GetRealmName()
+    local user = UnitName("player").."@"..GetRealmName()
     if AptechkaDB_Global.charspec[user] then
         AptechkaDB = AptechkaDB_Char
     else
@@ -1476,7 +1477,7 @@ local ParseOpts = function(str)
     return fields
 end
 function Aptechka.SlashCmd(msg)
-    k,v = string.match(msg, "([%w%+%-%=]+) ?(.*)")
+    local k,v = string.match(msg, "([%w%+%-%=]+) ?(.*)")
     if not k or k == "help" then print([=[Usage:
       |cff00ff00/aptechka|r lock
       |cff00ff00/aptechka|r unlock

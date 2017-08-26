@@ -161,7 +161,7 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     bag.a2 = ba2
 
     bag:SetScript("OnFinished",function(ag)
-        self = ag:GetParent()
+        local self = ag:GetParent()
         ag:Stop()
         self:Hide()
         return Aptechka.FrameSetJob(self.parent, self.traceJob, false)
