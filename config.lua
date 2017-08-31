@@ -59,7 +59,6 @@ config.enableIncomingHeals = true
 config.incomingHealThreshold = 15000
 config.incomingHealIgnorePlayer = false
 config.showPhaseIcon = true
-config.smartHealHelper = true
 config.displayRoles = true
 config.enableTraceHeals = true
 config.enableVehicleSwap = true
@@ -184,9 +183,9 @@ end
 
 if playerClass == "MONK" then
     A{ id = 119611, type = "HELPFUL", assignto = { "bar1" }, isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true } --Renewing Mist
-    A{ id = 124682, type = "HELPFUL", assignto = { "bar4" }, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 92 } --Enveloping Mist
+    A{ id = 124682, type = "HELPFUL", assignto = { "vbar1" }, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 92 } --Enveloping Mist
 
-    A{ id = 115175, type = "HELPFUL", assignto = { "bar2" }, showDuration = false, color = { 0, .8, 0}, priority = 38 } --Soothing Mist
+    A{ id = 115175, type = "HELPFUL", assignto = { "smist" }, showDuration = false, color = { 0, .8, 0}, priority = 38 } --Soothing Mist
     -- A{ id = 198533, type = "HELPFUL", assignto = { "spell3" }, priority = 60, color = { 0, .4, 0} } --Statue's Soothing Mist
     A{ id = 191840, type = "HELPFUL", assignto = { "spell3" }, priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true } --Essence Font
 

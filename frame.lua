@@ -791,16 +791,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- roleicontex:SetVertexColor(0,0,0,0.2)
     roleicon.texture = roleicontex
 
-    local aoemarker = hp:CreateTexture(nil, "ARTWORK")
-    aoemarker:SetDrawLayer("ARTWORK", 5)
-    aoemarker:SetTexture("Interface\\Addons\\Aptechka\\white")
-    aoemarker:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
-    aoemarker:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
-    aoemarker:SetHeight(1.5)
-    aoemarker:SetVertexColor(1,1,0)
-    aoemarker:Hide()
-
-
 
     local topind = CreateIndicator(self,9,9,"TOP",self,"TOP",0,0)
     local tr = CreateIndicator(self,9,9,"TOPRIGHT",self,"TOPRIGHT",0,0)
@@ -815,10 +805,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
     local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
 
-    local bars = {}
-    bars.OverrideStatusHandler = function(frame, self, opts, status)
-        print(opts.name, status)
-    end
+    -- local bars = {}
+    -- bars.OverrideStatusHandler = function(frame, self, opts, status)
+    --     print(opts.name, status)
+    -- end
 
     self.dicon1 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
     self.dicon2 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
@@ -837,18 +827,53 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.healthtext = self.text2
     self.text3 = text3
     self.power = powerbar
-    self.spell1 = br
-    self.spell2 = topind
-    self.spell3 = tr
-    self.spell4 = btm
-    self.spell5 = left
-    self.bar1 = bar1
-    self.bar2 = bar2
-    self.bar3 = bar3
-    self.bar4 = vbar1
-    self.bars = bars
-    self.raidbuff = tl
-    self.border = border
+
+    -- self.spell1 = br
+    -- self.spell2 = topind
+    -- self.spell3 = tr
+    -- self.spell4 = btm
+    -- self.spell5 = left
+    -- self.bar1 = bar1
+    -- self.bar2 = bar2
+    -- self.bar3 = bar3
+    -- self.bar4 = vbar1
+    -- self.bars = bars
+    -- self.raidbuff = tl
+    -- self.border = border
+    local optional_widgets = {
+        --top
+        spell1  = function() return CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0) end,
+        --bottomright
+        spell2  = function() return CreateIndicator(self,9,9,"TOP",self,"TOP",0,0) end,
+        --topright
+        spell3  = function() return CreateIndicator(self,9,9,"TOPRIGHT",self,"TOPRIGHT",0,0) end,
+        --bottom
+        spell4  = function() return CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0) end,
+        --left
+        spell5  = function() return CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0) end,
+
+        bar1    = function() return CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0) end,
+        bar2    = function()
+            if self.bar1 then
+                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar1, "TOPLEFT",0,1)
+            end
+        end,
+        bar3    = function() return CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1) end,
+        vbar1   = function() return CreateStatusBar(self, 4, 20, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true) end,
+        
+        smist  = function() return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
+    }
+
+    for type, spells in pairs(config.IndicatorAuras) do
+        for id, spell in pairs(spells) do
+            for _,widget in ipairs(spell.assignto) do
+                if not self[widget] and optional_widgets[widget] then
+                    self[widget] = optional_widgets[widget]()
+                end
+            end
+        end
+    end
+
     self.bossdebuff = blcorner
     self.dispel = blcorner
     self.icon = icon
@@ -856,7 +881,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.roleicon = roleicon
     self.absorb = absorb
     self.centericon = centericon
-    self.smartheal = aoemarker
 
 
     self.OnMouseEnterFunc = OnMouseEnterFunc

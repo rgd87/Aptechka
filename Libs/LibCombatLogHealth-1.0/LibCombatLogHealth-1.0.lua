@@ -51,7 +51,7 @@ eventType - either nil when event comes from combat log, or "UNIT_AURA" to indic
 --]================]
 
 
-local MAJOR, MINOR = "LibCombatLogHealth-1.0", 1.1
+local MAJOR, MINOR = "LibCombatLogHealth-1.0", 1.2
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -180,7 +180,7 @@ function f:UNIT_HEALTH(event, unit)
     clh[SYNC] = false -- not synchronized
     if was_synced then
         clh[SYNC_TIME] = GetTime()
-    elseif uht - sync_lost_time > 1.3 then
+    elseif not sync_lost_time or uht - sync_lost_time > 1.3 then
         if log[2] then
             table_wipe(log)
             table_wipe(logtime)
@@ -191,6 +191,12 @@ function f:UNIT_HEALTH(event, unit)
     -- print(GetTime(), "__lost__", uh, "  |   ", unpack(log))
 
     callbacks:Fire("COMBAT_LOG_HEALTH", unit, event)
+end
+
+function f:PLAYER_ENTERING_WORLD()
+    for unit, data in pairs(CLHealth) do
+        data[SYNC] = false
+    end
 end
 
 function f:COMBAT_LOG_EVENT_UNFILTERED(
@@ -257,6 +263,7 @@ end
 function callbacks.OnUsed()
     f:RegisterEvent"GROUP_ROSTER_UPDATE"
     f:RegisterEvent"PLAYER_LOGIN"
+    f:RegisterEvent"PLAYER_ENTERING_WORLD"
     f:RegisterEvent"COMBAT_LOG_EVENT_UNFILTERED"
     -- f:RegisterEvent"UNIT_HEALTH_FREQUENT"
     f:RegisterEvent"UNIT_HEALTH"

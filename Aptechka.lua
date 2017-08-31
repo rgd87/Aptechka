@@ -985,20 +985,22 @@ local OnAttributeChanged = function(self, attrname, unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
 end
 
-local UpdateHealthAfterInstance = function()
-	for unit in pairs(Roster) do
-		Aptechka:UNIT_HEALTH("UNIT_HEALTH", unit)
-		if not config.disableManaBar then
-			Aptechka:UNIT_DISPLAYPOWER(nil, unit)
-			Aptechka:UNIT_POWER(nil, unit)
-		end
-		if config.enableAbsorbBar then
-			Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
-		end
-	end
-end
+-- local UpdateHealthAfterInstance = function()
+--     print("UpdateHealthAfterInstance")
+-- 	for unit in pairs(Roster) do
+-- 		Aptechka:UNIT_HEALTH("UNIT_HEALTH", unit, "DEBUG")
+-- 		if not config.disableManaBar then
+-- 			Aptechka:UNIT_DISPLAYPOWER(nil, unit)
+-- 			Aptechka:UNIT_POWER(nil, unit)
+-- 		end
+-- 		if config.enableAbsorbBar then
+-- 			Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
+-- 		end
+-- 	end
+-- end
 function Aptechka:PLAYER_ENTERING_WORLD(self)
-	C_Timer.After(2, UpdateHealthAfterInstance)
+    -- print("PLAYER_ENTERING_WORLD")
+	-- C_Timer.After(10, UpdateHealthAfterInstance)
 end
 
 local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
