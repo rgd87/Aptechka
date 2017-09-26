@@ -497,8 +497,11 @@ function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     if not rosterunit then return end
     for self in pairs(rosterunit) do
         local a,hm = UnitGetTotalAbsorbs(unit), UnitHealthMax(unit)
+        local h = UnitHealth(unit)
 		local p = (hm ~= 0) and a/hm*100 or 0
-        self.absorb:SetValue(p)
+        local p2 = (hm ~= 0) and (h+a)/hm*100 or 0
+        self.absorb:SetValue(p, (h/hm)*100)
+        self.absorb2:SetValue(p2)
     end
 end
 
@@ -507,10 +510,13 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
     if not rosterunit then return end
     for self in pairs(rosterunit) do
         local h,hm = UnitHealth(unit), UnitHealthMax(unit)
+        local shields = UnitGetTotalAbsorbs(unit)
         if hm == 0 then return end
         self.vHealth = h
         self.vHealthMax = hm
         self.health:SetValue(h/hm*100)
+        self.absorb:SetValue(shields/hm*100, h/hm*100)
+        self.absorb2:SetValue((h+shields)/hm*100)
 		self.health.incoming:Update(h, nil, hm)
         SetJob(unit,config.HealthDificitStatus, ((hm-h) > 1000) )
 
@@ -825,7 +831,7 @@ Aptechka.SPELLS_CHANGED = Aptechka.GROUP_ROSTER_UPDATE
 function Aptechka.LayoutUpdate(self)
     local numMembers = GetNumGroupMembers()
     local spec = GetSpecialization()
-    local role = spec and select(6,GetSpecializationInfo(spec)) or "DAMAGER"
+    local role = spec and select(5,GetSpecializationInfo(spec)) or "DAMAGER"
     for _, layout in ipairs(config.layouts) do
         if layout(self, numMembers, role, spec) then return end
     end

@@ -633,6 +633,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp.SetJob = SetJob_HealthBar
     --hp:SetValue(0)
 
+--------------------
 
     local absorb = CreateFrame("Frame", nil, self)
     absorb:SetParent(hp)
@@ -652,15 +653,43 @@ AptechkaDefaultConfig.GridSkin = function(self)
     atbg:SetPoint("BOTTOMRIGHT", at, "BOTTOMRIGHT", 1,-1)
 
     absorb.maxheight = config.height
-    absorb.SetValue = function(self, v)
+    absorb.SetValue = function(self, v, health)
         local p = v/100
         if p > 1 then p = 1 end
         if p < 0 then p = 0 end
-        if p == 0 then self:Hide() else self:Show() end
+        if p <= 0.015 then self:Hide(); return; else self:Show() end
+
+        local h = (health/100)
+        local missing_health_height = (1-h)*self.maxheight
+        local absorb_height = p*self.maxheight
+
         self:SetHeight(p*self.maxheight)
+
+        if absorb_height >= missing_health_height then
+            self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3 ,0)
+        else
+            self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3, -(missing_health_height - absorb_height))
+        end
     end
     absorb:SetValue(0)
     hp.absorb = absorb
+
+-----------------------
+
+    local absorb2 = CreateFrame("StatusBar", nil, self)
+    --absorb:SetAllPoints(self)
+    absorb2:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+    -- absorb:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
+    absorb2:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+    absorb2:SetStatusBarTexture[[Interface\AddOns\Aptechka\shieldtex]]
+    absorb2:GetStatusBarTexture():SetDrawLayer("ARTWORK",-7)
+    absorb2:SetMinMaxValues(0,100)
+    absorb2:SetAlpha(0.65)
+    absorb2:SetOrientation("VERTICAL")
+    absorb2.parent = self
+    hp.absorb2 = absorb2
+
+-----------------------
 
     -- local absorb = CreateFrame("StatusBar", nil, self)
     -- absorb:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
@@ -880,6 +909,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.raidicon = raidicon
     self.roleicon = roleicon
     self.absorb = absorb
+    self.absorb2 = absorb2
     self.centericon = centericon
 
 
