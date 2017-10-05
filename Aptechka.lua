@@ -550,8 +550,10 @@ function Aptechka.CheckPhase(frame, unit)
                 frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
                 frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
                 frame.centericon:Show()
+                FrameSetJob(frame, config.PhasedOutStatus, true)
             else
                 frame.centericon:Hide()
+                FrameSetJob(frame, config.PhasedOutStatus, false)
             end
 end
 function Aptechka.CheckPhase1(unit)
