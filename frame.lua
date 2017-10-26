@@ -619,15 +619,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self:SetFrameStrata(config.frameStrata or "LOW")
     self:SetFrameLevel(3)
 
-    local mot = self:CreateTexture(nil,"OVERLAY")
-    mot:SetAllPoints(self)
-    mot:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
-    --mot:SetTexture[[Interface\AddOns\Aptechka\shine]]
-    --mot:SetVertexColor(0.7,0.7,1)
-    mot:SetBlendMode("ADD")
-    mot:Hide()
-    self.mouseover = mot
-
 
     local powerbar = CreateFrame("StatusBar", nil, self)
 	powerbar:SetWidth(4)
@@ -659,6 +650,17 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp.parent = self
     hp.SetJob = SetJob_HealthBar
     --hp:SetValue(0)
+
+    local mot = hp:CreateTexture(nil,"OVERLAY")
+    mot:SetAllPoints(hp)
+    mot:SetTexture(136810)
+    -- /dump GetFileIDFromPath("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+    -- mot:SetVertexColor(0.7,0.7,1)
+    mot:SetTexCoord(0,1,0,0.9)
+    mot:SetAlpha(0.1)
+    mot:SetBlendMode("ADD")
+    mot:Hide()
+    self.mouseover = mot
 
 --------------------
 
