@@ -566,6 +566,33 @@ local OnMouseLeaveFunc = function(self)
     self.mouseover:Hide()
 end
 
+
+local optional_widgets = {
+        raidbuff = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0) end,
+        --top
+        spell1  = function(self) return CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0) end,
+        --bottomright
+        spell2  = function(self) return CreateIndicator(self,9,9,"TOP",self,"TOP",0,0) end,
+        --topright
+        spell3  = function(self) return CreateIndicator(self,9,9,"TOPRIGHT",self,"TOPRIGHT",0,0) end,
+        --bottom
+        spell4  = function(self) return CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0) end,
+        --left
+        spell5  = function(self) return CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0) end,
+
+        bar1    = function(self) return CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0) end,
+        bar2    = function(self)
+            if self.bar1 then
+                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar1, "TOPLEFT",0,1)
+            end
+        end,
+        bar3    = function(self) return CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1) end,
+        vbar1   = function(self) return CreateStatusBar(self, 4, 20, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true) end,
+        
+        smist  = function(self) return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
+}
+
+
 AptechkaDefaultConfig.GridSkinSettings = function(self)
     AptechkaDefaultConfig.width = 50
     AptechkaDefaultConfig.height = 50
@@ -821,18 +848,18 @@ AptechkaDefaultConfig.GridSkin = function(self)
     roleicon.texture = roleicontex
 
 
-    local topind = CreateIndicator(self,9,9,"TOP",self,"TOP",0,0)
-    local tr = CreateIndicator(self,9,9,"TOPRIGHT",self,"TOPRIGHT",0,0)
-    local br = CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
+    -- local topind = CreateIndicator(self,9,9,"TOP",self,"TOP",0,0)
+    -- local tr = CreateIndicator(self,9,9,"TOPRIGHT",self,"TOPRIGHT",0,0)
+    -- local br = CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
     -- local btm = CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0)
     -- local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
-    local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
+    -- local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
     local text3 = CreateTextTimer(self,"TOPLEFT",self,"TOPLEFT",2,0,"LEFT",fontsize-3,font)--,"OUTLINE")
 
-    local bar1 = CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
-    local bar2 = CreateStatusBar(self, 21, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)
-    local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
-    local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
+    -- local bar1 = CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
+    -- local bar2 = CreateStatusBar(self, 21, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)
+    -- local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
+    -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
 
     -- local bars = {}
     -- bars.OverrideStatusHandler = function(frame, self, opts, status)
@@ -857,6 +884,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.text3 = text3
     self.power = powerbar
 
+    self.border = border
+
     -- self.spell1 = br
     -- self.spell2 = topind
     -- self.spell3 = tr
@@ -867,37 +896,13 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- self.bar3 = bar3
     -- self.bar4 = vbar1
     -- self.bars = bars
-    -- self.raidbuff = tl
-    -- self.border = border
-    local optional_widgets = {
-        --top
-        spell1  = function() return CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0) end,
-        --bottomright
-        spell2  = function() return CreateIndicator(self,9,9,"TOP",self,"TOP",0,0) end,
-        --topright
-        spell3  = function() return CreateIndicator(self,9,9,"TOPRIGHT",self,"TOPRIGHT",0,0) end,
-        --bottom
-        spell4  = function() return CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0) end,
-        --left
-        spell5  = function() return CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0) end,
-
-        bar1    = function() return CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0) end,
-        bar2    = function()
-            if self.bar1 then
-                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar1, "TOPLEFT",0,1)
-            end
-        end,
-        bar3    = function() return CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1) end,
-        vbar1   = function() return CreateStatusBar(self, 4, 20, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true) end,
-        
-        smist  = function() return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
-    }
+    self._optional_widgets = optional_widgets
 
     for type, spells in pairs(config.IndicatorAuras) do
         for id, spell in pairs(spells) do
             for _,widget in ipairs(spell.assignto) do
                 if not self[widget] and optional_widgets[widget] then
-                    self[widget] = optional_widgets[widget]()
+                    self[widget] = optional_widgets[widget](self)
                 end
             end
         end

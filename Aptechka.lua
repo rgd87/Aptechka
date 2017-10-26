@@ -830,6 +830,11 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
 end
 Aptechka.SPELLS_CHANGED = Aptechka.GROUP_ROSTER_UPDATE
 
+-- Aptechka.SetScale1 = Aptechka.SetScale
+-- Aptechka.SetScale = function(self, scale)
+--     self:SetScale1(UIParent:GetScale()*scale)
+-- end
+
 function Aptechka.LayoutUpdate(self)
     local numMembers = GetNumGroupMembers()
     local spec = GetSpecialization()
@@ -837,7 +842,7 @@ function Aptechka.LayoutUpdate(self)
     for _, layout in ipairs(config.layouts) do
         if layout(self, numMembers, role, spec) then return end
     end
-    self:SetScale(nil)
+    self:SetScale(1)
 end
 
 --raid icons
@@ -1286,6 +1291,12 @@ FrameSetJob = function (frame, opts, status)
     if opts and opts.assignto then
         for _, slot in ipairs(opts.assignto) do
             local self = frame[slot]
+            if not self then
+                if frame._optional_widgets[slot] then
+                    frame[slot] = frame._optional_widgets[slot](frame)
+                    self = frame[slot]
+                end
+            end
             if self then
 				if self.OverrideStatusHandler then
 					self.OverrideStatusHandler(frame, self, opts, status)
