@@ -1360,6 +1360,10 @@ function Aptechka.ScanAuras(unit)
                         opts.isforeign = (caster ~= "player")
                     end
                     opts.expirationTime = expirationTime
+                    local minduration = opts._ignore_duration_below
+                    if minduration and opts.duration and duration < minduration then
+                        duration = opts.duration
+                    end
                     opts.duration = duration
                     opts.texture = opts.texture or icon
                     opts.stacks = count
