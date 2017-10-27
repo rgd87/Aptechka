@@ -163,9 +163,9 @@ if playerClass == "PRIEST" then
                                                                         --     [4] = { 1, .4, .4},
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
-    A{ id = 194384,type = "HELPFUL", assignto = { "bar1" }, color = { 1, .3, .3}, showDuration = true, isMine = true}
+    A{ id = 194384,type = "HELPFUL", assignto = { "bar1" }, _ignore_duration_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true} --Atonement
 
-    -- Trace{id = 94472, type = "HEAL", minamount = 10000, assignto = { "spell3" }, color = { .2, 1, .2}, fade = .5, priority = 90 } -- Atonement
+    -- Trace{id = 94472, type = "HEAL", minamount = 70000, assignto = { "spell3" }, color = -{ .2, 1, .2}, fade = .5, priority = 90 } -- Atonement
     Trace{id = 204883, type = "HEAL", assignto = { "spell3" }, color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
     Trace{id = 596, type = "HEAL", assignto = { "spell3" }, color = { .5, .5, 1}, fade = 0.7, priority = 96 } -- Circle of Healing
     -- Trace{id = 33076, type = "HEAL", assignto = { "spell3" }, color = { .3, 1, .3}, fade = 1, priority = 97 } -- PoM Trace
