@@ -177,10 +177,14 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     AptechkaConfigCustom = AptechkaConfigCustom or {}
     AptechkaConfigMerged = CopyTable(AptechkaDefaultConfig)
     config = AptechkaConfigMerged
-    dtypes = config.DebuffTypes or {}
-    debuffs = config.DebuffDisplay or {}
-    auras = config.auras or {}
-    traceheals = config.traces or {}
+    config.DebuffTypes = config.DebuffTypes or {}
+    config.DebuffDisplay = config.DebuffDisplay or {}
+    config.auras = config.auras or {}
+    config.traces = config.traces or {}
+    auras = config.auras
+    traceheals = config.traces
+    dtypes = config.DebuffTypes
+    debuffs = config.DebuffDisplay
 
     local _, class = UnitClass("player")
     local categories = {"auras", "traces"}
