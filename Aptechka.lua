@@ -108,6 +108,31 @@ local function RemoveDefaults(t, defaults)
     end
     return t
 end
+local function MergeTable(t1, t2)
+    if not t2 then return false end
+    for k,v in pairs(t2) do
+        if type(v) == "table" then
+            -- if v.disabled then
+                -- t1[k] = nil
+            -- else
+                if t1[k] == nil then
+                    t1[k] = CopyTable(v)
+                else
+                    MergeTable(t1[k], v)
+                end
+            -- end
+        else
+            t1[k] = v
+        end
+    end
+    -- if mergeEmptySlots   then
+    --     for k,v in pairs(t1) do
+    --         if t1[k] and t2[k] == false then
+    --             t1[k] = nil
+    --         end
+    --     end
+    -- end
+end
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
 Aptechka:RegisterEvent("PLAYER_LOGOUT")
@@ -142,8 +167,22 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         AptechkaDB = AptechkaDB_Global
     end
     Aptechka.db = AptechkaDB
-
     SetupDefaults(AptechkaDB, defaults)
+
+
+    -- AptechkaConfigCustom = AptechkaConfigCustom or {}
+    -- AptechkaConfigMerged = CopyTable(AptechkaConfig)
+
+    -- local _, class = UnitClass("player")
+    -- local categories = {"spells", "cooldowns", "activations", "casts"}
+    -- if not AptechkaConfigCustom[class] then AptechkaConfigCustom[class] = {} end
+
+    -- local globalConfig = AptechkaConfigCustom["GLOBAL"]
+    -- MergeTable(AptechkaConfigMerged, globalConfig)
+    -- local classConfig = AptechkaConfigCustom[class]
+    -- MergeTable(AptechkaConfigMerged, classConfig)
+
+    
 
     Aptechka.Roster = Roster
 

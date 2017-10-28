@@ -24,9 +24,7 @@ config.groupGrowth = "TOP"
 config.groupGap = 10
 config.unlocked = false  -- when addon initially loaded
 config.frameStrata = "LOW"
--- config.disableBlizzardParty = true
--- config.hideBlizzardRaid = true
-config.useGroupAnchors = false -- use separate anchors for each group
+
 config.layouts = {  -- works ONLY with group anchors disabled.
                     -- layout functions are checked from first to last. function should return true to be accepted.
     function(self, members, role, spec)

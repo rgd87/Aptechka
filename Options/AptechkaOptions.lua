@@ -27,7 +27,7 @@ function AptechkaGUI.GenerateCategoryTree(self, isGlobal, category)
 	local t = {}
 	for spellID, opts in pairs(AptechkaConfigMerged[category]) do
 		if (isGlobal and opts.global) or (not isGlobal and not opts.global) then
-			local name = (opts.name == "" or not opts.name) and (GetSpellInfo(spellID) or "Unknown") or opts.name
+			local name = (GetSpellInfo(spellID) or "Unknown") or opts.name
 			local custom_opts = custom[category] and custom[category][spellID]
 			local status
 			local order = 5
@@ -884,7 +884,6 @@ function AptechkaGUI.Create(self, name, parent )
 	Frame:SetLayout("Fill")
 	-- Frame:SetHeight(500)
 	-- Frame:SetWidth(700)
-	NRO = Frame
 	-- Frame:Show()
 
 
@@ -1024,18 +1023,6 @@ function AptechkaGUI.Create(self, name, parent )
 						icon = "Interface\\Icons\\spell_shadow_manaburn",
 						children = AptechkaGUI:GenerateCategoryTree(true, "spells")
 					},
-					-- {
-					-- 	value = "cooldowns",
-					-- 	text = "Cooldowns",
-					-- 	icon = "Interface\\Icons\\spell_nature_astralrecal",
-					-- 	children = AptechkaGUI:GenerateCategoryTree(true, "cooldowns")
-					-- },
-					-- {
-					-- 	value = "casts",
-					-- 	text = "Casts",
-					-- 	icon = "Interface\\Icons\\spell_deathvortex",
-					-- 	children = AptechkaGUI:GenerateCategoryTree(true, "casts")
-					-- },
 				},
 			},
 			{
@@ -1051,23 +1038,11 @@ function AptechkaGUI.Create(self, name, parent )
 						children = AptechkaGUI:GenerateCategoryTree(false,"spells")
 					},
 					{
-						value = "cooldowns",
-						text = "Cooldowns",
+						value = "traces",
+						text = "Traces",
 						icon = "Interface\\Icons\\spell_nature_astralrecal",
-						children = AptechkaGUI:GenerateCategoryTree(false,"cooldowns")
+						children = AptechkaGUI:GenerateCategoryTree(false,"traces")
 					},
-					{
-						value = "casts",
-						text = "Casts",
-						icon = "Interface\\Icons\\spell_deathvortex",
-						children = AptechkaGUI:GenerateCategoryTree(false,"casts")
-					},
-					-- {
-					-- 	value = "event_timers",
-					-- 	text = "Events",
-					-- 	icon = "ability_deathwing_sealarmorbreachtga",
-					-- 	children = AptechkaGUI:GenerateCategoryTree("casts")
-					-- }
 				}
 			},
 		}
@@ -1082,7 +1057,7 @@ function AptechkaGUI.Create(self, name, parent )
 
 
 
-	local categories = {"spells", "cooldowns", "casts"}
+	local categories = {"spells", "traces"}
 	for i,group in ipairs(t) do -- expand all groups
 		if group.value ~= "GLOBAL" then
 			treegroup.localstatus.groups[group.value] = true
@@ -1091,7 +1066,6 @@ function AptechkaGUI.Create(self, name, parent )
 			end
 		end
 	end
-	-- TREEG = treegroup
 
 
 	Frame.rpane.Clear = function(self)
@@ -1103,15 +1077,10 @@ function AptechkaGUI.Create(self, name, parent )
 	end
 
 
-
-	-- local commonForm = AptechkaGUI:CreateCommonForm()
-	-- Frame.rpane:AddChild(commonForm)
 	local _, class = UnitClass("player")
 	Frame.tree:SelectByPath(class)
 
 
-
-    -- Frame:Hide()
 
     return Frame
 end
@@ -1342,11 +1311,11 @@ do
     -- f.spell_list = AptechkaGUI.frame.frame
     -- InterfaceOptions_AddCategory(f.spell_list);
 
-    -- f:Hide()
-    -- f:SetScript("OnShow", function(self)
-            -- self:Hide();
-            -- local list = self.spell_list
-            -- InterfaceOptionsFrame_OpenToCategory (list)
-            -- InterfaceOptionsFrame_OpenToCategory (list)
-    -- end)
+    f:Hide()
+    f:SetScript("OnShow", function(self)
+            self:Hide();
+            local general = self.general
+            InterfaceOptionsFrame_OpenToCategory (general)
+            InterfaceOptionsFrame_OpenToCategory (general)
+    end)
 end
