@@ -393,8 +393,8 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     local stacktext = icon:CreateFontString(nil,"OVERLAY")
     -- stacktext:SetWidth(w)
     -- stacktext:SetHeight(h)
-    if AptechkaUserConfig.font then
-        stacktext:SetFont(AptechkaUserConfig.font,10,"OUTLINE")
+    if AptechkaDefaultConfig.font then
+        stacktext:SetFont(AptechkaDefaultConfig.font,10,"OUTLINE")
     else
         stacktext:SetFontObject("NumberFontNormal")
     end
@@ -602,7 +602,7 @@ AptechkaDefaultConfig.GridSkinSettings = function(self)
 end
 AptechkaDefaultConfig.GridSkin = function(self)
     local config
-    if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
+    if AptechkaDefaultConfig then config = AptechkaDefaultConfig else config = AptechkaDefaultConfig end
 
     local texture = config.texture
     local font = config.font
@@ -748,7 +748,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 	hpbg:SetTexture(texture)
     hp.bg = hpbg
 
-    -- if AptechkaUserConfig.useCombatLogHealthUpdates or AptechkaDefaultConfig.useCombatLogHealthUpdates then
+    -- if AptechkaDefaultConfig.useCombatLogHealthUpdates or AptechkaDefaultConfig.useCombatLogHealthUpdates then
     --     print('p2')
     --     local hp2 = CreateFrame("StatusBar", nil, self)
     --     --hp:SetAllPoints(self)
@@ -911,10 +911,17 @@ AptechkaDefaultConfig.GridSkin = function(self)
         Aptechka.widget_list = list
     end
 
-    for id, spell in pairs(config.IndicatorAuras) do
-        for _,widget in ipairs(spell.assignto) do
+    for id, spell in pairs(config.auras) do
+        if type(spell.assignto) == "string" then
+            local widget = spell.assignto
             if not self[widget] and optional_widgets[widget] then
                 self[widget] = optional_widgets[widget](self)
+            end
+        else
+            for _,widget in ipairs(spell.assignto) do
+                if not self[widget] and optional_widgets[widget] then
+                    self[widget] = optional_widgets[widget](self)
+                end
             end
         end
     end

@@ -5,7 +5,7 @@ Aptechka:SetScript("OnEvent", function(self, event, ...)
 	self[event](self, event, ...)
 end)
 
-AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
+-- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
 
 local AptechkaUnitInRange
@@ -18,7 +18,7 @@ local colors
 local threshold --incoming heals
 local ignoreplayer
 
-local config = AptechkaUserConfig
+local config = AptechkaDefaultConfig
 local OORUnits = setmetatable({},{__mode = 'k'})
 local inCL = setmetatable({},{__index = function (t,k) return 0 end})
 local buffer = {}

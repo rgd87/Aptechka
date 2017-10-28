@@ -6,8 +6,6 @@ local DT = helpers.AddDispellType
 local D = helpers.AddDebuff
 local ClickMacro = helpers.ClickMacro
 local Trace = helpers.AddTrace
-AptechkaDefaultConfig = {}
-AptechkaDefaultConfig.IndicatorAuras = {}
 local config = AptechkaDefaultConfig
 
 config.skin = "GridSkin"
