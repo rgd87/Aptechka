@@ -1185,10 +1185,22 @@ local function MakeGeneralOptions()
                         step = 1,
                         order = 2,
                     },
+                    nameLength = {
+                        name = "Name Length",
+                        type = "range",
+                        get = function(info) return Aptechka.db.cropNamesLen end,
+                        set = function(info, v)
+                            Aptechka.db.cropNamesLen = v
+                        end,
+                        min = 2,
+                        max = 25,
+                        step = 1,
+                        order = 3,
+                    },
                     groupGrowth = {
                         name = "Group Growth Direction",
                         type = 'select',
-                        order = 3,
+                        order = 4,
                         values = {
                             LEFT = "Left",
                             RIGHT = "Right",
@@ -1204,6 +1216,7 @@ local function MakeGeneralOptions()
                     groupGap = {
                         name = "Group Gap",
                         type = "range",
+                        width = "double",
                         get = function(info) return Aptechka.db.groupGap end,
                         set = function(info, v)
                             Aptechka.db.groupGap = v
@@ -1212,12 +1225,12 @@ local function MakeGeneralOptions()
                         min = 4,
                         max = 20,
                         step = 1,
-                        order = 3.1,
+                        order = 5,
                     },
                     unitGrowth = {
                         name = "Unit Growth Direction",
                         type = 'select',
-                        order = 4,
+                        order = 6,
                         values = {
                             LEFT = "Left",
                             RIGHT = "Right",
@@ -1233,6 +1246,7 @@ local function MakeGeneralOptions()
                     unitGap = {
                         name = "Unit Gap",
                         type = "range",
+                        width = "double",
                         get = function(info) return Aptechka.db.unitGap end,
                         set = function(info, v)
                             Aptechka.db.unitGap = v
@@ -1241,31 +1255,20 @@ local function MakeGeneralOptions()
                         min = 4,
                         max = 20,
                         step = 1,
-                        order = 4.1,
+                        order = 7,
                     },
                     showSolo = {
                         name = "Show Solo",
                         type = "toggle",
-                        -- desc = "Display spell name on timers",
+                        width = "double",
                         get = function(info) return Aptechka.db.showSolo end,
                         set = function(info, v)
                             Aptechka.db.showSolo = not Aptechka.db.showSolo
                             Aptechka:ReconfigureProtected()
                         end,
-                        order = 5,
+                        order = 8,
                     },
-                    nameLength = {
-                        name = "Name Length",
-                        type = "range",
-                        get = function(info) return Aptechka.db.cropNamesLen end,
-                        set = function(info, v)
-                            Aptechka.db.cropNamesLen = v
-                        end,
-                        min = 2,
-                        max = 25,
-                        step = 1,
-                        order = 6,
-                    },
+                    
                     disableBlizzardParty = {
                         name = "Disable Blizzard Party Frames",
                         width = "double",
@@ -1276,7 +1279,7 @@ local function MakeGeneralOptions()
                             Aptechka.db.disableBlizzardParty = not Aptechka.db.disableBlizzardParty
                             print("Aptechka: Changes will effect after /reload")
                         end,
-                        order = 7,
+                        order = 9,
                     },
                     hideBlizzardRaid = {
                         name = "Hide Blizzard Raid Frames",
@@ -1288,7 +1291,7 @@ local function MakeGeneralOptions()
                             Aptechka.db.hideBlizzardRaid = not Aptechka.db.hideBlizzardRaid
                             print("Aptechka: Changes will effect after /reload")
                         end,
-                        order = 8,
+                        order = 10,
                     },
                     -- incomingHealThreshold = {
                     --     name = "Incoming Heal Threshold",

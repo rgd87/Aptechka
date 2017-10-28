@@ -1,0 +1,9 @@
+package-as: Aptechka
+enable-nolib-creation: no
+
+move-folders:
+    Aptechka/Options/loader: AptechkaOptions
+
+manual-changelog:
+	filename: CHANGELOG
+	markup-type: markdown
