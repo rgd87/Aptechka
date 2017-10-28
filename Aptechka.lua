@@ -61,7 +61,56 @@ local AptechkaDB = {}
 local LRI -- LibResInfo
 local CreatePetsFunc
 
+
+local defaults = {
+    growth = "up",
+    width = 50,
+    height = 50,
+    unitGrowth = "RIGHT",
+    groupGrowth = "TOP",
+    unitGap = 10,
+    groupGap = 10,
+    showSolo = true,
+    cropNamesLen = 7,
+    disableBlizzardParty = true,
+    hideBlizzardRaid = true,
+    -- incomingHealThreshold = 80000,
+    -- np_height = 7,
+}
+
+local function SetupDefaults(t, defaults)
+    if not defaults then return end
+    for k,v in pairs(defaults) do
+        if type(v) == "table" then
+            if t[k] == nil then
+                t[k] = CopyTable(v)
+            elseif t[k] == false then
+                t[k] = false --pass
+            else
+                SetupDefaults(t[k], v)
+            end
+        else
+            if t[k] == nil then t[k] = v end
+        end
+    end
+end
+local function RemoveDefaults(t, defaults)
+    if not defaults then return end
+    for k, v in pairs(defaults) do
+        if type(t[k]) == 'table' and type(v) == 'table' then
+            RemoveDefaults(t[k], v)
+            if next(t[k]) == nil then
+                t[k] = nil
+            end
+        elseif t[k] == v then
+            t[k] = nil
+        end
+    end
+    return t
+end
+
 Aptechka:RegisterEvent("PLAYER_LOGIN")
+Aptechka:RegisterEvent("PLAYER_LOGOUT")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
     local uir2 = function(unit)
@@ -92,12 +141,16 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     else
         AptechkaDB = AptechkaDB_Global
     end
+    Aptechka.db = AptechkaDB
+
+    SetupDefaults(AptechkaDB, defaults)
+
     Aptechka.Roster = Roster
 
-    if config.disableBlizzardParty then
+    if AptechkaDB.disableBlizzardParty then
         helpers.DisableBlizzParty()
     end
-    if config.hideBlizzardRaid then
+    if AptechkaDB.hideBlizzardRaid then
 	   -- disable Blizzard party & raid frame if our Raid Frames are loaded
        -- InterfaceOptionsFrameCategoriesButton11:SetScale(0.00001)
        -- InterfaceOptionsFrameCategoriesButton11:SetAlpha(0)
@@ -123,29 +176,31 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     else tbind = config.TargetBinding end
 
     local ccmacro = config.ClickCastingMacro or "__none__"
-    self.initConfSnippet = string.format([=[
-        self:SetWidth(%f)
-        self:SetHeight(%f)
 
-        local hdr = self:GetParent()
-        if not hdr:GetAttribute("custom_scale") then hdr:SetScale(%f) end
+    local width = AptechkaDB.width or config.width
+    local height = AptechkaDB.height or config.height
+    local scale = AptechkaDB.scale or config.scale
+    self.makeConfSnippet = function(width, height, scale)
+        return string.format([=[
+            self:SetWidth(%f)
+            self:SetHeight(%f)
 
-        self:SetAttribute("toggleForVehicle", true)
-        local tbind = "%s"
-        local ccmacro = "%s"
-        if tbind ~= "__none__" then self:SetAttribute(tbind,"target") end
-        if ccmacro ~= "__none__" then
-            self:SetAttribute("*type*", "macro")
-            self:SetAttribute("macrotext", ccmacro)
-        end
+            local hdr = self:GetParent()
+            if not hdr:GetAttribute("custom_scale") then hdr:SetScale(%f) end
 
-        local ccheader = self:GetParent():GetFrameRef("clickcast_header")
-        if ccheader then
-            ccheader:SetAttribute("clickcast_button", self)
-            ccheader:RunAttribute("clickcast_register")
-        end
+            self:SetAttribute("toggleForVehicle", true)
 
-    ]=],config.width, config.height,config.scale,tbind,ccmacro)
+            self:SetAttribute("*type1","target")
+
+            local ccheader = self:GetParent():GetFrameRef("clickcast_header")
+            if ccheader then
+                ccheader:SetAttribute("clickcast_button", self)
+                ccheader:RunAttribute("clickcast_register")
+            end
+
+        ]=],width, height,scale)
+    end
+    self.initConfSnippet = self.makeConfSnippet(width, height, scale)
 
     self:RegisterEvent("UNIT_HEALTH")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -377,7 +432,68 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             end
         end)
     end
+
+    local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
+    f:SetScript('OnShow', function(self)
+        self:SetScript('OnShow', nil)
+        LoadAddOn('AptechkaOptions')
+    end)
 end  -- END PLAYER_LOGIN
+
+function Aptechka.PLAYER_LOGOUT(self, event)
+    RemoveDefaults(AptechkaDB, defaults)
+end
+
+
+function Aptechka:Reconfigure()
+    self:ReconfigureProtected()
+end
+function Aptechka:ReconfigureProtected()
+    if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
+
+    local width = AptechkaDB.width or config.width
+    local height = AptechkaDB.height or config.height
+    local scale = AptechkaDB.scale or config.scale
+    self.initConfSnippet = self.makeConfSnippet(width, height, scale)
+    for group, header in ipairs(group_headers) do
+        
+        for _, f in ipairs({ header:GetChildren() }) do
+            f:SetWidth(width)
+            f:SetHeight(height)
+            f:SetScale(scale)
+        end
+
+        local showSolo = AptechkaDB.showSolo
+        header:SetAttribute("showSolo", showSolo)
+
+        -- header:SetAttribute("initialConfigFunction", self.initConfSnippet)
+
+        -- local xgap = AptechkaDB.unitGap or config.unitGap
+        -- local ygap = AptechkaDB.unitGap or config.unitGap
+        -- local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
+        -- local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
+        -- local unitgr = reverse(unitGrowth)
+        -- if unitgr == "RIGHT" then
+        --     xgap = -xgap
+        -- elseif unitgr == "TOP" then
+        --     ygap = -ygap
+        -- end
+        -- header:SetAttribute("point", unitgr)
+        -- header:SetAttribute("xOffset", xgap)
+        -- header:SetAttribute("yOffset", ygap)
+
+        -- if group >= 2 then
+        --     f:SetPoint(arrangeHeaders(group_headers[group-1], nil, unitGrowth, groupGrowth))
+        -- end
+
+        
+
+    end
+
+    local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
+    local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
+    Aptechka:SetGrowth(unitGrowth, groupGrowth)
+end
 
 function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     if not Roster[unit] then return end
@@ -797,6 +913,7 @@ function Aptechka.SetScale(self, scale)
 end
 function Aptechka.PLAYER_REGEN_ENABLED(self,event)
     self:GROUP_ROSTER_UPDATE()
+    self:ReconfigureProtected()
     self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 end
 
@@ -960,7 +1077,7 @@ local OnAttributeChanged = function(self, attrname, unit)
     if not unit then return end
 
     local name, realm = UnitName(owner)
-    self.name = utf8sub(name,1,config.cropNamesLen)
+    self.name = utf8sub(name,1, AptechkaDB.cropNamesLen)
 
     self.unit = unit
     Roster[unit] = Roster[unit] or {}
@@ -1019,9 +1136,10 @@ end
 local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         local p1, p2
         local xgap = 0
-        local ygap = config.groupGap
+        local ygap = AptechkaDB.groupGap or config.groupGap
         local point, direction = reverse(unitGrowth or config.unitGrowth)
         local grgrowth = groupGrowth or (notreverse and reverse(config.groupGrowth) or config.groupGrowth)
+        -- print(point, direction, grgrowth)
         if grgrowth == "TOP" then
             if direction == "VERTICAL" then point = "" end
             p1 = "BOTTOM"..point; p2 = "TOP"..point;
@@ -1052,9 +1170,9 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetAttribute("templateType", "Button")
 
 
-    local xgap = config.unitGap
-    local ygap = config.unitGap
-    local unitgr = reverse(config.unitGrowth)
+    local xgap = AptechkaDB.unitGap or config.unitGap
+    local ygap = AptechkaDB.unitGap or config.unitGap
+    local unitgr = reverse(AptechkaDB.unitGrowth or config.unitGrowth)
     if unitgr == "RIGHT" then
         xgap = -xgap
     elseif unitgr == "TOP" then
@@ -1075,9 +1193,11 @@ function Aptechka.CreateHeader(self,group,petgroup)
     end
     --our group header doesn't really inherits SecureHandlerBaseTemplate
     if ClickCastHeader then SecureHandlerSetFrameRef(f,"clickcast_header", ClickCastHeader) end
+
+    local showSolo = AptechkaDB.showSolo -- or config.showSolo
     f:SetAttribute("showRaid", true)
     f:SetAttribute("showParty", config.showParty)
-    f:SetAttribute("showSolo", config.showSolo)
+    f:SetAttribute("showSolo", showSolo)
     f:SetAttribute("showPlayer", true)
     f.initConf = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
@@ -1101,8 +1221,8 @@ do -- this function supposed to be called from layout switchers
 
         local anchorpoint = self:SetAnchorpoint(unitGrowth, groupGrowth)
 
-        local xgap = config.unitGap
-        local ygap = config.unitGap
+        local xgap = AptechkaDB.unitGap or config.unitGap
+        local ygap = AptechkaDB.unitGap or config.unitGap
         local unitgr = reverse(unitGrowth)
         if unitgr == "RIGHT" then
             xgap = -xgap
@@ -1247,17 +1367,16 @@ function Aptechka.SetupFrame(f)
 
     f.onenter = onenter
     f.onleave = onleave
-    f:SetAttribute("_onenter",[[
-        local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
-        self:CallMethod("onenter")
-    ]])
-    --self:SetScale( 1 )
-    f:SetAttribute("_onleave",[[
-        local snippet = self:GetAttribute('clickcast_onleave'); if snippet then self:Run(snippet) end
-        self:CallMethod("onleave")
-    ]])
+    -- f:SetAttribute("_onenter",[[
+    --     local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
+    --     self:CallMethod("onenter")
+    -- ]])
 
-    -- print(unpack(config.registerForClicks))
+    -- f:SetAttribute("_onleave",[[
+    --     local snippet = self:GetAttribute('clickcast_onleave'); if snippet then self:Run(snippet) end
+    --     self:CallMethod("onleave")
+    -- ]])
+
     f:RegisterForClicks(unpack(config.registerForClicks))
     f.vHealthMax = 1
     f.vHealth = 1
@@ -1501,42 +1620,28 @@ local ParseOpts = function(str)
     end
     return fields
 end
-function Aptechka.SlashCmd(msg)
-    local k,v = string.match(msg, "([%w%+%-%=]+) ?(.*)")
-    if not k or k == "help" then print([=[Usage:
-      |cff00ff00/aptechka|r lock
-      |cff00ff00/aptechka|r unlock
-      |cff00ff00/aptechka|r unlock|cffff7777all|r
-      |cff00ff00/aptechka|r reset|r
-      |cff00ff00/aptechka|r setpos <point=center x=0 y=0>
-      |cff00ff00/aptechka|r load <setname>
-      |cff00ff00/aptechka|r spells
-      |cff00ff00/aptechka|r charspec
-      |cff00ff00/aptechka|r toggle | show | hide
-      |cff00ff00/aptechka|r createpets
-      |cff00ff00/aptechka|r togglegroup <1-8>]=]
-    )end
-    if k == "unlockall" then
+Aptechka.Commands = {
+    ["unlockall"] = function() 
         for _,anchor in pairs(anchors) do
             anchor:Show()
         end
-    end
-    if k == "unlock" then
+    end,
+    ["unlock"] = function() 
         anchors[1]:Show()
-    end
-    if k == "lock" then
+    end,
+    ["lock"] = function() 
         for _,anchor in pairs(anchors) do
             anchor:Hide()
         end
-    end
-    if k == "reset" then
+    end,
+    ["reset"] = function() 
         anchors[1].san.point = "CENTER"
         anchors[1].san.x = 0
         anchors[1].san.y = 0
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(anchors[1].san.point, UIParent, anchors[1].san.point, anchors[1].san.x, anchors[1].san.y)
-    end
---~     if k == "scale" then
+    end,
+--~     ["scale"] = function() 
 --~         local s = tonumber(v)
 --~         if not s then
 --~             print(AptechkaString.."Current scale = "..AptechkaDB.scale)
@@ -1546,8 +1651,8 @@ function Aptechka.SlashCmd(msg)
 --~         for i = 1, config.maxgroups do
 --~             group_headers[i]:SetScale(s)
 --~         end
---~     end
-    if k == "togglegroup" then
+--~     end,
+    ["togglegroup"] = function() 
         local group = tonumber(v)
         if group then
             local hdr = group_headers[group]
@@ -1557,8 +1662,8 @@ function Aptechka.SlashCmd(msg)
                 hdr:Show()
             end
         end
-    end
-    if k == "createpets" then
+    end,
+    ["createpets"] = function() 
         if not config.petgroup then
             if not InCombatLockdown() then
                 CreatePetsFunc()
@@ -1571,29 +1676,29 @@ function Aptechka.SlashCmd(msg)
                 f:RegisterEvent("PLAYER_REGEN_ENABLED")
             end
         end
-    end
-    if k == "toggle" then
+    end,
+    ["toggle"] = function() 
         if group_headers[1]:IsVisible() then k = "hide" else k = "show" end
-    end
-    if k == "show" then
+    end,
+    ["show"] = function() 
         for i,hdr in pairs(group_headers) do
             hdr:Show()
         end
-    end
-    if k == "hide" then
+    end,
+    ["hide"] = function() 
         for i,hdr in pairs(group_headers) do
             hdr:Hide()
         end
-    end
-    if k == "spells" then
+    end,
+    ["spells"] = function() 
         print("=== Spells ===")
         local spellset = AptechkaUserConfig.IndicatorAuras or AptechkaDefaultConfig.IndicatorAuras
         for spellName,opts in pairs(spellset) do
             local format = string.find(opts.type,"HARMFUL") and "|cffff7777%s|r" or "|cff77ff77%s|r"
             print(string.format(format,spellName))
         end
-    end
-    if k == "load" then
+    end,
+    ["load"] = function() 
         local add = config.LoadableDebuffs[v]
         if v == "" then
             print("Spell sets:")
@@ -1609,8 +1714,8 @@ function Aptechka.SlashCmd(msg)
         else
             print(AptechkaString..v.." doesn't exist")
         end
-    end
-    if k == "setpos" then
+    end,
+    ["setpos"] = function() 
         local fields = ParseOpts(v)
         if not next(fields) then print("Usage: /apt setpos point=center x=0 y=0") return end
         local point,x,y = string.upper(fields['point'] or "CENTER"), fields['x'] or 0, fields['y'] or 0
@@ -1619,46 +1724,35 @@ function Aptechka.SlashCmd(msg)
         anchors[1].san.y = y
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(point, UIParent, point, x, y)
-    end
-    if k == "charspec" then
+    end,
+    ["charspec"] = function() 
         local user = UnitName("player").."@"..GetRealmName()
         if AptechkaDB_Global.charspec[user] then AptechkaDB_Global.charspec[user] = nil
         else AptechkaDB_Global.charspec[user] = true
         end
         print (AptechkaString..(AptechkaDB_Global.charspec[user] and "Enabled" or "Disabled").." character specific options for this toon. Will take effect after ui reload",0.7,1,0.7)
     end
+}
+function Aptechka.SlashCmd(msg)
+    local k,v = string.match(msg, "([%w%+%-%=]+) ?(.*)")
+    if not k or k == "help" then print([=[Usage:
+      |cff00ff00/aptechka|r lock
+      |cff00ff00/aptechka|r unlock
+      |cff00ff00/aptechka|r unlock|cffff7777all|r
+      |cff00ff00/aptechka|r reset|r
+      |cff00ff00/aptechka|r setpos <point=center x=0 y=0>
+      |cff00ff00/aptechka|r load <setname>
+      |cff00ff00/aptechka|r spells
+      |cff00ff00/aptechka|r charspec
+      |cff00ff00/aptechka|r toggle | show | hide
+      |cff00ff00/aptechka|r createpets
+      |cff00ff00/aptechka|r togglegroup <1-8>]=]
+    )end
 
-    if k == "rolepoll" or k == "rolecheck" then
-        InitiateRolePoll();
+    if Aptechka.Commands[k] then
+        Aptechka.Commands[k](v)
     end
 
-    if k == "roles" then
-        local empty1 = { name = "Empty", color = {0,0,0,0}, assignto = {"dicon1"}, priority = 999}
-        local empty2 = { name = "Empty", color = {0,0,0,0}, assignto = {"dicon2"}, priority = 999}
-        local empty3 = { name = "Empty", color = {0,0,0,0}, assignto = {"dicon3"}, priority = 999}
-        local leader = { name = "PartyLeader", color = {1,1,0,0}, assignto = {"dicon2"},  texture = "Interface\\Icons\\Ability_Mage_LivingBomb", priority = 999}
-        local RoleStatus = {
-            ["TANK"] = { name = "TankRole", color = {.5,.5,1,0}, assignto = {"dicon1"}, texture = "Interface\\Icons\\INV_Cloudserpent_Egg_Blue", priority = 999},
-            ["HEALER"] = { name = "HealerRole", color = {.5,1,.5,0}, assignto = {"dicon1"}, texture = "Interface\\Icons\\INV_Cloudserpent_Egg_Green", priority = 999},
-            ["DAMAGER"] = { name = "DamagerRole", color = {.5,1,.5,0}, assignto = {"dicon1"}, texture = "Interface\\Icons\\INV_Cloudserpent_Egg_Red", priority = 999},
-            ["NONE"] = empty1,
-        }
-        for unit, frames in pairs(Roster) do
-            local j1 = RoleStatus[UnitGroupRolesAssigned(unit)]
-            print(j1.name)
-            local j2 = UnitIsGroupLeader(unit) and leader or empty2
-            local j3 = empty3
-            -- if IsInRaid() and string.find(unit, "raid") then
-                -- local raidIndex = tonumbre(string.match(unit, "(%d+)"))
-                -- local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, loot = GetRaidRosterInfo(raidIndex)
-                -- if loot then j3 =
+    
 
-
-            for self in pairs(frames) do
-                FrameSetJob(self, j1, true)
-                FrameSetJob(self, j2, true)
-                FrameSetJob(self, j3, true)
-            end
-        end
-    end
 end
