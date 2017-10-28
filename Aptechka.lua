@@ -94,6 +94,8 @@ local function SetupDefaults(t, defaults)
         end
     end
 end
+Aptechka.SetupDefaults = SetupDefaults
+
 local function RemoveDefaults(t, defaults)
     if not defaults then return end
     for k, v in pairs(defaults) do
@@ -108,6 +110,8 @@ local function RemoveDefaults(t, defaults)
     end
     return t
 end
+Aptechka.RemoveDefaults = RemoveDefaults
+
 local function MergeTable(t1, t2)
     if not t2 then return false end
     for k,v in pairs(t2) do
@@ -133,6 +137,7 @@ local function MergeTable(t1, t2)
     --     end
     -- end
 end
+Aptechka.MergeTable = MergeTable
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
 Aptechka:RegisterEvent("PLAYER_LOGOUT")
@@ -147,10 +152,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     AptechkaUnitInRange = uir2
-    auras = config.auras or {}
-    dtypes = config.DebuffTypes or {}
-    debuffs = config.DebuffDisplay or {}
-    traceheals = config.traces or {}
+    
+    
+    
     Aptechka.SetJob = SetJob
     Aptechka.FrameSetJob = FrameSetJob
     threshold = config.incomingHealThreshold or UnitHealthMax("player")/20
@@ -171,10 +175,15 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
 
     AptechkaConfigCustom = AptechkaConfigCustom or {}
-    AptechkaConfigMerged = CopyTable(AptechkaUserConfig)
+    AptechkaConfigMerged = CopyTable(AptechkaDefaultConfig)
+    config = AptechkaConfigMerged
+    dtypes = config.DebuffTypes or {}
+    debuffs = config.DebuffDisplay or {}
+    auras = config.auras or {}
+    traceheals = config.traces or {}
 
     local _, class = UnitClass("player")
-    local categories = {"spells", "cooldowns", "activations", "casts"}
+    local categories = {"auras", "traces"}
     if not AptechkaConfigCustom[class] then AptechkaConfigCustom[class] = {} end
 
     local globalConfig = AptechkaConfigCustom["GLOBAL"]
@@ -388,11 +397,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     end
 
-    --autoloading
-    for _,spell_group in pairs(config.autoload) do
-        config.LoadableDebuffs[spell_group]()
-        loaded[spell_group] = true
-    end
+    -- --autoloading
+    -- for _,spell_group in pairs(config.autoload) do
+    --     config.LoadableDebuffs[spell_group]()
+    --     loaded[spell_group] = true
+    -- end
     --raid/pvp debuffs loading
     -- local loader = CreateFrame("Frame")
     -- loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
@@ -1445,47 +1454,55 @@ function Aptechka.SetupFrame(f)
     f:SetScript("OnAttributeChanged", OnAttributeChanged)
 end
 
+local AssignToSlot = function(frame, opts, status, slot)
+    local self = frame[slot]
+    if not self then
+        if frame._optional_widgets[slot] then
+            frame[slot] = frame._optional_widgets[slot](frame)
+            self = frame[slot]
+        end
+    end
+    if self then
+        if self.OverrideStatusHandler then
+            self.OverrideStatusHandler(frame, self, opts, status)
+        else
+            if opts.isMissing then status = not status end
+            if not self.jobs then self.jobs = {} end
+
+            if status
+                then self.jobs[opts.name] = opts
+                else self.jobs[opts.name] = nil
+            end
+
+            if next(self.jobs) then
+                local max
+                local max_priority = 0
+                for name, opts in pairs(self.jobs) do
+                    if not opts.priority then opts.priority = 80 end
+                    if max_priority < opts.priority then
+                        max_priority = opts.priority
+                        max = name
+                    end
+                end
+                if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
+                if self.SetJob  then self:SetJob(self.jobs[max]) end
+                self.currentJob = self.jobs[max]
+
+            else
+                if self.HideFunc then self:HideFunc() else self:Hide() end
+                self.currentJob = nil
+            end
+        end
+    end
+end
+
 FrameSetJob = function (frame, opts, status)
     if opts and opts.assignto then
-        for _, slot in ipairs(opts.assignto) do
-            local self = frame[slot]
-            if not self then
-                if frame._optional_widgets[slot] then
-                    frame[slot] = frame._optional_widgets[slot](frame)
-                    self = frame[slot]
-                end
-            end
-            if self then
-				if self.OverrideStatusHandler then
-					self.OverrideStatusHandler(frame, self, opts, status)
-				else
-	                if opts.isMissing then status = not status end
-	                if not self.jobs then self.jobs = {} end
-
-	                if status
-	                    then self.jobs[opts.name] = opts
-	                    else self.jobs[opts.name] = nil
-	                end
-
-                    if next(self.jobs) then
-                        local max
-                        local max_priority = 0
-                        for name, opts in pairs(self.jobs) do
-                            if not opts.priority then opts.priority = 80 end
-                            if max_priority < opts.priority then
-                                max_priority = opts.priority
-                                max = name
-                            end
-                        end
-                        if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
-                        if self.SetJob  then self:SetJob(self.jobs[max]) end
-                        self.currentJob = self.jobs[max]
-
-                    else
-                        if self.HideFunc then self:HideFunc() else self:Hide() end
-                        self.currentJob = nil
-                    end
-				end
+        if type(opts.assignto) == "string" then
+            AssignToSlot(frame, opts, status, opts.assignto)
+        else
+            for _, slot in ipairs(opts.assignto) do
+                AssignToSlot(frame, opts, status, slot)
             end
         end
     end
@@ -1510,7 +1527,7 @@ function Aptechka.ScanAuras(unit)
             if not name then break end
             -- print(auraType, spellID, name, auras[spellID])
             local opts = auras[spellID]
-            if opts then
+            if opts and not opts.disabled then
                 if caster == "player" or not opts.isMine then
                     encountered[spellID] = true
 
@@ -1521,7 +1538,7 @@ function Aptechka.ScanAuras(unit)
                         opts.isforeign = (caster ~= "player")
                     end
                     opts.expirationTime = expirationTime
-                    local minduration = opts._ignore_duration_below
+                    local minduration = opts.extend_below
                     if minduration and opts.duration and duration < minduration then
                         duration = opts.duration
                     end
