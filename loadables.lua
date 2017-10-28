@@ -15,21 +15,21 @@ AptechkaDefaultConfig.MapIDs = {
     -- [793] = "ZulGurub",
     -- [800] = "Firelands",
     -- [824] = "DragonSoul",
-    [877] = "ShadoPanMonastery",
-    [896] = "MogushanVaults",
-    [897] = "Heart of Fear",
-    [886] = "Terrace of Endless Spring",
-    [930] = "Throne of Thunder",
-    [1094] = "Emerald Nightmare",
-    [1081] = "Black Rook Hold",
-    [1079] = "Arcway",
-    [1067] = "Darkheart Thicket",
-    [1066] = "Violet Hold",
-    [1065] = "Neltharion's Lair",
-    [1046] = "Eye of Azshara",
-    [1045] = "Vault of the Wardens",
-    [1042] = "Maw of Souls",
-    [1041] = "Halls of Valor",
+    -- [877] = "ShadoPanMonastery",
+    -- [896] = "MogushanVaults",
+    -- [897] = "Heart of Fear",
+    -- [886] = "Terrace of Endless Spring",
+    -- [930] = "Throne of Thunder",
+    -- [1094] = "Emerald Nightmare",
+    -- [1081] = "Black Rook Hold",
+    -- [1079] = "Arcway",
+    -- [1067] = "Darkheart Thicket",
+    -- [1066] = "Violet Hold",
+    -- [1065] = "Neltharion's Lair",
+    -- [1046] = "Eye of Azshara",
+    -- [1045] = "Vault of the Wardens",
+    -- [1042] = "Maw of Souls",
+    -- [1041] = "Halls of Valor",
 }
 
 local A = helpers.AddAura
@@ -45,76 +45,76 @@ AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bo
 
 AptechkaDefaultConfig.LoadableDebuffs = {
 
-    ["Emerald Nightmare"] = function()
-        A{ id = 222719, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Осквернение, треш
+    -- ["Emerald Nightmare"] = function()
+    --     A{ id = 222719, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Осквернение, треш
 
-        A{ id = 203097, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Rot
-        A{ id = 204470, color = green, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Volatile Rot
-        A{ id = 205043, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Infested Mind
+    --     A{ id = 203097, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Rot
+    --     A{ id = 204470, color = green, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Volatile Rot
+    --     A{ id = 205043, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nythendra, Infested Mind
 
-        A{ id = 215449, color = green, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Necrotic Venom
-        A{ id = 210863, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Twisting Shadows
-        A{ id = 212993, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Shimmering Feather
+    --     A{ id = 215449, color = green, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Necrotic Venom
+    --     A{ id = 210863, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Twisting Shadows
+    --     A{ id = 212993, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Elerethe Renferal, Shimmering Feather
 
-        A{ id = 210099, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Il'gynoth, Ooze fixate
+    --     A{ id = 210099, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Il'gynoth, Ooze fixate
 
-        A{ id = 198006, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Ursoc, charge target
-    end,
+    --     A{ id = 198006, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Ursoc, charge target
+    -- end,
 
-    ["Black Rook Hold"] = function()
-        A{ id = 194966, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Amalgam of Souls, Soul Echoes
+    -- ["Black Rook Hold"] = function()
+    --     A{ id = 194966, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Amalgam of Souls, Soul Echoes
 
-        A{ id = 200261, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Stun, Soul-Torn Champion
-        A{ id = 197974, color = teal, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Stun, Soul-Torn Vanguard
+    --     A{ id = 200261, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Stun, Soul-Torn Champion
+    --     A{ id = 197974, color = teal, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Stun, Soul-Torn Vanguard
 
-        A{ id = 197546, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Illysanna Ravencrest, Brutal Glaive
-        A{ id = 197687, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Illysanna Ravencrest, Eye Beamsr2
+    --     A{ id = 197546, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Illysanna Ravencrest, Brutal Glaive
+    --     A{ id = 197687, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Illysanna Ravencrest, Eye Beamsr2
 
-        A{ id = 198079, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Smashspite, Hateful Gaze
+    --     A{ id = 198079, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Smashspite, Hateful Gaze
 
-        A{ id = 214002, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Risen Lancers, Raven's Dive
-    end,
+    --     A{ id = 214002, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Risen Lancers, Raven's Dive
+    -- end,
 
-    ["Darkheart Thicket"] = function()
-        A{ id = 225484, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Frenzied Nightclaw, Grievous Rip
-        A{ id = 198477, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nightmare Abomination, Fixate
+    -- ["Darkheart Thicket"] = function()
+    --     A{ id = 225484, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Frenzied Nightclaw, Grievous Rip
+    --     A{ id = 198477, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Nightmare Abomination, Fixate
 
-        A{ id = 196376, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Archdruid Glaidalis, Grievous Tear
-
-
-        A{ id = 198904, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Rotheart Dryads, Poison Spear
-        A{ id = 201842, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Taintheart Summoners, Curse of Isolation
-
-        A{ id = 204611, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Oakheart, Crushing Grip
-
-        A{ id = 200238, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Shade of Xavius, Feed on the Weak
-        A{ id = 200289, color = color2, priority = 30, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Shade of Xavius, Feed on the Weak
-    end,
-
-    ["Neltharion's Lair"] = function()
-        A{ id = 202181, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Basilisks, Stone Gaze
-
-        A{ id = 205549, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Naraxas, Rancid Maw
-        A{ id = 199705, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Naraxas, Devouring
-
-        A{ id = 200154, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Colossal Charskin, Burning Hatred
-        A{ id = 193585, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Rockbound Trapper, Bound
-    end,
+    --     A{ id = 196376, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Archdruid Glaidalis, Grievous Tear
 
 
-    ["Maw of Souls"] = function()
-        A{ id = 202181, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Seacursed Soulkeeper, Brackwater Blast
-        -- Trace{id = 193460, type = "DAMAGE", assignto = { "bossdebuff" }, color = color2, fade = 0.7, priority = 45 } -- Bane, Ymiron
-    end,
+    --     A{ id = 198904, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Rotheart Dryads, Poison Spear
+    --     A{ id = 201842, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Taintheart Summoners, Curse of Isolation
 
-    ["Vault of the Wardens"] = function()
+    --     A{ id = 204611, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Oakheart, Crushing Grip
 
-    end,
+    --     A{ id = 200238, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Shade of Xavius, Feed on the Weak
+    --     A{ id = 200289, color = color2, priority = 30, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Shade of Xavius, Feed on the Weak
+    -- end,
 
-    ["Halls of Valor"] = function()
-        A{ id = 198599, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Громовой удар, треш
-        A{ id = 196838, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Fenrir, Scent of Blood
-    end,
+    -- ["Neltharion's Lair"] = function()
+    --     A{ id = 202181, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Basilisks, Stone Gaze
+
+    --     A{ id = 205549, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Naraxas, Rancid Maw
+    --     A{ id = 199705, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Naraxas, Devouring
+
+    --     A{ id = 200154, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Colossal Charskin, Burning Hatred
+    --     A{ id = 193585, color = color2, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Rockbound Trapper, Bound
+    -- end,
+
+
+    -- ["Maw of Souls"] = function()
+    --     A{ id = 202181, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Seacursed Soulkeeper, Brackwater Blast
+    --     -- Trace{id = 193460, type = "DAMAGE", assignto = { "bossdebuff" }, color = color2, fade = 0.7, priority = 45 } -- Bane, Ymiron
+    -- end,
+
+    -- ["Vault of the Wardens"] = function()
+
+    -- end,
+
+    -- ["Halls of Valor"] = function()
+    --     A{ id = 198599, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Громовой удар, треш
+    --     A{ id = 196838, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Fenrir, Scent of Blood
+    -- end,
     -- ["Throne of Thunder"] = function()
     --     A{ id = 138006, prototype = AptechkaUserConfig.BossDebuffPrototype } --Electrified Waters
     --     A{ id = 137399, prototype = AptechkaUserConfig.BossDebuffPrototype } --Focused Lightning
@@ -296,7 +296,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
 
 
 
-        ["PvP"] = function(disable_damagereduction, disable_roots)
+    ["PvP"] = function(disable_damagereduction, disable_roots)
         A{ id = 23333, type = "HELPFUL", assignto = { "bossdebuff" }, color = {1,0,0}, priority = 95 } --Warsong Flag
         A{ id = 23335, type = "HELPFUL", assignto = { "bossdebuff" }, color = {0,0,1}, priority = 95 } --Silverwing Flag
         A{ id = 34976, type = "HELPFUL", assignto = { "bossdebuff" }, color = {0,1,0}, priority = 95 } --Netherstorm Flag

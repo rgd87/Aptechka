@@ -6,8 +6,6 @@ AptechkaGUI = CreateFrame("Frame","AptechkaGUI")
 -- AptechkaGUI:RegisterEvent("ADDON_LOADED")
 
 local AceGUI = LibStub("AceGUI-3.0")
-local COMBATLOG_OBJECT_AFFILIATION_PARTY_OR_RAID = COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY
-
 
 function AptechkaGUI.SlashCmd(msg)
     AptechkaGUI.frame:Show()

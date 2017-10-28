@@ -3,7 +3,7 @@
 ## Notes: raid frames
 ## Author: d87
 ## SavedVariablesPerCharacter: AptechkaDB_Char
-## SavedVariables: AptechkaDB_Global
+## SavedVariables: AptechkaDB_Global, AptechkaConfigCustom
 ## OptionalDeps: Clique
 
 Libs\LibStub\LibStub.lua

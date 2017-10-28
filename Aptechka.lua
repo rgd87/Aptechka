@@ -147,10 +147,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     AptechkaUnitInRange = uir2
-    auras = config.IndicatorAuras or {}
+    auras = config.auras or {}
     dtypes = config.DebuffTypes or {}
     debuffs = config.DebuffDisplay or {}
-    traceheals = config.TraceHeals or {}
+    traceheals = config.traces or {}
     Aptechka.SetJob = SetJob
     Aptechka.FrameSetJob = FrameSetJob
     threshold = config.incomingHealThreshold or UnitHealthMax("player")/20
@@ -170,17 +170,17 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     SetupDefaults(AptechkaDB, defaults)
 
 
-    -- AptechkaConfigCustom = AptechkaConfigCustom or {}
-    -- AptechkaConfigMerged = CopyTable(AptechkaConfig)
+    AptechkaConfigCustom = AptechkaConfigCustom or {}
+    AptechkaConfigMerged = CopyTable(AptechkaUserConfig)
 
-    -- local _, class = UnitClass("player")
-    -- local categories = {"spells", "cooldowns", "activations", "casts"}
-    -- if not AptechkaConfigCustom[class] then AptechkaConfigCustom[class] = {} end
+    local _, class = UnitClass("player")
+    local categories = {"spells", "cooldowns", "activations", "casts"}
+    if not AptechkaConfigCustom[class] then AptechkaConfigCustom[class] = {} end
 
-    -- local globalConfig = AptechkaConfigCustom["GLOBAL"]
-    -- MergeTable(AptechkaConfigMerged, globalConfig)
-    -- local classConfig = AptechkaConfigCustom[class]
-    -- MergeTable(AptechkaConfigMerged, classConfig)
+    local globalConfig = AptechkaConfigCustom["GLOBAL"]
+    MergeTable(AptechkaConfigMerged, globalConfig)
+    local classConfig = AptechkaConfigCustom[class]
+    MergeTable(AptechkaConfigMerged, classConfig)
 
     
 
@@ -374,7 +374,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                                                     dstGUID, dstName, dstFlags, dstFlags2,
                                                     spellID, spellName, spellSchool, amount, overhealing, absorbed, critical)
             if bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE then
-                local opts = traceheals[spellName]
+                local opts = traceheals[spellID]
                 if opts and eventType == opts.type then
                     if guidMap[dstGUID] then
                         local minamount = opts.minamount
@@ -394,83 +394,83 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         loaded[spell_group] = true
     end
     --raid/pvp debuffs loading
-    local loader = CreateFrame("Frame")
-    loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-    loader:RegisterEvent("PLAYER_ENTERING_WORLD")
-    local mapIDs = config.MapIDs
+    -- local loader = CreateFrame("Frame")
+    -- loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+    -- loader:RegisterEvent("PLAYER_ENTERING_WORLD")
+    -- local mapIDs = config.MapIDs
 
-	local CheckCurrentMap = function()
-		local instance
-        local _, instanceType = GetInstanceInfo()
-        if instanceType == "arena" or instanceType == "pvp" then
-            instance = "PvP"
-        else
-            instance = mapIDs[GetCurrentMapAreaID()]
-        end
-        if not instance then return end
-        local add = config.LoadableDebuffs[instance]
-        if add and not loaded[instance] then
-            add()
-            print (AptechkaString..instance.." debuffs loaded.")
-            loaded[instance] = true
-        end
-	end
+    -- local CheckCurrentMap = function()
+    --     local instance
+    --     local _, instanceType = GetInstanceInfo()
+    --     if instanceType == "arena" or instanceType == "pvp" then
+    --         instance = "PvP"
+    --     else
+    --         instance = mapIDs[GetCurrentMapAreaID()]
+    --     end
+    --     if not instance then return end
+    --     local add = config.LoadableDebuffs[instance]
+    --     if add and not loaded[instance] then
+    --         add()
+    --         print (AptechkaString..instance.." debuffs loaded.")
+    --         loaded[instance] = true
+    --     end
+    -- end
 
-    loader:SetScript("OnEvent",function (self,event)
-		C_Timer.After(2, CheckCurrentMap)
-    end)
-
-
+    -- loader:SetScript("OnEvent",function (self,event)
+    --     C_Timer.After(2, CheckCurrentMap)
+    -- end)
 
 
-    if config.useCombatLogFiltering then
-        local timer = CreateFrame("Frame")
-        timer.OnUpdateCounter = 0
-        timer:SetScript("OnUpdate",function(self, time)
-            self.OnUpdateCounter = self.OnUpdateCounter + time
-            if self.OnUpdateCounter < 1 then return end
-            self.OnUpdateCounter = 0
-            for unit in pairs(buffer) do
-                Aptechka.ScanAuras(unit)
-                buffer[unit] = nil
-            end
-        end)
 
-        Aptechka.UNIT_AURA = function(self, event, unit)
-            if not Roster[unit] then return end
-            Aptechka.ScanDispels(unit)
-            if OORUnits[unit] and inCL[unit] +5 < GetTime() then
-                buffer[unit] = true
-            end
-        end
 
-        auraUpdateEvents = {
-            ["SPELL_AURA_REFRESH"] = true,
-            ["SPELL_AURA_APPLIED"] = true,
-            ["SPELL_AURA_APPLIED_DOSE"] = true,
-            ["SPELL_AURA_REMOVED"] = true,
-            ["SPELL_AURA_REMOVED_DOSE"] = true,
-        }
-        if select(2,UnitClass("player")) == "SHAMAN" then auraUpdateEvents["SPELL_HEAL"] = true end
-        local cleuEvent = CreateFrame("Frame")
-        cleuEvent:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-        cleuEvent:SetScript("OnEvent",
-        function( self, event, timestamp, eventType, hideCaster,
-                        srcGUID, srcName, srcFlags, srcFlags2,
-                        dstGUID, dstName, dstFlags, dstFlags2,
-                        spellID, spellName, spellSchool, auraType, amount)
-            if auras[spellName] then
-                if auraUpdateEvents[eventType] then
-                    local unit = guidMap[dstGUID]
-                    if unit then
-                        buffer[unit] = nil
-                        inCL[unit] = GetTime()
-                        Aptechka.ScanAuras(unit)
-                    end
-                end
-            end
-        end)
-    end
+    -- if config.useCombatLogFiltering then
+    --     local timer = CreateFrame("Frame")
+    --     timer.OnUpdateCounter = 0
+    --     timer:SetScript("OnUpdate",function(self, time)
+    --         self.OnUpdateCounter = self.OnUpdateCounter + time
+    --         if self.OnUpdateCounter < 1 then return end
+    --         self.OnUpdateCounter = 0
+    --         for unit in pairs(buffer) do
+    --             Aptechka.ScanAuras(unit)
+    --             buffer[unit] = nil
+    --         end
+    --     end)
+
+    --     Aptechka.UNIT_AURA = function(self, event, unit)
+    --         if not Roster[unit] then return end
+    --         Aptechka.ScanDispels(unit)
+    --         if OORUnits[unit] and inCL[unit] +5 < GetTime() then
+    --             buffer[unit] = true
+    --         end
+    --     end
+
+    --     auraUpdateEvents = {
+    --         ["SPELL_AURA_REFRESH"] = true,
+    --         ["SPELL_AURA_APPLIED"] = true,
+    --         ["SPELL_AURA_APPLIED_DOSE"] = true,
+    --         ["SPELL_AURA_REMOVED"] = true,
+    --         ["SPELL_AURA_REMOVED_DOSE"] = true,
+    --     }
+    --     if select(2,UnitClass("player")) == "SHAMAN" then auraUpdateEvents["SPELL_HEAL"] = true end
+    --     local cleuEvent = CreateFrame("Frame")
+    --     cleuEvent:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    --     cleuEvent:SetScript("OnEvent",
+    --     function( self, event, timestamp, eventType, hideCaster,
+    --                     srcGUID, srcName, srcFlags, srcFlags2,
+    --                     dstGUID, dstName, dstFlags, dstFlags2,
+    --                     spellID, spellName, spellSchool, auraType, amount)
+    --         if auras[spellName] then
+    --             if auraUpdateEvents[eventType] then
+    --                 local unit = guidMap[dstGUID]
+    --                 if unit then
+    --                     buffer[unit] = nil
+    --                     inCL[unit] = GetTime()
+    --                     Aptechka.ScanAuras(unit)
+    --                 end
+    --             end
+    --         end
+    --     end)
+    -- end
 
     local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
     f:SetScript('OnShow', function(self)
@@ -1501,12 +1501,15 @@ SetJob = function (unit, opts, status)
 end
 
 local encountered = {}
+local auraTypes = {"HELPFUL", "HARMFUL"}
 function Aptechka.ScanAuras(unit)
-    for auraType, auraNames in pairs(auras) do
-        table_wipe(encountered)
+    table_wipe(encountered)
+    for _,auraType in ipairs(auraTypes) do
         for i=1,100 do
             local name, _, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
-            local opts = auraNames[spellID]
+            if not name then break end
+            -- print(auraType, spellID, name, auras[spellID])
+            local opts = auras[spellID]
             if opts then
                 if caster == "player" or not opts.isMine then
                     encountered[spellID] = true
@@ -1529,11 +1532,10 @@ function Aptechka.ScanAuras(unit)
                 end
             end
         end
-
-        for spellID, opts in pairs(auraNames) do
-            if not encountered[spellID] then
-                SetJob(unit, opts, false)
-            end
+    end
+    for spellID, opts in pairs(auras) do
+        if not encountered[spellID] then
+            SetJob(unit, opts, false)
         end
     end
 end
@@ -1731,7 +1733,7 @@ Aptechka.Commands = {
     end,
     ["spells"] = function() 
         print("=== Spells ===")
-        local spellset = AptechkaUserConfig.IndicatorAuras or AptechkaDefaultConfig.IndicatorAuras
+        local spellset = AptechkaUserConfig.auras or AptechkaDefaultConfig.auras
         for spellName,opts in pairs(spellset) do
             local format = string.find(opts.type,"HARMFUL") and "|cffff7777%s|r" or "|cff77ff77%s|r"
             print(string.format(format,spellName))

@@ -35,9 +35,9 @@ helpers.AddAura = function (data, todefault)
 
     if not data.type then data.type = "HELPFUL" end
 
-    if not config.IndicatorAuras then config.IndicatorAuras = {} end
-    if not config.IndicatorAuras[data.type] then config.IndicatorAuras[data.type] = {} end
-    config.IndicatorAuras[data.type][data.id] = data
+    if not config.auras then config.auras = {} end
+    -- if not config.auras[data.type] then config.auras[data.type] = {} end
+    config.auras[data.id] = data
 end
 helpers.AddAuraToDefault = function(data)
     helpers.AddAura(data,true)
@@ -47,11 +47,11 @@ helpers.AddTrace = function(data)
     if not config.enableTraceHeals then return end
     if data.id then data.name = GetSpellInfo(data.id) or data.name end
     data.type = "SPELL_"..data.type
-    if not config.TraceHeals then config.TraceHeals = {} end
+    if not config.traces then config.traces = {} end
     if not data.name then print((data.id or "nil").."id or name required") return end
     data.actualname = data.name
     data.name = data.actualname.."Trace"
-    config.TraceHeals[data.actualname] = data
+    config.traces[data.id] = data
 end
 
 helpers.AddDebuff = function (index, data)

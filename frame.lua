@@ -900,12 +900,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- self.bars = bars
     self._optional_widgets = optional_widgets
 
-    for type, spells in pairs(config.IndicatorAuras) do
-        for id, spell in pairs(spells) do
-            for _,widget in ipairs(spell.assignto) do
-                if not self[widget] and optional_widgets[widget] then
-                    self[widget] = optional_widgets[widget](self)
-                end
+    for id, spell in pairs(config.IndicatorAuras) do
+        for _,widget in ipairs(spell.assignto) do
+            if not self[widget] and optional_widgets[widget] then
+                self[widget] = optional_widgets[widget](self)
             end
         end
     end
