@@ -21,7 +21,7 @@ config.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT /
 config.groupGrowth = "TOP"
 config.groupGap = 10
 config.unlocked = false  -- when addon initially loaded
-config.frameStrata = "LOW"
+config.frameStrata = "MEDIUM"
 
 config.layouts = {  -- works ONLY with group anchors disabled.
                     -- layout functions are checked from first to last. function should return true to be accepted.
