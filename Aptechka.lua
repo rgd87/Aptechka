@@ -1254,8 +1254,13 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f.initConf = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
 
-    if config.useGroupAnchors or group == 1 or petgroup then
+    local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
+    local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
+
+    if config.useGroupAnchors or group == 1 then
         Aptechka:CreateAnchor(f,group)
+    elseif petgroup then
+        f:SetPoint(arrangeHeaders(group_headers[1], nil, unitGrowth, reverse(groupGrowth)))
     else
         f:SetPoint(arrangeHeaders(group_headers[group-1]))
     end
@@ -1289,10 +1294,13 @@ do -- this function supposed to be called from layout switchers
             hdr:SetAttribute("point", unitgr)
             hdr:SetAttribute("xOffset", xgap)
             hdr:SetAttribute("yOffset", ygap)
+            local petgroup = hdr.isPetGroup
 
             hdr:ClearAllPoints()
             if group == 1 then
                 hdr:SetPoint(anchorpoint, anchors[group], reverse(anchorpoint),0,0)
+            elseif petgroup then
+                hdr:SetPoint(arrangeHeaders(group_headers[1], nil, unitGrowth, reverse(groupGrowth)))
             else
                 hdr:SetPoint(arrangeHeaders(group_headers[group-1], nil, unitGrowth, groupGrowth))
             end
