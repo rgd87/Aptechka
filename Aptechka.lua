@@ -19,6 +19,8 @@ local threshold --incoming heals
 local ignoreplayer
 
 local config = AptechkaDefaultConfig
+Aptechka.loadedAuras = {}
+local loadedAuras = Aptechka.loadedAuras
 local OORUnits = setmetatable({},{__mode = 'k'})
 local inCL = setmetatable({},{__index = function (t,k) return 0 end})
 local buffer = {}
@@ -402,36 +404,36 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     -- --autoloading
-    -- for _,spell_group in pairs(config.autoload) do
-    --     config.LoadableDebuffs[spell_group]()
-    --     loaded[spell_group] = true
-    -- end
+    for _,spell_group in pairs(config.autoload) do
+        config.LoadableDebuffs[spell_group]()
+        loaded[spell_group] = true
+    end
     --raid/pvp debuffs loading
-    -- local loader = CreateFrame("Frame")
-    -- loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-    -- loader:RegisterEvent("PLAYER_ENTERING_WORLD")
-    -- local mapIDs = config.MapIDs
+    local loader = CreateFrame("Frame")
+    loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+    loader:RegisterEvent("PLAYER_ENTERING_WORLD")
+    local mapIDs = config.MapIDs
 
-    -- local CheckCurrentMap = function()
-    --     local instance
-    --     local _, instanceType = GetInstanceInfo()
-    --     if instanceType == "arena" or instanceType == "pvp" then
-    --         instance = "PvP"
-    --     else
-    --         instance = mapIDs[GetCurrentMapAreaID()]
-    --     end
-    --     if not instance then return end
-    --     local add = config.LoadableDebuffs[instance]
-    --     if add and not loaded[instance] then
-    --         add()
-    --         print (AptechkaString..instance.." debuffs loaded.")
-    --         loaded[instance] = true
-    --     end
-    -- end
+    local CheckCurrentMap = function()
+        local instance
+        local _, instanceType = GetInstanceInfo()
+        if instanceType == "arena" or instanceType == "pvp" then
+            instance = "PvP"
+        else
+            instance = mapIDs[GetCurrentMapAreaID()]
+        end
+        if not instance then return end
+        local add = config.LoadableDebuffs[instance]
+        if add and not loaded[instance] then
+            add()
+            print (AptechkaString..instance.." debuffs loaded.")
+            loaded[instance] = true
+        end
+    end
 
-    -- loader:SetScript("OnEvent",function (self,event)
-    --     C_Timer.After(2, CheckCurrentMap)
-    -- end)
+    loader:SetScript("OnEvent",function (self,event)
+        C_Timer.After(2, CheckCurrentMap)
+    end)
 
 
 
@@ -1538,7 +1540,7 @@ function Aptechka.ScanAuras(unit)
             local name, _, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
             if not name then break end
             -- print(auraType, spellID, name, auras[spellID])
-            local opts = auras[spellID]
+            local opts = auras[spellID] or loadedAuras[spellID]
             if opts and not opts.disabled then
                 if caster == "player" or not opts.isMine then
                     encountered[spellID] = true
@@ -1563,6 +1565,11 @@ function Aptechka.ScanAuras(unit)
         end
     end
     for spellID, opts in pairs(auras) do
+        if not encountered[spellID] then
+            SetJob(unit, opts, false)
+        end
+    end
+    for spellID, opts in pairs(loadedAuras) do
         if not encountered[spellID] then
             SetJob(unit, opts, false)
         end
@@ -1808,15 +1815,9 @@ function Aptechka.SlashCmd(msg)
     if not k or k == "help" then print([=[Usage:
       |cff00ff00/aptechka|r lock
       |cff00ff00/aptechka|r unlock
-      |cff00ff00/aptechka|r unlock|cffff7777all|r
       |cff00ff00/aptechka|r reset|r
-      |cff00ff00/aptechka|r setpos <point=center x=0 y=0>
-      |cff00ff00/aptechka|r load <setname>
-      |cff00ff00/aptechka|r spells
-      |cff00ff00/aptechka|r charspec
-      |cff00ff00/aptechka|r toggle | show | hide
       |cff00ff00/aptechka|r createpets
-      |cff00ff00/aptechka|r togglegroup <1-8>]=]
+    ]=]
     )end
 
     if Aptechka.Commands[k] then

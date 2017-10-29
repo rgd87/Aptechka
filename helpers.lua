@@ -24,6 +24,17 @@ helpers.AddDispellType = function(dtype, data)
     data.name = dtype
     config.DebuffTypes[dtype] = data
 end
+helpers.AddLoadableAura = function (data, todefault)
+    if data.id then data.name = GetSpellInfo(data.id) end
+    if data.name == nil then print (data.id.." spell id missing") return end
+
+    if data.prototype then setmetatable(data, { __index = function(t,k) return data.prototype[k] end }) end
+
+    if not data.type then data.type = "HELPFUL" end
+
+    if not Aptechka.loadedAuras then Aptechka.loadedAuras = {} end
+    Aptechka.loadedAuras[data.id] = data
+end
 helpers.AddAura = function (data, todefault)
     if data.id then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end

@@ -32,7 +32,7 @@ AptechkaDefaultConfig.MapIDs = {
     -- [1041] = "Halls of Valor",
 }
 
-local A = helpers.AddAura
+local A = helpers.AddLoadableAura
 
 local color1 = { 0.9, 0, 0 }
 local color2 = { 0.6, 0, 1 }
@@ -41,7 +41,7 @@ local teal = { 42/255, 201/255, 154/255 }
 local light = { 178/255, 150/255, 150/255}
 local healred = { 147/255, 54/255, 115/255 }
 
-AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = { "bossdebuff" }, color = color1, priority = 40, pulse = true }
+AptechkaDefaultConfig.BossDebuffPrototype = { type = "HARMFUL", assignto = "bossdebuff", color = color1, priority = 40, pulse = true }
 
 AptechkaDefaultConfig.LoadableDebuffs = {
 
@@ -297,34 +297,34 @@ AptechkaDefaultConfig.LoadableDebuffs = {
 
 
     ["PvP"] = function(disable_damagereduction, disable_roots)
-        A{ id = 23333, type = "HELPFUL", assignto = { "bossdebuff" }, color = {1,0,0}, priority = 95 } --Warsong Flag
-        A{ id = 23335, type = "HELPFUL", assignto = { "bossdebuff" }, color = {0,0,1}, priority = 95 } --Silverwing Flag
-        A{ id = 34976, type = "HELPFUL", assignto = { "bossdebuff" }, color = {0,1,0}, priority = 95 } --Netherstorm Flag
+        A{ id = 23333, type = "HELPFUL", assignto = "bossdebuff", color = {1,0,0}, priority = 95 } --Warsong Flag
+        A{ id = 23335, type = "HELPFUL", assignto = "bossdebuff", color = {0,0,1}, priority = 95 } --Silverwing Flag
+        A{ id = 34976, type = "HELPFUL", assignto = "bossdebuff", color = {0,1,0}, priority = 95 } --Netherstorm Flag
 
-        A{ id = 118,   type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Polymorph
-        A{ id = 3355,  type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Freezing Trap
-        A{ id = 20066, type = "HARMFUL", assignto = { "icon" }, priority = 90 } --Repentance
-        A{ id = 5782,  type = "HARMFUL", assignto = { "icon" }, priority = 89 } --Fear
-        A{ id = 6770,  type = "HARMFUL", assignto = { "icon" }, priority = 88 } --Sap
-        A{ id = 2094,  type = "HARMFUL", assignto = { "icon" }, priority = 88 } --Blind
-        A{ id = 51514, type = "HARMFUL", assignto = { "icon" }, priority = 87 } --Hex
-        A{ id = 853,   type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Hammer of Justice
-        A{ id = 44572, type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Deep Freeze
-        A{ id = 30108, type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Unstable Affliction
+        A{ id = 118,   type = "HARMFUL", assignto = "icon", priority = 90 } --Polymorph
+        A{ id = 3355,  type = "HARMFUL", assignto = "icon", priority = 90 } --Freezing Trap
+        A{ id = 20066, type = "HARMFUL", assignto = "icon", priority = 90 } --Repentance
+        A{ id = 5782,  type = "HARMFUL", assignto = "icon", priority = 89 } --Fear
+        A{ id = 6770,  type = "HARMFUL", assignto = "icon", priority = 88 } --Sap
+        A{ id = 2094,  type = "HARMFUL", assignto = "icon", priority = 88 } --Blind
+        A{ id = 51514, type = "HARMFUL", assignto = "icon", priority = 87 } --Hex
+        A{ id = 853,   type = "HARMFUL", assignto = "icon", priority = 86 } --Hammer of Justice
+        A{ id = 44572, type = "HARMFUL", assignto = "icon", priority = 86 } --Deep Freeze
+        A{ id = 30108, type = "HARMFUL", assignto = "icon", priority = 86 } --Unstable Affliction
 
         if not disable_damagereduction then
-            A{ id = 871,   type = "HELPFUL", assignto = { "icon" }, priority = 84 } --Shield Wall
-            A{ id = 5277,  type = "HELPFUL", assignto = { "icon" }, priority = 84 } --Evasion
-            A{ id = 31224, type = "HELPFUL", assignto = { "icon" }, priority = 84 } --Cloak of Shadows
-            A{ id = 1022,  type = "HELPFUL", assignto = { "icon" }, priority = 84 } --Hand of Protection
-            A{ id = 45438, type = "HELPFUL", assignto = { "icon" }, priority = 85 } --Ice Block
-            A{ id = 642,   type = "HELPFUL", assignto = { "icon" }, priority = 85 } --Divine Shield
-            A{ id = 1784,  type = "HELPFUL", assignto = { "icon" }, priority = 85 } --Stealth
+            A{ id = 871,   type = "HELPFUL", assignto = "icon", priority = 84 } --Shield Wall
+            A{ id = 5277,  type = "HELPFUL", assignto = "icon", priority = 84 } --Evasion
+            A{ id = 31224, type = "HELPFUL", assignto = "icon", priority = 84 } --Cloak of Shadows
+            A{ id = 1022,  type = "HELPFUL", assignto = "icon", priority = 84 } --Hand of Protection
+            A{ id = 45438, type = "HELPFUL", assignto = "icon", priority = 85 } --Ice Block
+            A{ id = 642,   type = "HELPFUL", assignto = "icon", priority = 85 } --Divine Shield
+            A{ id = 1784,  type = "HELPFUL", assignto = "icon", priority = 85 } --Stealth
         end
 
         if not disable_roots then
-            A{ id = 339,   type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Entangling Roots
-            A{ id = 122,   type = "HARMFUL", assignto = { "icon" }, priority = 86 } --Frost Nova
+            A{ id = 339,   type = "HARMFUL", assignto = "icon", priority = 86 } --Entangling Roots
+            A{ id = 122,   type = "HARMFUL", assignto = "icon", priority = 86 } --Frost Nova
         end
 
     end,
