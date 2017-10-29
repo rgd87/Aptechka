@@ -1,3 +1,9 @@
+### 7.3.8:
+
+- On demand aura loading for pvp and dungeons now works again
+- Fixed pet group anchor issue
+- Restored compatibility with userconfig modules
+
 ### 7.3.7:
 
 - Spell list menu and a lot of internal changes
