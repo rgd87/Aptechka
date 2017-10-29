@@ -1,6 +1,7 @@
 local _, helpers = ...
 AptechkaDefaultConfig = {}
 local config = AptechkaDefaultConfig
+AptechkaUserConfig = AptechkaDefaultConfig
 
 
 helpers.AddDispellType = function(dtype, data)
