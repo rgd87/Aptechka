@@ -1584,7 +1584,6 @@ end
 
 local presentDebuffs = {}
 local blacklist = {
-    [114216] = true, -- priest talent cooldown debuff
     [139485] = true, -- Throne of Thudner passive debuff
     [57724] = true, -- Sated
     [80354] = true, -- Temporal Displacement
@@ -1595,7 +1594,6 @@ local blacklist = {
     [71041] = true, -- Deserter
     [8326] = true, -- Ghost
     [6788] = true, -- Weakened Soul
-    [119050] = true, -- Kil'Jaeden Cunning
     [113942] = true, -- demonic gates debuff
     [123981] = true, -- dk cooldown debuff
     [87024] = true, -- mage cooldown debuff
