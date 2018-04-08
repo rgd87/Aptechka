@@ -553,7 +553,9 @@ AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
 local SetJob_Border = function(self,job)
     if job.color then
-        self:SetBackdropColor(unpack(job.color))
+        -- self:SetBackdropColor(unpack(job.color))
+        local r,g,b = unpack(job.color)
+        self:SetVertexColor(r,g,b,0.5)
     end
 end
 
@@ -592,6 +594,13 @@ local optional_widgets = {
         smist  = function(self) return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
 }
 
+local MakeBorder = function(self, tex, left, right, top, bottom, level)
+    local t = self:CreateTexture(nil,"BORDER",nil,level)
+    t:SetTexture(tex)
+    t:SetPoint("TOPLEFT", self, "TOPLEFT", left, -top)
+    t:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -right, bottom)
+    return t
+end
 
 AptechkaDefaultConfig.GridSkinSettings = function(self)
     AptechkaDefaultConfig.width = 50
@@ -609,12 +618,15 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local fontsize = config.fontsize
     local manabar_width = config.manabarwidth
 
-    local backdrop = {
-        bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,
-        insets = {left = -2, right = -2, top = -2, bottom = -2},
-    }
-    self:SetBackdrop(backdrop)
-	self:SetBackdropColor(0, 0, 0, 1)
+    -- local backdrop = {
+    --     bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,
+    --     insets = {left = -2, right = -2, top = -2, bottom = -2},
+    -- }
+    -- self:SetBackdrop(backdrop)
+    -- self:SetBackdropColor(0, 0, 0, 1)
+    
+    local frameborder = MakeBorder(self, "Interface\\Addons\\Aptechka\\white", -2, -2, -2, -2, -2)
+    frameborder:SetVertexColor(0,0,0,1)
 
     self:SetFrameStrata(config.frameStrata or "LOW")
     self:SetFrameLevel(3)
@@ -787,17 +799,23 @@ AptechkaDefaultConfig.GridSkin = function(self)
         self:SetValue((h+hi)/hm*100)
     end
 
-    local border = CreateFrame("Frame",nil,self)
-    border:SetAllPoints(self)
-    border:SetFrameStrata("LOW")
-    border:SetFrameLevel(0)
-    border:SetBackdrop{
-        bgFile = "Interface\\AddOns\\Aptechka\\white", tile = true, tileSize = 0,
-        insets = {left = -4, right = -4, top = -4, bottom = -4},
-    }
-    border:SetAlpha(0.5)
+    -- local border = CreateFrame("Frame",nil,self)
+    -- border:SetAllPoints(self)
+    -- border:SetFrameStrata("LOW")
+    -- border:SetFrameLevel(0)
+    -- border:SetBackdrop{
+    --     bgFile = "Interface\\AddOns\\Aptechka\\white", tile = true, tileSize = 0,
+    --     insets = {left = -4, right = -4, top = -4, bottom = -4},
+    -- }
+    -- border:SetAlpha(0.5)
+    -- border.SetJob = SetJob_Border
+    -- border:Hide()
+
+    local border = MakeBorder(self, "Interface\\Addons\\Aptechka\\white", -4, -4, -4, -4, -5)
+    border:SetVertexColor(1, 1, 1, 0.5)
     border.SetJob = SetJob_Border
     border:Hide()
+
 
     local text = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     text:SetPoint("CENTER",self,"CENTER",0,0)
