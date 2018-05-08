@@ -41,7 +41,18 @@ local UnitHealthMax = UnitHealthMax
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
-local UnitAura = UnitAura
+
+local IsBFA = GetBuildInfo():match("^8")
+local UnitAura = function(...)
+    local name, _, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod
+    if IsBFA then
+        name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod = UnitAura(...)
+    else
+        name, _, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod = UnitAura(...)
+    end
+    return name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod
+end
+-- local UnitAura = UnitAura
 local UnitAffectingCombat = UnitAffectingCombat
 local UnitGetIncomingHeals = UnitGetIncomingHeals
 local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs
@@ -1537,7 +1548,7 @@ function Aptechka.ScanAuras(unit)
     table_wipe(encountered)
     for _,auraType in ipairs(auraTypes) do
         for i=1,100 do
-            local name, _, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
+            local name, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
             if not name then break end
             -- print(auraType, spellID, name, auras[spellID])
             local opts = auras[spellID] or loadedAuras[spellID]
@@ -1617,14 +1628,14 @@ end
 function Aptechka.ScanDispels(unit)
         table_wipe(presentDebuffs)
 
-        local debuffLineLenght = #debuffs
+        local debuffLineLength = #debuffs
         local shown = 0
 
         -- scan for boss buffs only
         for i=1,100 do
-            local name, _, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HELPFUL")
+            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HELPFUL")
             if not name then break end
-            if isBossAura and shown < debuffLineLenght then
+            if isBossAura and shown < debuffLineLength then
                 if not blacklist[aura_spellID] then
                     shown = shown + 1
 
@@ -1635,9 +1646,9 @@ function Aptechka.ScanDispels(unit)
 
         -- scan for boss debuffs only
         for i=1,100 do
-            local name, _, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
+            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
             if not name then break end
-            if isBossAura and shown < debuffLineLenght then
+            if isBossAura and shown < debuffLineLength then
                 if not blacklist[aura_spellID] then
                     shown = shown + 1
 
@@ -1648,13 +1659,13 @@ function Aptechka.ScanDispels(unit)
 
         -- scan debuffs
         for i=1,100 do
-            local name, _, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
+            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
             if not name then
                 break
             end
 
-          -- while shown < debuffLineLenght do ------------------------------------------------ DEBUG
-            if not isBossAura and shown < debuffLineLenght then
+          -- while shown < debuffLineLength do ------------------------------------------------ DEBUG
+            if not isBossAura and shown < debuffLineLength then
                 if not blacklist[aura_spellID] then
                     shown = shown + 1
 
@@ -1676,7 +1687,7 @@ function Aptechka.ScanDispels(unit)
             end
         end
 
-        for i=shown+1, debuffLineLenght do
+        for i=shown+1, debuffLineLength do
             local opts = debuffs[i]
             SetJob(unit, opts, false)
         end
