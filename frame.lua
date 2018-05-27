@@ -256,7 +256,15 @@ local StatusBarOnUpdate = function(self, time)
     if self.OnUpdateCounter < 0.05 then return end
     self.OnUpdateCounter = 0
 
-    self:SetValue(self.expires - GetTime())
+    local timeLeft = self.expires - GetTime()
+
+    if self.pandemic and timeLeft < self.pandemic then
+        local color = self.currentJob.color
+        self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
+        self.pandemic = nil
+    end
+
+    self:SetValue(timeLeft)
 end
 local SetJob_StatusBar = function(self,job)
     if job.showStacks then
@@ -265,6 +273,7 @@ local SetJob_StatusBar = function(self,job)
         self:SetScript("OnUpdate", nil)
     else
         self.expires = job.expirationTime
+        self.pandemic = job.pandemicTime
         self:SetMinMaxValues(0, job.duration)
         self:SetValue(self.expires - GetTime())
         self:SetScript("OnUpdate", StatusBarOnUpdate)
@@ -276,7 +285,7 @@ local SetJob_StatusBar = function(self,job)
     else
         color = job.color or { 1,1,1,1 }
     end
-    self.bg:SetVertexColor(color[1]/3, color[2]/3, color[3]/3)
+    self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
     self:SetStatusBarColor(unpack(color))
 
     -- if job.fade then

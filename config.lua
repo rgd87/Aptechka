@@ -150,7 +150,7 @@ if playerClass == "PRIEST" then
         -- long buffs
     --A{ id = 21562, type = "HELPFUL", assignto = "raidbuff" }, color = { 1, 1, 1}, isMissing = true } --Power Word: Fortitude
 
-    A{ id = 139,   type = "HELPFUL", assignto = "bar1", pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true } --Renew
+    A{ id = 139,   type = "HELPFUL", assignto = "bar1", pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 } --Renew
     A{ id = 208065, type = "HELPFUL", assignto = "bar2", priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true } --artifact
     -- A{ id = 7001,  type = "HELPFUL", assignto = "bar2", priority = 65, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
 
