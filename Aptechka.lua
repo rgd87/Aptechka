@@ -87,6 +87,8 @@ local defaults = {
     cropNamesLen = 7,
     disableBlizzardParty = true,
     hideBlizzardRaid = true,
+    petGroup = false,
+    -- petGroupColor = {1, 0.5, 0.5},
     -- incomingHealThreshold = 80000,
     -- np_height = 7,
 }
@@ -362,7 +364,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         local pets  = Aptechka:CreateHeader(9,true)
         group_headers[9] = pets
     end
-    if config.petgroup then
+    if AptechkaDB.petGroup then
         CreatePetsFunc()
     end
     if config.unlocked then anchors[1]:Show() end
@@ -1250,6 +1252,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
 	if not petgroup
     then
         f:SetAttribute("groupFilter", group)
+        f:SetAttribute("groupBy", "ASSIGNEDROLE")
+        f:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER,NONE")
     else
         f.isPetGroup = true
         f:SetAttribute("maxColumns", 1 )
@@ -1750,7 +1754,7 @@ Aptechka.Commands = {
         end
     end,
     ["createpets"] = function() 
-        if not config.petgroup then
+        if not AptechkaDB.petGroup then
             if not InCombatLockdown() then
                 CreatePetsFunc()
             else

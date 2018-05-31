@@ -187,6 +187,7 @@ function AptechkaGUI.CreateCommonForm(self)
             -- clean(opts, default_opts, "fixedlen", false)
             clean(opts, default_opts, "priority", false)
             clean(opts, default_opts, "extend_below", false)
+            clean(opts, default_opts, "refreshTime", false)
             -- clean(opts, default_opts, "scale_until", false)
             -- clean(opts, default_opts, "hide_until", false)
             -- clean(opts, default_opts, "maxtimers", false)
@@ -390,6 +391,23 @@ function AptechkaGUI.CreateCommonForm(self)
     Form:AddChild(extend_below)
     AddTooltip(extend_below, "Do not refresh duration if it's below X")
 
+    local refreshTime = AceGUI:Create("EditBox")
+    refreshTime:SetLabel("Refresh Time")
+    refreshTime:SetRelativeWidth(0.19)
+    refreshTime:DisableButton(true)
+    refreshTime:SetCallback("OnTextChanged", function(self, event, value)
+        local v = tonumber(value)
+        if v and v > 0 then
+            self.parent.opts["refreshTime"] = v
+        elseif value == "" then
+            self.parent.opts["refreshTime"] = false
+            self:SetText("")
+        end
+    end)
+    Form.controls.refreshTime = refreshTime
+    Form:AddChild(refreshTime)
+    AddTooltip(refreshTime, "Pandemic indication. Only works for bars")
+
 
 
     -- Frame:AddChild(Form)
@@ -492,11 +510,13 @@ function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm
 	if category == "auras" then
 		controls.showDuration:SetDisabled(false)
 		controls.isMine:SetDisabled(false)
-		controls.extend_below:SetDisabled(false)
+        controls.extend_below:SetDisabled(false)
+        controls.refreshTime:SetDisabled(false)
 	else
 		controls.showDuration:SetDisabled(true)
         controls.isMine:SetDisabled(true)
         controls.extend_below:SetDisabled(true)
+        controls.refreshTime:SetDisabled(true)
 	end
 
 end
@@ -877,7 +897,6 @@ local function MakeGeneralOptions()
                         name = "Disable Blizzard Party Frames",
                         width = "double",
                         type = "toggle",
-                        -- desc = "Display spell name on timers",
                         get = function(info) return Aptechka.db.disableBlizzardParty end,
                         set = function(info, v)
                             Aptechka.db.disableBlizzardParty = not Aptechka.db.disableBlizzardParty
@@ -889,13 +908,23 @@ local function MakeGeneralOptions()
                         name = "Hide Blizzard Raid Frames",
                         width = "double",
                         type = "toggle",
-                        -- desc = "Display spell name on timers",
                         get = function(info) return Aptechka.db.hideBlizzardRaid end,
                         set = function(info, v)
                             Aptechka.db.hideBlizzardRaid = not Aptechka.db.hideBlizzardRaid
                             print("Aptechka: Changes will effect after /reload")
                         end,
                         order = 10,
+                    },
+                    petGroup = {
+                        name = "Enable Pet Group",
+                        width = "double",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.petGroup end,
+                        set = function(info, v)
+                            Aptechka.db.petGroup = not Aptechka.db.petGroup
+                            print("Aptechka: Changes will effect after /reload")
+                        end,
+                        order = 11,
                     },
                     -- incomingHealThreshold = {
                     --     name = "Incoming Heal Threshold",

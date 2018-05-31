@@ -273,7 +273,7 @@ local SetJob_StatusBar = function(self,job)
         self:SetScript("OnUpdate", nil)
     else
         self.expires = job.expirationTime
-        self.pandemic = job.pandemicTime
+        self.pandemic = job.refreshTime
         self:SetMinMaxValues(0, job.duration)
         self:SetValue(self.expires - GetTime())
         self:SetScript("OnUpdate", StatusBarOnUpdate)
