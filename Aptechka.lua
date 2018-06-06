@@ -41,6 +41,7 @@ local UnitHealthMax = UnitHealthMax
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
+local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 
 local IsBFA = GetBuildInfo():match("^8")
 local UnitAura = function(...)
@@ -397,10 +398,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     if config.enableTraceHeals and next(traceheals) then
         self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-        self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event, timestamp, eventType, hideCaster,
-                                                    srcGUID, srcName, srcFlags, srcFlags2,
-                                                    dstGUID, dstName, dstFlags, dstFlags2,
-                                                    spellID, spellName, spellSchool, amount, overhealing, absorbed, critical)
+        self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event)
+            local timestamp, eventType, hideCaster,
+            srcGUID, srcName, srcFlags, srcFlags2,
+            dstGUID, dstName, dstFlags, dstFlags2,
+            spellID, spellName, spellSchool, amount, overhealing, absorbed, critical = CombatLogGetCurrentEventInfo()
             if bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE then
                 local opts = traceheals[spellID]
                 if opts and eventType == opts.type then
