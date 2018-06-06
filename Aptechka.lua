@@ -284,10 +284,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     if not config.disableManaBar then
-        self:RegisterEvent("UNIT_POWER")
+        self:RegisterEvent("UNIT_POWER_UPDATE")
         self:RegisterEvent("UNIT_MAXPOWER")
         self:RegisterEvent("UNIT_DISPLAYPOWER")
-        Aptechka.UNIT_MAXPOWER = Aptechka.UNIT_POWER
+        Aptechka.UNIT_MAXPOWER = Aptechka.UNIT_POWER_UPDATE
     end
     if config.AggroStatus then
         self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
@@ -433,7 +433,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         if instanceType == "arena" or instanceType == "pvp" then
             instance = "PvP"
         else
-            instance = mapIDs[GetCurrentMapAreaID()]
+            local uiMapID = C_Map.GetBestMapForUnit("player")
+            instance = mapIDs[uiMapID]
         end
         if not instance then return end
         local add = config.LoadableDebuffs[instance]
@@ -764,7 +765,7 @@ function Aptechka.UNIT_CONNECTION(self, event, unit)
     end
 end
 
-function Aptechka.UNIT_POWER(self, event, unit, ptype)
+function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
     local rosterunit = Roster[unit]
     if not rosterunit then return end
     for self in pairs(rosterunit) do
@@ -813,7 +814,7 @@ local vehicleHack = function (self, time)
             Aptechka:UNIT_HEALTH("VEHICLE",owner)
             if self.parent.power then
                 Aptechka:UNIT_DISPLAYPOWER(nil, owner)
-                Aptechka:UNIT_POWER(nil,owner)
+                Aptechka:UNIT_POWER_UPDATE(nil,owner)
             end
 			if self.parent.absorb then
 				Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
@@ -853,7 +854,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
 
                 SetJob(self.unit,config.InVehicleStatus,true)
                 Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
-                if self.power then Aptechka:UNIT_POWER(nil,self.unit) end
+                if self.power then Aptechka:UNIT_POWER_UPDATE(nil,self.unit) end
 				if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
                 Aptechka.CheckPhase1(self.unit)
                 Aptechka.ScanAuras(self.unit)
@@ -1169,7 +1170,7 @@ local OnAttributeChanged = function(self, attrname, unit)
     SetJob(unit, config.ReadyCheck, false)
     if not config.disableManaBar then
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
-        Aptechka:UNIT_POWER(nil, unit)
+        Aptechka:UNIT_POWER_UPDATE(nil, unit)
     end
     Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
     if config.raidIcons then
@@ -1188,7 +1189,7 @@ end
 -- 		Aptechka:UNIT_HEALTH("UNIT_HEALTH", unit, "DEBUG")
 -- 		if not config.disableManaBar then
 -- 			Aptechka:UNIT_DISPLAYPOWER(nil, unit)
--- 			Aptechka:UNIT_POWER(nil, unit)
+-- 			Aptechka:UNIT_POWER_UPDATE(nil, unit)
 -- 		end
 -- 		if config.enableAbsorbBar then
 -- 			Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
@@ -1469,7 +1470,7 @@ function Aptechka.SetupFrame(f)
     f.HideFunc = f.HideFunc or function() end
 
     if config.disableManaBar or not f.power then
-        Aptechka:UnregisterEvent("UNIT_POWER")
+        Aptechka:UnregisterEvent("UNIT_POWER_UPDATE")
         Aptechka:UnregisterEvent("UNIT_MAXPOWER")
         Aptechka:UnregisterEvent("UNIT_DISPLAYPOWER")
         if f.power and f.power.OnPowerTypeChange then f.power:OnPowerTypeChange("none") end
