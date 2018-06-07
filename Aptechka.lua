@@ -41,19 +41,8 @@ local UnitHealthMax = UnitHealthMax
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
-local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
-
-local IsBFA = GetBuildInfo():match("^8")
-local UnitAura = function(...)
-    local name, _, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod
-    if IsBFA then
-        name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod = UnitAura(...)
-    else
-        name, _, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod = UnitAura(...)
-    end
-    return name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellId, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod
-end
--- local UnitAura = UnitAura
+local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo   
+local UnitAura = UnitAura
 local UnitAffectingCombat = UnitAffectingCombat
 local UnitGetIncomingHeals = UnitGetIncomingHeals
 local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs

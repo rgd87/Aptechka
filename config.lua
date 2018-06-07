@@ -147,19 +147,16 @@ A{ id = 47788, type = "HELPFUL", assignto = "icon", global = true, showDuration 
 A{ id = 12975, type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 85 } --Last Stand
 
 if playerClass == "PRIEST" then
-        -- long buffs
-    --A{ id = 21562, type = "HELPFUL", assignto = "raidbuff" }, color = { 1, 1, 1}, isMissing = true } --Power Word: Fortitude
+    -- Power Word: Fortitude
+    A{ id = 21562, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 100, isMissing = true }
 
-    A{ id = 139,   type = "HELPFUL", assignto = "bar1", pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 } --Renew
-    A{ id = 208065, type = "HELPFUL", assignto = "bar2", priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true } --artifact
-    -- A{ id = 7001,  type = "HELPFUL", assignto = "bar2", priority = 65, color = { 1, 1, 0}, showDuration = true, isMine = true } --Lightwell
-
-    A{ id = 17,    type = "HELPFUL", assignto = "spell2", isMine = true, color = { 1, .85, 0}, showDuration = true } --Power Word: Shield
-    -- A{ id = 6788,  type = "HARMFUL", assignto = "spell2", color = { 0.4, 0, 0}, staticDuration = 15, showDuration = true, priority = 40 } --Weakened Soul
-    A{ id = 152118,type = "HELPFUL", assignto = "bar1", priority = 90, color = { 1, .65, 0}, showDuration = true, isMine = true } --Clarity of WIll
-
-
-    A{ id = 114908,type = "HELPFUL", assignto = "bar1", priority = 82, color = { 188/255, 37/255, 186/255 }, foreigncolor = { 164/255, 125/255, 169/255}, showDuration = true } --Spirit Shell absorb
+    --Renew
+    A{ id = 139,   type = "HELPFUL", assignto = "bar1", pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
+    --Tuure's Light
+    A{ id = 208065, type = "HELPFUL", assignto = "bar2", priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true }
+    --Power Word: Shield
+    A{ id = 17,    type = "HELPFUL", assignto = "spell2", isMine = true, color = { 1, .85, 0}, showDuration = true }
+    --Prayer of Mending
     A{ id = 41635, type = "HELPFUL", assignto = "spell3", priority = 70, stackcolor =   {
                                                                             [1] = { 1, 0, 0},
                                                                             [2] = { 1, 0, 102/255},
@@ -171,7 +168,7 @@ if playerClass == "PRIEST" then
                                                                             [8] = { 148/255, 0, 1},
                                                                             [9] = { 148/255, 0, 1},
                                                                             [10] = { 148/255, 0, 1},
-                                                                        }, showStacks = 5} --Prayer of Mending
+                                                                        }, showStacks = 5}
                                                                         -- stackcolor =   {
                                                                         --     [1] = { .8, 0, 0},
                                                                         --     [2] = { 1, 0, 0},
@@ -179,14 +176,24 @@ if playerClass == "PRIEST" then
                                                                         --     [4] = { 1, .4, .4},
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
-    A{ id = 194384,type = "HELPFUL", assignto = "bar1", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true} --Atonement
+    --Atonement
+    A{ id = 194384,type = "HELPFUL", assignto = "bar1", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true} 
+    --Luminous Barrier
+    A{ id = 271466,type = "HELPFUL", assignto = "spell3", color = { 1, .65, 0}, showDuration = true, isMine = true}
+    
+    -- Atonement
+    -- Trace{id = 94472, type = "HEAL", minamount = 70000, assignto = "spell3", color = -{ .2, 1, .2}, fade = .5, priority = 90 }
 
-    -- Trace{id = 94472, type = "HEAL", minamount = 70000, assignto = "spell3", color = -{ .2, 1, .2}, fade = .5, priority = 90 } -- Atonement
-    Trace{id = 204883, type = "HEAL", assignto = "spell3", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Circle of Healing
-    Trace{id = 596, type = "HEAL", assignto = "spell3", color = { .5, .5, 1}, fade = 0.7, priority = 96 } -- Circle of Healing
-    -- Trace{id = 33076, type = "HEAL", assignto = "spell3", color = { .3, 1, .3}, fade = 1, priority = 97 } -- PoM Trace
+    -- Circle of Healing
+    Trace{id = 204883, type = "HEAL", assignto = "spell3", color = { 1, 1, 0}, fade = 0.7, priority = 96 }
+    -- Prayer of Healing
+    Trace{id = 596, type = "HEAL", assignto = "spell3", color = { .5, .5, 1}, fade = 0.7, priority = 96 }
 
-    -- Trace{id = 47750, type = "HEAL", assignto = "spell2", "spell3", color = { .3, 1, .3}, fade = 1.5, priority = 97 } -- PoM Trace
+    -- PoM Trace
+    -- Trace{id = 33076, type = "HEAL", assignto = "spell3", color = { .3, 1, .3}, fade = 1, priority = 97 }
+
+    -- PoM Trace
+    -- Trace{id = 47750, type = "HEAL", assignto = "spell2", "spell3", color = { .3, 1, .3}, fade = 1.5, priority = 97 }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(17), -- Disc: PWS
@@ -213,9 +220,9 @@ if playerClass == "MONK" then
 
 
     config.UnitInRangeFunctions = {
-        RangeCheckBySpell(116694), -- Effuse
-        RangeCheckBySpell(116694),
-        RangeCheckBySpell(116694),
+        RangeCheckBySpell(116670), -- Vivify
+        RangeCheckBySpell(116670),
+        RangeCheckBySpell(116670),
     }
 
     DispelTypes("MAGIC|DISEASE|POISON")
@@ -297,12 +304,18 @@ end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = "raidbuff", color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
 
+    -- Cenarion Ward
     A{ id = 102351, type = "HELPFUL", assignto = "spell3", priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
-    A{ id = 774,   type = "HELPFUL", assignto = "bar1", extend_below = 15, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true } --Rejuvenation
-    A{ id = 155777,type = "HELPFUL", assignto = "bar2", extend_below = 15, pulse = true, color = { 1, 0.4, 1}, showDuration = true, isMine = true } --Germination
-    A{ id = 33763, type = "HELPFUL", assignto = "bar3", extend_below = 14, showDuration = true, isMine = true, color = { 0.5, 1, 0.5}, } --Lifebloom
-    -- A{ id = 8936, type = "HELPFUL", assignto = "spell3", isMine = true, color = { 0.2, 1, 0.2},priority = 60, showDuration = true } --Regrowth
-    A{ id = 48438, type = "HELPFUL", assignto = "spell2", color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true } --Wild Growth
+    -- Rejuvenation
+    A{ id = 774,   type = "HELPFUL", assignto = "bar1", extend_below = 15, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true }
+    -- Germination
+    A{ id = 155777,type = "HELPFUL", assignto = "bar2", extend_below = 15, pulse = true, color = { 1, 0.4, 1}, showDuration = true, isMine = true }
+    -- Lifebloom
+    A{ id = 33763, type = "HELPFUL", assignto = "bar3", extend_below = 14, showDuration = true, isMine = true, color = { 0.5, 1, 0.5}, }
+    -- Regrowth
+    -- A{ id = 8936, type = "HELPFUL", assignto = "spell3", isMine = true, color = { 0.2, 1, 0.2},priority = 60, showDuration = true }
+    -- Wild Growth
+    A{ id = 48438, type = "HELPFUL", assignto = "spell2", color = { 0.4, 1, 0.4}, priority = 70, showDuration = true, isMine = true }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(8936),
@@ -313,12 +326,17 @@ if playerClass == "DRUID" then
 
     DispelTypes("MAGIC|CURSE|POISON")
 end
-if playerClass == "MAGE" then
-    --A{ id = 1459,  type = "HELPFUL", assignto = "spell2", color = { .4 , .4, 1}, priority = 50 } --Arcane Intellect
-    --A{ id = 61316, type = "HELPFUL", assignto = "spell2", color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
-    --A{ id = 54648, type = "HELPFUL", assignto = "spell2", color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
 
-    DispelTypes("CURSE")
+if playerClass == "WARRIOR" then
+    -- Battle Shout
+    A{ id = 6673,  type = "HELPFUL", assignto = "raidbuff", color = { 1, .4 , .4}, priority = 50, isMissing = true}
+end
+if playerClass == "MAGE" then
+    A{ id = 1459,  type = "HELPFUL", assignto = "raidbuff", color = { .4 , .4, 1}, priority = 50, isMissing = true} --Arcane Intellect
+    -- A{ id = 61316, type = "HELPFUL", assignto = "spell2", color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
+    -- A{ id = 54648, type = "HELPFUL", assignto = "spell2", color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
+
+    -- DispelTypes("CURSE")
 end
 -- if not isHealer or playerClass == "PALADIN" then
     -- config.redirectPowerBar = "spell1"
