@@ -1591,6 +1591,7 @@ end
 
 local presentDebuffs = {}
 local blacklist = {
+    [219521] = true, -- Shadow Covenant
     [139485] = true, -- Throne of Thudner passive debuff
     [57724] = true, -- Sated
     [80354] = true, -- Temporal Displacement
