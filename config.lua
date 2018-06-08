@@ -275,21 +275,20 @@ if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
 
     A{ id = 61295,  type = "HELPFUL", assignto = "bar1", showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide
-    A{ id = 204288,    type = "HELPFUL", assignto = "spell2", showDuration = true,
-                                                                        --isMine = true,
-                                                                        stackcolor =   {
-                                                                            [1] = { 0,.4, 0},
-                                                                            [2] = { 0,.5, 0},
-                                                                            [3] = { 0,.6, 0},
-                                                                            [4] = { 0,.7, 0},
-                                                                            [5] = { 0,.8, 0},
-                                                                            [6] = { 0, 0.9, 0},
-                                                                            [7] = {.1, 1, .1},
-                                                                            [8] = {.2, 1, .2},
-                                                                            [9] = {.4, 1, .4},
-                                                                        },
-                                                                        foreigncolor = {0,0,.5}, } --Earth Shield
-    Trace{id = 52042, type = "PERIODIC_HEAL", assignto = "spell3", color = { 0.4 , 0.4, 1}, fade = 0.7, priority = 93 } -- Chain Heal
+    A{ id = 974,    type = "HELPFUL", assignto = "bar3", showStacks = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
+                                                                        -- stackcolor =   {
+                                                                        --     [1] = { 0,.4, 0},
+                                                                        --     [2] = { 0,.5, 0},
+                                                                        --     [3] = { 0,.6, 0},
+                                                                        --     [4] = { 0,.7, 0},
+                                                                        --     [5] = { 0,.8, 0},
+                                                                        --     [6] = { 0, 0.9, 0},
+                                                                        --     [7] = {.1, 1, .1},
+                                                                        --     [8] = {.2, 1, .2},
+                                                                        --     [9] = {.4, 1, .4},
+                                                                        -- },
+                                                                        --, } --Earth Shield
+    -- Trace{id = 52042, type = "PERIODIC_HEAL", assignto = "spell3", color = { 0.4 , 0.4, 1}, fade = 0.7, priority = 93 } -- Chain Heal
 
     Trace{id = 1064, type = "HEAL", assignto = "spell3", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = "spell3", color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
@@ -338,7 +337,7 @@ if playerClass == "MAGE" then
     -- A{ id = 61316, type = "HELPFUL", assignto = "spell2", color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
     -- A{ id = 54648, type = "HELPFUL", assignto = "spell2", color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
 
-    -- DispelTypes("CURSE")
+    DispelTypes("CURSE")
 end
 -- if not isHealer or playerClass == "PALADIN" then
     -- config.redirectPowerBar = "spell1"
