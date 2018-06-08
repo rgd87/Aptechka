@@ -51,7 +51,7 @@ eventType - either nil when event comes from combat log, or "UNIT_AURA" to indic
 --]================]
 
 
-local MAJOR, MINOR = "LibCombatLogHealth-1.0", 1.2
+local MAJOR, MINOR = "LibCombatLogHealth-1.0", 1.3
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -80,7 +80,7 @@ local f = lib.frame
 local callbacks = lib.callbacks
 local guidMap =  lib.guidMap
 local CLHealth = lib.data
-
+local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 local UnitGUID = UnitGUID
 local UnitHealth = UnitHealth
 local table_insert = table.insert
@@ -199,23 +199,25 @@ function f:PLAYER_ENTERING_WORLD()
     end
 end
 
-function f:COMBAT_LOG_EVENT_UNFILTERED(
-                event, timestamp, eventType, hideCaster,
-                srcGUID, srcName, srcFlags, srcFlags2,
-                dstGUID, dstName, dstFlags, dstFlags2, ...)
+function f:COMBAT_LOG_EVENT_UNFILTERED(event)
+
+    local timestamp, eventType, hideCaster,
+    srcGUID, srcName, srcFlags, srcFlags2,
+    dstGUID, dstName, dstFlags, dstFlags2,
+    arg1, arg2, arg3, arg4, arg5 = CombatLogGetCurrentEventInfo()
     
     local unit = guidMap[dstGUID]
     if unit then
         local amount
         if(eventType == "SWING_DAMAGE") then --autoattack
-            amount = -(...); -- putting in braces will autoselect the first arg, no need to use select(1, ...);
+            amount = -arg1; -- putting in braces will autoselect the first arg, no need to use select(1, ...);
         elseif(eventType == "SPELL_PERIODIC_DAMAGE" or eventType == "SPELL_DAMAGE"
         or eventType == "DAMAGE_SPLIT" or eventType == "DAMAGE_SHIELD") then
-            amount = -select(4, ...);
+            amount = -arg4;
         elseif(eventType == "ENVIRONMENTAL_DAMAGE") then
-            amount = -select(2, ...);
+            amount = -arg2;
         elseif(eventType == "SPELL_HEAL" or eventType == "SPELL_PERIODIC_HEAL") then
-            amount = select(4, ...) - select(5, ...) -- heal amount - overheal
+            amount = arg4 - arg5 -- heal amount - overheal
             if amount == 0 then return end
         end
 
