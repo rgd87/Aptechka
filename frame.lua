@@ -805,7 +805,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hpi.current = 0
     hpi.Update = function(self, h, hi, hm)
         hi = hi or self.current
-        self:SetValue((h+hi)/hm*100)
+        if hm == 0 then
+            self:SetValue(0)
+        else
+            self:SetValue((h+hi)/hm*100)
+        end
     end
 
     -- local border = CreateFrame("Frame",nil,self)
