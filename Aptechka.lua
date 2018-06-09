@@ -673,9 +673,13 @@ function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     for self in pairs(rosterunit) do
         local a,hm = UnitGetTotalAbsorbs(unit), UnitHealthMax(unit)
         local h = UnitHealth(unit)
-		local p = (hm ~= 0) and a/hm*100 or 0
-        local p2 = (hm ~= 0) and (h+a)/hm*100 or 0
-        self.absorb:SetValue(p, (h/hm)*100)
+        local ch, p, p2 = 0,0,0
+        if hm ~= 0 then
+            ch = (h/hm)*100
+		    p = a/hm*100
+            p2 = (h+a)/hm*100
+        end
+        self.absorb:SetValue(p, ch)
         self.absorb2:SetValue(p2)
     end
 end
@@ -761,7 +765,11 @@ function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
     if not rosterunit then return end
     for self in pairs(rosterunit) do
         if self.power and not self.power.disabled then
-            local mp = UnitPower(unit)/UnitPowerMax(unit)*100
+            local powermax = UnitPowerMax(unit)
+            local mp = 0
+            if powermax > 0 then
+                mp = UnitPower(unit)/UnitPowerMax(unit)*100
+            end
             self.power:SetValue(mp)
         end
     end
