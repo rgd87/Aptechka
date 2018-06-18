@@ -110,6 +110,7 @@ config.LOSStatus = { name = "OutOfSight", assignto = "spell2", color = {1,0.1,0.
 D(1, { name = "DI1", assignto = "dicon1", pulse = true, showDuration = true })
 D(2, { name = "DI2", assignto = "dicon2", pulse = true, showDuration = true })
 D(3, { name = "DI3", assignto = "dicon3", pulse = true, showDuration = true })
+D(4, { name = "DI4", assignto = "dicon4", pulse = true, showDuration = true })
 
 local function DispelTypes(str)
     str = str:upper()
@@ -203,7 +204,7 @@ if playerClass == "PRIEST" then
         RangeCheckBySpell(17), -- Shadow: PWS
     }
 
-    DispelTypes("MAGIC|DISEASE")
+    -- DispelTypes("MAGIC|DISEASE")
 
 end
 
@@ -227,7 +228,7 @@ if playerClass == "MONK" then
         RangeCheckBySpell(116670),
     }
 
-    DispelTypes("MAGIC|DISEASE|POISON")
+    -- DispelTypes("MAGIC|DISEASE|POISON")
 end
 
 if playerClass == "WARLOCK" then
@@ -269,7 +270,7 @@ if playerClass == "PALADIN" then
     --     /cast [@mouseover,btn:2,mod:alt] spell:53563; [@mouseover,btn:2] spell:19750;
     -- ]] -- Beacon of Light (id 53563) Flash of Light (id 19750)
 
-    DispelTypes("MAGIC|DISEASE|POISON")
+    -- DispelTypes("MAGIC|DISEASE|POISON")
 end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
@@ -300,7 +301,7 @@ if playerClass == "SHAMAN" then
     }
 
 
-    DispelTypes("MAGIC|CURSE")
+    -- DispelTypes("MAGIC|CURSE")
 end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = "raidbuff", color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
@@ -325,7 +326,7 @@ if playerClass == "DRUID" then
         RangeCheckBySpell(8936),
     }
 
-    DispelTypes("MAGIC|CURSE|POISON")
+    -- DispelTypes("MAGIC|CURSE|POISON")
 end
 
 if playerClass == "WARRIOR" then
@@ -337,7 +338,7 @@ if playerClass == "MAGE" then
     -- A{ id = 61316, type = "HELPFUL", assignto = "spell2", color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
     -- A{ id = 54648, type = "HELPFUL", assignto = "spell2", color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
 
-    DispelTypes("CURSE")
+    -- DispelTypes("CURSE")
 end
 -- if not isHealer or playerClass == "PALADIN" then
     -- config.redirectPowerBar = "spell1"

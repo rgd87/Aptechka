@@ -1496,26 +1496,35 @@ local AssignToSlot = function(frame, opts, status, slot)
             self.OverrideStatusHandler(frame, self, opts, status)
         else
             if opts.isMissing then status = not status end
-            if not self.jobs then self.jobs = {} end
+
+            -- short exit if disabling auras on already empty widget
+            if not self.currentJob and status == false then return end
+
+            local jobs = self.jobs
+            if not jobs then
+                self.jobs = {}
+                jobs = self.jobs
+            end
+            
 
             if status
-                then self.jobs[opts.name] = opts
-                else self.jobs[opts.name] = nil
+                then jobs[opts.name] = opts
+                else jobs[opts.name] = nil
             end
 
-            if next(self.jobs) then
+            if next(jobs) then
                 local max
                 local max_priority = 0
-                for name, opts in pairs(self.jobs) do
-                    if not opts.priority then opts.priority = 80 end
-                    if max_priority < opts.priority then
-                        max_priority = opts.priority
+                for name, opts in pairs(jobs) do
+                    local opts_priority = opts.priority or 80
+                    if max_priority < opts_priority then
+                        max_priority = opts_priority
                         max = name
                     end
                 end
                 if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
-                if self.SetJob  then self:SetJob(self.jobs[max]) end
-                self.currentJob = self.jobs[max]
+                if self.SetJob  then self:SetJob(jobs[max]) end
+                self.currentJob = jobs[max]
 
             else
                 if self.HideFunc then self:HideFunc() else self:Hide() end
@@ -1599,22 +1608,23 @@ end
 
 local presentDebuffs = {}
 local blacklist = {
+    [264689] = true, -- Fatigued (Hunter BL)
     [219521] = true, -- Shadow Covenant
     [139485] = true, -- Throne of Thudner passive debuff
-    [57724] = true, -- Sated
-    [80354] = true, -- Temporal Displacement
-    [95809] = true, -- Hunter bloodlust debuff
-	[57723] = true, -- Drums BL debuff
+    [57724] = true, -- Sated (BL)
+    [80354] = true, -- Temporal Displacement (Mage BL)
+    [95809] = true, -- Insanity (old Hunter BL, Ancient Hysteria)
+	[57723] = true, -- Drums BL debuff, and Heroism?
     [95223] = true, -- Mass Res
     [26013] = true, -- PVP Deserter
     [71041] = true, -- Deserter
     [8326] = true, -- Ghost
-    [6788] = true, -- Weakened Soul
+    -- [6788] = true, -- Weakened Soul
     [113942] = true, -- demonic gates debuff
     [123981] = true, -- dk cooldown debuff
     [87024] = true, -- mage cooldown debuff
     [97821] = true, -- dk battleres debuff
-    [124275] = true, -- brewmaster stagger debuff
+    [124275] = true, -- brewmaster light stagger debuff
     [174528] = true, -- Griefer debuff
 	[206151] = true, -- Challenger's Burden
 }
@@ -1679,17 +1689,17 @@ function Aptechka.ScanDispels(unit)
             end
           -- end
 
-            local opts = dtypes[debuffType]
-            if opts and not presentDebuffs[debuffType] then
-                presentDebuffs[debuffType] = true
+            -- local opts = dtypes[debuffType]
+            -- if opts and not presentDebuffs[debuffType] then
+            --     presentDebuffs[debuffType] = true
 
-                opts.expirationTime = expirationTime
-                opts.duration = duration
-                opts.stacks = count
-                opts.texture = icon
+            --     opts.expirationTime = expirationTime
+            --     opts.duration = duration
+            --     opts.stacks = count
+            --     opts.texture = icon
 
-                SetJob(unit, opts, true)
-            end
+            --     SetJob(unit, opts, true)
+            -- end
         end
 
         for i=shown+1, debuffLineLength do

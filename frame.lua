@@ -902,6 +902,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.dicon1 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
     self.dicon2 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
     self.dicon3 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
+    self.dicon4 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     local blcorner = CreateCorner(self, 12, 12, "BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation
@@ -958,7 +959,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     end
 
     self.bossdebuff = blcorner
-    self.dispel = blcorner
+    self.dispel = nil
     self.icon = icon
     self.raidicon = raidicon
     self.roleicon = roleicon
