@@ -24,11 +24,15 @@ helpers.AddDispellType = function(dtype, data)
     data.name = dtype
     config.DebuffTypes[dtype] = data
 end
+
+local protomt = { __index = function(t,k) return t.prototype[k] end }
 helpers.AddLoadableAura = function (data, todefault)
     if data.id then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
 
-    if data.prototype then setmetatable(data, { __index = function(t,k) return data.prototype[k] end }) end
+    if data.prototype then
+        setmetatable(data, protomt)
+    end
 
     if not data.type then data.type = "HELPFUL" end
 
@@ -41,7 +45,15 @@ helpers.AddAura = function (data, todefault)
     -- if data.isMine then data.type = data.type.."|PLAYER" end
     if data.debuffType then DT(data.debuffType, data) end
 
-    if data.prototype then setmetatable(data, { __index = function(t,k) return data.prototype[k] end }) end
+    if data.prototype then -- metatables break because of config merging for gui
+        -- setmetatable(data, { __index = function(t,k) return t.prototype[k] end })
+        for k,v in pairs(data.prototype) do
+            if not data[k] then
+                data[k] = v
+            end
+        end
+        data.prototype = nil
+    end
 
     if not data.type then data.type = "HELPFUL" end
 

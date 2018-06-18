@@ -46,7 +46,6 @@ config.layouts = {  -- works ONLY with group anchors disabled.
 config.maxgroups = 8
 config.petgroup = false
 config.petcolor = {1,.5,.5}
---Pet group is always on separate anchor. Use /apt unlockall.
 --A maximum of 5 pets can be displayed.
 --You also can use /apt createpets command, it creates pet group on the fly
 
@@ -127,25 +126,75 @@ local function RangeCheckBySpell(spellID)
     end
 end
 
-A{ id = 871,   type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94 } --Shield Wall 40%
-A{ id = 114030,type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94 } --Vigilance
-A{ id = 120954,type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94 } --Fortifying Brew 20%
-A{ id = 86659, type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94 } --Guardian of Ancient Kings 50%
--- A{ id = 498,   type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94 } --Divine Protection 40% magical
-A{ id = 48792, type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94 } --Icebound Fortitude 50%
-A{ id = 61336, type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94 } --Survival Instincts 50%
--- A{ id = 22812, type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94 } --Barkskin 20%
 
-A{ id = 33206, type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94 } --Pain Suppression
-A{ id = 102342,type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 93 } --Ironbark
--- A{ id = 98007, type = "HELPFUL", assignto = "icon", global = true, showDuration = false, priority = 93 } --Spirit Link Totem
 
-A{ id = 31850, type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 88 } --Ardent Defender
-A{ id = 116849,type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 88 } --Life Cocoon
-A{ id = 55233, type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 90 } --Vampiric Blood
-A{ id = 47788, type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 90 } --Guardian Spirit
+local tankCD = { type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94}
+local survivalCD = { type = "HELPFUL", assignto = "shieldicon", global = true, showDuration = true, priority = 90 }
 
-A{ id = 12975, type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 85 } --Last Stand
+-- MONK
+A{ id = 122783, prototype = survivalCD } -- Diffuse Magic
+A{ id = 122278, prototype = survivalCD } -- Dampen Harm
+A{ id = 243435, prototype = survivalCD, priority = 91 } -- Fortifying Brew (Mistweaver)
+A{ id = 125174, prototype = survivalCD, priority = 91 } -- Touch of Karma
+A{ id = 115176, prototype = survivalCD } -- Zen Meditation
+A{ id = 116849, prototype = tankCD, priority = 88 } --Life Cocoon
+A{ id = 120954, prototype = tankCD } --Fortifying Brew (Brewmaster)
+
+-- WARRIOR
+A{ id = 184364, prototype = survivalCD } -- Enraged Regeneration
+A{ id = 118038, prototype = survivalCD } -- Die by the Sword
+A{ id = 12975,  prototype = tankCD, priority = 85 } --Last Stand
+A{ id = 871,    prototype = tankCD } --Shield Wall 40%
+
+-- DEMON HUNTER
+A{ id = 212800, prototype = survivalCD } -- Blur
+A{ id = 187827, prototype = tankCD } -- Vengeance Meta
+
+-- ROGUE
+A{ id = 1966,   prototype = survivalCD } -- Feint
+A{ id = 31224,  prototype = survivalCD, priority = 91 } -- Cloak of Shadows
+A{ id = 45182,  prototype = tankCD } -- Cheating Death
+
+-- WARLOCK
+A{ id = 104773, prototype = survivalCD } -- Unending Resolve
+A{ id = 132413, prototype = survivalCD } -- Shadow Bulwark
+
+-- DRUID
+A{ id = 22812,  prototype = survivalCD } -- Barkskin
+A{ id = 102342, prototype = tankCD, priority = 93 } --Ironbark
+A{ id = 61336,  prototype = tankCD } --Survival Instincts 50% (Feral & Guardian)
+
+-- PRIEST
+A{ id = 19236,  prototype = survivalCD } -- Desperate Prayer
+A{ id = 47585,  prototype = survivalCD } -- Dispersion
+A{ id = 47788, prototype = tankCD, priority = 90 } --Guardian Spirit
+A{ id = 33206, prototype = tankCD, priority = 93 } --Pain Suppression
+
+-- PALADIN
+A{ id = 642,    prototype = tankCD, priority = 95 } -- Divine Shield
+A{ id = 1022,   prototype = survivalCD } -- Blessing of Protection
+A{ id = 204018, prototype = survivalCD } -- Blessing of Spellwarding
+A{ id = 184662, prototype = survivalCD } -- Shield of Vengeance
+A{ id = 205191, prototype = survivalCD } -- Eye for an Eye
+A{ id = 498,    prototype = survivalCD } -- Divine Protection
+A{ id = 31850,  prototype = tankCD, priority = 88 } --Ardent Defender
+A{ id = 86659,  prototype = tankCD } --Guardian of Ancient Kings 50%
+A{ id = 204150, prototype = tankCD, priority = 85 } -- Aegis of Light
+
+-- DEATH KNIGHT
+-- A{ id = 194679, prototype = survivalCD } -- Rune Tap
+A{ id = 55233,  prototype = tankCD, priority = 94 } --Vampiric Blood
+A{ id = 48792,  prototype = tankCD, priority = 94 } --Icebound Fortitude 50%
+
+-- MAGE
+A{ id = 113862, prototype = survivalCD } -- Arcane Greater Invisibility
+A{ id = 45438,  prototype = tankCD } -- Ice Block
+
+-- HUNTER
+A{ id = 186265, prototype = survivalCD } -- Aspect of the Turtle
+
+-- SHAMAN
+A{ id = 108271, prototype = survivalCD } -- Astral Shift
 
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude
@@ -210,7 +259,7 @@ end
 
 if playerClass == "MONK" then
     --Renewing Mist
-    A{ id = 119611, type = "HELPFUL", assignto = "shieldicon", isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true }
+    A{ id = 119611, type = "HELPFUL", assignto = "bar1", isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true }
     --Enveloping Mist
     A{ id = 124682, type = "HELPFUL", assignto = "vbar1", isMine = true, showDuration = true, color = { 1,1,0 }, priority = 92 }
     --Soothing Mist
