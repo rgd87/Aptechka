@@ -343,10 +343,9 @@ local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop, isVe
     f:Hide()
     return f
 end
-
-
-
 AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
+
+
 local SetJob_Icon = function(self,job)
     if job.fade then self.jobs[job.name] = nil; return end
     if job.showDuration then
@@ -365,6 +364,45 @@ local SetJob_Icon = function(self,job)
         -- if not self.pulse:IsPlaying() then self.pulse:Play() end
     -- end
 end
+
+local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
+    local icon = CreateFrame("Frame",nil,parent)
+    icon:SetWidth(w); icon:SetHeight(h)
+    icon:SetPoint(point,frame,to,x,y)
+    icon:SetFrameLevel(5)
+
+    local shield = icon:CreateTexture(nil, "ARTWORK", nil, 2)
+    shield:SetTexture([[Interface\AchievementFrame\UI-Achievement-IconFrame]])
+    shield:SetTexCoord(0,0.5625,0,0.5625)
+    shield:SetWidth(h*1.8)
+    shield:SetHeight(h*1.8)
+    shield:SetPoint("CENTER", icon,"CENTER",0,0)
+    -- shield:Hide()
+
+    local icontex = icon:CreateTexture(nil,"ARTWORK")
+    icontex:SetTexCoord(.1, .9, .1, .9)
+    icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
+    icontex:SetPoint("BOTTOMRIGHT",icon, "BOTTOMRIGHT",0,0)
+    icontex:SetWidth(h);
+    icontex:SetHeight(h);
+
+    icon.texture = icontex
+    icon:SetAlpha(alpha)
+
+    local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
+    icd.noCooldownCount = true -- disable OmniCC for this cooldown
+    icd:SetReverse(true)
+    icd:SetDrawEdge(false)
+    icd:SetAllPoints(icontex)
+    icon.cd = icd
+
+    icon:Hide()
+
+    icon.SetJob = SetJob_Icon
+
+    return icon
+end
+
 local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     local icon = CreateFrame("Frame",nil,parent)
     icon:SetWidth(w); icon:SetHeight(h)
@@ -590,6 +628,8 @@ local optional_widgets = {
         spell4  = function(self) return CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0) end,
         --left
         spell5  = function(self) return CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0) end,
+
+        shieldicon = function(self) return CreateShieldIcon(self,15,15,1,"CENTER",self,"TOPLEFT",14,0) end,
 
         bar1    = function(self) return CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0) end,
         bar2    = function(self)

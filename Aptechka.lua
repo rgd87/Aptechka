@@ -1458,6 +1458,8 @@ function Aptechka.SetupFrame(f)
     f.vHealthMax = 1
     f.vHealth = 1
 
+
+    f.activeAuras = {}
     --ClickCastFrames[f] = true -- add to clique list
 
     if config[config.skin] then
@@ -1507,9 +1509,13 @@ local AssignToSlot = function(frame, opts, status, slot)
             end
             
 
-            if status
-                then jobs[opts.name] = opts
-                else jobs[opts.name] = nil
+            if status then
+                jobs[opts.name] = opts
+                if opts.id then
+                    frame.activeAuras[opts.id] = opts
+                end
+            else
+                jobs[opts.name] = nil
             end
 
             if next(jobs) then
@@ -1588,14 +1594,12 @@ function Aptechka.ScanAuras(unit)
             end
         end
     end
-    for spellID, opts in pairs(auras) do
-        if not encountered[spellID] then
-            SetJob(unit, opts, false)
-        end
-    end
-    for spellID, opts in pairs(loadedAuras) do
-        if not encountered[spellID] then
-            SetJob(unit, opts, false)
+    for frame in pairs(Roster[unit]) do
+        for spellID, opts in pairs(frame.activeAuras) do
+            if not encountered[spellID] then
+                FrameSetJob(frame, opts, false)
+                frame.activeAuras[spellID] = nil
+            end
         end
     end
 end
