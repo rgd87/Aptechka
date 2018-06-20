@@ -606,7 +606,59 @@ local SetJob_Border = function(self,job)
     end
 end
 
+local ordered_jobs = {}
+local table_wipe = table.wipe
+local table_sort = table.sort
+local table_insert = table.insert
+local sortfunc = function(a,b)
+    local ap = a.priority or 80
+    local bp = b.priority or 80
+    if ap == bp then
+        return a.expirationTime > b.expirationTime
+    else
+        return ap > bp
+    end
+end
+local SetJob_Bars = function(self, _job)
+    table_wipe(ordered_jobs)
 
+    for name, job in pairs(self.jobs) do
+        table_insert(ordered_jobs, job)
+    end
+
+    table_sort(ordered_jobs, sortfunc)
+
+    local frame = self:GetParent()
+
+    for i, widgetname in ipairs(self.widgets) do
+        local bar = frame[widgetname]
+        local ojob = ordered_jobs[i]
+        -- print(i, widgetname, ojob and ojob.name)
+        if ojob then
+            bar:SetJob(ojob)
+            bar.currentJob = ojob
+            bar:Show()
+        else
+            bar.currentJob = nil
+            bar:Hide()
+        end
+    end
+
+end
+
+
+local CreateBars = function(self, optional_widgets)
+    local  bars = CreateFrame("Frame", nil, self)
+    bars.widgets = { "bar1", "bar2", "bar3" }
+    bars.rawAssignments = true
+    bars.SetJob = SetJob_Bars
+
+    for i, widget in ipairs(bars.widgets) do
+        self[widget] = optional_widgets[widget](self)
+    end
+
+    return bars
+end
 
 local OnMouseEnterFunc = function(self)
     self.mouseover:Show()
@@ -637,7 +689,15 @@ local optional_widgets = {
                 return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar1, "TOPLEFT",0,1)
             end
         end,
-        bar3    = function(self) return CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1) end,
+        bar3    = function(self)
+            if self.bar2 then
+                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar2, "TOPLEFT",0,1)
+            end
+        end,
+        bar4    = function(self) return CreateStatusBar(self, 21, 5, "TOPRIGHT", self, "TOPRIGHT",0,2) end,
+
+        bars = CreateBars,
+
         vbar1   = function(self) return CreateStatusBar(self, 4, 20, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true) end,
         
         smist  = function(self) return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
@@ -934,10 +994,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
     -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
 
-    -- local bars = {}
-    -- bars.OverrideStatusHandler = function(frame, self, opts, status)
-    --     print(opts.name, status)
-    -- end
 
     self.dicon1 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
     self.dicon2 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
@@ -970,6 +1026,12 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- self.bar3 = bar3
     -- self.bar4 = vbar1
     -- self.bars = bars
+
+
+
+
+    -- self.bars = bars
+
     self._optional_widgets = optional_widgets
 
     if not Aptechka.widget_list then
@@ -987,12 +1049,12 @@ AptechkaDefaultConfig.GridSkin = function(self)
         if type(spell.assignto) == "string" then
             local widget = spell.assignto
             if not self[widget] and optional_widgets[widget] then
-                self[widget] = optional_widgets[widget](self)
+                self[widget] = optional_widgets[widget](self, optional_widgets)
             end
         else
             for _,widget in ipairs(spell.assignto) do
                 if not self[widget] and optional_widgets[widget] then
-                    self[widget] = optional_widgets[widget](self)
+                    self[widget] = optional_widgets[widget](self, optional_widgets)
                 end
             end
         end

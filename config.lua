@@ -259,17 +259,17 @@ end
 
 if playerClass == "MONK" then
     --Renewing Mist
-    A{ id = 119611, type = "HELPFUL", assignto = "bar1", isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true }
+    A{ id = 119611, type = "HELPFUL", assignto = "bar4", isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true }
     --Enveloping Mist
-    A{ id = 124682, type = "HELPFUL", assignto = "vbar1", isMine = true, showDuration = true, color = { 1,1,0 }, priority = 92 }
+    A{ id = 124682, type = "HELPFUL", assignto = "bars", isMine = true, showDuration = true, color = { 1,1,0 }, priority = 75 }
     --Soothing Mist
-    A{ id = 115175, type = "HELPFUL", assignto = "smist", isMine = true, showDuration = false, color = { 0, .8, 0}, priority = 38 }
+    A{ id = 115175, type = "HELPFUL", assignto = "bars", isMine = true, showDuration = false, color = { 0, .8, 0}, priority = 80 }
 
     --Statue's Soothing Mist
     -- A{ id = 198533, type = "HELPFUL", assignto = "spell3", priority = 60, color = { 0, .4, 0} }
 
     --Essence Font
-    A{ id = 191840, type = "HELPFUL", assignto = "spell3", priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
+    A{ id = 191840, type = "HELPFUL", assignto = "bars", priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
 
 
     Trace{id = 116670, type = "HEAL", assignto = "spell3", color = { 1, .7, .2}, fade = 0.7, priority = 96 } -- Vivify

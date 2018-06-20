@@ -1494,9 +1494,6 @@ local AssignToSlot = function(frame, opts, status, slot)
         end
     end
     if self then
-        if self.OverrideStatusHandler then
-            self.OverrideStatusHandler(frame, self, opts, status)
-        else
             if opts.isMissing then status = not status end
 
             -- short exit if disabling auras on already empty widget
@@ -1520,13 +1517,17 @@ local AssignToSlot = function(frame, opts, status, slot)
 
             if next(jobs) then
                 local max
-                local max_priority = 0
-                for name, opts in pairs(jobs) do
-                    local opts_priority = opts.priority or 80
-                    if max_priority < opts_priority then
-                        max_priority = opts_priority
-                        max = name
+                if not self.rawAssignments then
+                    local max_priority = 0
+                    for name, opts in pairs(jobs) do
+                        local opts_priority = opts.priority or 80
+                        if max_priority < opts_priority then
+                            max_priority = opts_priority
+                            max = name
+                        end
                     end
+                else
+                    max = opts.name
                 end
                 if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
                 if self.SetJob  then self:SetJob(jobs[max]) end
@@ -1534,9 +1535,9 @@ local AssignToSlot = function(frame, opts, status, slot)
 
             else
                 if self.HideFunc then self:HideFunc() else self:Hide() end
+                if self.rawAssignments then self:SetJob(opts) end
                 self.currentJob = nil
             end
-        end
     end
 end
 
