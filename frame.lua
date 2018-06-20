@@ -97,9 +97,9 @@ local SetJob_Indicator = function(self,job)
             self.traceJob = nil
         end
     end
-    if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
-        if not self.pulse:IsPlaying() then self.pulse:Play() end
-    end
+    -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
+        -- if not self.pulse:IsPlaying() then self.pulse:Play() end
+    -- end
 end
 
 local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
@@ -197,9 +197,9 @@ local SetJob_Corner = function(self,job)
     end
     self.color:SetVertexColor(unpack(color))
 
-    if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
-        if not self.pulse:IsPlaying() then self.pulse:Play() end
-    end
+    -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
+        -- if not self.pulse:IsPlaying() then self.pulse:Play() end
+    -- end
 end
 local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation)
     local f = CreateFrame("Frame",nil,parent)
@@ -626,6 +626,8 @@ local SetJob_Bars = function(self, _job)
         table_insert(ordered_jobs, job)
     end
 
+    self.currentJob = ordered_jobs[1]
+
     table_sort(ordered_jobs, sortfunc)
 
     local frame = self:GetParent()
@@ -643,7 +645,6 @@ local SetJob_Bars = function(self, _job)
             bar:Hide()
         end
     end
-
 end
 
 

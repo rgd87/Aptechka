@@ -1514,6 +1514,7 @@ local AssignToSlot = function(frame, opts, status, slot)
             else
                 jobs[opts.name] = nil
             end
+            -- print("Job Status:", opts.name, jobs[opts.name])
 
             if next(jobs) then
                 local max
@@ -1526,16 +1527,15 @@ local AssignToSlot = function(frame, opts, status, slot)
                             max = name
                         end
                     end
+                    self.currentJob = jobs[max] -- important that it's before SetJob
                 else
                     max = opts.name
                 end
                 if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
                 if self.SetJob  then self:SetJob(jobs[max]) end
-                self.currentJob = jobs[max]
-
             else
-                if self.HideFunc then self:HideFunc() else self:Hide() end
                 if self.rawAssignments then self:SetJob(opts) end
+                if self.HideFunc then self:HideFunc() else self:Hide() end
                 self.currentJob = nil
             end
     end
