@@ -201,13 +201,13 @@ if playerClass == "PRIEST" then
     A{ id = 21562, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 100, isMissing = true }
 
     --Renew
-    A{ id = 139,   type = "HELPFUL", assignto = "bar1", pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
+    A{ id = 139,   type = "HELPFUL", assignto = "bars", priority = 50, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
     --Tuure's Light
-    A{ id = 208065, type = "HELPFUL", assignto = "bar2", priority = 75, color = {0.5,0.7,1}, showDuration = true, isMine = true }
+    A{ id = 208065, type = "HELPFUL", assignto = "bars", priority = 40, color = {0.5,0.7,1}, showDuration = true, isMine = true }
     --Power Word: Shield
-    A{ id = 17,    type = "HELPFUL", assignto = "spell2", isMine = true, color = { 1, .85, 0}, showDuration = true }
+    A{ id = 17,    type = "HELPFUL", assignto = "bars", priority = 90, isMine = true, color = { 1, .85, 0}, showDuration = true }
     --Prayer of Mending
-    A{ id = 41635, type = "HELPFUL", assignto = "spell3", priority = 70, stackcolor =   {
+    A{ id = 41635, type = "HELPFUL", assignto = "bar4", priority = 70, stackcolor =   {
                                                                             [1] = { 1, 0, 0},
                                                                             [2] = { 1, 0, 102/255},
                                                                             [3] = { 1, 0, 190/255},
@@ -227,11 +227,11 @@ if playerClass == "PRIEST" then
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
     --Shadow Covenant
-    A{ id = 219521,type = "HARMFUL", assignto = "bar2", color = { 0.6, 0, 1 }, showDuration = true, isMine = true} 
+    A{ id = 219521,type = "HARMFUL", assignto = "bars", priority = 50, color = { 0.6, 0, 1 }, showDuration = true, isMine = true} 
     --Atonement
-    A{ id = 194384,type = "HELPFUL", assignto = "bar1", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true} 
+    A{ id = 194384,type = "HELPFUL", assignto = "bar4", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true} 
     --Luminous Barrier
-    A{ id = 271466,type = "HELPFUL", assignto = "spell3", color = { 1, .65, 0}, showDuration = true, isMine = true}
+    A{ id = 271466,type = "HELPFUL", assignto = "bars", priority = 70, color = { 1, .65, 0}, showDuration = true, isMine = true}
     
     -- Atonement
     -- Trace{id = 94472, type = "HEAL", minamount = 70000, assignto = "spell3", color = -{ .2, 1, .2}, fade = .5, priority = 90 }
@@ -291,15 +291,21 @@ if playerClass == "WARLOCK" then
 end
 
 if playerClass == "PALADIN" then
-    A{ id = 200654, type = "HELPFUL", assignto = "spell3", color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true } --Tyr's Deliverance
-    A{ id = 223306,  type = "HELPFUL", assignto = "bar1", showDuration = true, isMine = true, color = { 1 , .9, 0} } --Bestow Faith
-    A{ id = 53563, type = "HELPFUL", assignto = "spell2", showDuration = true,
+    --Tyr's Deliverance
+    A{ id = 200654, type = "HELPFUL", assignto = "spell3", color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true }
+     --Bestow Faith
+    A{ id = 223306,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 1 , .9, 0} }
+
+
+    -- Beacon of Virtue
+    A{ id = 200025, type = "HELPFUL", assignto = "bar4", showDuration = true, isMine = true, color = { 0,.9,0 } }
+    A{ id = 53563, type = "HELPFUL", assignto = "spell3", showDuration = true,
                                                                             isMine = true,
                                                                             color = { 0,.9,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Light
 
-    A{ id = 156910, type = "HELPFUL", assignto = "spell2", showDuration = true,
+    A{ id = 156910, type = "HELPFUL", assignto = "spell3", showDuration = true,
                                                                             isMine = true,
                                                                             color = { 1,.7,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
@@ -308,7 +314,7 @@ if playerClass == "PALADIN" then
     A{ id = 210320,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { .4, .4, 1} } --Devotion Aura
     A{ id = 183416,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { 1, .4, .4} } --Aura of Sacrifice
 
-    Trace{id = 85222, type = "HEAL", assignto = "spell3", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Light of Dawn
+    -- Trace{id = 85222, type = "HEAL", assignto = "spell3", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Light of Dawn
 
     -- Trace{id = 82327, type = "HEAL", assignto = "spell3", color = { .8, .5, 1}, fade = 0.7, priority = 96 } -- Holy Radiance
     -- Trace{id =121129, type = "HEAL", assignto = "spell3", color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
@@ -330,8 +336,8 @@ end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
 
-    A{ id = 61295,  type = "HELPFUL", assignto = "bar1", showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide
-    A{ id = 974,    type = "HELPFUL", assignto = "bar3", showStacks = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
+    A{ id = 61295,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide
+    A{ id = 974,    type = "HELPFUL", assignto = "bar4", showStacks = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
                                                                         -- stackcolor =   {
                                                                         --     [1] = { 0,.4, 0},
                                                                         --     [2] = { 0,.5, 0},
@@ -362,7 +368,7 @@ if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = "raidbuff", color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
 
     -- Cenarion Ward
-    A{ id = 102351, type = "HELPFUL", assignto = "spell3", priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
+    A{ id = 102351, type = "HELPFUL", assignto = "spell2", priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
     -- Rejuvenation
     A{ id = 774,   type = "HELPFUL", assignto = "bars", extend_below = 15, priority = 90, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true }
     -- Germination
