@@ -832,7 +832,13 @@ AptechkaDefaultConfig.GridSkin = function(self)
     absorb2:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
     -- absorb:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
     absorb2:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-    absorb2:SetStatusBarTexture[[Interface\AddOns\Aptechka\shieldtex]]
+
+    local st = absorb2:CreateTexture(nil, 'ARTWORK', nil, -7)
+    st:SetTexture("Interface\\AddOns\\Aptechka\\shieldtex")
+    st:SetHorizTile(true)
+    st:SetVertTile(true)
+
+    absorb2:SetStatusBarTexture(st)
     absorb2:GetStatusBarTexture():SetDrawLayer("ARTWORK",-7)
     absorb2:SetMinMaxValues(0,100)
     absorb2:SetAlpha(0.65)
