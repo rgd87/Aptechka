@@ -180,6 +180,8 @@ A{ id = 498,    prototype = survivalCD } -- Divine Protection
 A{ id = 31850,  prototype = tankCD, priority = 88 } --Ardent Defender
 A{ id = 86659,  prototype = tankCD } --Guardian of Ancient Kings 50%
 A{ id = 204150, prototype = tankCD, priority = 85 } -- Aegis of Light
+-- Guardian of the Forgotten Queen - Divine Shield (PvP)
+A{ id = 228050, prototype = tankCD, priority = 97 }
 
 -- DEATH KNIGHT
 -- A{ id = 194679, prototype = survivalCD } -- Rune Tap
@@ -195,6 +197,7 @@ A{ id = 186265, prototype = survivalCD } -- Aspect of the Turtle
 
 -- SHAMAN
 A{ id = 108271, prototype = survivalCD } -- Astral Shift
+A{ id = 204293, prototype = survivalCD } -- Spirit Link (PvP)
 
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude
@@ -202,8 +205,6 @@ if playerClass == "PRIEST" then
 
     --Renew
     A{ id = 139,   type = "HELPFUL", assignto = "bars", priority = 50, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
-    --Tuure's Light
-    A{ id = 208065, type = "HELPFUL", assignto = "bars", priority = 40, color = {0.5,0.7,1}, showDuration = true, isMine = true }
     --Power Word: Shield
     A{ id = 17,    type = "HELPFUL", assignto = "bars", priority = 90, isMine = true, color = { 1, .85, 0}, showDuration = true }
     --Prayer of Mending
@@ -241,11 +242,8 @@ if playerClass == "PRIEST" then
     -- Prayer of Healing
     Trace{id = 596, type = "HEAL", assignto = "spell3", color = { .5, .5, 1}, fade = 0.7, priority = 96 }
 
-    -- PoM Trace
-    -- Trace{id = 33076, type = "HEAL", assignto = "spell3", color = { .3, 1, .3}, fade = 1, priority = 97 }
-
-    -- PoM Trace
-    -- Trace{id = 47750, type = "HEAL", assignto = "spell2", "spell3", color = { .3, 1, .3}, fade = 1.5, priority = 97 }
+    -- Holy Ward (PvP)
+    A{ id = 213610, type = "HELPFUL", assignto = "spell3", showDuration = true, priority = 70, color = { 1, .3, .3}, isMine = true }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(17), -- Disc: PWS
@@ -276,6 +274,14 @@ if playerClass == "MONK" then
 
     -- A{ id = 157627, type = "HELPFUL", assignto = "bar2", showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
 
+    -- Dome of Mist
+    A{ id = 205655, type = "HELPFUL", assignto = "shieldicon", showDuration = true, priority = 97 }
+
+    --Surging Mist Buff (PvP)
+    A{ id = 227344, type = "HELPFUL", assignto = "raidbuff", priority = 50, stackcolor = {
+        [1] = {16/255, 110/255, 81/255},
+        [2] = {38/255, 221/255, 163/255},
+    }, showDuration = true, isMine = true }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(116670), -- Vivify
@@ -318,7 +324,6 @@ if playerClass == "PALADIN" then
 
     -- Trace{id = 82327, type = "HEAL", assignto = "spell3", color = { .8, .5, 1}, fade = 0.7, priority = 96 } -- Holy Radiance
     -- Trace{id =121129, type = "HEAL", assignto = "spell3", color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
-
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(19750), -- Flash of Light

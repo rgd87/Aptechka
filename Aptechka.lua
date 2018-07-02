@@ -599,6 +599,7 @@ function Aptechka.LibResInfo_ResCastStarted(event, dstUnit, dstGUID, srcUnit, sr
     local rosterunit = Roster[dstUnit]
     if not rosterunit then return end
     for self in pairs(rosterunit) do
+        if not self.jobs then self.jobs = {} end
         if not self.jobs[config.ResIncomingStatus.name] then
             config.ResIncomingStatus.expirationTime = endTime
             FrameSetJob(self, config.ResIncomingStatus, true)
