@@ -1,3 +1,5 @@
+local _, helpers = ...
+
 Aptechka = CreateFrame("Frame","Aptechka",UIParent)
 local Aptechka = Aptechka
 
@@ -51,6 +53,8 @@ local table_wipe = table.wipe
 local SetJob
 local FrameSetJob
 local DispelFilter
+
+local pixelperfect = helpers.pixelperfect
 
 local bit_band = bit.band
 local IsInGroup = IsInGroup
@@ -234,8 +238,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     local ccmacro = config.ClickCastingMacro or "__none__"
 
-    local width = AptechkaDB.width or config.width
-    local height = AptechkaDB.height or config.height
+    local width = pixelperfect(AptechkaDB.width or config.width)
+    local height = pixelperfect(AptechkaDB.height or config.height)
     local scale = AptechkaDB.scale or config.scale
     self.makeConfSnippet = function(width, height, scale)
         return string.format([=[
@@ -510,8 +514,8 @@ end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
 
-    local width = AptechkaDB.width or config.width
-    local height = AptechkaDB.height or config.height
+    local width = pixelperfect(AptechkaDB.width or config.width)
+    local height = pixelperfect(AptechkaDB.height or config.height)
     local scale = AptechkaDB.scale or config.scale
     self.initConfSnippet = self.makeConfSnippet(width, height, scale)
     for group, header in ipairs(group_headers) do

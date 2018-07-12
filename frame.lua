@@ -1,3 +1,7 @@
+local _, helpers = ...
+
+local pixelperfect = helpers.pixelperfect
+
 local SetJob_Frame = function(self, job)
     if job.alpha then
         self:SetAlpha(job.alpha)
@@ -104,17 +108,21 @@ end
 
 local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
     local f = CreateFrame("Frame",nil,parent)
+    local w = pixelperfect(w)
+    local h = pixelperfect(h)
+    local border = pixelperfect(2)
+
     f:SetWidth(w); f:SetHeight(h);
     if not nobackdrop then
     f:SetBackdrop{
-        bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,
-        insets = {left = -2, right = -2, top = -2, bottom = -2},
+        bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
+        insets = {left = -border, right = -border, top = -border, bottom = -border},
     }
     f:SetBackdropColor(0, 0, 0, 1)
     end
     f:SetFrameLevel(6)
     local t = f:CreateTexture(nil,"ARTWORK")
-    t:SetTexture[[Interface\AddOns\Aptechka\white]]
+    t:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     t:SetAllPoints(f)
     f.color = t
     local icd = CreateFrame("Cooldown",nil,f, "CooldownFrameTemplate")
@@ -300,11 +308,14 @@ local SetJob_StatusBar = function(self,job)
 end
 local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop, isVertical)
     local f = CreateFrame("StatusBar",nil,parent)
+    local w = pixelperfect(w)
+    local h = pixelperfect(h)
+    local border = pixelperfect(2)
     f:SetWidth(w); f:SetHeight(h);
     if not nobackdrop then
     f:SetBackdrop{
-        bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,
-        insets = {left = -2, right = -2, top = -2, bottom = -2},
+        bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
+        insets = {left = -border, right = -border, top = -border, bottom = -border},
     }
     f:SetBackdropColor(0, 0, 0, 1)
     end
@@ -314,12 +325,12 @@ local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop, isVe
         f:SetOrientation("VERTICAL")
     end
 
-    f:SetStatusBarTexture[[Interface\AddOns\Aptechka\white]]
+    f:SetStatusBarTexture[[Interface\BUTTONS\WHITE8X8]]
     -- f:SetMinMaxValues(0,100)
     -- f:SetStatusBarColor(1,1,1)
 
     local bg = f:CreateTexture(nil,"ARTWORK",nil,-1)
-    bg:SetTexture[[Interface\AddOns\Aptechka\white]]
+    bg:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     bg:SetAllPoints(f)
     f.bg = bg
 
@@ -493,7 +504,7 @@ local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
     icon.texture:SetTexCoord(.2, .8, .2, .8)
 
     local dttex = icon:CreateTexture(nil, "ARTWORK", nil, -2)
-    dttex:SetTexture("Interface\\Addons\\Aptechka\\white")
+    dttex:SetTexture("Interface\\BUTTONS\\WHITE8X8")
     dttex:SetWidth(h)
     dttex:SetHeight(h)
     dttex:SetPoint("TOPRIGHT", icon, "TOPRIGHT", 0, 0)
@@ -501,7 +512,7 @@ local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
     icon.debuffTypeTexture = dttex
 
     -- icon:SetBackdrop{
-        -- bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,
+        -- bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
         -- insets = {left = 0, right = -2, top = 0, bottom = 0},
     -- }
     -- icon:SetBackdropColor(0, 0, 0, 1)
@@ -687,12 +698,12 @@ local optional_widgets = {
         bar1    = function(self) return CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0) end,
         bar2    = function(self)
             if self.bar1 then
-                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar1, "TOPLEFT",0,1)
+                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar1, "TOPLEFT",0, pixelperfect(1)) 
             end
         end,
         bar3    = function(self)
             if self.bar2 then
-                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar2, "TOPLEFT",0,1)
+                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar2, "TOPLEFT",0, pixelperfect(1))
             end
         end,
         bar4    = function(self) return CreateStatusBar(self, 21, 5, "TOPRIGHT", self, "TOPRIGHT",0,2) end,
@@ -727,15 +738,16 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local font = config.font
     local fontsize = config.fontsize
     local manabar_width = config.manabarwidth
+    local border = pixelperfect(2)
 
     -- local backdrop = {
-    --     bgFile = "Interface\\Addons\\Aptechka\\white", tile = true, tileSize = 0,
+    --     bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
     --     insets = {left = -2, right = -2, top = -2, bottom = -2},
     -- }
     -- self:SetBackdrop(backdrop)
     -- self:SetBackdropColor(0, 0, 0, 1)
     
-    local frameborder = MakeBorder(self, "Interface\\Addons\\Aptechka\\white", -2, -2, -2, -2, -2)
+    local frameborder = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
     frameborder:SetVertexColor(0,0,0,1)
 
     self:SetFrameStrata(config.frameStrata or "LOW")
@@ -793,12 +805,12 @@ AptechkaDefaultConfig.GridSkin = function(self)
     absorb:SetWidth(3)
 
     local at = absorb:CreateTexture(nil, "ARTWORK", nil, -4)
-    at:SetTexture[[Interface\AddOns\Aptechka\white]]
+    at:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     at:SetVertexColor(.7, .7, 1, 1)
     at:SetAllPoints(absorb)
 
     local atbg = absorb:CreateTexture(nil, "ARTWORK", nil, -5)
-    atbg:SetTexture[[Interface\AddOns\Aptechka\white]]
+    atbg:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     atbg:SetVertexColor(0,0,0,1)
     atbg:SetPoint("TOPLEFT", at, "TOPLEFT", -1,1)
     atbg:SetPoint("BOTTOMRIGHT", at, "BOTTOMRIGHT", 1,-1)
@@ -853,7 +865,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- absorb:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
     -- absorb:SetWidth(1)
     -- -- absorb:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-    -- absorb:SetStatusBarTexture[[Interface\AddOns\Aptechka\white]]  --absorbOverlay]]
+    -- absorb:SetStatusBarTexture[[Interface\BUTTONS\WHITE8X8]]  --absorbOverlay]]
     -- absorb:GetStatusBarTexture():SetDrawLayer("ARTWORK",-4)
     -- absorb:SetStatusBarColor(.6, .6, 1)
     -- absorb:SetMinMaxValues(0,100)
@@ -903,7 +915,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 	hpi:SetStatusBarTexture("Interface\\Tooltips\\UI-Tooltip-Background")
     -- hpi:SetOrientation("VERTICAL")
     hpi:SetStatusBarColor(0, 0, 0, 0.5)
-    -- hpi:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\white")
+    -- hpi:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
     hpi:GetStatusBarTexture():SetDrawLayer("ARTWORK",-7)
     hpi:SetOrientation("VERTICAL")
     -- hpi:SetStatusBarColor(0,1,0)
@@ -924,14 +936,14 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- border:SetFrameStrata("LOW")
     -- border:SetFrameLevel(0)
     -- border:SetBackdrop{
-    --     bgFile = "Interface\\AddOns\\Aptechka\\white", tile = true, tileSize = 0,
+    --     bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
     --     insets = {left = -4, right = -4, top = -4, bottom = -4},
     -- }
     -- border:SetAlpha(0.5)
     -- border.SetJob = SetJob_Border
     -- border:Hide()
 
-    local border = MakeBorder(self, "Interface\\Addons\\Aptechka\\white", -4, -4, -4, -4, -5)
+    local border = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -4, -4, -4, -4, -5)
     border:SetVertexColor(1, 1, 1, 0.5)
     border.SetJob = SetJob_Border
     border:Hide()

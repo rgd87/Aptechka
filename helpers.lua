@@ -4,6 +4,18 @@ local config = AptechkaDefaultConfig
 AptechkaUserConfig = AptechkaDefaultConfig
 
 
+local pmult = 1
+function helpers.pixelperfect(size)
+    return floor(size/pmult + 0.5)*pmult
+end
+
+local res = GetCVar("gxWindowedResolution")
+if res then
+    local w,h = string.match(res, "(%d+)x(%d+)")
+    pmult = (768/h) / UIParent:GetScale()
+end
+
+
 helpers.AddDispellType = function(dtype, data)
     if not config.DebuffTypes then config.DebuffTypes = {} end
     local _,class = UnitClass("player")
