@@ -1,10 +1,13 @@
 ## Interface: 80000
 ## Title: Aptechka
-## Notes: raid frames
+## Notes: Raid Frames
+## Version: @project-version@
 ## Author: d87
 ## SavedVariablesPerCharacter: AptechkaDB_Char
 ## SavedVariables: AptechkaDB_Global, AptechkaConfigCustom
 ## OptionalDeps: Clique
+
+## X-WoWI-ID: 14339
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
