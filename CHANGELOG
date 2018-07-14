@@ -1,3 +1,14 @@
+### 8.0.1:
+
+- BfA update
+- pixel perfect borders
+- bar1 and bar2 replaced by dynamic bars widget that display up to 3 bars, ordered by status priority or time
+- added survival cooldowns for all classes
+- optimized aura handling
+- increased debuff icon slots to 4
+- corner indicator disabled
+- fixed absorb texture tiling
+
 ### 7.3.9:
 
 - maybe fixed border bug
