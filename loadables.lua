@@ -3,7 +3,7 @@ local _, helpers = ...
 -- instances are identified by map id (assuming they have their own map).
 -- to find out current zone map id type: /dump C_Map.GetBestMapForUnit("player")
 -- OR
--- Open dungeon in Encounter Journal and type: /dump EJ_GetInstanceInfo()
+-- Open dungeon in Encounter Journal and type: /dump EJ_GetInstanceInfo(), 7th return value will be the mapID
 AptechkaDefaultConfig.MapIDs = {
     [934] = "Atal'Dazar",
     [936] = "Freehold",
@@ -40,7 +40,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
 
     ["Waycrest Manor"] = function()
         A{ id = 260741, prototype = BossDebuff } -- Jagged Nettles
-        A{ id = 260900, prototype = BossDebuff } -- Soul Manipulation
+        A{ id = 267907, prototype = BossDebuff } -- Soul Thorns
     end,
 
     -- ["Emerald Nightmare"] = function()
