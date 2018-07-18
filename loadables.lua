@@ -38,6 +38,15 @@ AptechkaDefaultConfig.BossDebuffPrototype = BossDebuff
 
 AptechkaDefaultConfig.LoadableDebuffs = {
 
+    
+    ["Temple of Sethraliss"] = function()
+        A{ id = 263958, prototype = BossDebuff } -- A Knot of Snakes
+    end,
+
+    ["Atal'Dazar"] = function()
+        A{ id = 257407, prototype = BossDebuff } -- Pursuit
+    end,
+
     ["Waycrest Manor"] = function()
         A{ id = 260741, prototype = BossDebuff } -- Jagged Nettles
         A{ id = 267907, prototype = BossDebuff } -- Soul Thorns
