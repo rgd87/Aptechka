@@ -1503,7 +1503,7 @@ local AssignToSlot = function(frame, opts, status, slot)
             self = frame[slot]
         end
     end
-    -- if self then
+    if self then
             -- short exit if disabling auras on already empty widget
             if not self.currentJob and status == false then return end
 
@@ -1546,7 +1546,7 @@ local AssignToSlot = function(frame, opts, status, slot)
                 if self.HideFunc then self:HideFunc() else self:Hide() end
                 self.currentJob = nil
             end
-    -- end
+    end
 end
 
 FrameSetJob = function (frame, opts, status)
