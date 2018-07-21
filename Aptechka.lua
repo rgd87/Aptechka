@@ -26,6 +26,7 @@ local loadedAuras = Aptechka.loadedAuras
 local OORUnits = setmetatable({},{__mode = 'k'})
 local inCL = setmetatable({},{__index = function (t,k) return 0 end})
 local buffer = {}
+local missingFlagSpells = {}
 local loaded = {}
 local auraUpdateEvents
 local Roster = {}
@@ -204,7 +205,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local classConfig = AptechkaConfigCustom[class]
     MergeTable(AptechkaConfigMerged, classConfig)
 
-    
+    for spellID, opts in pairs(auras) do
+        if opts.isMissing then
+            missingFlagSpells[spellID] = opts
+        end
+    end
 
     Aptechka.Roster = Roster
 
@@ -1498,9 +1503,7 @@ local AssignToSlot = function(frame, opts, status, slot)
             self = frame[slot]
         end
     end
-    if self then
-            if opts.isMissing then status = not status end
-
+    -- if self then
             -- short exit if disabling auras on already empty widget
             if not self.currentJob and status == false then return end
 
@@ -1543,7 +1546,7 @@ local AssignToSlot = function(frame, opts, status, slot)
                 if self.HideFunc then self:HideFunc() else self:Hide() end
                 self.currentJob = nil
             end
-    end
+    -- end
 end
 
 FrameSetJob = function (frame, opts, status)
@@ -1605,6 +1608,11 @@ function Aptechka.ScanAuras(unit)
             if not encountered[spellID] then
                 FrameSetJob(frame, opts, false)
                 frame.activeAuras[spellID] = nil
+            end
+        end
+        for spellID, opts in pairs(missingFlagSpells) do
+            if not encountered[spellID] then
+                FrameSetJob(frame, opts, true)
             end
         end
     end
