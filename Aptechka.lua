@@ -26,12 +26,12 @@ local loadedAuras = Aptechka.loadedAuras
 local OORUnits = setmetatable({},{__mode = 'k'})
 local inCL = setmetatable({},{__index = function (t,k) return 0 end})
 local buffer = {}
-local missingFlagSpells = {}
 local loaded = {}
 local auraUpdateEvents
 local Roster = {}
 local guidMap = {}
 local group_headers = {}
+local missingFlagSpells = {}
 local anchors = {}
 local skinAnchorsName
 
@@ -1496,7 +1496,7 @@ local AssignToSlot = function(frame, opts, status, slot)
 
             if status then
                 jobs[opts.name] = opts
-                if opts.id then
+                if opts.id and not opts.isMissing then
                     frame.activeAuras[opts.id] = opts
                 end
             else
@@ -1564,6 +1564,9 @@ function Aptechka.ScanAuras(unit)
                 if caster == "player" or not opts.isMine then
                     encountered[spellID] = true
 
+                    local status = true
+                    if opts.isMissing then status = false end
+
                     if opts.stackcolor then
                         opts.color = opts.stackcolor[count]
                     end
@@ -1578,7 +1581,7 @@ function Aptechka.ScanAuras(unit)
                     opts.duration = duration
                     opts.texture = opts.texture or icon
                     opts.stacks = count
-                    SetJob(unit, opts, true)
+                    SetJob(unit, opts, status)
                 end
             end
         end
