@@ -4,7 +4,6 @@ local isHealer = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerC
 local A = helpers.AddAura
 local DT = helpers.AddDispellType
 local D = helpers.AddDebuff
-local ClickMacro = helpers.ClickMacro
 local Trace = helpers.AddTrace
 local config = AptechkaDefaultConfig
 
@@ -330,11 +329,6 @@ if playerClass == "PALADIN" then
         RangeCheckBySpell(19750),
         RangeCheckBySpell(19750),
     }
-
-
-    -- ClickMacro[[
-    --     /cast [@mouseover,btn:2,mod:alt] spell:53563; [@mouseover,btn:2] spell:19750;
-    -- ]] -- Beacon of Light (id 53563) Flash of Light (id 19750)
 
     -- DispelTypes("MAGIC|DISEASE|POISON")
 end

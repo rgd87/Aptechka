@@ -205,6 +205,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local classConfig = AptechkaConfigCustom[class]
     MergeTable(AptechkaConfigMerged, classConfig)
 
+    -- compiling a list of spells that should activate indicator when missing
     for spellID, opts in pairs(auras) do
         if opts.isMissing then
             missingFlagSpells[spellID] = opts
@@ -236,12 +237,12 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         else config[config.skin.."Settings"]() -- receiving width and height for current skin
     end
 
-    local tbind
-    if config.TargetBinding == nil then tbind = "*type1"
-    elseif config.TargetBinding == false then tbind = "__none__"
-    else tbind = config.TargetBinding end
+    -- local tbind
+    -- if config.TargetBinding == nil then tbind = "*type1"
+    -- elseif config.TargetBinding == false then tbind = "__none__"
+    -- else tbind = config.TargetBinding end
 
-    local ccmacro = config.ClickCastingMacro or "__none__"
+    -- local ccmacro = config.ClickCastingMacro or "__none__"
 
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
@@ -269,7 +270,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.initConfSnippet = self.makeConfSnippet(width, height, scale)
 
     self:RegisterEvent("UNIT_HEALTH")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("UNIT_HEALTH_FREQUENT")
     self:RegisterEvent("UNIT_MAXHEALTH")
     Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
@@ -1192,24 +1192,6 @@ local OnAttributeChanged = function(self, attrname, unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
 end
 
--- local UpdateHealthAfterInstance = function()
---     print("UpdateHealthAfterInstance")
--- 	for unit in pairs(Roster) do
--- 		Aptechka:UNIT_HEALTH("UNIT_HEALTH", unit, "DEBUG")
--- 		if not config.disableManaBar then
--- 			Aptechka:UNIT_DISPLAYPOWER(nil, unit)
--- 			Aptechka:UNIT_POWER_UPDATE(nil, unit)
--- 		end
--- 		if config.enableAbsorbBar then
--- 			Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
--- 		end
--- 	end
--- end
-function Aptechka:PLAYER_ENTERING_WORLD(self)
-    -- print("PLAYER_ENTERING_WORLD")
-	-- C_Timer.After(10, UpdateHealthAfterInstance)
-end
-
 local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         local p1, p2
         local xgap = 0
@@ -1448,12 +1430,11 @@ local onleave = function(self)
     UnitFrame_OnLeave(self)
     self:SetScript("OnUpdate", nil)
 end
---~ function Aptechka.SetupFrame(header,id)
-function Aptechka.SetupFrame(f)
---~     local f = header[id]
 
+function Aptechka.SetupFrame(f)
     f.onenter = onenter
     f.onleave = onleave
+
     -- f:SetAttribute("_onenter",[[
     --     local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
     --     self:CallMethod("onenter")
@@ -1470,7 +1451,6 @@ function Aptechka.SetupFrame(f)
 
 
     f.activeAuras = {}
-    --ClickCastFrames[f] = true -- add to clique list
 
     if config[config.skin] then
         config[config.skin](f)
@@ -1621,7 +1601,7 @@ end
 function Aptechka.UNIT_AURA(self, event, unit)
     if not Roster[unit] then return end
     Aptechka.ScanAuras(unit)
-    Aptechka.ScanDispels(unit)
+    Aptechka.ScanDebuffSlots(unit)
 end
 
 local presentDebuffs = {}
@@ -1660,7 +1640,7 @@ local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, 
     SetJob(unit, opts, true)
 end
 
-function Aptechka.ScanDispels(unit)
+function Aptechka.ScanDebuffSlots(unit)
         table_wipe(presentDebuffs)
 
         local debuffLineLength = #debuffs
@@ -1727,11 +1707,11 @@ function Aptechka.ScanDispels(unit)
             SetJob(unit, opts, false)
         end
 
-        for debuffType, opts in pairs(dtypes) do
-            if not presentDebuffs[debuffType] then
-                SetJob(unit, opts, false)
-            end
-        end
+        -- for debuffType, opts in pairs(dtypes) do
+        --     if not presentDebuffs[debuffType] then
+        --         SetJob(unit, opts, false)
+        --     end
+        -- end
 end
 
 local ParseOpts = function(str)
@@ -1762,17 +1742,6 @@ Aptechka.Commands = {
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(anchors[1].san.point, UIParent, anchors[1].san.point, anchors[1].san.x, anchors[1].san.y)
     end,
---~     ["scale"] = function() 
---~         local s = tonumber(v)
---~         if not s then
---~             print(AptechkaString.."Current scale = "..AptechkaDB.scale)
---~             return
---~         end
---~         AptechkaDB.scale = s
---~         for i = 1, config.maxgroups do
---~             group_headers[i]:SetScale(s)
---~         end
---~     end,
     ["togglegroup"] = function() 
         local group = tonumber(v)
         if group then
