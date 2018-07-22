@@ -369,7 +369,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.unlocked then anchors[1]:Show() end
 
     if not next(debuffs) and not next(dtypes) then
-        Aptechka.ScanDispels = function() end
+        Aptechka.ScanDebuffSlots = function() end
     end
     -- if config.DispelFilterAll
     --     then DispelFilter = "HARMFUL"
@@ -720,7 +720,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
             elseif self.isDead then
                 self.isDead = false
                 Aptechka.ScanAuras(unit)
-                Aptechka.ScanDispels(unit)
+                Aptechka.ScanDebuffSlots(unit)
                 SetJob(unit, config.GhostStatus, false)
                 SetJob(unit, config.DeadStatus, false)
                 SetJob(unit, config.ResPendingStatus, false)

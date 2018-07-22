@@ -268,6 +268,7 @@ local StatusBarOnUpdate = function(self, time)
 
     if self.pandemic and timeLeft < self.pandemic then
         local color = self.currentJob.color
+        -- self.pandot:Show()
         self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
         self.pandemic = nil
     end
@@ -275,36 +276,35 @@ local StatusBarOnUpdate = function(self, time)
     self:SetValue(timeLeft)
 end
 local SetJob_StatusBar = function(self,job)
-    if job.showStacks then
-        self:SetMinMaxValues(0, job.showStacks)
-        self:SetValue(job.stacks)
-        self:SetScript("OnUpdate", nil)
-    else
-        self.expires = job.expirationTime
-        self.pandemic = job.refreshTime
-        self:SetMinMaxValues(0, job.duration)
-        self:SetValue(self.expires - GetTime())
-        self:SetScript("OnUpdate", StatusBarOnUpdate)
-    end
-
     local color
     if job.foreigncolor and job.isforeign then
         color = job.foreigncolor
     else
         color = job.color or { 1,1,1,1 }
     end
-    self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
-    self:SetStatusBarColor(unpack(color))
 
-    -- if job.fade then
-    --     if self.blink:IsPlaying() then self.blink:Finish() end
-    --     self.traceJob = job
-    --     self.blink.a2:SetDuration(job.fade)
-    --     self.blink:Play()
-    -- end
-    -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
-    --     if not self.pulse:IsPlaying() then self.pulse:Play() end
-    -- end
+    if job.showStacks then
+        self:SetMinMaxValues(0, job.showStacks)
+        self:SetValue(job.stacks)
+        self:SetScript("OnUpdate", nil)
+        self:SetStatusBarColor(unpack(color))
+    else
+        self.expires = job.expirationTime
+        local pandemic = job.refreshTime
+        self.pandemic = pandemic
+        self:SetMinMaxValues(0, job.duration)
+        local timeLeft = self.expires - GetTime()
+        if pandemic and pandemic >= timeLeft then
+            self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
+        else
+            self:SetStatusBarColor(unpack(color))
+        end
+        self:SetValue(timeLeft)
+        self:SetScript("OnUpdate", StatusBarOnUpdate)
+    end
+
+    self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
+    -- self.pandot:SetVertexColor(color[1]*0.6, color[2]*0.6, color[3]*0.6)
 end
 local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop, isVertical)
     local f = CreateFrame("StatusBar",nil,parent)
@@ -329,10 +329,18 @@ local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop, isVe
     -- f:SetMinMaxValues(0,100)
     -- f:SetStatusBarColor(1,1,1)
 
-    local bg = f:CreateTexture(nil,"ARTWORK",nil,-1)
+    local bg = f:CreateTexture(nil,"ARTWORK",nil,-2)
     bg:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     bg:SetAllPoints(f)
     f.bg = bg
+
+
+    -- local pandot = f:CreateTexture(nil, "ARTWORK", nil, -1)
+    -- pandot:SetTexture[[Interface\BUTTONS\WHITE8X8]]
+    -- pandot:SetWidth(pixelperfect(3))
+    -- pandot:SetHeight(pixelperfect(3))
+    -- pandot:SetPoint("CENTER", f, "RIGHT", -pixelperfect(4), 0)
+    -- f.pandot = pandot
 
     f:SetPoint(point,frame,to,x,y)
     f.parent = parent

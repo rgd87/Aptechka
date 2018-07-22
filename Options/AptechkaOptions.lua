@@ -452,6 +452,7 @@ function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm
     controls.extend_below:SetText(opts.extend_below)
     controls.isMine:SetValue(opts.isMine)
     controls.showDuration:SetValue(opts.showDuration)
+    controls.refreshTime:SetText(opts.refreshTime)
 
 	-- -- controls.group:SetValue(opts.group or "default")
 	-- controls.duration:SetText((type(opts.duration) == "function" and "<func>") or opts.duration)
