@@ -142,7 +142,7 @@ A{ id = 120954, prototype = tankCD } --Fortifying Brew (Brewmaster)
 -- WARRIOR
 A{ id = 184364, prototype = survivalCD } -- Enraged Regeneration
 A{ id = 118038, prototype = survivalCD } -- Die by the Sword
-A{ id = 12975,  prototype = tankCD, priority = 85 } --Last Stand
+A{ id = 12975,  prototype = survivalCD, priority = 85 } --Last Stand
 A{ id = 871,    prototype = tankCD } --Shield Wall 40%
 
 -- DEMON HUNTER
@@ -256,7 +256,7 @@ end
 
 if playerClass == "MONK" then
     --Renewing Mist
-    A{ id = 119611, type = "HELPFUL", assignto = "bar4", refreshTime = 20*0.3, isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true }
+    A{ id = 119611, type = "HELPFUL", assignto = "bar4", refreshTime = 20*0.3, extend_below = 20, isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true }
     --Enveloping Mist
     A{ id = 124682, type = "HELPFUL", assignto = "bars", refreshTime = 6*0.3, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 75 }
     --Soothing Mist
