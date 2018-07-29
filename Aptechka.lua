@@ -301,6 +301,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
     end
 
+    self:RegisterEvent("VOICE_CHAT_CHANNEL_ACTIVATED")
+    self:RegisterEvent("VOICE_CHAT_CHANNEL_DEACTIVATED")
+
     if config.ResIncomingStatus then
         LRI = LibStub("LibResInfo-1.0")
         LRI.RegisterCallback(self, "LibResInfo_ResCastStarted", Aptechka.LibResInfo_ResCastStarted)
@@ -1842,4 +1845,27 @@ function Aptechka.SlashCmd(msg)
 
     
 
+end
+
+local PARTY_CHAT = Enum.ChatChannelType.Private_Party
+local INSTANCE_CHAT = Enum.ChatChannelType.Public_Party
+function Aptechka:VOICE_CHAT_CHANNEL_ACTIVATED(event, channelID)
+    local channelType = C_VoiceChat.GetActiveChannelType()
+    if channelType == PARTY_CHAT or channelType == INSTANCE_CHAT then
+        self:RegisterEvent("VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED")
+    else
+        self:UnregisterEvent("VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED")
+    end
+end
+
+function Aptechka:VOICE_CHAT_CHANNEL_DEACTIVATED(event, channelID)
+    self:UnregisterEvent("VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED")
+end
+
+function Aptechka:VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED(event, memberID, channelID, isSpeaking)
+    local guid = C_VoiceChat.GetMemberGUID(memberID, channelID)
+    local unit = guidMap[guid]
+    if unit then
+        -- print(unit, isSpeaking and "started" or "stopped", "speaking")
+    end
 end

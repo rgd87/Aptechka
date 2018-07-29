@@ -313,8 +313,6 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         A{ id = 2094,  type = "HARMFUL", assignto = "icon", priority = 88 } --Blind
         A{ id = 51514, type = "HARMFUL", assignto = "icon", priority = 87 } --Hex
         A{ id = 853,   type = "HARMFUL", assignto = "icon", priority = 86 } --Hammer of Justice
-        A{ id = 44572, type = "HARMFUL", assignto = "icon", priority = 86 } --Deep Freeze
-        A{ id = 30108, type = "HARMFUL", assignto = "icon", priority = 86 } --Unstable Affliction
 
         if not disable_damagereduction then
             A{ id = 871,   type = "HELPFUL", assignto = "icon", priority = 84 } --Shield Wall

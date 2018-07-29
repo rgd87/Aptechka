@@ -230,6 +230,8 @@ if playerClass == "PRIEST" then
     A{ id = 219521,type = "HARMFUL", assignto = "bars", priority = 50, color = { 0.6, 0, 1 }, showDuration = true, isMine = true} 
     --Atonement
     A{ id = 194384,type = "HELPFUL", assignto = "bar4", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true} 
+    --Trinity Atonement
+    A{ id = 214206,type = "HELPFUL", assignto = "bar4", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true} 
     --Luminous Barrier
     A{ id = 271466,type = "HELPFUL", assignto = "bars", priority = 70, color = { 1, .65, 0}, showDuration = true, isMine = true}
     
