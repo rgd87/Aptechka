@@ -23,6 +23,8 @@ local ignoreplayer
 local config = AptechkaDefaultConfig
 Aptechka.loadedAuras = {}
 local loadedAuras = Aptechka.loadedAuras
+local customBossAuras = helpers.customBossAuras
+local blacklist = helpers.auraBlacklist
 local OORUnits = setmetatable({},{__mode = 'k'})
 local inCL = setmetatable({},{__index = function (t,k) return 0 end})
 local buffer = {}
@@ -1610,30 +1612,7 @@ function Aptechka.UNIT_AURA(self, event, unit)
     Aptechka.ScanDebuffSlots(unit)
 end
 
-local presentDebuffs = {}
-local blacklist = {
-    [264689] = true, -- Fatigued (Hunter BL)
-    [219521] = true, -- Shadow Covenant
-    [139485] = true, -- Throne of Thudner passive debuff
-    [57724] = true, -- Sated (BL)
-    [80354] = true, -- Temporal Displacement (Mage BL)
-    [95809] = true, -- Insanity (old Hunter BL, Ancient Hysteria)
-	[57723] = true, -- Drums BL debuff, and Heroism?
-    [95223] = true, -- Mass Res
-    [26013] = true, -- PVP Deserter
-    [71041] = true, -- Deserter
-    [8326] = true, -- Ghost
-    [25771] = true, -- Forbearance
-    [41425] = true, -- Hypothermia (after Ice Block)
-    -- [6788] = true, -- Weakened Soul
-    [113942] = true, -- demonic gates debuff
-    [123981] = true, -- dk cooldown debuff
-    [87024] = true, -- mage cooldown debuff
-    [97821] = true, -- dk battleres debuff
-    [124275] = true, -- brewmaster light stagger debuff
-    [174528] = true, -- Griefer debuff
-	[206151] = true, -- Challenger's Burden
-}
+-- local presentDebuffs = {}
 
 local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, icon, count, isBossAura)
     local opts = debuffs[index]
@@ -1647,17 +1626,17 @@ local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, 
 end
 
 function Aptechka.ScanDebuffSlots(unit)
-        table_wipe(presentDebuffs)
+        -- table_wipe(presentDebuffs)
 
         local debuffLineLength = #debuffs
         local shown = 0
 
         -- scan for boss buffs only
         for i=1,100 do
-            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HELPFUL")
+            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HELPFUL")
             if not name then break end
             if isBossAura and shown < debuffLineLength then
-                if not blacklist[aura_spellID] then
+                if not blacklist[spellID] then
                     shown = shown + 1
 
                     SetDebuffIcon(unit, shown, "Helpful", expirationTime, duration, icon, count, isBossAura)
@@ -1667,10 +1646,11 @@ function Aptechka.ScanDebuffSlots(unit)
 
         -- scan for boss debuffs only
         for i=1,100 do
-            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
+            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
             if not name then break end
+            if not isBossAura then isBossAura = customBossAuras[spellID] end
             if isBossAura and shown < debuffLineLength then
-                if not blacklist[aura_spellID] then
+                if not blacklist[spellID] then
                     shown = shown + 1
 
                     SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura)
@@ -1680,20 +1660,17 @@ function Aptechka.ScanDebuffSlots(unit)
 
         -- scan debuffs
         for i=1,100 do
-            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, aura_spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
-            if not name then
-                break
-            end
+            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
+            if not name then break end
+            if not isBossAura then isBossAura = customBossAuras[spellID] end
 
-          -- while shown < debuffLineLength do ------------------------------------------------ DEBUG
             if not isBossAura and shown < debuffLineLength then
-                if not blacklist[aura_spellID] then
+                if not blacklist[spellID] then
                     shown = shown + 1
 
                     SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura)
                 end
             end
-          -- end
 
             -- local opts = dtypes[debuffType]
             -- if opts and not presentDebuffs[debuffType] then

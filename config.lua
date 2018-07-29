@@ -410,3 +410,158 @@ config.autoload = {
     "HealingReduction",
     "TankCooldowns"
 }
+
+
+helpers.auraBlacklist = {
+    [264689] = true, -- Fatigued (Hunter BL)
+    [219521] = true, -- Shadow Covenant
+    [139485] = true, -- Throne of Thudner passive debuff
+    [57724] = true, -- Sated (BL)
+    [80354] = true, -- Temporal Displacement (Mage BL)
+    [95809] = true, -- Insanity (old Hunter BL, Ancient Hysteria)
+	[57723] = true, -- Drums BL debuff, and Heroism?
+    [95223] = true, -- Mass Res
+    [26013] = true, -- PVP Deserter
+    [71041] = true, -- Deserter
+    [8326] = true, -- Ghost
+    [25771] = true, -- Forbearance
+    [41425] = true, -- Hypothermia (after Ice Block)
+    -- [6788] = true, -- Weakened Soul
+    [113942] = true, -- demonic gates debuff
+    [123981] = true, -- dk cooldown debuff
+    [87024] = true, -- mage cooldown debuff
+    [97821] = true, -- dk battleres debuff
+    [124275] = true, -- brewmaster light stagger debuff
+    [174528] = true, -- Griefer debuff
+	[206151] = true, -- Challenger's Burden
+}
+
+
+helpers.customBossAuras = {
+    [47476] = true, -- Strangulate
+    [207167] = true, -- Blinding Sleet
+    -- [207171] = true, -- Winter is Coming
+    [108194] = true, -- Asphyxiate
+        [221562] = true, -- Asphyxiate (Blood)
+
+    [204490] = true, -- Sigil of Silence
+    [205630] = true, -- Illidan's Grasp
+    [207685] = true, -- Sigil of Misery
+    [211881] = true, -- Fel Eruption
+    [221527] = true, -- Imprison (Detainment Honor Talent)
+        [217832] = true, -- Imprison (Baseline Undispellable)
+    
+    [5211] = true, -- Mighty Bash
+    [81261] = true, -- Solar Beam
+    [163505] = true, -- Rake
+    [209749] = true, -- Faerie Swarm (Slow/Disarm)
+	[209753] = true, -- Cyclone
+		[33786] = true, -- Cyclone
+	[22570] = true, -- Maim
+		[203123] = true, -- Maim
+        [236025] = true, -- Enraged Maim (Feral Honor Talent)
+        
+
+    [3355] = true, -- Freezing Trap
+	[19386] = true, -- Wyvern Sting
+    [19577] = true, -- Intimidation
+    [117526] = true, -- Binding Shot Stun
+    [238559] = true, -- Bursting Shot
+    [202914] = true, -- Spider Sting (Armed)
+		[202933] = true, -- Spider Sting (Silenced)
+        [233022] = true, -- Spider Sting (Silenced)
+    [209790] = true, -- Freezing Arrow
+    [213691] = true, -- Scatter Shot
+
+
+    [118] = true, -- Polymorph
+    [28271] = true, -- Polymorph Turtle
+    [28272] = true, -- Polymorph Pig
+    [61025] = true, -- Polymorph Serpent
+    [61305] = true, -- Polymorph Black Cat
+    [61721] = true, -- Polymorph Rabbit
+    [61780] = true, -- Polymorph Turkey
+    [126819] = true, -- Polymorph Porcupine
+    [161353] = true, -- Polymorph Polar Bear Cub
+    [161354] = true, -- Polymorph Monkey
+    [161355] = true, -- Polymorph Penguin
+    [161372] = true, -- Polymorph Peacock
+    [122] = true, -- Frost Nova
+        [33395] = true, -- Freeze
+    [157997] = true, -- Ice Nova
+    [228600] = true, -- Glacial Spike Root
+    [31661] = true, -- Dragon's Breath
+    [82691] = true, -- Ring of Frost
+
+
+    [115078] = true, -- Paralysis
+    [116706] = true, -- Disable
+    [119381] = true, -- Leg Sweep
+    [198909] = true, -- Song of Chi-Ji
+    [202274] = true, -- Incendiary Brew
+    [233759] = true, -- Grapple Weapon
+
+    [853] = true, -- Hammer of Justice
+    [20066] = true, -- Repentance
+    [31935] = true, -- Avenger's Shield
+    [115750] = true, -- Blinding Light
+        [105421] = true, -- Blinding Light
+        
+    [605] = true, -- Mind Control
+    [8122] = true, -- Psychic Scream
+    [9484] = true, -- Shackle Undead
+    [15487] = true, -- Silence
+        [199683] = true, -- Last Word
+    [87204] = true, -- Sin and Punishment
+    [200196] = true, -- Holy Word: Chastise
+		[200200] = true, -- Holy Word: Chastise (Stun)
+	[205369] = true, -- Mind Bomb
+        [226943] = true, -- Mind Bomb (Stun)
+    
+
+    [408] = true, -- Kidney Shot
+    [1330] = true, -- Garrote - Silence
+    [1776] = true, -- Gouge
+    [1833] = true, -- Cheap Shot
+    [2094] = true, -- Blind
+    [6770] = true, -- Sap
+    [199804] = true, -- Between the Eyes
+    [212183] = true, -- Smoke Bomb
+    
+
+    [51514] = true, -- Hex
+		[196932] = true, -- Voodoo Totem
+		[210873] = true, -- Hex (Compy)
+		[211004] = true, -- Hex (Spider)
+		[211010] = true, -- Hex (Snake)
+        [211015] = true, -- Hex (Cockroach)
+    [77505] = true, -- Earthquake (Stun)
+    [118345] = true, -- Pulverize
+	[118905] = true, -- Static Charge
+    [197214] = true, -- Sundering
+    
+    
+    [710] = true, -- Banish
+	[5484] = true, -- Howl of Terror
+	[6358] = true, -- Seduction
+	[6789] = true, -- Mortal Coil
+    [30283] = true, -- Shadowfury
+    [89766] = true, -- Axe Toss
+    [118699] = true, -- Fear
+    [196364] = true, -- Unstable Affliction (Silence)
+
+
+    [5246] = true, -- Intimidating Shout
+    [132169] = true, -- Storm Bolt
+    [46968] = true, -- Shockwave
+    [236077] = true, -- Disarm
+        [236236] = true, -- Disarm
+}
+
+
+
+
+
+
+
+
