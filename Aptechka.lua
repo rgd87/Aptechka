@@ -1824,9 +1824,6 @@ function Aptechka.SlashCmd(msg)
     if Aptechka.Commands[k] then
         Aptechka.Commands[k](v)
     end
-
-    
-
 end
 
 local PARTY_CHAT = Enum.ChatChannelType.Private_Party

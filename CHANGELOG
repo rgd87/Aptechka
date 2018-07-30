@@ -1,3 +1,9 @@
+### 8.0.4:
+
+- fixed a bug when trace heals were mistaken for auras
+- custom table for PVP CC debuffs making them bigger
+- added voice chat indicator for party and instance groups
+
 ### 8.0.3:
 
 - fixed isMissing option for raidbuffs

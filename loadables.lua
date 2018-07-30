@@ -304,31 +304,6 @@ AptechkaDefaultConfig.LoadableDebuffs = {
         A{ id = 23333, type = "HELPFUL", assignto = "bossdebuff", color = {1,0,0}, priority = 95 } --Warsong Flag
         A{ id = 23335, type = "HELPFUL", assignto = "bossdebuff", color = {0,0,1}, priority = 95 } --Silverwing Flag
         A{ id = 34976, type = "HELPFUL", assignto = "bossdebuff", color = {0,1,0}, priority = 95 } --Netherstorm Flag
-
-        A{ id = 118,   type = "HARMFUL", assignto = "icon", priority = 90 } --Polymorph
-        A{ id = 3355,  type = "HARMFUL", assignto = "icon", priority = 90 } --Freezing Trap
-        A{ id = 20066, type = "HARMFUL", assignto = "icon", priority = 90 } --Repentance
-        A{ id = 5782,  type = "HARMFUL", assignto = "icon", priority = 89 } --Fear
-        A{ id = 6770,  type = "HARMFUL", assignto = "icon", priority = 88 } --Sap
-        A{ id = 2094,  type = "HARMFUL", assignto = "icon", priority = 88 } --Blind
-        A{ id = 51514, type = "HARMFUL", assignto = "icon", priority = 87 } --Hex
-        A{ id = 853,   type = "HARMFUL", assignto = "icon", priority = 86 } --Hammer of Justice
-
-        if not disable_damagereduction then
-            A{ id = 871,   type = "HELPFUL", assignto = "icon", priority = 84 } --Shield Wall
-            A{ id = 5277,  type = "HELPFUL", assignto = "icon", priority = 84 } --Evasion
-            A{ id = 31224, type = "HELPFUL", assignto = "icon", priority = 84 } --Cloak of Shadows
-            A{ id = 1022,  type = "HELPFUL", assignto = "icon", priority = 84 } --Hand of Protection
-            A{ id = 45438, type = "HELPFUL", assignto = "icon", priority = 85 } --Ice Block
-            A{ id = 642,   type = "HELPFUL", assignto = "icon", priority = 85 } --Divine Shield
-            A{ id = 1784,  type = "HELPFUL", assignto = "icon", priority = 85 } --Stealth
-        end
-
-        if not disable_roots then
-            A{ id = 339,   type = "HARMFUL", assignto = "icon", priority = 86 } --Entangling Roots
-            A{ id = 122,   type = "HARMFUL", assignto = "icon", priority = 86 } --Frost Nova
-        end
-
     end,
 
     ['TankCooldowns'] = function()
