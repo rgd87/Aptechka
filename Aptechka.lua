@@ -306,6 +306,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.VoiceChatStatus then
         self:RegisterEvent("VOICE_CHAT_CHANNEL_ACTIVATED")
         self:RegisterEvent("VOICE_CHAT_CHANNEL_DEACTIVATED")
+        if (C_VoiceChat.GetActiveChannelType()) then
+            self:VOICE_CHAT_CHANNEL_ACTIVATED()
+        end
     end
 
     if config.ResIncomingStatus then
@@ -1828,7 +1831,7 @@ end
 
 local PARTY_CHAT = Enum.ChatChannelType.Private_Party
 local INSTANCE_CHAT = Enum.ChatChannelType.Public_Party
-function Aptechka:VOICE_CHAT_CHANNEL_ACTIVATED(event, channelID)
+function Aptechka:VOICE_CHAT_CHANNEL_ACTIVATED(event)
     local channelType = C_VoiceChat.GetActiveChannelType()
     if channelType == PARTY_CHAT or channelType == INSTANCE_CHAT then
         self:RegisterEvent("VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED")
@@ -1846,6 +1849,5 @@ function Aptechka:VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED(event, member
     local unit = guidMap[guid]
     if unit then
         SetJob(unit, config.VoiceChatStatus, isSpeaking)
-        -- print(unit, isSpeaking and "started" or "stopped", "speaking")
     end
 end
