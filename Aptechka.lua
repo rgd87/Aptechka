@@ -303,8 +303,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
     end
 
-    self:RegisterEvent("VOICE_CHAT_CHANNEL_ACTIVATED")
-    self:RegisterEvent("VOICE_CHAT_CHANNEL_DEACTIVATED")
+    if config.VoiceChatStatus then
+        self:RegisterEvent("VOICE_CHAT_CHANNEL_ACTIVATED")
+        self:RegisterEvent("VOICE_CHAT_CHANNEL_DEACTIVATED")
+    end
 
     if config.ResIncomingStatus then
         LRI = LibStub("LibResInfo-1.0")
@@ -1843,6 +1845,7 @@ function Aptechka:VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED(event, member
     local guid = C_VoiceChat.GetMemberGUID(memberID, channelID)
     local unit = guidMap[guid]
     if unit then
+        SetJob(unit, config.VoiceChatStatus, isSpeaking)
         -- print(unit, isSpeaking and "started" or "stopped", "speaking")
     end
 end

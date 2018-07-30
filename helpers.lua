@@ -84,7 +84,9 @@ helpers.AddTrace = function(data)
     if not data.name then print((data.id or "nil").."id or name required") return end
     data.actualname = data.name
     data.name = data.actualname.."Trace"
-    config.traces[data.id] = data
+    local id = data.id
+    data.id = nil -- important to do that, because statuses with id field treated as aura
+    config.traces[id] = data
 end
 
 helpers.AddDebuff = function (index, data)
