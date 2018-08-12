@@ -85,6 +85,7 @@ local defaults = {
     disableBlizzardParty = true,
     hideBlizzardRaid = true,
     petGroup = false,
+    sortUnitsByRole = false,
     -- petGroupColor = {1, 0.5, 0.5},
     -- incomingHealThreshold = 80000,
     -- np_height = 7,
@@ -1254,8 +1255,10 @@ function Aptechka.CreateHeader(self,group,petgroup)
 	if not petgroup
     then
         f:SetAttribute("groupFilter", group)
-        f:SetAttribute("groupBy", "ASSIGNEDROLE")
-        f:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER,NONE")
+        if AptechkaDB.sortUnitsByRole then
+            f:SetAttribute("groupBy", "ASSIGNEDROLE")
+            f:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER,NONE")
+        end
     else
         f.isPetGroup = true
         f:SetAttribute("maxColumns", 1 )

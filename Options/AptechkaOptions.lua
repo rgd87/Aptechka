@@ -893,6 +893,17 @@ local function MakeGeneralOptions()
                         end,
                         order = 8,
                     },
+                    sortUnitsByRole = {
+                        name = "Sort Units by Role",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.sortUnitsByRole end,
+                        set = function(info, v)
+                            Aptechka.db.sortUnitsByRole = not Aptechka.db.sortUnitsByRole
+                            print("Aptechka: Changes will effect after /reload")
+                        end,
+                        order = 8.5,
+                    },
                     
                     disableBlizzardParty = {
                         name = "Disable Blizzard Party Frames",
