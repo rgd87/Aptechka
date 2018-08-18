@@ -1047,7 +1047,8 @@ function Aptechka.LayoutUpdate(self)
     for _, layout in ipairs(config.layouts) do
         if layout(self, numMembers, role, spec) then return end
     end
-    self:SetScale(1)
+    local scale = AptechkaDB.scale or config.scale
+    self:SetScale(scale or 1)
 end
 
 --raid icons
