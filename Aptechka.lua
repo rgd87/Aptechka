@@ -249,7 +249,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
-    local scale = AptechkaDB.scale or config.scale
+    -- local scale = AptechkaDB.scale or config.scale
+    local scale = 1
     self.makeConfSnippet = function(width, height, scale)
         return string.format([=[
             self:SetWidth(%f)
@@ -532,7 +533,8 @@ function Aptechka:ReconfigureProtected()
 
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
-    local scale = AptechkaDB.scale or config.scale
+    -- local scale = AptechkaDB.scale or config.scale
+    local scale = 1
     self.initConfSnippet = self.makeConfSnippet(width, height, scale)
     for group, header in ipairs(group_headers) do
         
