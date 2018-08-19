@@ -203,11 +203,29 @@ local SetJob_Corner = function(self,job)
     else
         color = job.color or { 1,1,1,1 }
     end
+    if job.pulse then
+        -- UIFrameFlash(self, 0.15, 0.15, 1.2, true)
+        if not self.blink.done and not self.blink:IsPlaying() then self.blink:Play() end
+    end
     self.color:SetVertexColor(unpack(color))
 
     -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
         -- if not self.pulse:IsPlaying() then self.pulse:Play() end
     -- end
+end
+local Corner_AnimOnFinished = function(self)
+    self.blinks = self.blinks + 1
+    if self.blinks > 10 then
+        local ag = self:GetParent()
+        ag:Stop()
+        ag.done = true
+    end
+end
+local Corner_AnimGroupOnPlay = function(ag)
+    ag.a2.blinks = 0
+end
+local Corner_OnHide = function(self)
+    self.blink.done = false
 end
 local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation)
     local f = CreateFrame("Frame",nil,parent)
@@ -240,19 +258,25 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation)
     f.parent = parent
     f.SetJob = SetJob_Corner
 
-    local pag = f:CreateAnimationGroup()
-    local pa1 = pag:CreateAnimation("Scale")
-    pa1:SetOrigin(point,0,0)
-    pa1:SetScale(2,2)
-    pa1:SetDuration(0.2)
-    pa1:SetOrder(1)
-    local pa2 = pag:CreateAnimation("Scale")
-    pa2:SetOrigin(point,0,0)
-    pa2:SetScale(0.5,0.5)
-    pa2:SetDuration(0.8)
-    pa2:SetOrder(2)
+    local bag = f:CreateAnimationGroup()
+    bag:SetLooping("REPEAT")
+    local ba1 = bag:CreateAnimation("Alpha")
+    ba1:SetFromAlpha(1)
+    ba1:SetToAlpha(0)
+    ba1:SetDuration(0.15)
+    ba1:SetOrder(1)
+    local ba2 = bag:CreateAnimation("Alpha")
+    ba2:SetFromAlpha(0)
+    ba2:SetToAlpha(1)
+    ba2:SetDuration(0.15)
+    ba2:SetOrder(2)
+    bag.a2 = ba2
+    ba2:SetScript("OnFinished", Corner_AnimOnFinished)
 
-    f.pulse = pag
+    bag:SetScript("OnPlay", Corner_AnimGroupOnPlay)
+    f.blink = bag
+
+    f:SetScript("OnHide", Corner_OnHide)
 
     f:Hide()
     return f

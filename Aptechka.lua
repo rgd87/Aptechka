@@ -170,7 +170,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     
     Aptechka.SetJob = SetJob
     Aptechka.FrameSetJob = FrameSetJob
-    threshold = config.incomingHealThreshold or UnitHealthMax("player")/20
+    threshold = UnitHealthMax("player")/40
     ignoreplayer = config.incomingHealIgnorePlayer or false
     colors = setmetatable(config.Colors or {},{ __index = function(t,k) return RAID_CLASS_COLORS[k] end })
 

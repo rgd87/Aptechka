@@ -38,8 +38,16 @@ AptechkaDefaultConfig.BossDebuffPrototype = BossDebuff
 
 AptechkaDefaultConfig.LoadableDebuffs = {
 
-    
+    ["Freehold"] = function()
+        A{ id = 258323, prototype = BossDebuff } -- Infected Wound
+    end,   
+    ["Shrine of the Storm"] = function()
+        A{ id = 268233, prototype = BossDebuff } -- Electrifying Shock
+    end,
     ["Temple of Sethraliss"] = function()
+        
+        A{ id = 273563, prototype = BossDebuff } -- Neurotoxin
+        A{ id = 268008, prototype = BossDebuff } -- Snake Charm
         A{ id = 263958, prototype = BossDebuff } -- A Knot of Snakes
     end,
 
@@ -50,7 +58,24 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     ["Waycrest Manor"] = function()
         A{ id = 260741, prototype = BossDebuff } -- Jagged Nettles
         A{ id = 267907, prototype = BossDebuff } -- Soul Thorns
+        A{ id = 268202, prototype = BossDebuff } -- Death Lens
+        A{ id = 263891, prototype = BossDebuff } -- Grasping Thorns
     end,
+
+    ["Kings Rest"] = function()
+        A{ id = 270920, prototype = BossDebuff } -- Seduction
+        A{ id = 270865, prototype = BossDebuff } -- Hidden Blade
+    end,
+
+    ["The Underrot"] = function()
+        A{ id = 278961, prototype = BossDebuff } -- Decaying Mind
+    end,
+
+    ["Siege of Boralus"] = function()
+        A{ id = 272571, prototype = BossDebuff } -- Choking Waters
+    end,
+    
+
 
     -- ["Emerald Nightmare"] = function()
     --     A{ id = 222719, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Осквернение, треш
@@ -68,56 +93,56 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     --     A{ id = 198006, color = light, prototype = AptechkaUserConfig.BossDebuffPrototype } -- Ursoc, charge target
     -- end,
 
-    ["Black Rook Hold"] = function()
-        A{ id = 194966, color = color2, prototype = BossDebuff } -- Amalgam of Souls, Soul Echoes
+    -- ["Black Rook Hold"] = function()
+    --     A{ id = 194966, color = color2, prototype = BossDebuff } -- Amalgam of Souls, Soul Echoes
 
-        A{ id = 200261, prototype = BossDebuff } -- Stun, Soul-Torn Champion
-        A{ id = 197974, color = teal, prototype = BossDebuff } -- Stun, Soul-Torn Vanguard
+    --     A{ id = 200261, prototype = BossDebuff } -- Stun, Soul-Torn Champion
+    --     A{ id = 197974, color = teal, prototype = BossDebuff } -- Stun, Soul-Torn Vanguard
 
-        A{ id = 197546, prototype = BossDebuff } -- Illysanna Ravencrest, Brutal Glaive
-        A{ id = 197687, prototype = BossDebuff } -- Illysanna Ravencrest, Eye Beamsr2
+    --     A{ id = 197546, prototype = BossDebuff } -- Illysanna Ravencrest, Brutal Glaive
+    --     A{ id = 197687, prototype = BossDebuff } -- Illysanna Ravencrest, Eye Beamsr2
 
-        A{ id = 198079, prototype = BossDebuff } -- Smashspite, Hateful Gaze
+    --     A{ id = 198079, prototype = BossDebuff } -- Smashspite, Hateful Gaze
 
-        A{ id = 214002, prototype = BossDebuff } -- Risen Lancers, Raven's Dive
-    end,
+    --     A{ id = 214002, prototype = BossDebuff } -- Risen Lancers, Raven's Dive
+    -- end,
 
-    ["Darkheart Thicket"] = function()
-        A{ id = 225484, prototype = BossDebuff } -- Frenzied Nightclaw, Grievous Rip
-        A{ id = 198477, color = color2, prototype = BossDebuff } -- Nightmare Abomination, Fixate
+    -- ["Darkheart Thicket"] = function()
+    --     A{ id = 225484, prototype = BossDebuff } -- Frenzied Nightclaw, Grievous Rip
+    --     A{ id = 198477, color = color2, prototype = BossDebuff } -- Nightmare Abomination, Fixate
 
-        A{ id = 196376, prototype = BossDebuff } -- Archdruid Glaidalis, Grievous Tear
-
-
-        A{ id = 198904, prototype = BossDebuff } -- Rotheart Dryads, Poison Spear
-        A{ id = 201842, color = color2, prototype = BossDebuff } -- Taintheart Summoners, Curse of Isolation
-
-        A{ id = 204611, prototype = BossDebuff } -- Oakheart, Crushing Grip
-
-        A{ id = 200238, prototype = BossDebuff } -- Shade of Xavius, Feed on the Weak
-        A{ id = 200289, color = color2, priority = 30, prototype = BossDebuff } -- Shade of Xavius, Feed on the Weak
-    end,
-
-    ["Neltharion's Lair"] = function()
-        A{ id = 202181, prototype = BossDebuff } -- Basilisks, Stone Gaze
-
-        A{ id = 205549, color = color2, prototype = BossDebuff } -- Naraxas, Rancid Maw
-        A{ id = 199705, prototype = BossDebuff } -- Naraxas, Devouring
-
-        A{ id = 200154, prototype = BossDebuff } -- Colossal Charskin, Burning Hatred
-        A{ id = 193585, color = color2, prototype = BossDebuff } -- Rockbound Trapper, Bound
-    end,
+    --     A{ id = 196376, prototype = BossDebuff } -- Archdruid Glaidalis, Grievous Tear
 
 
-    ["Maw of Souls"] = function()
-        A{ id = 202181, prototype = BossDebuff } -- Seacursed Soulkeeper, Brackwater Blast
-        -- Trace{id = 193460, type = "DAMAGE", assignto = { "bossdebuff" }, color = color2, fade = 0.7, priority = 45 } -- Bane, Ymiron
-    end,
+    --     A{ id = 198904, prototype = BossDebuff } -- Rotheart Dryads, Poison Spear
+    --     A{ id = 201842, color = color2, prototype = BossDebuff } -- Taintheart Summoners, Curse of Isolation
 
-    ["Halls of Valor"] = function()
-        A{ id = 198599, prototype = BossDebuff } -- Громовой удар, треш
-        A{ id = 196838, prototype = BossDebuff } -- Fenrir, Scent of Blood
-    end,
+    --     A{ id = 204611, prototype = BossDebuff } -- Oakheart, Crushing Grip
+
+    --     A{ id = 200238, prototype = BossDebuff } -- Shade of Xavius, Feed on the Weak
+    --     A{ id = 200289, color = color2, priority = 30, prototype = BossDebuff } -- Shade of Xavius, Feed on the Weak
+    -- end,
+
+    -- ["Neltharion's Lair"] = function()
+    --     A{ id = 202181, prototype = BossDebuff } -- Basilisks, Stone Gaze
+
+    --     A{ id = 205549, color = color2, prototype = BossDebuff } -- Naraxas, Rancid Maw
+    --     A{ id = 199705, prototype = BossDebuff } -- Naraxas, Devouring
+
+    --     A{ id = 200154, prototype = BossDebuff } -- Colossal Charskin, Burning Hatred
+    --     A{ id = 193585, color = color2, prototype = BossDebuff } -- Rockbound Trapper, Bound
+    -- end,
+
+
+    -- ["Maw of Souls"] = function()
+    --     A{ id = 202181, prototype = BossDebuff } -- Seacursed Soulkeeper, Brackwater Blast
+    --     -- Trace{id = 193460, type = "DAMAGE", assignto = { "bossdebuff" }, color = color2, fade = 0.7, priority = 45 } -- Bane, Ymiron
+    -- end,
+
+    -- ["Halls of Valor"] = function()
+    --     A{ id = 198599, prototype = BossDebuff } -- Громовой удар, треш
+    --     A{ id = 196838, prototype = BossDebuff } -- Fenrir, Scent of Blood
+    -- end,
 
     -- ["Throne of Thunder"] = function()
     --     A{ id = 138006, prototype = AptechkaUserConfig.BossDebuffPrototype } --Electrified Waters

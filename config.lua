@@ -50,7 +50,7 @@ config.petcolor = {1,.5,.5}
 
 config.registerForClicks = { "AnyUp" }
 config.enableIncomingHeals = true
-config.incomingHealThreshold = 300000
+config.incomingHealThreshold = 0
 config.incomingHealIgnorePlayer = false
 config.showPhaseIcon = true
 config.displayRoles = true
@@ -433,7 +433,10 @@ helpers.auraBlacklist = {
     [97821] = true, -- dk battleres debuff
     [124275] = true, -- brewmaster light stagger debuff
     [174528] = true, -- Griefer debuff
-	[206151] = true, -- Challenger's Burden
+    [206151] = true, -- Challenger's Burden
+    
+    [256200] = true, -- Heartstopper Venom, Tol'Dagor
+
 }
 
 
