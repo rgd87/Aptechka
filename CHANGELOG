@@ -1,3 +1,10 @@
+### 8.0.5:
+
+- sort units by role option
+- fixed incomin heal threshold
+- added more dungeon debuffs
+- pulsing on BL corner
+
 ### 8.0.4:
 
 - fixed a bug when trace heals were mistaken for auras
