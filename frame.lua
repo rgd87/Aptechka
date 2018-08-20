@@ -590,12 +590,35 @@ local SetJob_Text2 = function(self,job) -- text2 is always green
         self:SetTextColor(unpack(c))
     end
 end
+
+
+
+
+
+    local hour, minute = 3600, 60
+    local format = string.format
+    local ceil = math.ceil
+    local function FormatTime(s)
+        if s >= hour then
+            return "%dh", ceil(s / hour)
+        elseif s >= minute then
+            return "%dm", ceil(s / minute)
+        end
+        return "%ds", floor(s)
+    end
+
     local Text3_OnUpdate = function(t3frame,time)
         local remains = t3frame.text.expirationTime - GetTime()
         if remains >= 0 then
             t3frame.text:SetText(string.format("%.1f", remains))
         else
             t3frame:SetScript("OnUpdate", nil)
+        end
+    end
+    local Text3_OnUpdateForward = function(t3frame,time)
+        local elapsed = GetTime() - t3frame.text.startTime
+        if elapsed >= 0 then
+            t3frame.text:SetFormattedText(FormatTime(elapsed))
         end
     end
     local Text3_HideFunc = function(self)
@@ -607,9 +630,14 @@ local SetJob_Text3 = function(self,job)
         -- self.expirationTime = nil
         -- self.startTime = job.startTime
     -- end
-    self.expirationTime = job.expirationTime
-    if self.expirationTime then
+    if job.expirationTime then
+        self.expirationTime = job.expirationTime
+        self.startTime = nil
         self.frame:SetScript("OnUpdate",Text3_OnUpdate) --.frame is for text3 container
+    elseif job.startTime then
+        self.startTime = job.startTime
+        self.expirationTime = nil
+        self.frame:SetScript("OnUpdate",Text3_OnUpdateForward) --.frame is for text3 container
     else
         self.frame:SetScript("OnUpdate",nil)
     end
@@ -618,11 +646,12 @@ local SetJob_Text3 = function(self,job)
         self:SetText(job.text)
     end
 
-    local c
-    if job.color then
-        c = job.color
+    local c = job.textcolor or job.color
+    if c then
+        self:SetTextColor(unpack(c))
+    else
+        self:SetTextColor(1,1,1)
     end
-    self:SetTextColor(unpack(c))
 end
 local CreateTextTimer = function(parent,point,frame,to,x,y,hjustify,fontsize,font,flags)
     local text3container = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates

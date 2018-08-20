@@ -779,7 +779,13 @@ end
 function Aptechka.UNIT_CONNECTION(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
-        SetJob(unit, config.OfflineStatus, (not UnitIsConnected(unit)) )
+        if not UnitIsConnected(unit) then
+            local job = config.OfflineStatus
+            job.startTime = GetTime()
+            SetJob(unit, config.OfflineStatus, true)
+        else
+            SetJob(unit, config.OfflineStatus, false)
+        end
     end
 end
 
