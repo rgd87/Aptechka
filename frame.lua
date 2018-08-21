@@ -1004,7 +1004,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- border.SetJob = SetJob_Border
     -- border:Hide()
 
-    local border = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -4, -4, -4, -4, -5)
+    local p4 = pixelperfect(3.5)
+    local border = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -p4, -p4, -p4, -p4, -5)
     border:SetVertexColor(1, 1, 1, 0.5)
     border.SetJob = SetJob_Border
     border:Hide()
