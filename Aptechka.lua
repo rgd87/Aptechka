@@ -279,6 +279,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
     Aptechka.UNIT_MAXHEALTH = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
+    self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- UNIT_AFK_CHANGED
 
     if config.showPhaseIcon then
         self:RegisterEvent("UNIT_PHASE")
@@ -776,6 +777,21 @@ function Aptechka.UNIT_PHASE(self, event, unit)
     end
 end
 
+
+function Aptechka.UNIT_AFK_CHANGED(self, event, unit)
+    if not Roster[unit] then return end
+    for self in pairs(Roster[unit]) do
+        if UnitIsAFK(unit) then
+            local job = config.AwayStatus
+            job.startTime = GetTime()
+            SetJob(unit, config.AwayStatus, true)
+        else
+            SetJob(unit, config.AwayStatus, false)
+        end
+    end
+end
+Aptechka.PLAYER_FLAGS_CHANGED = Aptechka.UNIT_AFK_CHANGED
+
 function Aptechka.UNIT_CONNECTION(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
@@ -1195,6 +1211,7 @@ local OnAttributeChanged = function(self, attrname, unit)
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
     Aptechka:UNIT_CONNECTION(nil, owner)
+    Aptechka:UNIT_AFK_CHANGED(nil, owner)
     Aptechka.CheckPhase(self, unit)
     SetJob(unit, config.ReadyCheck, false)
     if not config.disableManaBar then
