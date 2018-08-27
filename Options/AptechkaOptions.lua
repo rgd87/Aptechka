@@ -938,6 +938,17 @@ local function MakeGeneralOptions()
                         end,
                         order = 11,
                     },
+                    showAFK = {
+                        name = "Show AFK",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.showAFK end,
+                        set = function(info, v)
+                            Aptechka.db.showAFK = not Aptechka.db.showAFK
+                            print("Aptechka: Changes will effect after /reload")
+                        end,
+                        order = 11,
+                    },
                     -- incomingHealThreshold = {
                     --     name = "Incoming Heal Threshold",
                     --     type = "input",

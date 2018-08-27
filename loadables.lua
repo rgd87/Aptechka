@@ -40,6 +40,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
 
     ["Freehold"] = function()
         A{ id = 258323, prototype = BossDebuff } -- Infected Wound
+        A{ id = 257908, prototype = BossDebuff } -- Oiled Blade
     end,   
     ["Shrine of the Storm"] = function()
         A{ id = 268233, prototype = BossDebuff } -- Electrifying Shock

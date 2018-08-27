@@ -24,7 +24,8 @@ local config = AptechkaDefaultConfig
 Aptechka.loadedAuras = {}
 local loadedAuras = Aptechka.loadedAuras
 local customBossAuras = helpers.customBossAuras
-local blacklist = helpers.auraBlacklist
+local default_blacklist = helpers.auraBlacklist
+local blacklist
 local OORUnits = setmetatable({},{__mode = 'k'})
 local inCL = setmetatable({},{__index = function (t,k) return 0 end})
 local buffer = {}
@@ -86,6 +87,8 @@ local defaults = {
     hideBlizzardRaid = true,
     petGroup = false,
     sortUnitsByRole = false,
+    showAFK = false,
+    customBlacklist = {},
     -- petGroupColor = {1, 0.5, 0.5},
     -- incomingHealThreshold = 80000,
     -- np_height = 7,
@@ -186,6 +189,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.db = AptechkaDB
     SetupDefaults(AptechkaDB, defaults)
 
+    blacklist = setmetatable(AptechkaDB.customBlacklist, { __index = default_blacklist})
 
     AptechkaConfigCustom = AptechkaConfigCustom or {}
     AptechkaConfigMerged = CopyTable(AptechkaDefaultConfig)
@@ -279,7 +283,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
     Aptechka.UNIT_MAXHEALTH = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
-    self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- UNIT_AFK_CHANGED
+    if AptechkaDB.showAFK then
+        self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- UNIT_AFK_CHANGED
+    end
 
     if config.showPhaseIcon then
         self:RegisterEvent("UNIT_PHASE")
@@ -595,15 +601,15 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
             self.health.incoming:Update(h, hi, hm)
 			-- SetValue( showHeal and self.health:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
         end
-        if config.IncomingHealStatus then
-            if showHeal then
-                self.vIncomingHeal = heal
-                SetJob(unit, config.IncomingHealStatus, true)
-            else
-                self.vIncomingHeal = 0
-                SetJob(unit, config.IncomingHealStatus, false)
-            end
-        end
+        -- if config.IncomingHealStatus then
+        --     if showHeal then
+        --         self.vIncomingHeal = heal
+        --         SetJob(unit, config.IncomingHealStatus, true)
+        --     else
+        --         self.vIncomingHeal = 0
+        --         SetJob(unit, config.IncomingHealStatus, false)
+        --     end
+        -- end
     end
 end
 
@@ -721,14 +727,14 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         self.absorb:SetValue(shields/hm*100, h/hm*100)
         self.absorb2:SetValue((h+shields)/hm*100)
 		self.health.incoming:Update(h, nil, hm)
-        SetJob(unit,config.HealthDificitStatus, ((hm-h) > 1000) )
+        SetJob(unit,config.HealthDeficitStatus, ((hm-h) > 1000) )
 
         if event then
             if UnitIsDeadOrGhost(unit) then
                 SetJob(unit, config.AggroStatus, false)
                 local deadorghost = UnitIsGhost(unit) and config.GhostStatus or config.DeadStatus
                 SetJob(unit, deadorghost, true)
-                SetJob(unit,config.HealthDificitStatus, false )
+                SetJob(unit,config.HealthDeficitStatus, false )
                 self.isDead = true
                 if self.OnDead then self:OnDead() end
             elseif self.isDead then
@@ -1211,7 +1217,9 @@ local OnAttributeChanged = function(self, attrname, unit)
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
     Aptechka:UNIT_CONNECTION(nil, owner)
-    Aptechka:UNIT_AFK_CHANGED(nil, owner)
+    if AptechkaDB.showAFK then
+        Aptechka:UNIT_AFK_CHANGED(nil, owner)
+    end
     Aptechka.CheckPhase(self, unit)
     SetJob(unit, config.ReadyCheck, false)
     if not config.disableManaBar then
@@ -1732,11 +1740,13 @@ function Aptechka.ScanDebuffSlots(unit)
 end
 
 local ParseOpts = function(str)
-    local fields = {}
-    for opt,args in string.gmatch(str,"(%w*)%s*=%s*([%w%,%-%_%.%:%\\%']+)") do
-        fields[opt:lower()] = tonumber(args) or args
+    local t = {}
+    local capture = function(k,v)
+        t[k:lower()] = tonumber(v) or v
+        return ""
     end
-    return fields
+    str:gsub("(%w+)%s*=%s*%[%[(.-)%]%]", capture):gsub("(%w+)%s*=%s*(%S+)", capture)
+    return t
 end
 Aptechka.Commands = {
     ["unlockall"] = function() 
@@ -1838,7 +1848,56 @@ Aptechka.Commands = {
         else AptechkaDB_Global.charspec[user] = true
         end
         print (AptechkaString..(AptechkaDB_Global.charspec[user] and "Enabled" or "Disabled").." character specific options for this toon. Will take effect after ui reload",0.7,1,0.7)
-    end
+    end,
+    ["listauras"] = function(v)
+        local unit = v
+        local h = false
+        for i=1, 100 do
+            local name, _,_,_,duration,_,_,_,_, spellID = UnitAura(unit, i, "HELPFUL")
+            if not name then break end
+            if not h then print("BUFFS:"); h = true; end
+            print(string.format("    %s (id: %d) Duration: %s", name, spellID, duration or "none" ))
+        end
+        h = false
+        for i=1, 100 do
+            local name, _,_,_,duration,_,_,_,_, spellID = UnitAura(unit, i, "HARMFUL")
+            if not name then break end
+            if not h then print("DEBUFFS:"); h = true; end
+            print(string.format("    %s (id: %d) Duration: %s", name, spellID, duration or "none" ))
+        end
+
+    end,
+    ["blacklist"] = function(v)
+        local cmd,args = string.match(v, "([%w%-]+) ?(.*)")
+        if cmd == "add" then
+            local spellID = tonumber(args)
+            if spellID then
+                blacklist[spellID] = true
+                local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
+                print(string.format("%s (%d) added to debuff blacklist", spellName, spellID))
+            end
+        elseif cmd == "del" then
+            local spellID = tonumber(args)
+            if spellID then
+                local val = nil
+                if default_blacklist[spellID] then val = false end -- if nil it'll fallback on __index
+                blacklist[spellID] = val
+                local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
+                print(string.format("%s (%d) removed from debuff blacklist", spellName, spellID))
+            end
+        else
+            print("Default blacklist:")
+            for spellID in pairs(default_blacklist) do
+                local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
+                print(string.format("    %s (%d)", spellName, spellID))
+            end
+            print("Custom blacklist:")
+            for spellID in pairs(blacklist) do
+                local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
+                print(string.format("    %s (%d)", spellName, spellID))
+            end
+        end
+    end,
 }
 function Aptechka.SlashCmd(msg)
     local k,v = string.match(msg, "([%w%+%-%=]+) ?(.*)")
@@ -1847,6 +1906,9 @@ function Aptechka.SlashCmd(msg)
       |cff00ff00/aptechka|r unlock
       |cff00ff00/aptechka|r reset|r
       |cff00ff00/aptechka|r createpets
+      |cff00ff00/aptechka|r blacklist add <spellID>
+      |cff00ff00/aptechka|r blacklist del <spellID>
+      |cff00ff00/aptechka|r blacklist show
     ]=]
     )end
 

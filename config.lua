@@ -95,8 +95,8 @@ config.ResIncomingStatus = { name = "ResIncoming", assignto = { "text2", "text3"
 config.ResPendingStatus = { name = "ResPending", assignto = { "text2" }, text = "PENDING", color = { 0.6,0.6,1 }, priority = 82 }
 config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","text3","health","power" }, color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.AwayStatus = { name = "AFK", assignto = { "text2","text3" }, color = {.15,.15,.15}, textcolor = {1,0.8,0}, text = "AFK",  priority = 60}
-config.IncomingHealStatus = { name = "IncomingHeal", assignto = "text2", inchealtext = true, color = { 0, 1, 0}, priority = 15 }
-config.HealthDificitStatus = { name = "HPD", assignto = "healthtext", healthtext = true, color = { 54/255, 201/255, 99/256 }, priority = 10 }
+-- config.IncomingHealStatus = { name = "IncomingHeal", assignto = "text2", inchealtext = true, color = { 0, 1, 0}, priority = 15 }
+config.HealthDeficitStatus = { name = "HPD", assignto = "healthtext", healthtext = true, color = { 54/255, 201/255, 99/256 }, priority = 10 }
 config.UnitNameStatus = { name = "UnitName", assignto = "text1", nametext = true, classcolor = true, priority = 20 }
 config.HealthBarColor = { name = "HealthBar", assignto = "health", color = {1, .3, .3}, classcolor = true, priority = 20 }
 config.PowerBarColor = { name = "PowerBar", assignto = "power", color = {.5,.5,1}, priority = 20 }
@@ -437,7 +437,7 @@ helpers.auraBlacklist = {
     [206151] = true, -- Challenger's Burden
     
     [256200] = true, -- Heartstopper Venom, Tol'Dagor
-
+    [271544] = true, -- Ablative Shielding
 }
 
 
