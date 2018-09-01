@@ -783,29 +783,56 @@ function Aptechka.UNIT_PHASE(self, event, unit)
     end
 end
 
-
+local afkPlayerTable = {}
 function Aptechka.UNIT_AFK_CHANGED(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
+        local name = UnitGUID(unit)
         if UnitIsAFK(unit) then
-            local job = config.AwayStatus
-            job.startTime = GetTime()
+            if name then
+                local startTime = afkPlayerTable[name]
+                if not startTime then
+                    startTime = GetTime()
+                    afkPlayerTable[name] = startTime
+                end
+
+                local job = config.AwayStatus
+                job.startTime = startTime
+            end
             SetJob(unit, config.AwayStatus, true)
         else
+            if name then
+                afkPlayerTable[name] = nil
+            end
             SetJob(unit, config.AwayStatus, false)
         end
     end
 end
 Aptechka.PLAYER_FLAGS_CHANGED = Aptechka.UNIT_AFK_CHANGED
 
+
+local offlinePlayerTable = {}
 function Aptechka.UNIT_CONNECTION(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
+        -- if self.unitOwner then unit = self.unitOwner end
+        local name = UnitGUID(unit)
         if not UnitIsConnected(unit) then
-            local job = config.OfflineStatus
-            job.startTime = GetTime()
+            if name then
+                local startTime = offlinePlayerTable[name]
+                if not startTime then
+                    startTime = GetTime()
+                    offlinePlayerTable[name] = startTime
+                end
+
+                local job = config.OfflineStatus
+                job.startTime = startTime
+            end
             SetJob(unit, config.OfflineStatus, true)
         else
+            if name then
+                offlinePlayerTable[name] = nil
+            end
             SetJob(unit, config.OfflineStatus, false)
         end
     end
@@ -1220,7 +1247,7 @@ local OnAttributeChanged = function(self, attrname, unit)
     if AptechkaDB.showAFK then
         Aptechka:UNIT_AFK_CHANGED(nil, owner)
     end
-    Aptechka.CheckPhase(self, unit)
+    Aptechka.CheckPhase1(self, unit)
     SetJob(unit, config.ReadyCheck, false)
     if not config.disableManaBar then
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
