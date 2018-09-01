@@ -1022,6 +1022,10 @@ function Aptechka.CheckRoles(apt, self, unit )
         local role = UnitGroupRolesAssigned(unit)
 
         FrameSetJob(self, config.LeaderStatus, isLeader)
+        if config.AssistStatus then
+            local isAssistant = UnitIsGroupAssistant(unit)
+            FrameSetJob(self, config.AssistStatus, isAssistant)
+        end
         -- self.text3:SetFormattedText("%s%s", isLeader and "L" or "",
             -- (role == "HEALER" and "|cff88ff88H|r") or
             -- (role == "TANK" and "|cff8888ffT|r") or ""
