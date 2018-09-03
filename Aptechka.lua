@@ -754,7 +754,7 @@ end
 
 
 function Aptechka.CheckPhase(frame, unit)
-    if not UnitInPhase(unit) and not frame.InVehicle then
+    if (not UnitInPhase(unit) or UnitIsWarModePhased(unit)) and not frame.InVehicle then
         -- not UnitGUID(unit) == UnitGUID("player")
                 frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
                 frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
@@ -1251,7 +1251,7 @@ local OnAttributeChanged = function(self, attrname, unit)
     if AptechkaDB.showAFK then
         Aptechka:UNIT_AFK_CHANGED(nil, owner)
     end
-    Aptechka.CheckPhase1(self, unit)
+    Aptechka.CheckPhase1(unit)
     SetJob(unit, config.ReadyCheck, false)
     if not config.disableManaBar then
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
