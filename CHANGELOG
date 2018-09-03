@@ -1,3 +1,10 @@
+### 8.0.6:
+
+- offline and optional afk timers
+- console commands to add debuffs to blacklist
+- console command to list unit auras (/apt listauras target)
+- phased icon now works for warmode phase
+
 ### 8.0.5:
 
 - sort units by role option
