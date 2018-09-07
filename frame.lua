@@ -173,8 +173,6 @@ local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
         ag:Stop()
         self:Hide()
         return Aptechka.FrameSetJob(self.parent, self.traceJob, false)
-        -- self.jobs[self.traceJob] = nil
-        -- self.traceJob = nil
     end)
     f.blink = bag
 
@@ -205,27 +203,57 @@ local SetJob_Corner = function(self,job)
     end
     if job.pulse then
         -- UIFrameFlash(self, 0.15, 0.15, 1.2, true)
-        if not self.blink.done and not self.blink:IsPlaying() then self.blink:Play() end
+        if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
     end
     self.color:SetVertexColor(unpack(color))
+
+    if job.fade then
+        if self.traceJob ~= job or not self.blink:IsPlaying() then
+
+            if self.blink:IsPlaying() then
+                self.blink:Stop()
+                if self.traceJob ~= job then
+                    self.jobs[self.traceJob] = nil
+                end
+            end
+            self.traceJob = job
+            self.blink.a2:SetFromAlpha(1)
+            self.blink.a2:SetToAlpha(0)
+            self.blink.a2:SetDuration(job.fade)
+            self.blink:Play()
+
+        end
+    else
+        if self.traceJob then
+            self.jobs[self.traceJob] = nil
+            self.blink:Stop()
+            self.traceJob = nil
+        end
+    end
 
     -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
         -- if not self.pulse:IsPlaying() then self.pulse:Play() end
     -- end
 end
-local Corner_AnimOnFinished = function(self)
-    self.blinks = self.blinks + 1
-    if self.blinks > 10 then
+local Corner_PulseAnimOnFinished = function(self)
+    self.pulses = self.pulses + 1
+    if self.pulses > 10 then
         local ag = self:GetParent()
         ag:Stop()
         ag.done = true
     end
 end
-local Corner_AnimGroupOnPlay = function(ag)
-    ag.a2.blinks = 0
+local Corner_PulseAnimGroupOnPlay = function(ag)
+    ag.a2.pulses = 0
 end
 local Corner_OnHide = function(self)
-    self.blink.done = false
+    self.pulse.done = false
+end
+local Corner_BlinkAnimOnFinished = function(ag)
+    local self = ag:GetParent()
+    ag:Stop()
+    self:Hide()
+    return Aptechka.FrameSetJob(self.parent, self.traceJob, false)
 end
 local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation)
     local f = CreateFrame("Frame",nil,parent)
@@ -259,22 +287,39 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation)
     f.SetJob = SetJob_Corner
 
     local bag = f:CreateAnimationGroup()
-    bag:SetLooping("REPEAT")
+    bag:SetLooping("NONE")
     local ba1 = bag:CreateAnimation("Alpha")
-    ba1:SetFromAlpha(1)
-    ba1:SetToAlpha(0)
-    ba1:SetDuration(0.15)
+    ba1:SetFromAlpha(0)
+    ba1:SetToAlpha(1)
+    ba1:SetDuration(0.1)
     ba1:SetOrder(1)
     local ba2 = bag:CreateAnimation("Alpha")
-    ba2:SetFromAlpha(0)
-    ba2:SetToAlpha(1)
-    ba2:SetDuration(0.15)
+    ba2:SetFromAlpha(1)
+    ba2:SetToAlpha(0)
+    ba2:SetDuration(0.7)
     ba2:SetOrder(2)
     bag.a2 = ba2
-    ba2:SetScript("OnFinished", Corner_AnimOnFinished)
 
-    bag:SetScript("OnPlay", Corner_AnimGroupOnPlay)
+    bag:SetScript("OnFinished", Corner_BlinkAnimOnFinished)
     f.blink = bag
+
+    local pag = f:CreateAnimationGroup()
+    pag:SetLooping("REPEAT")
+    local pa1 = pag:CreateAnimation("Alpha")
+    pa1:SetFromAlpha(1)
+    pa1:SetToAlpha(0)
+    pa1:SetDuration(0.15)
+    pa1:SetOrder(1)
+    local pa2 = pag:CreateAnimation("Alpha")
+    pa2:SetFromAlpha(0)
+    pa2:SetToAlpha(1)
+    pa2:SetDuration(0.15)
+    pa2:SetOrder(2)
+    pag.a2 = pa2
+    pa2:SetScript("OnFinished", Corner_PulseAnimOnFinished)
+
+    pag:SetScript("OnPlay", Corner_PulseAnimGroupOnPlay)
+    f.pulse = pag
 
     f:SetScript("OnHide", Corner_OnHide)
 
@@ -791,6 +836,56 @@ AptechkaDefaultConfig.GridSkinSettings = function(self)
     AptechkaDefaultConfig.font = [[Interface\AddOns\Aptechka\ClearFont.ttf]]
     AptechkaDefaultConfig.fontsize = 12
 end
+
+
+local function Reconf(self)
+    local db = Aptechka.db
+    local isVertical = db.healthOrientation == "VERTICAL"
+
+    if isVertical then
+        self.health:SetOrientation("VERTICAL")
+        self.health.incoming:SetOrientation("VERTICAL")
+
+        -- self.health.absorb:Hide()
+        self.health.absorb:ClearAllPoints()
+        self.health.absorb:SetWidth(3)
+        self.health.absorb.orientation = "VERTICAL"
+
+        self.health.absorb2:SetOrientation("VERTICAL")
+
+        -- self.health:ClearAllPoints()
+        -- self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+        -- self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+
+        self.power:ClearAllPoints()
+        self.power:SetWidth(4)
+        self.power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+        self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
+
+
+    else
+        self.health:SetOrientation("HORIZONTAL")
+        self.health.incoming:SetOrientation("HORIZONTAL")
+
+        -- self.health.absorb:Hide()
+        self.health.absorb:ClearAllPoints()
+        self.health.absorb:SetHeight(3)
+        self.health.absorb.orientation = "HORIZONTAL"
+
+        self.health.absorb2:SetOrientation("HORIZONTAL")
+
+        -- self.health:ClearAllPoints()
+        -- self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+        -- self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+
+        self.power:ClearAllPoints()
+        self.power:SetHeight(4)
+        self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
+        self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+    end
+
+end
+
 AptechkaDefaultConfig.GridSkin = function(self)
     local config
     if AptechkaDefaultConfig then config = AptechkaDefaultConfig else config = AptechkaDefaultConfig end
@@ -800,6 +895,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local fontsize = config.fontsize
     local manabar_width = config.manabarwidth
     local border = pixelperfect(2)
+
+    self.ReconfigureUnitFrame = Reconf
 
     -- local backdrop = {
     --     bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
@@ -886,13 +983,22 @@ AptechkaDefaultConfig.GridSkin = function(self)
         local h = (health/100)
         local missing_health_height = (1-h)*self.maxheight
         local absorb_height = p*self.maxheight
+        local isVertical = self.orientation == "VERTICAL"
 
-        self:SetHeight(p*self.maxheight)
-
-        if absorb_height >= missing_health_height then
-            self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3 ,0)
+        if isVertical then
+            self:SetHeight(p*self.maxheight)
+            if absorb_height >= missing_health_height then
+                self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3 ,0)
+            else
+                self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3, -(missing_health_height - absorb_height))
+            end
         else
-            self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3, -(missing_health_height - absorb_height))
+            self:SetWidth(p*self.maxheight)
+            if absorb_height >= missing_health_height then
+                self:SetPoint("BOTTOMRIGHT", self:GetParent(), "BOTTOMRIGHT", 0 ,-3)
+            else
+                self:SetPoint("BOTTOMRIGHT", self:GetParent(), "BOTTOMRIGHT", -(missing_health_height - absorb_height), -3)
+            end
         end
     end
     absorb:SetValue(0)
@@ -908,6 +1014,25 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local st = absorb2:CreateTexture(nil, 'ARTWORK', nil, -7)
     st:SetTexture("Interface\\AddOns\\Aptechka\\shieldtex")
+
+
+    absorb2.texture = st
+    -- absorb2.AdjustTexture = function(self, w,h)
+    --     -- local w = self:GetWidth()
+    --     -- local h = self:GetHeight()
+    --     local r = w/h
+    --     local st = self.texture
+    --     if r > 1 then
+    --         st:SetTexCoord(0, 1, 0, h/w)
+    --         print(0, 1, 0, h/w)
+    --     elseif r < 1 then
+    --         st:SetTexCoord(0, w/h, 0, 1)
+    --         print(0, w/h, 0, 1)
+    --     else
+    --         st:SetTexCoord(0, 1, 0, 1)
+    --     end
+    --     self:SetStatusBarTexture(st)
+    -- end
     st:SetHorizTile(true)
     st:SetVertTile(true)
 
@@ -1084,6 +1209,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     local blcorner = CreateCorner(self, 12, 12, "BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation
 
+    local trcorner = CreateCorner(self, 12, 22, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
+    self.healfeedback = trcorner
+
     self.SetJob = SetJob_Frame
     self.HideFunc = Frame_HideFunc
 
@@ -1097,6 +1225,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.border = border
 
+
+    self:ReconfigureUnitFrame()
     -- self.spell1 = br
     -- self.spell2 = topind
     -- self.spell3 = tr

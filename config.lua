@@ -52,7 +52,6 @@ config.registerForClicks = { "AnyUp" }
 config.enableIncomingHeals = true
 config.incomingHealThreshold = 0
 config.incomingHealIgnorePlayer = false
-config.showPhaseIcon = true
 config.displayRoles = true
 config.enableTraceHeals = true
 config.enableVehicleSwap = true
@@ -91,9 +90,11 @@ config.VoiceChatStatus = { name = "VoiceChat", priority = 59, assignto = "text3"
 config.MainTankStatus = { name = "MainTank", priority = 60, assignto = "border", color = {0.6,0.6,0.6} }
 config.DeadStatus = { name = "DEAD", assignto = { "text2","health","power" }, color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
 config.GhostStatus = { name = "GHOST", assignto = { "text2","health","power" }, color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
+-- if something happens to LibResInfo, just remove the following 3:
 config.CastingMassResStatus = { name = "MassResCast", assignto = { "icon", "text3" }, text = "MASSRES", color = { .4,1,.4 }, texture = "INTERFACE\\ICONS\\achievement_guildperk_massresurrection", priority = 96 }
-config.ResIncomingStatus = { name = "ResIncoming", assignto = { "text2", "text3" }, text = "INC RES", color = { 1,1,.4 }, priority = 80 }
+config.ResIncomingStatus = { name = "ResIncoming", assignto = { "text3", "icon" }, text = "INC RES", color = { 1,1,.4 }, priority = 80, texture = "Interface\\RaidFrame\\Raid-Icon-Rez" }
 config.ResPendingStatus = { name = "ResPending", assignto = { "text2" }, text = "PENDING", color = { 0.6,0.6,1 }, priority = 82 }
+
 config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","text3","health","power" }, color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.AwayStatus = { name = "AFK", assignto = { "text2","text3" }, color = {.15,.15,.15}, textcolor = {1,0.8,0}, text = "AFK",  priority = 60}
 -- config.IncomingHealStatus = { name = "IncomingHeal", assignto = "text2", inchealtext = true, color = { 0, 1, 0}, priority = 15 }
@@ -104,7 +105,7 @@ config.PowerBarColor = { name = "PowerBar", assignto = "power", color = {.5,.5,1
 config.OutOfRangeStatus = { name = "OOR", assignto = "self", color = {0.5,0.5,0.5}, alpha = 0.3, text = "OOR", priority = 50 }
 config.PhasedOutStatus = { name = "Phased", assignto = "self", color = {0.5,0.5,0.5}, alpha = 0.4, text = "Phased", priority = 40 }
 config.InVehicleStatus = { name = "InVehicle", assignto = "border", color = {0.3,1,0.3}, priority = 21 }
-config.LOSStatus = { name = "OutOfSight", assignto = "spell2", color = {1,0.1,0.1}, priority = 95, fade = 1.0 }
+config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", color = {1,0.1,0.1}, priority = 95, fade = 1.0 }
 
 -- default priority is 80
 
@@ -242,9 +243,13 @@ if playerClass == "PRIEST" then
     -- Trace{id = 94472, type = "HEAL", minamount = 70000, assignto = "spell3", color = -{ .2, 1, .2}, fade = .5, priority = 90 }
 
     -- Circle of Healing
-    Trace{id = 204883, type = "HEAL", assignto = "spell3", color = { 1, 1, 0}, fade = 0.7, priority = 96 }
+    Trace{id = 204883, type = "HEAL", assignto = "healfeedback", color = { 1, 1, 0}, fade = 0.7, priority = 96 }
     -- Prayer of Healing
-    Trace{id = 596, type = "HEAL", assignto = "spell3", color = { .5, .5, 1}, fade = 0.7, priority = 96 }
+    Trace{id = 596, type = "HEAL", assignto = "healfeedback", color = { .5, .5, 1}, fade = 0.7, priority = 96 }
+    -- Flash Heal
+    Trace{id = 2061, type = "HEAL", assignto = "healfeedback", color = { 0.85, 0.85, 1}, fade = 0.7, priority = 96 }
+    -- Trail of Light
+    Trace{id = 234946, type = "HEAL", assignto = "healfeedback", color = { 0.5, 0.5, 1}, fade = 0.7, priority = 96 }
 
     -- Holy Ward (PvP)
     A{ id = 213610, type = "HELPFUL", assignto = "spell3", showDuration = true, priority = 70, color = { 1, .3, .3}, isMine = true }
@@ -274,7 +279,7 @@ if playerClass == "MONK" then
     A{ id = 191840, type = "HELPFUL", assignto = "bars", priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
 
 
-    Trace{id = 116670, type = "HEAL", assignto = "spell3", color = { 1, .7, .2}, fade = 0.7, priority = 96 } -- Vivify
+    Trace{id = 116670, type = "HEAL", assignto = "healfeedback", color = { 0.5, 1, 0.5}, fade = 0.7, priority = 96 } -- Vivify
 
     -- A{ id = 157627, type = "HELPFUL", assignto = "bar2", showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
 
@@ -324,7 +329,7 @@ if playerClass == "PALADIN" then
     A{ id = 210320,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { .4, .4, 1} } --Devotion Aura
     A{ id = 183416,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { 1, .4, .4} } --Aura of Sacrifice
 
-    -- Trace{id = 85222, type = "HEAL", assignto = "spell3", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Light of Dawn
+    Trace{id = 225311, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.2}, fade = 0.4, priority = 96 } -- Light of Dawn
 
     -- Trace{id = 82327, type = "HEAL", assignto = "spell3", color = { .8, .5, 1}, fade = 0.7, priority = 96 } -- Holy Radiance
     -- Trace{id =121129, type = "HEAL", assignto = "spell3", color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
@@ -355,7 +360,7 @@ if playerClass == "SHAMAN" then
                                                                         -- },
                                                                         --, } --Earth Shield
     
-    Trace{id = 1064, type = "HEAL", assignto = "spell3", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
+    Trace{id = 1064, type = "HEAL", assignto = "healfeedback", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = "spell3", color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
 
     config.UnitInRangeFunctions = {

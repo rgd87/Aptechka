@@ -88,6 +88,7 @@ local defaults = {
     petGroup = false,
     sortUnitsByRole = false,
     showAFK = false,
+    healthOrientation = "VERTICAL",
     customBlacklist = {},
     -- petGroupColor = {1, 0.5, 0.5},
     -- incomingHealThreshold = 80000,
@@ -287,11 +288,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- UNIT_AFK_CHANGED
     end
 
-    if config.showPhaseIcon then
-        self:RegisterEvent("UNIT_PHASE")
-    else
-        Aptechka.CheckPhase = function() end
-    end
+    self:RegisterEvent("UNIT_PHASE")
 
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER_UPDATE")
@@ -338,6 +335,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             LRI.RegisterCallback(self, "LibResInfo_ResExpired", Aptechka.LibResInfo_ResExpired)
             LRI.RegisterCallback(self, "LibResInfo_ResUsed", Aptechka.LibResInfo_ResExpired)
         end
+    else
+        self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
+        self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
     end
 
     if config.enableAbsorbBar then
@@ -533,7 +533,15 @@ end
 
 
 function Aptechka:Reconfigure()
+    self:ReconfigureUnprotected()
     self:ReconfigureProtected()
+end
+function Aptechka:ReconfigureUnprotected()
+    for group, header in ipairs(group_headers) do 
+        for _, f in ipairs({ header:GetChildren() }) do
+            f:ReconfigureUnitFrame()
+        end
+    end
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
@@ -754,16 +762,19 @@ end
 
 
 function Aptechka.CheckPhase(frame, unit)
-    if (not UnitInPhase(unit) or UnitIsWarModePhased(unit)) and not frame.InVehicle then
-        -- not UnitGUID(unit) == UnitGUID("player")
-                frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
-                frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
-                frame.centericon:Show()
-                FrameSetJob(frame, config.PhasedOutStatus, true)
-            else
-                frame.centericon:Hide()
-                FrameSetJob(frame, config.PhasedOutStatus, false)
-            end
+    if UnitHasIncomingResurrection(unit) then
+        frame.centericon.texture:SetTexture("Interface\\RaidFrame\\Raid-Icon-Rez");
+        frame.centericon.texture:SetTexCoord(0,1,0,1);
+        frame.centericon:Show()
+    elseif (not UnitInPhase(unit) or UnitIsWarModePhased(unit)) and not frame.InVehicle then
+        frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
+        frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
+        frame.centericon:Show()
+        FrameSetJob(frame, config.PhasedOutStatus, true)
+    else
+        frame.centericon:Hide()
+        FrameSetJob(frame, config.PhasedOutStatus, false)
+    end
 end
 function Aptechka.CheckPhase1(unit)
     local rosterunit = Roster[unit]
@@ -774,8 +785,6 @@ function Aptechka.CheckPhase1(unit)
 end
 
 function Aptechka.UNIT_PHASE(self, event, unit)
-    -- print('unit:', unit)
-
     for unit, frames in pairs(Roster) do
         for frame in pairs(frames) do
             Aptechka.CheckPhase(frame,unit)
@@ -993,13 +1002,13 @@ function Aptechka.UNIT_THREAT_SITUATION_UPDATE(self, event, unit)
     end
 end
 
-function Aptechka.UNIT_SPELLCAST_SENT(self, event, unit, spell, rank, targetName, lineID)
+function Aptechka.UNIT_SPELLCAST_SENT(self, event, unit, targetName, lineID, spellID)
     if unit ~= "player" or not targetName then return end
     LastCastTargetName = string.match(targetName, "(.+)-") or targetName
     LastCastSentTime = GetTime()
 end
 function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
-    if errcode == 359 then -- Out of Range code
+    if errcode == 50 then -- Out of Range code
         if LastCastSentTime > GetTime() - 0.5 then
             for unit in pairs(Roster) do
                 if UnitName(unit) == LastCastTargetName then
@@ -1132,12 +1141,10 @@ end
 
 
 -- function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
---     -- print(event, unit)
---     if not Roster[unit] then return end
---     for self in pairs(Roster[unit]) do
---         -- print(unit,UnitHasIncomingResurrection(unit))
---         SetJob(unit, config.ResurrectStatus, UnitHasIncomingResurrection(unit))
---     end
+    -- if not Roster[unit] then return end
+    -- for self in pairs(Roster[unit]) do
+        -- SetJob(unit, config.ResurrectStatus, UnitHasIncomingResurrection(unit))
+    -- end
 -- end
 
 --Target Indicator
@@ -1535,6 +1542,8 @@ function Aptechka.SetupFrame(f)
     else
         config["GridSkin"](f)
     end
+    f:ReconfigureUnitFrame()
+
     f.self = f
     f.HideFunc = f.HideFunc or function() end
 
