@@ -243,13 +243,15 @@ if playerClass == "PRIEST" then
     -- Trace{id = 94472, type = "HEAL", minamount = 70000, assignto = "spell3", color = -{ .2, 1, .2}, fade = .5, priority = 90 }
 
     -- Circle of Healing
-    Trace{id = 204883, type = "HEAL", assignto = "healfeedback", color = { 1, 1, 0}, fade = 0.7, priority = 96 }
+    Trace{id = 204883, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
     -- Prayer of Healing
     Trace{id = 596, type = "HEAL", assignto = "healfeedback", color = { .5, .5, 1}, fade = 0.7, priority = 96 }
     -- Flash Heal
-    Trace{id = 2061, type = "HEAL", assignto = "healfeedback", color = { 0.85, 0.85, 1}, fade = 0.7, priority = 96 }
+    Trace{id = 2061, type = "HEAL", assignto = "healfeedback", color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
+    -- Binding Heal
+    Trace{id = 32546, type = "HEAL", assignto = "healfeedback", color = { 0.7, 1, 0.7}, fade = 0.7, priority = 96 }
     -- Trail of Light
-    Trace{id = 234946, type = "HEAL", assignto = "healfeedback", color = { 0.5, 0.5, 1}, fade = 0.7, priority = 96 }
+    Trace{id = 234946, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
 
     -- Holy Ward (PvP)
     A{ id = 213610, type = "HELPFUL", assignto = "spell3", showDuration = true, priority = 70, color = { 1, .3, .3}, isMine = true }
