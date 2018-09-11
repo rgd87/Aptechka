@@ -91,9 +91,9 @@ config.MainTankStatus = { name = "MainTank", priority = 60, assignto = "border",
 config.DeadStatus = { name = "DEAD", assignto = { "text2","health","power" }, color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
 config.GhostStatus = { name = "GHOST", assignto = { "text2","health","power" }, color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
 -- if something happens to LibResInfo, just remove the following 3:
-config.CastingMassResStatus = { name = "MassResCast", assignto = { "icon", "text3" }, text = "MASSRES", color = { .4,1,.4 }, texture = "INTERFACE\\ICONS\\achievement_guildperk_massresurrection", priority = 96 }
-config.ResIncomingStatus = { name = "ResIncoming", assignto = { "text3", "icon" }, text = "INC RES", color = { 1,1,.4 }, priority = 80, texture = "Interface\\RaidFrame\\Raid-Icon-Rez" }
-config.ResPendingStatus = { name = "ResPending", assignto = { "text2" }, text = "PENDING", color = { 0.6,0.6,1 }, priority = 82 }
+-- config.CastingMassResStatus = { name = "MassResCast", assignto = { "icon", "text3" }, text = "MASSRES", color = { .4,1,.4 }, texture = "INTERFACE\\ICONS\\achievement_guildperk_massresurrection", priority = 96 }
+-- config.ResIncomingStatus = { name = "ResIncoming", assignto = { "text3", "icon" }, text = "INC RES", color = { 1,1,.4 }, priority = 80, texture = "Interface\\RaidFrame\\Raid-Icon-Rez" }
+-- config.ResPendingStatus = { name = "ResPending", assignto = { "text2" }, text = "PENDING", color = { 0.6,0.6,1 }, priority = 82 }
 
 config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","text3","health","power" }, color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.AwayStatus = { name = "AFK", assignto = { "text2","text3" }, color = {.15,.15,.15}, textcolor = {1,0.8,0}, text = "AFK",  priority = 60}
@@ -422,6 +422,7 @@ config.autoload = {
 
 
 helpers.auraBlacklist = {
+    [209261] = true, -- Uncontained Fel
     [264689] = true, -- Fatigued (Hunter BL)
     [219521] = true, -- Shadow Covenant
     [139485] = true, -- Throne of Thudner passive debuff

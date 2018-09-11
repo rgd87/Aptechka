@@ -18,6 +18,15 @@ local sortfunc = function(a,b)
 		return a.order < b.order
 	end
 end
+
+local MakeValuesForKeys = function(t)
+    local t1 = {}
+    for k,v in pairs(t) do
+        t1[k] = k
+    end
+    return t1
+end
+
 function AptechkaGUI.GenerateCategoryTree(self, isGlobal, category)
 	local _,class = UnitClass("player")
 	local custom = isGlobal and AptechkaConfigCustom["GLOBAL"] or AptechkaConfigCustom[class]
@@ -948,6 +957,58 @@ local function MakeGeneralOptions()
                             print("Aptechka: Changes will effect after /reload")
                         end,
                         order = 11,
+                    },
+
+                    orientation = {
+                        name = "Health Orientation",
+                        type = 'select',
+                        order = 12,
+                        values = {
+                            ["HORIZONTAL"] = "Horizontal",
+                            ["VERTICAL"] = "Vertical",
+                        },
+                        -- values = MakeValuesForKeys(Aptechka.FrameTextures),
+                        get = function(info) return Aptechka.db.healthOrientation end,
+                        set = function( info, v )
+                            Aptechka.db.healthOrientation = v
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                    },
+
+                    healthTexture = {
+                        name = "Health Texture",
+                        type = 'select',
+                        order = 13,
+                        values = MakeValuesForKeys(Aptechka.FrameTextures),
+                        get = function(info) return Aptechka.db.healthTexture end,
+                        set = function( info, v )
+                            Aptechka.db.healthTexture = v
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                    },
+
+                    powerTexture = {
+                        name = "Power Texture",
+                        type = 'select',
+                        order = 14,
+                        values = MakeValuesForKeys(Aptechka.FrameTextures),
+                        get = function(info) return Aptechka.db.powerTexture end,
+                        set = function( info, v )
+                            Aptechka.db.powerTexture = v
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                    },
+
+                    inverted = {
+                        name = "Inverted Colors",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.invertedColors end,
+                        set = function(info, v)
+                            Aptechka.db.invertedColors = not Aptechka.db.invertedColors
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        order = 15,
                     },
                     -- incomingHealThreshold = {
                     --     name = "Incoming Heal Threshold",

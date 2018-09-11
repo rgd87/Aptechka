@@ -17,6 +17,17 @@ end
 local Frame_HideFunc = function(self)
     self:SetAlpha(1) -- to exit frrom OOR status
 end
+
+local HealthBarSetColorInverted = function(self, r,g,b)
+    self:SetStatusBarColor(r,g,b)
+    self.bg:SetVertexColor(r*.2, g*.2, b*.2)
+end
+
+local HealthBarSetColor = function(self, r,g,b)
+    self:SetStatusBarColor(r*.2, g*.2, b*.2)
+    self.bg:SetVertexColor(r,g,b)
+end
+
 local SetJob_HealthBar = function(self, job)
     local c
     if job.classcolor then
@@ -25,8 +36,7 @@ local SetJob_HealthBar = function(self, job)
         c = job.color
     end
     if c then
-        self:SetStatusBarColor(c[1]*.2, c[2]*.2, c[3]*.2)
-        self.bg:SetVertexColor(unpack(c))
+        self:SetColor(unpack(c))
     end
 end
 local OnDead = function(self)
@@ -601,7 +611,12 @@ local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
     return icon
 end
 
-
+local Text1_SetColor = function(self, r,g,b)
+    self:SetTextColor(r,g,b)
+end
+local Text1_SetColorInverted = function(self, r,g,b)
+    self:SetTextColor(r*0.2,g*0.2,b*0.2)
+end
 local SetJob_Text1 = function(self,job)
     if job.healthtext then
         self:SetFormattedText("-%.0fk", (self.parent.vHealthMax - self.parent.vHealth) / 1e3)
@@ -616,7 +631,7 @@ local SetJob_Text1 = function(self,job)
     elseif job.color then
         c = job.textcolor or job.color
     end
-    if c then self:SetTextColor(unpack(c)) end
+    if c then self:SetColor(unpack(c)) end
 end
 local SetJob_Text2 = function(self,job) -- text2 is always green
     if job.healthtext then
@@ -839,17 +854,54 @@ end
 
 
 local function Reconf(self)
+    local config = AptechkaDefaultConfig
+    if config.skin ~= "GridSkin" then return end
+
     local db = Aptechka.db
     local isVertical = db.healthOrientation == "VERTICAL"
 
+    local newTexture = db.healthTexture
+    local texpath = Aptechka.FrameTextures[newTexture]
+    if not texpath then
+        db.healthTexture = "Grid"
+        texpath = Aptechka.FrameTextures["Grid"]
+    end
+    self.health:SetStatusBarTexture(texpath)
+
+    local newPowerTexture = db.powerTexture
+    local texpath2 = Aptechka.FrameTextures[newPowerTexture]
+    if not texpath2 then
+        db.powerTexture = "Grid"
+        texpath = Aptechka.FrameTextures["Grid"]
+    end
+    self.power:SetStatusBarTexture(texpath2)
+
+    if db.invertedColors then
+        self.health.SetColor = HealthBarSetColorInverted
+        self.power.SetColor = HealthBarSetColorInverted
+        self.text1.SetColor = Text1_SetColorInverted
+        self.text1:SetShadowOffset(0,0)
+    else
+        self.health.SetColor = HealthBarSetColor
+        self.power.SetColor = HealthBarSetColor
+        self.text1.SetColor = Text1_SetColor
+        self.text1:SetShadowOffset(1,-1)
+    end
+    Aptechka.FrameSetJob(self,config.HealthBarColor,true)
+    Aptechka.FrameSetJob(self,config.PowerBarColor,true)
+    Aptechka.FrameSetJob(self,config.UnitNameStatus,true)
+
     if isVertical then
         self.health:SetOrientation("VERTICAL")
+        self.power:SetOrientation("VERTICAL")
         self.health.incoming:SetOrientation("VERTICAL")
 
-        -- self.health.absorb:Hide()
-        self.health.absorb:ClearAllPoints()
-        self.health.absorb:SetWidth(3)
-        self.health.absorb.orientation = "VERTICAL"
+        local  absorb = self.health.absorb
+        absorb:ClearAllPoints()
+        absorb:SetWidth(3)
+        absorb.orientation = "VERTICAL"
+        absorb.maxheight = db.height
+        Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
         self.health.absorb2:SetOrientation("VERTICAL")
 
@@ -865,12 +917,15 @@ local function Reconf(self)
 
     else
         self.health:SetOrientation("HORIZONTAL")
+        self.power:SetOrientation("HORIZONTAL")
         self.health.incoming:SetOrientation("HORIZONTAL")
 
-        -- self.health.absorb:Hide()
-        self.health.absorb:ClearAllPoints()
-        self.health.absorb:SetHeight(3)
-        self.health.absorb.orientation = "HORIZONTAL"
+        local absorb = self.health.absorb
+        absorb:ClearAllPoints()
+        absorb:SetHeight(3)
+        absorb.orientation = "HORIZONTAL"
+        absorb.maxheight = db.width
+        Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
         self.health.absorb2:SetOrientation("HORIZONTAL")
 
@@ -923,6 +978,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     powerbar:SetOrientation("VERTICAL")
     powerbar.SetJob = SetJob_HealthBar
     powerbar.OnPowerTypeChange = PowerBar_OnPowerTypeChange
+    powerbar.SetColor = HealthBarSetColor
 
     local pbbg = powerbar:CreateTexture(nil,"ARTWORK",nil,-3)
 	pbbg:SetAllPoints(powerbar)
@@ -941,6 +997,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp:SetOrientation("VERTICAL")
     hp.parent = self
     hp.SetJob = SetJob_HealthBar
+    hp.SetColor = HealthBarSetColor
     --hp:SetValue(0)
 
     local mot = hp:CreateTexture(nil,"OVERLAY")
@@ -1033,8 +1090,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     --     end
     --     self:SetStatusBarTexture(st)
     -- end
-    st:SetHorizTile(true)
-    st:SetVertTile(true)
+    -- st:SetHorizTile(true)
+    -- st:SetVertTile(true)
 
     absorb2:SetStatusBarTexture(st)
     absorb2:GetStatusBarTexture():SetDrawLayer("ARTWORK",-7)
@@ -1143,6 +1200,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text:SetTextColor(1, 1, 1)
     text:SetShadowColor(0,0,0)
     text:SetShadowOffset(1,-1)
+    text.SetColor = Text1_SetColor
     text.SetJob = SetJob_Text1
     text.parent = self
 
@@ -1225,8 +1283,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.border = border
 
-
-    self:ReconfigureUnitFrame()
     -- self.spell1 = br
     -- self.spell2 = topind
     -- self.spell3 = tr

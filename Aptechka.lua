@@ -90,9 +90,17 @@ local defaults = {
     showAFK = false,
     healthOrientation = "VERTICAL",
     customBlacklist = {},
-    -- petGroupColor = {1, 0.5, 0.5},
-    -- incomingHealThreshold = 80000,
-    -- np_height = 7,
+    healthTexture = "Grid",
+    powerTexture = "Grid",
+    invertedColors = false,
+}
+
+Aptechka.FrameTextures = {
+    Grid = [[Interface\AddOns\Aptechka\gradient]],
+    GridHorizontal = [[Interface\AddOns\Aptechka\gradient2]],
+    BlizzardRaid = "Interface\\RaidFrame\\Raid-Bar-Hp-Fill",
+    BlizzardResource = "Interface\\RaidFrame\\Raid-Bar-Resource-Fill",
+    Flat = "Interface\\BUTTONS\\WHITE8X8",
 }
 
 local function SetupDefaults(t, defaults)
@@ -1707,6 +1715,15 @@ local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, 
     SetJob(unit, opts, true)
 end
 
+local function UtilShouldDisplayDebuff(spellId, unitCaster, visType)
+    local hasCustom, alwaysShowMine, showForMySpec = SpellGetVisibilityInfo(spellId, visType);
+	if ( hasCustom ) then
+		return showForMySpec or (alwaysShowMine and (unitCaster == "player" or unitCaster == "pet" or unitCaster == "vehicle") );	--Would only be "mine" in the case of something like forbearance.
+	else
+		return true;
+	end
+end
+
 function Aptechka.ScanDebuffSlots(unit)
         -- table_wipe(presentDebuffs)
 
@@ -1741,13 +1758,15 @@ function Aptechka.ScanDebuffSlots(unit)
         end
 
         -- scan debuffs
+        local visType = UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT"
         for i=1,100 do
             local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
             if not name then break end
             if not isBossAura then isBossAura = customBossAuras[spellID] end
 
             if not isBossAura and shown < debuffLineLength then
-                if not blacklist[spellID] then
+                -- I don't even understand what this SpellGetVisibilityInfo thing is doing, but default UI is using it
+                if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
                     shown = shown + 1
 
                     SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura)
