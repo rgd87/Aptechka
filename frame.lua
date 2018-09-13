@@ -589,16 +589,17 @@ local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
 
     local icontex = icon.texture
     icontex:ClearAllPoints()
-    icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
-    icontex:SetWidth(h);
-    icontex:SetHeight(h);
+    icontex:SetPoint("BOTTOMLEFT",icon, "BOTTOMLEFT",0,0)
+    local min = math.min(w,h)
+    icontex:SetWidth(min);
+    icontex:SetHeight(min);
 
     icon.texture:SetTexCoord(.2, .8, .2, .8)
 
     local dttex = icon:CreateTexture(nil, "ARTWORK", nil, -2)
     dttex:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-    dttex:SetWidth(h)
-    dttex:SetHeight(h)
+    dttex:SetWidth(min)
+    dttex:SetHeight(min)
     dttex:SetPoint("TOPRIGHT", icon, "TOPRIGHT", 0, 0)
     -- dttex:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT",0,0)
     icon.debuffTypeTexture = dttex
@@ -913,6 +914,10 @@ local function Reconf(self)
         self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
         self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
         self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
+        self.dicon1:SetSize(15, 11)
+        self.dicon2:SetSize(15, 11)
+        self.dicon3:SetSize(15, 11)
+        self.dicon4:SetSize(15, 11)
 
     else
         self.health:SetOrientation("HORIZONTAL")
@@ -941,6 +946,10 @@ local function Reconf(self)
         self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0)
         self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "BOTTOMRIGHT",0,0)
         self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "BOTTOMRIGHT",0,0)
+        self.dicon1:SetSize(11, 14)
+        self.dicon2:SetSize(11, 14)
+        self.dicon3:SetSize(11, 14)
+        self.dicon4:SetSize(11, 14)
     end
 
 end
