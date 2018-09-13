@@ -2,6 +2,11 @@ local _, helpers = ...
 
 local pixelperfect = helpers.pixelperfect
 
+local LSM = LibStub("LibSharedMedia-3.0")
+
+LSM:Register("statusbar", "Gradient", [[Interface\AddOns\Aptechka\gradient.tga]])
+
+
 local SetJob_Frame = function(self, job)
     if job.alpha then
         self:SetAlpha(job.alpha)
@@ -860,19 +865,17 @@ local function Reconf(self)
     local db = Aptechka.db
     local isVertical = db.healthOrientation == "VERTICAL"
 
-    local newTexture = db.healthTexture
-    local texpath = Aptechka.FrameTextures[newTexture]
+    local texpath = LSM:Fetch("statusbar", db.healthTexture)
     if not texpath then
         db.healthTexture = "Grid"
-        texpath = Aptechka.FrameTextures["Grid"]
+        texpath = LSM:Fetch("statusbar", db.healthTexture)
     end
     self.health:SetStatusBarTexture(texpath)
 
-    local newPowerTexture = db.powerTexture
-    local texpath2 = Aptechka.FrameTextures[newPowerTexture]
+    local texpath2 = LSM:Fetch("statusbar", db.powerTexture)
     if not texpath2 then
         db.powerTexture = "Grid"
-        texpath = Aptechka.FrameTextures["Grid"]
+        texpath2 = LSM:Fetch("statusbar", db.powerTexture)
     end
     self.power:SetStatusBarTexture(texpath2)
 

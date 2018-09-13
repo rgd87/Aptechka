@@ -1,5 +1,7 @@
 AptechkaGUI = CreateFrame("Frame","AptechkaGUI")
 
+local LSM = LibStub("LibSharedMedia-3.0")
+
 -- AptechkaGUI:SetScript("OnEvent", function(self, event, ...)
 	-- self[event](self, event, ...)
 -- end)
@@ -976,28 +978,32 @@ local function MakeGeneralOptions()
                     },
 
                     healthTexture = {
-                        name = "Health Texture",
-                        type = 'select',
-                        order = 13,
-                        values = MakeValuesForKeys(Aptechka.FrameTextures),
-                        get = function(info) return Aptechka.db.healthTexture end,
-                        set = function( info, v )
-                            Aptechka.db.healthTexture = v
+						type = "select",
+						name = "Health Texture",
+						order = 13,
+						desc = "Set the statusbar texture.",
+						get = function(info) return Aptechka.db.healthTexture end,
+						set = function(info, value)
+							Aptechka.db.healthTexture = value
                             Aptechka:ReconfigureUnprotected()
-                        end,
-                    },
+						end,
+						values = LSM:HashTable("statusbar"),
+						dialogControl = "LSM30_Statusbar",
+					},
 
                     powerTexture = {
-                        name = "Power Texture",
-                        type = 'select',
-                        order = 14,
-                        values = MakeValuesForKeys(Aptechka.FrameTextures),
-                        get = function(info) return Aptechka.db.powerTexture end,
-                        set = function( info, v )
-                            Aptechka.db.powerTexture = v
+						type = "select",
+						name = "Power Texture",
+						order = 14,
+						desc = "Set the statusbar texture.",
+						get = function(info) return Aptechka.db.powerTexture end,
+						set = function(info, value)
+							Aptechka.db.powerTexture = value
                             Aptechka:ReconfigureUnprotected()
-                        end,
-                    },
+						end,
+						values = LSM:HashTable("statusbar"),
+						dialogControl = "LSM30_Statusbar",
+					},
 
                     inverted = {
                         name = "Inverted Colors",
