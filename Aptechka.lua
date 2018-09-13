@@ -95,14 +95,6 @@ local defaults = {
     invertedColors = false,
 }
 
--- Aptechka.FrameTextures = {
---     Grid = [[Interface\AddOns\Aptechka\gradient]],
---     GridHorizontal = [[Interface\AddOns\Aptechka\gradient2]],
---     BlizzardRaid = "Interface\\RaidFrame\\Raid-Bar-Hp-Fill",
---     BlizzardResource = "Interface\\RaidFrame\\Raid-Bar-Resource-Fill",
---     Flat = "Interface\\BUTTONS\\WHITE8X8",
--- }
-
 local function SetupDefaults(t, defaults)
     if not defaults then return end
     for k,v in pairs(defaults) do

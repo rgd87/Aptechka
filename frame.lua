@@ -866,17 +866,9 @@ local function Reconf(self)
     local isVertical = db.healthOrientation == "VERTICAL"
 
     local texpath = LSM:Fetch("statusbar", db.healthTexture)
-    if not texpath then
-        db.healthTexture = "Grid"
-        texpath = LSM:Fetch("statusbar", db.healthTexture)
-    end
     self.health:SetStatusBarTexture(texpath)
 
     local texpath2 = LSM:Fetch("statusbar", db.powerTexture)
-    if not texpath2 then
-        db.powerTexture = "Grid"
-        texpath2 = LSM:Fetch("statusbar", db.powerTexture)
-    end
     self.power:SetStatusBarTexture(texpath2)
 
     if db.invertedColors then
@@ -917,6 +909,10 @@ local function Reconf(self)
         self.power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
         self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
 
+        -- self.dicon1:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
+        self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
+        self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
+        self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
 
     else
         self.health:SetOrientation("HORIZONTAL")
@@ -940,6 +936,11 @@ local function Reconf(self)
         self.power:SetHeight(4)
         self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
         self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+
+        -- self.dicon1:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
+        self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0)
+        self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "BOTTOMRIGHT",0,0)
+        self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "BOTTOMRIGHT",0,0)
     end
 
 end
