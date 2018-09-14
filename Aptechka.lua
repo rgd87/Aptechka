@@ -93,6 +93,7 @@ local defaults = {
     healthTexture = "Gradient",
     powerTexture = "Gradient",
     invertedColors = false,
+    useLibResInfo = true,
 }
 
 local function SetupDefaults(t, defaults)
@@ -317,7 +318,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end
     end
 
-    if config.ResIncomingStatus then
+    if AptechkaDB.useLibResInfo then
         LRI = LibStub("LibResInfo-1.0")
         LRI.RegisterCallback(self, "LibResInfo_ResCastStarted", Aptechka.LibResInfo_ResCastStarted)
         LRI.RegisterCallback(self, "LibResInfo_ResCastFinished", Aptechka.LibResInfo_ResCastFinished)

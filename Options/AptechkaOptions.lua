@@ -940,7 +940,7 @@ local function MakeGeneralOptions()
                     },
                     petGroup = {
                         name = "Enable Pet Group",
-                        width = "double",
+                        width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.petGroup end,
                         set = function(info, v)
@@ -951,7 +951,6 @@ local function MakeGeneralOptions()
                     },
                     showAFK = {
                         name = "Show AFK",
-                        width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.showAFK end,
                         set = function(info, v)
@@ -959,6 +958,19 @@ local function MakeGeneralOptions()
                             print("Aptechka: Changes will effect after /reload")
                         end,
                         order = 11,
+                    },
+                    useLRI = {
+                        name = "Use LibResInfo",
+                        type = "toggle",
+                        width = "double",
+                        confirm = true,
+						confirmText = "Warning: Requires UI reloading.",
+                        order = 11.1,
+                        get = function(info) return Aptechka.db.useLibResInfo end,
+                        set = function(info, v)
+                            Aptechka.db.useLibResInfo = not Aptechka.db.useLibResInfo
+                            ReloadUI()
+                        end
                     },
 
                     orientation = {
