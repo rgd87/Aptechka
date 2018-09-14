@@ -590,7 +590,7 @@ local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
     local icontex = icon.texture
     icontex:ClearAllPoints()
     icontex:SetPoint("BOTTOMLEFT",icon, "BOTTOMLEFT",0,0)
-    local min = math.min(w,h)
+    local min = h --math.min(w,h)
     icontex:SetWidth(min);
     icontex:SetHeight(min);
 
@@ -877,11 +877,13 @@ local function Reconf(self)
         self.power.SetColor = HealthBarSetColorInverted
         self.text1.SetColor = Text1_SetColorInverted
         self.text1:SetShadowOffset(0,0)
+        self.health.absorb2:SetStatusBarColor(0.7,0.7,1)
     else
         self.health.SetColor = HealthBarSetColor
         self.power.SetColor = HealthBarSetColor
         self.text1.SetColor = Text1_SetColor
         self.text1:SetShadowOffset(1,-1)
+        self.health.absorb2:SetStatusBarColor(0,0,0)
     end
     Aptechka.FrameSetJob(self,config.HealthBarColor,true)
     Aptechka.FrameSetJob(self,config.PowerBarColor,true)
@@ -932,7 +934,7 @@ local function Reconf(self)
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
         self.health.absorb2:SetOrientation("HORIZONTAL")
-
+        
         -- self.health:ClearAllPoints()
         -- self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
         -- self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
@@ -1109,6 +1111,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     absorb2:SetStatusBarTexture(st)
     absorb2:GetStatusBarTexture():SetDrawLayer("ARTWORK",-7)
     absorb2:SetMinMaxValues(0,100)
+    absorb2:SetStatusBarColor(0,0,0)
     absorb2:SetAlpha(0.65)
     absorb2:SetOrientation("VERTICAL")
     absorb2.parent = self

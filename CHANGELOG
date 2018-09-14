@@ -1,3 +1,9 @@
+### 8.0.7:
+
+- added orientation, texture, color settings to options menu
+- changed trace indicator1
+- added trail of light and flash heal traces
+
 ### 8.0.6:
 
 - offline and optional afk timers

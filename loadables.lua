@@ -47,7 +47,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     end,
     ["Temple of Sethraliss"] = function()
         
-        A{ id = 273563, prototype = BossDebuff } -- Neurotoxin
+        A{ id = 280032, prototype = BossDebuff } -- Neurotoxin
         A{ id = 268008, prototype = BossDebuff } -- Snake Charm
         A{ id = 263958, prototype = BossDebuff } -- A Knot of Snakes
     end,
