@@ -658,7 +658,22 @@ local SetJob_Text2 = function(self,job) -- text2 is always green
 end
 
 
-
+local AlignAbsorbVertical = function(self, absorb_height, missing_health_height)
+    self:SetHeight(absorb_height)
+    if absorb_height >= missing_health_height then
+        self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3 ,0)
+    else
+        self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3, -(missing_health_height - absorb_height))
+    end
+end
+local AlignAbsorbHorizontal = function(self, absorb_height, missing_health_height)
+    self:SetWidth(absorb_height)
+    if absorb_height >= missing_health_height then
+        self:SetPoint("BOTTOMRIGHT", self:GetParent(), "BOTTOMRIGHT", 0 ,-3)
+    else
+        self:SetPoint("BOTTOMRIGHT", self:GetParent(), "BOTTOMRIGHT", -(missing_health_height - absorb_height), -3)
+    end
+end
 
 
     local hour, minute = 3600, 60
@@ -899,6 +914,7 @@ local function Reconf(self)
         absorb:SetWidth(3)
         absorb.orientation = "VERTICAL"
         absorb.maxheight = db.height
+        absorb.AlignAbsorb = AlignAbsorbVertical
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
         self.health.absorb2:SetOrientation("VERTICAL")
@@ -931,6 +947,7 @@ local function Reconf(self)
         absorb:SetHeight(3)
         absorb.orientation = "HORIZONTAL"
         absorb.maxheight = db.width
+        absorb.AlignAbsorb = AlignAbsorbHorizontal
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
         self.health.absorb2:SetOrientation("HORIZONTAL")
@@ -1046,6 +1063,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     atbg:SetPoint("BOTTOMRIGHT", at, "BOTTOMRIGHT", 1,-1)
 
     absorb.maxheight = config.height
+    absorb.AlignAbsorb = AlignAbsorbVertical
+    
     absorb.SetValue = function(self, v, health)
         local p = v/100
         if p > 1 then p = 1 end
@@ -1055,23 +1074,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
         local h = (health/100)
         local missing_health_height = (1-h)*self.maxheight
         local absorb_height = p*self.maxheight
-        local isVertical = self.orientation == "VERTICAL"
 
-        if isVertical then
-            self:SetHeight(p*self.maxheight)
-            if absorb_height >= missing_health_height then
-                self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3 ,0)
-            else
-                self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3, -(missing_health_height - absorb_height))
-            end
-        else
-            self:SetWidth(p*self.maxheight)
-            if absorb_height >= missing_health_height then
-                self:SetPoint("BOTTOMRIGHT", self:GetParent(), "BOTTOMRIGHT", 0 ,-3)
-            else
-                self:SetPoint("BOTTOMRIGHT", self:GetParent(), "BOTTOMRIGHT", -(missing_health_height - absorb_height), -3)
-            end
-        end
+        self:AlignAbsorb(absorb_height, missing_health_height)
     end
     absorb:SetValue(0)
     hp.absorb = absorb
