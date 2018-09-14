@@ -883,9 +883,11 @@ local function Reconf(self)
 
     local texpath = LSM:Fetch("statusbar", db.healthTexture)
     self.health:SetStatusBarTexture(texpath)
+    self.health.bg:SetTexture(texpath)
 
     local texpath2 = LSM:Fetch("statusbar", db.powerTexture)
     self.power:SetStatusBarTexture(texpath2)
+    self.power.bg:SetTexture(texpath2)
 
     if db.invertedColors then
         self.health.SetColor = HealthBarSetColorInverted
