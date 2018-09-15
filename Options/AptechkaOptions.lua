@@ -1058,7 +1058,110 @@ end
 
 
 
+local function MakeScalingOptions()
+    local opt = {
+        type = 'group',
+        name = "Aptechka Autoscaling",
+        order = 1,
+        args = {
+            normalScale = {
+                name = "Normal Scale (1-11 players)",
+                type = "range",
+                get = function(info) return Aptechka.db.scale end,
+                set = function(info, v)
+                    Aptechka.db.scale = v
+                    Aptechka:LayoutUpdate()
+                end,
+                min = 0.3,
+                max = 3,
+                step = 0.01,
+                order = 1,
+            },
+            healer = {
+                type = "group",
+                name = "Healer Autoscale",
+                width = "double",
+                guiInline = true,
+                order = 2,
+                args = {
 
+                    healerRaid = {
+                        name = "Raid (12-30 players)",
+                        type = "range",
+                        get = function(info) return Aptechka.db.autoscale.healerMediumRaid end,
+                        set = function(info, v)
+                            Aptechka.db.autoscale.healerMediumRaid = v
+                            Aptechka:LayoutUpdate()
+                        end,
+                        min = 0.3,
+                        max = 3,
+                        step = 0.01,
+                        order = 1,
+                    },
+                    healerBigRaid = {
+                        name = "Big Raid (30+ players)",
+                        type = "range",
+                        get = function(info) return Aptechka.db.autoscale.healerBigRaid end,
+                        set = function(info, v)
+                            Aptechka.db.autoscale.healerBigRaid = v
+                            Aptechka:LayoutUpdate()
+                        end,
+                        min = 0.3,
+                        max = 3,
+                        step = 0.01,
+                        order = 2,
+                    },
+                    
+                },
+            },
+            damage = {
+                type = "group",
+                name = "Damage Autoscale",
+                width = "double",
+                guiInline = true,
+                order = 3,
+                args = {
+
+                    damageRaid = {
+                        name = "Raid (12-30 players)",
+                        type = "range",
+                        get = function(info) return Aptechka.db.autoscale.damageMediumRaid end,
+                        set = function(info, v)
+                            Aptechka.db.autoscale.damageMediumRaid = v
+                            Aptechka:LayoutUpdate()
+                        end,
+                        min = 0.3,
+                        max = 3,
+                        step = 0.01,
+                        order = 1,
+                    },
+                    damageBigRaid = {
+                        name = "Big Raid (30+ players)",
+                        type = "range",
+                        get = function(info) return Aptechka.db.autoscale.damageBigRaid end,
+                        set = function(info, v)
+                            Aptechka.db.autoscale.damageBigRaid = v
+                            Aptechka:LayoutUpdate()
+                        end,
+                        min = 0.3,
+                        max = 3,
+                        step = 0.01,
+                        order = 2,
+                    },
+                    
+                },
+            },    
+        },
+    }
+
+    local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+    AceConfigRegistry:RegisterOptionsTable("AptechkaScaling", opt)
+
+    local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaScaling", "Scaling", "Aptechka")
+
+    return panelFrame
+end
 
 
 
@@ -1073,6 +1176,8 @@ do
 
     f.general = MakeGeneralOptions()
 
+    f.scaling = MakeScalingOptions()
+
     AptechkaGUI.frame = AptechkaGUI:Create("Spell List", "Aptechka")
     f.spell_list = AptechkaGUI.frame.frame
     InterfaceOptions_AddCategory(f.spell_list);
@@ -1080,8 +1185,9 @@ do
     f:Hide()
     f:SetScript("OnShow", function(self)
             self:Hide();
-            local list = self.spell_list
-            InterfaceOptionsFrame_OpenToCategory (list)
-            InterfaceOptionsFrame_OpenToCategory (list)
+            -- local first = self.spell_list
+            local first = self.general
+            InterfaceOptionsFrame_OpenToCategory (first)
+            InterfaceOptionsFrame_OpenToCategory (first)
     end)
 end

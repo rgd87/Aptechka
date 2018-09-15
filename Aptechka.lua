@@ -94,6 +94,13 @@ local defaults = {
     powerTexture = "Gradient",
     invertedColors = false,
     useLibResInfo = true,
+    scale = 1,
+    autoscale = {
+        damageMediumRaid = 0.8,
+        damageBigRaid = 0.7,
+        healerMediumRaid = 1,
+        healerBigRaid = 0.8,
+    }
 }
 
 local function SetupDefaults(t, defaults)
@@ -262,9 +269,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:SetWidth(%f)
             self:SetHeight(%f)
 
-            local hdr = self:GetParent()
-            if not hdr:GetAttribute("custom_scale") then hdr:SetScale(%f) end
-
             self:SetAttribute("toggleForVehicle", true)
 
             self:SetAttribute("*type1","target")
@@ -278,6 +282,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         ]=],width, height,scale)
     end
     self.initConfSnippet = self.makeConfSnippet(width, height, scale)
+
+    self:LayoutUpdate()
 
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_HEALTH_FREQUENT")
@@ -1058,16 +1064,8 @@ end
 
 function Aptechka.SetScale(self, scale)
     if InCombatLockdown() then return end
-    if scale and scale > 0 then
-        for i,hdr in pairs(group_headers) do
-            hdr:SetAttribute("custom_scale",true)
-            hdr:SetScale(scale)
-        end
-    else
-        for i,hdr in pairs(group_headers) do
-            hdr:SetAttribute("custom_scale",nil)
-            hdr:SetScale(config.scale)
-        end
+    for i,hdr in pairs(group_headers) do
+        hdr:SetScale(scale)
     end
 end
 function Aptechka.PLAYER_REGEN_ENABLED(self,event)
@@ -1089,9 +1087,7 @@ end
 function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
     --raid autoscaling
     if not InCombatLockdown() then
-        if not config.useGroupAnchors then
-            Aptechka:LayoutUpdate()
-        end
+        Aptechka:LayoutUpdate()
     else
         self:RegisterEvent("PLAYER_REGEN_ENABLED")
     end
@@ -1110,15 +1106,38 @@ Aptechka.SPELLS_CHANGED = Aptechka.GROUP_ROSTER_UPDATE
 -- Aptechka.SetScale = function(self, scale)
 --     self:SetScale1(UIParent:GetScale()*scale)
 -- end
+function Aptechka:DecideGroupScale(numMembers, role, spec)
+    if role == "HEALER" then
+        if numMembers > 30 then
+            return AptechkaDB.autoscale.healerBigRaid
+        elseif numMembers > 12 then
+            return AptechkaDB.autoscale.healerMediumRaid
+        else
+            return AptechkaDB.scale
+        end
+    else
+        if numMembers > 30 then
+            return AptechkaDB.autoscale.damageBigRaid
+        elseif numMembers > 12 then
+            return AptechkaDB.autoscale.damageMediumRaid
+        else
+            return AptechkaDB.scale
+        end
+    end
+end
 
 function Aptechka.LayoutUpdate(self)
     local numMembers = GetNumGroupMembers()
     local spec = GetSpecialization()
     local role = spec and select(5,GetSpecializationInfo(spec)) or "DAMAGER"
-    for _, layout in ipairs(config.layouts) do
-        if layout(self, numMembers, role, spec) then return end
-    end
-    local scale = AptechkaDB.scale or config.scale
+
+    local scale = self:DecideGroupScale(numMembers, role, spec)
+
+    -- for _, layout in ipairs(config.layouts) do
+    --     if layout(self, numMembers, role, spec) then return end
+    -- end
+    -- local scale = AptechkaDB.scale or config.scale
+
     self:SetScale(scale or 1)
 end
 
@@ -1352,7 +1371,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
     local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
 
-    if config.useGroupAnchors or group == 1 then
+    if group == 1 then
         Aptechka:CreateAnchor(f,group)
     elseif petgroup then
         f:SetPoint(arrangeHeaders(group_headers[1], nil, unitGrowth, reverse(groupGrowth)))
