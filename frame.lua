@@ -883,10 +883,12 @@ local function Reconf(self)
 
     local texpath = LSM:Fetch("statusbar", db.healthTexture)
     self.health:SetStatusBarTexture(texpath)
+    self.health:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     self.health.bg:SetTexture(texpath)
 
     local texpath2 = LSM:Fetch("statusbar", db.powerTexture)
     self.power:SetStatusBarTexture(texpath2)
+    self.power:GetStatusBarTexture():SetDrawLayer("ARTWORK",-2)
     self.power.bg:SetTexture(texpath2)
 
     if db.invertedColors then
@@ -980,10 +982,17 @@ AptechkaDefaultConfig.GridSkin = function(self)
     if AptechkaDefaultConfig then config = AptechkaDefaultConfig else config = AptechkaDefaultConfig end
 
     local texture = config.texture
+    local powertexture = texture
     local font = config.font
     local fontsize = config.fontsize
     local manabar_width = config.manabarwidth
     local border = pixelperfect(2)
+
+    if config.skin == "GridSkin" then
+        local db = Aptechka.db
+        texture = LSM:Fetch("statusbar", db.healthTexture)
+        powertexture = LSM:Fetch("statusbar", db.powerTexture)
+    end
 
     self.ReconfigureUnitFrame = Reconf
 
@@ -1005,7 +1014,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 	powerbar:SetWidth(4)
     powerbar:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
     powerbar:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
-	powerbar:SetStatusBarTexture(texture)
+	powerbar:SetStatusBarTexture(powertexture)
     powerbar:GetStatusBarTexture():SetDrawLayer("ARTWORK",-2)
     powerbar:SetMinMaxValues(0,100)
     powerbar.parent = self
@@ -1016,7 +1025,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local pbbg = powerbar:CreateTexture(nil,"ARTWORK",nil,-3)
 	pbbg:SetAllPoints(powerbar)
-	pbbg:SetTexture(texture)
+	pbbg:SetTexture(powertexture)
     powerbar.bg = pbbg
 
 

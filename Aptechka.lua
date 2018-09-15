@@ -94,6 +94,7 @@ local defaults = {
     powerTexture = "Gradient",
     invertedColors = false,
     useLibResInfo = true,
+    useCombatLogHealthUpdates = false,
     scale = 1,
     autoscale = {
         damageMediumRaid = 0.8,
@@ -351,7 +352,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
     end
 
-    if config.useCombatLogHealthUpdates then
+    if AptechkaDB.useCombatLogHealthUpdates then
         local CLH = LibStub("LibCombatLogHealth-1.0")
         UnitHealth = CLH.UnitHealth
         self:UnregisterEvent("UNIT_HEALTH")

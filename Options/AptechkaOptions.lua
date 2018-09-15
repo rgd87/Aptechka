@@ -962,13 +962,24 @@ local function MakeGeneralOptions()
                     useLRI = {
                         name = "Use LibResInfo",
                         type = "toggle",
-                        width = "double",
                         confirm = true,
 						confirmText = "Warning: Requires UI reloading.",
                         order = 11.1,
                         get = function(info) return Aptechka.db.useLibResInfo end,
                         set = function(info, v)
                             Aptechka.db.useLibResInfo = not Aptechka.db.useLibResInfo
+                            ReloadUI()
+                        end
+                    },
+                    useCLH = {
+                        name = "Use LibCLH",
+                        type = "toggle",
+                        confirm = true,
+						confirmText = "Warning: Requires UI reloading.",
+                        order = 11.2,
+                        get = function(info) return Aptechka.db.useCombatLogHealthUpdates end,
+                        set = function(info, v)
+                            Aptechka.db.useCombatLogHealthUpdates = not Aptechka.db.useCombatLogHealthUpdates
                             ReloadUI()
                         end
                     },
