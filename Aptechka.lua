@@ -42,6 +42,7 @@ local LastCastSentTime = 0
 local LastCastTargetName
 
 local AptechkaString = "|cffff7777Aptechka: |r"
+local GetTime = GetTime
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
@@ -769,7 +770,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
 end
 
 
-function Aptechka.CheckPhase(frame, unit)
+function Aptechka:CheckPhase(frame, unit)
     if UnitHasIncomingResurrection(unit) then
         frame.centericon.texture:SetTexture("Interface\\RaidFrame\\Raid-Icon-Rez");
         frame.centericon.texture:SetTexCoord(0,1,0,1);
@@ -784,18 +785,18 @@ function Aptechka.CheckPhase(frame, unit)
         FrameSetJob(frame, config.PhasedOutStatus, false)
     end
 end
-function Aptechka.CheckPhase1(unit)
+function Aptechka:CheckPhase1(unit)
     local rosterunit = Roster[unit]
     if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        Aptechka.CheckPhase(self, unit)
+    for frame in pairs(rosterunit) do
+        Aptechka:CheckPhase(frame, unit)
     end
 end
 
 function Aptechka.UNIT_PHASE(self, event, unit)
     for unit, frames in pairs(Roster) do
         for frame in pairs(frames) do
-            Aptechka.CheckPhase(frame,unit)
+            Aptechka:CheckPhase(frame,unit)
         end
     end
 end
@@ -950,7 +951,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
                 if self.power then Aptechka:UNIT_POWER_UPDATE(nil,self.unit) end
 				if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
-                Aptechka.CheckPhase1(self.unit)
+                Aptechka:CheckPhase1(self.unit)
                 Aptechka.ScanAuras(self.unit)
             end
         end
@@ -1223,6 +1224,21 @@ function Aptechka.Colorize(self, event, unit)
     end
 end
 
+local delayedUpdateUnits = {}
+local delayedUpdateTimer = C_Timer.NewTicker(10, function()
+    local now = GetTime()
+    for unit, startTime in pairs(delayedUpdateUnits) do
+        Aptechka:UNIT_CONNECTION("DELAYED_UPDATE", unit)
+        Aptechka:CheckPhase1(unit)
+        Aptechka:UNIT_DISPLAYPOWER(nil, unit)
+
+        if now > startTime + 32 then
+            delayedUpdateUnits[unit] = nil
+        end
+    end
+end)
+
+
 --UnitButton initialization
 local OnAttributeChanged = function(self, attrname, unit)
     if attrname ~= "unit" then return end
@@ -1275,11 +1291,13 @@ local OnAttributeChanged = function(self, attrname, unit)
     if config.enableAbsorbBar then
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
-    Aptechka:UNIT_CONNECTION(nil, owner)
+    Aptechka:UNIT_CONNECTION("ONATTR", owner)
+    delayedUpdateUnits[owner] = GetTime()
+
     if AptechkaDB.showAFK then
         Aptechka:UNIT_AFK_CHANGED(nil, owner)
     end
-    Aptechka.CheckPhase1(unit)
+    Aptechka:CheckPhase1(unit)
     SetJob(unit, config.ReadyCheck, false)
     if not config.disableManaBar then
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)

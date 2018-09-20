@@ -313,6 +313,8 @@ if playerClass == "PALADIN" then
      --Bestow Faith
     A{ id = 223306,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 1 , .9, 0} }
 
+    -- Forbearance
+    A{ id = 25771, type = "HARMFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.8, 0, 0 } }
 
     -- Beacon of Virtue
     A{ id = 200025, type = "HELPFUL", assignto = "bar4", showDuration = true, isMine = true, color = { 0,.9,0 } }
@@ -447,6 +449,100 @@ helpers.auraBlacklist = {
     
     [256200] = true, -- Heartstopper Venom, Tol'Dagor
     [271544] = true, -- Ablative Shielding
+
+
+    -- PvP trash debuffs
+    [110310] = true, -- Dampening
+    [195901] = true, -- Adaptation
+
+    
+
+    -- Common 
+
+    -- Healing Reduction
+    -- [115804] = true, -- Mortal Wound, Healing effects received reduced by 25%.
+    -- [197046] = true, -- Assa Rogue PvP Talent: Minor Wound Poison, Poison, Healing effects reduced by 15%.
+    -- [8680] = true, -- Assa Rogue: Wound Poison, Poison, Healing effects reduced by 30%.
+    [30213] = true, -- Demonology Warlock: Legion Strike, Effectiveness of any healing reduced by 10%.
+    
+    -- Slows
+    -- [1715] = true, -- Warrior Hamstring, Physical 50%
+    -- [12323] = true, -- Fury Warrior, Piercing Howl, Physical 50%
+    -- [116095] = true, -- WW Monk, Disable, Physical 50%
+    -- [183218] = true, -- Paladin, Hand of Hindrance, Magic 70%
+    -- [185763] = true, -- Outlaw Rogue, Pistol Shot, Physical 50%
+    -- [206760] = true, -- Subtlety Rogue, Shadow's Grasp, Magic 30%
+    -- [3409] = true, -- Crippling Poison, Poison 50%
+    [248744] = true, -- Assa Rogue, Shiv, Physical 70%. 4s
+    -- [205708] = true, -- Frost Mage, Chilled, Magic 65% 15s
+    -- [212792] = true, -- Frost Mage, Cone of Cold, Magic 85% 5s
+    -- [31589] = true, -- Arcane Mage, Slow, Magic 50%
+    -- [157981] = true, -- Fire Mage, Blast Wave, Physical 70% 4s
+    -- [186387] = true, -- Hunter, Bursting Shot, Physical 50s 4s
+    -- [195645] = true, -- Hunter Survival: Wing Clip, Physical 50%
+    -- [5116] = true, -- Hunter: Concussive Shot, Physical 50% 6s
+
+
+
+    -- MONK
+    [113746] = true, -- 8.0 Monk: Mystic Touch, Physical damage taken increased by 5%.    
+    [228287] = true, -- 8.0 WW Monk: Mark of the Crane, Increases the damage of the Monk's Spinning Crane Kick by 10%.
+    [273299] = true, -- 8.0 Monk Azerite Trait Sunrise Technique, Taking additional damage from Melee abilities.
+
+    -- WARRIOR
+    [262115] = true, -- 8.0 Warrior Deep Wounds 6s
+
+    -- DEMON HUNTER
+    [1490] = true, -- 8.0 DH: Chaos Brand, Magic damage taken increased by 5%.
+    [258860] = true, -- 8.0 DH: Dark Slash
+
+    -- DEATH KNIGHT
+    [199720] = true, -- 8.0 DK PvP Talent, Decomposing Aura, Your body is decaying, losing 3% maximum health every 5 sec.
+    [214968] = true, -- 8.0 DK PvP Talent, Necrotic Aura, Taking 8% increased magical damage.
+    [214975] = true, -- 8.0 DK PvP Talent, Heartstop Aura, Cooldown recovery rate decreased by 20%.
+    [51714] = true, -- 8.0 Frost DK:  Razorice, Frost damage taken from the Death Knight's abilities increased by 3%.
+
+    -- PALADIN
+    [197277] = true, -- 8.0 Paladin: Judgement, Taking 25% increased damage from the Paladin's next Holy Power spender.
+    [246807] = true, -- 8.0 Paladin PvP Talent: Lawbringer, Suffering up to 5% of maximum health in Holy damage when Judgment is cast.
+    [204242] = true, -- 8.0 Paladin Holy, Consecration
+
+    -- ROGUE
+    [255909] = true, -- Rogue: Prey on the Weak, Damage taken increased by 10%. 6s
+    [196937] = true, -- Outlaw Rogue: Ghostly Strike, Taking 10% increased damage from the Rogue's abilities.
+    [137619] = true, -- Rogue: Marked for Death, Marked for Death will reset upon death.
+    [91021] = true, -- Sub Rogue Talent: Find Weakness, 40% of armor is ignored by the attacking Rogue.
+    [245389] = true, -- Assa Rogue Talent: Toxic Blade, 30% increased damage taken from poisons from the casting Rogue.
+    [256148] = true, -- Assa Rogue Talent: Iron Wire, Damage done reduced by 15%.
+    [154953] = true, -- Assa Rogue Talent: Internal Bleeding, Suffering (3.12% of Attack power) damage every 1 sec.
+    [198222] = true, -- Assa Rogue PvP Talent: System Shock, Poison, Movement speed reduced by 90%. 2s
+    -- [198097] = true, -- Assa Rogue PvP Talent: Creeping Venom, Poison, Suffering (2% of Attack power) Nature damage every 0.5 seconds.  Moving while afflicted by Creeping Poison causes it to refresh its duration to 4 sec.
+    [197091] = true, -- Assa Rogue PvP Talent: Neurotoxin, Poison, Poisoned with a deadly neurotoxin.  Any ability used will incur an additional 3 second cooldown.
+    [197051] = true, -- Assa Rogue PvP Talent: Mind-Numbing Poison, Poison, Casting spells while under the effects of Mind-numbing Poison will cause you to take Nature damage.
+    
+
+    -- MAGE
+    [226757] = true, -- Fire Mage Talent: Conflagration, Deals (1.65% of Spell power) Fire damage every 2 sec.
+    [12654] = true, -- Fire Mage: Ignite
+    [2120] = true, -- Fire Mage, Flamestrike Slow, Physical 20% 8s
+
+    -- WARLOCK
+    [32390] = true, -- Aff Warlock Talent: Shadow Embrace
+    [198590] = true, -- Aff Warlock: Drain Soul
+    [234153] = true, -- Warlock: Drain Life
+    [265931] = true, -- Destruction Warlock: Conflagrate
+    
+    -- HUNTER
+    -- [131894] = true, -- Hunter: A Murder of Crows
+    [259277] = true, -- Survival Hunter: Bloodseeker
+    -- Wildfire Bombs
+    [269747] = true, -- Wildfire Bomb
+    [271049] = true, -- Volatile Wildfire
+    [270339] = true, -- Scorching Shrapnel
+    [270332] = true, -- Scorching Pheromones
+    [132951] = true, -- Hunter Flare
+
+    
 }
 
 
@@ -510,6 +606,7 @@ helpers.customBossAuras = {
     [115078] = true, -- Paralysis
     [116706] = true, -- Disable
     [119381] = true, -- Leg Sweep
+    [122470] = true, -- Touch of Karma
     [198909] = true, -- Song of Chi-Ji
     [202274] = true, -- Incendiary Brew
     [233759] = true, -- Grapple Weapon
@@ -561,8 +658,13 @@ helpers.customBossAuras = {
     [30283] = true, -- Shadowfury
     [89766] = true, -- Axe Toss
     [118699] = true, -- Fear
-    [196364] = true, -- Unstable Affliction (Silence)
 
+    [196364] = true, -- Unstable Affliction (Silence)
+    [233490] = true, -- Unstable Affliction applications
+    [233496] = true, -- Unstable Affliction applications
+    [233497] = true, -- Unstable Affliction applications
+    [233498] = true, -- Unstable Affliction applications
+    [233499] = true, -- Unstable Affliction applications
 
     [5246] = true, -- Intimidating Shout
     [132169] = true, -- Storm Bolt
