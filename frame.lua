@@ -507,6 +507,9 @@ local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
 end
 
 local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
+    w = pixelperfect(w)
+    h = pixelperfect(h)
+
     local icon = CreateFrame("Frame",nil,parent)
     icon:SetWidth(w); icon:SetHeight(h)
     icon:SetPoint(point,frame,to,x,y)
@@ -575,7 +578,7 @@ local function SetJob_DebuffIcon(self, job)
         else
             color = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
         end
-        self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 0.6)
+        self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 1)
     end
 
     if job.isBossAura then
@@ -584,25 +587,52 @@ local function SetJob_DebuffIcon(self, job)
         self:SetScale(1)
     end
 end
-local CreateDebuffIcon = function(parent, w, h, alpha, point, frame, to, x, y)
-    local icon = CreateIcon(parent, w,h, alpha, point, frame, to, x, y)
+
+local SetDebuffOrientation = function(self, orientation)
+    local it = self.texture
+    local dtt = self.debuffTypeTexture
+    local w = self.width
+    local h = self.height
+    local p = pixelperfect(1)
+    it:ClearAllPoints()
+    dtt:ClearAllPoints()
+
+    if orientation == "VERTICAL" then
+        self:SetSize(w,h)
+        it:SetSize(h,h)
+        it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+        dtt:SetSize(6,h)
+        dtt:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, 0)
+    else
+        self:SetSize(h,w)
+        it:SetSize(h,h)
+        it:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0)
+        -- dtt:SetSize(h,6)
+        -- dtt:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+
+        dtt:SetSize(h+p*2,h+p*2)
+        dtt:SetPoint("CENTER", it, "CENTER", 0, 0)
+    end    
+end
+
+local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to, x, y)
+    local icon = CreateIcon(parent, width, height, alpha, point, frame, to, x, y)
+
+    local w = pixelperfect(width)
+    local h = pixelperfect(height)
+    icon.width = w
+    icon.height = h
 
     local icontex = icon.texture
-    icontex:ClearAllPoints()
-    icontex:SetPoint("BOTTOMLEFT",icon, "BOTTOMLEFT",0,0)
-    local min = h --math.min(w,h)
-    icontex:SetWidth(min);
-    icontex:SetHeight(min);
-
-    icon.texture:SetTexCoord(.2, .8, .2, .8)
+    icontex:SetTexCoord(.2, .8, .2, .8)
 
     local dttex = icon:CreateTexture(nil, "ARTWORK", nil, -2)
     dttex:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-    dttex:SetWidth(min)
-    dttex:SetHeight(min)
-    dttex:SetPoint("TOPRIGHT", icon, "TOPRIGHT", 0, 0)
-    -- dttex:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT",0,0)
     icon.debuffTypeTexture = dttex
+
+    icon.SetOrientation = SetDebuffOrientation
+
+    icon:SetOrientation("VERTICAL")
 
     -- icon:SetBackdrop{
         -- bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
@@ -932,14 +962,14 @@ local function Reconf(self)
         self.power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
         self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
 
-        -- self.dicon1:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
+        self.dicon1:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
         self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
         self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
         self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
-        self.dicon1:SetSize(14, 11)
-        self.dicon2:SetSize(14, 11)
-        self.dicon3:SetSize(14, 11)
-        self.dicon4:SetSize(14, 11)
+        self.dicon1:SetOrientation("VERTICAL")
+        self.dicon2:SetOrientation("VERTICAL")
+        self.dicon3:SetOrientation("VERTICAL")
+        self.dicon4:SetOrientation("VERTICAL")
 
     else
         self.health:SetOrientation("HORIZONTAL")
@@ -965,14 +995,14 @@ local function Reconf(self)
         self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
         self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
 
-        -- self.dicon1:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
-        self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0)
-        self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "BOTTOMRIGHT",0,0)
-        self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "BOTTOMRIGHT",0,0)
-        self.dicon1:SetSize(11, 14)
-        self.dicon2:SetSize(11, 14)
-        self.dicon3:SetSize(11, 14)
-        self.dicon4:SetSize(11, 14)
+        self.dicon1:SetPoint("BOTTOMLEFT", self.power, "TOPLEFT",0,0)
+        self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",2,0)
+        self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "BOTTOMRIGHT",2,0)
+        self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "BOTTOMRIGHT",2,0)
+        self.dicon1:SetOrientation("HORIZONTAL")
+        self.dicon2:SetOrientation("HORIZONTAL")
+        self.dicon3:SetOrientation("HORIZONTAL")
+        self.dicon4:SetOrientation("HORIZONTAL")
     end
 
 end
@@ -1286,10 +1316,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
 
 
-    self.dicon1 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
-    self.dicon2 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
-    self.dicon3 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
-    self.dicon4 = CreateDebuffIcon(self, 14, 11, 1, "BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
+    self.dicon1 = CreateDebuffIcon(self, 15, 12, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
+    self.dicon2 = CreateDebuffIcon(self, 15, 12, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
+    self.dicon3 = CreateDebuffIcon(self, 15, 12, 1, "BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
+    self.dicon4 = CreateDebuffIcon(self, 15, 12, 1, "BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     local blcorner = CreateCorner(self, 12, 12, "BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation
