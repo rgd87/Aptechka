@@ -36,7 +36,7 @@ function AptechkaGUI.GenerateCategoryTree(self, isGlobal, category)
 	local t = {}
 	for spellID, opts in pairs(AptechkaConfigMerged[category]) do
 		if (isGlobal and opts.global) or (not isGlobal and not opts.global) then
-			local name = (GetSpellInfo(spellID) or "Unknown") or opts.name
+			local name = (GetSpellInfo(spellID) or "<Unknown>") or opts.name
 			local custom_opts = custom[category] and custom[category][spellID]
 			local status
 			local order = 5
@@ -196,6 +196,7 @@ function AptechkaGUI.CreateCommonForm(self)
             -- clean(opts, default_opts, "group", "default")
             -- clean(opts, default_opts, "affiliation", COMBATLOG_OBJECT_AFFILIATION_MINE)
             -- clean(opts, default_opts, "fixedlen", false)
+            clean(opts, default_opts, "name", false)
             clean(opts, default_opts, "priority", false)
             clean(opts, default_opts, "extend_below", false)
             clean(opts, default_opts, "refreshTime", false)
@@ -210,7 +211,7 @@ function AptechkaGUI.CreateCommonForm(self)
             -- clean(opts, default_opts, "effect", "NONE")
             -- clean(opts, default_opts, "ghosteffect", "NONE")
         end
-		PRESAVE = p.opts
+
 		local delta = CopyTable(opts)
         -- delta.timer = nil -- important, clears runtime data
 
@@ -279,13 +280,21 @@ function AptechkaGUI.CreateCommonForm(self)
 	Form:AddChild(spellID)
 
     local name = AceGUI:Create("EditBox")
-    name:SetLabel("Name")
-    name:SetDisabled(true)
+    name:SetLabel("Internal Name")
+    name:SetDisabled(false)
     -- name:SetFullWidth(true)
     name:SetRelativeWidth(0.5)
     -- name:SetCallback("OnEnterPressed", function(self, event, value)
         -- self.parent.opts["name"] = value
     -- end)
+    name:SetCallback("OnTextChanged", function(self, event, value)
+        if value == "" then
+            self.parent.opts["name"] = false
+            self:SetText("")
+        else
+            self.parent.opts["name"] = value
+        end
+    end)
     -- name:SetHeight(32)
     Form.controls.name = name
     Form:AddChild(name)
@@ -519,12 +528,14 @@ function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm
 	end
 
 
-	if category == "auras" then
+    if category == "auras" then
+        controls.name:SetDisabled(false)
 		controls.showDuration:SetDisabled(false)
 		controls.isMine:SetDisabled(false)
         controls.extend_below:SetDisabled(false)
         controls.refreshTime:SetDisabled(false)
-	else
+    else
+        controls.name:SetDisabled(true)
 		controls.showDuration:SetDisabled(true)
         controls.isMine:SetDisabled(true)
         controls.extend_below:SetDisabled(true)
