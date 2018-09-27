@@ -265,11 +265,14 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
     -- local scale = AptechkaDB.scale or config.scale
+    local strata = config.frameStrata or "LOW"
     local scale = 1
-    self.makeConfSnippet = function(width, height, scale)
+    self.makeConfSnippet = function(...)
         return string.format([=[
             self:SetWidth(%f)
             self:SetHeight(%f)
+            self:SetFrameStrata("%s")
+            self:SetFrameLevel(3)
 
             self:SetAttribute("toggleForVehicle", true)
 
@@ -281,9 +284,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 ccheader:RunAttribute("clickcast_register")
             end
 
-        ]=],width, height,scale)
+        ]=], ...)
     end
-    self.initConfSnippet = self.makeConfSnippet(width, height, scale)
+    self.initConfSnippet = self.makeConfSnippet(width, height, strata)
 
     self:LayoutUpdate()
 

@@ -1006,10 +1006,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local frameborder = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
     frameborder:SetVertexColor(0,0,0,1)
 
-    self:SetFrameStrata(config.frameStrata or "LOW")
-    self:SetFrameLevel(3)
-
-
     local powerbar = CreateFrame("StatusBar", nil, self)
 	powerbar:SetWidth(4)
     powerbar:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
