@@ -52,7 +52,7 @@ helpers.AddLoadableAura = function (data, todefault)
     Aptechka.loadedAuras[data.id] = data
 end
 helpers.AddAura = function (data, todefault)
-    if data.id then data.name = GetSpellInfo(data.id) end
+    if data.id and not data.name then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
     -- if data.isMine then data.type = data.type.."|PLAYER" end
     if data.debuffType then DT(data.debuffType, data) end
