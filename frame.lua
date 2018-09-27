@@ -1370,8 +1370,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
             list[slot] = slot
         end
         list["raidbuff"] = "raidbuff"
-        list["dispel"] = "dispel"
+        list["healfeedback"] = "healfeedback"
         list["icon"] = "icon"
+        list["bar1"] = nil
+        list["bar2"] = nil
+        list["bar3"] = nil
         Aptechka.widget_list = list
     end
 

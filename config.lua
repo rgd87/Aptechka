@@ -273,11 +273,8 @@ if playerClass == "MONK" then
     A{ id = 124682, type = "HELPFUL", assignto = "bars", refreshTime = 6*0.3, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 75 }
     --Soothing Mist
     A{ id = 115175, type = "HELPFUL", assignto = "bars", isMine = true, showDuration = true, color = { 0, .8, 0}, priority = 80 }
-    --Statue Mist
-    A{ id = 198533, type = "HELPFUL", name = "Statue Mist", assignto = "bars", isMine = true, showDuration = false, color = { 0.4, 1, 0.4}, priority = 50 }
-
     --Statue's Soothing Mist
-    -- A{ id = 198533, type = "HELPFUL", assignto = "spell3", priority = 60, color = { 0, .4, 0} }
+    -- A{ id = 198533, type = "HELPFUL", name = "Statue Mist", assignto = "spell3", isMine = true, showDuration = false, color = { 0.4, 1, 0.4}, priority = 50 }
 
     --Essence Font
     A{ id = 191840, type = "HELPFUL", assignto = "bars", priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
