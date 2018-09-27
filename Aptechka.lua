@@ -561,8 +561,9 @@ function Aptechka:ReconfigureProtected()
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
     -- local scale = AptechkaDB.scale or config.scale
+    local strata = config.frameStrata or "LOW"
     local scale = 1
-    self.initConfSnippet = self.makeConfSnippet(width, height, scale)
+    self.initConfSnippet = self.makeConfSnippet(width, height, strata)
     for group, header in ipairs(group_headers) do
         
         for _, f in ipairs({ header:GetChildren() }) do
