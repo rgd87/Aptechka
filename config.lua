@@ -450,10 +450,16 @@ helpers.auraBlacklist = {
     [256200] = true, -- Heartstopper Venom, Tol'Dagor
     [271544] = true, -- Ablative Shielding
 
+    [45182] = true, -- Cheat Death cooldown
+    [187464] = true, -- Shadowmend debuff
 
     -- PvP trash debuffs
     [110310] = true, -- Dampening
     [195901] = true, -- Adaptation
+
+    -- Azerite Traits
+    [280286] = true, -- Dagger in the Back
+    [279956] = true, -- Azerite Globules
 
     
 
