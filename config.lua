@@ -210,6 +210,8 @@ if playerClass == "PRIEST" then
     A{ id = 139,   type = "HELPFUL", assignto = "bars", refreshTime = 15*0.3, priority = 50, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
     --Power Word: Shield
     A{ id = 17,    type = "HELPFUL", assignto = "bars", priority = 90, isMine = true, color = { 1, .85, 0}, showDuration = true }
+    -- Weakened Soul
+    A{ id = 6788,    type = "HELPFUL", assignto = "bars", priority = 70, color = { 0.8, 0, 0}, showDuration = true }
     --Prayer of Mending
     A{ id = 41635, type = "HELPFUL", assignto = "bar4", priority = 70, stackcolor =   {
                                                                             [1] = { 1, 0, 0},
@@ -437,7 +439,7 @@ helpers.auraBlacklist = {
     [8326] = true, -- Ghost
     [25771] = true, -- Forbearance
     [41425] = true, -- Hypothermia (after Ice Block)
-    -- [6788] = true, -- Weakened Soul
+    [6788] = true, -- Weakened Soul
     [113942] = true, -- demonic gates debuff
     [123981] = true, -- dk cooldown debuff
     [87024] = true, -- mage cooldown debuff
