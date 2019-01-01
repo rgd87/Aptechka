@@ -96,6 +96,7 @@ local defaults = {
     invertedColors = false,
     useLibResInfo = true,
     useCombatLogHealthUpdates = false,
+    disableTooltip = false,
     scale = 1,
     autoscale = {
         damageMediumRaid = 0.8,
@@ -277,6 +278,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:SetAttribute("toggleForVehicle", true)
 
             self:SetAttribute("*type1","target")
+            self:SetAttribute("shift-type2","togglemenu")
 
             local ccheader = self:GetParent():GetFrameRef("clickcast_header")
             if ccheader then
@@ -1549,7 +1551,7 @@ end
 
 local onenter = function(self)
     if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
-    if UnitAffectingCombat("player") then return end
+    if AptechkaDB.disableTooltip or UnitAffectingCombat("player") then return end
     UnitFrame_OnEnter(self)
     self:SetScript("OnUpdate", UnitFrame_OnUpdate)
 end

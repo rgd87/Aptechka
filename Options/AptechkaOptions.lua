@@ -940,7 +940,7 @@ local function MakeGeneralOptions()
                     },
                     hideBlizzardRaid = {
                         name = "Hide Blizzard Raid Frames",
-                        width = "double",
+                        width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.hideBlizzardRaid end,
                         set = function(info, v)
@@ -951,14 +951,23 @@ local function MakeGeneralOptions()
                     },
                     petGroup = {
                         name = "Enable Pet Group",
-                        width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.petGroup end,
                         set = function(info, v)
                             Aptechka.db.petGroup = not Aptechka.db.petGroup
                             print("Aptechka: Changes will effect after /reload")
                         end,
-                        order = 11,
+                        order = 10.2,
+                    },
+                    disableTooltip = {
+                        name = "Disable Tooltips",
+                        width = "double",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.disableTooltip end,
+                        set = function(info, v)
+                            Aptechka.db.disableTooltip = not Aptechka.db.disableTooltip
+                        end,
+                        order = 10.4,
                     },
                     showAFK = {
                         name = "Show AFK",
