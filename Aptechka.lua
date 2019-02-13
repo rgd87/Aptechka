@@ -1230,25 +1230,9 @@ function Aptechka.Colorize(self, event, unit)
     end
 end
 
-local delayedUpdateUnits = {}
-local delayedUpdateTimer = C_Timer.NewTicker(10, function()
-    local now = GetTime()
-    for unit, startTime in pairs(delayedUpdateUnits) do
-        Aptechka:UNIT_CONNECTION("DELAYED_UPDATE", unit)
-        Aptechka:CheckPhase1(unit)
-        Aptechka:UNIT_DISPLAYPOWER(nil, unit)
-
-        if now > startTime + 32 then
-            delayedUpdateUnits[unit] = nil
-        end
-    end
-end)
 
 
---UnitButton initialization
-local OnAttributeChanged = function(self, attrname, unit)
-    if attrname ~= "unit" then return end
-
+local function updateUnitButton(self, unit)
     local owner = unit
     if self.InVehicle and unit and unit == self.unitOwner then
         unit = self.unit
@@ -1298,7 +1282,6 @@ local OnAttributeChanged = function(self, attrname, unit)
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
     Aptechka:UNIT_CONNECTION("ONATTR", owner)
-    delayedUpdateUnits[owner] = GetTime()
 
     if AptechkaDB.showAFK then
         Aptechka:UNIT_AFK_CHANGED(nil, owner)
@@ -1319,6 +1302,33 @@ local OnAttributeChanged = function(self, attrname, unit)
     Aptechka:CheckRoles(self, unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
 end
+
+local delayedUpdateUnits = {}
+local delayedUpdateTimer = C_Timer.NewTicker(10, function()
+    local now = GetTime()
+    for unit, startTime in pairs(delayedUpdateUnits) do
+        
+        for self in pairs(Roster[unit]) do
+            updateUnitButton(self, unit)
+        end
+
+        if now > startTime + 32 then
+            delayedUpdateUnits[unit] = nil
+        end
+    end
+end)
+
+--UnitButton initialization
+local OnAttributeChanged = function(self, attrname, unit)
+    if attrname ~= "unit" then return end
+
+    updateUnitButton(self, unit)
+    if unit ~= nil then
+        delayedUpdateUnits[unit] = GetTime()
+    end
+end
+
+
 
 local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         local p1, p2
