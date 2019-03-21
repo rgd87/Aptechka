@@ -1308,8 +1308,10 @@ local delayedUpdateTimer = C_Timer.NewTicker(10, function()
     local now = GetTime()
     for unit, startTime in pairs(delayedUpdateUnits) do
         
-        for self in pairs(Roster[unit]) do
-            updateUnitButton(self, unit)
+        if Roster[unit] then
+            for self in pairs(Roster[unit]) do
+                updateUnitButton(self, unit)
+            end
         end
 
         if now > startTime + 32 then
