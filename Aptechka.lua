@@ -1261,16 +1261,18 @@ function Aptechka.Colorize(self, event, unit)
 end
 
 
-local has_unkowns = false
+local has_unknowns = true
 local UNKNOWNOBJECT = UNKNOWNOBJECT
 
 local function updateUnitButton(self, unit)
     local owner = unit
+    -- print("InVehicle:", self.InVehicle, "  unitOwner:", self.unitOwner, "  unit:", unit)
     if self.InVehicle and unit and unit == self.unitOwner then
         unit = self.unit
         owner = self.unitOwner
-        -- print("InVehicle:", self.InVehicle, "  unitOwner:", self.unitOwner, "  unit:", unit)
         --if for some reason game will decide to update unit whose frame is mapped to vehicleunit in roster
+    elseif self.InVehicle and unit then
+        owner = self.unitOwner
     else
         if self.vehicleFrame then
             self.vehicleFrame:SetScript("OnUpdate",nil)
@@ -1339,8 +1341,8 @@ local function updateUnitButton(self, unit)
 end
 
 local delayedUpdateTimer = C_Timer.NewTicker(5, function()
-    if has_unkowns then
-        has_unkowns = false
+    if has_unknowns then
+        has_unknowns = false
         for unit, frames in pairs(Roster) do
             for frame in pairs(frames) do
                 -- updateUnitButton may change has_unknowns back to true
