@@ -268,27 +268,53 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     -- local scale = AptechkaDB.scale or config.scale
     local strata = config.frameStrata or "LOW"
     local scale = 1
-    self.makeConfSnippet = function(...)
-        return string.format([=[
-            self:SetWidth(%f)
-            self:SetHeight(%f)
-            self:SetFrameStrata("%s")
-            self:SetFrameLevel(3)
+    -- self.makeConfSnippet = function(...)
+    --     return string.format([=[          
+    --         self:SetWidth(%f)
+    --         self:SetHeight(%f)
+    --         self:SetFrameStrata("%s")
+    --         self:SetFrameLevel(3)
 
-            self:SetAttribute("toggleForVehicle", true)
+    --         self:SetAttribute("toggleForVehicle", true)
+    --         self:SetAttribute("allowVehicleTarget", false)
+            
 
-            self:SetAttribute("*type1","target")
-            self:SetAttribute("shift-type2","togglemenu")
+    --         self:SetAttribute("*type1","target")
+    --         self:SetAttribute("shift-type2","togglemenu")
 
-            local ccheader = self:GetParent():GetFrameRef("clickcast_header")
-            if ccheader then
-                ccheader:SetAttribute("clickcast_button", self)
-                ccheader:RunAttribute("clickcast_register")
-            end
+    --         local ccheader = self:GetParent():GetFrameRef("clickcast_header")
+    --         if ccheader then
+    --             ccheader:SetAttribute("clickcast_button", self)
+    --             ccheader:RunAttribute("clickcast_register")
+    --         end
 
-        ]=], ...)
-    end
-    self.initConfSnippet = self.makeConfSnippet(width, height, strata)
+    --     ]=], ...)
+    -- end
+    -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
+
+    -- self:SetFrameStrata("%s")
+    -- self:SetWidth(%f)
+    -- self:SetHeight(%f)
+    self.initConfSnippet = [=[
+        RegisterUnitWatch(self)
+        
+        self:SetFrameLevel(3)
+
+        self:SetAttribute("toggleForVehicle", true)
+        self:SetAttribute("allowVehicleTarget", false)
+        
+
+        self:SetAttribute("*type1","target")
+        self:SetAttribute("shift-type2","togglemenu")
+
+        local header = self:GetParent()
+        local ccheader = header:GetFrameRef("clickcast_header")
+        if ccheader then
+            ccheader:SetAttribute("clickcast_button", self)
+            ccheader:RunAttribute("clickcast_register")
+        end
+        header:CallMethod("initialConfigFunction", self:GetName())
+    ]=]
 
     self:LayoutUpdate()
 
@@ -563,15 +589,19 @@ function Aptechka:ReconfigureProtected()
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
     -- local scale = AptechkaDB.scale or config.scale
-    local strata = config.frameStrata or "LOW"
+    -- local strata = config.frameStrata or "LOW"
     local scale = 1
-    self.initConfSnippet = self.makeConfSnippet(width, height, strata)
+    -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
     for group, header in ipairs(group_headers) do
         
         for _, f in ipairs({ header:GetChildren() }) do
             f:SetWidth(width)
             f:SetHeight(height)
             f:SetScale(scale)
+            if f:CanChangeAttribute() then
+                f:SetAttribute("initial-width", width)
+                f:SetAttribute("initial-height", height)
+            end
         end
 
         local showSolo = AptechkaDB.showSolo
@@ -1231,6 +1261,8 @@ function Aptechka.Colorize(self, event, unit)
 end
 
 
+local has_unkowns = false
+local UNKNOWNOBJECT = UNKNOWNOBJECT
 
 local function updateUnitButton(self, unit)
     local owner = unit
@@ -1261,6 +1293,9 @@ local function updateUnitButton(self, unit)
     if not unit then return end
 
     local name, realm = UnitName(owner)
+    if name == UNKNOWNOBJECT then
+        has_unknowns = true
+    end
     self.name = utf8sub(name,1, AptechkaDB.cropNamesLen)
 
     self.unit = unit
@@ -1303,30 +1338,22 @@ local function updateUnitButton(self, unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
 end
 
-local delayedUpdateUnits = {}
-local delayedUpdateTimer = C_Timer.NewTicker(10, function()
-    local now = GetTime()
-    for unit, startTime in pairs(delayedUpdateUnits) do
-        
-        if Roster[unit] then
-            for self in pairs(Roster[unit]) do
-                updateUnitButton(self, unit)
+local delayedUpdateTimer = C_Timer.NewTicker(5, function()
+    if has_unkowns then
+        has_unkowns = false
+        for unit, frames in pairs(Roster) do
+            for frame in pairs(frames) do
+                -- updateUnitButton may change has_unknowns back to true
+                updateUnitButton(frame, unit)
             end
-        end
-
-        if now > startTime + 32 then
-            delayedUpdateUnits[unit] = nil
         end
     end
 end)
 
 --UnitButton initialization
 local OnAttributeChanged = function(self, attrname, unit)
-    if attrname ~= "unit" then return end
-
-    updateUnitButton(self, unit)
-    if unit ~= nil then
-        delayedUpdateUnits[unit] = GetTime()
+    if attrname == "unit" then
+        updateUnitButton(self, unit)
     end
 end
 
@@ -1365,8 +1392,15 @@ function Aptechka.CreateHeader(self,group,petgroup)
 
     f:SetFrameStrata("BACKGROUND")
 
-    f:SetAttribute("template", "AptechkaUnitButtonTemplate")
-    f:SetAttribute("templateType", "Button")
+    -- f:SetAttribute("template", "AptechkaUnitButtonTemplate")
+    -- f:SetAttribute("templateType", "Button")
+    if ClickCastHeader then
+        f:SetAttribute("template", "ClickCastUnitTemplate,SecureUnitButtonTemplate")
+        SecureHandler_OnLoad(f)
+        f:SetFrameRef("clickcast_header", Clique.header)
+    else
+        f:SetAttribute("template", "SecureUnitButtonTemplate")
+    end
 
 
     local xgap = AptechkaDB.unitGap or config.unitGap
@@ -1395,14 +1429,13 @@ function Aptechka.CreateHeader(self,group,petgroup)
         --f:SetAttribute("startingIndex", 5*((group - config.maxgroups)-1))
     end
     --our group header doesn't really inherits SecureHandlerBaseTemplate
-    if ClickCastHeader then SecureHandlerSetFrameRef(f,"clickcast_header", ClickCastHeader) end
 
     local showSolo = AptechkaDB.showSolo -- or config.showSolo
     f:SetAttribute("showRaid", true)
     f:SetAttribute("showParty", config.showParty)
     f:SetAttribute("showSolo", showSolo)
     f:SetAttribute("showPlayer", true)
-    f.initConf = Aptechka.SetupFrame
+    f.initialConfigFunction = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
 
     local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
@@ -1573,7 +1606,17 @@ local onleave = function(self)
     self:SetScript("OnUpdate", nil)
 end
 
-function Aptechka.SetupFrame(f)
+function Aptechka.SetupFrame(header, frameName)
+    local f = _G[frameName]
+
+    local width = pixelperfect(AptechkaDB.width or config.width)
+    local height = pixelperfect(AptechkaDB.height or config.height)
+    f:SetAttribute("initial-width", width)
+    f:SetAttribute("initial-height", height)
+    if not InCombatLockdown() then
+        f:SetSize(width, height)
+    end
+
     f.onenter = onenter
     f.onleave = onleave
 

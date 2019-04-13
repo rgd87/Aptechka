@@ -19,4 +19,4 @@ helpers.lua
 config.lua
 frame.lua
 loadables.lua
-Aptechka.xml
+Aptechka.lua
