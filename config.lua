@@ -134,6 +134,10 @@ end
 local tankCD = { type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94}
 local survivalCD = { type = "HELPFUL", assignto = "shieldicon", global = true, showDuration = true, priority = 90 }
 
+-- ESSENCES
+A{ id = 296094, prototype = tankCD } --Standstill (Artifice of Time)
+A{ id = 296230, prototype = survivalCD } --Vitality Conduit
+
 -- MONK
 A{ id = 122783, prototype = survivalCD } -- Diffuse Magic
 A{ id = 122278, prototype = survivalCD } -- Dampen Harm
