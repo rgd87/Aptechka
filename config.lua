@@ -137,6 +137,7 @@ local survivalCD = { type = "HELPFUL", assignto = "shieldicon", global = true, s
 -- ESSENCES
 A{ id = 296094, prototype = tankCD } --Standstill (Artifice of Time)
 A{ id = 296230, prototype = survivalCD } --Vitality Conduit
+-- A{ id = 296211, type = "HELPFUL", assignto = "bars", color = { 1, 0.7, 0}, priority = 50, showDuration = true, isMine = true }
 
 -- MONK
 A{ id = 122783, prototype = survivalCD } -- Diffuse Magic
