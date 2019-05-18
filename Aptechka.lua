@@ -235,6 +235,13 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local classConfig = AptechkaConfigCustom[class]
     MergeTable(AptechkaConfigMerged, classConfig)
 
+    -- compiling a list of spells that should activate indicator when missing
+    for spellID, opts in pairs(auras) do
+        if opts.isMissing then
+            missingFlagSpells[opts] = true
+        end
+    end
+
     -- filling up ranks for auras
     local cloneIDs = {}
     for spellID, originalSpell in pairs(auras) do
@@ -256,13 +263,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 		end
     end
 
-    -- isMissing thing is incompatible with spell ranks
-    -- compiling a list of spells that should activate indicator when missing
-    for spellID, opts in pairs(auras) do
-        if opts.isMissing then
-            missingFlagSpells[spellID] = opts
-        end
-    end
+    
 
     Aptechka.Roster = Roster
 
@@ -1784,7 +1785,7 @@ function Aptechka.ScanAuras(unit)
             local opts = auras[spellID] or loadedAuras[spellID]
             if opts and not opts.disabled then
                 if caster == "player" or not opts.isMine then
-                    encountered[spellID] = true
+                    encountered[spellID] = opts
 
                     local status = true
                     if opts.isMissing then status = false end
@@ -1816,9 +1817,15 @@ function Aptechka.ScanAuras(unit)
                 frame.activeAuras[spellID] = nil
             end
         end
-        for spellID, opts in pairs(missingFlagSpells) do
-            if not encountered[spellID] then
-                FrameSetJob(frame, opts, true)
+        for optsMissing in pairs(missingFlagSpells) do
+            local isPresent
+            for spellID, opts in pairs(encountered) do
+                if optsMissing == opts then
+                    isPresent = true
+                end
+            end
+            if not isPresent then
+                FrameSetJob(frame, optsMissing, true)
             end
         end
     end
