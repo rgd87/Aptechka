@@ -34,33 +34,35 @@ function AptechkaGUI.GenerateCategoryTree(self, isGlobal, category)
 	local custom = isGlobal and AptechkaConfigCustom["GLOBAL"] or AptechkaConfigCustom[class]
 
 	local t = {}
-	for spellID, opts in pairs(AptechkaConfigMerged[category]) do
-		if (isGlobal and opts.global) or (not isGlobal and not opts.global) then
-			local name = (GetSpellInfo(spellID) or "<Unknown>") or opts.name
-			local custom_opts = custom[category] and custom[category][spellID]
-			local status
-			local order = 5
-			-- print(opts.name, custom_opts)
-			if not custom_opts or not next(custom_opts) then
-				status = nil
-			elseif custom_opts.disabled then
-				status = "|cffff0000[D] |r"
-				order = 6
-			elseif not AptechkaDefaultConfig[category][spellID] then
-				status = "|cff33ff33[A] |r"
-				order = 1
-			else
-				status = "|cffffaa00[M] |r"
-				order = 2
-			end
-			local text = status and status..name or name
-			table.insert(t, {
-				value = spellID,
-				text = text,
-				icon = GetSpellTexture(spellID),
-				order = order,
-			})
-		end
+    for spellID, opts in pairs(AptechkaConfigMerged[category]) do
+        if not AptechkaConfigMerged.spellClones[spellID] then
+            if (isGlobal and opts.global) or (not isGlobal and not opts.global) then
+                local name = (GetSpellInfo(spellID) or "<Unknown>") or opts.name
+                local custom_opts = custom[category] and custom[category][spellID]
+                local status
+                local order = 5
+                -- print(opts.name, custom_opts)
+                if not custom_opts or not next(custom_opts) then
+                    status = nil
+                elseif custom_opts.disabled then
+                    status = "|cffff0000[D] |r"
+                    order = 6
+                elseif not AptechkaDefaultConfig[category][spellID] then
+                    status = "|cff33ff33[A] |r"
+                    order = 1
+                else
+                    status = "|cffffaa00[M] |r"
+                    order = 2
+                end
+                local text = status and status..name or name
+                table.insert(t, {
+                    value = spellID,
+                    text = text,
+                    icon = GetSpellTexture(spellID),
+                    order = order,
+                })
+            end
+        end
 	end
 	table.sort(t, sortfunc)
 	return t
@@ -210,12 +212,30 @@ function AptechkaGUI.CreateCommonForm(self)
             -- clean(opts, default_opts, "recast_mark", false)
             -- clean(opts, default_opts, "effect", "NONE")
             -- clean(opts, default_opts, "ghosteffect", "NONE")
+            clean(opts, default_opts, "clones", false)
         end
 
 		local delta = CopyTable(opts)
-        -- delta.timer = nil -- important, clears runtime data
+        delta.realID = nil -- important, clears runtime data
+        delta.isforeign = nil
+        delta.expirationTime = nil
+        delta.realID = nil
+        delta.duration = nil
+        delta.texture = nil
+        delta.stacks = nil
 
-		if default_opts then
+        -- remove clones of the previous version of the spell
+		local oldOriginalSpell = AptechkaConfigMerged[category][spellID]
+		if oldOriginalSpell and oldOriginalSpell.clones then
+			for i, additionalSpellID in ipairs(oldOriginalSpell.clones) do
+				AptechkaConfigMerged[category][additionalSpellID] = nil
+				AptechkaConfigMerged.spellClones[additionalSpellID] = nil
+			end
+		end
+		----------
+
+        if default_opts then
+            if delta.clones then Aptechka.RemoveDefaultsPreserve(delta.clones, default_opts.clones) end
             Aptechka.RemoveDefaults(delta, default_opts)
 			AptechkaConfigMerged[category][spellID] = CopyTable(default_opts)
             -- if delta.disabled then
@@ -227,7 +247,15 @@ function AptechkaGUI.CreateCommonForm(self)
 			AptechkaConfigMerged[category][spellID] = delta
 		end
 
-        DELTA = CopyTable(delta)
+        -- fill up spell clones of the new version
+		local originalSpell = AptechkaConfigMerged[category][spellID]
+		if originalSpell.clones then
+			for i, additionalSpellID in ipairs(originalSpell.clones) do
+				AptechkaConfigMerged[category][additionalSpellID] = originalSpell
+				AptechkaConfigMerged.spellClones[additionalSpellID] = true
+			end
+		end
+		----------
 
 		AptechkaConfigCustom[class] = AptechkaConfigCustom[class] or {}
 		AptechkaConfigCustom[class][category] = AptechkaConfigCustom[class][category] or {}
@@ -428,7 +456,24 @@ function AptechkaGUI.CreateCommonForm(self)
     Form:AddChild(refreshTime)
     AddTooltip(refreshTime, "Pandemic indication. Only works for bars")
 
-
+    local clones = AceGUI:Create("EditBox")
+	clones:SetLabel("Additional Spell IDs")
+	clones:SetRelativeWidth(0.9)
+	clones:SetCallback("OnEnterPressed", function(self, event, value)
+		local cloneList = {}
+		for spellID in string.gmatch(value, "%d+") do
+			table.insert(cloneList, tonumber(spellID))
+		end
+        if next(cloneList) then
+            self.parent.opts["clones"] = cloneList
+        else
+            self.parent.opts["clones"] = false
+            self:SetText("")
+        end
+	end)
+	Form.controls.clones = clones
+	Form:AddChild(clones)
+	AddTooltip(clones, "Spell ID list of clones / spell ranks" )
 
     -- Frame:AddChild(Form)
     -- Frame.top = Form
@@ -473,6 +518,12 @@ function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm
     controls.isMine:SetValue(opts.isMine)
     controls.showDuration:SetValue(opts.showDuration)
     controls.refreshTime:SetText(opts.refreshTime)
+
+    local clonesText
+	if opts.clones then
+		clonesText = table.concat(opts.clones, ", ")
+	end
+	controls.clones:SetText(clonesText)
 
 	-- -- controls.group:SetValue(opts.group or "default")
 	-- controls.duration:SetText((type(opts.duration) == "function" and "<func>") or opts.duration)

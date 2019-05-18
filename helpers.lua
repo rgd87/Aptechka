@@ -52,6 +52,12 @@ helpers.AddLoadableAura = function (data, todefault)
     Aptechka.loadedAuras[data.id] = data
 end
 helpers.AddAura = function (data, todefault)
+    if type(data.id) == "table" then
+        local clones = data.id
+        data.id = table.remove(clones, 1) -- extract first spell id from the last as original
+        data.clones = clones
+    end
+
     if data.id and not data.name then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
     -- if data.isMine then data.type = data.type.."|PLAYER" end
@@ -78,6 +84,13 @@ helpers.AddAuraToDefault = function(data)
 end
 helpers.AddTrace = function(data)
     if not config.enableTraceHeals then return end
+
+    if type(data.id) == "table" then
+        local clones = data.id
+        data.id = table.remove(clones, 1) -- extract first spell id from the last as original
+        data.clones = clones
+    end
+
     if data.id then data.name = GetSpellInfo(data.id) or data.name end
     data.type = "SPELL_"..data.type
     if not config.traces then config.traces = {} end

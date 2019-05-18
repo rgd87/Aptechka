@@ -119,6 +119,7 @@ local function SetupDefaults(t, defaults)
             end
         else
             if t[k] == nil then t[k] = v end
+            if t[k] == "__REMOVED__" then t[k] = nil end
         end
     end
 end
@@ -140,30 +141,40 @@ local function RemoveDefaults(t, defaults)
 end
 Aptechka.RemoveDefaults = RemoveDefaults
 
+local function RemoveDefaultsPreserve(t, defaults)
+    if not defaults then return end
+    for k, v in pairs(defaults) do
+        if type(t[k]) == 'table' and type(v) == 'table' then
+            RemoveDefaultsPreserve(t[k], v)
+            if next(t[k]) == nil then
+                t[k] = nil
+            end
+        elseif t[k] == nil and v ~= nil then
+            t[k] = "__REMOVED__"
+        elseif t[k] == v then
+            t[k] = nil
+        end
+    end
+    return t
+end
+Aptechka.RemoveDefaultsPreserve = RemoveDefaultsPreserve
+
 local function MergeTable(t1, t2)
     if not t2 then return false end
     for k,v in pairs(t2) do
         if type(v) == "table" then
-            -- if v.disabled then
-                -- t1[k] = nil
-            -- else
-                if t1[k] == nil then
-                    t1[k] = CopyTable(v)
-                else
-                    MergeTable(t1[k], v)
-                end
-            -- end
+            if t1[k] == nil then
+                t1[k] = CopyTable(v)
+            else
+                MergeTable(t1[k], v)
+            end
+        elseif v == "__REMOVED__" then
+            t1[k] = nil
         else
             t1[k] = v
         end
     end
-    -- if mergeEmptySlots   then
-    --     for k,v in pairs(t1) do
-    --         if t1[k] and t2[k] == false then
-    --             t1[k] = nil
-    --         end
-    --     end
-    -- end
+    return t1
 end
 Aptechka.MergeTable = MergeTable
 
@@ -224,6 +235,28 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local classConfig = AptechkaConfigCustom[class]
     MergeTable(AptechkaConfigMerged, classConfig)
 
+    -- filling up ranks for auras
+    local cloneIDs = {}
+    for spellID, originalSpell in pairs(auras) do
+        if not cloneIDs[spellID] and originalSpell.clones then
+			for i, additionalSpellID in ipairs(originalSpell.clones) do
+                auras[additionalSpellID] = originalSpell
+                cloneIDs[additionalSpellID] = true
+			end
+		end
+    end
+    config.spellClones = cloneIDs
+
+    for spellID, originalSpell in pairs(traceheals) do
+        if not cloneIDs[spellID] and originalSpell.clones then
+			for i, additionalSpellID in ipairs(originalSpell.clones) do
+                traceheals[additionalSpellID] = originalSpell
+                cloneIDs[additionalSpellID] = true
+			end
+		end
+    end
+
+    -- isMissing thing is incompatible with spell ranks
     -- compiling a list of spells that should activate indicator when missing
     for spellID, opts in pairs(auras) do
         if opts.isMissing then
@@ -1686,7 +1719,7 @@ local AssignToSlot = function(frame, opts, status, slot)
             if status then
                 jobs[opts.name] = opts
                 if opts.id and not opts.isMissing then
-                    frame.activeAuras[opts.id] = opts
+                    frame.activeAuras[opts.realID] = opts
                 end
             else
                 jobs[opts.name] = nil
@@ -1763,6 +1796,7 @@ function Aptechka.ScanAuras(unit)
                         opts.isforeign = (caster ~= "player")
                     end
                     opts.expirationTime = expirationTime
+                    opts.realID = spellID
                     local minduration = opts.extend_below
                     if minduration and opts.duration and duration < minduration then
                         duration = opts.duration
