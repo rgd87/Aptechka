@@ -7,6 +7,19 @@ Aptechka:SetScript("OnEvent", function(self, event, ...)
 	self[event](self, event, ...)
 end)
 
+--- Compatibility with Classic
+local isClassic = select(4,GetBuildInfo()) <= 19999
+local dummyFalse = function() return false end
+local dummy0 = function() return 0 end
+local dummyNil = function() return nil end
+local UnitHasVehicleUI = isClassic and dummyFalse or _G.UnitHasVehicleUI
+local UnitInVehicle = isClassic and dummyFalse or _G.UnitInVehicle
+local UnitUsingVehicle = isClassic and dummyFalse or _G.UnitUsingVehicle
+local UnitGetIncomingHeals = isClassic and dummy0 or _G.UnitGetIncomingHeals
+local UnitGetTotalAbsorbs = isClassic and dummy0 or _G.UnitGetTotalAbsorbs
+local UnitThreatSituation = isClassic and dummyNil or _G.UnitThreatSituation
+local UnitGroupRolesAssigned = isClassic and dummyNil or _G.UnitThreatSituation
+
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
 
@@ -51,9 +64,6 @@ local UnitPowerMax = UnitPowerMax
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo   
 local UnitAura = UnitAura
 local UnitAffectingCombat = UnitAffectingCombat
-local UnitGetIncomingHeals = UnitGetIncomingHeals
-local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs
-local UnitThreatSituation = UnitThreatSituation
 local table_wipe = table.wipe
 local SetJob
 local FrameSetJob
@@ -370,7 +380,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_DISPLAYPOWER")
         Aptechka.UNIT_MAXPOWER = Aptechka.UNIT_POWER_UPDATE
     end
-    if config.AggroStatus then
+    if not isClassic and config.AggroStatus then
         self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
     end
     if config.ReadyCheck then
@@ -1363,7 +1373,9 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
         Aptechka:UNIT_POWER_UPDATE(nil, unit)
     end
-    Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
+    if not isClassic then
+        Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
+    end
     if config.raidIcons then
         Aptechka:RAID_TARGET_UPDATE()
     end
