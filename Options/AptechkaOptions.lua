@@ -1000,6 +1000,18 @@ local function MakeGeneralOptions()
                         end,
                         order = 10,
                     },
+                    -- disableBlizzardRaid = {
+                    --     name = "Disable Blizzard Raid Frames (not recommended)",
+                    --     width = "full",
+                    --     type = "toggle",
+                    --     confirm = true,
+					-- 	confirmText = "Warning: Will completely disable Blizzard CompactRaidFrames, but you also lose raid leader functionality. If you delete this addon, you can only revert with this macro:\n/script EnableAddOn('Blizzard_CompactRaidFrames'); EnableAddOn('Blizzard_CUFProfiles')",
+                    --     get = function(info) return not IsAddOnLoaded("Blizzard_CompactRaidFrames") end,
+                    --     set = function(info, v)
+                    --         Aptechka:ToggleCompactRaidFrames()
+                    --     end,
+                    --     order = 10.4,
+                    -- },
                     petGroup = {
                         name = "Enable Pet Group",
                         type = "toggle",
@@ -1008,7 +1020,7 @@ local function MakeGeneralOptions()
                             Aptechka.db.petGroup = not Aptechka.db.petGroup
                             print("Aptechka: Changes will effect after /reload")
                         end,
-                        order = 10.2,
+                        order = 10.7,
                     },
                     disableTooltip = {
                         name = "Disable Tooltips",
@@ -1018,7 +1030,7 @@ local function MakeGeneralOptions()
                         set = function(info, v)
                             Aptechka.db.disableTooltip = not Aptechka.db.disableTooltip
                         end,
-                        order = 10.4,
+                        order = 10.8,
                     },
                     showAFK = {
                         name = "Show AFK",

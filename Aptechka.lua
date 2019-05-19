@@ -283,14 +283,34 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         helpers.DisableBlizzParty()
     end
     if AptechkaDB.hideBlizzardRaid then
-	   -- disable Blizzard party & raid frame if our Raid Frames are loaded
-       -- InterfaceOptionsFrameCategoriesButton11:SetScale(0.00001)
-       -- InterfaceOptionsFrameCategoriesButton11:SetAlpha(0)
-       -- raid
-       local hider = CreateFrame("Frame")
-       hider:Hide()
-       CompactRaidFrameManager:SetParent(hider)
-       CompactUnitFrameProfiles:UnregisterAllEvents()
+        -- disable Blizzard party & raid frame if our Raid Frames are loaded
+        -- InterfaceOptionsFrameCategoriesButton11:SetScale(0.00001)
+        -- InterfaceOptionsFrameCategoriesButton11:SetAlpha(0)
+        -- raid
+        local hider = CreateFrame("Frame")
+        hider:Hide()
+        if CompactRaidFrameManager then
+            CompactRaidFrameManager:SetParent(hider)
+            -- CompactRaidFrameManager:UnregisterAllEvents()
+            CompactUnitFrameProfiles:UnregisterAllEvents()
+
+            local disableCompactRaidFrameUnitButton = function(self)
+                -- for some reason CompactUnitFrame_OnLoad also gets called for nameplates, so ignoring that
+                local frameName = self:GetName()
+                if string.sub(frameName, 1, 16) == "CompactRaidFrame" then
+                    -- print(frameName)
+                    self:UnregisterAllEvents()
+                end
+            end
+
+            for i=1,60 do
+                local crf = _G["CompactRaidFrame"..i]
+                if not crf then break end
+                disableCompactRaidFrameUnitButton(crf)
+            end
+            hooksecurefunc("CompactUnitFrame_OnLoad", disableCompactRaidFrameUnitButton)
+            hooksecurefunc("CompactUnitFrame_UpdateUnitEvents", disableCompactRaidFrameUnitButton)            
+        end
 	end
 
     if config.enableIncomingHeals then
@@ -617,6 +637,14 @@ function Aptechka.PLAYER_LOGOUT(self, event)
     RemoveDefaults(AptechkaDB, defaults)
 end
 
+
+function Aptechka:ToggleCompactRaidFrames()
+	local v = IsAddOnLoaded("Blizzard_CompactRaidFrames")
+	local f = v and DisableAddOn or EnableAddOn
+	f("Blizzard_CompactRaidFrames")
+    f("Blizzard_CUFProfiles")
+    ReloadUI()
+end
 
 function Aptechka:Reconfigure()
     self:ReconfigureUnprotected()
