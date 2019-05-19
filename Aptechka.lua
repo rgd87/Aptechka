@@ -19,6 +19,8 @@ local UnitGetIncomingHeals = isClassic and dummy0 or _G.UnitGetIncomingHeals
 local UnitGetTotalAbsorbs = isClassic and dummy0 or _G.UnitGetTotalAbsorbs
 local UnitThreatSituation = isClassic and dummyNil or _G.UnitThreatSituation
 local UnitGroupRolesAssigned = isClassic and dummyNil or _G.UnitThreatSituation
+local GetSpecialization = isClassic and function() return 1 end or _G.GetSpecialization
+local GetSpecializationInfo = isClassic and function() return "DAMAGER" end or _G.GetSpecializationInfo
 
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
