@@ -112,6 +112,7 @@ local defaults = {
     invertedColors = false,
     useLibResInfo = true,
     useCombatLogHealthUpdates = false,
+    useDebuffOrdering = true,
     disableTooltip = false,
     scale = 1,
     autoscale = {
@@ -450,8 +451,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
     end
 
-    local useDebuffOrdering = true
-    if useDebuffOrdering then
+    if AptechkaDB.useDebuffOrdering then
         LibSpellLocks = LibStub("LibSpellLocks-1.0")
         LibAuraTypes = LibStub("LibAuraTypes-1.0")
 

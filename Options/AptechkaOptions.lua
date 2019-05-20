@@ -1066,6 +1066,18 @@ local function MakeGeneralOptions()
                             ReloadUI()
                         end
                     },
+                    useDebuffOrdering = {
+                        name = "Use Debuff Ordering",
+                        type = "toggle",
+                        confirm = true,
+						confirmText = "Warning: Requires UI reloading.",
+                        order = 11.2,
+                        get = function(info) return Aptechka.db.useDebuffOrdering end,
+                        set = function(info, v)
+                            Aptechka.db.useDebuffOrdering = not Aptechka.db.useDebuffOrdering
+                            ReloadUI()
+                        end
+                    },
 
                     orientation = {
                         name = "Health Orientation",
