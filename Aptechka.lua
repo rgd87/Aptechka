@@ -83,6 +83,10 @@ local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
 local AptechkaDB = {}
 local LRI -- LibResInfo
+local LibSpellLocks
+local LibAuraTypes
+local tinsert = table.insert
+local tsort = table.sort
 local CreatePetsFunc
 
 
@@ -422,7 +426,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:VOICE_CHAT_CHANNEL_ACTIVATED()
         end
     end
-
+    
     if AptechkaDB.useLibResInfo then
         LRI = LibStub("LibResInfo-1.0")
         LRI.RegisterCallback(self, "LibResInfo_ResCastStarted", Aptechka.LibResInfo_ResCastStarted)
@@ -444,6 +448,23 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     else
         self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
         self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
+    end
+
+    local useDebuffOrdering = true
+    if useDebuffOrdering then
+        LibSpellLocks = LibStub("LibSpellLocks-1.0")
+        LibAuraTypes = LibStub("LibAuraTypes-1.0")
+
+        LibSpellLocks.RegisterCallback(self, "UPDATE_INTERRUPT", function(event, guid)
+            local unit = guidMap[guid]
+            if unit then
+                Aptechka.ScanDebuffSlots(unit)
+            end
+        end)
+
+        Aptechka.ScanDebuffSlots = Aptechka.OrderedScanDebuffSlots
+    else
+        Aptechka.ScanDebuffSlots = Aptechka.SimpleScanDebuffSlots
     end
 
     if config.enableAbsorbBar then
@@ -1901,7 +1922,69 @@ local function UtilShouldDisplayDebuff(spellId, unitCaster, visType)
 	end
 end
 
-function Aptechka.ScanDebuffSlots(unit)
+
+local debuffList = {}
+local sortfunc = function(a,b)
+    return a[2] > b[2]
+end
+function Aptechka.OrderedScanDebuffSlots(unit)
+    -- table_wipe(presentDebuffs)
+    table_wipe(debuffList)
+    local debuffLineLength = #debuffs
+    local shown = 0
+    local fill = 0
+
+    local visType = UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT"
+    -- scan for boss buffs only
+    for i=1,100 do
+        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
+        if not name then break end
+        if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
+            local rootSpellID, spellType, prio = LibAuraTypes.GetDebuffInfo(spellID)
+            if not prio then
+                prio = isBossAura and 10 or 0
+            end
+            tinsert(debuffList, { i, prio })
+        end
+    end
+
+    if LibSpellLocks then
+        local spellLocked = LibSpellLocks:GetSpellLockInfo(unit)
+        if spellLocked then
+            tinsert(debuffList, { -1, LibAuraTypes.GetDebuffTypePriority("SILENCE")})
+        end
+    end
+
+    tsort(debuffList, sortfunc)
+
+    for i, debuffIndexCont in ipairs(debuffList) do
+        if fill < debuffLineLength then
+            local index, prio = unpack(debuffIndexCont)
+            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
+            if index > 0 then
+                name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, index, "HARMFUL")
+                if prio >= 9 then
+                    isBossAura = true
+                end
+            else
+                spellID, name, icon, duration, expirationTime = LibSpellLocks:GetSpellLockInfo(unit)
+                count = 0
+                isBossAura = true
+            end
+
+            shown = shown + 1
+            fill = fill + (isBossAura and 1.5 or 1)
+            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura)
+        end
+    end
+
+    for i=shown+1, debuffLineLength do
+        local opts = debuffs[i]
+        SetJob(unit, opts, false)
+    end
+end
+
+function Aptechka.SimpleScanDebuffSlots(unit)
         -- table_wipe(presentDebuffs)
 
         local debuffLineLength = #debuffs
