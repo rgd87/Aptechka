@@ -875,7 +875,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         self.absorb:SetValue(shields/hm*100, h/hm*100)
         self.absorb2:SetValue((h+shields)/hm*100)
 		self.health.incoming:Update(h, nil, hm)
-        SetJob(unit,config.HealthDeficitStatus, ((hm-h) > 1000) )
+        SetJob(unit,config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
 
         if event then
             if UnitIsDeadOrGhost(unit) then
@@ -1208,7 +1208,7 @@ function Aptechka.PLAYER_REGEN_ENABLED(self,event)
 end
 
 function Aptechka:UpdateRangeChecker()
-	local spec = GetSpecialization()
+	local spec = GetSpecialization() or 1
 	if config.UnitInRangeFunctions and config.UnitInRangeFunctions[spec] then
 		-- print('using function')
 		uir = config.UnitInRangeFunctions[spec]
