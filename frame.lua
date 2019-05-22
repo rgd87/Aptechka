@@ -609,6 +609,8 @@ local SetDebuffOrientation = function(self, orientation)
         it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
         dtt:SetSize(6,h)
         dtt:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, 0)
+        -- dtt:SetSize(h+2,h+2)
+        -- dtt:SetPoint("TOPLEFT", self, "TOPLEFT", -1, 1)
     else
         self:SetSize(h,w)
         it:SetSize(h,h)

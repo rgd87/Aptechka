@@ -1914,6 +1914,10 @@ local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, 
 end
 
 local function UtilShouldDisplayDebuff(spellId, unitCaster, visType)
+    if spellId == 212183 then -- smoke bomb
+        local reaction = unitCaster and UnitReaction("player", unitCaster) or 0
+        return reaction <= 4 -- display enemy smoke bomb, hide friendly 
+    end
     local hasCustom, alwaysShowMine, showForMySpec = SpellGetVisibilityInfo(spellId, visType);
 	if ( hasCustom ) then
 		return showForMySpec or (alwaysShowMine and (unitCaster == "player" or unitCaster == "pet" or unitCaster == "vehicle") );	--Would only be "mine" in the case of something like forbearance.
@@ -1942,7 +1946,7 @@ function Aptechka.OrderedScanDebuffSlots(unit)
         if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
             local rootSpellID, spellType, prio = LibAuraTypes.GetDebuffInfo(spellID)
             if not prio then
-                prio = isBossAura and 10 or 0
+                prio = (isBossAura and 10) or (debuffType and 1) or 0
             end
             tinsert(debuffList, { i, prio })
         end
