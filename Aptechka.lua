@@ -75,6 +75,7 @@ local pixelperfect = helpers.pixelperfect
 
 local bit_band = bit.band
 local IsInGroup = IsInGroup
+local IsInRaid = IsInRaid
 local pairs = pairs
 local next = next
 local _, helpers = ...
@@ -1261,6 +1262,9 @@ end
 
 function Aptechka.LayoutUpdate(self)
     local numMembers = GetNumGroupMembers()
+
+    Aptechka:UpdateDebuffScanningMethod()
+
     local spec = GetSpecialization()
     local role = spec and select(5,GetSpecializationInfo(spec)) or "DAMAGER"
 
@@ -1897,7 +1901,26 @@ end
 function Aptechka.UNIT_AURA(self, event, unit)
     if not Roster[unit] then return end
     Aptechka.ScanAuras(unit)
+    -- local beginTime = debugprofilestop()
     Aptechka.ScanDebuffSlots(unit)
+    -- local timeUsed = debugprofilestop() - beginTime
+    -- print("used", timeUsed, "ms")
+end
+
+
+function Aptechka:UpdateDebuffScanningMethod()
+    local useOrdering = false
+    if AptechkaDB.useDebuffOrdering  then
+        local numMembers = GetNumGroupMembers()
+        local _, instanceType = GetInstanceInfo()
+        local isBattleground = instanceType == "arena" or instanceType == "pvp"
+        useOrdering = not IsInRaid() or (isBattleground and numMembers <= 15)
+    end
+    if useOrdering then
+        Aptechka.ScanDebuffSlots = Aptechka.OrderedScanDebuffSlots
+    else
+        Aptechka.ScanDebuffSlots = Aptechka.SimpleScanDebuffSlots
+    end
 end
 
 -- local presentDebuffs = {}
