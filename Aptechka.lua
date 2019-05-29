@@ -257,12 +257,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local classConfig = AptechkaConfigCustom[class]
     MergeTable(AptechkaConfigMerged, classConfig)
 
+
     -- compiling a list of spells that should activate indicator when missing
-    for spellID, opts in pairs(auras) do
-        if opts.isMissing then
-            missingFlagSpells[opts] = true
-        end
-    end
+    self:UpdateMissingAuraList()
 
     -- filling up ranks for auras
     local cloneIDs = {}
@@ -653,6 +650,22 @@ function Aptechka:ToggleCompactRaidFrames()
 	f("Blizzard_CompactRaidFrames")
     f("Blizzard_CUFProfiles")
     ReloadUI()
+end
+
+function Aptechka:PostSpellListUpdate()
+    self:UpdateMissingAuraList()
+    for unit, frames in pairs(Roster) do
+        self:UNIT_AURA(nil, unit)
+    end
+end
+
+function Aptechka:UpdateMissingAuraList()
+    table.wipe(missingFlagSpells)
+    for spellID, opts in pairs(auras) do
+        if opts.isMissing and not opts.disabled then
+            missingFlagSpells[opts] = true
+        end
+    end
 end
 
 function Aptechka:Reconfigure()
@@ -1801,6 +1814,7 @@ function Aptechka.ScanAuras(unit)
             for spellID, opts in pairs(encountered) do
                 if optsMissing == opts then
                     isPresent = true
+                    break
                 end
             end
             if not isPresent then

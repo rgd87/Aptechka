@@ -264,7 +264,7 @@ function AptechkaGUI.CreateCommonForm(self)
 
 		AptechkaGUI.frame.tree:UpdateSpellTree()
 		AptechkaGUI.frame.tree:SelectByPath(class, category, spellID)
-		-- POSTSAVE = delta
+		Aptechka:PostSpellListUpdate()
 	end)
 	Form:AddChild(save)
 
@@ -393,13 +393,23 @@ function AptechkaGUI.CreateCommonForm(self)
 
     local color = AceGUI:Create("ColorPicker")
     color:SetLabel("Color")
-    color:SetRelativeWidth(0.20)
+    color:SetRelativeWidth(0.15)
     color:SetHasAlpha(false)
     color:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
         self.parent.opts["color"] = {r,g,b}
     end)
     Form.controls.color = color
     Form:AddChild(color)
+
+    local isMissing = AceGUI:Create("CheckBox")
+    isMissing:SetLabel("Show Missing")
+    isMissing:SetRelativeWidth(0.26)
+    isMissing:SetCallback("OnValueChanged", function(self, event, value)
+        self.parent.opts["isMissing"] = value
+    end)
+    Form.controls.isMissing = isMissing
+    Form:AddChild(isMissing)
+    AddTooltip(isMissing, "Show indicator if aura is missing")
 
     local showDuration = AceGUI:Create("CheckBox")
     showDuration:SetLabel("Show Duration")
@@ -516,6 +526,7 @@ function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm
 	controls.priority:SetText(opts.priority)
     controls.extend_below:SetText(opts.extend_below)
     controls.isMine:SetValue(opts.isMine)
+    controls.isMissing:SetValue(opts.isMissing)
     controls.showDuration:SetValue(opts.showDuration)
     controls.refreshTime:SetText(opts.refreshTime)
 
@@ -585,12 +596,14 @@ function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm
 		controls.isMine:SetDisabled(false)
         controls.extend_below:SetDisabled(false)
         controls.refreshTime:SetDisabled(false)
+        controls.isMissing:SetDisabled(false)
     else
         controls.name:SetDisabled(true)
 		controls.showDuration:SetDisabled(true)
         controls.isMine:SetDisabled(true)
         controls.extend_below:SetDisabled(true)
         controls.refreshTime:SetDisabled(true)
+        controls.isMissing:SetDisabled(true)
 	end
 
 end
