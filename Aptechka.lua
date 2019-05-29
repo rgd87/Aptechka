@@ -81,6 +81,7 @@ local pixelperfect = helpers.pixelperfect
 
 local bit_band = bit.band
 local IsInGroup = IsInGroup
+local IsInRaid = IsInRaid
 local pairs = pairs
 local next = next
 local _, helpers = ...
@@ -413,7 +414,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_DISPLAYPOWER")
         Aptechka.UNIT_MAXPOWER = Aptechka.UNIT_POWER_UPDATE
     end
-    if not isClassic and config.AggroStatus then
+    if config.AggroStatus then
         self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
     end
     if config.ReadyCheck then
@@ -1270,6 +1271,9 @@ end
 
 function Aptechka.LayoutUpdate(self)
     local numMembers = GetNumGroupMembers()
+
+    Aptechka:UpdateDebuffScanningMethod()
+
     local spec = GetSpecialization()
     local role = spec and select(5,GetSpecializationInfo(spec)) or "DAMAGER"
 
@@ -1433,9 +1437,7 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
         Aptechka:UNIT_POWER_UPDATE(nil, unit)
     end
-    if not isClassic then
-        Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
-    end
+    Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
     if config.raidIcons then
         Aptechka:RAID_TARGET_UPDATE()
     end
@@ -1906,7 +1908,26 @@ end
 function Aptechka.UNIT_AURA(self, event, unit)
     if not Roster[unit] then return end
     Aptechka.ScanAuras(unit)
+    -- local beginTime = debugprofilestop()
     Aptechka.ScanDebuffSlots(unit)
+    -- local timeUsed = debugprofilestop() - beginTime
+    -- print("used", timeUsed, "ms")
+end
+
+
+function Aptechka:UpdateDebuffScanningMethod()
+    local useOrdering = false
+    if AptechkaDB.useDebuffOrdering  then
+        local numMembers = GetNumGroupMembers()
+        local _, instanceType = GetInstanceInfo()
+        local isBattleground = instanceType == "arena" or instanceType == "pvp"
+        useOrdering = not IsInRaid() or (isBattleground and numMembers <= 15)
+    end
+    if useOrdering then
+        Aptechka.ScanDebuffSlots = Aptechka.OrderedScanDebuffSlots
+    else
+        Aptechka.ScanDebuffSlots = Aptechka.SimpleScanDebuffSlots
+    end
 end
 
 -- local presentDebuffs = {}
