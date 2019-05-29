@@ -17,10 +17,16 @@ local UnitInVehicle = isClassic and dummyFalse or _G.UnitInVehicle
 local UnitUsingVehicle = isClassic and dummyFalse or _G.UnitUsingVehicle
 local UnitGetIncomingHeals = isClassic and dummy0 or _G.UnitGetIncomingHeals
 local UnitGetTotalAbsorbs = isClassic and dummy0 or _G.UnitGetTotalAbsorbs
-local UnitThreatSituation = isClassic and dummyNil or _G.UnitThreatSituation
+local UnitThreatSituation = isClassic and dummy0 or _G.UnitThreatSituation
 local UnitGroupRolesAssigned = isClassic and dummyNil or _G.UnitThreatSituation
+local UnitIsWarModePhased = isClassic and dummyFalse or _G.UnitIsWarModePhased
+local UnitInPhase = isClassic and function() return true end or _G.UnitInPhase
 local GetSpecialization = isClassic and function() return 1 end or _G.GetSpecialization
 local GetSpecializationInfo = isClassic and function() return "DAMAGER" end or _G.GetSpecializationInfo
+
+if isClassic then
+    _G.UnitGroupRolesAssigned = function() return "NONE" end
+end
 
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
@@ -524,6 +530,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
     Aptechka:Show()
+    C_Timer.After(2, function()
+        Aptechka:ReconfigureProtected()
+    end)
 
     SLASH_APTECHKA1= "/aptechka"
     SLASH_APTECHKA2= "/apt"
@@ -1517,7 +1526,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
 	if not petgroup
     then
         f:SetAttribute("groupFilter", group)
-        if AptechkaDB.sortUnitsByRole then
+        if not isClassic and AptechkaDB.sortUnitsByRole then
             f:SetAttribute("groupBy", "ASSIGNEDROLE")
             f:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER,NONE")
         end
@@ -1532,7 +1541,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     local showSolo = AptechkaDB.showSolo -- or config.showSolo
     f:SetAttribute("showRaid", true)
     f:SetAttribute("showParty", config.showParty)
-    f:SetAttribute("showSolo", showSolo)
+    f:SetAttribute("showSolo", false)
     f:SetAttribute("showPlayer", true)
     f.initialConfigFunction = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)

@@ -1305,7 +1305,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local roleicontex = roleicon:CreateTexture(nil,"OVERLAY")
     roleicontex:SetAllPoints(roleicon)
     roleicontex:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES"); --("Interface\\AddOns\\Aptechka\\roles")
-    roleicontex:SetTexCoord(GetTexCoordsForRoleSmallCircle("TANK"));--(0.25, 0.5, 0,1)
     -- roleicontex:SetVertexColor(0,0,0,0.2)
     roleicon.texture = roleicontex
 
