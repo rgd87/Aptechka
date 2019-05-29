@@ -1805,6 +1805,7 @@ function Aptechka.ScanAuras(unit)
             for spellID, opts in pairs(encountered) do
                 if optsMissing == opts then
                     isPresent = true
+                    break
                 end
             end
             if not isPresent then
