@@ -89,7 +89,6 @@ Aptechka.helpers = helpers
 local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
 local AptechkaDB = {}
-local LRI -- LibResInfo
 local LibSpellLocks
 local LibAuraTypes
 local tinsert = table.insert
@@ -117,7 +116,6 @@ local defaults = {
     healthTexture = "Gradient",
     powerTexture = "Gradient",
     invertedColors = false,
-    useLibResInfo = true,
     useCombatLogHealthUpdates = false,
     useDebuffOrdering = true,
     disableTooltip = false,
@@ -435,28 +433,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end
     end
     
-    if AptechkaDB.useLibResInfo then
-        LRI = LibStub("LibResInfo-1.0")
-        LRI.RegisterCallback(self, "LibResInfo_ResCastStarted", Aptechka.LibResInfo_ResCastStarted)
-        LRI.RegisterCallback(self, "LibResInfo_ResCastFinished", Aptechka.LibResInfo_ResCastFinished)
-        LRI.RegisterCallback(self, "LibResInfo_ResCastCancelled", Aptechka.LibResInfo_ResCastFinished)
-
-        if config.CastingMassResStatus then
-            LRI.RegisterCallback(self, "LibResInfo_MassResStarted", Aptechka.LibResInfo_MassResStarted)
-            LRI.RegisterCallback(self, "LibResInfo_MassResFinished", Aptechka.LibResInfo_MassResFinished)
-            LRI.RegisterCallback(self, "LibResInfo_MassResCancelled", Aptechka.LibResInfo_MassResFinished)
-            LRI.RegisterCallback(self, "LibResInfo_UnitUpdate", Aptechka.LibResInfo_MassResFinished)
-        end
-
-        if config.ResPendingStatus then
-            LRI.RegisterCallback(self, "LibResInfo_ResPending", Aptechka.LibResInfo_ResPending)
-            LRI.RegisterCallback(self, "LibResInfo_ResExpired", Aptechka.LibResInfo_ResExpired)
-            LRI.RegisterCallback(self, "LibResInfo_ResUsed", Aptechka.LibResInfo_ResExpired)
-        end
-    else
-        self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
-        self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
-    end
+    self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
+    self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
 
     if AptechkaDB.useDebuffOrdering then
         LibSpellLocks = LibStub("LibSpellLocks-1.0")
@@ -780,79 +758,6 @@ end
 --         self.health2:SetValue(h/hm*100)
 --     end
 -- end
-
-
-function Aptechka.LibResInfo_ResCastStarted(event, dstUnit, dstGUID, srcUnit, srcGUID, endTime)
-    local rosterunit = Roster[dstUnit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        if not self.jobs then self.jobs = {} end
-        if not self.jobs[config.ResIncomingStatus.name] then
-            config.ResIncomingStatus.expirationTime = endTime
-            FrameSetJob(self, config.ResIncomingStatus, true)
-        end
-    end
-end
-
-function Aptechka.LibResInfo_ResCastFinished(event, dstUnit, dstGUID)
---or cancelled
-    local rosterunit = Roster[dstUnit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        if LRI:UnitHasIncomingRes(dstUnit) then
-            config.ResIncomingStatus.expirationTime = endTime
-            FrameSetJob(self, config.ResIncomingStatus, true)
-        else
-            FrameSetJob(self, config.ResIncomingStatus, false)
-        end
-    end
-end
-
-function Aptechka.LibResInfo_ResPending(event, dstUnit, dstGUID)
-    local rosterunit = Roster[dstUnit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        FrameSetJob(self, config.ResIncomingStatus, false)
-		if UnitIsDead(dstUnit) then
-        	FrameSetJob(self, config.ResPendingStatus, true)
-		end
-    end
-end
-function Aptechka.LibResInfo_ResExpired(event, dstUnit, dstGUID)
-    local rosterunit = Roster[dstUnit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        FrameSetJob(self, config.ResIncomingStatus, false)
-        FrameSetJob(self, config.ResPendingStatus, false)
-    end
-end
-
-
-
-function Aptechka.LibResInfo_MassResStarted(event, srcUnit, srcGUID, endTime)
-    local rosterunit = Roster[srcUnit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        config.CastingMassResStatus.expirationTime = endTime
-        FrameSetJob(self, config.CastingMassResStatus, true)
-    end
-
-    C_Timer.After(11, function()
-        local rosterunit = Roster[srcUnit]
-        for self in pairs(rosterunit) do
-            FrameSetJob(self, config.CastingMassResStatus, false)
-        end
-    end)
-end
-function Aptechka.LibResInfo_MassResFinished(event, srcUnit, srcGUID, endTime)
-    local rosterunit = Roster[srcUnit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        FrameSetJob(self, config.CastingMassResStatus, false)
-    end
-end
-
-
 
 
 function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)

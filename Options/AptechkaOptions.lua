@@ -1042,18 +1042,6 @@ local function MakeGeneralOptions()
                         end,
                         order = 11,
                     },
-                    useLRI = {
-                        name = "Use LibResInfo",
-                        type = "toggle",
-                        confirm = true,
-						confirmText = "Warning: Requires UI reloading.",
-                        order = 11.1,
-                        get = function(info) return Aptechka.db.useLibResInfo end,
-                        set = function(info, v)
-                            Aptechka.db.useLibResInfo = not Aptechka.db.useLibResInfo
-                            ReloadUI()
-                        end
-                    },
                     useCLH = {
                         name = "Use LibCLH",
                         type = "toggle",

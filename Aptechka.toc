@@ -11,7 +11,6 @@ Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\LibCombatLogHealth-1.0\LibCombatLogHealth-1.0.lua
 Libs\LibSharedMedia-3.0\lib.xml
-Libs\LibResInfo-1.0\LibResInfo-1.0.lua
 Libs\LibSpellLocks-1.0\LibSpellLocks-1.0.lua
 Libs\LibAuraTypes-1.0\LibAuraTypes-1.0.lua
 
