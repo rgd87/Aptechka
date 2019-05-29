@@ -679,7 +679,7 @@ local SetJob_Text1 = function(self,job)
 end
 local SetJob_Text2 = function(self,job) -- text2 is always green
     if job.healthtext then
-        self:SetFormattedText("-%.0fk", (self.parent.vHealthMax - self.parent.vHealth) / 1e3)
+        self:SetFormattedText("-%d", (self.parent.vHealthMax - self.parent.vHealth))
     -- elseif job.inchealtext then
         -- self:SetFormattedText("+%.0fk", self.parent.vIncomingHeal / 1e3)
     elseif job.nametext then
