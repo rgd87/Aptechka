@@ -408,7 +408,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_DISPLAYPOWER")
         Aptechka.UNIT_MAXPOWER = Aptechka.UNIT_POWER_UPDATE
     end
-    if not isClassic and config.AggroStatus then
+    if config.AggroStatus then
         self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
     end
     if config.ReadyCheck then
@@ -1428,9 +1428,7 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
         Aptechka:UNIT_POWER_UPDATE(nil, unit)
     end
-    if not isClassic then
-        Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
-    end
+    Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
     if config.raidIcons then
         Aptechka:RAID_TARGET_UPDATE()
     end
