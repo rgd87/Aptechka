@@ -264,7 +264,7 @@ function AptechkaGUI.CreateCommonForm(self)
 
 		AptechkaGUI.frame.tree:UpdateSpellTree()
 		AptechkaGUI.frame.tree:SelectByPath(class, category, spellID)
-		-- POSTSAVE = delta
+		Aptechka:PostSpellListUpdate()
 	end)
 	Form:AddChild(save)
 
