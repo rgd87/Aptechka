@@ -57,15 +57,15 @@ A{ id = 23335, type = "HELPFUL", assignto = "bossdebuff", color = {0,0,1}, prior
 -- Soulstone Resurrection
 A{ id = { 20707, 20762, 20763, 20764, 20765 }, type = "HELPFUL", assignto = "raidbuff", color = { 0.6, 0, 1 }, priority = 20 }
 
-
+local enableMissingBuffs = false
 
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude and Prayer of Fortitude
-    A{ id = { 1243, 1244, 1245, 2791, 10937, 10938, 21562, 21564 }, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 100, isMissing = true }
+    A{ id = { 1243, 1244, 1245, 2791, 10937, 10938, 21562, 21564 }, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 100, isMissing = enableMissingBuffs }
     -- Prayer of Shadow Protection
-    A{ id = { 976, 10957, 10958, 27683 }, type = "HELPFUL", assignto = "raidbuff", color = { 151/255, 86/255, 168/255 }, priority = 80, isMissing = true }
+    A{ id = { 976, 10957, 10958, 27683 }, type = "HELPFUL", assignto = "raidbuff", color = { 151/255, 86/255, 168/255 }, priority = 80, isMissing = enableMissingBuffs }
     -- Prayer of Spirit, Divine Spirit
-    A{ id = { 14752, 14818, 14819, 27841, 27681 }, type = "HELPFUL", assignto = "raidbuff", color = {52/255, 172/255, 114/255}, priority = 90, isMissing = true }
+    A{ id = { 14752, 14818, 14819, 27841, 27681 }, type = "HELPFUL", assignto = "raidbuff", color = {52/255, 172/255, 114/255}, priority = 90, isMissing = enableMissingBuffs }
     
     A{ id = 6346, type = "HELPFUL", assignto = "bar4", priority = 30, color = { 1, 0.7, 0} , showDuration = true } -- Fear Ward
 
@@ -97,7 +97,7 @@ end
 
 if playerClass == "DRUID" then
     -- Mark of the Wild, Gift of the Wild
-    A{ id = { 1126, 5232, 5234, 6756, 8907, 9884, 9885, 21849, 21850 }, type = "HELPFUL", assignto = "raidbuff", color = { 1, 0.2, 1}, priority = 100, isMissing = true }
+    A{ id = { 1126, 5232, 5234, 6756, 8907, 9884, 9885, 21849, 21850 }, type = "HELPFUL", assignto = "raidbuff", color = { 1, 0.2, 1}, priority = 100, isMissing = enableMissingBuffs }
 
     -- Rejuvenation
     A{ id = { 774, 1058, 1430, 2090, 2091, 3627, 8910, 9839, 9840, 9841, 25299 }, type = "HELPFUL", assignto = "bars", priority = 90, color = { 1, 0.2, 1}, showDuration = true, isMine = true }
@@ -144,7 +144,7 @@ end
 
 -- if playerClass == "HUNTER" then
 --     -- Trueshot Aura
---     A{ id = { 19506, 20905, 20906 }, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 100, isMissing = true }
+--     A{ id = { 19506, 20905, 20906 }, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 100, isMissing = enableMissingBuffs }
 -- end
 
 if playerClass == "SHAMAN" then
@@ -170,7 +170,7 @@ end
 if playerClass == "MAGE" then
 
     -- Arcane Intellect and Brilliance
-    A{ id = { 1459, 1460, 1461, 10156, 10157, 23028 }, type = "HELPFUL", assignto = "raidbuff", color = { .4 , .4, 1 }, priority = 50, isMissing = true }
+    A{ id = { 1459, 1460, 1461, 10156, 10157, 23028 }, type = "HELPFUL", assignto = "raidbuff", color = { .4 , .4, 1 }, priority = 50, isMissing = enableMissingBuffs }
     -- Dampen Magic
     A{ id = { 604, 8450, 8451, 10173, 10174 }, type = "HELPFUL", assignto = "spell3", color = {52/255, 172/255, 114/255}, priority = 80 }
     -- Amplify Magic
