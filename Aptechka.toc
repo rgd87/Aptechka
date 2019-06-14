@@ -13,6 +13,7 @@ Libs\LibCombatLogHealth-1.0\LibCombatLogHealth-1.0.lua
 Libs\LibSharedMedia-3.0\lib.xml
 Libs\LibSpellLocks-1.0\LibSpellLocks-1.0.lua
 Libs\LibAuraTypes-1.0\LibAuraTypes-1.0.lua
+Libs\LibClassicDurations\LibClassicDurations.xml
 
 helpers.lua
 config.lua

@@ -24,9 +24,9 @@ local UnitInPhase = isClassic and function() return true end or _G.UnitInPhase
 local GetSpecialization = isClassic and function() return 1 end or _G.GetSpecialization
 local GetSpecializationInfo = isClassic and function() return "DAMAGER" end or _G.GetSpecializationInfo
 
-if isClassic then
-    _G.UnitGroupRolesAssigned = function() return "NONE" end
-end
+-- if isClassic then
+--     _G.UnitGroupRolesAssigned = function() return "NONE" end
+-- end
 
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
@@ -69,7 +69,7 @@ local UnitHealthMax = UnitHealthMax
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
-local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo   
+local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 local UnitAura = UnitAura
 local UnitAffectingCombat = UnitAffectingCombat
 local table_wipe = table.wipe
@@ -91,6 +91,7 @@ local reverse = helpers.Reverse
 local AptechkaDB = {}
 local LibSpellLocks
 local LibAuraTypes
+local LibClassicDurations = LibStub("LibClassicDurations")
 local tinsert = table.insert
 local tsort = table.sort
 local CreatePetsFunc
@@ -213,9 +214,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     AptechkaUnitInRange = uir2
-    
-    
-    
+
+
+
     Aptechka.SetJob = SetJob
     Aptechka.FrameSetJob = FrameSetJob
     threshold = UnitHealthMax("player")/40
@@ -282,7 +283,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 		end
     end
 
-    
+
 
     Aptechka.Roster = Roster
 
@@ -316,7 +317,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 disableCompactRaidFrameUnitButton(crf)
             end
             hooksecurefunc("CompactUnitFrame_OnLoad", disableCompactRaidFrameUnitButton)
-            hooksecurefunc("CompactUnitFrame_UpdateUnitEvents", disableCompactRaidFrameUnitButton)            
+            hooksecurefunc("CompactUnitFrame_UpdateUnitEvents", disableCompactRaidFrameUnitButton)
         end
 	end
 
@@ -342,7 +343,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local strata = config.frameStrata or "LOW"
     local scale = 1
     -- self.makeConfSnippet = function(...)
-    --     return string.format([=[          
+    --     return string.format([=[
     --         self:SetWidth(%f)
     --         self:SetHeight(%f)
     --         self:SetFrameStrata("%s")
@@ -350,7 +351,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     --         self:SetAttribute("toggleForVehicle", true)
     --         self:SetAttribute("allowVehicleTarget", false)
-            
+
 
     --         self:SetAttribute("*type1","target")
     --         self:SetAttribute("shift-type2","togglemenu")
@@ -370,12 +371,12 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     -- self:SetHeight(%f)
     self.initConfSnippet = [=[
         RegisterUnitWatch(self)
-        
+
         self:SetFrameLevel(3)
 
         self:SetAttribute("toggleForVehicle", true)
         self:SetAttribute("allowVehicleTarget", false)
-        
+
 
         self:SetAttribute("*type1","target")
         self:SetAttribute("shift-type2","togglemenu")
@@ -429,9 +430,13 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:VOICE_CHAT_CHANNEL_ACTIVATED()
         end
     end
-    
+
     self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
     self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
+
+    if LibClassicDurations then
+        LibClassicDurations:RegisterFrame(self)
+    end
 
     if AptechkaDB.useDebuffOrdering then
         LibSpellLocks = LibStub("LibSpellLocks-1.0")
@@ -673,7 +678,7 @@ function Aptechka:Reconfigure()
     self:ReconfigureProtected()
 end
 function Aptechka:ReconfigureUnprotected()
-    for group, header in ipairs(group_headers) do 
+    for group, header in ipairs(group_headers) do
         for _, f in ipairs({ header:GetChildren() }) do
             f:ReconfigureUnitFrame()
         end
@@ -689,7 +694,7 @@ function Aptechka:ReconfigureProtected()
     local scale = 1
     -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
     for group, header in ipairs(group_headers) do
-        
+
         for _, f in ipairs({ header:GetChildren() }) do
             f:SetWidth(width)
             f:SetHeight(height)
@@ -723,7 +728,7 @@ function Aptechka:ReconfigureProtected()
         --     f:SetPoint(arrangeHeaders(group_headers[group-1], nil, unitGrowth, groupGrowth))
         -- end
 
-        
+
 
     end
 
@@ -1707,7 +1712,7 @@ local AssignToSlot = function(frame, opts, status, slot)
                 self.jobs = {}
                 jobs = self.jobs
             end
-            
+
 
             if status then
                 jobs[opts.name] = opts
@@ -1773,6 +1778,13 @@ function Aptechka.ScanAuras(unit)
         for i=1,100 do
             local name, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
             if not name then break end
+            duration = 0
+            expirationTime = 0
+            local durationNew, expirationTimeNew = LibClassicDurations:GetAuraDurationByUnit(unit, spellID, caster)
+            if durationNew then
+                duration = durationNew
+                expirationTime = expirationTimeNew
+            end
             -- print(auraType, spellID, name, auras[spellID])
             local opts = auras[spellID] or loadedAuras[spellID]
             if opts and not opts.disabled then
@@ -1865,7 +1877,7 @@ end
 local function UtilShouldDisplayDebuff(spellId, unitCaster, visType)
     if spellId == 212183 then -- smoke bomb
         local reaction = unitCaster and UnitReaction("player", unitCaster) or 0
-        return reaction <= 4 -- display enemy smoke bomb, hide friendly 
+        return reaction <= 4 -- display enemy smoke bomb, hide friendly
     end
     local hasCustom, alwaysShowMine, showForMySpec = SpellGetVisibilityInfo(spellId, visType);
 	if ( hasCustom ) then
@@ -2021,27 +2033,27 @@ local ParseOpts = function(str)
     return t
 end
 Aptechka.Commands = {
-    ["unlockall"] = function() 
+    ["unlockall"] = function()
         for _,anchor in pairs(anchors) do
             anchor:Show()
         end
     end,
-    ["unlock"] = function() 
+    ["unlock"] = function()
         anchors[1]:Show()
     end,
-    ["lock"] = function() 
+    ["lock"] = function()
         for _,anchor in pairs(anchors) do
             anchor:Hide()
         end
     end,
-    ["reset"] = function() 
+    ["reset"] = function()
         anchors[1].san.point = "CENTER"
         anchors[1].san.x = 0
         anchors[1].san.y = 0
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(anchors[1].san.point, UIParent, anchors[1].san.point, anchors[1].san.x, anchors[1].san.y)
     end,
-    ["togglegroup"] = function() 
+    ["togglegroup"] = function()
         local group = tonumber(v)
         if group then
             local hdr = group_headers[group]
@@ -2052,7 +2064,7 @@ Aptechka.Commands = {
             end
         end
     end,
-    ["createpets"] = function() 
+    ["createpets"] = function()
         if not AptechkaDB.petGroup then
             if not InCombatLockdown() then
                 CreatePetsFunc()
@@ -2066,20 +2078,20 @@ Aptechka.Commands = {
             end
         end
     end,
-    ["toggle"] = function() 
+    ["toggle"] = function()
         if group_headers[1]:IsVisible() then k = "hide" else k = "show" end
     end,
-    ["show"] = function() 
+    ["show"] = function()
         for i,hdr in pairs(group_headers) do
             hdr:Show()
         end
     end,
-    ["hide"] = function() 
+    ["hide"] = function()
         for i,hdr in pairs(group_headers) do
             hdr:Hide()
         end
     end,
-    ["spells"] = function() 
+    ["spells"] = function()
         print("=== Spells ===")
         local spellset = AptechkaUserConfig.auras or AptechkaDefaultConfig.auras
         for spellName,opts in pairs(spellset) do
@@ -2087,7 +2099,7 @@ Aptechka.Commands = {
             print(string.format(format,spellName))
         end
     end,
-    ["load"] = function() 
+    ["load"] = function()
         local add = config.LoadableDebuffs[v]
         if v == "" then
             print("Spell sets:")
@@ -2104,7 +2116,7 @@ Aptechka.Commands = {
             print(AptechkaString..v.." doesn't exist")
         end
     end,
-    ["setpos"] = function() 
+    ["setpos"] = function()
         local fields = ParseOpts(v)
         if not next(fields) then print("Usage: /apt setpos point=center x=0 y=0") return end
         local point,x,y = string.upper(fields['point'] or "CENTER"), fields['x'] or 0, fields['y'] or 0
@@ -2114,7 +2126,7 @@ Aptechka.Commands = {
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(point, UIParent, point, x, y)
     end,
-    ["charspec"] = function() 
+    ["charspec"] = function()
         local user = UnitName("player").."@"..GetRealmName()
         if AptechkaDB_Global.charspec[user] then AptechkaDB_Global.charspec[user] = nil
         else AptechkaDB_Global.charspec[user] = true
