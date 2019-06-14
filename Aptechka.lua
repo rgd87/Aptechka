@@ -439,8 +439,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     if AptechkaDB.useDebuffOrdering then
-        LibSpellLocks = LibStub("LibSpellLocks-1.0")
-        LibAuraTypes = LibStub("LibAuraTypes-1.0")
+        LibSpellLocks = LibStub("LibSpellLocks")
+        LibAuraTypes = LibStub("LibAuraTypes")
 
         LibSpellLocks.RegisterCallback(self, "UPDATE_INTERRUPT", function(event, guid)
             local unit = guidMap[guid]
