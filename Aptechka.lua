@@ -257,13 +257,21 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     -- filling up ranks for auras
     local cloneIDs = {}
-    for spellID, originalSpell in pairs(auras) do
-        if not cloneIDs[spellID] and originalSpell.clones then
-			for i, additionalSpellID in ipairs(originalSpell.clones) do
-                auras[additionalSpellID] = originalSpell
-                cloneIDs[additionalSpellID] = true
-			end
-		end
+    local rankCategories = { "auras", "traces" }
+    local tempTable = {}
+    for _, category in ipairs(rankCategories) do
+        table.wipe(tempTable)
+        for spellID, opts in pairs(config[category]) do
+            if not cloneIDs[spellID] and opts.clones then
+                for i, additionalSpellID in ipairs(opts.clones) do
+                    tempTable[additionalSpellID] = opts
+                    cloneIDs[additionalSpellID] = true
+                end
+            end
+        end
+        for spellID, opts in pairs(tempTable) do
+            config[category][spellID] = opts
+        end
     end
     config.spellClones = cloneIDs
 
@@ -1756,6 +1764,14 @@ SetJob = function (unit, opts, status)
     end
 end
 
+local GetRealID = function(id)
+    if type(id) == "table" then
+        return id[1]
+    else
+        return id
+    end
+end
+
 local encountered = {}
 local auraTypes = {"HELPFUL", "HARMFUL"}
 function Aptechka.ScanAuras(unit)
@@ -1768,7 +1784,10 @@ function Aptechka.ScanAuras(unit)
             local opts = auras[spellID] or loadedAuras[spellID]
             if opts and not opts.disabled then
                 if caster == "player" or not opts.isMine then
-                    encountered[spellID] = opts
+                    local realID = GetRealID(opts.id)
+                    opts.realID = realID
+
+                    encountered[realID] = opts
 
                     local status = true
                     if opts.isMissing then status = false end
@@ -1780,7 +1799,6 @@ function Aptechka.ScanAuras(unit)
                         opts.isforeign = (caster ~= "player")
                     end
                     opts.expirationTime = expirationTime
-                    opts.realID = spellID
                     local minduration = opts.extend_below
                     if minduration and opts.duration and duration < minduration then
                         duration = opts.duration
@@ -1794,10 +1812,10 @@ function Aptechka.ScanAuras(unit)
         end
     end
     for frame in pairs(Roster[unit]) do
-        for spellID, opts in pairs(frame.activeAuras) do
-            if not encountered[spellID] then
+        for realID, opts in pairs(frame.activeAuras) do
+            if not encountered[realID] then
                 FrameSetJob(frame, opts, false)
-                frame.activeAuras[spellID] = nil
+                frame.activeAuras[realID] = nil
             end
         end
         for optsMissing in pairs(missingFlagSpells) do
