@@ -19,7 +19,7 @@ A{ id = { 6229, 11739, 11740, 28610 }, prototype = survivalCD } -- Shadow Ward
 
 -- DRUID
 A{ id = 22812,  prototype = survivalCD } -- Barkskin
-A{ id = 29166,  prototype = survivalCD, assignto = "bar4" } -- Barkskin
+A{ id = 29166,  prototype = survivalCD } -- Innervate
 
 
 -- MAGE
@@ -64,17 +64,19 @@ if playerClass == "PRIEST" then
     -- A{ id = { 976, 10957, 10958, 27683 }, type = "HELPFUL", assignto = "raidbuff", color = { 151/255, 86/255, 168/255 }, priority = 80, isMissing = true }
     -- Prayer of Spirit, Divine Spirit
     -- A{ id = { 14752, 14818, 14819, 27841, 27681 }, type = "HELPFUL", assignto = "raidbuff", color = {52/255, 172/255, 114/255}, priority = 90, isMissing = true }
-    
+
     A{ id = 6346, type = "HELPFUL", assignto = "bar4", priority = 30, color = { 1, 0.7, 0} , showDuration = true } -- Fear Ward
 
-    --Abolish Disease
+    -- Abolish Disease
     A{ id = 552, type = "HELPFUL", assignto = "bars", priority = 30, color = { 118/255, 69/255, 50/255} , showDuration = true }
-    --Renew
+    -- Renew
     A{ id = { 139, 6074, 6075, 6076, 6077, 6078, 10927, 10928, 10929, 25315 },   type = "HELPFUL", assignto = "bars", priority = 50, color = { 0, 1, 0}, showDuration = true, isMine = true }
-    --Power Word: Shield
+    -- Lightwell Renew
+    A{ id = { 7001, 27873, 27874 }, type = "HELPFUL", assignto = "bars", priority = 20, color = { 0.5, 0.7, 0}, showDuration = true }
+    -- Power Word: Shield
     A{ id = { 17, 592, 600, 3747, 6065, 6066, 10898, 10899, 10900, 10901 },    type = "HELPFUL", assignto = "bars", priority = 90, isMine = true, color = { 1, .85, 0}, showDuration = true }
     -- Weakened Soul
-    A{ id = 6788, type = "HARMFUL", assignto = "bars", priority = 70, color = { 0.8, 0, 0}, showDuration = true }
+    A{ id = 6788, type = "HARMFUL", assignto = "spell3", priority = 70, color = { 0.8, 0, 0}, showDuration = true }
 
     -- Prayer of Healing
     Trace{id = { 596, 996, 10960, 10961, 15019, 25316 }, type = "HEAL", assignto = "healfeedback", color = { .5, .5, 1}, fade = 0.7, priority = 96 }
@@ -146,9 +148,12 @@ end
 -- end
 
 if playerClass == "SHAMAN" then
-    
+
     -- Healing Way
     A{ id = 29203, type = "HELPFUL", assignto = "bar4", showStacks = 3, color = {38/255, 221/255, 163/255} }
+
+    -- Ancestral Healing
+    A{ id = { 16177, 16236, 16237 }, type = "HELPFUL", assignto = "bars", showDuration = true, color = { 1, 0.85, 0} }
 
     -- Chain Heal
     Trace{id = { 1064, 10622, 10623 }, type = "HEAL", assignto = "healfeedback", color = { 1, 1, 0 }, fade = 0.7, priority = 96 }
@@ -160,7 +165,7 @@ if playerClass == "SHAMAN" then
         RangeCheckBySpell(331),
         RangeCheckBySpell(331),
     }
-    
+
     -- DispelTypes("POISON|DISEASE")
 
 end
@@ -280,7 +285,7 @@ helpers.customBossAuras = {
 
     [2070] = true, -- Sap 3 ranks
     [6770] = true,
-    [11297] = true, 
+    [11297] = true,
 
     [408] = true, -- Kidney Shot 2 ranks
     [8643] = true,

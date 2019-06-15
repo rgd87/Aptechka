@@ -24,9 +24,9 @@ local UnitInPhase = isClassic and function() return true end or _G.UnitInPhase
 local GetSpecialization = isClassic and function() return 1 end or _G.GetSpecialization
 local GetSpecializationInfo = isClassic and function() return "DAMAGER" end or _G.GetSpecializationInfo
 
--- if isClassic then
---     _G.UnitGroupRolesAssigned = function() return "NONE" end
--- end
+if isClassic then
+    _G.UnitGroupRolesAssigned = function() return "NONE" end
+end
 
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
