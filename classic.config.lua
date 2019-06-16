@@ -48,14 +48,14 @@ A{ id = { 1856, 1857 }, prototype = tankCD } -- Vanish
 A{ id = { 6229, 11739, 11740, 28610 },  prototype = survivalCD } -- Shadow Ward
 
 -- Healing Reduction
-A{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, prototype = bossDebuff } --Mortal Strike
+A{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, prototype = bossDebuff, global = true, } --Mortal Strike
 
 -- Battleground
-A{ id = 23333, type = "HELPFUL", assignto = "bossdebuff", color = {1,0,0}, priority = 95 } --Warsong Flag
-A{ id = 23335, type = "HELPFUL", assignto = "bossdebuff", color = {0,0,1}, priority = 95 } --Silverwing Flag
+A{ id = 23333, type = "HELPFUL", assignto = "bossdebuff", color = {1,0,0}, priority = 95, global = true, } --Warsong Flag
+A{ id = 23335, type = "HELPFUL", assignto = "bossdebuff", color = {0,0,1}, priority = 95, global = true, } --Silverwing Flag
 
 -- Soulstone Resurrection
-A{ id = { 20707, 20762, 20763, 20764, 20765 }, type = "HELPFUL", assignto = "raidbuff", color = { 0.6, 0, 1 }, priority = 20 }
+A{ id = { 20707, 20762, 20763, 20764, 20765 }, type = "HELPFUL", global = true, assignto = "raidbuff", color = { 0.6, 0, 1 }, priority = 20 }
 
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude and Prayer of Fortitude
