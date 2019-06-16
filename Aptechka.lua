@@ -235,7 +235,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.FrameSetJob = FrameSetJob
     threshold = UnitHealthMax("player")/40
     ignoreplayer = config.incomingHealIgnorePlayer or false
-    if AptechkaDB.forceShamanColor then
+    if AptechkaDB.forceShamanColor and not CUSTOM_CLASS_COLORS then
         customColors = {
             SHAMAN = {
                 b=0.86666476726532,

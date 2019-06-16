@@ -420,7 +420,7 @@ function AptechkaGUI.CreateCommonForm(self)
     Form.controls.showDuration = showDuration
     Form:AddChild(showDuration)
 
-	
+
 
     local isMine = AceGUI:Create("CheckBox")
     isMine:SetLabel("Casted by Player")
@@ -431,7 +431,7 @@ function AptechkaGUI.CreateCommonForm(self)
     Form.controls.isMine = isMine
     Form:AddChild(isMine)
 
-    
+
     local extend_below = AceGUI:Create("EditBox")
     extend_below:SetLabel("Extend Below")
     extend_below:SetRelativeWidth(0.19)
@@ -990,7 +990,7 @@ local function MakeGeneralOptions()
                         end,
                         order = 8.5,
                     },
-                    
+
                     disableBlizzardParty = {
                         name = "Disable Blizzard Party Frames",
                         width = "double",
@@ -1126,7 +1126,6 @@ local function MakeGeneralOptions()
 
                     inverted = {
                         name = "Inverted Colors",
-                        width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.invertedColors end,
                         set = function(info, v)
@@ -1134,6 +1133,19 @@ local function MakeGeneralOptions()
                             Aptechka:ReconfigureUnprotected()
                         end,
                         order = 15,
+                    },
+                    forceShamanColor = {
+                        name = "Retail Shaman Color",
+                        desc = "Use the usual blue color for shamans. Overriden by ClassColors addon if present",
+                        type = "toggle",
+                        confirm = true,
+						confirmText = "Warning: Requires UI reloading.",
+                        get = function(info) return Aptechka.db.forceShamanColor end,
+                        set = function(info, v)
+                            Aptechka.db.forceShamanColor = not Aptechka.db.forceShamanColor
+                            ReloadUI()
+                        end,
+                        order = 16,
                     },
                     -- incomingHealThreshold = {
                     --     name = "Incoming Heal Threshold",
@@ -1150,7 +1162,7 @@ local function MakeGeneralOptions()
                     -- },
                 },
             },
-        
+
         },
     }
 
@@ -1218,7 +1230,7 @@ local function MakeScalingOptions()
                         step = 0.01,
                         order = 2,
                     },
-                    
+
                 },
             },
             damage = {
@@ -1255,9 +1267,9 @@ local function MakeScalingOptions()
                         step = 0.01,
                         order = 2,
                     },
-                    
+
                 },
-            },    
+            },
         },
     }
 
