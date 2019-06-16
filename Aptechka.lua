@@ -218,15 +218,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     AptechkaUnitInRange = uir2
 
-
-
-    Aptechka.SetJob = SetJob
-    Aptechka.FrameSetJob = FrameSetJob
-    threshold = UnitHealthMax("player")/40
-    ignoreplayer = config.incomingHealIgnorePlayer or false
-    -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
-    colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
-
     AptechkaDB_Global = AptechkaDB_Global or {}
     AptechkaDB_Char = AptechkaDB_Char or {}
     AptechkaDB_Global.charspec = AptechkaDB_Global.charspec or {}
@@ -238,6 +229,13 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     Aptechka.db = AptechkaDB
     SetupDefaults(AptechkaDB, defaults)
+
+    Aptechka.SetJob = SetJob
+    Aptechka.FrameSetJob = FrameSetJob
+    threshold = UnitHealthMax("player")/40
+    ignoreplayer = config.incomingHealIgnorePlayer or false
+    -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
+    colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
 
     blacklist = setmetatable(AptechkaDB.customBlacklist, { __index = default_blacklist})
 
