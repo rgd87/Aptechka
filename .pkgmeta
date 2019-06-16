@@ -21,4 +21,4 @@ externals:
     tag: master
   Libs/LibAuraTypes:
     url: https://github.com/rgd87/LibAuraTypes.git
-    tag: master
+    tag: classic
