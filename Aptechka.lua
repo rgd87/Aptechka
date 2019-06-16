@@ -120,6 +120,7 @@ local defaults = {
     healthTexture = "Gradient",
     powerTexture = "Gradient",
     invertedColors = false,
+    forceShamanColor = true,
     useCombatLogHealthUpdates = false,
     useDebuffOrdering = true,
     disableTooltip = false,
@@ -234,6 +235,15 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.FrameSetJob = FrameSetJob
     threshold = UnitHealthMax("player")/40
     ignoreplayer = config.incomingHealIgnorePlayer or false
+    if AptechkaDB.forceShamanColor then
+        customColors = {
+            SHAMAN = {
+                b=0.86666476726532,
+                g=0.4392147064209,
+                r=0,
+            }
+        }
+    end
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
     colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
 
