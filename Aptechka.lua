@@ -66,6 +66,9 @@ local UnitPowerMax = UnitPowerMax
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 local UnitAura = UnitAura
 local UnitAffectingCombat = UnitAffectingCombat
+local CUSTOM_CLASS_COLORS = CUSTOM_CLASS_COLORS
+local RAID_CLASS_COLORS = RAID_CLASS_COLORS
+local customColors
 local table_wipe = table.wipe
 local SetJob
 local FrameSetJob
@@ -214,7 +217,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.FrameSetJob = FrameSetJob
     threshold = UnitHealthMax("player")/40
     ignoreplayer = config.incomingHealIgnorePlayer or false
-    colors = setmetatable(config.Colors or {},{ __index = function(t,k) return RAID_CLASS_COLORS[k] end })
+    -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
+    colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
 
     AptechkaDB_Global = AptechkaDB_Global or {}
     AptechkaDB_Char = AptechkaDB_Char or {}
