@@ -238,14 +238,14 @@ if playerClass == "PRIEST" then
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
     --Shadow Covenant
-    A{ id = 219521,type = "HARMFUL", assignto = "bars", priority = 50, color = { 0.6, 0, 1 }, showDuration = true, isMine = true} 
+    A{ id = 219521,type = "HARMFUL", assignto = "bars", priority = 50, color = { 0.6, 0, 1 }, showDuration = true, isMine = true}
     --Atonement
-    A{ id = 194384,type = "HELPFUL", assignto = "bar4", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true} 
+    A{ id = 194384,type = "HELPFUL", assignto = "bar4", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true}
     --Trinity Atonement
-    A{ id = 214206,type = "HELPFUL", assignto = "bar4", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true} 
+    A{ id = 214206,type = "HELPFUL", assignto = "bar4", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true}
     --Luminous Barrier
     A{ id = 271466,type = "HELPFUL", assignto = "bars", priority = 70, color = { 1, .65, 0}, showDuration = true, isMine = true}
-    
+
     -- Atonement
     -- Trace{id = 94472, type = "HEAL", minamount = 70000, assignto = "spell3", color = -{ .2, 1, .2}, fade = .5, priority = 90 }
 
@@ -369,7 +369,7 @@ if playerClass == "SHAMAN" then
                                                                         --     [9] = {.4, 1, .4},
                                                                         -- },
                                                                         --, } --Earth Shield
-    
+
     Trace{id = 1064, type = "HEAL", assignto = "healfeedback", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = "spell3", color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
 
@@ -452,7 +452,7 @@ helpers.auraBlacklist = {
     [124275] = true, -- brewmaster light stagger debuff
     [174528] = true, -- Griefer debuff
     [206151] = true, -- Challenger's Burden
-    
+
     [256200] = true, -- Heartstopper Venom, Tol'Dagor
     [271544] = true, -- Ablative Shielding
 
@@ -467,16 +467,16 @@ helpers.auraBlacklist = {
     [280286] = true, -- Dagger in the Back
     [279956] = true, -- Azerite Globules
 
-    
 
-    -- Common 
+
+    -- Common
 
     -- Healing Reduction
     -- [115804] = true, -- Mortal Wound, Healing effects received reduced by 25%.
     -- [197046] = true, -- Assa Rogue PvP Talent: Minor Wound Poison, Poison, Healing effects reduced by 15%.
     -- [8680] = true, -- Assa Rogue: Wound Poison, Poison, Healing effects reduced by 30%.
     [30213] = true, -- Demonology Warlock: Legion Strike, Effectiveness of any healing reduced by 10%.
-    
+
     -- Slows
     -- [1715] = true, -- Warrior Hamstring, Physical 50%
     -- [12323] = true, -- Fury Warrior, Piercing Howl, Physical 50%
@@ -497,7 +497,7 @@ helpers.auraBlacklist = {
 
 
     -- MONK
-    [113746] = true, -- 8.0 Monk: Mystic Touch, Physical damage taken increased by 5%.    
+    [113746] = true, -- 8.0 Monk: Mystic Touch, Physical damage taken increased by 5%.
     [228287] = true, -- 8.0 WW Monk: Mark of the Crane, Increases the damage of the Monk's Spinning Crane Kick by 10%.
     [273299] = true, -- 8.0 Monk Azerite Trait Sunrise Technique, Taking additional damage from Melee abilities.
 
@@ -531,7 +531,7 @@ helpers.auraBlacklist = {
     -- [198097] = true, -- Assa Rogue PvP Talent: Creeping Venom, Poison, Suffering (2% of Attack power) Nature damage every 0.5 seconds.  Moving while afflicted by Creeping Poison causes it to refresh its duration to 4 sec.
     [197091] = true, -- Assa Rogue PvP Talent: Neurotoxin, Poison, Poisoned with a deadly neurotoxin.  Any ability used will incur an additional 3 second cooldown.
     [197051] = true, -- Assa Rogue PvP Talent: Mind-Numbing Poison, Poison, Casting spells while under the effects of Mind-numbing Poison will cause you to take Nature damage.
-    
+
 
     -- MAGE
     [226757] = true, -- Fire Mage Talent: Conflagration, Deals (1.65% of Spell power) Fire damage every 2 sec.
@@ -543,7 +543,7 @@ helpers.auraBlacklist = {
     [198590] = true, -- Aff Warlock: Drain Soul
     [234153] = true, -- Warlock: Drain Life
     [265931] = true, -- Destruction Warlock: Conflagrate
-    
+
     -- HUNTER
     -- [131894] = true, -- Hunter: A Murder of Crows
     [259277] = true, -- Survival Hunter: Bloodseeker
@@ -554,10 +554,11 @@ helpers.auraBlacklist = {
     [270332] = true, -- Scorching Pheromones
     [132951] = true, -- Hunter Flare
 
-    
+
 }
 
-
+--[[
+-- Now Using LiBAuraTypes instead
 helpers.customBossAuras = {
     [47476] = true, -- Strangulate
     [207167] = true, -- Blinding Sleet
@@ -571,7 +572,7 @@ helpers.customBossAuras = {
     [211881] = true, -- Fel Eruption
     [221527] = true, -- Imprison (Detainment Honor Talent)
         [217832] = true, -- Imprison (Baseline Undispellable)
-    
+
     [5211] = true, -- Mighty Bash
     [81261] = true, -- Solar Beam
     [163505] = true, -- Rake
@@ -581,7 +582,7 @@ helpers.customBossAuras = {
 	[22570] = true, -- Maim
 		[203123] = true, -- Maim
         [236025] = true, -- Enraged Maim (Feral Honor Talent)
-        
+
 
     [3355] = true, -- Freezing Trap
 	[19386] = true, -- Wyvern Sting
@@ -628,7 +629,7 @@ helpers.customBossAuras = {
     [31935] = true, -- Avenger's Shield
     [115750] = true, -- Blinding Light
         [105421] = true, -- Blinding Light
-        
+
     [605] = true, -- Mind Control
     [8122] = true, -- Psychic Scream
     [9484] = true, -- Shackle Undead
@@ -639,7 +640,7 @@ helpers.customBossAuras = {
 		[200200] = true, -- Holy Word: Chastise (Stun)
 	[205369] = true, -- Mind Bomb
         [226943] = true, -- Mind Bomb (Stun)
-    
+
 
     [408] = true, -- Kidney Shot
     [1330] = true, -- Garrote - Silence
@@ -649,7 +650,7 @@ helpers.customBossAuras = {
     [6770] = true, -- Sap
     [199804] = true, -- Between the Eyes
     [212183] = true, -- Smoke Bomb
-    
+
 
     [51514] = true, -- Hex
 		[196932] = true, -- Voodoo Totem
@@ -661,8 +662,8 @@ helpers.customBossAuras = {
     [118345] = true, -- Pulverize
 	[118905] = true, -- Static Charge
     [197214] = true, -- Sundering
-    
-    
+
+
     [710] = true, -- Banish
 	[5484] = true, -- Howl of Terror
 	[6358] = true, -- Seduction
@@ -684,11 +685,4 @@ helpers.customBossAuras = {
     [236077] = true, -- Disarm
         [236236] = true, -- Disarm
 }
-
-
-
-
-
-
-
-
+]]

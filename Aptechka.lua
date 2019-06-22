@@ -437,9 +437,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
     self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
 
+    LibAuraTypes = LibStub("LibAuraTypes")
     if AptechkaDB.useDebuffOrdering then
         LibSpellLocks = LibStub("LibSpellLocks")
-        LibAuraTypes = LibStub("LibAuraTypes")
 
         LibSpellLocks.RegisterCallback(self, "UPDATE_INTERRUPT", function(event, guid)
             local unit = guidMap[guid]
@@ -1971,7 +1971,10 @@ function Aptechka.SimpleScanDebuffSlots(unit)
         for i=1,100 do
             local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
             if not name then break end
-            if not isBossAura then isBossAura = customBossAuras[spellID] end
+            if not isBossAura then
+                local _, spellType, prio = LibAuraTypes.GetDebuffInfo(spellID)
+                isBossAura = prio and prio >= 9
+            end
             if isBossAura and shown < debuffLineLength then
                 if not blacklist[spellID] then
                     shown = shown + 1
@@ -1986,7 +1989,10 @@ function Aptechka.SimpleScanDebuffSlots(unit)
         for i=1,100 do
             local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
             if not name then break end
-            if not isBossAura then isBossAura = customBossAuras[spellID] end
+            if not isBossAura then
+                local _, spellType, prio = LibAuraTypes.GetDebuffInfo(spellID)
+                isBossAura = prio and prio >= 9
+            end
 
             if not isBossAura and shown < debuffLineLength then
                 -- I don't even understand what this SpellGetVisibilityInfo thing is doing, but default UI is using it
