@@ -1324,10 +1324,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
 
 
-    self.dicon1 = CreateDebuffIcon(self, 15, 12, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
-    self.dicon2 = CreateDebuffIcon(self, 15, 12, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
-    self.dicon3 = CreateDebuffIcon(self, 15, 12, 1, "BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
-    self.dicon4 = CreateDebuffIcon(self, 15, 12, 1, "BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
+    self.dicon1 = CreateDebuffIcon(self, 16, 13, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
+    self.dicon2 = CreateDebuffIcon(self, 16, 13, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
+    self.dicon3 = CreateDebuffIcon(self, 16, 13, 1, "BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
+    self.dicon4 = CreateDebuffIcon(self, 16, 13, 1, "BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     local blcorner = CreateCorner(self, 12, 12, "BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation

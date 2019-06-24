@@ -95,8 +95,8 @@ local CreatePetsFunc
 
 local defaults = {
     growth = "up",
-    width = 50,
-    height = 50,
+    width = 55,
+    height = 55,
     unitGrowth = "RIGHT",
     groupGrowth = "TOP",
     unitGap = 10,
