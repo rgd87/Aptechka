@@ -1922,23 +1922,63 @@ function Aptechka.OrderedScanDebuffSlots(unit)
     tsort(debuffList, sortfunc)
 
     for i, debuffIndexCont in ipairs(debuffList) do
-        if fill < debuffLineLength then
-            local index, prio = unpack(debuffIndexCont)
-            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
-            if index > 0 then
-                name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, index, "HARMFUL")
-                if prio >= 9 then
-                    isBossAura = true
-                end
-            else
-                spellID, name, icon, duration, expirationTime = LibSpellLocks:GetSpellLockInfo(unit)
-                count = 0
+        local index, prio = unpack(debuffIndexCont)
+        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
+        if index > 0 then
+            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, index, "HARMFUL")
+            if prio >= 9 then
                 isBossAura = true
             end
+        else
+            spellID, name, icon, duration, expirationTime = LibSpellLocks:GetSpellLockInfo(unit)
+            count = 0
+            isBossAura = true
+        end
+        fill = fill + (isBossAura and 1.5 or 1)
 
+        if fill <= debuffLineLength then
             shown = shown + 1
-            fill = fill + (isBossAura and 1.5 or 1)
             SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura)
+        else
+            break
+        end
+    end
+
+    for i=shown+1, debuffLineLength do
+        local opts = debuffs[i]
+        SetJob(unit, opts, false)
+    end
+end
+
+
+function Aptechka.TestDebuffSlots()
+    local debuffLineLength = #debuffs
+    local shown = 0
+    local fill = 0
+    local unit = "player"
+
+    local numBossAuras = math.random(3)-1
+
+    local debuffTypes = { "none", "Magic", "Poison", "Curse", "Disease" }
+    local randomIDs = { 5211, 163505, 209753, 19577, 213691, 118, 119381, 605 }
+    for i=1,6 do
+        local spellID = randomIDs[math.random(#randomIDs)]
+        local _, _, icon = GetSpellInfo(spellID)
+        local duration = math.random(20)+5
+        local now = GetTime()
+        local count = 1
+        local debuffType = debuffTypes[math.random(#debuffTypes)]
+        local expirationTime = now + duration
+        local isBossAura = shown < numBossAuras
+        fill = fill + (isBossAura and 1.5 or 1)
+
+        print(fill, debuffLineLength, fill < debuffLineLength)
+
+        if fill <= debuffLineLength then
+            shown = shown + 1
+            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura)
+        else
+            break
         end
     end
 

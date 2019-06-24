@@ -371,7 +371,7 @@ local SetJob_StatusBar = function(self,job)
         self:SetMinMaxValues(0, job.showStacks)
         self:SetValue(job.stacks)
         self:SetScript("OnUpdate", nil)
-        self:SetStatusBarColor(unpack(color))    
+        self:SetStatusBarColor(unpack(color))
     else
         self.expires = job.expirationTime
         local pandemic = job.refreshTime
@@ -620,7 +620,7 @@ local SetDebuffOrientation = function(self, orientation)
 
         dtt:SetSize(h+p*2,h+p*2)
         dtt:SetPoint("CENTER", it, "CENTER", 0, 0)
-    end    
+    end
 end
 
 local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to, x, y)
@@ -878,7 +878,7 @@ local optional_widgets = {
         bar1    = function(self) return CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0) end,
         bar2    = function(self)
             if self.bar1 then
-                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar1, "TOPLEFT",0, pixelperfect(1)) 
+                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar1, "TOPLEFT",0, pixelperfect(1))
             end
         end,
         bar3    = function(self)
@@ -891,7 +891,7 @@ local optional_widgets = {
         bars = CreateBars,
 
         vbar1   = function(self) return CreateStatusBar(self, 4, 20, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true) end,
-        
+
         smist  = function(self) return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
 }
 
@@ -993,7 +993,7 @@ local function Reconf(self)
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
         self.health.absorb2:SetOrientation("HORIZONTAL")
-        
+
         -- self.health:ClearAllPoints()
         -- self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
         -- self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
@@ -1040,7 +1040,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- }
     -- self:SetBackdrop(backdrop)
     -- self:SetBackdropColor(0, 0, 0, 1)
-    
+
     local frameborder = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
     frameborder:SetVertexColor(0,0,0,1)
 
@@ -1109,7 +1109,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     absorb.maxheight = config.height
     absorb.AlignAbsorb = AlignAbsorbVertical
-    
+
     absorb.SetValue = function(self, v, health)
         local p = v/100
         if p > 1 then p = 1 end
