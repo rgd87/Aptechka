@@ -24,10 +24,6 @@ local UnitInPhase = isClassic and function() return true end or _G.UnitInPhase
 local GetSpecialization = isClassic and function() return 1 end or _G.GetSpecialization
 local GetSpecializationInfo = isClassic and function() return "DAMAGER" end or _G.GetSpecializationInfo
 
-if isClassic then
-    _G.UnitGroupRolesAssigned = function() return "NONE" end
-end
-
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
 
@@ -531,9 +527,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
     Aptechka:Show()
-    C_Timer.After(2, function()
-        Aptechka:ReconfigureProtected()
-    end)
 
     SLASH_APTECHKA1= "/aptechka"
     SLASH_APTECHKA2= "/apt"
@@ -1486,7 +1479,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     local showSolo = AptechkaDB.showSolo -- or config.showSolo
     f:SetAttribute("showRaid", true)
     f:SetAttribute("showParty", config.showParty)
-    f:SetAttribute("showSolo", false)
+    f:SetAttribute("showSolo", showSolo)
     f:SetAttribute("showPlayer", true)
     f.initialConfigFunction = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
