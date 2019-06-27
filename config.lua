@@ -430,6 +430,11 @@ config.autoload = {
 
 
 helpers.auraBlacklist = {
+    -- nazjatar
+    [304966] = true,
+    [304959] = true,
+    [304851] = true,
+
     [209261] = true, -- Uncontained Fel
     [264689] = true, -- Fatigued (Hunter BL)
     [219521] = true, -- Shadow Covenant
