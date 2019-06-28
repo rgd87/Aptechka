@@ -202,6 +202,7 @@ function AptechkaGUI.CreateCommonForm(self)
             clean(opts, default_opts, "priority", false)
             clean(opts, default_opts, "extend_below", false)
             clean(opts, default_opts, "refreshTime", false)
+            clean(opts, default_opts, "foreigncolor", false)
             -- clean(opts, default_opts, "scale_until", false)
             -- clean(opts, default_opts, "hide_until", false)
             -- clean(opts, default_opts, "maxtimers", false)
@@ -401,6 +402,28 @@ function AptechkaGUI.CreateCommonForm(self)
     Form.controls.color = color
     Form:AddChild(color)
 
+    local foreigncolor = AceGUI:Create("ColorPicker")
+    foreigncolor:SetLabel("Other's Color")
+    foreigncolor:SetRelativeWidth(0.23)
+    foreigncolor:SetHasAlpha(false)
+    foreigncolor:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
+        self.parent.opts["foreigncolor"] = {r,g,b}
+    end)
+    Form.controls.foreigncolor = foreigncolor
+    Form:AddChild(foreigncolor)
+    AddTooltip(foreigncolor, "Color for applications from other players")
+
+    local fcr = AceGUI:Create("Button")
+	fcr:SetText("X")
+	fcr:SetRelativeWidth(0.1)
+	fcr:SetCallback("OnClick", function(self, event)
+		self.parent.opts["foreigncolor"] = false
+		self.parent.controls.foreigncolor:SetColor(1,1,1,0)
+	end)
+	Form.controls.fcr = fcr
+	Form:AddChild(fcr)
+    AddTooltip(fcr, "Remove Other's Color")
+
     local isMissing = AceGUI:Create("CheckBox")
     isMissing:SetLabel("Show Missing")
     isMissing:SetRelativeWidth(0.26)
@@ -424,7 +447,7 @@ function AptechkaGUI.CreateCommonForm(self)
 
     local isMine = AceGUI:Create("CheckBox")
     isMine:SetLabel("Casted by Player")
-    isMine:SetRelativeWidth(0.4)
+    isMine:SetRelativeWidth(0.3)
     isMine:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["isMine"] = value
     end)
@@ -553,7 +576,8 @@ function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm
 	-- controls.singleTarget:SetValue(opts.singleTarget)
 	-- controls.multiTarget:SetValue(opts.multiTarget)
 
-	controls.color:SetColor(fillAlpha(opts.color or {0.8, 0.1, 0.7} ))
+    controls.color:SetColor(fillAlpha(opts.color or {0.8, 0.1, 0.7} ))
+    controls.foreigncolor:SetColor(fillAlpha(opts.foreigncolor or {1,1,1,0} ))
 
 	-- controls.color2:SetColor(fillAlpha(opts.color2 or {1,1,1,0} ))
 	-- controls.arrow:SetColor(fillAlpha(opts.arrow or {1,1,1,0} ))
