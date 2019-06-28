@@ -70,11 +70,11 @@ if playerClass == "PRIEST" then
     -- Abolish Disease
     A{ id = 552, type = "HELPFUL", assignto = "bars", priority = 30, color = { 118/255, 69/255, 50/255} , showDuration = true }
     -- Renew
-    A{ id = { 139, 6074, 6075, 6076, 6077, 6078, 10927, 10928, 10929, 25315 },   type = "HELPFUL", assignto = "bars", priority = 50, color = { 0, 1, 0}, showDuration = true, isMine = true }
+    A{ id = { 139, 6074, 6075, 6076, 6077, 6078, 10927, 10928, 10929, 25315 },   type = "HELPFUL", assignto = "bars", priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, showDuration = true }
     -- Lightwell Renew
     A{ id = { 7001, 27873, 27874 }, type = "HELPFUL", assignto = "bars", priority = 20, color = { 0.5, 0.7, 0}, showDuration = true }
     -- Power Word: Shield
-    A{ id = { 17, 592, 600, 3747, 6065, 6066, 10898, 10899, 10900, 10901 },    type = "HELPFUL", assignto = "bars", priority = 90, isMine = true, color = { 1, .85, 0}, showDuration = true }
+    A{ id = { 17, 592, 600, 3747, 6065, 6066, 10898, 10899, 10900, 10901 },    type = "HELPFUL", assignto = "bars", priority = 90, color = { 1, 0.85, 0}, foreigncolor = {0.4, 0.35, 0.1}, showDuration = true }
     -- Weakened Soul
     A{ id = 6788, type = "HARMFUL", assignto = "spell3", priority = 70, color = { 0.8, 0, 0}, showDuration = true }
 
@@ -100,11 +100,11 @@ if playerClass == "DRUID" then
     A{ id = { 1126, 5232, 5234, 6756, 8907, 9884, 9885, 21849, 21850 }, type = "HELPFUL", assignto = "raidbuff", color = { 1, 0.2, 1}, priority = 100, isMissing = true }
 
     -- Rejuvenation
-    A{ id = { 774, 1058, 1430, 2090, 2091, 3627, 8910, 9839, 9840, 9841, 25299 }, type = "HELPFUL", assignto = "bars", priority = 90, color = { 1, 0.2, 1}, showDuration = true, isMine = true }
+    A{ id = { 774, 1058, 1430, 2090, 2091, 3627, 8910, 9839, 9840, 9841, 25299 }, type = "HELPFUL", assignto = "bars", priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, showDuration = true }
     -- Regrowth
-    A{ id = { 8936, 8938, 8939, 8940, 8941, 9750, 9856, 9857, 9858 }, type = "HELPFUL", assignto = "bars", priority = 80, color = { 0.4, 1, 0.4}, showDuration = true, isMine = true }
+    A{ id = { 8936, 8938, 8939, 8940, 8941, 9750, 9856, 9857, 9858 }, type = "HELPFUL", assignto = "bars", priority = 80, color = { 0.4, 1, 0.4}, foreigncolor = { 0.1, 0.4, 0.1 }, showDuration = true }
     --Abolish Poison
-    A{ id = 2893, type = "HELPFUL", assignto = "bars", priority = 30, color = {15/255, 78/255, 60/255} , showDuration = true, isMine = true }
+    A{ id = 2893, type = "HELPFUL", assignto = "bars", priority = 30, color = {15/255, 78/255, 60/255} , showDuration = true, isMine = false }
 
     -- Healing Touch
     Trace{id = { 5185, 5186, 5187, 5188, 5189, 6778, 8903, 9758, 9888, 9889, 25297 } , type = "HEAL", assignto = "healfeedback", color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
