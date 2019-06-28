@@ -388,9 +388,9 @@ if playerClass == "DRUID" then
     -- Cenarion Ward
     A{ id = 102351, type = "HELPFUL", assignto = "spell2", priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
     -- Rejuvenation
-    A{ id = 774,   type = "HELPFUL", assignto = "bars", extend_below = 15, refreshTime = 4.5, priority = 90, pulse = true, color = { 1, 0.2, 1}, showDuration = true, isMine = true }
+    A{ id = 774,   type = "HELPFUL", assignto = "bars", extend_below = 15, refreshTime = 4.5, priority = 90, pulse = true, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, showDuration = true, isMine = true }
     -- Germination
-    A{ id = 155777,type = "HELPFUL", assignto = "bars", extend_below = 15, refreshTime = 4.5, priority = 80, pulse = true, color = { 1, 0.4, 1}, showDuration = true, isMine = true }
+    A{ id = 155777,type = "HELPFUL", assignto = "bars", extend_below = 15, refreshTime = 4.5, priority = 80, pulse = true, color = { 1, 0.4, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, showDuration = true, isMine = true }
     -- Lifebloom
     A{ id = 33763, type = "HELPFUL", assignto = "bar4", extend_below = 14, refreshTime = 4.5, priority = 60, showDuration = true, isMine = true, color = { 0.5, 1, 0.5}, }
     -- Regrowth
