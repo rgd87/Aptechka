@@ -1,3 +1,8 @@
+### 8.2.1:
+
+- fixed the issue with UnitButtons not appearing until out of combat
+- blacklisted nazjatar debuffs
+
 ### 8.2.0:
 
 - Better hiding blizzard raid frames

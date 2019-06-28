@@ -102,8 +102,8 @@ local defaults = {
     height = 55,
     unitGrowth = "RIGHT",
     groupGrowth = "TOP",
-    unitGap = 10,
-    groupGap = 10,
+    unitGap = 7,
+    groupGap = 7,
     showSolo = true,
     cropNamesLen = 7,
     disableBlizzardParty = true,
@@ -358,53 +358,31 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     -- local scale = AptechkaDB.scale or config.scale
     local strata = config.frameStrata or "LOW"
     local scale = 1
-    -- self.makeConfSnippet = function(...)
-    --     return string.format([=[
-    --         self:SetWidth(%f)
-    --         self:SetHeight(%f)
-    --         self:SetFrameStrata("%s")
-    --         self:SetFrameLevel(3)
+    self.makeConfSnippet = function(...)
+        return string.format([=[
+            RegisterUnitWatch(self)
 
-    --         self:SetAttribute("toggleForVehicle", true)
-    --         self:SetAttribute("allowVehicleTarget", false)
+            self:SetWidth(%f)
+            self:SetHeight(%f)
+            self:SetFrameStrata("%s")
+            self:SetFrameLevel(3)
 
+            self:SetAttribute("toggleForVehicle", true)
+            self:SetAttribute("allowVehicleTarget", false)
 
-    --         self:SetAttribute("*type1","target")
-    --         self:SetAttribute("shift-type2","togglemenu")
+            self:SetAttribute("*type1","target")
+            self:SetAttribute("shift-type2","togglemenu")
 
-    --         local ccheader = self:GetParent():GetFrameRef("clickcast_header")
-    --         if ccheader then
-    --             ccheader:SetAttribute("clickcast_button", self)
-    --             ccheader:RunAttribute("clickcast_register")
-    --         end
-
-    --     ]=], ...)
-    -- end
-    -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
-
-    -- self:SetFrameStrata("%s")
-    -- self:SetWidth(%f)
-    -- self:SetHeight(%f)
-    self.initConfSnippet = [=[
-        RegisterUnitWatch(self)
-
-        self:SetFrameLevel(3)
-
-        self:SetAttribute("toggleForVehicle", true)
-        self:SetAttribute("allowVehicleTarget", false)
-
-
-        self:SetAttribute("*type1","target")
-        self:SetAttribute("shift-type2","togglemenu")
-
-        local header = self:GetParent()
-        local ccheader = header:GetFrameRef("clickcast_header")
-        if ccheader then
-            ccheader:SetAttribute("clickcast_button", self)
-            ccheader:RunAttribute("clickcast_register")
-        end
-        header:CallMethod("initialConfigFunction", self:GetName())
-    ]=]
+            local header = self:GetParent()
+            local ccheader = header:GetFrameRef("clickcast_header")
+            if ccheader then
+                ccheader:SetAttribute("clickcast_button", self)
+                ccheader:RunAttribute("clickcast_register")
+            end
+            header:CallMethod("initialConfigFunction", self:GetName())
+        ]=], ...)
+    end
+    self.initConfSnippet = self.makeConfSnippet(width, height, strata)
 
     self:LayoutUpdate()
 
@@ -703,9 +681,9 @@ function Aptechka:ReconfigureProtected()
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
     -- local scale = AptechkaDB.scale or config.scale
-    -- local strata = config.frameStrata or "LOW"
+    local strata = config.frameStrata or "LOW"
     local scale = 1
-    -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
+    self.initConfSnippet = self.makeConfSnippet(width, height, strata)
     for group, header in ipairs(group_headers) do
 
         for _, f in ipairs({ header:GetChildren() }) do
