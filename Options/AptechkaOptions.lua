@@ -411,7 +411,7 @@ function AptechkaGUI.CreateCommonForm(self)
     end)
     Form.controls.foreigncolor = foreigncolor
     Form:AddChild(foreigncolor)
-    AddTooltip(fcr, "Color for applications from other players")
+    AddTooltip(foreigncolor, "Color for applications from other players")
 
     local fcr = AceGUI:Create("Button")
 	fcr:SetText("X")
