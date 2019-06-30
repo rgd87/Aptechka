@@ -1629,16 +1629,6 @@ function Aptechka.SetupFrame(header, frameName)
     f.onenter = onenter
     f.onleave = onleave
 
-    -- f:SetAttribute("_onenter",[[
-    --     local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
-    --     self:CallMethod("onenter")
-    -- ]])
-
-    -- f:SetAttribute("_onleave",[[
-    --     local snippet = self:GetAttribute('clickcast_onleave'); if snippet then self:Run(snippet) end
-    --     self:CallMethod("onleave")
-    -- ]])
-
     f:RegisterForClicks(unpack(config.registerForClicks))
     f.vHealthMax = 1
     f.vHealth = 1
@@ -1793,7 +1783,9 @@ function Aptechka.ScanAuras(unit)
             end
         end
     end
-    for frame in pairs(Roster[unit]) do
+    local frames = Roster[unit]
+    if frames then
+    for frame in pairs(frames) do
         for realID, opts in pairs(frame.activeAuras) do
             if not encountered[realID] then
                 FrameSetJob(frame, opts, false)
@@ -1812,6 +1804,7 @@ function Aptechka.ScanAuras(unit)
                 FrameSetJob(frame, optsMissing, true)
             end
         end
+    end
     end
 end
 
