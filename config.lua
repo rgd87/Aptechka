@@ -435,9 +435,11 @@ helpers.auraBlacklist = {
     [304959] = true,
     [304851] = true,
 
-    [209261] = true, -- Uncontained Fel
+    [110310] = true, -- Dampening
+
+    [209261] = true, -- Uncontained Fel (DH, Last Resort cooldown)
     [264689] = true, -- Fatigued (Hunter BL)
-    [219521] = true, -- Shadow Covenant
+    [219521] = true, -- Shadow Covenant (Disc Priest Talent)
     [139485] = true, -- Throne of Thudner passive debuff
     [57724] = true, -- Sated (BL)
     [80354] = true, -- Temporal Displacement (Mage BL)
@@ -452,14 +454,14 @@ helpers.auraBlacklist = {
     [6788] = true, -- Weakened Soul
     [113942] = true, -- demonic gates debuff
     [123981] = true, -- dk cooldown debuff
-    [87024] = true, -- mage cooldown debuff
+    [87024] = true, -- mage cooldown debuffц
     [97821] = true, -- dk battleres debuff
     [124275] = true, -- brewmaster light stagger debuff
     [174528] = true, -- Griefer debuff
     [206151] = true, -- Challenger's Burden
 
     [256200] = true, -- Heartstopper Venom, Tol'Dagor
-    [271544] = true, -- Ablative Shielding
+    [271544] = true, -- Ablative Shielding, Tank Azerite trait
 
     [45182] = true, -- Cheat Death cooldown
     [187464] = true, -- Shadowmend debuff
