@@ -1618,8 +1618,10 @@ function Aptechka.SetupFrame(header, frameName)
 
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
-    f:SetAttribute("initial-width", width)
-    f:SetAttribute("initial-height", height)
+    --[[if f:CanChangeAttribute() then
+        f:SetAttribute("initial-width", width) -- what is it even doing?
+        f:SetAttribute("initial-height", height)
+    end]]
     if not InCombatLockdown() then
         f:SetSize(width, height)
     end
