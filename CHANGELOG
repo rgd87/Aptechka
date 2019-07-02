@@ -1,3 +1,9 @@
+### 8.2.2:
+
+- minor bugfixes
+- added blacklist info to GUI
+- added Dampening to blacklist
+
 ### 8.2.1:
 
 - fixed the issue with UnitButtons not appearing until out of combat
