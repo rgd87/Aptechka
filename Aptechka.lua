@@ -18,7 +18,7 @@ local UnitUsingVehicle = isClassic and dummyFalse or _G.UnitUsingVehicle
 local UnitGetIncomingHeals = isClassic and dummy0 or _G.UnitGetIncomingHeals
 local UnitGetTotalAbsorbs = isClassic and dummy0 or _G.UnitGetTotalAbsorbs
 local UnitThreatSituation = isClassic and dummyNil or _G.UnitThreatSituation
-local UnitGroupRolesAssigned = isClassic and dummyNil or _G.UnitThreatSituation
+local UnitGroupRolesAssigned = isClassic and dummyNil or _G.UnitGroupRolesAssigned
 local GetSpecialization = isClassic and function() return 1 end or _G.GetSpecialization
 local GetSpecializationInfo = isClassic and function() return "DAMAGER" end or _G.GetSpecializationInfo
 
