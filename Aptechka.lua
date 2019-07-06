@@ -763,15 +763,15 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit, guid)
             self.health.incoming:Update(h, hi, hm)
 			-- SetValue( showHeal and self.health:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
         end
-        -- if config.IncomingHealStatus then
-        --     if showHeal then
-        --         self.vIncomingHeal = heal
-        --         SetJob(unit, config.IncomingHealStatus, true)
-        --     else
-        --         self.vIncomingHeal = 0
-        --         SetJob(unit, config.IncomingHealStatus, false)
-        --     end
-        -- end
+        if config.IncomingHealStatus then
+            if showHeal then
+                self.vIncomingHeal = heal
+                SetJob(unit, config.IncomingHealStatus, true)
+            else
+                self.vIncomingHeal = 0
+                SetJob(unit, config.IncomingHealStatus, false)
+            end
+        end
     end
 end
 
