@@ -94,7 +94,7 @@ local LibClassicDurations = LibStub("LibClassicDurations")
 local tinsert = table.insert
 local tsort = table.sort
 local CreatePetsFunc
-
+local HealComm
 
 local defaults = {
     growth = "up",
@@ -338,7 +338,18 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 	end
 
     if config.enableIncomingHeals then
-        self:RegisterEvent("UNIT_HEAL_PREDICTION")
+        HealComm = LibStub:GetLibrary("LibClassicHealComm-1.0",true);
+        local incomingHealIgnoreHots = true
+        if HealComm then
+            if incomingHealIgnoreHots then
+                HealComm.AptechkaHealType = HealComm.CASTED_HEALS
+            else
+                HealComm.AptechkaHealType = HealComm.ALL_HEALS
+                HealComm.RegisterCallback(self, "HealComm_HealUpdated", "HealUpdated");     -- hots
+            end
+            HealComm.RegisterCallback(self, "HealComm_HealStarted", "HealUpdated");
+            HealComm.RegisterCallback(self, "HealComm_HealStopped", "HealUpdated");
+        end
     end
 
     if not config[config.skin.."Settings"]
@@ -728,15 +739,21 @@ function Aptechka:ReconfigureProtected()
     Aptechka:SetGrowth(unitGrowth, groupGrowth)
 end
 
-function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
+function Aptechka:HealUpdated(event, casterGUID, spellID, healType, endTime, ...)
+    for i=1,select('#', ...) do
+        local targetGUID = select(i, ...)
+        local unit = guidMap[targetGUID]
+        if unit then
+            Aptechka:UNIT_HEAL_PREDICTION(nil, unit, targetGUID)
+        end
+    end
+end
+
+local incomingHealTimeframe = 3
+function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit, guid)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
-        local heal = UnitGetIncomingHeals(unit)
-		-- print(heal)
-        if ignoreplayer then
-            local myheal = UnitGetIncomingHeals(unit, "player")
-            if heal and myheal then heal = heal - myheal end
-        end
+        local heal = HealComm:GetHealAmount(guid, HealComm.AptechkaHealType, GetTime()+incomingHealTimeframe)
         local showHeal = (heal and heal > threshold)
         if self.health.incoming then
 			local h = UnitHealth(unit)
@@ -1359,7 +1376,7 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
     end
     Aptechka:CheckRoles(self, unit)
-    if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
+    if HealComm and config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit, UnitGUID(unit)) end
 end
 
 local delayedUpdateTimer = C_Timer.NewTicker(5, function()
