@@ -961,6 +961,8 @@ local function Reconf(self)
 
         self.health.absorb2:SetOrientation("VERTICAL")
 
+        -- self.health.lost.maxheight = db.height
+
         -- self.health:ClearAllPoints()
         -- self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
         -- self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
@@ -1076,6 +1078,78 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp.SetJob = SetJob_HealthBar
     hp.SetColor = HealthBarSetColor
     --hp:SetValue(0)
+
+    --[[
+    ----------------------
+    -- HEALTH LOST EFFECT
+    ----------------------
+
+    hplost = hp:CreateTexture(nil, "ARTWORK", nil, -4)
+    hplost:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+    hplost:SetVertexColor(0.8, 0, 0)
+    hp.lost = hplost
+
+    hp._SetValue = hp.SetValue
+    hp.SetValue = function(self, v)
+        local max = 100
+        local vp = v/max
+        local hl = self.lost
+        local offset = vp*hl.maxheight
+        hl:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, offset)
+        hl:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, offset)
+        -- self.lost:SmoothFade(v)
+        hl:SetNewHealthTarget(vp)
+        self:_SetValue(v)
+    end
+
+    hplost:SetPoint("BOTTOMLEFT", hp, "BOTTOMLEFT", 0, 0)
+    hplost:SetPoint("BOTTOMRIGHT", hp, "BOTTOMRIGHT", 0, 0)
+
+    hplost.currentvalue = 0
+    hplost.endvalue = 0
+
+    hplost.UpdateDiff = function(self)
+        local diff = self.currentvalue - self.endvalue
+        if diff > 0 then
+            self:SetHeight((diff)*self.maxheight)
+            self:SetAlpha(1)
+        else
+            self:SetHeight(1)
+            self:SetAlpha(0)
+        end
+    end
+
+    hp:SetScript("OnUpdate", function(self, time)
+        self._elapsed = (self._elapsed or 0) + time
+        if self._elapsed < 0.025 then return end
+        self._elapsed = 0
+
+
+        local hl = self.lost
+        local diff = hl.currentvalue - hl.endvalue
+        if diff > 0 then
+            local d = (diff > 0.1) and diff/15 or 0.006
+            hl.currentvalue = hl.currentvalue - d
+            -- self:SetValue(self.currentvalue)
+            hl:UpdateDiff()
+        end
+    end)
+
+    hplost.SetNewHealthTarget = function(self, vp)
+        if vp >= self.currentvalue then
+            self.currentvalue = vp
+            self.endvalue = vp
+            -- self:SetValue(vp)
+            self:UpdateDiff()
+        else
+            self.endvalue = vp
+        end
+    end
+    ]]
+
+    ------------------------
+    -- Mouseover highlight
+    ------------------------
 
     local mot = hp:CreateTexture(nil,"OVERLAY")
     mot:SetAllPoints(hp)

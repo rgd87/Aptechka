@@ -1307,6 +1307,35 @@ local function MakeScalingOptions()
 end
 
 
+local function MakeBlacklistHelp()
+	local opt = {
+        type = 'group',
+        name = "Debuff Blacklist",
+        order = 1,
+        args = {
+			msg = {
+				name = [[
+Blacklist is only accesible with console commands:
+
+/apt blacklist show
+/apt blacklist add <spellID>
+/apt blacklist del <spellID>
+]],
+				type = "description",
+				fontSize = "medium",
+                width = "full",
+                order = 1,
+            },
+		},
+	}
+	local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+    AceConfigRegistry:RegisterOptionsTable("AptechkaHelp", opt)
+
+    local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaHelp", "Blacklist", "Aptechka")
+
+	return panelFrame
+end
 
 
 
@@ -1318,8 +1347,8 @@ do
 
 
     f.general = MakeGeneralOptions()
-
     f.scaling = MakeScalingOptions()
+    f.blacklist = MakeBlacklistHelp()
 
     AptechkaGUI.frame = AptechkaGUI:Create("Spell List", "Aptechka")
     f.spell_list = AptechkaGUI.frame.frame
