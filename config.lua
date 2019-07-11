@@ -98,10 +98,6 @@ config.PhasedOutStatus = { name = "Phased", assignto = "self", color = {0.5,0.5,
 config.InVehicleStatus = { name = "InVehicle", assignto = "border", color = {0.3,1,0.3}, priority = 21 }
 config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", color = {1,0.1,0.1}, priority = 95, fade = 1.0 }
 
-config.SummonPending = { name = "SUMMON_PENDING", assignto = { "text2" }, color = {1,0.7,0}, text = "PENDING", priority = 50 }
-config.SummonAccepted = { name = "SUMMON_ACCEPTED", assignto = { "text2" }, color = {0,1,0}, text = "ACCEPTED", priority = 51 }
-config.SummonDeclined = { name = "SUMMON_DECLINED", assignto = { "text2" }, color = {1,0,0}, text = "DECLINED", priority = 52 }
-
 -- default priority is 80
 
 D(1, { name = "DI1", assignto = "dicon1", pulse = true, showDuration = true })
