@@ -1081,6 +1081,7 @@ local function MakeGeneralOptions()
                     },
                     useCLH = {
                         name = "Use LibCLH",
+                        disabled = true,
                         type = "toggle",
                         confirm = true,
 						confirmText = "Warning: Requires UI reloading.",

@@ -23,6 +23,7 @@ local UnitIsWarModePhased = isClassic and dummyFalse or _G.UnitIsWarModePhased
 local UnitInPhase = isClassic and function() return true end or _G.UnitInPhase
 local GetSpecialization = isClassic and function() return 1 end or _G.GetSpecialization
 local GetSpecializationInfo = isClassic and function() return "DAMAGER" end or _G.GetSpecializationInfo
+local HasIncomingSummon = isClassic and dummyNil or C_IncomingSummon.HasIncomingSummon
 
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
@@ -408,6 +409,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     self:RegisterEvent("UNIT_PHASE")
+    self:RegisterEvent("INCOMING_SUMMON_CHANGED")
 
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER_UPDATE")
@@ -463,6 +465,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
     end
 
+    AptechkaDB.useCombatLogHealthUpdates = false
     if AptechkaDB.useCombatLogHealthUpdates then
         local CLH = LibStub("LibCombatLogHealth-1.0")
         UnitHealth = CLH.UnitHealth
@@ -847,6 +850,19 @@ function Aptechka:CheckPhase(frame, unit)
         frame.centericon.texture:SetTexture("Interface\\RaidFrame\\Raid-Icon-Rez");
         frame.centericon.texture:SetTexCoord(0,1,0,1);
         frame.centericon:Show()
+    --[[
+    elseif HasIncomingSummon(unit) then
+        local status = C_IncomingSummon.IncomingSummonStatus(unit);
+        if(status == Enum.SummonStatus.Pending) then
+            frame.centericon.texture:SetAtlas("Raid-Icon-SummonPending");
+        elseif( status == Enum.SummonStatus.Accepted ) then
+            frame.centericon.texture:SetAtlas("Raid-Icon-SummonAccepted");
+        elseif( status == Enum.SummonStatus.Declined ) then
+            frame.centericon.texture:SetAtlas("Raid-Icon-SummonDeclined");
+        end
+        frame.centericon.texture:SetTexCoord(0,1,0,1);
+        frame.centericon:Show()
+    ]]
     elseif (not UnitInPhase(unit) or UnitIsWarModePhased(unit)) and not frame.InVehicle then
         frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
         frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
@@ -870,6 +886,23 @@ function Aptechka.UNIT_PHASE(self, event, unit)
         for frame in pairs(frames) do
             Aptechka:CheckPhase(frame,unit)
         end
+    end
+end
+
+function Aptechka.INCOMING_SUMMON_CHANGED(self, event, unit)
+    if HasIncomingSummon(unit) then
+        local status = C_IncomingSummon.IncomingSummonStatus(unit);
+        if(status == Enum.SummonStatus.Pending) then
+            SetJob(unit, config.SummonPending, true)
+        elseif( status == Enum.SummonStatus.Accepted ) then
+            SetJob(unit, config.SummonAccepted, true)
+        elseif( status == Enum.SummonStatus.Declined ) then
+            SetJob(unit, config.SummonDeclined, true)
+        end
+    else
+        SetJob(unit, config.SummonPending, false)
+        SetJob(unit, config.SummonAccepted, false)
+        SetJob(unit, config.SummonDeclined, false)
     end
 end
 
