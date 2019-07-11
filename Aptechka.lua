@@ -435,6 +435,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
     end
 
+    AptechkaDB.useCombatLogHealthUpdates = false
     if AptechkaDB.useCombatLogHealthUpdates then
         local CLH = LibStub("LibCombatLogHealth-1.0")
         UnitHealth = CLH.UnitHealth
