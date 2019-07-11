@@ -1,3 +1,9 @@
+### 1.13.2
+
+- preliminary LibClassicHealComm support, it's used if found, but not embedded
+- disabled LibCLH
+- some fixes from live
+
 ### 1.13.1
 
 - merged bugfixes from live
