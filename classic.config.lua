@@ -57,6 +57,10 @@ A{ id = 23335, type = "HELPFUL", assignto = "bossdebuff", color = {0,0,1}, prior
 -- Soulstone Resurrection
 A{ id = { 20707, 20762, 20763, 20764, 20765 }, type = "HELPFUL", global = true, assignto = "raidbuff", color = { 0.6, 0, 1 }, priority = 20 }
 
+A{ id = {
+    430, 431, 432, 1133, 1135, 1137, 22734 -- Classic water
+}, assignto = "text2", color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
+
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude and Prayer of Fortitude
     A{ id = { 1243, 1244, 1245, 2791, 10937, 10938, 21562, 21564 }, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 100, isMissing = true }
