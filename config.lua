@@ -211,6 +211,20 @@ A{ id = 186265, prototype = survivalCD } -- Aspect of the Turtle
 A{ id = 108271, prototype = survivalCD } -- Astral Shift
 A{ id = 204293, prototype = survivalCD } -- Spirit Link (PvP)
 
+
+A{ id = {
+    170906, 192002, 195472, 225743, 251232, 257427, 257428, 272819, 279739, 297098, -- Food & Drink
+    167152, -- Mage Food
+    430, 431, 432, 1133, 1135, 1137, -- Classic water
+    34291, 43183, 43182, -- BC & WotLK water
+    80166, 80167, 105232, 118358, -- Cata water
+    104262, 104269, -- MoP water
+    172786, -- WoD water
+    225738, 192001, -- Legion water
+    274914, -- BfA water
+}, assignto = "text2", color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
+
+
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude
     A{ id = 21562, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 100, isMissing = true }

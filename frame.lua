@@ -1371,6 +1371,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     centericon.texture = centericontex
     centericon:SetAlpha(1)
 
+
     local roleicon = CreateFrame("Frame",nil,self)
     roleicon:SetWidth(11); roleicon:SetHeight(11)
     -- roleicon:SetPoint("BOTTOMLEFT",hp,"CENTER",-20,-23)
@@ -1477,7 +1478,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.absorb = absorb
     self.absorb2 = absorb2
     self.centericon = centericon
-
 
     self.OnMouseEnterFunc = OnMouseEnterFunc
     self.OnMouseLeaveFunc = OnMouseLeaveFunc
