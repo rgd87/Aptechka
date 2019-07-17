@@ -308,6 +308,7 @@ if playerClass == "MONK" then
 
 
     Trace{id = 116670, type = "HEAL", assignto = "healfeedback", color = { 0.5, 1, 0.5}, fade = 0.7, priority = 96 } -- Vivify
+    Trace{id = 216161, type = "HEAL", assignto = "healfeedback", color = { 1, 0.3, 0.55}, fade = 0.7, priority = 96 } -- Way of the Crane
 
     -- A{ id = 157627, type = "HELPFUL", assignto = "bar2", showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
 
