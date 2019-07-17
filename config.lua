@@ -139,6 +139,12 @@ A{ id = 296094, prototype = tankCD } --Standstill (Artifice of Time)
 A{ id = 296230, prototype = survivalCD } --Vitality Conduit
 -- A{ id = 296211, type = "HELPFUL", assignto = "bars", color = { 1, 0.7, 0}, priority = 50, showDuration = true, isMine = true }
 
+-- ACTIVE MITIGATION
+A{ id = 132404, prototype = survivalCD, priority = 80 } -- Shield Block
+A{ id = 132403, prototype = survivalCD, priority = 80 } -- Shield of the Righteousness
+A{ id = 203819, prototype = survivalCD, priority = 80 } -- Demon Spikes
+A{ id = 192081, prototype = survivalCD, priority = 80 } -- Ironfur
+
 -- MONK
 A{ id = 122783, prototype = survivalCD } -- Diffuse Magic
 A{ id = 122278, prototype = survivalCD } -- Dampen Harm
