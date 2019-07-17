@@ -689,9 +689,14 @@ local SetJob_Text2 = function(self,job) -- text2 is always green
     end
 
     local c
-    if job.color then
-        c = job.textcolor or job.color
-        self:SetTextColor(unpack(c))
+    if job.percentColor then
+        self:SetTextColor(helpers.PercentColor(job.text))
+        self:SetText(string.format("%.0f%%", job.text*100))
+    else
+        if job.color then
+            c = job.textcolor or job.color
+            self:SetTextColor(unpack(c))
+        end
     end
 end
 

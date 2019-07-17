@@ -92,6 +92,7 @@ local LibAuraTypes
 local tinsert = table.insert
 local tsort = table.sort
 local CreatePetsFunc
+local staggerUnits = {}
 
 
 local defaults = {
@@ -1060,6 +1061,8 @@ Aptechka.OnRangeUpdate = function (self, time)
             end
         end
     end
+
+    Aptechka:UpdateStagger()
 end
 
 --Aggro
@@ -1093,11 +1096,35 @@ function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
     end
 end
 
+function Aptechka:UpdateStagger()
+    for unit in pairs(staggerUnits) do
+        local frames = Roster[unit]
+        if frames then
+            for frame in pairs(frames) do
+                local currentStagger = UnitStagger(unit)
+                if not currentStagger then
+                    return FrameSetJob(frame, config.StaggerStatus, false)
+                end
+                local maxHP = UnitHealthMax(unit)
+                local staggerPercent = currentStagger/maxHP
+                config.StaggerStatus.text = staggerPercent
+                FrameSetJob(frame, config.StaggerStatus, currentStagger > 0)
+            end
+        end
+    end
+end
+
 function Aptechka.CheckRoles(apt, self, unit )
 
     local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
     local isTankRoleAssigned = UnitGroupRolesAssigned(unit) == "TANK"
-    local isAnyTank = isRaidMaintank or isRoleAssigned
+    local isAnyTank = isRaidMaintank or isTankRoleAssigned
+
+    if isAnyTank and select(2, UnitClass(unit)) == "MONK" then
+        staggerUnits[unit] = true
+    else
+        staggerUnits[unit] = nil
+    end
 
     if config.MainTankStatus then    
         FrameSetJob(self, config.MainTankStatus, isAnyTank)

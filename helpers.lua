@@ -15,6 +15,17 @@ if res then
     pmult = (768/h) / UIParent:GetScale()
 end
 
+helpers.PercentColor = function(percent)
+    if percent <= 0 then
+        return 0, 1, 0
+    elseif percent <= 0.5 then
+        return percent*2, 1, 0
+    elseif percent >= 1 then
+        return 1, 0, 0
+    else
+        return 1, 2 - percent*2, 0
+    end
+end
 
 helpers.AddDispellType = function(dtype, data)
     if not config.DebuffTypes then config.DebuffTypes = {} end

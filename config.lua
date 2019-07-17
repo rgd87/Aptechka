@@ -90,11 +90,6 @@ config.VoiceChatStatus = { name = "VoiceChat", priority = 59, assignto = "text3"
 config.MainTankStatus = { name = "MainTank", priority = 60, assignto = "border", color = {0.6,0.6,0.6} }
 config.DeadStatus = { name = "DEAD", assignto = { "text2","health","power" }, color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
 config.GhostStatus = { name = "GHOST", assignto = { "text2","health","power" }, color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
--- LibResInfo
-config.CastingMassResStatus = { name = "MassResCast", assignto = { "icon", "text3" }, text = "MASSRES", color = { .4,1,.4 }, texture = "INTERFACE\\ICONS\\achievement_guildperk_massresurrection", priority = 96 }
-config.ResIncomingStatus = { name = "ResIncoming", assignto = { "text3", "icon" }, text = "INC RES", color = { 1,1,.4 }, priority = 80, texture = "Interface\\RaidFrame\\Raid-Icon-Rez" }
-config.ResPendingStatus = { name = "ResPending", assignto = { "text2" }, text = "PENDING", color = { 0.6,0.6,1 }, priority = 82 }
-
 config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","text3","health","power" }, color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.AwayStatus = { name = "AFK", assignto = { "text2","text3" }, color = {.15,.15,.15}, textcolor = {1,0.8,0}, text = "AFK",  priority = 60}
 -- config.IncomingHealStatus = { name = "IncomingHeal", assignto = "text2", inchealtext = true, color = { 0, 1, 0}, priority = 15 }
@@ -106,6 +101,7 @@ config.OutOfRangeStatus = { name = "OOR", assignto = "self", color = {0.5,0.5,0.
 config.PhasedOutStatus = { name = "Phased", assignto = "self", color = {0.5,0.5,0.5}, alpha = 0.4, text = "Phased", priority = 40 }
 config.InVehicleStatus = { name = "InVehicle", assignto = "border", color = {0.3,1,0.3}, priority = 21 }
 config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", color = {1,0.1,0.1}, priority = 95, fade = 1.0 }
+config.StaggerStatus = { name = "Stagger", assignto = "text2", percentColor = true, priority = 20 }
 
 config.SummonPending = { name = "SUMMON_PENDING", assignto = { "text2" }, color = {1,0.7,0}, text = "PENDING", priority = 50 }
 config.SummonAccepted = { name = "SUMMON_ACCEPTED", assignto = { "text2" }, color = {0,1,0}, text = "ACCEPTED", priority = 51 }
