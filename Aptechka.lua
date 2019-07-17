@@ -1101,9 +1101,13 @@ function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
 end
 
 function Aptechka.CheckRoles(apt, self, unit )
-    --self is UnitButton here
-    if config.MainTankStatus then
-        FrameSetJob(self, config.MainTankStatus, UnitGroupRolesAssigned(unit) == "TANK")
+
+    local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
+    local isTankRoleAssigned = UnitGroupRolesAssigned(unit) == "TANK"
+    local isAnyTank = isRaidMaintank or isRoleAssigned
+
+    if config.MainTankStatus then    
+        FrameSetJob(self, config.MainTankStatus, isAnyTank)
     end
 
     if config.displayRoles then
@@ -1125,7 +1129,7 @@ function Aptechka.CheckRoles(apt, self, unit )
             if UnitGroupRolesAssigned(unit) == "HEALER" then
                 -- icon:SetTexCoord(0, 0.25, 0, 1); icon:Show()
                 icon:SetTexCoord(GetTexCoordsForRoleSmallCircle("HEALER")); icon:Show()
-            elseif UnitGroupRolesAssigned(unit) == "TANK" then
+            elseif isTankRoleAssigned then
                 -- icon:SetTexCoord(0.25, 0.5, 0, 1); icon:Show()
                 icon:SetTexCoord(GetTexCoordsForRoleSmallCircle("TANK")); icon:Show()
             else
