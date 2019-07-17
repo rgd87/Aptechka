@@ -839,13 +839,6 @@ function Aptechka:CheckPhase(frame, unit)
         FrameSetJob(frame, config.PhasedOutStatus, false)
     end
 end
-function Aptechka:CheckPhase1(unit)
-    local rosterunit = Roster[unit]
-    if not rosterunit then return end
-    for frame in pairs(rosterunit) do
-        Aptechka:CheckPhase(frame, unit)
-    end
-end
 
 function Aptechka.UNIT_PHASE(self, event, unit)
     for unit, frames in pairs(Roster) do
@@ -1022,7 +1015,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
                 if self.power then Aptechka:UNIT_POWER_UPDATE(nil,self.unit) end
 				if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
-                Aptechka:CheckPhase1(self.unit)
+                Aptechka:CheckPhase(self, self.unit)
                 Aptechka.ScanAuras(self.unit)
             end
         end
@@ -1365,7 +1358,7 @@ local function updateUnitButton(self, unit)
     if AptechkaDB.showAFK then
         Aptechka:UNIT_AFK_CHANGED(nil, owner)
     end
-    Aptechka:CheckPhase1(unit)
+    Aptechka:CheckPhase(self, unit)
     SetJob(unit, config.ReadyCheck, false)
     if not config.disableManaBar then
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
