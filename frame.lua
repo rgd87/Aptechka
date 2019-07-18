@@ -689,9 +689,14 @@ local SetJob_Text2 = function(self,job) -- text2 is always green
     end
 
     local c
-    if job.color then
-        c = job.textcolor or job.color
-        self:SetTextColor(unpack(c))
+    if job.percentColor then
+        self:SetTextColor(helpers.PercentColor(job.text))
+        self:SetText(string.format("%.0f%%", job.text*100))
+    else
+        if job.color then
+            c = job.textcolor or job.color
+            self:SetTextColor(unpack(c))
+        end
     end
 end
 
@@ -1371,6 +1376,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     centericon.texture = centericontex
     centericon:SetAlpha(1)
 
+
     local roleicon = CreateFrame("Frame",nil,self)
     roleicon:SetWidth(11); roleicon:SetHeight(11)
     -- roleicon:SetPoint("BOTTOMLEFT",hp,"CENTER",-20,-23)
@@ -1476,7 +1482,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.absorb = absorb
     self.absorb2 = absorb2
     self.centericon = centericon
-
 
     self.OnMouseEnterFunc = OnMouseEnterFunc
     self.OnMouseLeaveFunc = OnMouseLeaveFunc
