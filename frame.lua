@@ -5,6 +5,7 @@ local pixelperfect = helpers.pixelperfect
 local LSM = LibStub("LibSharedMedia-3.0")
 
 LSM:Register("statusbar", "Gradient", [[Interface\AddOns\Aptechka\gradient.tga]])
+LSM:Register("font", "ClearFont", [[Interface\AddOns\Aptechka\ClearFont.ttf]], GetLocale() ~= "enUS" and 15)
 
 
 local SetJob_Frame = function(self, job)
@@ -552,19 +553,13 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     local stackframe = CreateFrame("Frame", nil, icon)
     stackframe:SetAllPoints(icon)
     local stacktext = stackframe:CreateFontString(nil,"OVERLAY")
-    -- stacktext:SetWidth(w)
-    -- stacktext:SetHeight(h)
-    if AptechkaDefaultConfig.font then
-        stacktext:SetFont(AptechkaDefaultConfig.font,11,"OUTLINE")
-    else
-        stacktext:SetFontObject("NumberFontNormal")
-    end
+    local stackFont = LSM:Fetch("font",  Aptechka.db.nameFontName)
+    local stackFontSize = Aptechka.db.stackFontSize
+    stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
     stackframe:SetFrameLevel(7)
 
     stacktext:SetJustifyH"RIGHT"
-    stacktext:SetPoint("BOTTOMRIGHT",icon,"BOTTOMRIGHT",0,0)
-    -- /script NugRaid1UnitButton1.dicon1:Show(); NugRaid1UnitButton1.dicon1.stacktext:Show(); NugRaid1UnitButton1.dicon1.stacktext:SetText"3"
-    -- stacktext:SetPoint("TOPLEFT",icon,"TOPLEFT",-w,h)
+    stacktext:SetPoint("BOTTOMRIGHT",icon,"BOTTOMRIGHT",0,-1)
     stacktext:SetTextColor(1,1,1)
     icon.stacktext = stacktext
     icon.SetJob = SetJob_Icon
@@ -955,6 +950,17 @@ local function Reconf(self)
     Aptechka.FrameSetJob(self,config.PowerBarColor,true)
     Aptechka.FrameSetJob(self,config.UnitNameStatus,true)
 
+    local nameFont = LSM:Fetch("font",  Aptechka.db.nameFontName)
+    local nameFontSize = Aptechka.db.nameFontSize
+    self.text1:SetFont(nameFont, nameFontSize)
+
+    local stackFont = nameFont
+    local stackFontSize = Aptechka.db.stackFontSize
+    self.dicon1.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
+    self.dicon2.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
+    self.dicon3.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
+    self.dicon4.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
+
     if isVertical then
         self.health:SetOrientation("VERTICAL")
         self.power:SetOrientation("VERTICAL")
@@ -1032,8 +1038,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local texture = config.texture
     local powertexture = texture
-    local font = config.font
-    local fontsize = config.fontsize
+    local font = LSM:Fetch("font",  Aptechka.db.nameFontName)
+    local fontsize = Aptechka.db.nameFontSize
     local manabar_width = config.manabarwidth
     local border = pixelperfect(2)
 

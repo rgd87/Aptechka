@@ -124,7 +124,10 @@ local defaults = {
         damageBigRaid = 0.7,
         healerMediumRaid = 1,
         healerBigRaid = 0.8,
-    }
+    },
+    nameFontName = "ClearFont",
+    nameFontSize = 12,
+    stackFontSize = 12,
 }
 
 local function SetupDefaults(t, defaults)
