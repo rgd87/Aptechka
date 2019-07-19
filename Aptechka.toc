@@ -9,7 +9,6 @@
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
-Libs\LibCombatLogHealth-1.0\LibCombatLogHealth-1.0.lua
 Libs\LibSharedMedia-3.0\lib.xml
 Libs\LibSpellLocks\LibSpellLocks.lua
 Libs\LibAuraTypes\LibAuraTypes.lua
