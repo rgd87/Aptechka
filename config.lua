@@ -191,6 +191,7 @@ A{ id = 204018, prototype = survivalCD } -- Blessing of Spellwarding
 A{ id = 184662, prototype = survivalCD } -- Shield of Vengeance
 A{ id = 205191, prototype = survivalCD } -- Eye for an Eye
 A{ id = 498,    prototype = survivalCD } -- Divine Protection
+A{ id = 6940,    prototype = survivalCD } -- Blessing of Sacrifice
 A{ id = 31850,  prototype = tankCD, priority = 88 } --Ardent Defender
 A{ id = 86659,  prototype = tankCD } --Guardian of Ancient Kings 50%
 A{ id = 204150, prototype = tankCD, priority = 85 } -- Aegis of Light

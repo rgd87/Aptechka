@@ -478,7 +478,7 @@ local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     local icon = CreateFrame("Frame",nil,parent)
     icon:SetWidth(w); icon:SetHeight(h)
     icon:SetPoint(point,frame,to,x,y)
-    icon:SetFrameLevel(5)
+    icon:SetFrameLevel(7)
 
     local shield = icon:CreateTexture(nil, "ARTWORK", nil, 2)
     shield:SetTexture([[Interface\AchievementFrame\UI-Achievement-IconFrame]])
@@ -549,14 +549,18 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
 
     icon.pulse = pag
 
-    local stacktext = icon:CreateFontString(nil,"OVERLAY")
+    local stackframe = CreateFrame("Frame", nil, icon)
+    stackframe:SetAllPoints(icon)
+    local stacktext = stackframe:CreateFontString(nil,"OVERLAY")
     -- stacktext:SetWidth(w)
     -- stacktext:SetHeight(h)
     if AptechkaDefaultConfig.font then
-        stacktext:SetFont(AptechkaDefaultConfig.font,10,"OUTLINE")
+        stacktext:SetFont(AptechkaDefaultConfig.font,11,"OUTLINE")
     else
         stacktext:SetFontObject("NumberFontNormal")
     end
+    stackframe:SetFrameLevel(7)
+
     stacktext:SetJustifyH"RIGHT"
     stacktext:SetPoint("BOTTOMRIGHT",icon,"BOTTOMRIGHT",0,0)
     -- /script NugRaid1UnitButton1.dicon1:Show(); NugRaid1UnitButton1.dicon1.stacktext:Show(); NugRaid1UnitButton1.dicon1.stacktext:SetText"3"

@@ -1996,7 +1996,7 @@ function Aptechka.TestDebuffSlots()
         local _, _, icon = GetSpellInfo(spellID)
         local duration = math.random(20)+5
         local now = GetTime()
-        local count = 1
+        local count = math.random(18)
         local debuffType = debuffTypes[math.random(#debuffTypes)]
         local expirationTime = now + duration
         local isBossAura = shown < numBossAuras
