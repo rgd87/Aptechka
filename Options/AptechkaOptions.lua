@@ -1147,6 +1147,65 @@ local function MakeGeneralOptions()
 						end,
 						values = LSM:HashTable("statusbar"),
 						dialogControl = "LSM30_Statusbar",
+                    },
+                    
+                    nameFont = {
+						type = "select",
+						name = "Font",
+						order = 14.1,
+						get = function(info) return Aptechka.db.nameFontName end,
+						set = function(info, value)
+							Aptechka.db.nameFontName = value
+							Aptechka:ReconfigureUnprotected()
+						end,
+						values = LSM:HashTable("font"),
+						dialogControl = "LSM30_Font",
+					},
+					nameFontSize = {
+                        name = "Name Font Size",
+                        type = "range",
+                        get = function(info) return Aptechka.db.nameFontSize end,
+                        set = function(info, v)
+							Aptechka.db.nameFontSize = v
+							Aptechka:ReconfigureUnprotected()
+                        end,
+                        min = 3,
+                        max = 30,
+                        step = 0.5,
+                        order = 14.2,
+                    },
+                    stackFontSize = {
+                        name = "Stack Font Size",
+                        type = "range",
+                        get = function(info) return Aptechka.db.stackFontSize end,
+                        set = function(info, v)
+							Aptechka.db.stackFontSize = v
+							Aptechka:ReconfigureUnprotected()
+                        end,
+                        min = 3,
+                        max = 30,
+                        step = 0.1,
+                        order = 14.2,
+                    },
+                    
+                    debuffSize = {
+                        name = "Debuff Size",
+                        type = "range",
+                        get = function(info) return Aptechka.db.debuffSize end,
+                        set = function(info, v)
+							Aptechka.db.debuffSize = v
+							Aptechka:ReconfigureUnprotected()
+                        end,
+                        min = 5,
+                        max = 30,
+                        step = 0.1,
+                        order = 14.3,
+                    },
+                    debuffTest = {
+                        name = "Test Debuffs",
+                        type = "execute",
+                        func = function() Aptechka.TestDebuffSlots() end,
+                        order = 14.4
 					},
 
                     inverted = {

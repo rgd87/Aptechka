@@ -126,7 +126,11 @@ local defaults = {
         damageBigRaid = 0.7,
         healerMediumRaid = 1,
         healerBigRaid = 0.8,
-    }
+    },
+    debuffSize = 13,
+    nameFontName = "ClearFont",
+    nameFontSize = 12,
+    stackFontSize = 12,
 }
 
 local function SetupDefaults(t, defaults)
@@ -1978,13 +1982,13 @@ function Aptechka.TestDebuffSlots()
         local _, _, icon = GetSpellInfo(spellID)
         local duration = math.random(20)+5
         local now = GetTime()
-        local count = 1
+        local count = math.random(18)
         local debuffType = debuffTypes[math.random(#debuffTypes)]
         local expirationTime = now + duration
         local isBossAura = shown < numBossAuras
         fill = fill + (isBossAura and 1.5 or 1)
 
-        print(fill, debuffLineLength, fill < debuffLineLength)
+        -- print(fill, debuffLineLength, fill < debuffLineLength)
 
         if fill <= debuffLineLength then
             shown = shown + 1
