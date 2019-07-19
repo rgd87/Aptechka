@@ -391,6 +391,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self:RegisterEvent("UNIT_PHASE")
     self:RegisterEvent("INCOMING_SUMMON_CHANGED")
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
 
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER_UPDATE")
@@ -850,6 +851,12 @@ function Aptechka.UNIT_PHASE(self, event, unit)
         for frame in pairs(frames) do
             Aptechka:CheckPhase(frame,unit)
         end
+    end
+end
+
+function Aptechka:PLAYER_ENTERING_WORLD(event)
+    for unit in pairs(Roster) do
+        Aptechka:INCOMING_SUMMON_CHANGED(nil, unit)
     end
 end
 
