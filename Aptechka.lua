@@ -125,6 +125,7 @@ local defaults = {
         healerMediumRaid = 1,
         healerBigRaid = 0.8,
     },
+    debuffSize = 13,
     nameFontName = "ClearFont",
     nameFontSize = 12,
     stackFontSize = 12,
@@ -2005,7 +2006,7 @@ function Aptechka.TestDebuffSlots()
         local isBossAura = shown < numBossAuras
         fill = fill + (isBossAura and 1.5 or 1)
 
-        print(fill, debuffLineLength, fill < debuffLineLength)
+        -- print(fill, debuffLineLength, fill < debuffLineLength)
 
         if fill <= debuffLineLength then
             shown = shown + 1

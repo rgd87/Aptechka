@@ -559,7 +559,7 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     stackframe:SetFrameLevel(7)
 
     stacktext:SetJustifyH"RIGHT"
-    stacktext:SetPoint("BOTTOMRIGHT",icon,"BOTTOMRIGHT",0,-1)
+    stacktext:SetPoint("BOTTOMRIGHT",icontex,"BOTTOMRIGHT", 3,-1)
     stacktext:SetTextColor(1,1,1)
     icon.stacktext = stacktext
     icon.SetJob = SetJob_Icon
@@ -593,33 +593,48 @@ local function SetJob_DebuffIcon(self, job)
     end
 end
 
-local SetDebuffOrientation = function(self, orientation)
+local SetDebuffOrientation = function(self, orientation, size)
     local it = self.texture
     local dtt = self.debuffTypeTexture
-    local w = self.width
-    local h = self.height
+    -- local w = self.width
+    -- local h = self.height
+    local w = size
+    local h = size
     local p = pixelperfect(1)
     it:ClearAllPoints()
     dtt:ClearAllPoints()
 
-    if orientation == "VERTICAL" then
-        self:SetSize(w,h)
-        it:SetSize(h,h)
-        it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
-        dtt:SetSize(6,h)
-        dtt:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, 0)
-        -- dtt:SetSize(h+2,h+2)
-        -- dtt:SetPoint("TOPLEFT", self, "TOPLEFT", -1, 1)
-    else
-        self:SetSize(h,w)
-        it:SetSize(h,h)
-        it:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0)
-        -- dtt:SetSize(h,6)
-        -- dtt:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+    -- local simple = false
 
-        dtt:SetSize(h+p*2,h+p*2)
-        dtt:SetPoint("CENTER", it, "CENTER", 0, 0)
-    end
+    -- if simple then
+    --     it:SetSize(pixelperfect(h - 2), pixelperfect(h - 2*p))
+    --     it:SetPoint("TOPLEFT", self, "TOPLEFT", p, -p)
+    --     dtt:SetSize(h, h)
+    --     dtt:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+    -- else
+        if orientation == "VERTICAL" then
+            self:SetSize(w,h)
+            it:SetSize(h,h)
+            it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+            dtt:SetSize(h*0.2,h)
+            dtt:SetPoint("TOPLEFT", it, "TOPRIGHT", 0, 0)
+            -- dtt:SetSize(h+2,h+2)
+            -- dtt:SetPoint("TOPLEFT", self, "TOPLEFT", -1, 1)
+        else
+            self:SetSize(h,w)
+            
+            -- dtt:SetSize(h,h*0.2)
+            -- dtt:SetPoint("BOTTOMLEFT", it, "TOPLEFT", 0, 0)
+
+            dtt:SetSize(w,h*0.2)
+            dtt:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0)
+            -- dtt:SetPoint("TOPLEFT", it, "TOPLEFT", 0, h*0.2)
+            -- dtt:SetPoint("BOTTOMRIGHT", it, "BOTTOMRIGHT", 0, 0)
+
+            it:SetSize(h,h)
+            it:SetPoint("BOTTOMLEFT", dtt, "TOPLEFT", 0, 0)
+        end
+    -- end
 end
 
 local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to, x, y)
@@ -627,8 +642,6 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
 
     local w = pixelperfect(width)
     local h = pixelperfect(height)
-    icon.width = w
-    icon.height = h
 
     local icontex = icon.texture
     icontex:SetTexCoord(.2, .8, .2, .8)
@@ -639,7 +652,7 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
 
     icon.SetOrientation = SetDebuffOrientation
 
-    icon:SetOrientation("VERTICAL")
+    icon:SetOrientation("VERTICAL", w)
 
     -- icon:SetBackdrop{
         -- bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
@@ -991,10 +1004,11 @@ local function Reconf(self)
         self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
         self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
         self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
-        self.dicon1:SetOrientation("VERTICAL")
-        self.dicon2:SetOrientation("VERTICAL")
-        self.dicon3:SetOrientation("VERTICAL")
-        self.dicon4:SetOrientation("VERTICAL")
+        local debuffSize = pixelperfect(Aptechka.db.debuffSize)
+        self.dicon1:SetOrientation("VERTICAL", debuffSize)
+        self.dicon2:SetOrientation("VERTICAL", debuffSize)
+        self.dicon3:SetOrientation("VERTICAL", debuffSize)
+        self.dicon4:SetOrientation("VERTICAL", debuffSize)
 
     else
         self.health:SetOrientation("HORIZONTAL")
@@ -1021,13 +1035,14 @@ local function Reconf(self)
         self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
 
         self.dicon1:SetPoint("BOTTOMLEFT", self.power, "TOPLEFT",0,0)
-        self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",2,0)
-        self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "BOTTOMRIGHT",2,0)
-        self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "BOTTOMRIGHT",2,0)
-        self.dicon1:SetOrientation("HORIZONTAL")
-        self.dicon2:SetOrientation("HORIZONTAL")
-        self.dicon3:SetOrientation("HORIZONTAL")
-        self.dicon4:SetOrientation("HORIZONTAL")
+        self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT", 0, 0)
+        self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "BOTTOMRIGHT", 0, 0)
+        self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "BOTTOMRIGHT", 0, 0)
+        local debuffSize = pixelperfect(Aptechka.db.debuffSize)
+        self.dicon1:SetOrientation("HORIZONTAL", debuffSize)
+        self.dicon2:SetOrientation("HORIZONTAL", debuffSize)
+        self.dicon3:SetOrientation("HORIZONTAL", debuffSize)
+        self.dicon4:SetOrientation("HORIZONTAL", debuffSize)
     end
 
 end
@@ -1413,11 +1428,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
     -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
 
-
-    self.dicon1 = CreateDebuffIcon(self, 16, 13, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
-    self.dicon2 = CreateDebuffIcon(self, 16, 13, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
-    self.dicon3 = CreateDebuffIcon(self, 16, 13, 1, "BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
-    self.dicon4 = CreateDebuffIcon(self, 16, 13, 1, "BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
+    local debuffSize = Aptechka.db.debuffSize
+    self.dicon1 = CreateDebuffIcon(self, debuffSize, debuffSize, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
+    self.dicon2 = CreateDebuffIcon(self, debuffSize, debuffSize, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
+    self.dicon3 = CreateDebuffIcon(self, debuffSize, debuffSize, 1, "BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
+    self.dicon4 = CreateDebuffIcon(self, debuffSize, debuffSize, 1, "BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     local blcorner = CreateCorner(self, 12, 12, "BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation
