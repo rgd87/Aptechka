@@ -1487,7 +1487,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     -- f:SetAttribute("template", "AptechkaUnitButtonTemplate")
     -- f:SetAttribute("templateType", "Button")
     if ClickCastHeader then
-        f:SetAttribute("template", "ClickCastUnitTemplate,SecureUnitButtonTemplate")
+        f:SetAttribute("template", "ClickCastUnitTemplate,SecureUnitButtonTemplate, SecureHandlerStateTemplate")
         SecureHandler_OnLoad(f)
         f:SetFrameRef("clickcast_header", Clique.header)
     else
@@ -1529,6 +1529,12 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetAttribute("showPlayer", true)
     f.initialConfigFunction = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
+
+    -- f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange')
+    -- f:SetAttribute('_initialAttribute-refreshUnitChange', [[
+    --     local unit = self:GetAttribute('unit')
+    --     print("refreshUnitChange", unit)
+    -- ]])
 
     local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
     local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
@@ -1746,7 +1752,7 @@ function Aptechka.SetupFrame(header, frameName)
         f.raidicon.texture:SetTexture[[Interface\TargetingFrame\UI-RaidTargetingIcons]]
     end
 
-    f:SetScript("OnAttributeChanged", OnAttributeChanged)
+    f:HookScript("OnAttributeChanged", OnAttributeChanged)
 end
 
 local AssignToSlot = function(frame, opts, status, slot)
