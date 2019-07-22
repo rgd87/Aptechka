@@ -54,6 +54,7 @@ local missingFlagSpells = {}
 local anchors = {}
 local skinAnchorsName
 
+local RosterUpdateOccured
 local LastCastSentTime = 0
 local LastCastTargetName
 
@@ -1053,7 +1054,21 @@ Aptechka.OnRangeUpdate = function (self, time)
 			end
 		end
 		return
-	end
+    end
+
+    if (RosterUpdateOccured) then
+        if RosterUpdateOccured + 3 < GetTime() then
+            if not InCombatLockdown() then
+                RosterUpdateOccured = nil
+
+                for i,hdr in pairs(group_headers) do
+                    local showSolo = AptechkaDB.showSolo
+                    hdr:SetAttribute("showSolo", not showSolo)
+                    hdr:SetAttribute("showSolo", showSolo)
+                end
+            end
+        end
+    end
 
     for unit, frames in pairs(Roster) do
         for frame in pairs(frames) do
@@ -1193,6 +1208,8 @@ function Aptechka:UpdateRangeChecker()
 end
 
 function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
+    RosterUpdateOccured = GetTime()
+
     --raid autoscaling
     if not InCombatLockdown() then
         Aptechka:LayoutUpdate()
