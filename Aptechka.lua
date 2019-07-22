@@ -1137,7 +1137,7 @@ function Aptechka.CheckRoles(apt, self, unit )
         staggerUnits[unit] = nil
     end
 
-    if config.MainTankStatus then    
+    if config.MainTankStatus then
         FrameSetJob(self, config.MainTankStatus, isAnyTank)
     end
 
@@ -1686,10 +1686,13 @@ function Aptechka.SetupFrame(header, frameName)
 
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
-    --[[if f:CanChangeAttribute() then
-        f:SetAttribute("initial-width", width) -- what is it even doing?
+    if not InCombatLockdown() then
+        f:SetAttribute("initial-width", width)
         f:SetAttribute("initial-height", height)
-    end]]
+    else
+        Aptechka:ReconfigureProtected()
+    end
+
     if not InCombatLockdown() then
         f:SetSize(width, height)
     end
