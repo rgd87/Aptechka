@@ -55,6 +55,7 @@ local missingFlagSpells = {}
 local anchors = {}
 local skinAnchorsName
 
+local RosterUpdateOccured
 local LastCastSentTime = 0
 local LastCastTargetName
 
@@ -1047,7 +1048,21 @@ Aptechka.OnRangeUpdate = function (self, time)
 			end
 		end
 		return
-	end
+    end
+
+    if (RosterUpdateOccured) then
+        if RosterUpdateOccured + 3 < GetTime() then
+            if not InCombatLockdown() then
+                RosterUpdateOccured = nil
+
+                for i,hdr in pairs(group_headers) do
+                    local showSolo = AptechkaDB.showSolo
+                    hdr:SetAttribute("showSolo", not showSolo)
+                    hdr:SetAttribute("showSolo", showSolo)
+                end
+            end
+        end
+    end
 
     for unit, frames in pairs(Roster) do
         for frame in pairs(frames) do
@@ -1161,6 +1176,8 @@ function Aptechka:UpdateRangeChecker()
 end
 
 function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
+    RosterUpdateOccured = GetTime()
+
     --raid autoscaling
     if not InCombatLockdown() then
         Aptechka:LayoutUpdate()
@@ -1438,7 +1455,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     -- f:SetAttribute("template", "AptechkaUnitButtonTemplate")
     -- f:SetAttribute("templateType", "Button")
     if ClickCastHeader then
-        f:SetAttribute("template", "ClickCastUnitTemplate,SecureUnitButtonTemplate")
+        f:SetAttribute("template", "ClickCastUnitTemplate,SecureUnitButtonTemplate, SecureHandlerStateTemplate")
         SecureHandler_OnLoad(f)
         f:SetFrameRef("clickcast_header", Clique.header)
     else
@@ -1480,6 +1497,12 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetAttribute("showPlayer", true)
     f.initialConfigFunction = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
+
+    -- f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange')
+    -- f:SetAttribute('_initialAttribute-refreshUnitChange', [[
+    --     local unit = self:GetAttribute('unit')
+    --     print("refreshUnitChange", unit)
+    -- ]])
 
     local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
     local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
@@ -1654,10 +1677,13 @@ function Aptechka.SetupFrame(header, frameName)
 
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
-    --[[if f:CanChangeAttribute() then
-        f:SetAttribute("initial-width", width) -- what is it even doing?
+    if not InCombatLockdown() then
+        f:SetAttribute("initial-width", width)
         f:SetAttribute("initial-height", height)
-    end]]
+    else
+        Aptechka:ReconfigureProtected()
+    end
+
     if not InCombatLockdown() then
         f:SetSize(width, height)
     end
@@ -1694,7 +1720,7 @@ function Aptechka.SetupFrame(header, frameName)
         f.raidicon.texture:SetTexture[[Interface\TargetingFrame\UI-RaidTargetingIcons]]
     end
 
-    f:SetScript("OnAttributeChanged", OnAttributeChanged)
+    f:HookScript("OnAttributeChanged", OnAttributeChanged)
 end
 
 local AssignToSlot = function(frame, opts, status, slot)
