@@ -1930,7 +1930,13 @@ function Aptechka.ScanAuras(unit)
                 end
             end
             if not isPresent then
-                FrameSetJob(frame, optsMissing, true)
+                local isKnown = true
+                if optsMissing.isKnownCheck then
+                    isKnown = optsMissing.isKnownCheck()
+                end
+                if isKnown then
+                    FrameSetJob(frame, optsMissing, true)
+                end
             end
         end
     end

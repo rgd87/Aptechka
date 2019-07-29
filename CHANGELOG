@@ -3,6 +3,7 @@
 - fixed LoS warning
 - fixed missing health formatting on low level characters
 - added heal absorb bar
+- not showing missing spell indicators if they aren't learned yet
 
 ### 8.2.6:
 
