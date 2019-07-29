@@ -715,9 +715,18 @@ local SetJob_Text1 = function(self,job)
     end
     if c then self:SetColor(unpack(c)) end
 end
+local formatMissingHealth = function(text, mh)
+    if mh < 1000 then
+        text:SetFormattedText("-%d", mh)
+    elseif mh < 10000 then
+        text:SetFormattedText("-%.1fk", mh / 1e3)
+    else
+        text:SetFormattedText("-%.0fk", mh / 1e3)
+    end
+end
 local SetJob_Text2 = function(self,job) -- text2 is always green
     if job.healthtext then
-        self:SetFormattedText("-%.0fk", (self.parent.vHealthMax - self.parent.vHealth) / 1e3)
+        formatMissingHealth(self, self.parent.vHealthMax - self.parent.vHealth)
     -- elseif job.inchealtext then
         -- self:SetFormattedText("+%.0fk", self.parent.vIncomingHeal / 1e3)
     elseif job.nametext then
@@ -729,7 +738,7 @@ local SetJob_Text2 = function(self,job) -- text2 is always green
     local c
     if job.percentColor then
         self:SetTextColor(helpers.PercentColor(job.text))
-        self:SetText(string.format("%.0f%%", job.text*100))
+        self:SetFormattedText("%.0f%%", job.text*100)
     else
         if job.color then
             c = job.textcolor or job.color
