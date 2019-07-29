@@ -9,20 +9,35 @@ end)
 
 --- Compatibility with Classic
 local isClassic = select(4,GetBuildInfo()) <= 19999
-local dummyFalse = function() return false end
-local dummy0 = function() return 0 end
-local dummyNil = function() return nil end
-local UnitHasVehicleUI = isClassic and dummyFalse or _G.UnitHasVehicleUI
-local UnitInVehicle = isClassic and dummyFalse or _G.UnitInVehicle
-local UnitUsingVehicle = isClassic and dummyFalse or _G.UnitUsingVehicle
-local UnitGetIncomingHeals = isClassic and dummy0 or _G.UnitGetIncomingHeals
-local UnitGetTotalAbsorbs = isClassic and dummy0 or _G.UnitGetTotalAbsorbs
-local UnitThreatSituation = isClassic and dummyNil or _G.UnitThreatSituation
-local UnitGroupRolesAssigned = isClassic and dummyNil or _G.UnitGroupRolesAssigned
-local UnitIsWarModePhased = isClassic and dummyFalse or _G.UnitIsWarModePhased
-local UnitInPhase = isClassic and function() return true end or _G.UnitInPhase
-local GetSpecialization = isClassic and function() return 1 end or _G.GetSpecialization
-local GetSpecializationInfo = isClassic and function() return "DAMAGER" end or _G.GetSpecializationInfo
+
+local UnitHasVehicleUI = UnitHasVehicleUI
+local UnitInVehicle = UnitInVehicle
+local UnitUsingVehicle = UnitUsingVehicle
+local UnitGetIncomingHeals = UnitGetIncomingHeals
+local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs
+local UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs
+local UnitThreatSituation = UnitThreatSituation
+local UnitGroupRolesAssigned = UnitGroupRolesAssigned
+local GetSpecialization = GetSpecialization
+local GetSpecializationInfo = GetSpecializationInfo
+local HasIncomingSummon = C_IncomingSummon and C_IncomingSummon.HasIncomingSummon
+
+if isClassic then
+    local dummyFalse = function() return false end
+    local dummy0 = function() return 0 end
+    local dummyNil = function() return nil end
+    UnitHasVehicleUI = dummyFalse
+    UnitInVehicle = dummyFalse
+    UnitUsingVehicle = dummyFalse
+    UnitGetIncomingHeals = dummy0
+    UnitGetTotalAbsorbs = dummy0
+    UnitGetTotalHealAbsorbs = dummy0
+    UnitThreatSituation = dummyNil
+    UnitGroupRolesAssigned = dummyNil
+    GetSpecialization = function() return 1 end
+    GetSpecializationInfo = function() return "DAMAGER" end
+    HasIncomingSummon = dummyNil
+end
 
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
@@ -466,6 +481,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     if config.enableAbsorbBar then
         self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+        self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
     end
 
     AptechkaDB.useCombatLogHealthUpdates = false
@@ -809,16 +825,34 @@ function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     end
 end
 
+function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
+    local rosterunit = Roster[unit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
+        local a = UnitGetTotalHealAbsorbs(unit)
+        local hm = UnitHealthMax(unit)
+        local h = UnitHealth(unit)
+        local ch, p = 0, 0
+        if hm ~= 0 then
+            ch = (h/hm)
+		    p = a/hm
+        end
+        self.healabsorb:SetValue(p, ch)
+    end
+end
+
 function Aptechka.UNIT_HEALTH(self, event, unit)
     local rosterunit = Roster[unit]
     if not rosterunit then return end
     for self in pairs(rosterunit) do
         local h,hm = UnitHealth(unit), UnitHealthMax(unit)
         local shields = UnitGetTotalAbsorbs(unit)
+        local healabsorb = UnitGetTotalHealAbsorbs(unit)
         if hm == 0 then return end
         self.vHealth = h
         self.vHealthMax = hm
         self.health:SetValue(h/hm*100)
+        self.healabsorb:SetValue(healabsorb/hm, h/hm)
         self.absorb:SetValue(shields/hm*100, h/hm*100)
         self.absorb2:SetValue((h+shields)/hm*100)
 		self.health.incoming:Update(h, nil, hm)
@@ -1102,7 +1136,7 @@ function Aptechka.UNIT_SPELLCAST_SENT(self, event, unit, targetName, lineID, spe
     LastCastSentTime = GetTime()
 end
 function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
-    if errcode == 50 then -- Out of Range code
+    if errcode == 51 then -- Out of Range code
         if LastCastSentTime > GetTime() - 0.5 then
             for unit in pairs(Roster) do
                 if UnitName(unit) == LastCastTargetName then
@@ -2140,7 +2174,7 @@ Aptechka.Commands = {
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(anchors[1].san.point, UIParent, anchors[1].san.point, anchors[1].san.x, anchors[1].san.y)
     end,
-    ["togglegroup"] = function()
+    ["togglegroup"] = function(v)
         local group = tonumber(v)
         if group then
             local hdr = group_headers[group]
@@ -2165,9 +2199,6 @@ Aptechka.Commands = {
             end
         end
     end,
-    ["toggle"] = function()
-        if group_headers[1]:IsVisible() then k = "hide" else k = "show" end
-    end,
     ["show"] = function()
         for i,hdr in pairs(group_headers) do
             hdr:Show()
@@ -2186,7 +2217,7 @@ Aptechka.Commands = {
             print(string.format(format,spellName))
         end
     end,
-    ["load"] = function()
+    ["load"] = function(v)
         local add = config.LoadableDebuffs[v]
         if v == "" then
             print("Spell sets:")
@@ -2203,7 +2234,7 @@ Aptechka.Commands = {
             print(AptechkaString..v.." doesn't exist")
         end
     end,
-    ["setpos"] = function()
+    ["setpos"] = function(v)
         local fields = ParseOpts(v)
         if not next(fields) then print("Usage: /apt setpos point=center x=0 y=0") return end
         local point,x,y = string.upper(fields['point'] or "CENTER"), fields['x'] or 0, fields['y'] or 0

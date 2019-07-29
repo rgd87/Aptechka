@@ -1,4 +1,5 @@
 local _, helpers = ...
+local Aptechka
 
 local pixelperfect = helpers.pixelperfect
 
@@ -6,6 +7,26 @@ local LSM = LibStub("LibSharedMedia-3.0")
 
 LSM:Register("statusbar", "Gradient", [[Interface\AddOns\Aptechka\gradient.tga]])
 LSM:Register("font", "ClearFont", [[Interface\AddOns\Aptechka\ClearFont.ttf]], GetLocale() ~= "enUS" and 15)
+
+--[[
+2 shield icon border
+0 shield icon texture
+0 normal icon texture
+0 text3 fontstring
+
+-2 powerbar
+-2 status bar bg
+-2 debuff type texture
+
+-3 powerbar bg
+-4 absorb sidebar fg
+-5 absorb sidebar bg
+-5 heal absorb checkered
+-6 healthbar
+-7 absorb checkered fill
+-7 incoming healing
+-8 healthbar bg
+]]
 
 
 local SetJob_Frame = function(self, job)
@@ -223,8 +244,14 @@ local SetJob_Corner = function(self,job)
     end
     self.color:SetVertexColor(unpack(color))
 
+    if job.scale then
+        self:SetScale(job.scale)
+    else
+        self:SetScale(1)
+    end
+
     if job.fade then
-        if self.traceJob ~= job or not self.blink:IsPlaying() then
+        if (self.traceJob ~= job or not self.blink:IsPlaying()) or job.resetAnimation then
 
             if self.blink:IsPlaying() then
                 self.blink:Stop()
@@ -622,7 +649,7 @@ local SetDebuffOrientation = function(self, orientation, size)
             -- dtt:SetPoint("TOPLEFT", self, "TOPLEFT", -1, 1)
         else
             self:SetSize(h,w)
-            
+
             -- dtt:SetSize(h,h*0.2)
             -- dtt:SetPoint("BOTTOMLEFT", it, "TOPLEFT", 0, 0)
 
@@ -689,6 +716,15 @@ local SetJob_Text1 = function(self,job)
     end
     if c then self:SetColor(unpack(c)) end
 end
+local formatMissingHealth = function(text, mh)
+    if mh < 1000 then
+        text:SetFormattedText("-%d", mh)
+    elseif mh < 10000 then
+        text:SetFormattedText("-%.1fk", mh / 1e3)
+    else
+        text:SetFormattedText("-%.0fk", mh / 1e3)
+    end
+end
 local SetJob_Text2 = function(self,job) -- text2 is always green
     if job.healthtext then
         self:SetFormattedText("-%d", (self.parent.vHealthMax - self.parent.vHealth))
@@ -703,13 +739,64 @@ local SetJob_Text2 = function(self,job) -- text2 is always green
     local c
     if job.percentColor then
         self:SetTextColor(helpers.PercentColor(job.text))
-        self:SetText(string.format("%.0f%%", job.text*100))
+        self:SetFormattedText("%.0f%%", job.text*100)
     else
         if job.color then
             c = job.textcolor or job.color
             self:SetTextColor(unpack(c))
         end
     end
+end
+
+----------------
+-- HEAL ABSORB
+----------------
+local HealAbsorbUpdatePositionVertical = function(self, p, health, parent)
+    local frameLength = self.frameLength
+    self:SetHeight(p*frameLength)
+    local offset = (health-p)*frameLength
+    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, offset)
+    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 0, offset)
+end
+local HealAbsorbUpdatePositionHorizontal = function(self, p, health, parent)
+    local frameLength = self.frameLength
+    self:SetWidth(p*frameLength)
+    local offset = (health-p)*frameLength
+    self:SetPoint("TOPLEFT", parent, "TOPLEFT", offset, 0)
+    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", offset, 0)
+end
+local HealAbsorbSetValue = function(self, p, health)
+    if p < 0.15 then
+        self:Hide()
+        return
+    end
+
+    local parent = self:GetParent()
+
+    if p > health then
+        p = health
+    end
+
+    self:Show()
+    self:UpdatePosition(p, health, parent)
+end
+
+local function CreateHealAbsorb(hp)
+    local healAbsorb = hp:CreateTexture(nil, "ARTWORK", nil, -5)
+
+    healAbsorb:SetHorizTile(true)
+    healAbsorb:SetVertTile(true)
+    healAbsorb:SetTexture("Interface\\AddOns\\Aptechka\\shieldtex", "REPEAT", "REPEAT")
+    healAbsorb:SetVertexColor(0.5,0.1,0.1)
+    healAbsorb:SetBlendMode("ADD")
+    healAbsorb:SetAlpha(0.65)
+
+    healAbsorb.UpdatePositionVertical = HealAbsorbUpdatePositionVertical
+    healAbsorb.UpdatePositionHorizontal = HealAbsorbUpdatePositionHorizontal
+    healAbsorb.UpdatePosition = HealAbsorbUpdatePositionVertical
+
+    healAbsorb.SetValue = HealAbsorbSetValue
+    return healAbsorb
 end
 
 
@@ -987,6 +1074,11 @@ local function Reconf(self)
         absorb.AlignAbsorb = AlignAbsorbVertical
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
+        local healAbsorb = self.health.healabsorb
+        healAbsorb.frameLength = db.height
+        healAbsorb:ClearAllPoints()
+        healAbsorb.UpdatePosition = healAbsorb.UpdatePositionVertical
+
         self.health.absorb2:SetOrientation("VERTICAL")
 
         -- self.health.lost.maxheight = db.height
@@ -1023,6 +1115,11 @@ local function Reconf(self)
         absorb.AlignAbsorb = AlignAbsorbHorizontal
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
+        local healAbsorb = self.health.healabsorb
+        healAbsorb.frameLength = db.width
+        healAbsorb:ClearAllPoints()
+        healAbsorb.UpdatePosition = healAbsorb.UpdatePositionHorizontal
+
         self.health.absorb2:SetOrientation("HORIZONTAL")
 
         -- self.health:ClearAllPoints()
@@ -1048,6 +1145,8 @@ local function Reconf(self)
 end
 
 AptechkaDefaultConfig.GridSkin = function(self)
+    Aptechka = _G.Aptechka
+
     local config
     if AptechkaDefaultConfig then config = AptechkaDefaultConfig else config = AptechkaDefaultConfig end
 
@@ -1269,6 +1368,14 @@ AptechkaDefaultConfig.GridSkin = function(self)
     absorb2:SetOrientation("VERTICAL")
     absorb2.parent = self
     hp.absorb2 = absorb2
+
+    -------------------
+
+    local healAbsorb = CreateHealAbsorb(hp)
+
+    healAbsorb.parent = self
+    hp.healabsorb = healAbsorb
+
 
 -----------------------
 
@@ -1504,6 +1611,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.icon = icon
     self.raidicon = raidicon
     self.roleicon = roleicon
+    self.healabsorb = healAbsorb
     self.absorb = absorb
     self.absorb2 = absorb2
     self.centericon = centericon

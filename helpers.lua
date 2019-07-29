@@ -30,7 +30,7 @@ end
 helpers.AddDispellType = function(dtype, data)
     if not config.DebuffTypes then config.DebuffTypes = {} end
     local _,class = UnitClass("player")
-    
+
     if class == "PRIEST" then
         if dtype ~= "Disease" and dtype ~= "Magic" then config.DispelFilterAll = true end
     elseif class == "DRUID" then
@@ -72,7 +72,6 @@ helpers.AddAura = function (data, todefault)
     if data.id and not data.name then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
     -- if data.isMine then data.type = data.type.."|PLAYER" end
-    if data.debuffType then DT(data.debuffType, data) end
 
     if data.prototype then -- metatables break because of config merging for gui
         -- setmetatable(data, { __index = function(t,k) return t.prototype[k] end })
@@ -167,22 +166,22 @@ end
 
 
 
-function helpers.utf8sub(str, start, numChars) 
-    local currentIndex = start 
-    while numChars > 0 and currentIndex <= #str do 
-        local char = string.byte(str, currentIndex) 
-        if char >= 240 then 
-          currentIndex = currentIndex + 4 
-        elseif char >= 225 then 
-          currentIndex = currentIndex + 3 
-        elseif char >= 192 then 
-          currentIndex = currentIndex + 2 
-        else 
-          currentIndex = currentIndex + 1 
-        end 
-        numChars = numChars - 1 
-    end 
-    return str:sub(start, currentIndex - 1) 
+function helpers.utf8sub(str, start, numChars)
+    local currentIndex = start
+    while numChars > 0 and currentIndex <= #str do
+        local char = string.byte(str, currentIndex)
+        if char >= 240 then
+          currentIndex = currentIndex + 4
+        elseif char >= 225 then
+          currentIndex = currentIndex + 3
+        elseif char >= 192 then
+          currentIndex = currentIndex + 2
+        else
+          currentIndex = currentIndex + 1
+        end
+        numChars = numChars - 1
+    end
+    return str:sub(start, currentIndex - 1)
 end
 
 function helpers.DisableBlizzParty(self)
