@@ -9,20 +9,35 @@ end)
 
 --- Compatibility with Classic
 local isClassic = select(4,GetBuildInfo()) <= 19999
-local dummyFalse = function() return false end
-local dummy0 = function() return 0 end
-local dummyNil = function() return nil end
-local UnitHasVehicleUI = isClassic and dummyFalse or _G.UnitHasVehicleUI
-local UnitInVehicle = isClassic and dummyFalse or _G.UnitInVehicle
-local UnitUsingVehicle = isClassic and dummyFalse or _G.UnitUsingVehicle
-local UnitGetIncomingHeals = isClassic and dummy0 or _G.UnitGetIncomingHeals
-local UnitGetTotalAbsorbs = isClassic and dummy0 or _G.UnitGetTotalAbsorbs
-local UnitGetTotalHealAbsorbs = isClassic and dummy0 or _G.UnitGetTotalHealAbsorbs
-local UnitThreatSituation = isClassic and dummyNil or _G.UnitThreatSituation
-local UnitGroupRolesAssigned = isClassic and dummyNil or _G.UnitGroupRolesAssigned
-local GetSpecialization = isClassic and function() return 1 end or _G.GetSpecialization
-local GetSpecializationInfo = isClassic and function() return "DAMAGER" end or _G.GetSpecializationInfo
-local HasIncomingSummon = isClassic and dummyNil or C_IncomingSummon.HasIncomingSummon
+
+local UnitHasVehicleUI = UnitHasVehicleUI
+local UnitInVehicle = UnitInVehicle
+local UnitUsingVehicle = UnitUsingVehicle
+local UnitGetIncomingHeals = UnitGetIncomingHeals
+local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs
+local UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs
+local UnitThreatSituation = UnitThreatSituation
+local UnitGroupRolesAssigned = UnitGroupRolesAssigned
+local GetSpecialization = GetSpecialization
+local GetSpecializationInfo = GetSpecializationInfo
+local HasIncomingSummon = C_IncomingSummon and C_IncomingSummon.HasIncomingSummon
+
+if isClassic then
+    local dummyFalse = function() return false end
+    local dummy0 = function() return 0 end
+    local dummyNil = function() return nil end
+    UnitHasVehicleUI = dummyFalse
+    UnitInVehicle = dummyFalse
+    UnitUsingVehicle = dummyFalse
+    UnitGetIncomingHeals = dummy0
+    UnitGetTotalAbsorbs = dummy0
+    UnitGetTotalHealAbsorbs = dummy0
+    UnitThreatSituation = dummyNil
+    UnitGroupRolesAssigned = dummyNil
+    GetSpecialization = function() return 1 end
+    GetSpecializationInfo = function() return "DAMAGER" end
+    HasIncomingSummon = dummyNil
+end
 
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
@@ -2185,7 +2200,7 @@ Aptechka.Commands = {
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(anchors[1].san.point, UIParent, anchors[1].san.point, anchors[1].san.x, anchors[1].san.y)
     end,
-    ["togglegroup"] = function()
+    ["togglegroup"] = function(v)
         local group = tonumber(v)
         if group then
             local hdr = group_headers[group]
@@ -2210,9 +2225,6 @@ Aptechka.Commands = {
             end
         end
     end,
-    ["toggle"] = function()
-        if group_headers[1]:IsVisible() then k = "hide" else k = "show" end
-    end,
     ["show"] = function()
         for i,hdr in pairs(group_headers) do
             hdr:Show()
@@ -2231,7 +2243,7 @@ Aptechka.Commands = {
             print(string.format(format,spellName))
         end
     end,
-    ["load"] = function()
+    ["load"] = function(v)
         local add = config.LoadableDebuffs[v]
         if v == "" then
             print("Spell sets:")
@@ -2248,7 +2260,7 @@ Aptechka.Commands = {
             print(AptechkaString..v.." doesn't exist")
         end
     end,
-    ["setpos"] = function()
+    ["setpos"] = function(v)
         local fields = ParseOpts(v)
         if not next(fields) then print("Usage: /apt setpos point=center x=0 y=0") return end
         local point,x,y = string.upper(fields['point'] or "CENTER"), fields['x'] or 0, fields['y'] or 0

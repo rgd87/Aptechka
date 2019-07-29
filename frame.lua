@@ -1,4 +1,5 @@
 local _, helpers = ...
+local Aptechka
 
 local pixelperfect = helpers.pixelperfect
 
@@ -1144,6 +1145,8 @@ local function Reconf(self)
 end
 
 AptechkaDefaultConfig.GridSkin = function(self)
+    Aptechka = _G.Aptechka
+
     local config
     if AptechkaDefaultConfig then config = AptechkaDefaultConfig else config = AptechkaDefaultConfig end
 

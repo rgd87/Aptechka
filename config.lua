@@ -122,6 +122,7 @@ local function DispelTypes(str)
     if str:find("DISEASE") then DT("Disease", { assignto = "dispel", color = { 0.6, 0.4, 0}, priority = 3}) end
 end
 
+local IsSpellInRange = _G.IsSpellInRange
 local function RangeCheckBySpell(spellID)
     local spellName = GetSpellInfo(spellID)
     return function(unit)
