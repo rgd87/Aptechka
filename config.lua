@@ -108,6 +108,7 @@ helpers.DispelTypes = function(str)
     if str:find("DISEASE") then DT("Disease", { assignto = "dispel", color = { 0.6, 0.4, 0}, priority = 3}) end
 end
 
+local IsSpellInRange = IsSpellInRange
 helpers.RangeCheckBySpell = function (spellID)
     local spellName = GetSpellInfo(spellID)
     return function(unit)
