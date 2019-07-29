@@ -766,7 +766,7 @@ local HealAbsorbUpdatePositionHorizontal = function(self, p, health, parent)
     self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", offset, 0)
 end
 local HealAbsorbSetValue = function(self, p, health)
-    if p < 0.15 then
+    if p < 0.005 then
         self:Hide()
         return
     end
