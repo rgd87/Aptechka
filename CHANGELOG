@@ -1,6 +1,8 @@
 ### 8.2.7:
 
 - fixed LoS warning
+- fixed missing health formatting on low level characters
+- added heal absorb bar
 
 ### 8.2.6:
 
