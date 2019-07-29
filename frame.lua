@@ -223,8 +223,14 @@ local SetJob_Corner = function(self,job)
     end
     self.color:SetVertexColor(unpack(color))
 
+    if job.scale then
+        self:SetScale(job.scale)
+    else
+        self:SetScale(1)
+    end
+
     if job.fade then
-        if self.traceJob ~= job or not self.blink:IsPlaying() then
+        if (self.traceJob ~= job or not self.blink:IsPlaying()) or job.resetAnimation then
 
             if self.blink:IsPlaying() then
                 self.blink:Stop()
@@ -622,7 +628,7 @@ local SetDebuffOrientation = function(self, orientation, size)
             -- dtt:SetPoint("TOPLEFT", self, "TOPLEFT", -1, 1)
         else
             self:SetSize(h,w)
-            
+
             -- dtt:SetSize(h,h*0.2)
             -- dtt:SetPoint("BOTTOMLEFT", it, "TOPLEFT", 0, 0)
 

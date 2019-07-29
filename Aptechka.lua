@@ -1110,7 +1110,7 @@ function Aptechka.UNIT_SPELLCAST_SENT(self, event, unit, targetName, lineID, spe
     LastCastSentTime = GetTime()
 end
 function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
-    if errcode == 50 then -- Out of Range code
+    if errcode == 51 then -- Out of Range code
         if LastCastSentTime > GetTime() - 0.5 then
             for unit in pairs(Roster) do
                 if UnitName(unit) == LastCastTargetName then
