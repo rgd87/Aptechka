@@ -17,6 +17,7 @@ local UnitInVehicle = isClassic and dummyFalse or _G.UnitInVehicle
 local UnitUsingVehicle = isClassic and dummyFalse or _G.UnitUsingVehicle
 local UnitGetIncomingHeals = isClassic and dummy0 or _G.UnitGetIncomingHeals
 local UnitGetTotalAbsorbs = isClassic and dummy0 or _G.UnitGetTotalAbsorbs
+local UnitGetTotalHealAbsorbs = isClassic and dummy0 or _G.UnitGetTotalHealAbsorbs
 local UnitThreatSituation = isClassic and dummyNil or _G.UnitThreatSituation
 local UnitGroupRolesAssigned = isClassic and dummyNil or _G.UnitGroupRolesAssigned
 local GetSpecialization = isClassic and function() return 1 end or _G.GetSpecialization
@@ -442,6 +443,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     if config.enableAbsorbBar then
         self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+        self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
     end
 
     AptechkaDB.useCombatLogHealthUpdates = false
@@ -779,16 +781,34 @@ function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     end
 end
 
+function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
+    local rosterunit = Roster[unit]
+    if not rosterunit then return end
+    for self in pairs(rosterunit) do
+        local a = UnitGetTotalHealAbsorbs(unit)
+        local hm = UnitHealthMax(unit)
+        local h = UnitHealth(unit)
+        local ch, p = 0, 0
+        if hm ~= 0 then
+            ch = (h/hm)
+		    p = a/hm
+        end
+        self.healabsorb:SetValue(p, ch)
+    end
+end
+
 function Aptechka.UNIT_HEALTH(self, event, unit)
     local rosterunit = Roster[unit]
     if not rosterunit then return end
     for self in pairs(rosterunit) do
         local h,hm = UnitHealth(unit), UnitHealthMax(unit)
         local shields = UnitGetTotalAbsorbs(unit)
+        local healabsorb = UnitGetTotalHealAbsorbs(unit)
         if hm == 0 then return end
         self.vHealth = h
         self.vHealthMax = hm
         self.health:SetValue(h/hm*100)
+        self.healabsorb:SetValue(healabsorb/hm, h/hm)
         self.absorb:SetValue(shields/hm*100, h/hm*100)
         self.absorb2:SetValue((h+shields)/hm*100)
 		self.health.incoming:Update(h, nil, hm)

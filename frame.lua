@@ -7,6 +7,26 @@ local LSM = LibStub("LibSharedMedia-3.0")
 LSM:Register("statusbar", "Gradient", [[Interface\AddOns\Aptechka\gradient.tga]])
 LSM:Register("font", "ClearFont", [[Interface\AddOns\Aptechka\ClearFont.ttf]], GetLocale() ~= "enUS" and 15)
 
+--[[
+2 shield icon border
+0 shield icon texture
+0 normal icon texture
+0 text3 fontstring
+
+-2 powerbar
+-2 status bar bg
+-2 debuff type texture
+
+-3 powerbar bg
+-4 absorb sidebar fg
+-5 absorb sidebar bg
+-5 heal absorb checkered
+-6 healthbar
+-7 absorb checkered fill
+-7 incoming healing
+-8 healthbar bg
+]]
+
 
 local SetJob_Frame = function(self, job)
     if job.alpha then
@@ -718,6 +738,57 @@ local SetJob_Text2 = function(self,job) -- text2 is always green
     end
 end
 
+----------------
+-- HEAL ABSORB
+----------------
+local HealAbsorbUpdatePositionVertical = function(self, p, health, parent)
+    local frameLength = self.frameLength
+    self:SetHeight(p*frameLength)
+    local offset = (health-p)*frameLength
+    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, offset)
+    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 0, offset)
+end
+local HealAbsorbUpdatePositionHorizontal = function(self, p, health, parent)
+    local frameLength = self.frameLength
+    self:SetWidth(p*frameLength)
+    local offset = (health-p)*frameLength
+    self:SetPoint("TOPLEFT", parent, "TOPLEFT", offset, 0)
+    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", offset, 0)
+end
+local HealAbsorbSetValue = function(self, p, health)
+    if p < 0.15 then
+        self:Hide()
+        return
+    end
+
+    local parent = self:GetParent()
+
+    if p > health then
+        p = health
+    end
+
+    self:Show()
+    self:UpdatePosition(p, health, parent)
+end
+
+local function CreateHealAbsorb(hp)
+    local healAbsorb = hp:CreateTexture(nil, "ARTWORK", nil, -5)
+
+    healAbsorb:SetHorizTile(true)
+    healAbsorb:SetVertTile(true)
+    healAbsorb:SetTexture("Interface\\AddOns\\Aptechka\\shieldtex", "REPEAT", "REPEAT")
+    healAbsorb:SetVertexColor(0.5,0.1,0.1)
+    healAbsorb:SetBlendMode("ADD")
+    healAbsorb:SetAlpha(0.65)
+
+    healAbsorb.UpdatePositionVertical = HealAbsorbUpdatePositionVertical
+    healAbsorb.UpdatePositionHorizontal = HealAbsorbUpdatePositionHorizontal
+    healAbsorb.UpdatePosition = HealAbsorbUpdatePositionVertical
+
+    healAbsorb.SetValue = HealAbsorbSetValue
+    return healAbsorb
+end
+
 
 local AlignAbsorbVertical = function(self, absorb_height, missing_health_height)
     self:SetHeight(absorb_height)
@@ -993,6 +1064,11 @@ local function Reconf(self)
         absorb.AlignAbsorb = AlignAbsorbVertical
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
+        local healAbsorb = self.health.healabsorb
+        healAbsorb.frameLength = db.height
+        healAbsorb:ClearAllPoints()
+        healAbsorb.UpdatePosition = healAbsorb.UpdatePositionVertical
+
         self.health.absorb2:SetOrientation("VERTICAL")
 
         -- self.health.lost.maxheight = db.height
@@ -1028,6 +1104,11 @@ local function Reconf(self)
         absorb.maxheight = db.width
         absorb.AlignAbsorb = AlignAbsorbHorizontal
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
+
+        local healAbsorb = self.health.healabsorb
+        healAbsorb.frameLength = db.width
+        healAbsorb:ClearAllPoints()
+        healAbsorb.UpdatePosition = healAbsorb.UpdatePositionHorizontal
 
         self.health.absorb2:SetOrientation("HORIZONTAL")
 
@@ -1276,6 +1357,14 @@ AptechkaDefaultConfig.GridSkin = function(self)
     absorb2.parent = self
     hp.absorb2 = absorb2
 
+    -------------------
+
+    local healAbsorb = CreateHealAbsorb(hp)
+
+    healAbsorb.parent = self
+    hp.healabsorb = healAbsorb
+
+
 -----------------------
 
     -- local absorb = CreateFrame("StatusBar", nil, self)
@@ -1511,6 +1600,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.icon = icon
     self.raidicon = raidicon
     self.roleicon = roleicon
+    self.healabsorb = healAbsorb
     self.absorb = absorb
     self.absorb2 = absorb2
     self.centericon = centericon
