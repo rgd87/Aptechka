@@ -1183,8 +1183,9 @@ function Aptechka.CheckRoles(apt, self, unit )
 
     if isAnyTank and select(2, UnitClass(unit)) == "MONK" then
         staggerUnits[unit] = true
-    else
+    elseif staggerUnits[unit] then
         staggerUnits[unit] = nil
+        FrameSetJob(self, config.StaggerStatus, false)
     end
 
     if config.MainTankStatus then
