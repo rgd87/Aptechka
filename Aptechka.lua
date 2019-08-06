@@ -450,7 +450,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         LibSpellLocks.RegisterCallback(self, "UPDATE_INTERRUPT", function(event, guid)
             local unit = guidMap[guid]
             if unit then
-                Aptechka.ScanDebuffSlots(unit)
+                Aptechka.ScanAuras(unit)
             end
         end)
 
@@ -510,9 +510,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     if config.unlocked then anchors[1]:Show() end
 
-    if not next(debuffs) and not next(dtypes) then
-        Aptechka.ScanDebuffSlots = function() end
-    end
     -- if config.DispelFilterAll
     --     then DispelFilter = "HARMFUL"
     --     else DispelFilter = "HARMFUL|RAID"
