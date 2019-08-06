@@ -1420,10 +1420,10 @@ local function updateUnitButton(self, unit)
     if not unit then return end
 
     local name, realm = UnitName(owner)
-    if name == UNKNOWNOBJECT then
+    if name == UNKNOWNOBJECT or name == nil then
         has_unknowns = true
     end
-    self.name = utf8sub(name,1, AptechkaDB.cropNamesLen)
+    self.name = name and utf8sub(name,1, AptechkaDB.cropNamesLen) or "Unknown"
 
     self.unit = unit
     Roster[unit] = Roster[unit] or {}
