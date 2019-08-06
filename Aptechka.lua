@@ -2056,6 +2056,12 @@ function Aptechka.SimpleDebuffPostUpdate(unit)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, "HARMFUL")
         -- local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
 
+        local durationNew, expirationTimeNew = LibClassicDurations:GetAuraDurationByUnit(unit, spellID, caster)
+        if durationNew then
+            duration = durationNew
+            expirationTime = expirationTimeNew
+        end
+
         fill = fill + (isBossAura and 1.5 or 1)
 
         if fill <= debuffLineLength then
