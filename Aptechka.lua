@@ -46,7 +46,6 @@ local AptechkaUnitInRange
 local uir -- current range check function
 local auras
 local dtypes
-local debuffs
 local traceheals
 local colors
 local threshold --incoming heals
@@ -83,6 +82,7 @@ local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 local UnitAura = UnitAura
+local ForEachAura = helpers.ForEachAura
 local UnitAffectingCombat = UnitAffectingCombat
 local CUSTOM_CLASS_COLORS = CUSTOM_CLASS_COLORS
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
@@ -111,6 +111,9 @@ local tinsert = table.insert
 local tsort = table.sort
 local CreatePetsFunc
 local HealComm
+local DebuffProc
+local DebuffPostUpdate
+
 
 local defaults = {
     growth = "up",
@@ -275,7 +278,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     auras = config.auras
     traceheals = config.traces
     dtypes = config.DebuffTypes
-    debuffs = config.DebuffDisplay
 
     local _, class = UnitClass("player")
     local categories = {"auras", "traces"}
@@ -470,13 +472,15 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         LibSpellLocks.RegisterCallback(self, "UPDATE_INTERRUPT", function(event, guid)
             local unit = guidMap[guid]
             if unit then
-                Aptechka.ScanDebuffSlots(unit)
+                Aptechka.ScanAuras(unit)
             end
         end)
 
-        Aptechka.ScanDebuffSlots = Aptechka.OrderedScanDebuffSlots
+        DebuffProc = Aptechka.OrderedDebuffProc
+        DebuffPostUpdate = Aptechka.OrderedDebuffPostUpdate
     else
-        Aptechka.ScanDebuffSlots = Aptechka.SimpleScanDebuffSlots
+        DebuffProc = Aptechka.SimpleDebuffProc
+        DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
     end
 
     if config.enableAbsorbBar then
@@ -528,9 +532,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     if config.unlocked then anchors[1]:Show() end
 
-    if not next(debuffs) and not next(dtypes) then
-        Aptechka.ScanDebuffSlots = function() end
-    end
     -- if config.DispelFilterAll
     --     then DispelFilter = "HARMFUL"
     --     else DispelFilter = "HARMFUL|RAID"
@@ -869,7 +870,6 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
             elseif self.isDead then
                 self.isDead = false
                 Aptechka.ScanAuras(unit)
-                Aptechka.ScanDebuffSlots(unit)
                 SetJob(unit, config.GhostStatus, false)
                 SetJob(unit, config.DeadStatus, false)
                 SetJob(unit, config.ResPendingStatus, false)
@@ -1840,120 +1840,108 @@ local GetRealID = function(id)
     end
 end
 
+-----------------------
+-- AURAS
+-----------------------
+
+local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, icon, count, isBossAura)
+    local frames = Roster[unit]
+    if not frames then return end
+
+    for frame in pairs(frames) do
+        local iconFrame = frame.debuffIcons[index]
+        if debuffType == false then
+            iconFrame:Hide()
+        else
+            iconFrame:SetJob(debuffType, expirationTime, duration, icon, count, isBossAura)
+            iconFrame:Show()
+        end
+    end
+end
+
+
 local encountered = {}
-local auraTypes = {"HELPFUL", "HARMFUL"}
-function Aptechka.ScanAuras(unit)
-    table_wipe(encountered)
-    for _,auraType in ipairs(auraTypes) do
-        for i=1,100 do
-            local name, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
-            if not name then break end
-            duration = 0
-            expirationTime = 0
+
+local function IndicatorAurasProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID )
+    -- local name, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
+
+    local opts = auras[spellID] or loadedAuras[spellID]
+    if opts and not opts.disabled then
+        if caster == "player" or not opts.isMine then
+            local realID = GetRealID(opts.id)
+            opts.realID = realID
+
+            encountered[realID] = opts
+
             local durationNew, expirationTimeNew = LibClassicDurations:GetAuraDurationByUnit(unit, spellID, caster)
             if durationNew then
                 duration = durationNew
                 expirationTime = expirationTimeNew
             end
-            -- print(auraType, spellID, name, auras[spellID])
-            local opts = auras[spellID] or loadedAuras[spellID]
-            if opts and not opts.disabled then
-                if caster == "player" or not opts.isMine then
-                    local realID = GetRealID(opts.id)
-                    opts.realID = realID
 
-                    encountered[realID] = opts
+            local status = true
+            if opts.isMissing then status = false end
 
-                    local status = true
-                    if opts.isMissing then status = false end
-
-                    if opts.stackcolor then
-                        opts.color = opts.stackcolor[count]
-                    end
-                    if opts.foreigncolor then
-                        opts.isforeign = (caster ~= "player")
-                    end
-                    opts.expirationTime = expirationTime
-                    local minduration = opts.extend_below
-                    if minduration and opts.duration and duration < minduration then
-                        duration = opts.duration
-                    end
-                    opts.duration = duration
-                    opts.texture = opts.texture or icon
-                    opts.stacks = count
-                    SetJob(unit, opts, status)
-                end
+            if opts.stackcolor then
+                opts.color = opts.stackcolor[count]
             end
+            if opts.foreigncolor then
+                opts.isforeign = (caster ~= "player")
+            end
+            opts.expirationTime = expirationTime
+            local minduration = opts.extend_below
+            if minduration and opts.duration and duration < minduration then
+                duration = opts.duration
+            end
+            opts.duration = duration
+            opts.texture = opts.texture or icon
+            opts.stacks = count
+            SetJob(unit, opts, status)
         end
     end
+end
+
+local function IndicatorAurasPostUpdate(unit)
     local frames = Roster[unit]
     if frames then
-    for frame in pairs(frames) do
-        for realID, opts in pairs(frame.activeAuras) do
-            if not encountered[realID] then
-                FrameSetJob(frame, opts, false)
-                frame.activeAuras[realID] = nil
+        for frame in pairs(frames) do
+            for realID, opts in pairs(frame.activeAuras) do
+                if not encountered[realID] then
+                    FrameSetJob(frame, opts, false)
+                    frame.activeAuras[realID] = nil
+                end
+            end
+            for optsMissing in pairs(missingFlagSpells) do
+                local isPresent
+                for spellID, opts in pairs(encountered) do
+                    if optsMissing == opts then
+                        isPresent = true
+                        break
+                    end
+                end
+                if not isPresent then
+                    local isKnown = true
+                    if optsMissing.isKnownCheck then
+                        isKnown = optsMissing.isKnownCheck()
+                    end
+                    if isKnown then
+                        FrameSetJob(frame, optsMissing, true)
+                    end
+                end
             end
         end
-        for optsMissing in pairs(missingFlagSpells) do
-            local isPresent
-            for spellID, opts in pairs(encountered) do
-                if optsMissing == opts then
-                    isPresent = true
-                    break
-                end
-            end
-            if not isPresent then
-                local isKnown = true
-                if optsMissing.isKnownCheck then
-                    isKnown = optsMissing.isKnownCheck()
-                end
-                if isKnown then
-                    FrameSetJob(frame, optsMissing, true)
-                end
-            end
-        end
-    end
     end
 end
 
-function Aptechka.UNIT_AURA(self, event, unit)
-    if not Roster[unit] then return end
-    Aptechka.ScanAuras(unit)
-    -- local beginTime = debugprofilestop()
-    Aptechka.ScanDebuffSlots(unit)
-    -- local timeUsed = debugprofilestop() - beginTime
-    -- print("used", timeUsed, "ms")
+-----------------------
+-- Debuff Handling
+-----------------------
+
+local debuffList = {}
+local sortfunc = function(a,b)
+    return a[2] > b[2]
 end
-
-
-function Aptechka:UpdateDebuffScanningMethod()
-    local useOrdering = false
-    if AptechkaDB.useDebuffOrdering  then
-        local numMembers = GetNumGroupMembers()
-        local _, instanceType = GetInstanceInfo()
-        local isBattleground = instanceType == "arena" or instanceType == "pvp"
-        useOrdering = not IsInRaid() or (isBattleground and numMembers <= 15)
-    end
-    if useOrdering then
-        Aptechka.ScanDebuffSlots = Aptechka.OrderedScanDebuffSlots
-    else
-        Aptechka.ScanDebuffSlots = Aptechka.SimpleScanDebuffSlots
-    end
-end
-
--- local presentDebuffs = {}
-
-local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, icon, count, isBossAura)
-    local opts = debuffs[index]
-    opts.debuffType = debuffType
-    opts.expirationTime = expirationTime
-    opts.duration = duration
-    opts.stacks = count
-    opts.texture = icon
-    opts.isBossAura = isBossAura
-    SetJob(unit, opts, true)
-end
+local visType = "RAID_OUTOFCOMBAT"
 
 local function UtilShouldDisplayDebuff(spellId, unitCaster, visType)
     if spellId == 212183 then -- smoke bomb
@@ -1968,46 +1956,57 @@ local function UtilShouldDisplayDebuff(spellId, unitCaster, visType)
 	end
 end
 
-
-local debuffList = {}
-local sortfunc = function(a,b)
-    return a[2] > b[2]
+local function SpellLocksProc(unit)
+    -- local spellLocked = LibSpellLocks:GetSpellLockInfo(unit)
+    local spellID, name, icon, duration, expirationTime = LibSpellLocks:GetSpellLockInfo(unit)
+    -- if spellLocked then
+    if spellID then
+        tinsert(debuffList, { -1, LibAuraTypes.GetDebuffTypePriority("SILENCE")})
+        -- local silencePrio = LibAuraTypes.GetDebuffTypePriority("SILENCE")
+        -- tinsert(debuffList, { -1, silencePrio, name, icon, 0, nil, duration, expirationTime, nil, nil, nil, spellID, nil, true })
+    end
 end
-function Aptechka.OrderedScanDebuffSlots(unit)
-    -- table_wipe(presentDebuffs)
-    table_wipe(debuffList)
-    local debuffLineLength = #debuffs
+
+---------------------------
+-- Ordered
+---------------------------
+
+function Aptechka.OrderedDebuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+    if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
+        local rootSpellID, spellType, prio = LibAuraTypes.GetDebuffInfo(spellID)
+        if not prio then
+            prio = (isBossAura and 10) or (debuffType and 1) or 0
+        end
+        tinsert(debuffList, { slot or index, prio })
+        -- tinsert(debuffList, { index, prio, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura })
+        return 1
+    end
+    return 0
+end
+
+function Aptechka.OrderedDebuffPostUpdate(unit)
+    local debuffLineLength = 4
     local shown = 0
     local fill = 0
 
-    local visType = UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT"
-    -- scan for boss buffs only
-    for i=1,100 do
-        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
-        if not name then break end
-        if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
-            local rootSpellID, spellType, prio = LibAuraTypes.GetDebuffInfo(spellID)
-            if not prio then
-                prio = (isBossAura and 10) or (debuffType and 1) or 0
-            end
-            tinsert(debuffList, { i, prio })
-        end
-    end
-
     if LibSpellLocks then
-        local spellLocked = LibSpellLocks:GetSpellLockInfo(unit)
-        if spellLocked then
-            tinsert(debuffList, { -1, LibAuraTypes.GetDebuffTypePriority("SILENCE")})
-        end
+        SpellLocksProc(unit)
     end
 
     tsort(debuffList, sortfunc)
 
     for i, debuffIndexCont in ipairs(debuffList) do
-        local index, prio = unpack(debuffIndexCont)
+        local indexOrSlot, prio = unpack(debuffIndexCont)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
-        if index > 0 then
-            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, index, "HARMFUL")
+        if indexOrSlot > 0 then
+            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, "HARMFUL")
+
+            local durationNew, expirationTimeNew = LibClassicDurations:GetAuraDurationByUnit(unit, spellID, caster)
+            if durationNew then
+                duration = durationNew
+                expirationTime = expirationTimeNew
+            end
+            -- name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
             if prio >= 9 then
                 isBossAura = true
             end
@@ -2016,6 +2015,10 @@ function Aptechka.OrderedScanDebuffSlots(unit)
             count = 0
             isBossAura = true
         end
+        -- local index, prio, name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = unpack(debuffIndexCont)
+        -- if prio >= 9 then
+        --     isBossAura = true
+        -- end
         fill = fill + (isBossAura and 1.5 or 1)
 
         if fill <= debuffLineLength then
@@ -2027,14 +2030,120 @@ function Aptechka.OrderedScanDebuffSlots(unit)
     end
 
     for i=shown+1, debuffLineLength do
-        local opts = debuffs[i]
-        SetJob(unit, opts, false)
+        SetDebuffIcon(unit, i, false)
+    end
+end
+
+---------------------------
+-- Simple
+---------------------------
+function Aptechka.SimpleDebuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+    if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
+        if isBossAura then
+            tinsert(debuffList, 1, slot or index)
+        else
+            tinsert(debuffList, slot or index)
+        end
+    end
+end
+
+function Aptechka.SimpleDebuffPostUpdate(unit)
+    local shown = 0
+    local fill = 0
+    local debuffLineLength = 4
+
+    for i, indexOrSlot in ipairs(debuffList) do
+        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, "HARMFUL")
+        -- local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
+
+        fill = fill + (isBossAura and 1.5 or 1)
+
+        if fill <= debuffLineLength then
+            shown = shown + 1
+            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura)
+        else
+            break
+        end
+    end
+
+    for i=shown+1, debuffLineLength do
+        SetDebuffIcon(unit, i, false)
     end
 end
 
 
+
+local handleDebuffs = function(unit, index, slot, filter, ...)
+    IndicatorAurasProc(unit, index, slot, filter, ...)
+    DebuffProc(unit, index, slot, filter, ...)
+end
+
+function Aptechka.ScanAuras(unit)
+    -- indicator cleanup
+    table_wipe(encountered)
+
+    -- debuffs cleanup
+    table_wipe(debuffList)
+
+
+    visType = UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT"
+
+    -- Old API
+    local filter = "HELPFUL"
+    for i=1,100 do
+        local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, i, filter)
+        if not name then break end
+        IndicatorAurasProc(unit, i, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+    end
+
+    filter = "HARMFUL"
+    for numDebuffs=1,100 do
+        local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, numDebuffs, filter)
+        if not name then
+            numDebuffs = numDebuffs-1
+            break
+        end
+        handleDebuffs(unit, numDebuffs, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+    end
+
+    -- New API
+    -- ForEachAura(unit, "HELPFUL", 5, IndicatorAurasProc)
+    -- ForEachAura(unit, "HARMFUL", 5, handleDebuffs)
+
+    IndicatorAurasPostUpdate(unit)
+    DebuffPostUpdate(unit)
+end
+local debugprofilestop = debugprofilestop
+function Aptechka.UNIT_AURA(self, event, unit)
+    if not Roster[unit] then return end
+    -- local beginTime1 = debugprofilestop();
+    Aptechka.ScanAuras(unit)
+    -- local timeUsed1 = debugprofilestop();
+    -- print("ScanAuras", timeUsed1 - beginTime1)
+end
+
+
+function Aptechka:UpdateDebuffScanningMethod()
+    local useOrdering = false
+    if AptechkaDB.useDebuffOrdering  then
+        local numMembers = GetNumGroupMembers()
+        local _, instanceType = GetInstanceInfo()
+        local isBattleground = instanceType == "arena" or instanceType == "pvp"
+        useOrdering = not IsInRaid() or (isBattleground and numMembers <= 15)
+    end
+    if useOrdering then
+        DebuffProc = Aptechka.OrderedDebuffProc
+        DebuffPostUpdate = Aptechka.OrderedDebuffPostUpdate
+    else
+        DebuffProc = Aptechka.SimpleDebuffProc
+        DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
+    end
+end
+
+
+
 function Aptechka.TestDebuffSlots()
-    local debuffLineLength = #debuffs
+    local debuffLineLength = 4
     local shown = 0
     local fill = 0
     local unit = "player"
@@ -2065,89 +2174,8 @@ function Aptechka.TestDebuffSlots()
     end
 
     for i=shown+1, debuffLineLength do
-        local opts = debuffs[i]
-        SetJob(unit, opts, false)
+        SetDebuffIcon(unit, i, false)
     end
-end
-
-function Aptechka.SimpleScanDebuffSlots(unit)
-        -- table_wipe(presentDebuffs)
-
-        local debuffLineLength = #debuffs
-        local shown = 0
-
-        -- scan for boss buffs only
-        for i=1,100 do
-            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HELPFUL")
-            if not name then break end
-            if isBossAura and shown < debuffLineLength then
-                if not blacklist[spellID] then
-                    shown = shown + 1
-
-                    SetDebuffIcon(unit, shown, "Helpful", expirationTime, duration, icon, count, isBossAura)
-                end
-            end
-        end
-
-        -- scan for boss debuffs only
-        for i=1,100 do
-            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
-            if not name then break end
-            if not isBossAura then
-                local _, spellType, prio = LibAuraTypes.GetDebuffInfo(spellID)
-                isBossAura = prio and prio >= 9
-            end
-            if isBossAura and shown < debuffLineLength then
-                if not blacklist[spellID] then
-                    shown = shown + 1
-
-                    SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura)
-                end
-            end
-        end
-
-        -- scan debuffs
-        local visType = UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT"
-        for i=1,100 do
-            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, i, "HARMFUL")
-            if not name then break end
-            if not isBossAura then
-                local _, spellType, prio = LibAuraTypes.GetDebuffInfo(spellID)
-                isBossAura = prio and prio >= 9
-            end
-
-            if not isBossAura and shown < debuffLineLength then
-                -- I don't even understand what this SpellGetVisibilityInfo thing is doing, but default UI is using it
-                if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
-                    shown = shown + 1
-
-                    SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura)
-                end
-            end
-
-            -- local opts = dtypes[debuffType]
-            -- if opts and not presentDebuffs[debuffType] then
-            --     presentDebuffs[debuffType] = true
-
-            --     opts.expirationTime = expirationTime
-            --     opts.duration = duration
-            --     opts.stacks = count
-            --     opts.texture = icon
-
-            --     SetJob(unit, opts, true)
-            -- end
-        end
-
-        for i=shown+1, debuffLineLength do
-            local opts = debuffs[i]
-            SetJob(unit, opts, false)
-        end
-
-        -- for debuffType, opts in pairs(dtypes) do
-        --     if not presentDebuffs[debuffType] then
-        --         SetJob(unit, opts, false)
-        --     end
-        -- end
 end
 
 local ParseOpts = function(str)

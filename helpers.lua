@@ -212,3 +212,37 @@ function helpers.Reverse(p1)
     end
     return p2, dir
 end
+
+local UnitAuraSlots = UnitAuraSlots
+local UnitAuraBySlot = UnitAuraBySlot
+
+local function ForEachAuraHelper(unit, index, filter, func, continuationToken, ...)
+    -- continuationToken is the first return value of UnitAuraSlots()
+    local n = select('#', ...);
+    for i=1, n do
+        local slot = select(i, ...);
+        local result = func(unit, index, slot, filter, UnitAuraBySlot(unit, slot))
+
+        if result == -1 then
+            -- if func returns -1 then no further slots are needed, so don't return continuationToken
+            return nil;
+        end
+
+        index = index + (result or 1)
+    end
+    return continuationToken, index;
+end
+
+function helpers.ForEachAura(unit, filter, maxCount, func)
+    if maxCount and maxCount <= 0 then
+        return;
+    end
+    local continuationToken;
+    local index = 1
+    repeat
+        -- continuationToken is the first return value of UnitAuraSltos
+        continuationToken, index = ForEachAuraHelper(unit, index, filter, func, UnitAuraSlots(unit, filter, maxCount, continuationToken));
+    until continuationToken == nil;
+
+    return index
+end

@@ -95,10 +95,10 @@ config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 2, 
 
 -- default priority is 80
 
-D(1, { name = "DI1", assignto = "dicon1", pulse = true, showDuration = true })
-D(2, { name = "DI2", assignto = "dicon2", pulse = true, showDuration = true })
-D(3, { name = "DI3", assignto = "dicon3", pulse = true, showDuration = true })
-D(4, { name = "DI4", assignto = "dicon4", pulse = true, showDuration = true })
+-- D(1, { name = "DI1", assignto = "dicon1", pulse = true, showDuration = true })
+-- D(2, { name = "DI2", assignto = "dicon2", pulse = true, showDuration = true })
+-- D(3, { name = "DI3", assignto = "dicon3", pulse = true, showDuration = true })
+-- D(4, { name = "DI4", assignto = "dicon4", pulse = true, showDuration = true })
 
 helpers.DispelTypes = function(str)
     str = str:upper()
