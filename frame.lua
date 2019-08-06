@@ -598,22 +598,27 @@ AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 local DebuffTypeColor = DebuffTypeColor
 local helpful_color = { r = 0, g = 1, b = 0}
-local function SetJob_DebuffIcon(self, job)
-    SetJob_Icon(self, job)
-    local color = job.color
-    if color then
-        self.debuffTypeTexture:SetVertexColor(color[1], color[2], color[3], color[4] or 0.6)
+local function SetJob_DebuffIcon(self, debuffType, expirationTime, duration, icon, count, isBossAura)
+    if expirationTime then
+        self.cd:SetReverse(true)
+        self.cd:SetCooldown(expirationTime - duration, duration)
+        self.cd:Show()
     else
-        local debuffType = job.debuffType
-        if debuffType == "Helpful" then
-            color = helpful_color
-        else
-            color = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
-        end
-        self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 1)
+        self.cd:Hide()
     end
+    self.texture:SetTexture(icon)
 
-    if job.isBossAura then
+    if count then self.stacktext:SetText(count > 1 and count) end
+
+    local color
+    if debuffType == "Helpful" then
+        color = helpful_color
+    else
+        color = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
+    end
+    self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 1)
+
+    if isBossAura then
         self:SetScale(1.4)
     else
         self:SetScale(1)
@@ -662,6 +667,35 @@ local SetDebuffOrientation = function(self, orientation, size)
             it:SetPoint("BOTTOMLEFT", dtt, "TOPLEFT", 0, 0)
         end
     -- end
+end
+
+local AlignDebuffIcons = function(icons, orientation)
+    local attachTo, attachPoint
+    if orientation == "VERTICAL" then
+        for i,icon in ipairs(icons) do
+            if i == 1 then
+                attachTo = icons.parent
+                attachPoint = "BOTTOMLEFT"
+            else
+                attachTo = icons[i-1]
+                attachPoint = "TOPLEFT"
+            end
+            icon:ClearAllPoints()
+            icon:SetPoint("BOTTOMLEFT", attachTo, attachPoint, 0,0)
+        end
+    else
+        for i,icon in ipairs(icons) do
+            if i == 1 then
+                attachTo = icons.parent.power
+                attachPoint = "TOPLEFT"
+            else
+                attachTo = icons[i-1]
+                attachPoint = "BOTTOMRIGHT"
+            end
+            icon:ClearAllPoints()
+            icon:SetPoint("BOTTOMLEFT", attachTo, attachPoint, 0,0)
+        end
+    end
 end
 
 local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to, x, y)
@@ -1056,10 +1090,9 @@ local function Reconf(self)
 
     local stackFont = nameFont
     local stackFontSize = Aptechka.db.stackFontSize
-    self.dicon1.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
-    self.dicon2.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
-    self.dicon3.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
-    self.dicon4.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
+    for i, icon in ipairs(self.debuffIcons) do
+        icon.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
+    end
 
     if isVertical then
         self.health:SetOrientation("VERTICAL")
@@ -1092,15 +1125,11 @@ local function Reconf(self)
         self.power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
         self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
 
-        self.dicon1:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
-        self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
-        self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
-        self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
         local debuffSize = pixelperfect(Aptechka.db.debuffSize)
-        self.dicon1:SetOrientation("VERTICAL", debuffSize)
-        self.dicon2:SetOrientation("VERTICAL", debuffSize)
-        self.dicon3:SetOrientation("VERTICAL", debuffSize)
-        self.dicon4:SetOrientation("VERTICAL", debuffSize)
+        for i, icon in ipairs(self.debuffIcons) do
+            icon:SetOrientation("VERTICAL", debuffSize)
+        end
+        self.debuffIcons:Align("VERTICAL")
 
     else
         self.health:SetOrientation("HORIZONTAL")
@@ -1131,15 +1160,11 @@ local function Reconf(self)
         self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
         self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
 
-        self.dicon1:SetPoint("BOTTOMLEFT", self.power, "TOPLEFT",0,0)
-        self.dicon2:SetPoint("BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT", 0, 0)
-        self.dicon3:SetPoint("BOTTOMLEFT", self.dicon2, "BOTTOMRIGHT", 0, 0)
-        self.dicon4:SetPoint("BOTTOMLEFT", self.dicon3, "BOTTOMRIGHT", 0, 0)
         local debuffSize = pixelperfect(Aptechka.db.debuffSize)
-        self.dicon1:SetOrientation("HORIZONTAL", debuffSize)
-        self.dicon2:SetOrientation("HORIZONTAL", debuffSize)
-        self.dicon3:SetOrientation("HORIZONTAL", debuffSize)
-        self.dicon4:SetOrientation("HORIZONTAL", debuffSize)
+        for i, icon in ipairs(self.debuffIcons) do
+            icon:SetOrientation("HORIZONTAL", debuffSize)
+        end
+        self.debuffIcons:Align("HORIZONTAL")
     end
 
 end
@@ -1536,10 +1561,15 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
 
     local debuffSize = Aptechka.db.debuffSize
-    self.dicon1 = CreateDebuffIcon(self, debuffSize, debuffSize, 1, "BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
-    self.dicon2 = CreateDebuffIcon(self, debuffSize, debuffSize, 1, "BOTTOMLEFT", self.dicon1, "TOPLEFT",0,0)
-    self.dicon3 = CreateDebuffIcon(self, debuffSize, debuffSize, 1, "BOTTOMLEFT", self.dicon2, "TOPLEFT",0,0)
-    self.dicon4 = CreateDebuffIcon(self, debuffSize, debuffSize, 1, "BOTTOMLEFT", self.dicon3, "TOPLEFT",0,0)
+    self.debuffIcons = { parent = self }
+    self.debuffIcons.Align = AlignDebuffIcons
+
+    for i=1, 4 do
+        local dicon = CreateDebuffIcon(self, debuffSize, debuffSize, 1, "BOTTOMLEFT", self, "BOTTOMLEFT", 0,0)
+        table.insert(self.debuffIcons, dicon)
+    end
+
+    self.debuffIcons:Align("VERTICAL")
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     local blcorner = CreateCorner(self, 12, 12, "BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation

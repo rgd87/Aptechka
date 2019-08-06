@@ -46,7 +46,6 @@ local AptechkaUnitInRange
 local uir -- current range check function
 local auras
 local dtypes
-local debuffs
 local traceheals
 local colors
 local threshold --incoming heals
@@ -268,7 +267,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     auras = config.auras
     traceheals = config.traces
     dtypes = config.DebuffTypes
-    debuffs = config.DebuffDisplay
 
     local _, class = UnitClass("player")
     local categories = {"auras", "traces"}
@@ -1880,14 +1878,18 @@ end
 -----------------------
 
 local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, icon, count, isBossAura)
-    local opts = debuffs[index]
-    opts.debuffType = debuffType
-    opts.expirationTime = expirationTime
-    opts.duration = duration
-    opts.stacks = count
-    opts.texture = icon
-    opts.isBossAura = isBossAura
-    SetJob(unit, opts, true)
+    local frames = Roster[unit]
+    if not frames then return end
+
+    for frame in pairs(frames) do
+        local iconFrame = frame.debuffIcons[index]
+        if debuffType == false then
+            iconFrame:Hide()
+        else
+            iconFrame:SetJob(debuffType, expirationTime, duration, icon, count, isBossAura)
+            iconFrame:Show()
+        end
+    end
 end
 
 
@@ -2010,7 +2012,7 @@ function Aptechka.OrderedDebuffProc(unit, index, slot, filter, name, icon, count
 end
 
 function Aptechka.OrderedDebuffPostUpdate(unit)
-    local debuffLineLength = #debuffs
+    local debuffLineLength = 4
     local shown = 0
     local fill = 0
 
@@ -2049,8 +2051,7 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
     end
 
     for i=shown+1, debuffLineLength do
-        local opts = debuffs[i]
-        SetJob(unit, opts, false)
+        SetDebuffIcon(unit, i, false)
     end
 end
 
@@ -2070,7 +2071,7 @@ end
 function Aptechka.SimpleDebuffPostUpdate(unit)
     local shown = 0
     local fill = 0
-    local debuffLineLength = #debuffs
+    local debuffLineLength = 4
 
     for i, indexOrSlot in ipairs(debuffList) do
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, "HARMFUL")
@@ -2087,8 +2088,7 @@ function Aptechka.SimpleDebuffPostUpdate(unit)
     end
 
     for i=shown+1, debuffLineLength do
-        local opts = debuffs[i]
-        SetJob(unit, opts, false)
+        SetDebuffIcon(unit, i, false)
     end
 end
 
@@ -2164,7 +2164,7 @@ end
 
 
 function Aptechka.TestDebuffSlots()
-    local debuffLineLength = #debuffs
+    local debuffLineLength = 4
     local shown = 0
     local fill = 0
     local unit = "player"
@@ -2195,8 +2195,7 @@ function Aptechka.TestDebuffSlots()
     end
 
     for i=shown+1, debuffLineLength do
-        local opts = debuffs[i]
-        SetJob(unit, opts, false)
+        SetDebuffIcon(unit, i, false)
     end
 end
 
