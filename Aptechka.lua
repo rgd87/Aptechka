@@ -272,9 +272,22 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local categories = {"auras", "traces"}
     if not AptechkaConfigCustom[class] then AptechkaConfigCustom[class] = {} end
 
+    local fixOldAuraFormat = function(customConfigPart)
+        if not customConfigPart then return end
+        for id, opts in pairs(customConfigPart) do
+            if opts.id == nil then
+                opts.id = id
+            end
+        end
+    end
+
     local globalConfig = AptechkaConfigCustom["GLOBAL"]
+    fixOldAuraFormat(globalConfig.auras)
+    fixOldAuraFormat(globalConfig.traces)
     MergeTable(AptechkaConfigMerged, globalConfig)
     local classConfig = AptechkaConfigCustom[class]
+    fixOldAuraFormat(classConfig.auras)
+    fixOldAuraFormat(classConfig.traces)
     MergeTable(AptechkaConfigMerged, classConfig)
 
 

@@ -225,6 +225,8 @@ function AptechkaGUI.CreateCommonForm(self)
         delta.texture = nil
         delta.stacks = nil
 
+        delta.id = spellID -- very important
+
         -- remove clones of the previous version of the spell
 		local oldOriginalSpell = AptechkaConfigMerged[category][spellID]
 		if oldOriginalSpell and oldOriginalSpell.clones then
@@ -1148,7 +1150,6 @@ local function MakeGeneralOptions()
 						values = LSM:HashTable("statusbar"),
 						dialogControl = "LSM30_Statusbar",
                     },
-                    
                     nameFont = {
 						type = "select",
 						name = "Font",
@@ -1187,7 +1188,6 @@ local function MakeGeneralOptions()
                         step = 0.1,
                         order = 14.2,
                     },
-                    
                     debuffSize = {
                         name = "Debuff Size",
                         type = "range",
