@@ -28,6 +28,14 @@ LSM:Register("font", "ClearFont", [[Interface\AddOns\Aptechka\ClearFont.ttf]], G
 -8 healthbar bg
 ]]
 
+local MakeBorder = function(self, tex, left, right, top, bottom, level)
+    local t = self:CreateTexture(nil,"BORDER",nil,level)
+    t:SetTexture(tex)
+    t:SetPoint("TOPLEFT", self, "TOPLEFT", left, -top)
+    t:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -right, bottom)
+    return t
+end
+
 
 local SetJob_Frame = function(self, job)
     if job.alpha then
@@ -728,6 +736,34 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
     return icon
 end
 
+local CreateProgressIcon = function(parent, width, height, alpha, point, frame, to, x, y)
+    local icon = CreateIcon(parent, width, height, alpha, point, frame, to, x, y)
+    local border = pixelperfect(3)
+    local frameborder = MakeBorder(icon, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
+    frameborder:SetVertexColor(0,0,0,1)
+
+    local cdf = icon.cd
+    cdf.noCooldownCount = true -- disable OmniCC for this cooldown
+    -- cdf:SetEdgeTexture("Interface\\Cooldown\\edge");
+    cdf:SetSwipeColor(0.8, 1, 0.2, 1);
+    cdf:SetDrawEdge(false);
+    cdf:SetSwipeTexture("Interface\\BUTTONS\\WHITE8X8")
+    cdf:SetHideCountdownNumbers(true);
+    -- cdf:SetReverse(false)
+    cdf:ClearAllPoints()
+    local offset = border - pixelperfect(1)
+    cdf:SetPoint("TOPLEFT", -offset, offset)
+    cdf:SetPoint("BOTTOMRIGHT", offset, -offset)
+
+    local icontex = icon.texture
+    icontex:SetParent(cdf)
+    icontex:SetDrawLayer("ARTWORK", 3)
+
+    icon:Hide()
+
+    return icon
+end
+
 local Text1_SetColor = function(self, r,g,b)
     self:SetTextColor(r,g,b)
 end
@@ -1032,14 +1068,6 @@ local optional_widgets = {
 
         smist  = function(self) return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
 }
-
-local MakeBorder = function(self, tex, left, right, top, bottom, level)
-    local t = self:CreateTexture(nil,"BORDER",nil,level)
-    t:SetTexture(tex)
-    t:SetPoint("TOPLEFT", self, "TOPLEFT", left, -top)
-    t:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -right, bottom)
-    return t
-end
 
 AptechkaDefaultConfig.GridSkinSettings = function(self)
     AptechkaDefaultConfig.width = 50
@@ -1514,6 +1542,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text2.parent = self
 
     local icon = CreateIcon(self,24,24,0.4,"CENTER",self,"CENTER",0,0)
+    -- local icon = CreateProgressIcon(self,18,18, 1,"CENTER",self,"CENTER",0,0)
 
     local raidicon = CreateFrame("Frame",nil,self)
     raidicon:SetWidth(20); raidicon:SetHeight(20)
