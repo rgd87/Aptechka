@@ -282,12 +282,16 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     local globalConfig = AptechkaConfigCustom["GLOBAL"]
-    fixOldAuraFormat(globalConfig.auras)
-    fixOldAuraFormat(globalConfig.traces)
+    if globalConfig then
+        fixOldAuraFormat(globalConfig.auras)
+        fixOldAuraFormat(globalConfig.traces)
+    end
     MergeTable(AptechkaConfigMerged, globalConfig)
     local classConfig = AptechkaConfigCustom[class]
-    fixOldAuraFormat(classConfig.auras)
-    fixOldAuraFormat(classConfig.traces)
+    if classConfig then
+        fixOldAuraFormat(classConfig.auras)
+        fixOldAuraFormat(classConfig.traces)
+    end
     MergeTable(AptechkaConfigMerged, classConfig)
 
 
