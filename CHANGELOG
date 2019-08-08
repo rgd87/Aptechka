@@ -1,3 +1,7 @@
+### 8.2.9:
+
+- fixed error caused by added from GUI spells
+
 ### 8.2.8:
 
 - increased aura handling performance
@@ -58,57 +62,4 @@
 - Shift-RightClick now toggles menu
 - Option to disable tooltips completely
 
-### 8.1.1:
-
-- Updated TOC to 80100
-
-### 8.1.0:
-
-- Restored Weakened Soul
-
-### 8.0.11:
-
-- Frame: Debuff Type texture is now brighter
-- Frame: Debuff Icon in horizontal mode now sits on top of mana bar
-- Blacklist: added Cheat Death CD, Shadow Mend
-- Bugfix: SetFrameStrata being called in combat
-
-### 8.0.10:
-
-- fix for missing UNIT_CONNECTION events in matchmade groups
-- PvP: added insignificant debuffs from most damage specs to blacklist
-
-### 8.0.9:
-
-- added autoscaling settings to gui
-
-### 8.0.8:
-
-- bugfix for custom skins
-
-### 8.0.7:
-
-- added orientation, texture, color settings to options menu
-- changed trace indicator
-- added trail of light and flash heal traces
-
-### 8.0.6:
-
-- offline and optional afk timers
-- console commands to add debuffs to blacklist
-- console command to list unit auras (/apt listauras target)
-- phased icon now works for warmode phase
-
-### 8.0.5:
-
-- sort units by role option
-- fixed incomin heal threshold
-- added more dungeon debuffs
-- pulsing on BL corner
-
-### 8.0.4:
-
-- fixed a bug when trace heals were mistaken for auras
-- custom table for PVP CC debuffs making them bigger
-- added voice chat indicator for party and instance groups
 
