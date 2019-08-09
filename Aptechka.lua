@@ -18,6 +18,7 @@ local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs
 local UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs
 local UnitThreatSituation = UnitThreatSituation
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
+local UnitIsWarModePhased = UnitIsWarModePhased
 local GetSpecialization = GetSpecialization
 local GetSpecializationInfo = GetSpecializationInfo
 local HasIncomingSummon = C_IncomingSummon and C_IncomingSummon.HasIncomingSummon
@@ -33,6 +34,7 @@ if isClassic then
     UnitGetTotalAbsorbs = dummy0
     UnitGetTotalHealAbsorbs = dummy0
     UnitThreatSituation = dummyNil
+    UnitIsWarModePhased = dummyFalse
     UnitGroupRolesAssigned = dummyNil
     GetSpecialization = function() return 1 end
     GetSpecializationInfo = function() return "DAMAGER" end
@@ -283,9 +285,26 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local categories = {"auras", "traces"}
     if not AptechkaConfigCustom[class] then AptechkaConfigCustom[class] = {} end
 
+    local fixOldAuraFormat = function(customConfigPart)
+        if not customConfigPart then return end
+        for id, opts in pairs(customConfigPart) do
+            if opts.id == nil then
+                opts.id = id
+            end
+        end
+    end
+
     local globalConfig = AptechkaConfigCustom["GLOBAL"]
+    if globalConfig then
+        fixOldAuraFormat(globalConfig.auras)
+        fixOldAuraFormat(globalConfig.traces)
+    end
     MergeTable(AptechkaConfigMerged, globalConfig)
     local classConfig = AptechkaConfigCustom[class]
+    if classConfig then
+        fixOldAuraFormat(classConfig.auras)
+        fixOldAuraFormat(classConfig.traces)
+    end
     MergeTable(AptechkaConfigMerged, classConfig)
 
 
@@ -1387,10 +1406,10 @@ local function updateUnitButton(self, unit)
     if not unit then return end
 
     local name, realm = UnitName(owner)
-    if name == UNKNOWNOBJECT then
+    if name == UNKNOWNOBJECT or name == nil then
         has_unknowns = true
     end
-    self.name = utf8sub(name,1, AptechkaDB.cropNamesLen)
+    self.name = name and utf8sub(name,1, AptechkaDB.cropNamesLen) or "Unknown"
 
     self.unit = unit
     Roster[unit] = Roster[unit] or {}
