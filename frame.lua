@@ -1080,7 +1080,6 @@ end
 
 local function Reconf(self)
     local config = AptechkaDefaultConfig
-    if config.skin ~= "GridSkin" then return end
 
     local db = Aptechka.db
     local isVertical = db.healthOrientation == "VERTICAL"
@@ -1209,9 +1208,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local fontsize = Aptechka.db.nameFontSize
     local manabar_width = config.manabarwidth
     local border = pixelperfect(2)
+    local db
 
     if config.skin == "GridSkin" then
-        local db = Aptechka.db
+        db = Aptechka.db
         texture = LSM:Fetch("statusbar", db.healthTexture)
         powertexture = LSM:Fetch("statusbar", db.powerTexture)
     end
