@@ -1,3 +1,8 @@
+### 1.13.3
+
+- fix for now missing UnitIsWarModePhased
+- multiple changes from live since 8.2
+
 ### 1.13.2
 
 - preliminary LibClassicHealComm support, it's used if found, but not embedded
