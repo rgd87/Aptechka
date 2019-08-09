@@ -18,6 +18,7 @@ local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs
 local UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs
 local UnitThreatSituation = UnitThreatSituation
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
+local UnitIsWarModePhased = UnitIsWarModePhased
 local GetSpecialization = GetSpecialization
 local GetSpecializationInfo = GetSpecializationInfo
 local HasIncomingSummon = C_IncomingSummon and C_IncomingSummon.HasIncomingSummon
@@ -33,6 +34,7 @@ if isClassic then
     UnitGetTotalAbsorbs = dummy0
     UnitGetTotalHealAbsorbs = dummy0
     UnitThreatSituation = dummyNil
+    UnitIsWarModePhased = dummyFalse
     UnitGroupRolesAssigned = dummyNil
     GetSpecialization = function() return 1 end
     GetSpecializationInfo = function() return "DAMAGER" end
