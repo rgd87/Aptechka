@@ -1069,15 +1069,6 @@ local optional_widgets = {
         smist  = function(self) return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
 }
 
-AptechkaDefaultConfig.GridSkinSettings = function(self)
-    AptechkaDefaultConfig.width = 50
-    AptechkaDefaultConfig.height = 50
-    AptechkaDefaultConfig.texture = [[Interface\AddOns\Aptechka\gradient]]
-    AptechkaDefaultConfig.font = [[Interface\AddOns\Aptechka\ClearFont.ttf]]
-    AptechkaDefaultConfig.fontsize = 12
-end
-
-
 local function Reconf(self)
     local config = AptechkaDefaultConfig
 
@@ -1199,22 +1190,16 @@ end
 AptechkaDefaultConfig.GridSkin = function(self)
     Aptechka = _G.Aptechka
 
-    local config
-    if AptechkaDefaultConfig then config = AptechkaDefaultConfig else config = AptechkaDefaultConfig end
+    local db = Aptechka.db
 
-    local texture = config.texture
-    local powertexture = texture
+    local config = AptechkaDefaultConfig
+
+    local texture = LSM:Fetch("statusbar", db.healthTexture)
+    local powertexture = LSM:Fetch("statusbar", db.powerTexture)
     local font = LSM:Fetch("font",  Aptechka.db.nameFontName)
     local fontsize = Aptechka.db.nameFontSize
     local manabar_width = config.manabarwidth
     local border = pixelperfect(2)
-    local db
-
-    if config.skin == "GridSkin" then
-        db = Aptechka.db
-        texture = LSM:Fetch("statusbar", db.healthTexture)
-        powertexture = LSM:Fetch("statusbar", db.powerTexture)
-    end
 
     self.ReconfigureUnitFrame = Reconf
 

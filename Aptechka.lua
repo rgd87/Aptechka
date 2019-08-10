@@ -371,11 +371,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_HEAL_PREDICTION")
     end
 
-    if not config[config.skin.."Settings"]
-        then config["GridSkinSettings"]()
-        else config[config.skin.."Settings"]() -- receiving width and height for current skin
-    end
-
     -- local tbind
     -- if config.TargetBinding == nil then tbind = "*type1"
     -- elseif config.TargetBinding == false then tbind = "__none__"
@@ -511,7 +506,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         config.anchorpoint = Aptechka:SetAnchorpoint()
     end
 
-    skinAnchorsName = config.useAnchors or config.skin
+    skinAnchorsName = "GridSkin"
     local i = 1
     while (i <= config.maxgroups) do
         local f  = Aptechka:CreateHeader(i) -- if second arg is true then it's petgroup
@@ -701,6 +696,9 @@ function Aptechka:ReconfigureUnprotected()
     for group, header in ipairs(group_headers) do
         for _, f in ipairs({ header:GetChildren() }) do
             f:ReconfigureUnitFrame()
+            if Aptechka.PostFrameUpdate then
+                Aptechka.PostFrameUpdate(f)
+            end
         end
     end
 end
@@ -1784,12 +1782,12 @@ function Aptechka.SetupFrame(header, frameName)
 
     f.activeAuras = {}
 
-    if config[config.skin] then
-        config[config.skin](f)
-    else
-        config["GridSkin"](f)
-    end
+    config.GridSkin(f)
+
     f:ReconfigureUnitFrame()
+    if Aptechka.PostFrameUpdate then
+        Aptechka.PostFrameUpdate(f)
+    end
 
     f.self = f
     f.HideFunc = f.HideFunc or function() end
