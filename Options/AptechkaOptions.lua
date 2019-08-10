@@ -924,6 +924,7 @@ local function MakeGeneralOptions()
                     },
                     nameLength = {
                         name = "Name Length",
+                        desc = "Takes effect after /reload",
                         type = "range",
                         get = function(info) return Aptechka.db.cropNamesLen end,
                         set = function(info, v)
