@@ -1527,7 +1527,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text2.parent = self
 
     local icon = CreateIcon(self,24,24,0.4,"CENTER",self,"CENTER",0,0)
-    -- local icon = CreateProgressIcon(self,18,18, 1,"CENTER",self,"CENTER",0,0)
+    local progress_icon = CreateProgressIcon(self,18,18, 1,"CENTER",self,"CENTER",0,0)
 
     local raidicon = CreateFrame("Frame",nil,self)
     raidicon:SetWidth(20); raidicon:SetHeight(20)
@@ -1654,6 +1654,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.bossdebuff = blcorner
     self.dispel = nil
     self.icon = icon
+    self.progress_icon = progress_icon
     self.raidicon = raidicon
     self.roleicon = roleicon
     self.healabsorb = healAbsorb

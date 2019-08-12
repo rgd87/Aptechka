@@ -59,6 +59,7 @@ local loadedAuras = Aptechka.loadedAuras
 local customBossAuras = helpers.customBossAuras
 local default_blacklist = helpers.auraBlacklist
 local blacklist
+local importantTargetedCasts = helpers.importantTargetedCasts
 local OORUnits = setmetatable({},{__mode = 'k'})
 local inCL = setmetatable({},{__index = function (t,k) return 0 end})
 local buffer = {}
@@ -108,6 +109,7 @@ local reverse = helpers.Reverse
 local AptechkaDB = {}
 local LibSpellLocks
 local LibAuraTypes
+local LibTargetedCasts
 local tinsert = table.insert
 local tsort = table.sort
 local CreatePetsFunc
@@ -476,6 +478,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.enableAbsorbBar then
         self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
         self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
+    end
+
+    LibTargetedCasts = LibStub("LibTargetedCasts", true)
+    if LibTargetedCasts then
+        LibTargetedCasts:RegisterCallback("SPELLCAST_UPDATE", Aptechka.SPELLCAST_UPDATE)
     end
 
     AptechkaDB.useCombatLogHealthUpdates = false
@@ -2411,5 +2418,63 @@ function Aptechka:VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED(event, member
     local unit = guidMap[guid]
     if unit then
         SetJob(unit, config.VoiceChatStatus, isSpeaking)
+    end
+end
+
+
+local onlyWhitelistedSpells = true
+
+
+function Aptechka.SPELLCAST_UPDATE(event, dstGUID)
+    local unit = guidMap[dstGUID]
+    if unit and Roster[unit] then
+        for frame in pairs(Roster[unit]) do
+            local minID
+            local minTime
+            for castID, castInfo in pairs(LibTargetedCasts:GetUnitIncomingCastsTable(unit)) do
+                local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetUnitIncomingCastByID(dstGUID, castID)
+
+                if (not onlyWhitelistedSpells or importantTargetedCasts[spellID]) and not blacklist[spellID] then
+                    if castType == "CHANNEL" then endTime = endTime - 5 end -- prioritizing channels
+
+                    if not minTime or endTime < minTime then
+                        minID = castID
+                        minTime = endTime
+                        -- print(i)
+                    end
+                end
+            end
+
+            local icon = frame.progress_icon
+            if minID then
+                local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetUnitIncomingCastByID(dstGUID, minID)
+
+                -- print("asd", name, texture, endTime)
+                icon.texture:SetTexture(texture)
+
+                icon.cd:SetReverse(castType == "CAST")
+
+                local r,g,b
+                -- if notInterruptible then
+                --     r,g,b = 0.7, 0.7, 0.7
+                -- else
+                if castType == "CHANNEL" then
+                    r,g,b = 0.8, 1, 0.3
+                else
+                    r,g,b = 1, 0.65, 0
+                end
+
+                icon.cd:SetSwipeColor(r,g,b);
+
+                local duration = endTime - startTime
+                icon.cd:SetCooldown(startTime, duration)
+                icon.cd:Show()
+
+                icon:Show()
+            else
+                icon:Hide()
+                icon.cd:Hide()
+            end
+        end
     end
 end

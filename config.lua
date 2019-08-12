@@ -453,6 +453,9 @@ config.autoload = {
 
 
 helpers.auraBlacklist = {
+    -- cast blacklist is shared with auras
+    [120651] = true, -- explosive orb affix cast
+
     -- nazjatar
     [304966] = true,
     [304959] = true,
@@ -587,6 +590,81 @@ helpers.auraBlacklist = {
     [132951] = true, -- Hunter Flare
 
 
+}
+
+helpers.importantTargetedCasts = {
+    -- bfa spell ids borrowed from https://wago.io/BFADungeonTargetedSpells
+
+    -- [259832] = true, -- Massive Glaive - Stormbound Conqueror (Warport Wastari, Zuldazar, for testing purpose only)
+    [114807] = true, -- Monk Boss in Scarlet Hallds
+
+    -- Raid
+    [284405] = true, -- Sirens - Tormented Song (Stormwall Blockade)
+
+    -- Affixes
+    [288693] = true, -- Tormented Soul - Grave Bolt (Reaping affix)
+
+    -- Atal'Dazar
+    [253239] = true, -- Dazar'ai Juggernaut - Merciless Assault
+    [256846] = true, -- Dinomancer Kish'o - Deadeye Aim
+    [257407] = true, -- Rezan - Pursuit
+
+    -- Freehold
+    [257739] = true, -- Blacktooth Scrapper - Blind Rage
+    [258338] = true, -- Captain Raoul - Blackout Barrel
+    [256979] = true, -- Captain Eudora - Powder Shot
+
+    -- Kings'Rest
+    [266231] = true, -- Kula the Butcher - Severing Axe
+    [270507] = true, --  Spectral Beastmaster - Poison Barrage
+    [265773] = true, -- The Golden Serpent - Spit Gold
+    [270506] = true, -- Spectral Beastmaster - Deadeye Shot
+
+    -- Shrine of the Storm
+    [264166] = true, -- Aqu'sirr - Undertow
+    [268214] = true, -- Runecarver Sorn - Carve Flesh
+
+    -- Siege of Boralus
+    [257641] = true, -- Kul Tiran Marksman - Molten Slug
+    [272874] = true, -- Ashvane Commander - Trample
+    [272581] = true, -- Bilge Rat Tempest - Water Spray
+    [272528] = true, -- Ashvane Sniper - Shoot
+    [272542] = true, -- Ashvane Sniper - Ricochet
+
+    -- Temple of Sethraliss
+    [268703] = true, -- Charged Dust Devil - Lightning Bolt
+    [272670] = true, -- Sandswept Marksman - Shoot
+    [267278] = true, -- Static-charged Dervish - Electrocute
+    [272820] = true, -- Spark Channeler - Shock
+    [274642] = true, -- Hoodoo Hexer - Lava Burst
+    [268061] = true, -- Plague Doctor - Chain Lightning
+
+    -- The Motherlode!!
+    [268185] = true, -- Refreshment Vendor, Iced Spritzer
+    [258674] = true, -- Off-Duty Laborer - Throw Wrench
+    [276304] = true, -- Rowdy Reveler - Penny For Your Thoughts
+    [263628] = true, -- Mechanized Peacekeeper - Charged Claw
+    [263209] = true, -- Mine Rat - Throw Rock
+    [263202] = true, -- Venture Co. Earthshaper - Rock Lance
+    [262794] = true, -- Venture Co. Mastermind - Energy Lash
+    [260669] = true, -- Rixxa Fluxflame - Propellant Blast
+
+    -- The Underrot
+    [265376] = true, -- Fanatical Headhunter - Barbed Spear
+    [265084] = true, -- Devout Blood Priest - Blood Bolt
+    [265625] = true, -- Befouled Spirit - Dark Omen
+
+    -- Tol Dagor
+    [256039] = true, -- Overseer Korgus - Deadeye
+    [185857] = true, -- Ashvane Spotter - Shoot
+
+    -- Waycrest Manor
+    [263891] = true, -- Heartsbane Vinetwister - Grasping Thorns
+    [264510] = true, -- Crazed Marksman - Shoot
+    [260699] = true, -- Coven Diviner - Soul Bolt
+    [260551] = true, -- Soulbound Goliath - Soul Thorns
+    [260741] = true, -- Heartsbane Triad - Jagged Nettles
+    [268202] = true, -- Gorak Tul - Death Lens
 }
 
 --[[
