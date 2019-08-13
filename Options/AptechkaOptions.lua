@@ -1088,7 +1088,7 @@ local function MakeGeneralOptions()
                         type = "toggle",
                         confirm = true,
 						confirmText = "Warning: Requires UI reloading.",
-                        order = 11.2,
+                        order = 11.3,
                         get = function(info) return Aptechka.db.useCombatLogHealthUpdates end,
                         set = function(info, v)
                             Aptechka.db.useCombatLogHealthUpdates = not Aptechka.db.useCombatLogHealthUpdates
@@ -1106,6 +1106,28 @@ local function MakeGeneralOptions()
                             Aptechka.db.useDebuffOrdering = not Aptechka.db.useDebuffOrdering
                             ReloadUI()
                         end
+                    },
+                    showCasts = {
+                        name = "Show Casts",
+                        type = "toggle",
+                        confirm = true,
+						confirmText = "Warning: Requires UI reloading.",
+                        get = function(info) return Aptechka.db.showCasts end,
+                        set = function(info, v)
+                            Aptechka.db.showCasts = not Aptechka.db.showCasts
+                            ReloadUI()
+                        end,
+                        order = 11.4,
+                    },
+                    showAllCasts = {
+                        name = "Show All Casts",
+                        type = "toggle",
+                        width = "double",
+                        get = function(info) return Aptechka.db.showAllCasts end,
+                        set = function(info, v)
+                            Aptechka.db.showAllCasts = not Aptechka.db.showAllCasts
+                        end,
+                        order = 11.5,
                     },
 
                     orientation = {
