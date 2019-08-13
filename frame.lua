@@ -587,11 +587,12 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
 
     local stackframe = CreateFrame("Frame", nil, icon)
     stackframe:SetAllPoints(icon)
-    local stacktext = stackframe:CreateFontString(nil,"OVERLAY")
+    local stacktext = stackframe:CreateFontString(nil,"ARTWORK")
+    stacktext:SetDrawLayer("ARTWORK",1)
     local stackFont = LSM:Fetch("font",  Aptechka.db.nameFontName)
     local stackFontSize = Aptechka.db.stackFontSize
     stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
-    stackframe:SetFrameLevel(7)
+    -- stackframe:SetFrameLevel(7)
 
     stacktext:SetJustifyH"RIGHT"
     stacktext:SetPoint("BOTTOMRIGHT",icontex,"BOTTOMRIGHT", 3,-1)
@@ -736,11 +737,30 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
     return icon
 end
 
+local SetJob_ProgressIcon = function(self, job)
+    SetJob_Icon(self, job)
+
+    self.cd:SetReverse(job.reverseDuration)
+
+    local r,g,b
+    local job_color = job.color
+    if job_color then
+        r,g,b = unpack(job_color)
+    else
+        r,g,b = 0.75, 1, 0.2
+    end
+    self.cd:SetSwipeColor(r,g,b)
+end
+
 local CreateProgressIcon = function(parent, width, height, alpha, point, frame, to, x, y)
     local icon = CreateIcon(parent, width, height, alpha, point, frame, to, x, y)
     local border = pixelperfect(3)
     local frameborder = MakeBorder(icon, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
     frameborder:SetVertexColor(0,0,0,1)
+    frameborder:SetDrawLayer("ARTWORK", 2)
+
+    icon:SetFrameStrata("HIGH")
+    -- icon:SetFrameLevel(7)
 
     local cdf = icon.cd
     cdf.noCooldownCount = true -- disable OmniCC for this cooldown
@@ -755,9 +775,15 @@ local CreateProgressIcon = function(parent, width, height, alpha, point, frame, 
     cdf:SetPoint("TOPLEFT", -offset, offset)
     cdf:SetPoint("BOTTOMRIGHT", offset, -offset)
 
+    cdf:SetScript("OnCooldownDone", function(self)
+        self:GetParent():Hide()
+    end)
+
     local icontex = icon.texture
     icontex:SetParent(cdf)
     icontex:SetDrawLayer("ARTWORK", 3)
+
+    icon.SetJob = SetJob_ProgressIcon
 
     icon:Hide()
 
@@ -1047,7 +1073,8 @@ local optional_widgets = {
         --left
         spell5  = function(self) return CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0) end,
 
-        shieldicon = function(self) return CreateShieldIcon(self,15,15,1,"CENTER",self,"TOPLEFT",14,0) end,
+        -- shieldicon = function(self) return CreateShieldIcon(self,15,15,1,"CENTER",self,"TOPLEFT",14,0) end,
+        shieldicon = function(self) return CreateProgressIcon(self,15,15,1,"TOPRIGHT",self,"TOPRIGHT",2,-12) end,
 
         bar1    = function(self) return CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0) end,
         bar2    = function(self)
@@ -1527,7 +1554,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text2.parent = self
 
     local icon = CreateIcon(self,24,24,0.4,"CENTER",self,"CENTER",0,0)
-    local progress_icon = CreateProgressIcon(self,18,18, 1,"CENTER",self,"CENTER",0,0)
+    local progressIcon = CreateProgressIcon(self,18,18, 1,"TOPLEFT",self,"TOPLEFT",-3,3)
 
     local raidicon = CreateFrame("Frame",nil,self)
     raidicon:SetWidth(20); raidicon:SetHeight(20)
@@ -1654,7 +1681,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.bossdebuff = blcorner
     self.dispel = nil
     self.icon = icon
-    self.progress_icon = progress_icon
+    self.progressIcon = progressIcon
     self.raidicon = raidicon
     self.roleicon = roleicon
     self.healabsorb = healAbsorb
