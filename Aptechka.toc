@@ -14,6 +14,7 @@ Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\LibSharedMedia-3.0\lib.xml
 Libs\LibSpellLocks\LibSpellLocks.lua
 Libs\LibAuraTypes\LibAuraTypes.lua
+Libs\LibTargetedCasts\LibTargetedCasts.lua
 
 helpers.lua
 config.lua
