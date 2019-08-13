@@ -132,7 +132,7 @@ end
 
 
 
-local tankCD = { type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94}
+local tankCD = { type = "HELPFUL", assignto = { "icon", "text3" }, global = true, showDuration = true, priority = 94}
 local survivalCD = { type = "HELPFUL", assignto = "shieldicon", global = true, showDuration = true, priority = 90 }
 
 -- ESSENCES
@@ -141,10 +141,10 @@ A{ id = 296230, prototype = survivalCD } --Vitality Conduit
 -- A{ id = 296211, type = "HELPFUL", assignto = "bars", color = { 1, 0.7, 0}, priority = 50, showDuration = true, isMine = true }
 
 -- ACTIVE MITIGATION
-A{ id = 132404, prototype = survivalCD, priority = 80 } -- Shield Block
-A{ id = 132403, prototype = survivalCD, priority = 80 } -- Shield of the Righteousness
-A{ id = 203819, prototype = survivalCD, priority = 80 } -- Demon Spikes
-A{ id = 192081, prototype = survivalCD, priority = 80 } -- Ironfur
+-- A{ id = 132404, prototype = survivalCD, priority = 80 } -- Shield Block
+-- A{ id = 132403, prototype = survivalCD, priority = 80 } -- Shield of the Righteousness
+-- A{ id = 203819, prototype = survivalCD, priority = 80 } -- Demon Spikes
+-- A{ id = 192081, prototype = survivalCD, priority = 80 } -- Ironfur
 
 -- MONK
 A{ id = 122783, prototype = survivalCD } -- Diffuse Magic
@@ -175,6 +175,7 @@ A{ id = 104773, prototype = survivalCD } -- Unending Resolve
 A{ id = 132413, prototype = survivalCD } -- Shadow Bulwark
 
 -- DRUID
+-- local druidColor = { RAID_CLASS_COLORS.DRUID:GetRGB() }
 A{ id = 22812,  prototype = survivalCD } -- Barkskin
 A{ id = 102342, prototype = tankCD, priority = 93 } --Ironbark
 A{ id = 61336,  prototype = tankCD } --Survival Instincts 50% (Feral & Guardian)
@@ -192,7 +193,7 @@ A{ id = 204018, prototype = survivalCD } -- Blessing of Spellwarding
 A{ id = 184662, prototype = survivalCD } -- Shield of Vengeance
 A{ id = 205191, prototype = survivalCD } -- Eye for an Eye
 A{ id = 498,    prototype = survivalCD } -- Divine Protection
-A{ id = 6940,    prototype = survivalCD } -- Blessing of Sacrifice
+A{ id = 6940,   prototype = survivalCD } -- Blessing of Sacrifice
 A{ id = 31850,  prototype = tankCD, priority = 88 } --Ardent Defender
 A{ id = 86659,  prototype = tankCD } --Guardian of Ancient Kings 50%
 A{ id = 204150, prototype = tankCD, priority = 85 } -- Aegis of Light
@@ -595,7 +596,37 @@ helpers.auraBlacklist = {
 helpers.importantTargetedCasts = {
     -- bfa spell ids borrowed from https://wago.io/BFADungeonTargetedSpells
 
-    -- [259832] = true, -- Massive Glaive - Stormbound Conqueror (Warport Wastari, Zuldazar, for testing purpose only)
+    -- Operation Mechagon
+    [298669] = true, -- Trixie Tazer - Taze
+    [298718] = true, -- Trixie Tazer - Mega Taze
+    [298940] = true, -- Naeno Megacrash - Bolt Buster -- avoidable
+
+    [297254] = true, -- King Gobbamak - Charged Smash
+
+    [302279] = true, -- Tank Buster MK1 - Wreck
+    [302274] = true, -- Fulminating Zap
+    [303885] = true, -- Fulminating Burst (HM)
+
+    [291939] = true, -- King Mechagon - GigaZap
+    [292267] = true, -- King Mechagon - GigaZap 2nd Phase
+
+    [294860] = true, -- Head Machinist Sparkflux - Inconspicuous Plant - Blossom Blast
+
+    [300777] = true, -- Slime Elemental - Slimewave
+    [300650] = true, -- Toxic Lurker - Suffocating Smog
+    [301990] = true, -- Heavy Scrapbot - Disassembling Protocol --
+    [300188] = true, -- Weaponized Crawler - Scrap Cannon --
+    [300436] = true, -- Scrapbone Shaman - Grasping Hex
+    [300296] = true, -- Scrapbone Grinder - Skullcracker
+    [284219] = true, -- Mechagon Renormalizer - Shrink
+    -- [301689] = true, -- Charged Coil
+    -- [294290] = true, -- Waste Processing Units will periodically cast  Process Waste.
+
+
+
+    [259832] = true, -- Massive Glaive - Stormbound Conqueror (Warport Wastari, Zuldazar, for testing purpose only)
+    [259744] = true,
+    [259817] = true,
     [114807] = true, -- Monk Boss in Scarlet Hallds
 
     -- Raid

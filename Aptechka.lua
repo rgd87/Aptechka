@@ -133,6 +133,8 @@ local defaults = {
     petGroup = false,
     sortUnitsByRole = false,
     showAFK = false,
+    showCasts = true,
+    showAllCasts = false,
     healthOrientation = "VERTICAL",
     customBlacklist = {},
     healthTexture = "Gradient",
@@ -481,7 +483,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     LibTargetedCasts = LibStub("LibTargetedCasts", true)
-    if LibTargetedCasts then
+    if LibTargetedCasts and AptechkaDB.showCasts then
         LibTargetedCasts:RegisterCallback("SPELLCAST_UPDATE", Aptechka.SPELLCAST_UPDATE)
     end
 
@@ -2194,14 +2196,13 @@ function Aptechka.TestDebuffSlots()
     local unit = "player"
 
     local numBossAuras = math.random(3)-1
-
+    local now = GetTime()
     local debuffTypes = { "none", "Magic", "Poison", "Curse", "Disease" }
     local randomIDs = { 5211, 163505, 209753, 19577, 213691, 118, 119381, 605 }
     for i=1,6 do
         local spellID = randomIDs[math.random(#randomIDs)]
         local _, _, icon = GetSpellInfo(spellID)
         local duration = math.random(20)+5
-        local now = GetTime()
         local count = math.random(18)
         local debuffType = debuffTypes[math.random(#debuffTypes)]
         local expirationTime = now + duration
@@ -2217,6 +2218,32 @@ function Aptechka.TestDebuffSlots()
             break
         end
     end
+
+    -- if Roster[unit] then
+    --     for frame in pairs(Roster[unit]) do
+    --         local icon = frame.castIcon
+    --         local spellID = randomIDs[math.random(#randomIDs)]
+    --         local _, _, texture = GetSpellInfo(spellID)
+    --         local startTime = now
+    --         local duration = math.random(20)+5
+    --         local endTime = startTime + duration
+    --         local count = math.random(18)
+    --         local castType = "CAST"
+    --         icon.texture:SetTexture(texture)
+    --         icon.cd:SetReverse(castType == "CAST")
+
+    --         local r,g,b = 1, 0.65, 0
+
+    --         icon.cd:SetSwipeColor(r,g,b);
+
+    --         local duration = endTime - startTime
+    --         icon.cd:SetCooldown(startTime, duration)
+    --         icon.cd:Show()
+
+    --         icon.stacktext:SetText(count > 1 and count)
+    --         icon:Show()
+    --     end
+    -- end
 
     for i=shown+1, debuffLineLength do
         SetDebuffIcon(unit, i, false)
@@ -2421,37 +2448,35 @@ function Aptechka:VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED(event, member
     end
 end
 
-
-local onlyWhitelistedSpells = true
-
-
 function Aptechka.SPELLCAST_UPDATE(event, dstGUID)
     local unit = guidMap[dstGUID]
     if unit and Roster[unit] then
         for frame in pairs(Roster[unit]) do
-            local minID
+            local minSrcGUID
             local minTime
-            for castID, castInfo in pairs(LibTargetedCasts:GetUnitIncomingCastsTable(unit)) do
-                local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetUnitIncomingCastByID(dstGUID, castID)
+            local totalCasts = 0
+            for i, castInfo in ipairs(LibTargetedCasts:GetUnitIncomingCastsTable(unit)) do
+                local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = unpack(castInfo)
 
-                if (not onlyWhitelistedSpells or importantTargetedCasts[spellID]) and not blacklist[spellID] then
+                local isImportant = importantTargetedCasts[spellID]
+                if (AptechkaDB.showAllCasts or isImportant) and not blacklist[spellID] then
+                    totalCasts = totalCasts + 1
                     if castType == "CHANNEL" then endTime = endTime - 5 end -- prioritizing channels
+                    if isImportant then endTime = endTime - 100 end
 
                     if not minTime or endTime < minTime then
-                        minID = castID
+                        minSrcGUID = srcGUID
                         minTime = endTime
                         -- print(i)
                     end
                 end
             end
 
-            local icon = frame.progress_icon
-            if minID then
-                local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetUnitIncomingCastByID(dstGUID, minID)
+            local icon = frame.castIcon
+            if minSrcGUID then
+                local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
 
-                -- print("asd", name, texture, endTime)
                 icon.texture:SetTexture(texture)
-
                 icon.cd:SetReverse(castType == "CAST")
 
                 local r,g,b
@@ -2470,10 +2495,11 @@ function Aptechka.SPELLCAST_UPDATE(event, dstGUID)
                 icon.cd:SetCooldown(startTime, duration)
                 icon.cd:Show()
 
+                icon.stacktext:SetText(totalCasts > 1 and totalCasts)
+
                 icon:Show()
             else
                 icon:Hide()
-                icon.cd:Hide()
             end
         end
     end
