@@ -3,6 +3,7 @@ AptechkaDefaultConfig = {}
 local config = AptechkaDefaultConfig
 AptechkaUserConfig = AptechkaDefaultConfig
 
+helpers.spellNameToID = {}
 
 local pmult = 1
 function helpers.pixelperfect(size)
@@ -92,6 +93,16 @@ end
 helpers.AddAuraToDefault = function(data)
     helpers.AddAura(data,true)
 end
+
+
+helpers.AddSpellNameRecognition = function(lastRankID)
+    local spellObj = SpellMixin:CreateFromSpellID(lastRankID)
+    spellObj:ContinueOnSpellLoad(function()
+        local spellName = spellObj:GetSpellName()
+        helpers.spellNameToID[spellName] = lastRankID
+    end)
+end
+
 helpers.AddTrace = function(data)
     if not config.enableTraceHeals then return end
 
@@ -106,6 +117,10 @@ helpers.AddTrace = function(data)
     if not config.traces then config.traces = {} end
     if not data.name then print((data.id or "nil").."id or name required") return end
     data.actualname = data.name
+
+    -- for classic
+    helpers.spellNameToID[data.actualname] = data.id
+
     data.name = data.actualname.."Trace"
     local id = data.id
     data.id = nil -- important to do that, because statuses with id field treated as aura

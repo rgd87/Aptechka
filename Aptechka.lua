@@ -96,6 +96,8 @@ local DispelFilter
 
 local pixelperfect = helpers.pixelperfect
 
+local spellNameToID = helpers.spellNameToID
+Aptechka.spellNameToID = spellNameToID
 local bit_band = bit.band
 local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
@@ -307,6 +309,12 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     MergeTable(AptechkaConfigMerged, classConfig)
 
+    -- filling spellNameToID for user-added spells
+    if classConfig and classConfig.traces then
+        for spellID in pairs(classConfig.traces) do
+            helpers.AddSpellNameRecognition(spellID)
+        end
+    end
 
     -- compiling a list of spells that should activate indicator when missing
     self:UpdateMissingAuraList()
@@ -582,6 +590,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             dstGUID, dstName, dstFlags, dstFlags2,
             spellID, spellName, spellSchool, amount, overhealing, absorbed, critical = CombatLogGetCurrentEventInfo()
             if bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE then
+                if spellID == 0 then
+                    spellID = spellNameToID[spellName]
+                end
                 local opts = traceheals[spellID]
                 if opts and eventType == opts.type then
                     if guidMap[dstGUID] then
