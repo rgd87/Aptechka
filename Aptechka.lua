@@ -59,6 +59,7 @@ local loadedAuras = Aptechka.loadedAuras
 local customBossAuras = helpers.customBossAuras
 local default_blacklist = helpers.auraBlacklist
 local blacklist
+local importantTargetedCasts = helpers.importantTargetedCasts
 local OORUnits = setmetatable({},{__mode = 'k'})
 local inCL = setmetatable({},{__index = function (t,k) return 0 end})
 local buffer = {}
@@ -134,6 +135,8 @@ local defaults = {
     petGroup = false,
     sortUnitsByRole = false,
     showAFK = false,
+    showCasts = true,
+    showAllCasts = false,
     healthOrientation = "VERTICAL",
     customBlacklist = {},
     healthTexture = "Gradient",
@@ -401,11 +404,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end
     end
 
-    if not config[config.skin.."Settings"]
-        then config["GridSkinSettings"]()
-        else config[config.skin.."Settings"]() -- receiving width and height for current skin
-    end
-
     -- local tbind
     -- if config.TargetBinding == nil then tbind = "*type1"
     -- elseif config.TargetBinding == false then tbind = "__none__"
@@ -543,7 +541,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         config.anchorpoint = Aptechka:SetAnchorpoint()
     end
 
-    skinAnchorsName = config.useAnchors or config.skin
+    skinAnchorsName = "GridSkin"
     local i = 1
     while (i <= config.maxgroups) do
         local f  = Aptechka:CreateHeader(i) -- if second arg is true then it's petgroup
@@ -736,6 +734,9 @@ function Aptechka:ReconfigureUnprotected()
     for group, header in ipairs(group_headers) do
         for _, f in ipairs({ header:GetChildren() }) do
             f:ReconfigureUnitFrame()
+            if Aptechka.PostFrameUpdate then
+                Aptechka.PostFrameUpdate(f)
+            end
         end
     end
 end
@@ -1762,12 +1763,12 @@ function Aptechka.SetupFrame(header, frameName)
 
     f.activeAuras = {}
 
-    if config[config.skin] then
-        config[config.skin](f)
-    else
-        config["GridSkin"](f)
-    end
+    config.GridSkin(f)
+
     f:ReconfigureUnitFrame()
+    if Aptechka.PostFrameUpdate then
+        Aptechka.PostFrameUpdate(f)
+    end
 
     f.self = f
     f.HideFunc = f.HideFunc or function() end
@@ -2185,14 +2186,13 @@ function Aptechka.TestDebuffSlots()
     local unit = "player"
 
     local numBossAuras = math.random(3)-1
-
+    local now = GetTime()
     local debuffTypes = { "none", "Magic", "Poison", "Curse", "Disease" }
     local randomIDs = { 5211, 163505, 209753, 19577, 213691, 118, 119381, 605 }
     for i=1,6 do
         local spellID = randomIDs[math.random(#randomIDs)]
         local _, _, icon = GetSpellInfo(spellID)
         local duration = math.random(20)+5
-        local now = GetTime()
         local count = math.random(18)
         local debuffType = debuffTypes[math.random(#debuffTypes)]
         local expirationTime = now + duration
@@ -2208,6 +2208,32 @@ function Aptechka.TestDebuffSlots()
             break
         end
     end
+
+    -- if Roster[unit] then
+    --     for frame in pairs(Roster[unit]) do
+    --         local icon = frame.castIcon
+    --         local spellID = randomIDs[math.random(#randomIDs)]
+    --         local _, _, texture = GetSpellInfo(spellID)
+    --         local startTime = now
+    --         local duration = math.random(20)+5
+    --         local endTime = startTime + duration
+    --         local count = math.random(18)
+    --         local castType = "CAST"
+    --         icon.texture:SetTexture(texture)
+    --         icon.cd:SetReverse(castType == "CAST")
+
+    --         local r,g,b = 1, 0.65, 0
+
+    --         icon.cd:SetSwipeColor(r,g,b);
+
+    --         local duration = endTime - startTime
+    --         icon.cd:SetCooldown(startTime, duration)
+    --         icon.cd:Show()
+
+    --         icon.stacktext:SetText(count > 1 and count)
+    --         icon:Show()
+    --     end
+    -- end
 
     for i=shown+1, debuffLineLength do
         SetDebuffIcon(unit, i, false)
