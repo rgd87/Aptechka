@@ -1107,28 +1107,6 @@ local function MakeGeneralOptions()
                             ReloadUI()
                         end
                     },
-                    showCasts = {
-                        name = "Show Casts",
-                        type = "toggle",
-                        confirm = true,
-						confirmText = "Warning: Requires UI reloading.",
-                        get = function(info) return Aptechka.db.showCasts end,
-                        set = function(info, v)
-                            Aptechka.db.showCasts = not Aptechka.db.showCasts
-                            ReloadUI()
-                        end,
-                        order = 11.4,
-                    },
-                    showAllCasts = {
-                        name = "Show All Casts",
-                        type = "toggle",
-                        width = "double",
-                        get = function(info) return Aptechka.db.showAllCasts end,
-                        set = function(info, v)
-                            Aptechka.db.showAllCasts = not Aptechka.db.showAllCasts
-                        end,
-                        order = 11.5,
-                    },
 
                     orientation = {
                         name = "Health Orientation",
