@@ -13,6 +13,7 @@ Libs\LibSharedMedia-3.0\lib.xml
 Libs\LibSpellLocks\LibSpellLocks.lua
 Libs\LibAuraTypes\LibAuraTypes.lua
 Libs\LibClassicDurations\LibClassicDurations.xml
+Libs\LibClassicHealComm-1.0\lib.xml
 
 helpers.lua
 config.lua
