@@ -759,7 +759,7 @@ local CreateProgressIcon = function(parent, width, height, alpha, point, frame, 
     frameborder:SetVertexColor(0,0,0,1)
     frameborder:SetDrawLayer("ARTWORK", 2)
 
-    icon:SetFrameStrata("HIGH")
+    icon:SetFrameStrata("MEDIUM")
     -- icon:SetFrameLevel(7)
 
     local cdf = icon.cd

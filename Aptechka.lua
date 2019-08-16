@@ -134,7 +134,7 @@ local defaults = {
     sortUnitsByRole = false,
     showAFK = false,
     showCasts = true,
-    showAllCasts = false,
+    showAllCasts = true,
     healthOrientation = "VERTICAL",
     customBlacklist = {},
     healthTexture = "Gradient",
@@ -1545,14 +1545,9 @@ function Aptechka.CreateHeader(self,group,petgroup)
 
     f:SetFrameStrata("BACKGROUND")
 
-    -- f:SetAttribute("template", "AptechkaUnitButtonTemplate")
-    -- f:SetAttribute("templateType", "Button")
-    if ClickCastHeader then
-        f:SetAttribute("template", "ClickCastUnitTemplate,SecureUnitButtonTemplate, SecureHandlerStateTemplate")
-        SecureHandler_OnLoad(f)
-        f:SetFrameRef("clickcast_header", Clique.header)
-    else
-        f:SetAttribute("template", "SecureUnitButtonTemplate")
+    f:SetAttribute("template", "SecureUnitButtonTemplate, SecureHandlerStateTemplate, SecureHandlerEnterLeaveTemplate")
+    if(Clique) then
+        SecureHandlerSetFrameRef(f, 'clickcast_header', Clique.header)
     end
 
 
@@ -1591,10 +1586,32 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f.initialConfigFunction = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
 
-    -- f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange')
+    f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange,_onstate-vehicleui')
+    f:SetAttribute('_initialAttribute-_onenter', [[
+        local snippet = self:GetAttribute('clickcast_onenter')
+        if(snippet) then self:Run(snippet) end
+        self:CallMethod("onenter")
+    ]])
+    f:SetAttribute('_initialAttribute-_onleave', [[
+        local snippet = self:GetAttribute('clickcast_onleave')
+        if(snippet) then self:Run(snippet) end
+        self:CallMethod("onleave")
+    ]])
     -- f:SetAttribute('_initialAttribute-refreshUnitChange', [[
     --     local unit = self:GetAttribute('unit')
-    --     print("refreshUnitChange", unit)
+    --     if(unit) then
+    --         RegisterStateDriver(self, 'vehicleui', '[@' .. unit .. ',unithasvehicleui]vehicle; novehicle')
+    --     else
+    --         UnregisterStateDriver(self, 'vehicleui')
+    --     end
+    -- ]])
+    -- f:SetAttribute('_initialAttribute-_onstate-vehicleui', [[
+    --     local unit = self:GetAttribute('unit')
+    --     if(newstate == 'vehicle' and unit and UnitPlayerOrPetInRaid(unit) and not UnitTargetsVehicleInRaidUI(unit)) then
+    --         self:SetAttribute('toggleForVehicle', false)
+    --     else
+    --         self:SetAttribute('toggleForVehicle', true)
+    --     end
     -- ]])
 
     local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
