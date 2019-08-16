@@ -758,6 +758,17 @@ function Aptechka:ReconfigureProtected()
             if f:CanChangeAttribute() then
                 f:SetAttribute("initial-width", width)
                 f:SetAttribute("initial-height", height)
+
+                -- this is only for classic, because its SGH doesn't have _initialAttributeNames
+                f:SetAttribute("_onenter",[[
+                    local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
+                    self:CallMethod("onenter")
+                ]])
+
+                f:SetAttribute("_onleave",[[
+                    local snippet = self:GetAttribute('clickcast_onleave'); if snippet then self:Run(snippet) end
+                    self:CallMethod("onleave")
+                ]])
             end
         end
 
@@ -1762,6 +1773,17 @@ function Aptechka.SetupFrame(header, frameName)
     if not InCombatLockdown() then
         f:SetAttribute("initial-width", width)
         f:SetAttribute("initial-height", height)
+
+        -- this is only for classic, because its SGH doesn't have _initialAttributeNames
+        f:SetAttribute("_onenter",[[
+            local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
+            self:CallMethod("onenter")
+        ]])
+
+        f:SetAttribute("_onleave",[[
+            local snippet = self:GetAttribute('clickcast_onleave'); if snippet then self:Run(snippet) end
+            self:CallMethod("onleave")
+        ]])
     else
         Aptechka:ReconfigureProtected()
     end
