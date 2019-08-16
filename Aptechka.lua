@@ -416,13 +416,15 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     -- local scale = AptechkaDB.scale or config.scale
     local strata = config.frameStrata or "LOW"
     local scale = 1
-    self.makeConfSnippet = function(...)
-        return string.format([=[
+    self.initConfSnippet = [=[
             RegisterUnitWatch(self)
 
-            self:SetWidth(%f)
-            self:SetHeight(%f)
-            self:SetFrameStrata("%s")
+            local header = self:GetParent()
+            local width = header:GetAttribute("frameWidth")
+            local height = header:GetAttribute("frameHeight")
+            self:SetWidth(width)
+            self:SetHeight(height)
+            self:SetFrameStrata("LOW")
             self:SetFrameLevel(3)
 
             self:SetAttribute("toggleForVehicle", true)
@@ -431,16 +433,14 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:SetAttribute("*type1","target")
             self:SetAttribute("shift-type2","togglemenu")
 
-            local header = self:GetParent()
+
             local ccheader = header:GetFrameRef("clickcast_header")
             if ccheader then
                 ccheader:SetAttribute("clickcast_button", self)
                 ccheader:RunAttribute("clickcast_register")
             end
             header:CallMethod("initialConfigFunction", self:GetName())
-        ]=], ...)
-    end
-    self.initConfSnippet = self.makeConfSnippet(width, height, strata)
+    ]=]
 
     self:LayoutUpdate()
 
@@ -746,19 +746,19 @@ function Aptechka:ReconfigureProtected()
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
     -- local scale = AptechkaDB.scale or config.scale
-    local strata = config.frameStrata or "LOW"
+    -- local strata = config.frameStrata or "LOW"
     local scale = 1
-    self.initConfSnippet = self.makeConfSnippet(width, height, strata)
+    -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
     for group, header in ipairs(group_headers) do
-
+        if header:CanChangeAttribute() then
+            header:SetAttribute("frameWidth", width)
+            header:SetAttribute("frameHeight", height)
+        end
         for _, f in ipairs({ header:GetChildren() }) do
             f:SetWidth(width)
             f:SetHeight(height)
             f:SetScale(scale)
             if f:CanChangeAttribute() then
-                f:SetAttribute("initial-width", width)
-                f:SetAttribute("initial-height", height)
-
                 -- this is only for classic, because its SGH doesn't have _initialAttributeNames
                 f:SetAttribute("_onenter",[[
                     local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
@@ -1569,6 +1569,11 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f.initialConfigFunction = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
 
+    local width = pixelperfect(AptechkaDB.width or config.width)
+    local height = pixelperfect(AptechkaDB.height or config.height)
+    f:SetAttribute("frameWidth", width)
+    f:SetAttribute("frameHeight", height)
+
     f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange,_onstate-vehicleui')
     f:SetAttribute('_initialAttribute-_onenter', [[
         local snippet = self:GetAttribute('clickcast_onenter')
@@ -1771,9 +1776,6 @@ function Aptechka.SetupFrame(header, frameName)
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
     if not InCombatLockdown() then
-        f:SetAttribute("initial-width", width)
-        f:SetAttribute("initial-height", height)
-
         -- this is only for classic, because its SGH doesn't have _initialAttributeNames
         f:SetAttribute("_onenter",[[
             local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
