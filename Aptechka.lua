@@ -1855,7 +1855,7 @@ local AssignToSlot = function(frame, opts, status, slot)
 
             if status then
                 jobs[opts.name] = opts
-                if opts.id and not opts.isMissing then
+                if opts.realID and not opts.isMissing then
                     frame.activeAuras[opts.realID] = opts
                 end
             else
