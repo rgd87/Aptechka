@@ -100,7 +100,7 @@ config.PowerBarColor = { name = "PowerBar", assignto = "power", color = {.5,.5,1
 config.OutOfRangeStatus = { name = "OOR", assignto = "self", color = {0.5,0.5,0.5}, alpha = 0.3, text = "OOR", priority = 50 }
 config.PhasedOutStatus = { name = "Phased", assignto = "self", color = {0.5,0.5,0.5}, alpha = 0.4, text = "Phased", priority = 40 }
 config.InVehicleStatus = { name = "InVehicle", assignto = "border", color = {0.3,1,0.3}, priority = 21 }
-config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 2, color = {1,0.1,0.1}, resetAnimation = true, priority = 95, fade = 0.3 }
+config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, resetAnimation = true, priority = 95, fade = 0.3 }
 config.StaggerStatus = { name = "Stagger", assignto = "text2", percentColor = true, priority = 20 }
 
 config.SummonPending = { name = "SUMMON_PENDING", assignto = { "text2" }, color = {1,0.7,0}, text = "PENDING", priority = 50 }
@@ -239,7 +239,7 @@ if playerClass == "PRIEST" then
     --Power Word: Shield
     A{ id = 17,    type = "HELPFUL", assignto = "bars", priority = 90, isMine = true, color = { 1, .85, 0}, showDuration = true }
     -- Weakened Soul
-    A{ id = 6788,    type = "HELPFUL", assignto = "bars", priority = 70, color = { 0.8, 0, 0}, showDuration = true }
+    A{ id = 6788,    type = "HELPFUL", assignto = "bars", priority = 70, color = { 0.8, 0, 0}, showDuration = true, isMine = true }
     --Prayer of Mending
     A{ id = 41635, type = "HELPFUL", assignto = "bar4", priority = 70, stackcolor =   {
                                                                             [1] = { 1, 0, 0},
@@ -270,7 +270,7 @@ if playerClass == "PRIEST" then
     A{ id = 271466,type = "HELPFUL", assignto = "bars", priority = 70, color = { 1, .65, 0}, showDuration = true, isMine = true}
 
     -- Atonement
-    -- Trace{id = 94472, type = "HEAL", minamount = 70000, assignto = "spell3", color = -{ .2, 1, .2}, fade = .5, priority = 90 }
+    -- Trace{id = 81751, type = "HEAL", minamount = 1000, assignto = "healfeedback", color = { .2, 1, .2}, fade = .5, priority = 90 }
 
     -- Circle of Healing
     Trace{id = 204883, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
@@ -310,7 +310,7 @@ if playerClass == "MONK" then
     A{ id = 191840, type = "HELPFUL", assignto = "bars", priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
 
 
-    Trace{id = 116670, type = "HEAL", assignto = "healfeedback", color = { 0.5, 1, 0.5}, fade = 0.7, priority = 96 } -- Vivify
+    Trace{id = 116670, type = "HEAL", assignto = "healfeedback", color = {38/255, 221/255, 163/255}, fade = 0.7, priority = 96 } -- Vivify
     Trace{id = 216161, type = "HEAL", assignto = "healfeedback", color = { 1, 0.3, 0.55}, fade = 0.7, priority = 96 } -- Way of the Crane
 
     -- A{ id = 157627, type = "HELPFUL", assignto = "bar2", showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
