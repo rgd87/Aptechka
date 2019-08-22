@@ -12,6 +12,7 @@ LSM:Register("font", "ClearFont", [[Interface\AddOns\Aptechka\ClearFont.ttf]], G
 2 shield icon border
 0 shield icon texture
 0 normal icon texture
+0 corner indicators
 0 text3 fontstring
 
 -2 powerbar
@@ -93,6 +94,15 @@ local PowerBar_OnPowerTypeChange = function(self, powertype)
         self.power.disabled = nil
         self.power:Show()
     end
+
+    -- if self.healfeedbackpassive then
+    --     self.healfeedbackpassive:ClearAllPoints()
+    --     if self.power:IsShown() and Aptechka.db.healthOrientation == "VERTICAL" then
+    --         self.healfeedbackpassive:SetPoint("TOPRIGHT", self.power, "TOPLEFT", 0,0)
+    --     else
+    --         self.healfeedbackpassive:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0,0)
+    --     end
+    -- end
 end
 local SetJob_Indicator = function(self,job)
     if job.showDuration then
@@ -306,12 +316,13 @@ local Corner_BlinkAnimOnFinished = function(ag)
     self:Hide()
     return Aptechka.FrameSetJob(self.parent, self.traceJob, false)
 end
-local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation)
+local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrderMod)
     local f = CreateFrame("Frame",nil,parent)
     f:SetWidth(w); f:SetHeight(h);
 
-    f:SetFrameLevel(5)
-    local t = f:CreateTexture(nil,"ARTWORK")
+    zOrderMod = zOrderMod or 0
+
+    local t = f:CreateTexture(nil,"ARTWORK", nil, 0+zOrderMod )
     t:SetTexture[[Interface\AddOns\Aptechka\corner]]
     if orientation == "BOTTOMLEFT" then
         -- (ULx,ULy,LLx,LLy,URx,URy,LRx,LRy);
@@ -1576,7 +1587,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
 
     local roleicon = CreateFrame("Frame",nil,self)
-    roleicon:SetWidth(11); roleicon:SetHeight(11)
+    roleicon:SetWidth(13); roleicon:SetHeight(13)
     -- roleicon:SetPoint("BOTTOMLEFT",hp,"CENTER",-20,-23)
     -- roleicon:SetPoint("TOPLEFT",hp,"TOPLEFT",1,-8)
     roleicon:SetPoint("BOTTOMLEFT",hp,"BOTTOMLEFT",-8, -8)
@@ -1614,7 +1625,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     local blcorner = CreateCorner(self, 12, 12, "BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation
 
-    local trcorner = CreateCorner(self, 12, 22, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
+    local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
     self.healfeedback = trcorner
 
     self.SetJob = SetJob_Frame
@@ -1693,32 +1704,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.OnDead = OnDead
     self.OnAlive = OnAlive
 end
-
-AptechkaDefaultConfig.GridSkinHorizontal = function(self)
-    AptechkaDefaultConfig.GridSkin(self)
-    self.health:SetOrientation("HORIZONTAL")
-    self.health.incoming:SetOrientation("HORIZONTAL")
-    self.power:SetOrientation("HORIZONTAL")
-
-    self.power:ClearAllPoints()
-    self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-    self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
-    self.power:SetHeight(5)
-    self.power:SetWidth(0)
-
-    local PowerBar_OnPowerTypeChange = function(self, powertype)
-        local self = self.parent
-        if powertype ~= "MANA" then
-            self.power.disabled = true
-            self.power:Hide()
-        else
-            self.power.disabled = nil
-            self.power:Show()
-        end
-    end
-    self.power.OnPowerTypeChange = PowerBar_OnPowerTypeChange
-end
-
 
 --~ AptechkaDefaultConfig.GridSkinInverted = function(self)  -- oooh, it looks like shit
 --~     AptechkaDefaultConfig.GridSkin(self)
