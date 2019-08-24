@@ -52,6 +52,7 @@ local traceheals
 local colors
 local threshold --incoming heals
 local ignoreplayer
+local fgShowMissing
 
 local config = AptechkaDefaultConfig
 Aptechka.loadedAuras = {}
@@ -154,6 +155,7 @@ local defaults = {
     nameFontName = "ClearFont",
     nameFontSize = 12,
     stackFontSize = 12,
+    fgShowMissing = true,
 }
 
 local function SetupDefaults(t, defaults)
@@ -256,8 +258,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka.SetJob = SetJob
     Aptechka.FrameSetJob = FrameSetJob
-    threshold = UnitHealthMax("player")/40
-    ignoreplayer = config.incomingHealIgnorePlayer or false
+
+    Aptechka:UpdateUnprotectedUpvalues()
+
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
     colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
 
@@ -309,7 +312,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local rankCategories = { "auras", "traces" }
     local tempTable = {}
     for _, category in ipairs(rankCategories) do
-        table.wipe(tempTable)
+        table_wipe(tempTable)
         for spellID, opts in pairs(config[category]) do
             if not cloneIDs[spellID] and opts.clones then
                 for i, additionalSpellID in ipairs(opts.clones) do
@@ -689,7 +692,7 @@ function Aptechka:PostSpellListUpdate()
 end
 
 function Aptechka:UpdateMissingAuraList()
-    table.wipe(missingFlagSpells)
+    table_wipe(missingFlagSpells)
     for spellID, opts in pairs(auras) do
         if opts.isMissing and not opts.disabled then
             missingFlagSpells[opts] = true
@@ -702,6 +705,7 @@ function Aptechka:Reconfigure()
     self:ReconfigureProtected()
 end
 function Aptechka:ReconfigureUnprotected()
+    self:UpdateUnprotectedUpvalues()
     for group, header in ipairs(group_headers) do
         for _, f in ipairs({ header:GetChildren() }) do
             f:ReconfigureUnitFrame()
@@ -710,6 +714,11 @@ function Aptechka:ReconfigureUnprotected()
             end
         end
     end
+end
+function Aptechka:UpdateUnprotectedUpvalues()
+    threshold = UnitHealthMax("player")/40
+    ignoreplayer = config.incomingHealIgnorePlayer or false
+    fgShowMissing = Aptechka.db.fgShowMissing
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
@@ -835,16 +844,17 @@ function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
     end
 end
 
-local showMissing = false
 local function GetForegroundSeparation(health, healthMax, showMissing)
     if showMissing then
-        return (healthMax - health)/healthMax
+        return (healthMax - health)/healthMax, health/healthMax
     else
-        return health/healthMax
+        return health/healthMax, health/healthMax
     end
 end
 
 function Aptechka.UNIT_HEALTH(self, event, unit)
+    -- local beginTime1 = debugprofilestop();
+
     local rosterunit = Roster[unit]
     if not rosterunit then return end
     for self in pairs(rosterunit) do
@@ -853,15 +863,15 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         local healabsorb = UnitGetTotalHealAbsorbs(unit)
         local incomingHeal = GetIncomingHealsCustom(unit, ignoreplayer)
         if hm == 0 then return end
-        local fgSep = GetForegroundSeparation(h, hm, showMissing)
+        local healthPercent, fgSep = GetForegroundSeparation(h, hm, fgShowMissing)
         self.vHealth = h
         self.vHealthMax = hm
-        self.health:SetValue(fgSep*100)
+        self.health:SetValue(healthPercent*100)
         self.healabsorb:SetValue(healabsorb/hm, fgSep)
         self.absorb2:SetValue(shields/hm, fgSep)
         self.absorb:SetValue(shields/hm*100, fgSep*100)
         self.health.incoming:SetValue(incomingHeal/hm, fgSep)
-        SetJob(unit,config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
+        FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
 
         if event then
             if UnitIsDeadOrGhost(unit) then
@@ -883,6 +893,9 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         end
 
     end
+
+    -- local timeUsed1 = debugprofilestop();
+    -- print("UNIT_HEALTH", timeUsed1 - beginTime1)
 end
 
 
@@ -1006,12 +1019,14 @@ function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
     if not rosterunit then return end
     for self in pairs(rosterunit) do
         if self.power and not self.power.disabled then
-            local powermax = UnitPowerMax(unit)
-            local mp = 0
-            if powermax > 0 then
-                mp = UnitPower(unit)/UnitPowerMax(unit)*100
+            local powerMax = UnitPowerMax(unit)
+            local power = UnitPower(unit)
+            if powerMax == 0 then
+                power = 1
+                powerMax = 1
             end
-            self.power:SetValue(mp)
+            local manaPercent = GetForegroundSeparation(power, powerMax, fgShowMissing)
+            self.power:SetValue(manaPercent*100)
         end
     end
 end

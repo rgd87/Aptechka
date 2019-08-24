@@ -1,5 +1,5 @@
 local _, helpers = ...
-local Aptechka
+local Aptechka = Aptechka
 
 local pixelperfect = helpers.pixelperfect
 
@@ -1190,19 +1190,27 @@ local function Reconf(self)
     self.power:GetStatusBarTexture():SetDrawLayer("ARTWORK",-2)
     self.power.bg:SetTexture(texpath2)
 
-    if db.invertedColors then
-        -- self.health:SetFillStyle("REVERSE")
-        self.health.SetColor = HealthBarSetColorInverted
-        self.power.SetColor = HealthBarSetColorInverted
-        self.text1.SetColor = Text1_SetColorInverted
-        self.text1:SetShadowOffset(0,0)
+    self.health.SetColor = HealthBarSetColorInverted
+    self.power.SetColor = HealthBarSetColorInverted
+    if not db.fgShowMissing then
+        -- Blizzard's StatusBar SetFillStyle is bad, because even if it reverses direction,
+        -- it still cuts tex coords from the usual direction
+        -- So i'm using custom status bar for health and power
+        self.health:SetFillStyle("STANDARD")
+        self.power:SetFillStyle("STANDARD")
+
+        -- self.health.SetColor = HealthBarSetColorInverted
+        -- self.power.SetColor = HealthBarSetColorInverted
+        -- self.text1.SetColor = Text1_SetColorInverted
+        -- self.text1:SetShadowOffset(0,0)
         self.health.absorb2:SetVertexColor(0.7,0.7,1)
     else
-        -- self.health:SetFillStyle("STANDARD")
-        self.health.SetColor = HealthBarSetColor
-        self.power.SetColor = HealthBarSetColor
-        self.text1.SetColor = Text1_SetColor
-        self.text1:SetShadowOffset(1,-1)
+        self.health:SetFillStyle("REVERSE")
+        self.power:SetFillStyle("REVERSE")
+        -- self.health.SetColor = HealthBarSetColor
+        -- self.power.SetColor = HealthBarSetColor
+        -- self.text1.SetColor = Text1_SetColor
+        -- self.text1:SetShadowOffset(1,-1)
         self.health.absorb2:SetVertexColor(0,0,0)
     end
     Aptechka.FrameSetJob(self,config.HealthBarColor,true)
@@ -1349,7 +1357,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     powerbar.bg = pbbg
 
 
-    local hp = CreateFrame("StatusBar", nil, self)
+    -- local hp = CreateFrame("StatusBar", nil, self)
+    local hp = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
 	--hp:SetAllPoints(self)
     hp:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
     -- hp:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
@@ -1692,4 +1701,132 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.OnMouseLeaveFunc = OnMouseLeaveFunc
     self.OnDead = OnDead
     self.OnAlive = OnAlive
+end
+
+
+do
+    local function CustomStatusBar_SetStatusBarTexture(self, texture)
+        self._texture:SetTexture(texture)
+    end
+    local function CustomStatusBar_GetStatusBarTexture(self)
+        return self._texture
+    end
+    local function CustomStatusBar_SetStatusBarColor(self, r,g,b,a)
+        self._texture:SetVertexColor(r,g,b,a)
+    end
+    local function CustomStatusBar_SetMinMaxValues(self, min, max)
+        if max > min then
+            self._min = min
+            self._max = max
+        else
+            self._min = 0
+            self._max = 1
+        end
+    end
+
+    local function CustomStatusBar_SetFillStyle(self, fillStyle)
+        self._reversed = fillStyle == "REVERSE"
+        self:_Configure()
+    end
+    local function CustomStatusBar_SetOrientation(self, orientation)
+        self._orientation = orientation
+        self:_Configure()
+    end
+
+    local function CustomStatusBar_ResizeVertical(self, value)
+        self._texture:SetHeight(self:GetHeight()*value)
+    end
+    local function CustomStatusBar_ResizeHorizontal(self, value)
+        self._texture:SetWidth(self:GetWidth()*value)
+    end
+
+    local function CustomStatusBar_MakeCoordsVerticalStandard(self, p)
+        -- left,right, bottom - (bottom-top)*pos , bottom
+        return 0,1, 1-p, 1
+    end
+    local function CustomStatusBar_MakeCoordsVerticalReversed(self, p)
+        return 0,1, 0, p
+    end
+    local function CustomStatusBar_MakeCoordsHorizontalStandard(self, p)
+        return 0,p,0,1
+    end
+    local function CustomStatusBar_MakeCoordsHorizontalReversed(self, p)
+        return 1-p,1,0,1
+    end
+
+    local function CustomStatusBar_Configure(self)
+        local isReversed = self._reversed
+        local orientation = self._orientation
+        local t = self._texture
+        if orientation == "VERTICAL" then
+            self._Resize = CustomStatusBar_ResizeVertical
+            if isReversed then
+                t:ClearAllPoints()
+                t:SetPoint("TOPLEFT")
+                t:SetPoint("TOPRIGHT")
+                self.MakeCoords = CustomStatusBar_MakeCoordsVerticalReversed
+            else
+                t:ClearAllPoints()
+                t:SetPoint("BOTTOMLEFT")
+                t:SetPoint("BOTTOMRIGHT")
+                self.MakeCoords = CustomStatusBar_MakeCoordsVerticalStandard
+            end
+        else
+            self._Resize = CustomStatusBar_ResizeHorizontal
+            if isReversed then
+                t:ClearAllPoints()
+                t:SetPoint("TOPRIGHT")
+                t:SetPoint("BOTTOMRIGHT")
+                self.MakeCoords = CustomStatusBar_MakeCoordsHorizontalReversed
+            else
+                t:ClearAllPoints()
+                t:SetPoint("TOPLEFT")
+                t:SetPoint("BOTTOMLEFT")
+                self.MakeCoords = CustomStatusBar_MakeCoordsHorizontalStandard
+            end
+        end
+        self:SetValue(self._value)
+    end
+
+    local function CustomStatusBar_SetValue(self, val)
+        local min = self._min
+        local max = self._max
+        self._value = val
+        local pos = (val-min)/(max-min)
+        local tex = self._texture
+        if pos == 0 then tex:Hide(); return end
+
+        tex:Show()
+
+        self:_Resize(pos)
+        self._texture:SetTexCoord(self:MakeCoords(pos))
+    end
+
+
+    function Aptechka.CreateCustomStatusBar(name, parent, orientation)
+        local f = CreateFrame("Frame", name, parent)
+        f._min = 0
+        f._max = 100
+        f._value = 0
+
+        local t = f:CreateTexture(nil, "ARTWORK")
+
+        f._texture = t
+
+
+        f.SetStatusBarTexture = CustomStatusBar_SetStatusBarTexture
+        f.GetStatusBarTexture = CustomStatusBar_GetStatusBarTexture
+        f.SetStatusBarColor = CustomStatusBar_SetStatusBarColor
+        f.SetMinMaxValues = CustomStatusBar_SetMinMaxValues
+        f.SetFillStyle = CustomStatusBar_SetFillStyle
+        f.SetOrientation = CustomStatusBar_SetOrientation
+        f._Configure = CustomStatusBar_Configure
+        f.SetValue = CustomStatusBar_SetValue
+
+        f:SetOrientation(orientation or "HORIZONTAL")
+
+        f:Show()
+
+        return f
+    end
 end
