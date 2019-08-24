@@ -955,6 +955,24 @@ local function CreateAbsorbBar(hp)
     return absorb
 end
 
+--------------------
+-- INCOMING HEAL
+--------------------
+local function CreateIncominHealBar(hp)
+    local hpi = hp:CreateTexture(nil, "ARTWORK", nil, -5)
+
+    hpi:SetTexture("Interface\\Tooltips\\UI-Tooltip-Background")
+    -- hpi:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+    hpi:SetVertexColor(0,0,0, 0.5)
+
+    hpi.UpdatePositionVertical = AbsorbUpdatePositionVertical
+    hpi.UpdatePositionHorizontal = AbsorbUpdatePositionHorizontal
+    hpi.UpdatePosition = AbsorbUpdatePositionVertical
+
+    hpi.SetValue = AbsorbSetValue
+    return hpi
+end
+
 
 local AlignAbsorbVertical = function(self, absorb_height, missing_health_height)
     self:SetHeight(absorb_height)
@@ -1204,7 +1222,6 @@ local function Reconf(self)
     if isVertical then
         self.health:SetOrientation("VERTICAL")
         self.power:SetOrientation("VERTICAL")
-        self.health.incoming:SetOrientation("VERTICAL")
 
         local  absorb = self.health.absorb
         absorb:ClearAllPoints()
@@ -1222,6 +1239,10 @@ local function Reconf(self)
         local absorb2 = self.health.absorb2
         absorb2:ClearAllPoints()
         absorb2.UpdatePosition = absorb2.UpdatePositionVertical
+
+        local hpi = self.health.incoming
+        hpi:ClearAllPoints()
+        hpi.UpdatePosition = hpi.UpdatePositionVertical
 
         -- self.health.lost.maxheight = db.height
 
@@ -1243,7 +1264,6 @@ local function Reconf(self)
     else
         self.health:SetOrientation("HORIZONTAL")
         self.power:SetOrientation("HORIZONTAL")
-        self.health.incoming:SetOrientation("HORIZONTAL")
 
         local absorb = self.health.absorb
         absorb:ClearAllPoints()
@@ -1261,6 +1281,10 @@ local function Reconf(self)
         local absorb2 = self.health.absorb2
         absorb2:ClearAllPoints()
         absorb2.UpdatePosition = absorb2.UpdatePositionHorizontal
+
+        local hpi = self.health.incoming
+        hpi:ClearAllPoints()
+        hpi.UpdatePosition = hpi.UpdatePositionHorizontal
 
         -- self.health:ClearAllPoints()
         -- self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
@@ -1479,26 +1503,29 @@ AptechkaDefaultConfig.GridSkin = function(self)
 	hpbg:SetTexture(texture)
     hp.bg = hpbg
 
-    local hpi = CreateFrame("StatusBar", nil, self)
-	hpi:SetAllPoints(self)
-	hpi:SetStatusBarTexture("Interface\\Tooltips\\UI-Tooltip-Background")
+    -- local hpi = CreateFrame("StatusBar", nil, self)
+	-- hpi:SetAllPoints(self)
+	-- hpi:SetStatusBarTexture("Interface\\Tooltips\\UI-Tooltip-Background")
+    -- -- hpi:SetOrientation("VERTICAL")
+    -- hpi:SetStatusBarColor(0, 0, 0, 0.5)
+    -- -- hpi:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
+    -- hpi:GetStatusBarTexture():SetDrawLayer("ARTWORK",-7)
     -- hpi:SetOrientation("VERTICAL")
-    hpi:SetStatusBarColor(0, 0, 0, 0.5)
-    -- hpi:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
-    hpi:GetStatusBarTexture():SetDrawLayer("ARTWORK",-7)
-    hpi:SetOrientation("VERTICAL")
-    -- hpi:SetStatusBarColor(0,1,0)
-    hpi:SetMinMaxValues(0,100)
-    --hpi:SetValue(0)
-    hpi.current = 0
-    hpi.Update = function(self, h, hi, hm)
-        hi = hi or self.current
-        if hm == 0 then
-            self:SetValue(0)
-        else
-            self:SetValue((h+hi)/hm*100)
-        end
-    end
+    -- -- hpi:SetStatusBarColor(0,1,0)
+    -- hpi:SetMinMaxValues(0,100)
+    -- --hpi:SetValue(0)
+    -- hpi.current = 0
+    -- hpi.Update = function(self, h, hi, hm)
+    --     hi = hi or self.current
+    --     if hm == 0 then
+    --         self:SetValue(0)
+    --     else
+    --         self:SetValue((h+hi)/hm*100)
+    --     end
+    -- end
+
+    local hpi = CreateIncominHealBar(hp)
+    hp.incoming = hpi
 
     local p4 = pixelperfect(3.5)
     local border = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -p4, -p4, -p4, -p4, -5)
@@ -1595,7 +1622,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.HideFunc = Frame_HideFunc
 
     self.health = hp
-    self.health.incoming = hpi
     self.text1 = text
     self.text2 = text2
     self.healthtext = self.text2

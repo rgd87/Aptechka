@@ -763,24 +763,22 @@ function Aptechka:ReconfigureProtected()
     Aptechka:SetGrowth(unitGrowth, groupGrowth)
 end
 
+local function GetIncomingHealsCustom(unit, excludePlayer)
+    local heal = UnitGetIncomingHeals(unit)
+    if excludePlayer then
+        local myheal = UnitGetIncomingHeals(unit, "player")
+        if heal and myheal then
+            heal = heal - myheal
+        end
+    end
+    return heal
+end
+
 function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
-    if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
-        local heal = UnitGetIncomingHeals(unit)
-		-- print(heal)
-        if ignoreplayer then
-            local myheal = UnitGetIncomingHeals(unit, "player")
-            if heal and myheal then heal = heal - myheal end
-        end
-        local showHeal = (heal and heal > threshold)
-        if self.health.incoming then
-			local h = UnitHealth(unit)
-			local hi = showHeal and heal or 0
-			local hm = UnitHealthMax(unit)
-			self.health.incoming.current = hi
-            self.health.incoming:Update(h, hi, hm)
-			-- SetValue( showHeal and self.health:GetValue()+(heal/UnitHealthMax(unit)*100) or 0)
-        end
+    self:UNIT_HEALTH(event, unit)
+
+    -- if not Roster[unit] then return end
+    -- for self in pairs(Roster[unit]) do
         -- if config.IncomingHealStatus then
         --     if showHeal then
         --         self.vIncomingHeal = heal
@@ -790,7 +788,7 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
         --         SetJob(unit, config.IncomingHealStatus, false)
         --     end
         -- end
-    end
+    -- end
 end
 
 -- function Aptechka.COMBAT_LOG_HEALTH(self, event, unit, h)
@@ -837,6 +835,15 @@ function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
     end
 end
 
+local showMissing = false
+local function GetForegroundSeparation(health, healthMax, showMissing)
+    if showMissing then
+        return (healthMax - health)/healthMax
+    else
+        return health/healthMax
+    end
+end
+
 function Aptechka.UNIT_HEALTH(self, event, unit)
     local rosterunit = Roster[unit]
     if not rosterunit then return end
@@ -844,14 +851,16 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         local h,hm = UnitHealth(unit), UnitHealthMax(unit)
         local shields = UnitGetTotalAbsorbs(unit)
         local healabsorb = UnitGetTotalHealAbsorbs(unit)
+        local incomingHeal = GetIncomingHealsCustom(unit, ignoreplayer)
         if hm == 0 then return end
+        local fgSep = GetForegroundSeparation(h, hm, showMissing)
         self.vHealth = h
         self.vHealthMax = hm
-        self.health:SetValue(h/hm*100)
-        self.healabsorb:SetValue(healabsorb/hm, h/hm)
-        self.absorb2:SetValue(shields/hm, h/hm)
-        self.absorb:SetValue(shields/hm*100, h/hm*100)
-		self.health.incoming:Update(h, nil, hm)
+        self.health:SetValue(fgSep*100)
+        self.healabsorb:SetValue(healabsorb/hm, fgSep)
+        self.absorb2:SetValue(shields/hm, fgSep)
+        self.absorb:SetValue(shields/hm*100, fgSep*100)
+        self.health.incoming:SetValue(incomingHeal/hm, fgSep)
         SetJob(unit,config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
 
         if event then
