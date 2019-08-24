@@ -18,6 +18,6 @@ Libs\LibTargetedCasts\LibTargetedCasts.lua
 
 helpers.lua
 config.lua
-frame.lua
 loadables.lua
 Aptechka.lua
+frame.lua

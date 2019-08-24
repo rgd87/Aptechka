@@ -1422,7 +1422,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     mot:Hide()
     self.mouseover = mot
 
---------------------
+    --------------------
 
     local absorb = CreateFrame("Frame", nil, self)
     absorb:SetParent(hp)
@@ -1474,56 +1474,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     -----------------------
 
-    -- local absorb = CreateFrame("StatusBar", nil, self)
-    -- absorb:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-    -- absorb:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
-    -- absorb:SetWidth(1)
-    -- -- absorb:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-    -- absorb:SetStatusBarTexture[[Interface\BUTTONS\WHITE8X8]]  --absorbOverlay]]
-    -- absorb:GetStatusBarTexture():SetDrawLayer("ARTWORK",-4)
-    -- absorb:SetStatusBarColor(.6, .6, 1)
-    -- absorb:SetMinMaxValues(0,100)
-    -- absorb:SetOrientation("VERTICAL")
-    -- absorb:SetReverseFill(true)
-    -- absorb:SetValue(50)
-    -- hp.absorb = absorb
-    -- self.absorb = absorb
-
-    -- local abg = hp:CreateTexture(nil,"ARTWORK",nil,-5)
-    -- abg:SetPoint("BOTTOMLEFT",absorb,"BOTTOMLEFT",0,0)
-    -- abg:SetPoint("TOPLEFT",absorb,"TOPLEFT",0,0)
-    -- abg:SetWidth(2)
-    -- abg:SetTexture("Interface\\Addons\\Aptechka\\gradient")
-    -- abg:SetVertexColor(0,0,0, .3)
-    -- absorb.bg = abg
-
     local hpbg = hp:CreateTexture(nil,"ARTWORK",nil,-8)
 	hpbg:SetAllPoints(hp)
 	hpbg:SetTexture(texture)
     hp.bg = hpbg
 
-    -- if AptechkaDefaultConfig.useCombatLogHealthUpdates or AptechkaDefaultConfig.useCombatLogHealthUpdates then
-    --     print('p2')
-    --     local hp2 = CreateFrame("StatusBar", nil, self)
-    --     --hp:SetAllPoints(self)
-    --     hp2:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-    --     -- hp:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
-    --     hp2:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
-    --     hp2:SetWidth(13)
-    --     hp2:SetStatusBarTexture(texture)
-    --     hp2:GetStatusBarTexture():SetDrawLayer("ARTWORK",-4)
-    --     hp2:SetMinMaxValues(0,100)
-    --     hp2:SetOrientation("VERTICAL")
-    --     hp2.parent = self
-    --     hp2.SetJob = SetJob_HealthBar
-    --     --hp:SetValue(0)
-
-    --     local hp2bg = hp:CreateTexture(nil,"ARTWORK",nil,-5)
-    --     hp2bg:SetAllPoints(hp2)
-    --     hp2bg:SetTexture(texture)
-    --     hp2.bg = hp2bg
-    --     self.health2 = hp2
-    -- end
     local hpi = CreateFrame("StatusBar", nil, self)
 	hpi:SetAllPoints(self)
 	hpi:SetStatusBarTexture("Interface\\Tooltips\\UI-Tooltip-Background")
@@ -1544,18 +1499,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
             self:SetValue((h+hi)/hm*100)
         end
     end
-
-    -- local border = CreateFrame("Frame",nil,self)
-    -- border:SetAllPoints(self)
-    -- border:SetFrameStrata("LOW")
-    -- border:SetFrameLevel(0)
-    -- border:SetBackdrop{
-    --     bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
-    --     insets = {left = -4, right = -4, top = -4, bottom = -4},
-    -- }
-    -- border:SetAlpha(0.5)
-    -- border.SetJob = SetJob_Border
-    -- border:Hide()
 
     local p4 = pixelperfect(3.5)
     local border = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -p4, -p4, -p4, -p4, -5)
@@ -1724,22 +1667,3 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.OnDead = OnDead
     self.OnAlive = OnAlive
 end
-
---~ AptechkaDefaultConfig.GridSkinInverted = function(self)  -- oooh, it looks like shit
---~     AptechkaDefaultConfig.GridSkin(self)
---~     AptechkaDefaultConfig.useAnchors = "GridSkin" -- use parent skin anchors
---~     local newSetJob_HealthBar = function(self, job)
---~         local c
---~         if job.classcolor then
---~             c = self.parent.classcolor
---~         elseif job.color then
---~             c = job.color
---~         end
---~         if c then
---~             self:SetStatusBarColor(unpack(c))
---~             self.bg:SetVertexColor(c[1]/3,c[2]/3,c[3]/3)
---~         end
---~     end
---~     self.health.SetJob = newSetJob_HealthBar
---~     self.power.SetJob = newSetJob_HealthBar
---~ end
