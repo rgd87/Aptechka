@@ -814,10 +814,10 @@ function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
         if hm ~= 0 then
             ch = (h/hm)*100
 		    p = a/hm*100
-            p2 = (h+a)/hm*100
+            p2 = a/hm
         end
         self.absorb:SetValue(p, ch)
-        self.absorb2:SetValue(p2)
+        self.absorb2:SetValue(p2, h/hm)
     end
 end
 
@@ -849,8 +849,8 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         self.vHealthMax = hm
         self.health:SetValue(h/hm*100)
         self.healabsorb:SetValue(healabsorb/hm, h/hm)
+        self.absorb2:SetValue(shields/hm, h/hm)
         self.absorb:SetValue(shields/hm*100, h/hm*100)
-        self.absorb2:SetValue((h+shields)/hm*100)
 		self.health.incoming:Update(h, nil, hm)
         SetJob(unit,config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
 

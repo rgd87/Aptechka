@@ -859,14 +859,14 @@ end
 -- HEAL ABSORB
 ----------------
 local HealAbsorbUpdatePositionVertical = function(self, p, health, parent)
-    local frameLength = self.frameLength
+    local frameLength = parent.frameLength
     self:SetHeight(p*frameLength)
     local offset = (health-p)*frameLength
     self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, offset)
     self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 0, offset)
 end
 local HealAbsorbUpdatePositionHorizontal = function(self, p, health, parent)
-    local frameLength = self.frameLength
+    local frameLength = parent.frameLength
     self:SetWidth(p*frameLength)
     local offset = (health-p)*frameLength
     self:SetPoint("TOPLEFT", parent, "TOPLEFT", offset, 0)
@@ -904,6 +904,55 @@ local function CreateHealAbsorb(hp)
 
     healAbsorb.SetValue = HealAbsorbSetValue
     return healAbsorb
+end
+--------------------
+-- ABSORB BAR
+--------------------
+local AbsorbUpdatePositionVertical = function(self, p, health, parent)
+    local frameLength = parent.frameLength
+    self:SetHeight(p*frameLength)
+    local offset = health*frameLength
+    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, offset)
+    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 0, offset)
+end
+local AbsorbUpdatePositionHorizontal = function(self, p, health, parent)
+    local frameLength = parent.frameLength
+    self:SetWidth(p*frameLength)
+    local offset = health*frameLength
+    self:SetPoint("TOPLEFT", parent, "TOPLEFT", offset, 0)
+    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", offset, 0)
+end
+local AbsorbSetValue = function(self, p, health)
+    if p + health > 1 then
+        p = 1 - health
+    end
+
+    if p < 0.005 then
+        self:Hide()
+        return
+    end
+
+    local parent = self:GetParent()
+
+    self:Show()
+    self:UpdatePosition(p, health, parent)
+end
+local function CreateAbsorbBar(hp)
+    local absorb = hp:CreateTexture(nil, "ARTWORK", nil, -5)
+
+    absorb:SetHorizTile(true)
+    absorb:SetVertTile(true)
+    absorb:SetTexture("Interface\\AddOns\\Aptechka\\shieldtex", "REPEAT", "REPEAT")
+    absorb:SetVertexColor(0,0,0)
+    -- absorb:SetBlendMode("ADD")
+    absorb:SetAlpha(0.65)
+
+    absorb.UpdatePositionVertical = AbsorbUpdatePositionVertical
+    absorb.UpdatePositionHorizontal = AbsorbUpdatePositionHorizontal
+    absorb.UpdatePosition = AbsorbUpdatePositionVertical
+
+    absorb.SetValue = AbsorbSetValue
+    return absorb
 end
 
 
@@ -1124,17 +1173,19 @@ local function Reconf(self)
     self.power.bg:SetTexture(texpath2)
 
     if db.invertedColors then
+        -- self.health:SetFillStyle("REVERSE")
         self.health.SetColor = HealthBarSetColorInverted
         self.power.SetColor = HealthBarSetColorInverted
         self.text1.SetColor = Text1_SetColorInverted
         self.text1:SetShadowOffset(0,0)
-        self.health.absorb2:SetStatusBarColor(0.7,0.7,1)
+        self.health.absorb2:SetVertexColor(0.7,0.7,1)
     else
+        -- self.health:SetFillStyle("STANDARD")
         self.health.SetColor = HealthBarSetColor
         self.power.SetColor = HealthBarSetColor
         self.text1.SetColor = Text1_SetColor
         self.text1:SetShadowOffset(1,-1)
-        self.health.absorb2:SetStatusBarColor(0,0,0)
+        self.health.absorb2:SetVertexColor(0,0,0)
     end
     Aptechka.FrameSetJob(self,config.HealthBarColor,true)
     Aptechka.FrameSetJob(self,config.PowerBarColor,true)
@@ -1163,12 +1214,14 @@ local function Reconf(self)
         absorb.AlignAbsorb = AlignAbsorbVertical
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
+        self.health.frameLength = db.height
         local healAbsorb = self.health.healabsorb
-        healAbsorb.frameLength = db.height
         healAbsorb:ClearAllPoints()
         healAbsorb.UpdatePosition = healAbsorb.UpdatePositionVertical
 
-        self.health.absorb2:SetOrientation("VERTICAL")
+        local absorb2 = self.health.absorb2
+        absorb2:ClearAllPoints()
+        absorb2.UpdatePosition = absorb2.UpdatePositionVertical
 
         -- self.health.lost.maxheight = db.height
 
@@ -1200,12 +1253,14 @@ local function Reconf(self)
         absorb.AlignAbsorb = AlignAbsorbHorizontal
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
+        self.health.frameLength = db.width
         local healAbsorb = self.health.healabsorb
-        healAbsorb.frameLength = db.width
         healAbsorb:ClearAllPoints()
         healAbsorb.UpdatePosition = healAbsorb.UpdatePositionHorizontal
 
-        self.health.absorb2:SetOrientation("HORIZONTAL")
+        local absorb2 = self.health.absorb2
+        absorb2:ClearAllPoints()
+        absorb2.UpdatePosition = absorb2.UpdatePositionHorizontal
 
         -- self.health:ClearAllPoints()
         -- self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
@@ -1404,56 +1459,20 @@ AptechkaDefaultConfig.GridSkin = function(self)
     absorb:SetValue(0)
     hp.absorb = absorb
 
------------------------
+    -------------------
 
-    local absorb2 = CreateFrame("StatusBar", nil, self)
-    --absorb:SetAllPoints(self)
-    absorb2:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-    -- absorb:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
-    absorb2:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-
-    local st = absorb2:CreateTexture(nil, 'ARTWORK', nil, -7)
-    st:SetTexture("Interface\\AddOns\\Aptechka\\shieldtex")
-
-
-    absorb2.texture = st
-    -- absorb2.AdjustTexture = function(self, w,h)
-    --     -- local w = self:GetWidth()
-    --     -- local h = self:GetHeight()
-    --     local r = w/h
-    --     local st = self.texture
-    --     if r > 1 then
-    --         st:SetTexCoord(0, 1, 0, h/w)
-    --         print(0, 1, 0, h/w)
-    --     elseif r < 1 then
-    --         st:SetTexCoord(0, w/h, 0, 1)
-    --         print(0, w/h, 0, 1)
-    --     else
-    --         st:SetTexCoord(0, 1, 0, 1)
-    --     end
-    --     self:SetStatusBarTexture(st)
-    -- end
-    -- st:SetHorizTile(true)
-    -- st:SetVertTile(true)
-
-    absorb2:SetStatusBarTexture(st)
-    absorb2:GetStatusBarTexture():SetDrawLayer("ARTWORK",-7)
-    absorb2:SetMinMaxValues(0,100)
-    absorb2:SetStatusBarColor(0,0,0)
-    absorb2:SetAlpha(0.65)
-    absorb2:SetOrientation("VERTICAL")
-    absorb2.parent = self
+    local absorb2 = CreateAbsorbBar(hp)
+    -- absorb2.parent = self
     hp.absorb2 = absorb2
 
     -------------------
 
     local healAbsorb = CreateHealAbsorb(hp)
-
-    healAbsorb.parent = self
+    -- healAbsorb.parent = self
     hp.healabsorb = healAbsorb
 
 
------------------------
+    -----------------------
 
     -- local absorb = CreateFrame("StatusBar", nil, self)
     -- absorb:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
