@@ -56,24 +56,7 @@ config.displayRoles = true
 config.enableTraceHeals = true
 config.enableVehicleSwap = true
 config.enableAbsorbBar = true
-config.enableClickCasting = false
--- if for some reason you don't want to use Clique you can
--- enable native click casting support here, it activates ClickMacro function.
--- ClickMacro syntax is like usual macro, but don't forget [@mouseover] for every command
--- spell:<id> is an alias for localized spellname.
--- Unmodified left click is reserved for targeting by default.
--- Use helpers.BindTarget("shift 1") to change it. Syntax: any combination of "shift" "alt" "ctrl" and button number
 
--- config.useCombatLogFiltering = false
--- useCombatLogFiltering provides a huge perfomance boost over default behavior, which would be to listen only to UNIT_AURA event.
--- UNIT_AURA doesn't tell what exactly changed and every time addon had to scan current buffs/debuffs,
--- in raid combat unit_aura sometimes fired up to 8 times per second for each member with all the stacking trinkets and procs.
--- useCombatLogFiltering option moves this process mainly to combat log, where we can see what spell was updated.
--- Only if it's one of OUR spells from assigntos it will update buff data for this unit.
--- The drawback is that it only works in combat log range, but it's big enough, and there's a fallback on throttled unit_aura (updates every 5s) for out of range units.
--- On lich king there was an issue, and maybe it's still present, that necrotic plague removal event didn't appear in combat log
--- and that caused glitches with boss debuff assignto. But that's a rare blizzard side bug.
--- Dispel idicators still work from unit_aura, so you'll see plague regardless as disease if you can dispel it. Necrotic plague removed from default loadables.lua setup.
 config.useCombatLogHealthUpdates = isHealer
 
 config.TargetStatus = { name = "Target", assignto = "border", color = {1,0.7,0.7}, priority = 65 }
@@ -88,9 +71,9 @@ config.LeaderStatus = { name = "Leader", priority = 59, assignto = "text3", colo
 -- config.AssistStatus = { name = "Assist", priority = 59, assignto = "text3", color = {1,.8,.2}, text = "A" }
 config.VoiceChatStatus = { name = "VoiceChat", priority = 59, assignto = "text3", color = {0.3, 1, 0.3}, text = "S", priority = 99 }
 config.MainTankStatus = { name = "MainTank", priority = 60, assignto = "border", color = {0.6,0.6,0.6} }
-config.DeadStatus = { name = "DEAD", assignto = { "text2","health","power" }, color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
-config.GhostStatus = { name = "GHOST", assignto = { "text2","health","power" }, color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
-config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","text3","health","power" }, color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
+config.DeadStatus = { name = "DEAD", assignto = { "text2","health" }, color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
+config.GhostStatus = { name = "GHOST", assignto = { "text2","health" }, color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
+config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","text3","health" }, color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.AwayStatus = { name = "AFK", assignto = { "text2","text3" }, color = {.15,.15,.15}, textcolor = {1,0.8,0}, text = "AFK",  priority = 60}
 -- config.IncomingHealStatus = { name = "IncomingHeal", assignto = "text2", inchealtext = true, color = { 0, 1, 0}, priority = 15 }
 config.HealthDeficitStatus = { name = "HPD", assignto = "healthtext", healthtext = true, color = { 54/255, 201/255, 99/256 }, priority = 10 }

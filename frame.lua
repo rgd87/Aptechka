@@ -1507,32 +1507,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     -----------------------
 
-    local hpbg = hp:CreateTexture(nil,"ARTWORK",nil,-8)
-	hpbg:SetAllPoints(hp)
-	hpbg:SetTexture(texture)
-    hp.bg = hpbg
-
-    -- local hpi = CreateFrame("StatusBar", nil, self)
-	-- hpi:SetAllPoints(self)
-	-- hpi:SetStatusBarTexture("Interface\\Tooltips\\UI-Tooltip-Background")
-    -- -- hpi:SetOrientation("VERTICAL")
-    -- hpi:SetStatusBarColor(0, 0, 0, 0.5)
-    -- -- hpi:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
-    -- hpi:GetStatusBarTexture():SetDrawLayer("ARTWORK",-7)
-    -- hpi:SetOrientation("VERTICAL")
-    -- -- hpi:SetStatusBarColor(0,1,0)
-    -- hpi:SetMinMaxValues(0,100)
-    -- --hpi:SetValue(0)
-    -- hpi.current = 0
-    -- hpi.Update = function(self, h, hi, hm)
-    --     hi = hi or self.current
-    --     if hm == 0 then
-    --         self:SetValue(0)
-    --     else
-    --         self:SetValue((h+hi)/hm*100)
-    --     end
-    -- end
-
     local hpi = CreateIncominHealBar(hp)
     hp.incoming = hpi
 
