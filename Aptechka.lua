@@ -1046,6 +1046,7 @@ function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
                 powerMax = 1
             end
             local manaPercent = GetForegroundSeparation(power, powerMax, fgShowMissing)
+            -- print(manaPercent, power, powerMax, fgShowMissing)
             self.power:SetValue(manaPercent*100)
         end
     end
