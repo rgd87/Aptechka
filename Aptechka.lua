@@ -154,8 +154,12 @@ local defaults = {
     debuffSize = 13,
     nameFontName = "ClearFont",
     nameFontSize = 12,
+    nameFontOutline = true,
+    nameColorMultiplier = 1,
     stackFontSize = 12,
     fgShowMissing = true,
+    fgColorMultiplier = 1,
+    bgColorMultiplier = 0.2,
 }
 
 local function SetupDefaults(t, defaults)
@@ -780,7 +784,7 @@ local function GetIncomingHealsCustom(unit, excludePlayer)
             heal = heal - myheal
         end
     end
-    return heal
+    return heal or 0
 end
 
 function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
@@ -876,7 +880,8 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         if event then
             if UnitIsDeadOrGhost(unit) then
                 SetJob(unit, config.AggroStatus, false)
-                local deadorghost = UnitIsGhost(unit) and config.GhostStatus or config.DeadStatus
+                local isGhost = UnitIsGhost(unit)
+                local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
                 SetJob(unit, deadorghost, true)
                 SetJob(unit,config.HealthDeficitStatus, false )
                 self.isDead = true

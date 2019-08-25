@@ -15,17 +15,16 @@ LSM:Register("font", "ClearFont", [[Interface\AddOns\Aptechka\ClearFont.ttf]], G
 0 corner indicators
 0 text3 fontstring
 
--2 powerbar
 -2 status bar bg
 -2 debuff type texture
-
--3 powerbar bg
 -4 absorb sidebar fg
 -5 absorb sidebar bg
+-5 absorb checkered fill
+-5 incoming healing
 -5 heal absorb checkered
 -6 healthbar
--7 absorb checkered fill
--7 incoming healing
+-6 powerbar
+-8 powerbar bg
 -8 healthbar bg
 ]]
 
@@ -54,15 +53,17 @@ local Frame_HideFunc = function(self)
     self:SetAlpha(1) -- to exit frrom OOR status
 end
 
-local HealthBarSetColorInverted = function(self, r,g,b)
-    self:SetStatusBarColor(r,g,b)
-    self.bg:SetVertexColor(r*.2, g*.2, b*.2)
+-- local function multiplyColor(mul, r,g,b,a)
+--     return r*mul, g*mul, b*mul, a
+-- end
+
+local HealthBarSetColorFG = function(self, r,g,b,a, mul)
+    self:SetStatusBarColor(r*mul, g*mul, b*mul, a)
+end
+local HealthBarSetColorBG = function(self, r,g,b,a, mul)
+    self:SetVertexColor(r*mul, g*mul, b*mul, a)
 end
 
-local HealthBarSetColor = function(self, r,g,b)
-    self:SetStatusBarColor(r*.2, g*.2, b*.2)
-    self.bg:SetVertexColor(r,g,b)
-end
 
 local SetJob_HealthBar = function(self, job)
     local c
@@ -72,7 +73,11 @@ local SetJob_HealthBar = function(self, job)
         c = job.color
     end
     if c then
-        self:SetColor(unpack(c))
+        local r,g,b,a = unpack(c)
+        local mulFG = Aptechka.db.fgColorMultiplier or 1
+        local mulBG = Aptechka.db.bgColorMultiplier or 0.2
+        self:SetColor(r,g,b,a,mulFG)
+        self.bg:SetColor(r,g,b,a,mulBG)
     end
 end
 local OnDead = function(self)
@@ -85,14 +90,24 @@ local OnAlive = function(self)
         self.power:Hide()
     end
 end
-local PowerBar_OnPowerTypeChange = function(self, powertype)
-    local self = self.parent
-    if powertype ~= "MANA" then
+local PowerBar_OnPowerTypeChange = function(powerbar, powerType)
+    local self = powerbar:GetParent()
+    powerType = powerType or self.power.powerType
+    self.power.powerType = powerType
+
+    if powerType ~= "MANA" then
         self.power.disabled = true
         self.power:Hide()
+        self.health:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     else
         self.power.disabled = nil
         self.power:Show()
+        local isVertical = Aptechka.db.healthOrientation == "VERTICAL"
+        if isVertical then
+            self.health:SetPoint("BOTTOMRIGHT", self.power, "BOTTOMLEFT",0,0)
+        else
+            self.health:SetPoint("BOTTOMRIGHT", self.power, "TOPRIGHT",0,0)
+        end
     end
 
     -- if self.healfeedbackpassive then
@@ -1190,8 +1205,6 @@ local function Reconf(self)
     self.power:GetStatusBarTexture():SetDrawLayer("ARTWORK",-2)
     self.power.bg:SetTexture(texpath2)
 
-    self.health.SetColor = HealthBarSetColorInverted
-    self.power.SetColor = HealthBarSetColorInverted
     if not db.fgShowMissing then
         -- Blizzard's StatusBar SetFillStyle is bad, because even if it reverses direction,
         -- it still cuts tex coords from the usual direction
@@ -1262,6 +1275,7 @@ local function Reconf(self)
         self.power:SetWidth(4)
         self.power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
         self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
+        self.power:OnPowerTypeChange()
 
         local debuffSize = pixelperfect(Aptechka.db.debuffSize)
         for i, icon in ipairs(self.debuffIcons) do
@@ -1302,6 +1316,7 @@ local function Reconf(self)
         self.power:SetHeight(4)
         self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
         self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+        self.power:OnPowerTypeChange()
 
         local debuffSize = pixelperfect(Aptechka.db.debuffSize)
         for i, icon in ipairs(self.debuffIcons) do
@@ -1343,34 +1358,40 @@ AptechkaDefaultConfig.GridSkin = function(self)
     powerbar:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
     powerbar:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
 	powerbar:SetStatusBarTexture(powertexture)
-    powerbar:GetStatusBarTexture():SetDrawLayer("ARTWORK",-2)
+    powerbar:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     powerbar:SetMinMaxValues(0,100)
-    powerbar.parent = self
     powerbar:SetOrientation("VERTICAL")
     powerbar.SetJob = SetJob_HealthBar
     powerbar.OnPowerTypeChange = PowerBar_OnPowerTypeChange
-    powerbar.SetColor = HealthBarSetColor
+    powerbar.SetColor = HealthBarSetColorFG
 
-    local pbbg = powerbar:CreateTexture(nil,"ARTWORK",nil,-3)
+    local pbbg = powerbar:CreateTexture(nil,"ARTWORK",nil,-8)
 	pbbg:SetAllPoints(powerbar)
-	pbbg:SetTexture(powertexture)
+    pbbg:SetTexture(powertexture)
+    pbbg.SetColor = HealthBarSetColorBG
     powerbar.bg = pbbg
 
 
     -- local hp = CreateFrame("StatusBar", nil, self)
     local hp = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
 	--hp:SetAllPoints(self)
-    hp:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-    -- hp:SetPoint("TOPRIGHT",powerbar,"TOPLEFT",0,0)
-    hp:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+    hp:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
+    hp:SetPoint("BOTTOMRIGHT",powerbar,"BOTTOMLEFT",0,0)
+    -- hp:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
 	hp:SetStatusBarTexture(texture)
     hp:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     hp:SetMinMaxValues(0,100)
     hp:SetOrientation("VERTICAL")
     hp.parent = self
     hp.SetJob = SetJob_HealthBar
-    hp.SetColor = HealthBarSetColor
+    hp.SetColor = HealthBarSetColorFG
     --hp:SetValue(0)
+
+    local hpbg = hp:CreateTexture(nil,"ARTWORK",nil,-8)
+	hpbg:SetAllPoints(hp)
+    hpbg:SetTexture(texture)
+    hpbg.SetColor = HealthBarSetColorBG
+    hp.bg = hpbg
 
     --[[
     ----------------------
