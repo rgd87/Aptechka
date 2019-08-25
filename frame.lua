@@ -962,8 +962,8 @@ end
 local function CreateIncominHealBar(hp)
     local hpi = hp:CreateTexture(nil, "ARTWORK", nil, -5)
 
-    hpi:SetTexture("Interface\\Tooltips\\UI-Tooltip-Background")
-    -- hpi:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+    -- hpi:SetTexture("Interface\\Tooltips\\UI-Tooltip-Background")
+    hpi:SetTexture("Interface\\BUTTONS\\WHITE8X8")
     hpi:SetVertexColor(0,0,0, 0.5)
 
     hpi.UpdatePositionVertical = AbsorbUpdatePositionVertical
@@ -1240,7 +1240,7 @@ local function Reconf(self)
         -- self.text1.SetColor = Text1_SetColorInverted
         -- self.text1:SetShadowOffset(0,0)
         self.health.absorb2:SetVertexColor(0.7,0.7,1, 0.65)
-        self.health.incoming:SetVertexColor(0.3, 1,0.4, 0.8)
+        self.health.incoming:SetVertexColor(0.3, 1,0.4, 0.4)
     else
         self.health:SetFillStyle("REVERSE")
         self.power:SetFillStyle("REVERSE")
@@ -1249,7 +1249,7 @@ local function Reconf(self)
         -- self.text1.SetColor = Text1_SetColor
         -- self.text1:SetShadowOffset(1,-1)
         self.health.absorb2:SetVertexColor(0,0,0, 0.65)
-        self.health.incoming:SetVertexColor(0,0,0, 0.5)
+        self.health.incoming:SetVertexColor(0,0,0, 0.4)
     end
     Aptechka.FrameSetJob(self,config.HealthBarColor,true)
     Aptechka.FrameSetJob(self,config.PowerBarColor,true)
