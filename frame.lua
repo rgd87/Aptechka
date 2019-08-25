@@ -37,22 +37,6 @@ local MakeBorder = function(self, tex, left, right, top, bottom, level)
 end
 
 
-local SetJob_Frame = function(self, job)
-    if job.alpha then
-        self:SetAlpha(job.alpha)
-        -- if self.health2 then
-        --     if job.alpha < 1 then
-        --         self.health2:Hide()
-        --     else
-        --         self.health2:Show()
-        --     end
-        -- end
-    end
-end
-local Frame_HideFunc = function(self)
-    self:SetAlpha(1) -- to exit frrom OOR status
-end
-
 local function multiplyColor(mul, r,g,b,a)
     return r*mul, g*mul, b*mul, a
 end
@@ -1633,9 +1617,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
     self.healfeedback = trcorner
-
-    self.SetJob = SetJob_Frame
-    self.HideFunc = Frame_HideFunc
 
     self.health = hp
     self.text1 = text

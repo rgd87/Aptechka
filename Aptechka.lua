@@ -946,10 +946,8 @@ function Aptechka:CheckPhase(frame, unit)
         frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
         frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
         frame.centericon:Show()
-        FrameSetJob(frame, config.PhasedOutStatus, true)
     else
         frame.centericon:Hide()
-        FrameSetJob(frame, config.PhasedOutStatus, false)
     end
 end
 
@@ -1155,11 +1153,7 @@ Aptechka.OnRangeUpdate = function (self, time)
 	if not IsInGroup() then --UnitInRange returns false when not grouped
 		for unit, frames in pairs(Roster) do
         	for frame in pairs(frames) do
-				if not frame.inRange then
-                    frame.inRange = true
-                    FrameSetJob(frame, config.OutOfRangeStatus, false)
-                    OORUnits[unit] = nil
-                end
+				frame:SetAlpha(1)
 			end
 		end
 		return
@@ -1182,17 +1176,9 @@ Aptechka.OnRangeUpdate = function (self, time)
     for unit, frames in pairs(Roster) do
         for frame in pairs(frames) do
             if AptechkaUnitInRange(unit) then
-                if not frame.inRange then
-                    frame.inRange = true
-                    FrameSetJob(frame, config.OutOfRangeStatus, false)
-                    OORUnits[unit] = nil
-                end
+                frame:SetAlpha(1)
             else
-                if frame.inRange or frame.inRange == nil then
-                    frame.inRange = false
-                    FrameSetJob(frame, config.OutOfRangeStatus, true)
-                    OORUnits[unit] = true
-                end
+                frame:SetAlpha(0.5)
             end
         end
     end
