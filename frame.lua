@@ -1236,7 +1236,14 @@ local function Reconf(self)
 
     local nameFont = LSM:Fetch("font",  Aptechka.db.nameFontName)
     local nameFontSize = Aptechka.db.nameFontSize
-    self.text1:SetFont(nameFont, nameFontSize)
+    local nameFontOutline = Aptechka.db.nameFontOutline
+    local outline = nameFontOutline == "OUTLINE" and "OUTLINE"
+    self.text1:SetFont(nameFont, nameFontSize, outline)
+    if nameFontOutline == "SHADOW" then
+        self.text1:SetShadowOffset(1,-1)
+    else
+        self.text1:SetShadowOffset(0,0)
+    end
 
     local stackFont = nameFont
     local stackFontSize = Aptechka.db.stackFontSize
