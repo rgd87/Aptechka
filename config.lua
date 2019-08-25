@@ -223,7 +223,7 @@ if playerClass == "PRIEST" then
     -- Weakened Soul
     A{ id = 6788,    type = "HELPFUL", assignto = "bars", priority = 70, color = { 0.8, 0, 0}, showDuration = true, isMine = true }
     --Prayer of Mending
-    A{ id = 41635, type = "HELPFUL", assignto = "bar4", priority = 70, stackcolor =   {
+    A{ id = 41635, type = "HELPFUL", assignto = "bar4", priority = 70, isMine = true, stackcolor =   {
                                                                             [1] = { 1, 0, 0},
                                                                             [2] = { 1, 0, 102/255},
                                                                             [3] = { 1, 0, 190/255},
@@ -264,6 +264,8 @@ if playerClass == "PRIEST" then
     Trace{id = 32546, type = "HEAL", assignto = "healfeedback", color = { 0.7, 1, 0.7}, fade = 0.7, priority = 96 }
     -- Trail of Light
     Trace{id = 234946, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
+    -- Shadowmend
+    Trace{id = 186263, type = "HEAL", assignto = "healfeedback", color = { 0.6, 0.35, 0.8}, fade = 0.7, priority = 96 }
 
     -- Holy Ward (PvP)
     A{ id = 213610, type = "HELPFUL", assignto = "spell3", showDuration = true, priority = 70, color = { 1, .3, .3}, isMine = true }
