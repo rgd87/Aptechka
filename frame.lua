@@ -913,9 +913,8 @@ local function CreateHealAbsorb(hp)
     healAbsorb:SetHorizTile(true)
     healAbsorb:SetVertTile(true)
     healAbsorb:SetTexture("Interface\\AddOns\\Aptechka\\shieldtex", "REPEAT", "REPEAT")
-    healAbsorb:SetVertexColor(0.5,0.1,0.1)
+    healAbsorb:SetVertexColor(0.5,0.1,0.1, 0.65)
     healAbsorb:SetBlendMode("ADD")
-    healAbsorb:SetAlpha(0.65)
 
     healAbsorb.UpdatePositionVertical = HealAbsorbUpdatePositionVertical
     healAbsorb.UpdatePositionHorizontal = HealAbsorbUpdatePositionHorizontal
@@ -962,9 +961,8 @@ local function CreateAbsorbBar(hp)
     absorb:SetHorizTile(true)
     absorb:SetVertTile(true)
     absorb:SetTexture("Interface\\AddOns\\Aptechka\\shieldtex", "REPEAT", "REPEAT")
-    absorb:SetVertexColor(0,0,0)
+    absorb:SetVertexColor(0,0,0, 0.65)
     -- absorb:SetBlendMode("ADD")
-    absorb:SetAlpha(0.65)
 
     absorb.UpdatePositionVertical = AbsorbUpdatePositionVertical
     absorb.UpdatePositionHorizontal = AbsorbUpdatePositionHorizontal
@@ -1220,7 +1218,8 @@ local function Reconf(self)
         -- self.power.SetColor = HealthBarSetColorInverted
         -- self.text1.SetColor = Text1_SetColorInverted
         -- self.text1:SetShadowOffset(0,0)
-        self.health.absorb2:SetVertexColor(0.7,0.7,1)
+        self.health.absorb2:SetVertexColor(0.7,0.7,1, 0.65)
+        self.health.incoming:SetVertexColor(0.3, 1,0.4, 0.8)
     else
         self.health:SetFillStyle("REVERSE")
         self.power:SetFillStyle("REVERSE")
@@ -1228,7 +1227,8 @@ local function Reconf(self)
         -- self.power.SetColor = HealthBarSetColor
         -- self.text1.SetColor = Text1_SetColor
         -- self.text1:SetShadowOffset(1,-1)
-        self.health.absorb2:SetVertexColor(0,0,0)
+        self.health.absorb2:SetVertexColor(0,0,0, 0.65)
+        self.health.incoming:SetVertexColor(0,0,0, 0.5)
     end
     Aptechka.FrameSetJob(self,config.HealthBarColor,true)
     Aptechka.FrameSetJob(self,config.PowerBarColor,true)
