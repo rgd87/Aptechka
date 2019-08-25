@@ -1306,7 +1306,17 @@ local function MakeGeneralOptions()
                     },
                 },
             },
-
+            resetAll = {
+                name = "Full Settings Reset",
+                width = "full",
+                type = "execute",
+                desc = "Wipe all your settings and restore to defaults",
+                func = function()
+                    table.wipe(Aptechka.db)
+                    ReloadUI()
+                end,
+                order = 50,
+            },
         },
     }
 

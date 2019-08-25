@@ -263,6 +263,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.SetJob = SetJob
     Aptechka.FrameSetJob = FrameSetJob
 
+    if AptechkaDB.invertedColors then
+        AptechkaDB.invertedColors = nil
+        AptechkaDB.fgShowMissing = false
+    end
+
     Aptechka:UpdateUnprotectedUpvalues()
 
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
