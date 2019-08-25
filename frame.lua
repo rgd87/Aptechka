@@ -53,9 +53,9 @@ local Frame_HideFunc = function(self)
     self:SetAlpha(1) -- to exit frrom OOR status
 end
 
--- local function multiplyColor(mul, r,g,b,a)
---     return r*mul, g*mul, b*mul, a
--- end
+local function multiplyColor(mul, r,g,b,a)
+    return r*mul, g*mul, b*mul, a
+end
 
 local HealthBarSetColorFG = function(self, r,g,b,a, mul)
     self:SetStatusBarColor(r*mul, g*mul, b*mul, a)
@@ -836,7 +836,11 @@ local SetJob_Text1 = function(self,job)
     elseif job.color then
         c = job.textcolor or job.color
     end
-    if c then self:SetColor(unpack(c)) end
+    if c then
+        local r,g,b,a = unpack(c)
+        local mul = Aptechka.db.nameColorMultiplier or 1
+        self:SetColor(multiplyColor(mul, r,g,b,a))
+    end
 end
 local formatMissingHealth = function(text, mh)
     if mh < 1000 then

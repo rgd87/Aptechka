@@ -154,7 +154,7 @@ local defaults = {
     debuffSize = 13,
     nameFontName = "ClearFont",
     nameFontSize = 12,
-    nameFontOutline = true,
+    nameFontOutline = "SHADOW",
     nameColorMultiplier = 1,
     stackFontSize = 12,
     fgShowMissing = true,
@@ -707,6 +707,21 @@ end
 function Aptechka:Reconfigure()
     self:ReconfigureUnprotected()
     self:ReconfigureProtected()
+end
+function Aptechka:RefreshAllUnitsHealth()
+    for unit, frames in pairs(Roster) do
+        Aptechka:UNIT_HEALTH("UNIT_HEALTH", unit)
+        Aptechka:UNIT_POWER_UPDATE("UNIT_HEALTH", unit)
+    end
+end
+function Aptechka:RefreshAllUnitsColors()
+    for unit, frames in pairs(Roster) do
+        for frame in pairs(frames) do
+            FrameSetJob(frame, config.UnitNameStatus, true)
+            FrameSetJob(frame, config.HealthBarColor, true)
+            FrameSetJob(frame, config.PowerBarColor, true)
+        end
+    end
 end
 function Aptechka:ReconfigureUnprotected()
     self:UpdateUnprotectedUpvalues()
