@@ -902,7 +902,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.width end,
                         set = function(info, v)
                             Aptechka.db.width = v
-                            Aptechka:ReconfigureProtected()
+                            Aptechka:Reconfigure()
                         end,
                         min = 10,
                         max = 100,
@@ -915,7 +915,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.height end,
                         set = function(info, v)
                             Aptechka.db.height = v
-                            Aptechka:ReconfigureProtected()
+                            Aptechka:Reconfigure()
                         end,
                         min = 10,
                         max = 100,

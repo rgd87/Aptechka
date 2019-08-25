@@ -710,8 +710,8 @@ function Aptechka:UpdateMissingAuraList()
 end
 
 function Aptechka:Reconfigure()
-    self:ReconfigureUnprotected()
     self:ReconfigureProtected()
+    self:ReconfigureUnprotected()
 end
 function Aptechka:RefreshAllUnitsHealth()
     for unit, frames in pairs(Roster) do
@@ -841,14 +841,13 @@ function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     for self in pairs(rosterunit) do
         local a,hm = UnitGetTotalAbsorbs(unit), UnitHealthMax(unit)
         local h = UnitHealth(unit)
-        local ch, p, p2 = 0,0,0
+        local ch, p = 0, 0
         if hm ~= 0 then
-            ch = (h/hm)*100
-		    p = a/hm*100
-            p2 = a/hm
+            p = a/hm
+            ch = h/hm
         end
         self.absorb:SetValue(p, ch)
-        self.absorb2:SetValue(p2, h/hm)
+        self.absorb2:SetValue(p, ch)
     end
 end
 
@@ -893,7 +892,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         self.health:SetValue(healthPercent*100)
         self.healabsorb:SetValue(healabsorb/hm, fgSep)
         self.absorb2:SetValue(shields/hm, fgSep)
-        self.absorb:SetValue(shields/hm*100, fgSep*100)
+        self.absorb:SetValue(shields/hm, fgSep)
         self.health.incoming:SetValue(incomingHeal/hm, fgSep)
         FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
 
@@ -1013,7 +1012,7 @@ Aptechka.PLAYER_FLAGS_CHANGED = Aptechka.UNIT_AFK_CHANGED
 local offlinePlayerTable = {}
 function Aptechka.UNIT_CONNECTION(self, event, unit)
     if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
+    for frame in pairs(Roster[unit]) do
         -- if self.unitOwner then unit = self.unitOwner end
         local name = UnitGUID(unit)
         if not UnitIsConnected(unit) then
@@ -1027,12 +1026,12 @@ function Aptechka.UNIT_CONNECTION(self, event, unit)
                 local job = config.OfflineStatus
                 job.startTime = startTime
             end
-            SetJob(unit, config.OfflineStatus, true)
+            FrameSetJob(frame, config.OfflineStatus, true)
         else
             if name then
                 offlinePlayerTable[name] = nil
             end
-            SetJob(unit, config.OfflineStatus, false)
+            FrameSetJob(frame, config.OfflineStatus, false)
         end
     end
 end

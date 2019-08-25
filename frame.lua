@@ -881,7 +881,7 @@ local HealAbsorbSetValue = function(self, p, health)
         return
     end
 
-    local parent = self:GetParent()
+    local parent = self.parent
 
     if p > health then
         p = health
@@ -934,7 +934,7 @@ local AbsorbSetValue = function(self, p, health)
         return
     end
 
-    local parent = self:GetParent()
+    local parent = self.parent
 
     self:Show()
     self:UpdatePosition(p, health, parent)
@@ -990,6 +990,43 @@ local AlignAbsorbHorizontal = function(self, absorb_height, missing_health_heigh
     else
         self:SetPoint("BOTTOMRIGHT", self:GetParent(), "BOTTOMRIGHT", -(missing_health_height - absorb_height), -3)
     end
+end
+local CreateAbsorbSideBar_SetValue = function(self, p, h)
+    if p > 1 then p = 1 end
+    if p < 0 then p = 0 end
+    if p <= 0.015 then self:Hide(); return; else self:Show() end
+
+    local frameLength = self.parent.frameLength
+
+    local missing_health_height = (1-h)*frameLength
+    local absorb_height = p*frameLength
+
+    self:AlignAbsorb(absorb_height, missing_health_height)
+end
+
+local function CreateAbsorbSideBar(hp)
+    local absorb = CreateFrame("Frame", nil, hp)
+    absorb:SetParent(hp)
+    -- absorb:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+    absorb:SetPoint("TOPLEFT",self,"TOPLEFT",-3,0)
+    absorb:SetWidth(3)
+
+    local at = absorb:CreateTexture(nil, "ARTWORK", nil, -4)
+    at:SetTexture[[Interface\BUTTONS\WHITE8X8]]
+    at:SetVertexColor(.7, .7, 1, 1)
+    at:SetAllPoints(absorb)
+
+    local atbg = absorb:CreateTexture(nil, "ARTWORK", nil, -5)
+    atbg:SetTexture[[Interface\BUTTONS\WHITE8X8]]
+    atbg:SetVertexColor(0,0,0,1)
+    atbg:SetPoint("TOPLEFT", at, "TOPLEFT", -1,1)
+    atbg:SetPoint("BOTTOMRIGHT", at, "BOTTOMRIGHT", 1,-1)
+
+    absorb.AlignAbsorb = AlignAbsorbVertical
+
+    absorb.SetValue = CreateAbsorbSideBar_SetValue
+    absorb:SetValue(0)
+    return absorb
 end
 
 
@@ -1239,15 +1276,15 @@ local function Reconf(self)
         self.health:SetOrientation("VERTICAL")
         self.power:SetOrientation("VERTICAL")
 
+        self.health.frameLength = db.height
+
         local  absorb = self.health.absorb
         absorb:ClearAllPoints()
         absorb:SetWidth(3)
         absorb.orientation = "VERTICAL"
-        absorb.maxheight = db.height
         absorb.AlignAbsorb = AlignAbsorbVertical
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
-        self.health.frameLength = db.height
         local healAbsorb = self.health.healabsorb
         healAbsorb:ClearAllPoints()
         healAbsorb.UpdatePosition = healAbsorb.UpdatePositionVertical
@@ -1259,8 +1296,6 @@ local function Reconf(self)
         local hpi = self.health.incoming
         hpi:ClearAllPoints()
         hpi.UpdatePosition = hpi.UpdatePositionVertical
-
-        -- self.health.lost.maxheight = db.height
 
         -- self.health:ClearAllPoints()
         -- self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
@@ -1282,15 +1317,15 @@ local function Reconf(self)
         self.health:SetOrientation("HORIZONTAL")
         self.power:SetOrientation("HORIZONTAL")
 
+        self.health.frameLength = db.width
+
         local absorb = self.health.absorb
         absorb:ClearAllPoints()
         absorb:SetHeight(3)
         absorb.orientation = "HORIZONTAL"
-        absorb.maxheight = db.width
         absorb.AlignAbsorb = AlignAbsorbHorizontal
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
-        self.health.frameLength = db.width
         local healAbsorb = self.health.healabsorb
         healAbsorb:ClearAllPoints()
         healAbsorb.UpdatePosition = healAbsorb.UpdatePositionHorizontal
@@ -1474,57 +1509,26 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     --------------------
 
-    local absorb = CreateFrame("Frame", nil, self)
-    absorb:SetParent(hp)
-    -- absorb:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-    absorb:SetPoint("TOPLEFT",self,"TOPLEFT",-3,0)
-    absorb:SetWidth(3)
-
-    local at = absorb:CreateTexture(nil, "ARTWORK", nil, -4)
-    at:SetTexture[[Interface\BUTTONS\WHITE8X8]]
-    at:SetVertexColor(.7, .7, 1, 1)
-    at:SetAllPoints(absorb)
-
-    local atbg = absorb:CreateTexture(nil, "ARTWORK", nil, -5)
-    atbg:SetTexture[[Interface\BUTTONS\WHITE8X8]]
-    atbg:SetVertexColor(0,0,0,1)
-    atbg:SetPoint("TOPLEFT", at, "TOPLEFT", -1,1)
-    atbg:SetPoint("BOTTOMRIGHT", at, "BOTTOMRIGHT", 1,-1)
-
-    absorb.maxheight = config.height
-    absorb.AlignAbsorb = AlignAbsorbVertical
-
-    absorb.SetValue = function(self, v, health)
-        local p = v/100
-        if p > 1 then p = 1 end
-        if p < 0 then p = 0 end
-        if p <= 0.015 then self:Hide(); return; else self:Show() end
-
-        local h = (health/100)
-        local missing_health_height = (1-h)*self.maxheight
-        local absorb_height = p*self.maxheight
-
-        self:AlignAbsorb(absorb_height, missing_health_height)
-    end
-    absorb:SetValue(0)
+    local absorb = CreateAbsorbSideBar(hp)
+    absorb.parent = hp
     hp.absorb = absorb
 
     -------------------
 
     local absorb2 = CreateAbsorbBar(hp)
-    -- absorb2.parent = self
+    absorb2.parent = hp
     hp.absorb2 = absorb2
 
     -------------------
 
     local healAbsorb = CreateHealAbsorb(hp)
-    -- healAbsorb.parent = self
+    healAbsorb.parent = hp
     hp.healabsorb = healAbsorb
-
 
     -----------------------
 
     local hpi = CreateIncominHealBar(hp)
+    hpi.parent = hp
     hp.incoming = hpi
 
     local p4 = pixelperfect(3.5)
