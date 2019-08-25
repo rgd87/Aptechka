@@ -20,6 +20,6 @@ Libs\LibClassicHealComm-1.0\lib.xml
 helpers.lua
 config.lua
 classic.config.lua
-frame.lua
 loadables.lua
 Aptechka.lua
+frame.lua

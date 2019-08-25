@@ -1,3 +1,13 @@
+### 1.13.7:
+### 8.2.13:
+
+- A lot of internal changes to frame contruction
+- Removed inverted colors setting
+- Instead you now can switch between reverse filling of the health bar
+- Color multiplier settings for fg/bg/name
+- Name outline setting
+- Bugfixes
+
 ### 1.13.6
 
 - now embedding LibClassicHealComm-1.0

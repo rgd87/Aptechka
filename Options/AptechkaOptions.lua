@@ -902,7 +902,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.width end,
                         set = function(info, v)
                             Aptechka.db.width = v
-                            Aptechka:ReconfigureProtected()
+                            Aptechka:Reconfigure()
                         end,
                         min = 10,
                         max = 100,
@@ -915,7 +915,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.height end,
                         set = function(info, v)
                             Aptechka.db.height = v
-                            Aptechka:ReconfigureProtected()
+                            Aptechka:Reconfigure()
                         end,
                         min = 10,
                         max = 100,
@@ -1176,18 +1176,20 @@ local function MakeGeneralOptions()
                         step = 0.5,
                         order = 14.2,
                     },
-                    stackFontSize = {
-                        name = "Stack Font Size",
-                        type = "range",
-                        get = function(info) return Aptechka.db.stackFontSize end,
-                        set = function(info, v)
-							Aptechka.db.stackFontSize = v
-							Aptechka:ReconfigureUnprotected()
+                    nameFontOutline = {
+                        name = "Name Outline",
+                        type = 'select',
+                        order = 14.25,
+                        values = {
+                            NONE = "None",
+                            SHADOW = "Shadow",
+                            OUTLINE = "Outline",
+                        },
+                        get = function(info) return Aptechka.db.nameFontOutline end,
+                        set = function( info, v )
+                            Aptechka.db.nameFontOutline = v
+                            Aptechka:ReconfigureUnprotected()
                         end,
-                        min = 3,
-                        max = 30,
-                        step = 0.1,
-                        order = 14.2,
                     },
                     debuffSize = {
                         name = "Debuff Size",
@@ -1202,20 +1204,35 @@ local function MakeGeneralOptions()
                         step = 0.1,
                         order = 14.3,
                     },
+                    stackFontSize = {
+                        name = "Stack Font Size",
+                        type = "range",
+                        get = function(info) return Aptechka.db.stackFontSize end,
+                        set = function(info, v)
+							Aptechka.db.stackFontSize = v
+							Aptechka:ReconfigureUnprotected()
+                        end,
+                        min = 3,
+                        max = 30,
+                        step = 0.1,
+                        order = 14.4,
+                    },
                     debuffTest = {
                         name = "Test Debuffs",
                         type = "execute",
                         func = function() Aptechka.TestDebuffSlots() end,
-                        order = 14.4
+                        order = 14.5,
 					},
 
-                    inverted = {
-                        name = "Inverted Colors",
+                    showMissingFG = {
+                        name = "Show Missing Health/Power as Foreground",
+                        width = "full",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.invertedColors end,
+                        get = function(info) return Aptechka.db.fgShowMissing end,
                         set = function(info, v)
-                            Aptechka.db.invertedColors = not Aptechka.db.invertedColors
+                            Aptechka.db.fgShowMissing = not Aptechka.db.fgShowMissing
                             Aptechka:ReconfigureUnprotected()
+                            Aptechka:RefreshAllUnitsHealth()
                         end,
                         order = 15,
                     },
@@ -1230,24 +1247,67 @@ local function MakeGeneralOptions()
                             Aptechka.db.forceShamanColor = not Aptechka.db.forceShamanColor
                             ReloadUI()
                         end,
-                        order = 16,
+                        order = 15.8,
                     },
-                    -- incomingHealThreshold = {
-                    --     name = "Incoming Heal Threshold",
-                    --     type = "input",
-                    --     -- desc = "Display spell name on timers",
-                    --     get = function(info) return Aptechka.db.incomingHealThreshold end,
-                    --     set = function(info, v)
-                    --         if tonumber(v) then
-                    --             Aptechka.db.incomingHealThreshold = tonumber(v)
-                    --             Aptechka:ReconfigureProtected()
-                    --         end
-                    --     end,
-                    --     order = 6,
-                    -- },
+                    mulGroup = {
+                        type = "group",
+                        name = "Color Multipliers",
+                        order = 16,
+                        args = {
+                            fgColor = {
+                                name = "Foreground",
+                                type = "range",
+                                get = function(info) return Aptechka.db.fgColorMultiplier end,
+                                set = function(info, v)
+                                    Aptechka.db.fgColorMultiplier = v
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                                min = 0,
+                                max = 1,
+                                step = 0.05,
+                                order = 1,
+                            },
+                            bgColor = {
+                                name = "Background",
+                                type = "range",
+                                get = function(info) return Aptechka.db.bgColorMultiplier end,
+                                set = function(info, v)
+                                    Aptechka.db.bgColorMultiplier = v
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                                min = 0,
+                                max = 1,
+                                step = 0.05,
+                                order = 2,
+                            },
+                            nameColor = {
+                                name = "Name",
+                                type = "range",
+                                get = function(info) return Aptechka.db.nameColorMultiplier end,
+                                set = function(info, v)
+                                    Aptechka.db.nameColorMultiplier = v
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                                min = 0,
+                                max = 1,
+                                step = 0.05,
+                                order = 3,
+                            },
+                        }
+                    },
                 },
             },
-
+            resetAll = {
+                name = "Full Settings Reset",
+                width = "full",
+                type = "execute",
+                desc = "Wipe all your settings and restore to defaults",
+                func = function()
+                    table.wipe(Aptechka.db)
+                    ReloadUI()
+                end,
+                order = 50,
+            },
         },
     }
 
