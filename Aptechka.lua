@@ -1193,7 +1193,7 @@ Aptechka.OnRangeUpdate = function (self, time)
             if AptechkaUnitInRange(unit) then
                 frame:SetAlpha(1)
             else
-                frame:SetAlpha(0.5)
+                frame:SetAlpha(0.45)
             end
         end
     end

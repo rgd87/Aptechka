@@ -1784,8 +1784,9 @@ do
         local max = self._max
         self._value = val
         local pos = (val-min)/(max-min)
+        if pos > 1 then pos = 1 end
         local tex = self._texture
-        if pos == 0 then tex:Hide(); return end
+        if pos <= 0 then tex:Hide(); return end
 
         tex:Show()
 
