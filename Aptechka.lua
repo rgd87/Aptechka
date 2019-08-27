@@ -856,7 +856,7 @@ local function GetIncomingHealsCustom(unit, excludePlayer)
     return heal or 0
 end
 
-function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
+function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit, guid)
     self:UNIT_HEALTH(event, unit)
 
     local heal = HealComm:GetHealAmount(guid, HealComm.AptechkaHealType, GetTime()+incomingHealTimeframe)

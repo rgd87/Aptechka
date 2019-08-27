@@ -91,9 +91,9 @@ if playerClass == "PRIEST" then
     Trace{id = { 2060, 10963, 10964, 10965, 25314 }, type = "HEAL", assignto = "healfeedback", color = { 0.7, 1, 0.7}, fade = 0.7, priority = 96 }
 
     config.UnitInRangeFunctions = {
-        RangeCheckBySpell(17), -- Disc: PWS
-        RangeCheckBySpell(139),-- Holy: Renew
-        RangeCheckBySpell(17), -- Shadow: PWS
+        RangeCheckBySpell(2050), -- Lesser Heal Rank 1
+        RangeCheckBySpell(2050),
+        RangeCheckBySpell(2050),
     }
 
     -- DispelTypes("MAGIC|DISEASE")
