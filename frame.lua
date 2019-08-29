@@ -74,23 +74,31 @@ local OnAlive = function(self)
         self.power:Hide()
     end
 end
-local PowerBar_OnPowerTypeChange = function(powerbar, powerType)
+local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
     local self = powerbar:GetParent()
     powerType = powerType or self.power.powerType
     self.power.powerType = powerType
 
-    if powerType ~= "MANA" then
+    local isVertical = Aptechka.db.healthOrientation == "VERTICAL"
+    if powerType ~= "MANA" or isDead then
         self.power.disabled = true
         self.power:Hide()
-        self.health:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
+        if isVertical then
+            -- self.health:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
+            self.health:SetPoint("TOPRIGHT", self, "TOPRIGHT",0,0)
+        else
+            -- self.health:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
+            self.health:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
+        end
     else
         self.power.disabled = nil
         self.power:Show()
-        local isVertical = Aptechka.db.healthOrientation == "VERTICAL"
         if isVertical then
-            self.health:SetPoint("BOTTOMRIGHT", self.power, "BOTTOMLEFT",0,0)
+            self.health:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
+            self.health:SetPoint("TOPRIGHT", self.power, "TOPLEFT",0,0)
         else
-            self.health:SetPoint("BOTTOMRIGHT", self.power, "TOPRIGHT",0,0)
+            self.health:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
+            self.health:SetPoint("BOTTOMLEFT", self.power, "TOPLEFT",0,0)
         end
     end
 
@@ -1276,7 +1284,19 @@ local function Reconf(self)
         self.health:SetOrientation("VERTICAL")
         self.power:SetOrientation("VERTICAL")
 
-        self.health.frameLength = db.height
+        local frameLength = db.height
+        self.health.frameLength = frameLength
+
+        self.health:ClearAllPoints()
+        self.health:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
+        self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+        self.health:SetHeight(frameLength)
+
+        self.power:ClearAllPoints()
+        self.power:SetWidth(4)
+        self.power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+        self.power:SetHeight(frameLength)
+        self.power:OnPowerTypeChange()
 
         local  absorb = self.health.absorb
         absorb:ClearAllPoints()
@@ -1297,16 +1317,6 @@ local function Reconf(self)
         hpi:ClearAllPoints()
         hpi.UpdatePosition = hpi.UpdatePositionVertical
 
-        -- self.health:ClearAllPoints()
-        -- self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-        -- self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-
-        self.power:ClearAllPoints()
-        self.power:SetWidth(4)
-        self.power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-        self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
-        self.power:OnPowerTypeChange()
-
         local debuffSize = pixelperfect(Aptechka.db.debuffSize)
         for i, icon in ipairs(self.debuffIcons) do
             icon:SetOrientation("VERTICAL", debuffSize)
@@ -1317,7 +1327,19 @@ local function Reconf(self)
         self.health:SetOrientation("HORIZONTAL")
         self.power:SetOrientation("HORIZONTAL")
 
-        self.health.frameLength = db.width
+        local frameLength = db.width
+        self.health.frameLength = frameLength
+
+        self.health:ClearAllPoints()
+        self.health:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
+        self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+        self.health:SetWidth(frameLength)
+
+        self.power:ClearAllPoints()
+        self.power:SetHeight(4)
+        self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+        self.power:SetWidth(frameLength)
+        self.power:OnPowerTypeChange()
 
         local absorb = self.health.absorb
         absorb:ClearAllPoints()
@@ -1337,16 +1359,6 @@ local function Reconf(self)
         local hpi = self.health.incoming
         hpi:ClearAllPoints()
         hpi.UpdatePosition = hpi.UpdatePositionHorizontal
-
-        -- self.health:ClearAllPoints()
-        -- self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-        -- self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-
-        self.power:ClearAllPoints()
-        self.power:SetHeight(4)
-        self.power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
-        self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-        self.power:OnPowerTypeChange()
 
         local debuffSize = pixelperfect(Aptechka.db.debuffSize)
         for i, icon in ipairs(self.debuffIcons) do
@@ -1387,7 +1399,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local powerbar = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
 	powerbar:SetWidth(4)
     powerbar:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-    powerbar:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
+    powerbar:SetHeight(db.height)
 	powerbar:SetStatusBarTexture(powertexture)
     powerbar:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     powerbar:SetMinMaxValues(0,100)
@@ -1407,9 +1419,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local hp = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
 	--hp:SetAllPoints(self)
     hp:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
-    hp:SetPoint("BOTTOMRIGHT",powerbar,"BOTTOMLEFT",0,0)
-    -- hp:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-	hp:SetStatusBarTexture(texture)
+    hp:SetPoint("TOPRIGHT",powerbar,"TOPRIGHT",0,0)
+    hp:SetHeight(db.height)
     hp:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     hp:SetMinMaxValues(0,100)
     hp:SetOrientation("VERTICAL")
@@ -1725,10 +1736,12 @@ do
     end
 
     local function CustomStatusBar_ResizeVertical(self, value)
-        self._texture:SetHeight(self:GetHeight()*value)
+        local len = self._height or self:GetHeight()
+        self._texture:SetHeight(len*value)
     end
     local function CustomStatusBar_ResizeHorizontal(self, value)
-        self._texture:SetWidth(self:GetWidth()*value)
+        local len = self._width or self:GetWidth()
+        self._texture:SetWidth(len*value)
     end
 
     local function CustomStatusBar_MakeCoordsVerticalStandard(self, p)
@@ -1745,19 +1758,28 @@ do
         return 1-p,1,0,1
     end
 
+    local function CustomStatusBar_SetWidth(self, w)
+        self:_SetWidth(w)
+        self._width = w
+    end
+
+    local function CustomStatusBar_SetHeight(self, w)
+        self:_SetHeight(w)
+        self._height = w
+    end
+
     local function CustomStatusBar_Configure(self)
         local isReversed = self._reversed
         local orientation = self._orientation
         local t = self._texture
+        t:ClearAllPoints()
         if orientation == "VERTICAL" then
             self._Resize = CustomStatusBar_ResizeVertical
             if isReversed then
-                t:ClearAllPoints()
                 t:SetPoint("TOPLEFT")
                 t:SetPoint("TOPRIGHT")
                 self.MakeCoords = CustomStatusBar_MakeCoordsVerticalReversed
             else
-                t:ClearAllPoints()
                 t:SetPoint("BOTTOMLEFT")
                 t:SetPoint("BOTTOMRIGHT")
                 self.MakeCoords = CustomStatusBar_MakeCoordsVerticalStandard
@@ -1765,12 +1787,10 @@ do
         else
             self._Resize = CustomStatusBar_ResizeHorizontal
             if isReversed then
-                t:ClearAllPoints()
                 t:SetPoint("TOPRIGHT")
                 t:SetPoint("BOTTOMRIGHT")
                 self.MakeCoords = CustomStatusBar_MakeCoordsHorizontalReversed
             else
-                t:ClearAllPoints()
                 t:SetPoint("TOPLEFT")
                 t:SetPoint("BOTTOMLEFT")
                 self.MakeCoords = CustomStatusBar_MakeCoordsHorizontalStandard
@@ -1814,6 +1834,14 @@ do
         f.SetOrientation = CustomStatusBar_SetOrientation
         f._Configure = CustomStatusBar_Configure
         f.SetValue = CustomStatusBar_SetValue
+
+        -- As i later found out, parent:GetHeight() doesn't immediately return the correct values on login, leading to infinite bars
+        -- So i had to move from attachment by opposing corners to attachment by neighboring corners + SetHeight/SetWidth
+
+        f._SetWidth = f.SetWidth
+        f.SetWidth = CustomStatusBar_SetWidth
+        f._SetHeight = f.SetHeight
+        f.SetHeight = CustomStatusBar_SetHeight
 
         f:SetOrientation(orientation or "HORIZONTAL")
 

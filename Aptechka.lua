@@ -956,6 +956,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
                 SetJob(unit, deadorghost, true)
                 SetJob(unit,config.HealthDeficitStatus, false )
                 self.isDead = true
+                Aptechka:UNIT_DISPLAYPOWER(event, unit, true)
                 if self.OnDead then self:OnDead() end
             elseif self.isDead then
                 self.isDead = false
@@ -964,6 +965,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
                 SetJob(unit, config.DeadStatus, false)
                 SetJob(unit, config.ResPendingStatus, false)
                 SetJob(unit, config.ResIncomingStatus, false)
+                Aptechka:UNIT_DISPLAYPOWER(event, unit, false)
                 if self.OnAlive then self:OnAlive() end
             end
         end
@@ -1069,12 +1071,12 @@ function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
         end
     end
 end
-function Aptechka.UNIT_DISPLAYPOWER(self, event, unit)
+function Aptechka.UNIT_DISPLAYPOWER(self, event, unit, isDead)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
         if self.power and self.power.OnPowerTypeChange then
             local tnum, tname = UnitPowerType(unit)
-            self.power:OnPowerTypeChange(tname)
+            self.power:OnPowerTypeChange(tname, isDead)
         end
     end
 end
