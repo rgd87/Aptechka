@@ -74,12 +74,12 @@ local OnAlive = function(self)
         self.power:Hide()
     end
 end
-local PowerBar_OnPowerTypeChange = function(powerbar, powerType)
+local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
     local self = powerbar:GetParent()
     powerType = powerType or self.power.powerType
     self.power.powerType = powerType
 
-    if powerType ~= "MANA" then
+    if powerType ~= "MANA" or isDead then
         self.power.disabled = true
         self.power:Hide()
         self.health:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
