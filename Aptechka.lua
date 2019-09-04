@@ -542,6 +542,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         CreatePetsFunc()
     end
     if config.unlocked then anchors[1]:Show() end
+    local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
+    local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
+    Aptechka:SetGrowth(unitGrowth, groupGrowth)
 
     -- if config.DispelFilterAll
     --     then DispelFilter = "HARMFUL"
