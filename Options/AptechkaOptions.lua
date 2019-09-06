@@ -546,7 +546,11 @@ function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm
 	controls.disabled:SetValue(opts.disabled)
 	controls.disabled:SetDisabled(isEmptyForm)
 
-    controls.assignto:SetValue(opts.assignto)
+    local widgetName = opts.assignto
+    if type(widgetName) == "table" then
+        widgetName = widgetName[1]
+    end
+    controls.assignto:SetValue(widgetName)
 	controls.name:SetText(opts.name or "")
 	controls.priority:SetText(opts.priority)
     controls.extend_below:SetText(opts.extend_below)

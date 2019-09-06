@@ -174,7 +174,7 @@ local function SetupDefaults(t, defaults)
                 SetupDefaults(t[k], v)
             end
         else
-            if t[k] == nil then t[k] = v end
+            if type(t) == "table" and t[k] == nil then t[k] = v end
             if t[k] == "__REMOVED__" then t[k] = nil end
         end
     end
