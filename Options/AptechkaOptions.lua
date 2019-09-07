@@ -1272,8 +1272,12 @@ local function MakeGeneralOptions()
                                 type = "range",
                                 get = function(info) return Aptechka.db.fgColorMultiplier end,
                                 set = function(info, v)
-                                    Aptechka.db.fgColorMultiplier = v
-                                    Aptechka:RefreshAllUnitsColors()
+                                    if v > Aptechka.db.bgColorMultiplier then
+                                        Aptechka.db.fgColorMultiplier = v
+                                        Aptechka:RefreshAllUnitsColors()
+                                    else
+                                        Aptechka.db.fgColorMultiplier = Aptechka.db.bgColorMultiplier
+                                    end
                                 end,
                                 min = 0,
                                 max = 1,
@@ -1285,8 +1289,12 @@ local function MakeGeneralOptions()
                                 type = "range",
                                 get = function(info) return Aptechka.db.bgColorMultiplier end,
                                 set = function(info, v)
-                                    Aptechka.db.bgColorMultiplier = v
-                                    Aptechka:RefreshAllUnitsColors()
+                                    if v < Aptechka.db.fgColorMultiplier then
+                                        Aptechka.db.bgColorMultiplier = v
+                                        Aptechka:RefreshAllUnitsColors()
+                                    else
+                                        Aptechka.db.bgColorMultiplier = Aptechka.db.fgColorMultiplier
+                                    end
                                 end,
                                 min = 0,
                                 max = 1,
