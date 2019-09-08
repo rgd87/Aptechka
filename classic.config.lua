@@ -10,7 +10,7 @@ local DispelTypes = helpers.DispelTypes
 local RangeCheckBySpell = helpers.RangeCheckBySpell
 local IsPlayerSpell = IsPlayerSpell
 
-
+local color1 = { 0.9, 0, 0 }
 local bossDebuff = { type = "HARMFUL", assignto = "bossdebuff", color = color1, priority = 40, pulse = true }
 local tankCD = { type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94}
 local survivalCD = { type = "HELPFUL", assignto = "shieldicon", global = true, showDuration = true, priority = 90 }
@@ -96,7 +96,7 @@ if playerClass == "PRIEST" then
         RangeCheckBySpell(2050),
     }
 
-    -- DispelTypes("MAGIC|DISEASE")
+    DispelTypes("Magic", "Disease")
 
 end
 
@@ -120,7 +120,7 @@ if playerClass == "DRUID" then
         RangeCheckBySpell(5185),
     }
 
-     -- DispelTypes("MAGIC|CURSE|POISON")
+    DispelTypes("Curse", "Poison")
 end
 
 
@@ -143,7 +143,7 @@ if playerClass == "PALADIN" then
         RangeCheckBySpell(635),
     }
 
-    -- DispelTypes("MAGIC|DISEASE|POISON")
+    DispelTypes("Magic", "Disease", "Poison")
 
 end
 
@@ -171,7 +171,7 @@ if playerClass == "SHAMAN" then
         RangeCheckBySpell(331),
     }
 
-    -- DispelTypes("POISON|DISEASE")
+    DispelTypes("Poison", "Disease")
 
 end
 
@@ -184,7 +184,7 @@ if playerClass == "MAGE" then
     -- Amplify Magic
     A{ id = { 1008, 8455, 10169, 10170 }, type = "HELPFUL", assignto = "spell3", color = {1,0.7,0.5}, priority = 80 }
 
-    -- DispelTypes("CURSE")
+    DispelTypes("Curse")
 end
 
 if playerClass == "WARRIOR" then
