@@ -365,6 +365,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             CompactUnitFrameProfiles:UnregisterAllEvents()
 
             local disableCompactRaidFrameUnitButton = function(self)
+                if not CanAccessObject(self) then return end
                 -- for some reason CompactUnitFrame_OnLoad also gets called for nameplates, so ignoring that
                 local frameName = self:GetName()
                 if string.sub(frameName, 1, 16) == "CompactRaidFrame" then
