@@ -2122,6 +2122,9 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
         if indexOrSlot > 0 then
             name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, auraFilter)
+            if auraFilter == "HELPFUL" then
+                debuffType = "Helpful"
+            end
             -- name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
             if prio >= 9 then
                 isBossAura = true
