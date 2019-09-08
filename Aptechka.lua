@@ -47,7 +47,6 @@ end
 local AptechkaUnitInRange
 local uir -- current range check function
 local auras
-local dtypes
 local traceheals
 local colors
 local threshold --incoming heals
@@ -72,7 +71,7 @@ local group_headers = {}
 local missingFlagSpells = {}
 local anchors = {}
 local skinAnchorsName
-
+local BITMASK_DISPELLABLE
 local RosterUpdateOccured
 local LastCastSentTime = 0
 local LastCastTargetName
@@ -101,6 +100,7 @@ local pixelperfect = helpers.pixelperfect
 local spellNameToID = helpers.spellNameToID
 Aptechka.spellNameToID = spellNameToID
 local bit_band = bit.band
+local bit_bor = bit.bor
 local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
 local pairs = pairs
@@ -177,7 +177,7 @@ local function SetupDefaults(t, defaults)
                 SetupDefaults(t[k], v)
             end
         else
-            if t[k] == nil then t[k] = v end
+            if type(t) == "table" and t[k] == nil then t[k] = v end
             if t[k] == "__REMOVED__" then t[k] = nil end
         end
     end
@@ -297,7 +297,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     config.traces = config.traces or {}
     auras = config.auras
     traceheals = config.traces
-    dtypes = config.DebuffTypes
+    BITMASK_DISPELLABLE = config.BITMASK_DISPELLABLE
 
     local _, class = UnitClass("player")
     local categories = {"auras", "traces"}
@@ -384,6 +384,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             CompactUnitFrameProfiles:UnregisterAllEvents()
 
             local disableCompactRaidFrameUnitButton = function(self)
+                if not CanAccessObject(self) then return end
                 -- for some reason CompactUnitFrame_OnLoad also gets called for nameplates, so ignoring that
                 local frameName = self:GetName()
                 if string.sub(frameName, 1, 16) == "CompactRaidFrame" then
@@ -2194,17 +2195,74 @@ function Aptechka.SimpleDebuffPostUpdate(unit)
     end
 end
 
+local debuffTypeMask = 0
+local BITMASK_DISEASE = helpers.BITMASK_DISEASE
+local BITMASK_POISON = helpers.BITMASK_POISON
+local BITMASK_CURSE = helpers.BITMASK_CURSE
+local BITMASK_MAGIC = helpers.BITMASK_MAGIC
+local function DispelTypeProc(unit, index, slot, filter, name, icon, count, debuffType)
+    if debuffType == "Magic" then
+        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_MAGIC)
+        return
+    elseif debuffType == "Poison" then
+        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_POISON)
+        return
+    elseif debuffType == "Disease" then
+        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_DISEASE)
+        return
+    elseif debuffType == "Curse" then
+        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_CURSE)
+        return
+    end
+end
+
+local MagicColor = { 0.2, 0.6, 1}
+local CurseColor = { 0.6, 0, 1}
+local PoisonColor = { 0, 0.6, 0}
+local DiseaseColor = { 0.6, 0.4, 0}
+local function DispelTypePostUpdate(unit)
+    local debuffTypeMaskDispellable = bit_band( debuffTypeMask, BITMASK_DISPELLABLE )
+
+    local frames = Roster[unit]
+    if frames then
+        for frame in pairs(frames) do
+            if frame.debuffTypeMask ~= debuffTypeMaskDispellable then
+
+                local color
+                if bit_band(debuffTypeMaskDispellable, BITMASK_MAGIC) > 0 then
+                    color = MagicColor
+                elseif bit_band(debuffTypeMaskDispellable, BITMASK_POISON) > 0 then
+                    color = PoisonColor
+                elseif bit_band(debuffTypeMaskDispellable, BITMASK_DISEASE) > 0 then
+                    color = DiseaseColor
+                elseif bit_band(debuffTypeMaskDispellable, BITMASK_CURSE) > 0 then
+                    color = CurseColor
+                end
+
+                if color then
+                    config.DispelStatus.color = color
+                    FrameSetJob(frame, config.DispelStatus, true)
+                else
+                    FrameSetJob(frame, config.DispelStatus, false)
+                end
+
+                frame.debuffTypeMask = debuffTypeMaskDispellable
+            end
+        end
+    end
+end
 
 
 local handleDebuffs = function(unit, index, slot, filter, ...)
     IndicatorAurasProc(unit, index, slot, filter, ...)
     DebuffProc(unit, index, slot, filter, ...)
+    -- DispelTypeProc(unit, index, slot, filter, ...)
 end
 
 function Aptechka.ScanAuras(unit)
     -- indicator cleanup
     table_wipe(encountered)
-
+    debuffTypeMask = 0
     -- debuffs cleanup
     table_wipe(debuffList)
 
@@ -2235,6 +2293,7 @@ function Aptechka.ScanAuras(unit)
 
     IndicatorAurasPostUpdate(unit)
     DebuffPostUpdate(unit)
+    -- DispelTypePostUpdate(unit)
 end
 local debugprofilestop = debugprofilestop
 function Aptechka.UNIT_AURA(self, event, unit)

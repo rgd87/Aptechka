@@ -1,3 +1,7 @@
+### 1.13.11:
+
+- fixed taint error caused by friendly nameplates
+
 ### 1.13.10:
 
 - fixed Growth not setting correctly on login

@@ -1323,6 +1323,8 @@ local function Reconf(self)
         end
         self.debuffIcons:Align("VERTICAL")
 
+        self.bossdebuff:SetPoint("BOTTOMLEFT", self.debuffIcons[1], "BOTTOMRIGHT",0,0)
+
     else
         self.health:SetOrientation("HORIZONTAL")
         self.power:SetOrientation("HORIZONTAL")
@@ -1365,6 +1367,8 @@ local function Reconf(self)
             icon:SetOrientation("HORIZONTAL", debuffSize)
         end
         self.debuffIcons:Align("HORIZONTAL")
+
+        self.bossdebuff:SetPoint("BOTTOMLEFT", self.debuffIcons[1], "TOPLEFT",0,0)
     end
 
 end
@@ -1627,7 +1631,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.debuffIcons:Align("VERTICAL")
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
-    local blcorner = CreateCorner(self, 12, 12, "BOTTOMLEFT", self.dicon1, "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation
+    local blcorner = CreateCorner(self, 16, 16, "BOTTOMLEFT", self.debuffIcons[1], "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation
 
     local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
     self.healfeedback = trcorner
@@ -1689,7 +1693,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     end
 
     self.bossdebuff = blcorner
-    self.dispel = nil
     self.icon = icon
     self.castIcon = progressIcon
     self.raidicon = raidicon

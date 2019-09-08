@@ -546,7 +546,11 @@ function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm
 	controls.disabled:SetValue(opts.disabled)
 	controls.disabled:SetDisabled(isEmptyForm)
 
-    controls.assignto:SetValue(opts.assignto)
+    local widgetName = opts.assignto
+    if type(widgetName) == "table" then
+        widgetName = widgetName[1]
+    end
+    controls.assignto:SetValue(widgetName)
 	controls.name:SetText(opts.name or "")
 	controls.priority:SetText(opts.priority)
     controls.extend_below:SetText(opts.extend_below)
@@ -1259,8 +1263,12 @@ local function MakeGeneralOptions()
                                 type = "range",
                                 get = function(info) return Aptechka.db.fgColorMultiplier end,
                                 set = function(info, v)
-                                    Aptechka.db.fgColorMultiplier = v
-                                    Aptechka:RefreshAllUnitsColors()
+                                    if v > Aptechka.db.bgColorMultiplier then
+                                        Aptechka.db.fgColorMultiplier = v
+                                        Aptechka:RefreshAllUnitsColors()
+                                    else
+                                        Aptechka.db.fgColorMultiplier = Aptechka.db.bgColorMultiplier
+                                    end
                                 end,
                                 min = 0,
                                 max = 1,
@@ -1272,8 +1280,12 @@ local function MakeGeneralOptions()
                                 type = "range",
                                 get = function(info) return Aptechka.db.bgColorMultiplier end,
                                 set = function(info, v)
-                                    Aptechka.db.bgColorMultiplier = v
-                                    Aptechka:RefreshAllUnitsColors()
+                                    if v < Aptechka.db.fgColorMultiplier then
+                                        Aptechka.db.bgColorMultiplier = v
+                                        Aptechka:RefreshAllUnitsColors()
+                                    else
+                                        Aptechka.db.bgColorMultiplier = Aptechka.db.fgColorMultiplier
+                                    end
                                 end,
                                 min = 0,
                                 max = 1,
