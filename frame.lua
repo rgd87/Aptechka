@@ -1016,7 +1016,7 @@ local function CreateAbsorbSideBar(hp)
     local absorb = CreateFrame("Frame", nil, hp)
     absorb:SetParent(hp)
     -- absorb:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-    absorb:SetPoint("TOPLEFT",self,"TOPLEFT",-3,0)
+    absorb:SetPoint("TOPLEFT",hp,"TOPLEFT",-3,0)
     absorb:SetWidth(3)
 
     local at = absorb:CreateTexture(nil, "ARTWORK", nil, -4)

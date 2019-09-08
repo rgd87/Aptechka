@@ -89,6 +89,8 @@ globals = {
 	"AptechkaConfigMerged",
 	"AptechkaConfigCustom",
 	"Aptechka",
+	"AptechkaDB_Global",
+	"AptechkaDB_Char",
 
 	"GetLocale",
 	"Enum",
@@ -189,4 +191,6 @@ globals = {
 	"UnitReaction",
 	"IsPlayerSpell",
 	"GetShapeshiftForm",
+	"CanAccessObject",
+	"SecureHandlerSetFrameRef",
 }
