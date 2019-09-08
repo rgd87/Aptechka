@@ -1113,11 +1113,14 @@ end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
 
+local border_backdrop = {
+    edgeFile = "Interface\\Addons\\Aptechka\\border", tileEdge = true, edgeSize = 14,
+    insets = {left = -2, right = -2, top = -2, bottom = -2},
+}
 local SetJob_Border = function(self,job)
     if job.color then
-        -- self:SetBackdropColor(unpack(job.color))
         local r,g,b = unpack(job.color)
-        self:SetVertexColor(r,g,b,0.5)
+        self:SetBackdropBorderColor(r,g,b,0.5)
     end
 end
 
@@ -1385,19 +1388,12 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local font = LSM:Fetch("font",  Aptechka.db.nameFontName)
     local fontsize = Aptechka.db.nameFontSize
     local manabar_width = config.manabarwidth
-    local border = pixelperfect(2)
+    local outlineSize = pixelperfect(2)
 
     self.ReconfigureUnitFrame = Reconf
 
-    -- local backdrop = {
-    --     bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
-    --     insets = {left = -2, right = -2, top = -2, bottom = -2},
-    -- }
-    -- self:SetBackdrop(backdrop)
-    -- self:SetBackdropColor(0, 0, 0, 1)
-
-    local frameborder = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
-    frameborder:SetVertexColor(0,0,0,1)
+    local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
+    outline:SetVertexColor(0,0,0,1)
 
     -- local powerbar = CreateFrame("StatusBar", nil, self)
     local powerbar = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
@@ -1547,8 +1543,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp.incoming = hpi
 
     local p4 = pixelperfect(3.5)
-    local border = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -p4, -p4, -p4, -p4, -5)
-    border:SetVertexColor(1, 1, 1, 0.5)
+    local border = CreateFrame("Frame", nil, self)
+    border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
+    border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
+    border:SetBackdrop(border_backdrop)
+	border:SetBackdropBorderColor(1, 1, 1, 0.5)
     border.SetJob = SetJob_Border
     border:Hide()
 
