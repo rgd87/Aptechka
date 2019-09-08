@@ -2238,7 +2238,7 @@ end
 local handleDebuffs = function(unit, index, slot, filter, ...)
     IndicatorAurasProc(unit, index, slot, filter, ...)
     DebuffProc(unit, index, slot, filter, ...)
-    DispelTypeProc(unit, index, slot, filter, ...)
+    -- DispelTypeProc(unit, index, slot, filter, ...)
 end
 
 function Aptechka.ScanAuras(unit)
@@ -2275,7 +2275,7 @@ function Aptechka.ScanAuras(unit)
 
     IndicatorAurasPostUpdate(unit)
     DebuffPostUpdate(unit)
-    DispelTypePostUpdate(unit)
+    -- DispelTypePostUpdate(unit)
 end
 local debugprofilestop = debugprofilestop
 function Aptechka.UNIT_AURA(self, event, unit)
