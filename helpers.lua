@@ -27,25 +27,25 @@ helpers.PercentColor = function(percent)
     end
 end
 
-helpers.AddDispellType = function(dtype, data)
-    if not config.DebuffTypes then config.DebuffTypes = {} end
-    local _,class = UnitClass("player")
-
-    if class == "PRIEST" then
-        if dtype ~= "Disease" and dtype ~= "Magic" then config.DispelFilterAll = true end
-    elseif class == "DRUID" then
-        if dtype ~= "Curse" and dtype ~= "Magic" and dtype ~= "Poison" then config.DispelFilterAll = true end
-    elseif class == "PALADIN" then
-        if dtype ~= "Disease" and dtype ~= "Magic" and dtype ~= "Poison" then config.DispelFilterAll = true end
-    elseif class == "SHAMAN" then
-        if dtype ~= "Curse" and dtype ~= "Magic" then config.DispelFilterAll = true end
-    elseif class == "MAGE" then
-        if dtype ~= "Curse" then config.DispelFilterAll = true end
-    else
-        config.DispelFilterAll = true
+config.BITMASK_DISPELLABLE = 0
+helpers.BITMASK_DISEASE = 0xF000
+helpers.BITMASK_POISON = 0x0F00
+helpers.BITMASK_CURSE = 0x00F0
+helpers.BITMASK_MAGIC = 0x000F
+function helpers.DispelTypes(...)
+    local numArgs = select("#", ...)
+    for i=1, numArgs do
+        local debuffType = select(i, ...)
+        if debuffType == "Magic" then
+            config.BITMASK_DISPELLABLE = bit.bor( config.BITMASK_DISPELLABLE, helpers.BITMASK_MAGIC)
+        elseif debuffType == "Poison" then
+            config.BITMASK_DISPELLABLE = bit.bor( config.BITMASK_DISPELLABLE, helpers.BITMASK_POISON)
+        elseif debuffType == "Disease" then
+            config.BITMASK_DISPELLABLE = bit.bor( config.BITMASK_DISPELLABLE, helpers.BITMASK_DISEASE)
+        elseif debuffType == "Curse" then
+            config.BITMASK_DISPELLABLE = bit.bor( config.BITMASK_DISPELLABLE, helpers.BITMASK_CURSE)
+        end
     end
-    data.name = dtype
-    config.DebuffTypes[dtype] = data
 end
 
 local protomt = { __index = function(t,k) return t.prototype[k] end }

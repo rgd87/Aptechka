@@ -2,7 +2,7 @@ local _, helpers = ...
 local _, playerClass = UnitClass("player")
 local isHealer = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "DRUID" or playerClass == "MONK")
 local A = helpers.AddAura
-local DT = helpers.AddDispellType
+local DispelTypes = helpers.DispelTypes
 local D = helpers.AddDebuff
 local Trace = helpers.AddTrace
 local config = AptechkaDefaultConfig
@@ -83,6 +83,7 @@ config.PowerBarColor = { name = "PowerBar", assignto = "power", color = {.5,.5,1
 config.OutOfRangeStatus = { name = "OOR", assignto = "self", color = {0.5,0.5,0.5}, alpha = 0.5, text = "OOR", priority = 50 }
 config.InVehicleStatus = { name = "InVehicle", assignto = "border", color = {0.3,1,0.3}, priority = 21 }
 config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, resetAnimation = true, priority = 95, fade = 0.3 }
+config.DispelStatus = { name = "Dispel", assignto = "bossdebuff", scale = 0.85, priority = 6 }
 config.StaggerStatus = { name = "Stagger", assignto = "text2", percentColor = true, priority = 20 }
 
 config.SummonPending = { name = "SUMMON_PENDING", assignto = { "text2" }, color = {1,0.7,0}, text = "PENDING", priority = 50 }
@@ -90,19 +91,6 @@ config.SummonAccepted = { name = "SUMMON_ACCEPTED", assignto = { "text2" }, colo
 config.SummonDeclined = { name = "SUMMON_DECLINED", assignto = { "text2" }, color = {1,0,0}, text = "DECLINED", priority = 52 }
 
 -- default priority is 80
-
--- D(1, { name = "DI1", assignto = "dicon1", pulse = true, showDuration = true })
--- D(2, { name = "DI2", assignto = "dicon2", pulse = true, showDuration = true })
--- D(3, { name = "DI3", assignto = "dicon3", pulse = true, showDuration = true })
--- D(4, { name = "DI4", assignto = "dicon4", pulse = true, showDuration = true })
-
-local function DispelTypes(str)
-    str = str:upper()
-    if str:find("MAGIC") then DT("Magic", { assignto = "dispel", color = { 0.2, 0.6, 1}, priority = 6 }) end
-    if str:find("CURSE") then DT("Curse", { assignto = "dispel", color = { 0.6, 0, 1}, priority = 5 }) end
-    if str:find("POISON") then DT("Poison", { assignto = "dispel", color = { 0, 0.6, 0}, priority = 4 }) end
-    if str:find("DISEASE") then DT("Disease", { assignto = "dispel", color = { 0.6, 0.4, 0}, priority = 3}) end
-end
 
 local IsSpellInRange = _G.IsSpellInRange
 local function RangeCheckBySpell(spellID)
@@ -116,6 +104,8 @@ end
 
 local tankCD = { type = "HELPFUL", assignto = { "icon", "text3" }, global = true, showDuration = true, priority = 94}
 local survivalCD = { type = "HELPFUL", assignto = "shieldicon", global = true, showDuration = true, priority = 90 }
+
+-- A{ id = 25163, type = "HARMFUL", assignto = "bossdebuff", scale = 0.85, color = { 0.2, 0.6, 1 }, priority = 40, pulse = true } -- Oozeling
 
 -- ESSENCES
 A{ id = 296094, prototype = tankCD } --Standstill (Artifice of Time)
@@ -276,7 +266,7 @@ if playerClass == "PRIEST" then
         RangeCheckBySpell(17), -- Shadow: PWS
     }
 
-    -- DispelTypes("MAGIC|DISEASE")
+    DispelTypes("Magic", "Disease")
 
 end
 
@@ -314,7 +304,7 @@ if playerClass == "MONK" then
         RangeCheckBySpell(116670),
     }
 
-    -- DispelTypes("MAGIC|DISEASE|POISON")
+    DispelTypes("Magic", "Disease", "Poison")
 end
 
 if playerClass == "WARLOCK" then
@@ -358,7 +348,7 @@ if playerClass == "PALADIN" then
         RangeCheckBySpell(19750),
     }
 
-    -- DispelTypes("MAGIC|DISEASE|POISON")
+    DispelTypes("Magic", "Disease", "Poison")
 end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
@@ -388,7 +378,7 @@ if playerClass == "SHAMAN" then
     }
 
 
-    -- DispelTypes("MAGIC|CURSE")
+    DispelTypes("Magic", "Curse")
 end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = "raidbuff", color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
@@ -413,7 +403,7 @@ if playerClass == "DRUID" then
         RangeCheckBySpell(8936),
     }
 
-    -- DispelTypes("MAGIC|CURSE|POISON")
+    DispelTypes("Magic", "Curse", "Poison")
 end
 
 if playerClass == "WARRIOR" then
