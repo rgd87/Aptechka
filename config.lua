@@ -69,7 +69,7 @@ config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = "spell3", s
 
 config.LeaderStatus = { name = "Leader", priority = 59, assignto = "text3", color = {1,.8,.2}, text = "L" }
 -- config.AssistStatus = { name = "Assist", priority = 59, assignto = "text3", color = {1,.8,.2}, text = "A" }
-config.VoiceChatStatus = { name = "VoiceChat", priority = 59, assignto = "text3", color = {0.3, 1, 0.3}, text = "S", priority = 99 }
+config.VoiceChatStatus = { name = "VoiceChat", assignto = "text3", color = {0.3, 1, 0.3}, text = "S", priority = 99 }
 config.MainTankStatus = { name = "MainTank", priority = 60, assignto = "border", color = {0.6,0.6,0.6} }
 config.DeadStatus = { name = "DEAD", assignto = { "text2","health" }, color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
 config.GhostStatus = { name = "GHOST", assignto = { "text2","health" }, color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
@@ -438,8 +438,6 @@ helpers.auraBlacklist = {
 
     [287825] = true, -- Lethargy, Hit or run azerite trait
 
-    [110310] = true, -- Dampening
-
     [209261] = true, -- Uncontained Fel (DH, Last Resort cooldown)
     [264689] = true, -- Fatigued (Hunter BL)
     [219521] = true, -- Shadow Covenant (Disc Priest Talent)
@@ -447,7 +445,7 @@ helpers.auraBlacklist = {
     [57724] = true, -- Sated (BL)
     [80354] = true, -- Temporal Displacement (Mage BL)
     [95809] = true, -- Insanity (old Hunter BL, Ancient Hysteria)
-	[57723] = true, -- Drums BL debuff, and Heroism?
+    [57723] = true, -- Drums BL debuff, and Heroism?
     [95223] = true, -- Mass Res
     [26013] = true, -- PVP Deserter
     [71041] = true, -- Deserter
@@ -692,20 +690,20 @@ helpers.customBossAuras = {
     [81261] = true, -- Solar Beam
     [163505] = true, -- Rake
     [209749] = true, -- Faerie Swarm (Slow/Disarm)
-	[209753] = true, -- Cyclone
-		[33786] = true, -- Cyclone
-	[22570] = true, -- Maim
-		[203123] = true, -- Maim
+    [209753] = true, -- Cyclone
+        [33786] = true, -- Cyclone
+    [22570] = true, -- Maim
+        [203123] = true, -- Maim
         [236025] = true, -- Enraged Maim (Feral Honor Talent)
 
 
     [3355] = true, -- Freezing Trap
-	[19386] = true, -- Wyvern Sting
+    [19386] = true, -- Wyvern Sting
     [19577] = true, -- Intimidation
     [117526] = true, -- Binding Shot Stun
     [238559] = true, -- Bursting Shot
     [202914] = true, -- Spider Sting (Armed)
-		[202933] = true, -- Spider Sting (Silenced)
+        [202933] = true, -- Spider Sting (Silenced)
         [233022] = true, -- Spider Sting (Silenced)
     [209790] = true, -- Freezing Arrow
     [213691] = true, -- Scatter Shot
@@ -752,8 +750,8 @@ helpers.customBossAuras = {
         [199683] = true, -- Last Word
     [87204] = true, -- Sin and Punishment
     [200196] = true, -- Holy Word: Chastise
-		[200200] = true, -- Holy Word: Chastise (Stun)
-	[205369] = true, -- Mind Bomb
+        [200200] = true, -- Holy Word: Chastise (Stun)
+    [205369] = true, -- Mind Bomb
         [226943] = true, -- Mind Bomb (Stun)
 
 
@@ -768,21 +766,21 @@ helpers.customBossAuras = {
 
 
     [51514] = true, -- Hex
-		[196932] = true, -- Voodoo Totem
-		[210873] = true, -- Hex (Compy)
-		[211004] = true, -- Hex (Spider)
-		[211010] = true, -- Hex (Snake)
+        [196932] = true, -- Voodoo Totem
+        [210873] = true, -- Hex (Compy)
+        [211004] = true, -- Hex (Spider)
+        [211010] = true, -- Hex (Snake)
         [211015] = true, -- Hex (Cockroach)
     [77505] = true, -- Earthquake (Stun)
     [118345] = true, -- Pulverize
-	[118905] = true, -- Static Charge
+    [118905] = true, -- Static Charge
     [197214] = true, -- Sundering
 
 
     [710] = true, -- Banish
-	[5484] = true, -- Howl of Terror
-	[6358] = true, -- Seduction
-	[6789] = true, -- Mortal Coil
+    [5484] = true, -- Howl of Terror
+    [6358] = true, -- Seduction
+    [6789] = true, -- Mortal Coil
     [30283] = true, -- Shadowfury
     [89766] = true, -- Axe Toss
     [118699] = true, -- Fear

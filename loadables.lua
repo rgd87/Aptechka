@@ -41,12 +41,11 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     ["Freehold"] = function()
         A{ id = 258323, prototype = BossDebuff } -- Infected Wound
         A{ id = 257908, prototype = BossDebuff } -- Oiled Blade
-    end,   
+    end,
     ["Shrine of the Storm"] = function()
         A{ id = 268233, prototype = BossDebuff } -- Electrifying Shock
     end,
     ["Temple of Sethraliss"] = function()
-        
         A{ id = 280032, prototype = BossDebuff } -- Neurotoxin
         A{ id = 268008, prototype = BossDebuff } -- Snake Charm
         A{ id = 263958, prototype = BossDebuff } -- A Knot of Snakes
@@ -75,7 +74,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     ["Siege of Boralus"] = function()
         A{ id = 272571, prototype = BossDebuff } -- Choking Waters
     end,
-    
+
 
 
     -- ["Emerald Nightmare"] = function()

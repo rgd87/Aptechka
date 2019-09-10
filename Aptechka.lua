@@ -4,7 +4,7 @@ Aptechka = CreateFrame("Frame","Aptechka",UIParent)
 local Aptechka = Aptechka
 
 Aptechka:SetScript("OnEvent", function(self, event, ...)
-	self[event](self, event, ...)
+    self[event](self, event, ...)
 end)
 
 --- Compatibility with Classic
@@ -103,7 +103,6 @@ local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
 local pairs = pairs
 local next = next
-local _, helpers = ...
 Aptechka.helpers = helpers
 local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
@@ -240,11 +239,11 @@ Aptechka:RegisterEvent("PLAYER_LOGOUT")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
     local uir2 = function(unit)
-		if UnitIsDeadOrGhost(unit) then --IsSpellInRange doesn't work with dead people
-			return UnitInRange(unit)
-		else
-			return uir(unit)
-		end
+        if UnitIsDeadOrGhost(unit) then --IsSpellInRange doesn't work with dead people
+            return UnitInRange(unit)
+        else
+            return uir(unit)
+        end
     end
 
     AptechkaUnitInRange = uir2
@@ -339,11 +338,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     for spellID, originalSpell in pairs(traceheals) do
         if not cloneIDs[spellID] and originalSpell.clones then
-			for i, additionalSpellID in ipairs(originalSpell.clones) do
+            for i, additionalSpellID in ipairs(originalSpell.clones) do
                 traceheals[additionalSpellID] = originalSpell
                 cloneIDs[additionalSpellID] = true
-			end
-		end
+            end
+        end
     end
 
 
@@ -383,7 +382,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             hooksecurefunc("CompactUnitFrame_OnLoad", disableCompactRaidFrameUnitButton)
             hooksecurefunc("CompactUnitFrame_UpdateUnitEvents", disableCompactRaidFrameUnitButton)
         end
-	end
+    end
 
     if config.enableIncomingHeals then
         self:RegisterEvent("UNIT_HEAL_PREDICTION")
@@ -691,9 +690,9 @@ end
 
 
 function Aptechka:ToggleCompactRaidFrames()
-	local v = IsAddOnLoaded("Blizzard_CompactRaidFrames")
-	local f = v and DisableAddOn or EnableAddOn
-	f("Blizzard_CompactRaidFrames")
+    local v = IsAddOnLoaded("Blizzard_CompactRaidFrames")
+    local f = v and DisableAddOn or EnableAddOn
+    f("Blizzard_CompactRaidFrames")
     f("Blizzard_CUFProfiles")
     ReloadUI()
 end
@@ -866,7 +865,7 @@ function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
         local ch, p = 0, 0
         if hm ~= 0 then
             ch = (h/hm)
-		    p = a/hm
+            p = a/hm
         end
         self.healabsorb:SetValue(p, ch)
     end
@@ -958,7 +957,8 @@ function Aptechka:CheckPhase(frame, unit)
 end
 
 function Aptechka.UNIT_PHASE(self, event, unit)
-    for unit, frames in pairs(Roster) do
+    local frames = Roster[unit]
+    if frames then
         for frame in pairs(frames) do
             Aptechka:CheckPhase(frame,unit)
         end
@@ -1101,9 +1101,9 @@ local vehicleHack = function (self, time)
                 Aptechka:UNIT_DISPLAYPOWER(nil, owner)
                 Aptechka:UNIT_POWER_UPDATE(nil,owner)
             end
-			if self.parent.absorb then
-				Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
-			end
+            if self.parent.absorb then
+                Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
+            end
             Aptechka.ScanAuras(owner)
 
             self:SetScript("OnUpdate",nil)
@@ -1140,7 +1140,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 SetJob(self.unit,config.InVehicleStatus,true)
                 Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
                 if self.power then Aptechka:UNIT_POWER_UPDATE(nil,self.unit) end
-				if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
+                if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
                 Aptechka:CheckPhase(self, self.unit)
                 Aptechka.ScanAuras(self.unit)
             end
@@ -1156,13 +1156,13 @@ Aptechka.OnRangeUpdate = function (self, time)
     if self.OnUpdateCounter < 0.3 then return end
     self.OnUpdateCounter = 0
 
-	if not IsInGroup() then --UnitInRange returns false when not grouped
-		for unit, frames in pairs(Roster) do
-        	for frame in pairs(frames) do
-				frame:SetAlpha(1)
-			end
-		end
-		return
+    if not IsInGroup() then --UnitInRange returns false when not grouped
+        for unit, frames in pairs(Roster) do
+            for frame in pairs(frames) do
+                frame:SetAlpha(1)
+            end
+        end
+        return
     end
 
     if (RosterUpdateOccured) then
@@ -1300,13 +1300,13 @@ function Aptechka.PLAYER_REGEN_ENABLED(self,event)
 end
 
 function Aptechka:UpdateRangeChecker()
-	local spec = GetSpecialization() or 1
-	if config.UnitInRangeFunctions and config.UnitInRangeFunctions[spec] then
-		-- print('using function')
-		uir = config.UnitInRangeFunctions[spec]
-	else
-		uir = UnitInRange
-	end
+    local spec = GetSpecialization() or 1
+    if config.UnitInRangeFunctions and config.UnitInRangeFunctions[spec] then
+        -- print('using function')
+        uir = config.UnitInRangeFunctions[spec]
+    else
+        uir = UnitInRange
+    end
 end
 
 function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
@@ -1325,7 +1325,7 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
         end
     end
 
-	Aptechka:UpdateRangeChecker()
+    Aptechka:UpdateRangeChecker()
 end
 Aptechka.SPELLS_CHANGED = Aptechka.GROUP_ROSTER_UPDATE
 
@@ -1604,7 +1604,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
 
-	if not petgroup
+    if not petgroup
     then
         f:SetAttribute("groupFilter", group)
         if AptechkaDB.sortUnitsByRole then
@@ -2062,11 +2062,11 @@ local function UtilShouldDisplayDebuff(spellId, unitCaster, visType)
         return reaction <= 4 -- display enemy smoke bomb, hide friendly
     end
     local hasCustom, alwaysShowMine, showForMySpec = SpellGetVisibilityInfo(spellId, visType);
-	if ( hasCustom ) then
-		return showForMySpec or (alwaysShowMine and (unitCaster == "player" or unitCaster == "pet" or unitCaster == "vehicle") );	--Would only be "mine" in the case of something like forbearance.
-	else
-		return true;
-	end
+    if ( hasCustom ) then
+        return showForMySpec or (alwaysShowMine and (unitCaster == "player" or unitCaster == "pet" or unitCaster == "vehicle") );	--Would only be "mine" in the case of something like forbearance.
+    else
+        return true;
+    end
 end
 
 local function SpellLocksProc(unit)
@@ -2290,7 +2290,7 @@ function Aptechka.ScanAuras(unit)
     for numDebuffs=1,100 do
         local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, numDebuffs, filter)
         if not name then
-            numDebuffs = numDebuffs-1
+            -- numDebuffs = numDebuffs-1
             break
         end
         handleDebuffs(unit, numDebuffs, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
@@ -2594,8 +2594,8 @@ function Aptechka:VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED(event, member
     end
 end
 
-function Aptechka.SPELLCAST_UPDATE(event, dstGUID)
-    local unit = guidMap[dstGUID]
+function Aptechka.SPELLCAST_UPDATE(event, GUID)
+    local unit = guidMap[GUID]
     if unit and Roster[unit] then
         for frame in pairs(Roster[unit]) do
             local minSrcGUID

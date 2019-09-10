@@ -168,10 +168,10 @@ local SetJob_Indicator = function(self,job)
     -- end
 end
 
-local CreateIndicator = function (parent,w,h,point,frame,to,x,y,nobackdrop)
+local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackdrop)
     local f = CreateFrame("Frame",nil,parent)
-    local w = pixelperfect(w)
-    local h = pixelperfect(h)
+    local w = pixelperfect(width)
+    local h = pixelperfect(height)
     local border = pixelperfect(2)
 
     f:SetWidth(w); f:SetHeight(h);
@@ -450,10 +450,10 @@ local SetJob_StatusBar = function(self,job)
     self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
     -- self.pandot:SetVertexColor(color[1]*0.6, color[2]*0.6, color[3]*0.6)
 end
-local CreateStatusBar = function (parent,w,h,point,frame,to,x,y,nobackdrop, isVertical)
+local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackdrop, isVertical)
     local f = CreateFrame("StatusBar",nil,parent)
-    local w = pixelperfect(w)
-    local h = pixelperfect(h)
+    local w = pixelperfect(width)
+    local h = pixelperfect(height)
     local border = pixelperfect(2)
     f:SetWidth(w); f:SetHeight(h);
     if not nobackdrop then
@@ -741,12 +741,6 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
     icon.SetOrientation = SetDebuffOrientation
 
     icon:SetOrientation("VERTICAL", w)
-
-    -- icon:SetBackdrop{
-        -- bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
-        -- insets = {left = 0, right = -2, top = 0, bottom = 0},
-    -- }
-    -- icon:SetBackdropColor(0, 0, 0, 1)
 
     icon.SetJob = SetJob_DebuffIcon
 
@@ -1397,10 +1391,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     -- local powerbar = CreateFrame("StatusBar", nil, self)
     local powerbar = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
-	powerbar:SetWidth(4)
+    powerbar:SetWidth(4)
     powerbar:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
     powerbar:SetHeight(db.height)
-	powerbar:SetStatusBarTexture(powertexture)
+    powerbar:SetStatusBarTexture(powertexture)
     powerbar:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     powerbar:SetMinMaxValues(0,100)
     powerbar:SetOrientation("VERTICAL")
@@ -1409,7 +1403,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     powerbar.SetColor = HealthBarSetColorFG
 
     local pbbg = powerbar:CreateTexture(nil,"ARTWORK",nil,-8)
-	pbbg:SetAllPoints(powerbar)
+    pbbg:SetAllPoints(powerbar)
     pbbg:SetTexture(powertexture)
     pbbg.SetColor = HealthBarSetColorBG
     powerbar.bg = pbbg
@@ -1417,7 +1411,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     -- local hp = CreateFrame("StatusBar", nil, self)
     local hp = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
-	--hp:SetAllPoints(self)
+    --hp:SetAllPoints(self)
     hp:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
     hp:SetPoint("TOPRIGHT",powerbar,"TOPRIGHT",0,0)
     hp:SetHeight(db.height)
@@ -1430,7 +1424,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     --hp:SetValue(0)
 
     local hpbg = hp:CreateTexture(nil,"ARTWORK",nil,-8)
-	hpbg:SetAllPoints(hp)
+    hpbg:SetAllPoints(hp)
     hpbg:SetTexture(texture)
     hpbg.SetColor = HealthBarSetColorBG
     hp.bg = hpbg
@@ -1547,7 +1541,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
     border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
     border:SetBackdrop(border_backdrop)
-	border:SetBackdropBorderColor(1, 1, 1, 0.5)
+    border:SetBackdropBorderColor(1, 1, 1, 0.5)
     border.SetJob = SetJob_Border
     border:Hide()
 
@@ -1645,22 +1639,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.border = border
 
-    -- self.spell1 = br
-    -- self.spell2 = topind
-    -- self.spell3 = tr
-    -- self.spell4 = btm
-    -- self.spell5 = left
-    -- self.bar1 = bar1
-    -- self.bar2 = bar2
-    -- self.bar3 = bar3
-    -- self.bar4 = vbar1
-    -- self.bars = bars
-
-
-
-
-    -- self.bars = bars
-
     self._optional_widgets = optional_widgets
 
     if not Aptechka.widget_list then
@@ -1707,6 +1685,19 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.OnDead = OnDead
     self.OnAlive = OnAlive
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 do
