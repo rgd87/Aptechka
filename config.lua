@@ -69,7 +69,7 @@ config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = "spell3", s
 
 config.LeaderStatus = { name = "Leader", priority = 59, assignto = "text3", color = {1,.8,.2}, text = "L" }
 -- config.AssistStatus = { name = "Assist", priority = 59, assignto = "text3", color = {1,.8,.2}, text = "A" }
-config.VoiceChatStatus = { name = "VoiceChat", priority = 59, assignto = "text3", color = {0.3, 1, 0.3}, text = "S", priority = 99 }
+config.VoiceChatStatus = { name = "VoiceChat", assignto = "text3", color = {0.3, 1, 0.3}, text = "S", priority = 99 }
 config.MainTankStatus = { name = "MainTank", priority = 60, assignto = "border", color = {0.6,0.6,0.6} }
 config.DeadStatus = { name = "DEAD", assignto = { "text2","health" }, color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
 config.GhostStatus = { name = "GHOST", assignto = { "text2","health" }, color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}

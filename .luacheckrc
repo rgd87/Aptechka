@@ -6,10 +6,17 @@ exclude_files = {
 only = {
 	"011", -- syntax
 	"1", -- globals
+	-- "3", -- Value unused
+	-- "41", -- Redefining
 }
 ignore = {
 	"11/SLASH_.*", -- slash handlers
 	"1/[A-Z][A-Z][A-Z0-9_]+", -- three letter+ constants
+	"211", -- Unused variable
+	"212", -- Unused argument.
+	"213", -- Unused loop variable
+	"42", -- Shadowing
+	"43", -- Shadowing an upvalue.
 }
 globals = {
 	-- wow std api
@@ -89,6 +96,9 @@ globals = {
 	"AptechkaConfigMerged",
 	"AptechkaConfigCustom",
 	"Aptechka",
+	"AptechkaGUI",
+	"AptechkaDB_Global",
+	"AptechkaDB_Char",
 
 	"GetLocale",
 	"Enum",
@@ -121,6 +131,7 @@ globals = {
 	"IsSpellInRange",
 	"DebuffTypeColor",
 	"UIParent",
+	"GameTooltip",
 	"UnitHasIncomingResurrection",
 	"UnitAffectingCombat",
 	"UnitHealth",
@@ -162,6 +173,8 @@ globals = {
 	"UnitPower",
 	"UnitPowerMax",
 	"UnitAura",
+	"UnitAuraSlots",
+	"UnitAuraBySlot",
 	"UnitIsDeadOrGhost",
 	"UnitExists",
 	"UnitIsUnit",
@@ -189,4 +202,6 @@ globals = {
 	"UnitReaction",
 	"IsPlayerSpell",
 	"GetShapeshiftForm",
+	"CanAccessObject",
+	"SecureHandlerSetFrameRef",
 }

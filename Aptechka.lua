@@ -4,7 +4,7 @@ Aptechka = CreateFrame("Frame","Aptechka",UIParent)
 local Aptechka = Aptechka
 
 Aptechka:SetScript("OnEvent", function(self, event, ...)
-	self[event](self, event, ...)
+    self[event](self, event, ...)
 end)
 
 --- Compatibility with Classic
@@ -105,7 +105,6 @@ local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
 local pairs = pairs
 local next = next
-local _, helpers = ...
 Aptechka.helpers = helpers
 local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
@@ -117,6 +116,7 @@ local tinsert = table.insert
 local tsort = table.sort
 local CreatePetsFunc
 local HealComm
+local BuffProc
 local DebuffProc
 local DebuffPostUpdate
 
@@ -242,11 +242,11 @@ Aptechka:RegisterEvent("PLAYER_LOGOUT")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
     local uir2 = function(unit)
-		if UnitIsDeadOrGhost(unit) then --IsSpellInRange doesn't work with dead people
-			return UnitInRange(unit)
-		else
-			return uir(unit)
-		end
+        if UnitIsDeadOrGhost(unit) then --IsSpellInRange doesn't work with dead people
+            return UnitInRange(unit)
+        else
+            return uir(unit)
+        end
     end
 
     AptechkaUnitInRange = uir2
@@ -357,11 +357,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     for spellID, originalSpell in pairs(traceheals) do
         if not cloneIDs[spellID] and originalSpell.clones then
-			for i, additionalSpellID in ipairs(originalSpell.clones) do
+            for i, additionalSpellID in ipairs(originalSpell.clones) do
                 traceheals[additionalSpellID] = originalSpell
                 cloneIDs[additionalSpellID] = true
-			end
-		end
+            end
+        end
     end
 
 
@@ -401,7 +401,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             hooksecurefunc("CompactUnitFrame_OnLoad", disableCompactRaidFrameUnitButton)
             hooksecurefunc("CompactUnitFrame_UpdateUnitEvents", disableCompactRaidFrameUnitButton)
         end
-	end
+    end
 
     if config.enableIncomingHeals then
         HealComm = LibStub:GetLibrary("LibClassicHealComm-1.0",true);
@@ -720,9 +720,9 @@ end
 
 
 function Aptechka:ToggleCompactRaidFrames()
-	local v = IsAddOnLoaded("Blizzard_CompactRaidFrames")
-	local f = v and DisableAddOn or EnableAddOn
-	f("Blizzard_CompactRaidFrames")
+    local v = IsAddOnLoaded("Blizzard_CompactRaidFrames")
+    local f = v and DisableAddOn or EnableAddOn
+    f("Blizzard_CompactRaidFrames")
     f("Blizzard_CUFProfiles")
     ReloadUI()
 end
@@ -917,7 +917,7 @@ function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
         local ch, p = 0, 0
         if hm ~= 0 then
             ch = (h/hm)
-		    p = a/hm
+            p = a/hm
         end
         self.healabsorb:SetValue(p, ch)
     end
@@ -996,7 +996,8 @@ function Aptechka:CheckPhase(frame, unit)
 end
 
 function Aptechka.UNIT_PHASE(self, event, unit)
-    for unit, frames in pairs(Roster) do
+    local frames = Roster[unit]
+    if frames then
         for frame in pairs(frames) do
             Aptechka:CheckPhase(frame,unit)
         end
@@ -1116,9 +1117,9 @@ local vehicleHack = function (self, time)
                 Aptechka:UNIT_DISPLAYPOWER(nil, owner)
                 Aptechka:UNIT_POWER_UPDATE(nil,owner)
             end
-			if self.parent.absorb then
-				Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
-			end
+            if self.parent.absorb then
+                Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
+            end
             Aptechka.ScanAuras(owner)
 
             self:SetScript("OnUpdate",nil)
@@ -1155,7 +1156,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 SetJob(self.unit,config.InVehicleStatus,true)
                 Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
                 if self.power then Aptechka:UNIT_POWER_UPDATE(nil,self.unit) end
-				if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
+                if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
                 Aptechka:CheckPhase(self, self.unit)
                 Aptechka.ScanAuras(self.unit)
             end
@@ -1171,13 +1172,13 @@ Aptechka.OnRangeUpdate = function (self, time)
     if self.OnUpdateCounter < 0.3 then return end
     self.OnUpdateCounter = 0
 
-	if not IsInGroup() then --UnitInRange returns false when not grouped
-		for unit, frames in pairs(Roster) do
-        	for frame in pairs(frames) do
-				frame:SetAlpha(1)
-			end
-		end
-		return
+    if not IsInGroup() then --UnitInRange returns false when not grouped
+        for unit, frames in pairs(Roster) do
+            for frame in pairs(frames) do
+                frame:SetAlpha(1)
+            end
+        end
+        return
     end
 
     if (RosterUpdateOccured) then
@@ -1288,13 +1289,13 @@ function Aptechka.PLAYER_REGEN_ENABLED(self,event)
 end
 
 function Aptechka:UpdateRangeChecker()
-	local spec = GetSpecialization() or 1
-	if config.UnitInRangeFunctions and config.UnitInRangeFunctions[spec] then
-		-- print('using function')
-		uir = config.UnitInRangeFunctions[spec]
-	else
-		uir = UnitInRange
-	end
+    local spec = GetSpecialization() or 1
+    if config.UnitInRangeFunctions and config.UnitInRangeFunctions[spec] then
+        -- print('using function')
+        uir = config.UnitInRangeFunctions[spec]
+    else
+        uir = UnitInRange
+    end
 end
 
 function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
@@ -1313,7 +1314,7 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
         end
     end
 
-	Aptechka:UpdateRangeChecker()
+    Aptechka:UpdateRangeChecker()
 end
 Aptechka.SPELLS_CHANGED = Aptechka.GROUP_ROSTER_UPDATE
 
@@ -1592,7 +1593,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
 
-	if not petgroup
+    if not petgroup
     then
         f:SetAttribute("groupFilter", group)
         if not isClassic and AptechkaDB.sortUnitsByRole then
@@ -2067,11 +2068,11 @@ local function UtilShouldDisplayDebuff(spellId, unitCaster, visType)
         return reaction <= 4 -- display enemy smoke bomb, hide friendly
     end
     local hasCustom, alwaysShowMine, showForMySpec = SpellGetVisibilityInfo(spellId, visType);
-	if ( hasCustom ) then
-		return showForMySpec or (alwaysShowMine and (unitCaster == "player" or unitCaster == "pet" or unitCaster == "vehicle") );	--Would only be "mine" in the case of something like forbearance.
-	else
-		return true;
-	end
+    if ( hasCustom ) then
+        return showForMySpec or (alwaysShowMine and (unitCaster == "player" or unitCaster == "pet" or unitCaster == "vehicle") );	--Would only be "mine" in the case of something like forbearance.
+    else
+        return true;
+    end
 end
 
 local function SpellLocksProc(unit)
@@ -2095,8 +2096,17 @@ function Aptechka.OrderedDebuffProc(unit, index, slot, filter, name, icon, count
         if not prio then
             prio = (isBossAura and 10) or (debuffType and 1) or 0
         end
-        tinsert(debuffList, { slot or index, prio })
+        tinsert(debuffList, { slot or index, prio, filter })
         -- tinsert(debuffList, { index, prio, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura })
+        return 1
+    end
+    return 0
+end
+
+function Aptechka.OrderedBuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+    if isBossAura and not blacklist[spellID] then
+        local prio = 10
+        tinsert(debuffList, { slot or index, prio, filter })
         return 1
     end
     return 0
@@ -2114,15 +2124,19 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
     tsort(debuffList, sortfunc)
 
     for i, debuffIndexCont in ipairs(debuffList) do
-        local indexOrSlot, prio = unpack(debuffIndexCont)
+        local indexOrSlot, prio, auraFilter = unpack(debuffIndexCont)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
         if indexOrSlot > 0 then
-            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, "HARMFUL")
+            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, auraFilter)
 
             local durationNew, expirationTimeNew = LibClassicDurations:GetAuraDurationByUnit(unit, spellID, caster)
             if durationNew then
                 duration = durationNew
                 expirationTime = expirationTimeNew
+            end
+
+            if auraFilter == "HELPFUL" then
+                debuffType = "Helpful"
             end
             -- name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
             if prio >= 9 then
@@ -2165,6 +2179,13 @@ function Aptechka.SimpleDebuffProc(unit, index, slot, filter, name, icon, count,
     end
 end
 
+function Aptechka.SimpleBuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+    -- Uncommen when moving to Slot API
+    -- if isBossAura and not blacklist[spellID] then
+    --     tinsert(debuffList, 1, slot or index)
+    -- end
+end
+
 function Aptechka.SimpleDebuffPostUpdate(unit)
     local shown = 0
     local fill = 0
@@ -2195,6 +2216,9 @@ function Aptechka.SimpleDebuffPostUpdate(unit)
     end
 end
 
+---------------------------
+-- Dispel Type Indicator
+---------------------------
 local debuffTypeMask = 0
 local BITMASK_DISEASE = helpers.BITMASK_DISEASE
 local BITMASK_POISON = helpers.BITMASK_POISON
@@ -2252,6 +2276,10 @@ local function DispelTypePostUpdate(unit)
     end
 end
 
+local handleBuffs = function(unit, index, slot, filter, ...)
+    IndicatorAurasProc(unit, index, slot, filter, ...)
+    BuffProc(unit, index, slot, filter, ...)
+end
 
 local handleDebuffs = function(unit, index, slot, filter, ...)
     IndicatorAurasProc(unit, index, slot, filter, ...)
@@ -2274,21 +2302,21 @@ function Aptechka.ScanAuras(unit)
     for i=1,100 do
         local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, i, filter)
         if not name then break end
-        IndicatorAurasProc(unit, i, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+        handleBuffs(unit, i, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     end
 
     filter = "HARMFUL"
     for numDebuffs=1,100 do
         local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, numDebuffs, filter)
         if not name then
-            numDebuffs = numDebuffs-1
+            -- numDebuffs = numDebuffs-1
             break
         end
         handleDebuffs(unit, numDebuffs, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     end
 
     -- New API
-    -- ForEachAura(unit, "HELPFUL", 5, IndicatorAurasProc)
+    -- ForEachAura(unit, "HELPFUL", 5, handleBuffs)
     -- ForEachAura(unit, "HARMFUL", 5, handleDebuffs)
 
     IndicatorAurasPostUpdate(unit)
@@ -2315,9 +2343,11 @@ function Aptechka:UpdateDebuffScanningMethod()
     end
     if useOrdering then
         DebuffProc = Aptechka.OrderedDebuffProc
+        BuffProc = Aptechka.OrderedBuffProc
         DebuffPostUpdate = Aptechka.OrderedDebuffPostUpdate
     else
         DebuffProc = Aptechka.SimpleDebuffProc
+        BuffProc = Aptechka.SimpleBuffProc
         DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
     end
 end

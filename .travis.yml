@@ -1,5 +1,5 @@
 language: minimal
- 
+
 addons:
   apt:
     packages:
@@ -7,10 +7,26 @@ addons:
 
 install: luarocks install --local luacheck
 
-before_script: /home/travis/.luarocks/bin/luacheck . --no-color -qo "011"
- 
-script: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash
- 
+script: /home/travis/.luarocks/bin/luacheck . --no-color -qo "011"
+
+after_failure:
+  - curl -s https://raw.githubusercontent.com/d87/TravisTelegramNotification/master/telegram_notify.sh | bash
+
+deploy:
+  # releases
+  - provider: script
+    script: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash
+    on:
+      tags: true
+      condition: $TRAVIS_TAG =~ ^v?([0-9]+\.[0-9]+\.[0-9]+)$
+
+  # alpha/betas, skip cf and wowi
+  - provider: script
+    script: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -p 0 -w 0
+    on:
+      tags: true
+      condition: $TRAVIS_TAG =~ ^v?([0-9]+\.[0-9]+\.[0-9]+)-([A-Za-z]+)([0-9]*)$
+
 branches:
   only:
   - /^\d+\.\d+(\.\d+)?(-\S*)?$/
