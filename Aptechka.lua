@@ -502,6 +502,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     if LibClassicDurations then
         LibClassicDurations:RegisterFrame(self)
+        UnitAura = LibClassicDurations.UnitAuraWrapper
     end
 
     LibAuraTypes = LibStub("LibAuraTypes")
@@ -1992,12 +1993,6 @@ local function IndicatorAurasProc(unit, index, slot, filter, name, icon, count, 
 
             encountered[realID] = opts
 
-            local durationNew, expirationTimeNew = LibClassicDurations:GetAuraDurationByUnit(unit, spellID, caster)
-            if durationNew then
-                duration = durationNew
-                expirationTime = expirationTimeNew
-            end
-
             local status = true
             if opts.isMissing then status = false end
 
@@ -2129,12 +2124,6 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
         if indexOrSlot > 0 then
             name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, auraFilter)
 
-            local durationNew, expirationTimeNew = LibClassicDurations:GetAuraDurationByUnit(unit, spellID, caster)
-            if durationNew then
-                duration = durationNew
-                expirationTime = expirationTimeNew
-            end
-
             if auraFilter == "HELPFUL" then
                 debuffType = "Helpful"
             end
@@ -2194,12 +2183,6 @@ function Aptechka.SimpleDebuffPostUpdate(unit)
     for i, indexOrSlot in ipairs(debuffList) do
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, "HARMFUL")
         -- local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
-
-        local durationNew, expirationTimeNew = LibClassicDurations:GetAuraDurationByUnit(unit, spellID, caster)
-        if durationNew then
-            duration = durationNew
-            expirationTime = expirationTimeNew
-        end
 
         fill = fill + (isBossAura and 1.5 or 1)
 
