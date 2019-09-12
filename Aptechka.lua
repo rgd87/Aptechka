@@ -118,6 +118,14 @@ local DebuffProc
 local DebuffPostUpdate
 local staggerUnits = {}
 
+Aptechka.L = setmetatable({}, {
+    __index = function(t, k)
+        -- print(string.format('L["%s"] = ""',k:gsub("\n","\\n")));
+        return k
+    end,
+    __call = function(t,k) return t[k] end,
+})
+
 local defaultFont = "ClearFont"
 do
     local locale = GetLocale()

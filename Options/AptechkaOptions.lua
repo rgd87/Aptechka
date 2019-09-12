@@ -1,4 +1,5 @@
 AptechkaGUI = CreateFrame("Frame","AptechkaGUI")
+local L = Aptechka.L
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
@@ -860,17 +861,17 @@ end
 local function MakeGeneralOptions()
     local opt = {
         type = 'group',
-        name = "Aptechka Settings",
+        name = L"Aptechka Settings",
         order = 1,
         args = {
             anchors = {
                 type = "group",
-                name = "Anchors",
+                name = L"Anchors",
                 guiInline = true,
                 order = 2,
                 args = {
                     unlock = {
-                        name = "Unlock",
+                        name = L"Unlock",
                         type = "execute",
                         -- width = "half",
                         desc = "Unlock anchor for dragging",
@@ -878,7 +879,7 @@ local function MakeGeneralOptions()
                         order = 1,
                     },
                     lock = {
-                        name = "Lock",
+                        name = L"Lock",
                         type = "execute",
                         -- width = "half",
                         desc = "Lock anchor",
@@ -886,7 +887,7 @@ local function MakeGeneralOptions()
                         order = 2,
                     },
                     reset = {
-                        name = "Reset",
+                        name = L"Reset",
                         type = "execute",
                         desc = "Reset anchor",
                         func = function() Aptechka.Commands.reset() end,
@@ -901,7 +902,7 @@ local function MakeGeneralOptions()
                 order = 3,
                 args = {
                     width = {
-                        name = "Width",
+                        name = L"Width",
                         type = "range",
                         get = function(info) return Aptechka.db.width end,
                         set = function(info, v)
@@ -914,7 +915,7 @@ local function MakeGeneralOptions()
                         order = 1,
                     },
                     height = {
-                        name = "Height",
+                        name = L"Height",
                         type = "range",
                         get = function(info) return Aptechka.db.height end,
                         set = function(info, v)
@@ -927,8 +928,8 @@ local function MakeGeneralOptions()
                         order = 2,
                     },
                     nameLength = {
-                        name = "Name Length",
-                        desc = "Takes effect after /reload",
+                        name = L"Name Length",
+                        desc = L"Takes effect after /reload",
                         type = "range",
                         get = function(info) return Aptechka.db.cropNamesLen end,
                         set = function(info, v)
@@ -940,14 +941,14 @@ local function MakeGeneralOptions()
                         order = 3,
                     },
                     groupGrowth = {
-                        name = "Group Growth Direction",
+                        name = L"Group Growth Direction",
                         type = 'select',
                         order = 4,
                         values = {
-                            LEFT = "Left",
-                            RIGHT = "Right",
-                            TOP = "Up",
-                            BOTTOM = "Down",
+                            LEFT = L"Left",
+                            RIGHT = L"Right",
+                            TOP = L"Up",
+                            BOTTOM = L"Down",
                         },
                         get = function(info) return Aptechka.db.groupGrowth end,
                         set = function( info, v )
@@ -956,7 +957,7 @@ local function MakeGeneralOptions()
                         end,
                     },
                     groupGap = {
-                        name = "Group Gap",
+                        name = L"Group Gap",
                         type = "range",
                         width = "double",
                         get = function(info) return Aptechka.db.groupGap end,
@@ -970,14 +971,14 @@ local function MakeGeneralOptions()
                         order = 5,
                     },
                     unitGrowth = {
-                        name = "Unit Growth Direction",
+                        name = L"Unit Growth Direction",
                         type = 'select',
                         order = 6,
                         values = {
-                            LEFT = "Left",
-                            RIGHT = "Right",
-                            TOP = "Up",
-                            BOTTOM = "Down",
+                            LEFT = L"Left",
+                            RIGHT = L"Right",
+                            TOP = L"Up",
+                            BOTTOM = L"Down",
                         },
                         get = function(info) return Aptechka.db.unitGrowth end,
                         set = function( info, v )
@@ -986,7 +987,7 @@ local function MakeGeneralOptions()
                         end,
                     },
                     unitGap = {
-                        name = "Unit Gap",
+                        name = L"Unit Gap",
                         type = "range",
                         width = "double",
                         get = function(info) return Aptechka.db.unitGap end,
@@ -1000,7 +1001,7 @@ local function MakeGeneralOptions()
                         order = 7,
                     },
                     showSolo = {
-                        name = "Show Solo",
+                        name = L"Show Solo",
                         type = "toggle",
                         width = "double",
                         get = function(info) return Aptechka.db.showSolo end,
@@ -1011,7 +1012,7 @@ local function MakeGeneralOptions()
                         order = 8,
                     },
                     sortUnitsByRole = {
-                        name = "Sort Units by Role",
+                        name = L"Sort Units by Role",
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.sortUnitsByRole end,
@@ -1023,7 +1024,7 @@ local function MakeGeneralOptions()
                     },
 
                     disableBlizzardParty = {
-                        name = "Disable Blizzard Party Frames",
+                        name = L"Disable Blizzard Party Frames",
                         width = "double",
                         type = "toggle",
                         get = function(info) return Aptechka.db.disableBlizzardParty end,
@@ -1034,7 +1035,7 @@ local function MakeGeneralOptions()
                         order = 9,
                     },
                     hideBlizzardRaid = {
-                        name = "Hide Blizzard Raid Frames",
+                        name = L"Hide Blizzard Raid Frames",
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.hideBlizzardRaid end,
@@ -1057,7 +1058,7 @@ local function MakeGeneralOptions()
                     --     order = 10.4,
                     -- },
                     petGroup = {
-                        name = "Enable Pet Group",
+                        name = L"Enable Pet Group",
                         type = "toggle",
                         get = function(info) return Aptechka.db.petGroup end,
                         set = function(info, v)
@@ -1067,7 +1068,7 @@ local function MakeGeneralOptions()
                         order = 10.7,
                     },
                     disableTooltip = {
-                        name = "Disable Tooltips",
+                        name = L"Disable Tooltips",
                         width = "double",
                         type = "toggle",
                         get = function(info) return Aptechka.db.disableTooltip end,
@@ -1077,7 +1078,7 @@ local function MakeGeneralOptions()
                         order = 10.8,
                     },
                     showAFK = {
-                        name = "Show AFK",
+                        name = L"Show AFK",
                         type = "toggle",
                         get = function(info) return Aptechka.db.showAFK end,
                         set = function(info, v)
@@ -1087,11 +1088,11 @@ local function MakeGeneralOptions()
                         order = 11,
                     },
                     useCLH = {
-                        name = "Use LibCLH",
+                        name = L"Use LibCLH",
                         disabled = true,
                         type = "toggle",
                         confirm = true,
-						confirmText = "Warning: Requires UI reloading.",
+						confirmText = L"Warning: Requires UI reloading.",
                         order = 11.3,
                         get = function(info) return Aptechka.db.useCombatLogHealthUpdates end,
                         set = function(info, v)
@@ -1100,10 +1101,10 @@ local function MakeGeneralOptions()
                         end
                     },
                     useDebuffOrdering = {
-                        name = "Use Debuff Ordering",
+                        name = L"Use Debuff Ordering",
                         type = "toggle",
                         confirm = true,
-						confirmText = "Warning: Requires UI reloading.",
+						confirmText = L"Warning: Requires UI reloading.",
                         order = 11.2,
                         get = function(info) return Aptechka.db.useDebuffOrdering end,
                         set = function(info, v)
@@ -1112,10 +1113,10 @@ local function MakeGeneralOptions()
                         end
                     },
                     showCasts = {
-                        name = "Show Casts",
+                        name = L"Show Casts",
                         type = "toggle",
                         confirm = true,
-						confirmText = "Warning: Requires UI reloading.",
+						confirmText = L"Warning: Requires UI reloading.",
                         get = function(info) return Aptechka.db.showCasts end,
                         set = function(info, v)
                             Aptechka.db.showCasts = not Aptechka.db.showCasts
@@ -1124,7 +1125,7 @@ local function MakeGeneralOptions()
                         order = 11.4,
                     },
                     showAllCasts = {
-                        name = "Show All Casts",
+                        name = L"Show All Casts",
                         type = "toggle",
                         width = "double",
                         get = function(info) return Aptechka.db.showAllCasts end,
@@ -1135,12 +1136,12 @@ local function MakeGeneralOptions()
                     },
 
                     orientation = {
-                        name = "Health Orientation",
+                        name = L"Health Orientation",
                         type = 'select',
                         order = 12,
                         values = {
-                            ["HORIZONTAL"] = "Horizontal",
-                            ["VERTICAL"] = "Vertical",
+                            ["HORIZONTAL"] = L"Horizontal",
+                            ["VERTICAL"] = L"Vertical",
                         },
                         -- values = MakeValuesForKeys(Aptechka.FrameTextures),
                         get = function(info) return Aptechka.db.healthOrientation end,
@@ -1152,9 +1153,9 @@ local function MakeGeneralOptions()
 
                     healthTexture = {
 						type = "select",
-						name = "Health Texture",
+						name = L"Health Texture",
 						order = 13,
-						desc = "Set the statusbar texture.",
+						desc = L"Set the statusbar texture.",
 						get = function(info) return Aptechka.db.healthTexture end,
 						set = function(info, value)
 							Aptechka.db.healthTexture = value
@@ -1166,9 +1167,9 @@ local function MakeGeneralOptions()
 
                     powerTexture = {
 						type = "select",
-						name = "Power Texture",
+						name = L"Power Texture",
 						order = 14,
-						desc = "Set the statusbar texture.",
+						desc = L"Set the statusbar texture.",
 						get = function(info) return Aptechka.db.powerTexture end,
 						set = function(info, value)
 							Aptechka.db.powerTexture = value
@@ -1179,7 +1180,7 @@ local function MakeGeneralOptions()
                     },
                     nameFont = {
 						type = "select",
-						name = "Font",
+						name = L"Font",
 						order = 14.1,
 						get = function(info) return Aptechka.db.nameFontName end,
 						set = function(info, value)
@@ -1190,7 +1191,7 @@ local function MakeGeneralOptions()
 						dialogControl = "LSM30_Font",
 					},
 					nameFontSize = {
-                        name = "Name Font Size",
+                        name = L"Name Font Size",
                         type = "range",
                         get = function(info) return Aptechka.db.nameFontSize end,
                         set = function(info, v)
@@ -1203,13 +1204,13 @@ local function MakeGeneralOptions()
                         order = 14.2,
                     },
                     nameFontOutline = {
-                        name = "Name Outline",
+                        name = L"Name Outline",
                         type = 'select',
                         order = 14.25,
                         values = {
-                            NONE = "None",
-                            SHADOW = "Shadow",
-                            OUTLINE = "Outline",
+                            NONE = L"None",
+                            SHADOW = L"Shadow",
+                            OUTLINE = L"Outline",
                         },
                         get = function(info) return Aptechka.db.nameFontOutline end,
                         set = function( info, v )
@@ -1218,7 +1219,7 @@ local function MakeGeneralOptions()
                         end,
                     },
                     debuffSize = {
-                        name = "Debuff Size",
+                        name = L"Debuff Size",
                         type = "range",
                         get = function(info) return Aptechka.db.debuffSize end,
                         set = function(info, v)
@@ -1231,7 +1232,7 @@ local function MakeGeneralOptions()
                         order = 14.3,
                     },
                     stackFontSize = {
-                        name = "Stack Font Size",
+                        name = L"Stack Font Size",
                         type = "range",
                         get = function(info) return Aptechka.db.stackFontSize end,
                         set = function(info, v)
@@ -1244,14 +1245,14 @@ local function MakeGeneralOptions()
                         order = 14.4,
                     },
                     debuffTest = {
-                        name = "Test Debuffs",
+                        name = L"Test Debuffs",
                         type = "execute",
                         func = function() Aptechka.TestDebuffSlots() end,
                         order = 14.5,
 					},
 
                     showMissingFG = {
-                        name = "Show Missing Health/Power as Foreground",
+                        name = L"Show Missing Health/Power as Foreground",
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.fgShowMissing end,
@@ -1264,11 +1265,11 @@ local function MakeGeneralOptions()
                     },
                     mulGroup = {
                         type = "group",
-                        name = "Color Multipliers",
+                        name = L"Color Multipliers",
                         order = 16,
                         args = {
                             fgColor = {
-                                name = "Foreground",
+                                name = L"Foreground",
                                 type = "range",
                                 get = function(info) return Aptechka.db.fgColorMultiplier end,
                                 set = function(info, v)
@@ -1285,7 +1286,7 @@ local function MakeGeneralOptions()
                                 order = 1,
                             },
                             bgColor = {
-                                name = "Background",
+                                name = L"Background",
                                 type = "range",
                                 get = function(info) return Aptechka.db.bgColorMultiplier end,
                                 set = function(info, v)
@@ -1302,7 +1303,7 @@ local function MakeGeneralOptions()
                                 order = 2,
                             },
                             nameColor = {
-                                name = "Name",
+                                name = L"Name",
                                 type = "range",
                                 get = function(info) return Aptechka.db.nameColorMultiplier end,
                                 set = function(info, v)
@@ -1319,10 +1320,10 @@ local function MakeGeneralOptions()
                 },
             },
             resetAll = {
-                name = "Full Settings Reset",
+                name = L"Full Settings Reset",
                 width = "full",
                 type = "execute",
-                desc = "Wipe all your settings and restore to defaults",
+                desc = L"Wipe all your settings and restore to defaults",
                 func = function()
                     table.wipe(Aptechka.db)
                     ReloadUI()
@@ -1346,11 +1347,11 @@ end
 local function MakeScalingOptions()
     local opt = {
         type = 'group',
-        name = "Aptechka Autoscaling",
+        name = L"Aptechka Autoscaling",
         order = 1,
         args = {
             normalScale = {
-                name = "Normal Scale (1-11 players)",
+                name = L"Normal Scale (1-11 players)",
                 type = "range",
                 get = function(info) return Aptechka.db.scale end,
                 set = function(info, v)
@@ -1364,14 +1365,14 @@ local function MakeScalingOptions()
             },
             healer = {
                 type = "group",
-                name = "Healer Autoscale",
+                name = L"Healer Autoscale",
                 width = "double",
                 guiInline = true,
                 order = 2,
                 args = {
 
                     healerRaid = {
-                        name = "Raid (12-30 players)",
+                        name = L"Raid (12-30 players)",
                         type = "range",
                         get = function(info) return Aptechka.db.autoscale.healerMediumRaid end,
                         set = function(info, v)
@@ -1384,7 +1385,7 @@ local function MakeScalingOptions()
                         order = 1,
                     },
                     healerBigRaid = {
-                        name = "Big Raid (30+ players)",
+                        name = L"Big Raid (30+ players)",
                         type = "range",
                         get = function(info) return Aptechka.db.autoscale.healerBigRaid end,
                         set = function(info, v)
@@ -1401,14 +1402,14 @@ local function MakeScalingOptions()
             },
             damage = {
                 type = "group",
-                name = "Damage Autoscale",
+                name = L"Damage Autoscale",
                 width = "double",
                 guiInline = true,
                 order = 3,
                 args = {
 
                     damageRaid = {
-                        name = "Raid (12-30 players)",
+                        name = L"Raid (12-30 players)",
                         type = "range",
                         get = function(info) return Aptechka.db.autoscale.damageMediumRaid end,
                         set = function(info, v)
@@ -1421,7 +1422,7 @@ local function MakeScalingOptions()
                         order = 1,
                     },
                     damageBigRaid = {
-                        name = "Big Raid (30+ players)",
+                        name = L"Big Raid (30+ players)",
                         type = "range",
                         get = function(info) return Aptechka.db.autoscale.damageBigRaid end,
                         set = function(info, v)
