@@ -118,6 +118,16 @@ local DebuffProc
 local DebuffPostUpdate
 local staggerUnits = {}
 
+local defaultFont = "ClearFont"
+do
+    local locale = GetLocale()
+    if locale == "zhTW" or locale == "zhCN" or locale == "koKR" then
+        defaultFont = LibStub("LibSharedMedia-3.0").DefaultMedia["font"]
+        -- "預設" - zhTW
+        -- "默认" - zhCN
+        -- "기본 글꼴" - koKR
+    end
+end
 
 local defaults = {
     growth = "up",
@@ -152,7 +162,7 @@ local defaults = {
         healerBigRaid = 0.8,
     },
     debuffSize = 13,
-    nameFontName = "ClearFont",
+    nameFontName = defaultFont,
     nameFontSize = 12,
     nameFontOutline = "SHADOW",
     nameColorMultiplier = 1,
