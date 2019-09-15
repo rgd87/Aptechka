@@ -457,6 +457,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     self:RegisterEvent("UNIT_PHASE")
+    self:RegisterEvent("PARTY_MEMBER_ENABLE")
+    self:RegisterEvent("PARTY_MEMBER_DISABLE")
+    self.PARTY_MEMBER_ENABLE = self.UNIT_PHASE
+    self.PARTY_MEMBER_DISABLE = self.UNIT_PHASE
+
     self:RegisterEvent("INCOMING_SUMMON_CHANGED")
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
 
