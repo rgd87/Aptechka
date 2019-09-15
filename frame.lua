@@ -585,6 +585,7 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
 
     local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
     icd.noCooldownCount = true -- disable OmniCC for this cooldown
+    icd:SetHideCountdownNumbers(true)
     icd:SetReverse(true)
     icd:SetDrawEdge(false)
     icd:SetAllPoints(icontex)
