@@ -48,6 +48,15 @@ local HealthBarSetColorBG = function(self, r,g,b,a, mul)
     self:SetVertexColor(r*mul, g*mul, b*mul, a)
 end
 
+local formatMissingHealth = function(text, mh)
+    if mh < 1000 then
+        text:SetFormattedText("-%d", mh)
+    elseif mh < 10000 then
+        text:SetFormattedText("-%.1fk", mh / 1e3)
+    else
+        text:SetFormattedText("-%.0fk", mh / 1e3)
+    end
+end
 
 local SetJob_HealthBar = function(self, job)
     local c
@@ -829,15 +838,6 @@ local SetJob_Text1 = function(self,job)
         self:SetColor(multiplyColor(mul, r,g,b,a))
     end
 end
-local formatMissingHealth = function(text, mh)
-    if mh < 1000 then
-        text:SetFormattedText("-%d", mh)
-    elseif mh < 10000 then
-        text:SetFormattedText("-%.1fk", mh / 1e3)
-    else
-        text:SetFormattedText("-%.0fk", mh / 1e3)
-    end
-end
 local SetJob_Text2 = function(self,job) -- text2 is always green
     if job.healthtext then
         formatMissingHealth(self, self.parent.vHealthMax - self.parent.vHealth)
@@ -1399,6 +1399,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     powerbar:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     powerbar:SetMinMaxValues(0,100)
     powerbar:SetOrientation("VERTICAL")
+    -- powerbar:SetStatusBarColor(0.5,0.5,1)
     powerbar.SetJob = SetJob_HealthBar
     powerbar.OnPowerTypeChange = PowerBar_OnPowerTypeChange
     powerbar.SetColor = HealthBarSetColorFG
