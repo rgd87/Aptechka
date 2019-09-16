@@ -108,7 +108,8 @@ local next = next
 Aptechka.helpers = helpers
 local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
-local AptechkaDB = {}
+AptechkaDB = {}
+local AptechkaDB = AptechkaDB
 local LibSpellLocks
 local LibAuraTypes
 local LibClassicDurations = LibStub("LibClassicDurations")
