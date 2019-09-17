@@ -818,14 +818,9 @@ end
 local Text1_SetColorInverted = function(self, r,g,b)
     self:SetTextColor(r*0.2,g*0.2,b*0.2)
 end
-local function SetJob_Text1 (self,job, skiphealth)
-    if job.healthtext and not skiphealth then
-        local h = self.parent.vHealth
-        local hm = self.parent.vHealthMax
-        if hm and hm > 0 and h/hm > 0.99 then
-            return SetJob_Text1(self, job, true)
-        end
-        formatMissingHealth(self, hm - h)
+local SetJob_Text1 = function(self,job)
+    if job.healthtext then
+        self:SetFormattedText("-%.0fk", (self.parent.vHealthMax - self.parent.vHealth) / 1e3)
     elseif job.nametext then
         self:SetText(self.parent.name)
     elseif job.text then
@@ -845,7 +840,7 @@ local function SetJob_Text1 (self,job, skiphealth)
 end
 local SetJob_Text2 = function(self,job) -- text2 is always green
     if job.healthtext then
-        formatMissingHealth(self, self.parent.vHealthMax - self.parent.vHealth)
+        self:SetFormattedText("-%d", (self.parent.vHealthMax - self.parent.vHealth))
     elseif job.inchealtext then
         self:SetFormattedText("+%d", self.parent.vIncomingHeal)
     elseif job.nametext then
