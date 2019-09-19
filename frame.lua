@@ -1562,7 +1562,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local text2 = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     text2:SetPoint("TOP",text,"BOTTOM",0,0)
     text2:SetJustifyH"CENTER"
-    text2:SetFont(font, fontsize-3)
+    text2:SetFont(font, fontsize-1)
     text2.SetJob = SetJob_Text2
     text2:SetTextColor(0.2, 1, 0.2)
     text2.parent = self
