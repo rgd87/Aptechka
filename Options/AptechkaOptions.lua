@@ -249,7 +249,9 @@ function AptechkaGUI.CreateCommonForm(self)
             -- end
 		else
 			AptechkaConfigMerged[category][spellID] = delta
-		end
+        end
+
+        Aptechka:UpdateSpellNameToIDTable()
 
         -- fill up spell clones of the new version
 		local originalSpell = AptechkaConfigMerged[category][spellID]

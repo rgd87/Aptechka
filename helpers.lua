@@ -96,11 +96,7 @@ end
 
 
 helpers.AddSpellNameRecognition = function(lastRankID)
-    local spellObj = SpellMixin:CreateFromSpellID(lastRankID)
-    spellObj:ContinueOnSpellLoad(function()
-        local spellName = spellObj:GetSpellName()
-        helpers.spellNameToID[spellName] = lastRankID
-    end)
+    helpers.spellNameToID[GetSpellInfo(lastRankID)] = lastRankID
 end
 
 helpers.AddTrace = function(data)
@@ -117,9 +113,6 @@ helpers.AddTrace = function(data)
     if not config.traces then config.traces = {} end
     if not data.name then print((data.id or "nil").."id or name required") return end
     data.actualname = data.name
-
-    -- for classic
-    helpers.spellNameToID[data.actualname] = data.id
 
     data.name = data.actualname.."Trace"
     local id = data.id

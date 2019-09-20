@@ -344,12 +344,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     MergeTable(AptechkaConfigMerged, classConfig)
 
-    -- filling spellNameToID for user-added spells
-    if classConfig and classConfig.traces then
-        for spellID in pairs(classConfig.traces) do
-            helpers.AddSpellNameRecognition(spellID)
-        end
-    end
+    Aptechka.spellNameToID = helpers.spellNameToID
+
+    Aptechka:UpdateSpellNameToIDTable()
 
     -- compiling a list of spells that should activate indicator when missing
     self:UpdateMissingAuraList()
@@ -860,6 +857,36 @@ function Aptechka:ReconfigureProtected()
     local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
     local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
     Aptechka:SetGrowth(unitGrowth, groupGrowth)
+end
+
+
+
+do
+    local spellNameBasedCategories = { "traces" }
+    function Aptechka:UpdateSpellNameToIDTable()
+        local mergedConfig = AptechkaConfigMerged
+        local visited = {}
+
+        for _, catName in ipairs(spellNameBasedCategories) do
+            local category = mergedConfig[catName]
+            if category then
+                for spellID, opts in pairs(category) do
+                    if not visited[opts] then
+                        local lastRankID
+                        local clones = opts.clones
+                        if clones then
+                            lastRankID = clones[#clones]
+                        else
+                            lastRankID = spellID
+                        end
+                        helpers.AddSpellNameRecognition(lastRankID)
+
+                        visited[opts] = true
+                    end
+                end
+            end
+        end
+    end
 end
 
 function Aptechka:HealUpdated(event, casterGUID, spellID, healType, endTime, ...)
