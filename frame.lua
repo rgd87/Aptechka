@@ -518,6 +518,33 @@ end
 AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
 
 
+--[[
+local SetJob_RoundIndicator = function(self,job)
+    local color
+    if job.foreigncolor and job.isforeign then
+        color = job.foreigncolor
+    else
+        color = job.color or { 1,1,1,1 }
+    end
+    self.color:SetVertexColor(unpack(color))
+end
+local CreateRoundIndicator = function (parent,width,height,point,frame,to,x,y)
+    local ri = CreateFrame("Frame",nil, parent)
+    ri:SetFrameLevel(7)
+    ri:SetWidth(width); ri:SetHeight(height)
+    ri:SetPoint(point,frame,to,x,y)
+    local ritex = ri:CreateTexture(nil,"OVERLAY", nil, 2)
+    ritex:SetAllPoints(ri)
+    ritex:SetTexture("Interface\\AddOns\\Aptechka\\roundIndicator")
+    ri.color = ritex
+
+    ri:Hide()
+
+    ri.SetJob = SetJob_RoundIndicator
+    return ri
+end
+]]
+
 local SetJob_Icon = function(self,job)
     if job.fade then self.jobs[job.name] = nil; return end
     if job.showDuration then
@@ -583,7 +610,7 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     icon:SetWidth(w); icon:SetHeight(h)
     icon:SetPoint(point,frame,to,x,y)
     local icontex = icon:CreateTexture(nil,"ARTWORK")
-    icontex:SetTexCoord(.1, .9, .1, .9)
+    icontex:SetTexCoord(0.07, 0.93, 0.07, 0.93)
     icon:SetFrameLevel(6)
     icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
     icontex:SetPoint("BOTTOMRIGHT",icon, "BOTTOMRIGHT",0,0)
@@ -656,7 +683,7 @@ local function SetJob_DebuffIcon(self, debuffType, expirationTime, duration, ico
     self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 1)
 
     if isBossAura then
-        self:SetScale(1.4)
+        self:SetScale(Aptechka.db.debuffBossScale)
     else
         self:SetScale(1)
     end
@@ -665,6 +692,7 @@ end
 local SetDebuffOrientation = function(self, orientation, size)
     local it = self.texture
     local dtt = self.debuffTypeTexture
+    local text = self.stacktext
     -- local w = self.width
     -- local h = self.height
     local w = size
@@ -674,36 +702,43 @@ local SetDebuffOrientation = function(self, orientation, size)
     dtt:ClearAllPoints()
 
     -- local simple = false
+    -- local corner = true
 
     -- if simple then
     --     it:SetSize(pixelperfect(h - 2), pixelperfect(h - 2*p))
     --     it:SetPoint("TOPLEFT", self, "TOPLEFT", p, -p)
     --     dtt:SetSize(h, h)
     --     dtt:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
-    -- else
-        if orientation == "VERTICAL" then
-            self:SetSize(w,h)
-            it:SetSize(h,h)
-            it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
-            dtt:SetSize(h*0.2,h)
-            dtt:SetPoint("TOPLEFT", it, "TOPRIGHT", 0, 0)
-            -- dtt:SetSize(h+2,h+2)
-            -- dtt:SetPoint("TOPLEFT", self, "TOPLEFT", -1, 1)
-        else
-            self:SetSize(h,w)
+    -- elseif corner then
+    --     self:SetSize(h,h)
+    --     it:SetSize(h,h)
+    --     it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
 
-            -- dtt:SetSize(h,h*0.2)
-            -- dtt:SetPoint("BOTTOMLEFT", it, "TOPLEFT", 0, 0)
+    --     dtt:SetTexture[[Interface\AddOns\Aptechka\corner]]
+    --     dtt:SetTexCoord(1,1,0,1,1,0,0,0)
+    --     dtt:SetSize(h*0.6, h*0.6)
+    --     dtt:SetDrawLayer("ARTWORK", 3)
+    --     dtt:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
 
-            dtt:SetSize(w,h*0.2)
-            dtt:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0)
-            -- dtt:SetPoint("TOPLEFT", it, "TOPLEFT", 0, h*0.2)
-            -- dtt:SetPoint("BOTTOMRIGHT", it, "BOTTOMRIGHT", 0, 0)
-
-            it:SetSize(h,h)
-            it:SetPoint("BOTTOMLEFT", dtt, "TOPLEFT", 0, 0)
-        end
-    -- end
+    if orientation == "VERTICAL" then
+        local dttLen = h*0.22
+        self:SetSize(h + dttLen,h)
+        it:SetSize(h,h)
+        it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+        dtt:SetSize(dttLen,h)
+        dtt:SetPoint("TOPLEFT", it, "TOPRIGHT", 0, 0)
+        dtt:SetTexCoord(0,1,0,1)
+        text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 2,-1)
+    else
+        local dttLen = h*0.25
+        self:SetSize(h,w + dttLen)
+        dtt:SetSize(w, dttLen)
+        dtt:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0)
+        dtt:SetTexCoord(0,1,0,0,1,1,1,0)
+        it:SetSize(h,h)
+        it:SetPoint("BOTTOMLEFT", dtt, "TOPLEFT", 0, 0)
+        text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 3,1)
+    end
 end
 
 local AlignDebuffIcons = function(icons, orientation)
@@ -745,7 +780,7 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
     icontex:SetTexCoord(.2, .8, .2, .8)
 
     local dttex = icon:CreateTexture(nil, "ARTWORK", nil, -2)
-    dttex:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+    dttex:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
     icon.debuffTypeTexture = dttex
 
     icon.SetOrientation = SetDebuffOrientation
@@ -801,9 +836,12 @@ local CreateProgressIcon = function(parent, width, height, alpha, point, frame, 
         self:GetParent():Hide()
     end)
 
+    local iconSubFrame = CreateFrame("Frame", nil, icon)
+    iconSubFrame:SetAllPoints(icon)
+    iconSubFrame:SetFrameLevel(8)
     local icontex = icon.texture
-    icontex:SetParent(cdf)
-    icontex:SetDrawLayer("ARTWORK", 3)
+    icontex:SetParent(iconSubFrame)
+    icontex:SetDrawLayer("ARTWORK", 5)
 
     icon.SetJob = SetJob_ProgressIcon
 
@@ -1272,7 +1310,7 @@ local function Reconf(self)
         self.text1:SetShadowOffset(0,0)
     end
 
-    local stackFont = nameFont
+    local stackFont = LSM:Fetch("font", Aptechka.db.stackFontName)
     local stackFontSize = Aptechka.db.stackFontSize
     for i, icon in ipairs(self.debuffIcons) do
         icon.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
@@ -1630,6 +1668,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
     self.healfeedback = trcorner
+
+    -- local roundIndicator = CreateRoundIndicator(self, 13, 13, "BOTTOMLEFT", self, "BOTTOMLEFT",-8, -8)
+    -- self.dispel = roundIndicator
 
     self.health = hp
     self.text1 = text

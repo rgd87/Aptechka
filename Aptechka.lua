@@ -108,8 +108,7 @@ local next = next
 Aptechka.helpers = helpers
 local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
-AptechkaDB = {}
-local AptechkaDB = AptechkaDB
+local AptechkaDB
 local LibSpellLocks
 local LibAuraTypes
 local LibClassicDurations = LibStub("LibClassicDurations")
@@ -120,6 +119,7 @@ local HealComm
 local BuffProc
 local DebuffProc
 local DebuffPostUpdate
+local debuffLimit
 
 Aptechka.L = setmetatable({}, {
     __index = function(t, k)
@@ -174,11 +174,14 @@ local defaults = {
         healerBigRaid = 0.8,
     },
     debuffSize = 13,
+    debuffLimit = 4,
+    debuffBossScale = 1.3,
+    stackFontName = "ClearFont",
+    stackFontSize = 12,
     nameFontName = defaultFont,
     nameFontSize = 12,
     nameFontOutline = "SHADOW",
     nameColorMultiplier = 1,
-    stackFontSize = 12,
     fgShowMissing = true,
     fgColorMultiplier = 1,
     bgColorMultiplier = 0.2,
@@ -794,6 +797,7 @@ function Aptechka:UpdateUnprotectedUpvalues()
     threshold = UnitHealthMax("player")/40
     ignoreplayer = config.incomingHealIgnorePlayer or false
     fgShowMissing = Aptechka.db.fgShowMissing
+    debuffLimit = AptechkaDB.debuffLimit
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
@@ -2154,7 +2158,7 @@ function Aptechka.OrderedBuffProc(unit, index, slot, filter, name, icon, count, 
 end
 
 function Aptechka.OrderedDebuffPostUpdate(unit)
-    local debuffLineLength = 4
+    local debuffLineLength = debuffLimit
     local shown = 0
     local fill = 0
 
@@ -2186,7 +2190,7 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
         -- if prio >= 9 then
         --     isBossAura = true
         -- end
-        fill = fill + (isBossAura and 1.5 or 1)
+        fill = fill + (isBossAura and AptechkaDB.debuffBossScale or 1)
 
         if fill <= debuffLineLength then
             shown = shown + 1
@@ -2384,7 +2388,7 @@ end
 
 
 function Aptechka.TestDebuffSlots()
-    local debuffLineLength = 4
+    local debuffLineLength = debuffLimit
     local shown = 0
     local fill = 0
     local unit = "player"
@@ -2392,16 +2396,17 @@ function Aptechka.TestDebuffSlots()
     local numBossAuras = math.random(3)-1
     local now = GetTime()
     local debuffTypes = { "none", "Magic", "Poison", "Curse", "Disease" }
-    local randomIDs = { 5211, 163505, 209753, 19577, 213691, 118, 119381, 605 }
+    local randomIDs = { 5211, 19577, 172, 408, 15286, 853, 980, 589, 118, 605 }
     for i=1,6 do
         local spellID = randomIDs[math.random(#randomIDs)]
         local _, _, icon = GetSpellInfo(spellID)
         local duration = math.random(20)+5
-        local count = math.random(18)
+        local hasCount = math.random(3) == 1
+        local count = hasCount and math.random(18) or 0
         local debuffType = debuffTypes[math.random(#debuffTypes)]
         local expirationTime = now + duration
         local isBossAura = shown < numBossAuras
-        fill = fill + (isBossAura and 1.5 or 1)
+        fill = fill + (isBossAura and AptechkaDB.debuffBossScale or 1)
 
         -- print(fill, debuffLineLength, fill < debuffLineLength)
 
