@@ -583,7 +583,7 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     icon:SetWidth(w); icon:SetHeight(h)
     icon:SetPoint(point,frame,to,x,y)
     local icontex = icon:CreateTexture(nil,"ARTWORK")
-    icontex:SetTexCoord(.1, .9, .1, .9)
+    icontex:SetTexCoord(0.05, 0.95, 0.05, 0.95)
     icon:SetFrameLevel(6)
     icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
     icontex:SetPoint("BOTTOMRIGHT",icon, "BOTTOMRIGHT",0,0)
@@ -801,9 +801,12 @@ local CreateProgressIcon = function(parent, width, height, alpha, point, frame, 
         self:GetParent():Hide()
     end)
 
+    local iconSubFrame = CreateFrame("Frame", nil, icon)
+    iconSubFrame:SetAllPoints(icon)
+    iconSubFrame:SetFrameLevel(8)
     local icontex = icon.texture
-    icontex:SetParent(cdf)
-    icontex:SetDrawLayer("ARTWORK", 3)
+    icontex:SetParent(iconSubFrame)
+    icontex:SetDrawLayer("ARTWORK", 5)
 
     icon.SetJob = SetJob_ProgressIcon
 
