@@ -1180,7 +1180,7 @@ local function MakeGeneralOptions()
                     },
                     nameFont = {
 						type = "select",
-						name = L"Font",
+						name = L"Name Font",
 						order = 14.1,
 						get = function(info) return Aptechka.db.nameFontName end,
 						set = function(info, value)
@@ -1218,38 +1218,7 @@ local function MakeGeneralOptions()
                             Aptechka:ReconfigureUnprotected()
                         end,
                     },
-                    debuffSize = {
-                        name = L"Debuff Size",
-                        type = "range",
-                        get = function(info) return Aptechka.db.debuffSize end,
-                        set = function(info, v)
-							Aptechka.db.debuffSize = v
-							Aptechka:ReconfigureUnprotected()
-                        end,
-                        min = 5,
-                        max = 30,
-                        step = 0.1,
-                        order = 14.3,
-                    },
-                    stackFontSize = {
-                        name = L"Stack Font Size",
-                        type = "range",
-                        get = function(info) return Aptechka.db.stackFontSize end,
-                        set = function(info, v)
-							Aptechka.db.stackFontSize = v
-							Aptechka:ReconfigureUnprotected()
-                        end,
-                        min = 3,
-                        max = 30,
-                        step = 0.1,
-                        order = 14.4,
-                    },
-                    debuffTest = {
-                        name = L"Test Debuffs",
-                        type = "execute",
-                        func = function() Aptechka.TestDebuffSlots() end,
-                        order = 14.5,
-					},
+
 
                     showMissingFG = {
                         name = L"Show Missing Health/Power as Foreground",
@@ -1314,6 +1283,84 @@ local function MakeGeneralOptions()
                                 max = 1,
                                 step = 0.05,
                                 order = 3,
+                            },
+                        }
+                    },
+
+                    debuffGroup = {
+                        type = "group",
+                        name = L"Debuffs",
+                        order = 17,
+                        args = {
+
+                            debuffSize = {
+                                name = L"Debuff Size",
+                                type = "range",
+                                get = function(info) return Aptechka.db.debuffSize end,
+                                set = function(info, v)
+                                    Aptechka.db.debuffSize = v
+                                    Aptechka:ReconfigureUnprotected()
+                                end,
+                                min = 5,
+                                max = 30,
+                                step = 0.1,
+                                order = 1,
+                            },
+                            stackFont = {
+                                type = "select",
+                                name = L"Font",
+                                order = 2,
+                                get = function(info) return Aptechka.db.stackFontName end,
+                                set = function(info, value)
+                                    Aptechka.db.stackFontName = value
+                                    Aptechka:ReconfigureUnprotected()
+                                end,
+                                values = LSM:HashTable("font"),
+                                dialogControl = "LSM30_Font",
+                            },
+                            stackFontSize = {
+                                name = L"Stack Font Size",
+                                type = "range",
+                                get = function(info) return Aptechka.db.stackFontSize end,
+                                set = function(info, v)
+                                    Aptechka.db.stackFontSize = v
+                                    Aptechka:ReconfigureUnprotected()
+                                end,
+                                min = 3,
+                                max = 30,
+                                step = 0.1,
+                                order = 3,
+                            },
+                            debuffLimit = {
+                                name = L"Debuff Limit",
+                                type = "range",
+                                get = function(info) return Aptechka.db.debuffLimit end,
+                                set = function(info, v)
+                                    Aptechka.db.debuffLimit = v
+                                    Aptechka:UpdateUnprotectedUpvalues()
+                                end,
+                                min = 1,
+                                max = 4.9,
+                                step = 0.1,
+                                order = 4,
+                            },
+                            debuffBossScale = {
+                                name = L"Boss Aura Scale",
+                                type = "range",
+                                get = function(info) return Aptechka.db.debuffBossScale end,
+                                set = function(info, v)
+                                    Aptechka.db.debuffBossScale = v
+                                end,
+                                min = 1,
+                                max = 1.8,
+                                step = 0.01,
+                                order = 5,
+                            },
+                            debuffTest = {
+                                name = L"Test Debuffs",
+                                type = "execute",
+                                func = function() Aptechka.TestDebuffSlots() end,
+                                order = 10,
                             },
                         }
                     },
