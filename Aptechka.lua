@@ -2172,7 +2172,7 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
         local indexOrSlot, prio, auraFilter = unpack(debuffIndexCont)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
         if indexOrSlot > 0 then
-            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot) -- UnitAura(unit, indexOrSlot, auraFilter)
+            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, auraFilter)
             if auraFilter == "HELPFUL" then
                 debuffType = "Helpful"
             end
@@ -2219,9 +2219,9 @@ end
 
 function Aptechka.SimpleBuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     -- Uncommen when moving to Slot API
-    if isBossAura then
-        tinsert(debuffList, 1, slot or index)
-    end
+    -- if isBossAura and not blacklist[spellID] then
+    --     tinsert(debuffList, 1, slot or index)
+    -- end
 end
 
 function Aptechka.SimpleDebuffPostUpdate(unit)
@@ -2230,7 +2230,7 @@ function Aptechka.SimpleDebuffPostUpdate(unit)
     local debuffLineLength = 4
 
     for i, indexOrSlot in ipairs(debuffList) do
-        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot) -- UnitAura(unit, indexOrSlot, "HARMFUL")
+        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, "HARMFUL")
         -- local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
 
         fill = fill + (isBossAura and 1.5 or 1)
@@ -2330,7 +2330,6 @@ function Aptechka.ScanAuras(unit)
     visType = UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT"
 
     -- Old API
-    --[[
     local filter = "HELPFUL"
     for i=1,100 do
         local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, i, filter)
@@ -2347,11 +2346,10 @@ function Aptechka.ScanAuras(unit)
         end
         handleDebuffs(unit, numDebuffs, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     end
-    ]]
 
     -- New API
-    ForEachAura(unit, "HELPFUL", 5, handleBuffs)
-    ForEachAura(unit, "HARMFUL", 5, handleDebuffs)
+    -- ForEachAura(unit, "HELPFUL", 5, handleBuffs)
+    -- ForEachAura(unit, "HARMFUL", 5, handleDebuffs)
 
     IndicatorAurasPostUpdate(unit)
     DebuffPostUpdate(unit)
