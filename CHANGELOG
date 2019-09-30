@@ -1,3 +1,7 @@
+### 1.13.15:
+
+- LibClassicHealComm update to fix integer overflow errors
+
 ### 1.13.14:
 
 - Cosmetic updates for Debuff List
