@@ -61,6 +61,7 @@ config.enableVehicleSwap = false
 config.enableAbsorbBar = false
 
 config.TargetStatus = { name = "Target", assignto = "border", color = {1,0.7,0.7}, priority = 65 }
+config.AggroStatus = { name = "Aggro", assignto = "raidbuff",  color = { 0.7, 0, 0},priority = 55 }
 config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = "spell3", stackcolor = {
                                                                             ['ready'] = { 0, 1, 0},
                                                                             ['notready'] = { 1, 0, 0},

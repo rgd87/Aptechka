@@ -8,7 +8,7 @@ Aptechka:SetScript("OnEvent", function(self, event, ...)
 end)
 
 --- Compatibility with Classic
-local isClassic = select(4,GetBuildInfo()) <= 19999
+local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local UnitHasVehicleUI = UnitHasVehicleUI
 local UnitInVehicle = UnitInVehicle
@@ -496,7 +496,20 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         Aptechka.UNIT_MAXPOWER = Aptechka.UNIT_POWER_UPDATE
     end
     if config.AggroStatus then
-        self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
+        if isClassic then
+            local LB = LibStub("LibBanzai-2.0", true)
+            if LB then
+                UnitThreatSituation = function(unit)
+                    local gotAggro = LB:GetUnitAggroByUnitId(unit)
+                    return gotAggro and 3 or 0
+                end
+                LB:RegisterCallback(function(aggroInt, name, unit)
+                    return Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
+                end)
+            end
+        else
+            self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
+        end
     end
     if config.ReadyCheck then
         self:RegisterEvent("READY_CHECK")
