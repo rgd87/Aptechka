@@ -1,3 +1,7 @@
+### 1.13.18:
+
+- hotfix for LibStub error in LibBanzai's lib.xml
+
 ### 1.13.17:
 
 - Aggro indicator (LibBanzai support)
@@ -14,68 +18,3 @@
 
 - Cosmetic updates for Debuff List
 
-### 1.13.13:
-
-- Updated LibClassicDurations to fix Healing Way
-
-### 1.13.12:
-
-- bugfixes
-
-### 1.13.11:
-
-- fixed taint error caused by friendly nameplates
-
-### 1.13.10:
-
-- fixed Growth not setting correctly on login
-
-### 1.13.9:
-
-- fixed frame glitches on login
-
-### 1.13.8:
-
-- Priest range check fixed for low-level chars
-- Fixed incoming heal text display
-
-### 1.13.7:
-
-- Merged changes from live
-
-### 8.2.13:
-
-- A lot of internal changes to frame contruction
-- Removed inverted colors setting
-- Instead you now can switch between reverse filling of the health bar
-- Color multiplier settings for fg/bg/name
-- Name outline setting
-- Bugfixes
-
-### 1.13.6
-
-- now embedding LibClassicHealComm-1.0
-
-### 1.13.5
-
-- fixed traces after combat log changes
-- removed default shadow protection indicator
-
-### 1.13.3
-
-- fix for now missing UnitIsWarModePhased
-- multiple changes from live since 8.2
-
-### 1.13.2
-
-- preliminary LibClassicHealComm support, it's used if found, but not embedded
-- disabled LibCLH
-- some fixes from live
-
-### 1.13.1
-
-- merged bugfixes from live
-
-### 1.13.0
-
-- initial classic release
