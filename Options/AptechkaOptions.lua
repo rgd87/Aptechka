@@ -1005,13 +1005,23 @@ local function MakeGeneralOptions()
                     showSolo = {
                         name = L"Show Solo",
                         type = "toggle",
-                        width = "double",
                         get = function(info) return Aptechka.db.showSolo end,
                         set = function(info, v)
                             Aptechka.db.showSolo = not Aptechka.db.showSolo
                             Aptechka:ReconfigureProtected()
                         end,
                         order = 8,
+                    },
+                    showParty = {
+                        name = L"Show In Party",
+                        type = "toggle",
+                        width = "double",
+                        get = function(info) return Aptechka.db.showParty end,
+                        set = function(info, v)
+                            Aptechka.db.showParty = not Aptechka.db.showParty
+                            Aptechka:ReconfigureProtected()
+                        end,
+                        order = 8.1,
                     },
                     sortUnitsByRole = {
                         name = L"Sort Units by Role",
