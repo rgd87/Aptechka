@@ -147,6 +147,7 @@ local defaults = {
     unitGap = 7,
     groupGap = 7,
     showSolo = true,
+    showParty = true,
     cropNamesLen = 7,
     disableBlizzardParty = true,
     hideBlizzardRaid = true,
@@ -798,6 +799,8 @@ function Aptechka:ReconfigureProtected()
 
         local showSolo = AptechkaDB.showSolo
         header:SetAttribute("showSolo", showSolo)
+
+        header:SetAttribute("showParty", AptechkaDB.showParty)
 
         -- header:SetAttribute("initialConfigFunction", self.initConfSnippet)
 
@@ -1649,7 +1652,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
 
     local showSolo = AptechkaDB.showSolo -- or config.showSolo
     f:SetAttribute("showRaid", true)
-    f:SetAttribute("showParty", config.showParty)
+    f:SetAttribute("showParty", AptechkaDB.showParty)
     f:SetAttribute("showSolo", showSolo)
     f:SetAttribute("showPlayer", true)
     f.initialConfigFunction = Aptechka.SetupFrame
