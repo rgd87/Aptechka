@@ -20,7 +20,7 @@ externals:
   Libs/LibBanzai-2.0: https://github.com/rgd87/LibBanzai-2.0-classic.git
   Libs/LibSpellLocks:
     url: https://github.com/rgd87/LibSpellLocks.git
-    tag: master
+    tag: classic
   Libs/LibAuraTypes:
     url: https://github.com/rgd87/LibAuraTypes.git
     tag: master
