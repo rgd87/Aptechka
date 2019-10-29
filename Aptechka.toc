@@ -8,6 +8,7 @@
 ## OptionalDeps: Clique
 
 ## X-WoWI-ID: 14339
+## X-Curse-Project-ID: 280790
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
