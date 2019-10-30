@@ -7,7 +7,8 @@
 ## SavedVariables: AptechkaDB_Global, AptechkaConfigCustom
 ## OptionalDeps: Clique
 
-## X-WoWI-ID: 25050
+## X-WoWI-ID: 14339
+## X-Curse-Project-ID: 280790
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
