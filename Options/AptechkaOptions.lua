@@ -1081,13 +1081,24 @@ local function MakeGeneralOptions()
                     },
                     disableTooltip = {
                         name = L"Disable Tooltips",
-                        width = "double",
                         type = "toggle",
                         get = function(info) return Aptechka.db.disableTooltip end,
                         set = function(info, v)
                             Aptechka.db.disableTooltip = not Aptechka.db.disableTooltip
                         end,
                         order = 10.8,
+                    },
+                    showAggro = {
+                        name = L"Show Aggro",
+                        type = "toggle",
+                        confirm = true,
+						confirmText = L"Warning: Requires UI reloading.",
+                        get = function(info) return Aptechka.db.showAggro end,
+                        set = function(info, v)
+                            Aptechka.db.showAggro = not Aptechka.db.showAggro
+                            ReloadUI()
+                        end,
+                        order = 10.9,
                     },
                     showAFK = {
                         name = L"Show AFK",
