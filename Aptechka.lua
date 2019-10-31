@@ -425,7 +425,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     if config.enableIncomingHeals then
-        HealComm = LibStub:GetLibrary("LibClassicHealComm-1.0",true);
+        HealComm = LibStub:GetLibrary("LibHealComm-4.0",true);
         local incomingHealIgnoreHots = true
         if HealComm then
             if incomingHealIgnoreHots then

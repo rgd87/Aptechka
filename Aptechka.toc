@@ -16,7 +16,7 @@ Libs\LibSharedMedia-3.0\lib.xml
 Libs\LibSpellLocks\LibSpellLocks.lua
 Libs\LibAuraTypes\LibAuraTypes.lua
 Libs\LibClassicDurations\LibClassicDurations.xml
-Libs\LibClassicHealComm-1.0\lib.xml
+Libs\LibHealComm-4.0\LibHealComm-4.0.xml
 Libs\LibBanzai-2.0\lib.xml
 
 helpers.lua
