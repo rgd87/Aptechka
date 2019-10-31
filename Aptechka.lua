@@ -156,6 +156,7 @@ local defaults = {
     showAFK = false,
     showCasts = true,
     showAllCasts = true,
+    showAggro = true,
     healthOrientation = "VERTICAL",
     customBlacklist = {},
     healthTexture = "Gradient",
@@ -476,7 +477,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_DISPLAYPOWER")
         Aptechka.UNIT_MAXPOWER = Aptechka.UNIT_POWER_UPDATE
     end
-    if config.AggroStatus then
+    if AptechkaDB.showAggro and config.AggroStatus then
         self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
     end
     if config.ReadyCheck then
