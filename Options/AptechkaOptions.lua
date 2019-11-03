@@ -4,7 +4,7 @@ local L = Aptechka.L
 local LSM = LibStub("LibSharedMedia-3.0")
 
 -- AptechkaGUI:SetScript("OnEvent", function(self, event, ...)
-	-- self[event](self, event, ...)
+    -- self[event](self, event, ...)
 -- end)
 -- AptechkaGUI:RegisterEvent("ADDON_LOADED")
 
@@ -17,11 +17,11 @@ function AptechkaGUI.SlashCmd(msg)
 end
 
 local sortfunc = function(a,b)
-	if a.order == b.order then
-		return a.value < b.value
-	else
-		return a.order < b.order
-	end
+    if a.order == b.order then
+        return a.value < b.value
+    else
+        return a.order < b.order
+    end
 end
 
 local MakeValuesForKeys = function(t)
@@ -33,10 +33,10 @@ local MakeValuesForKeys = function(t)
 end
 
 function AptechkaGUI.GenerateCategoryTree(self, isGlobal, category)
-	local _,class = UnitClass("player")
-	local custom = isGlobal and AptechkaConfigCustom["GLOBAL"] or AptechkaConfigCustom[class]
+    local _,class = UnitClass("player")
+    local custom = isGlobal and AptechkaConfigCustom["GLOBAL"] or AptechkaConfigCustom[class]
 
-	local t = {}
+    local t = {}
     for spellID, opts in pairs(AptechkaConfigMerged[category]) do
         if not AptechkaConfigMerged.spellClones[spellID] then
             if (isGlobal and opts.global) or (not isGlobal and not opts.global) then
@@ -66,9 +66,9 @@ function AptechkaGUI.GenerateCategoryTree(self, isGlobal, category)
                 })
             end
         end
-	end
-	table.sort(t, sortfunc)
-	return t
+    end
+    table.sort(t, sortfunc)
+    return t
 end
 
 
@@ -78,53 +78,53 @@ local NewTimerForm
 
 
 function AptechkaGUI.CreateNewTimerForm(self)
-	local Form = AceGUI:Create("InlineGroup")
+    local Form = AceGUI:Create("InlineGroup")
     Form:SetFullWidth(true)
     -- Form:SetHeight(0)
     Form:SetLayout("Flow")
-	Form.opts = {}
+    Form.opts = {}
     Form.controls = {}
 
-	Form.ShowNewTimer = function(self, category)
-		assert(category)
-		local Frame = AptechkaGUI.frame
-		local class = self.class
+    Form.ShowNewTimer = function(self, category)
+        assert(category)
+        local Frame = AptechkaGUI.frame
+        local class = self.class
 
-		Frame.rpane:Clear()
-		if not AuraForm then
-			AuraForm = AptechkaGUI:CreateAuraForm()
-		end
-		local opts
+        Frame.rpane:Clear()
+        if not AuraForm then
+            AuraForm = AptechkaGUI:CreateAuraForm()
+        end
+        local opts
         if category == "auras" then
             opts = { assignto = "spell1", showDuration = true, isMine = true, type = "HELPFUL", }
         elseif category == "traces" then
             opts = { assignto = "spell1", fade = 0.7, type = "SPELL_HEAL" }
         end
-		if class == "GLOBAL" then opts.global = true end
-		AptechkaGUI:FillForm(AuraForm, class, category, nil, opts, true)
-		Frame.rpane:AddChild(AuraForm)
-	end
+        if class == "GLOBAL" then opts.global = true end
+        AptechkaGUI:FillForm(AuraForm, class, category, nil, opts, true)
+        Frame.rpane:AddChild(AuraForm)
+    end
 
-	local newaura = AceGUI:Create("Button")
-	newaura:SetText("New Aura")
-	newaura:SetFullWidth(true)
-	newaura:SetCallback("OnClick", function(self, event)
-		self.parent:ShowNewTimer("auras")
-	end)
-	Form:AddChild(newaura)
+    local newaura = AceGUI:Create("Button")
+    newaura:SetText("New Aura")
+    newaura:SetFullWidth(true)
+    newaura:SetCallback("OnClick", function(self, event)
+        self.parent:ShowNewTimer("auras")
+    end)
+    Form:AddChild(newaura)
     Form.controls.newaura = newaura
 
-	local newtrace = AceGUI:Create("Button")
-	newtrace:SetText("New Trace")
-	newtrace:SetFullWidth(true)
-	newtrace:SetCallback("OnClick", function(self, event)
-		self.parent:ShowNewTimer("traces")
-	end)
-	Form:AddChild(newtrace)
+    local newtrace = AceGUI:Create("Button")
+    newtrace:SetText("New Trace")
+    newtrace:SetFullWidth(true)
+    newtrace:SetCallback("OnClick", function(self, event)
+        self.parent:ShowNewTimer("traces")
+    end)
+    Form:AddChild(newtrace)
     Form.controls.newtrace = newtrace
 
 
-	return Form
+    return Form
 end
 
 local tooltipOnEnter = function(self, event)
@@ -146,41 +146,41 @@ local clean = function(delta, default_opts, property, emptyValue)
 end
 
 function AptechkaGUI.CreateCommonForm(self)
-	local Form = AceGUI:Create("ScrollFrame")
+    local Form = AceGUI:Create("ScrollFrame")
     Form:SetFullWidth(true)
     -- Form:SetHeight(0)
     Form:SetLayout("Flow")
-	Form.opts = {}
-	Form.controls = {}
+    Form.opts = {}
+    Form.controls = {}
 
 
 
 
-	local save = AceGUI:Create("Button")
-	save:SetText("Save")
-	save:SetRelativeWidth(0.5)
-	save:SetCallback("OnClick", function(self, event)
-		local p = self.parent
-		local class = p.class
-		local category = p.category
-		local spellID = p.id
-		local opts = p.opts
+    local save = AceGUI:Create("Button")
+    save:SetText("Save")
+    save:SetRelativeWidth(0.5)
+    save:SetCallback("OnClick", function(self, event)
+        local p = self.parent
+        local class = p.class
+        local category = p.category
+        local spellID = p.id
+        local opts = p.opts
 
-		if not spellID then -- make new timer
-			spellID = tonumber(self.parent.controls.spellID:GetText())
-			if not spellID or not tonumber(spellID) then
-				--invalid spell id string
-				return
-			end
+        if not spellID then -- make new timer
+            spellID = tonumber(self.parent.controls.spellID:GetText())
+            if not spellID or not tonumber(spellID) then
+                --invalid spell id string
+                return
+            end
             if not GetSpellInfo(spellID) then
                 return -- spell doesn't exist
             end
 
-			-- if not opts.name then
-				-- opts.name = GetSpellInfo(spellID)
-			-- end
-			opts.spellID = nil
-		end
+            -- if not opts.name then
+                -- opts.name = GetSpellInfo(spellID)
+            -- end
+            opts.spellID = nil
+        end
 
         if not opts.name then
             opts.name = GetSpellInfo(spellID)
@@ -219,7 +219,7 @@ function AptechkaGUI.CreateCommonForm(self)
             clean(opts, default_opts, "clones", false)
         end
 
-		local delta = CopyTable(opts)
+        local delta = CopyTable(opts)
         delta.realID = nil -- important, clears runtime data
         delta.isforeign = nil
         delta.expirationTime = nil
@@ -231,74 +231,74 @@ function AptechkaGUI.CreateCommonForm(self)
         delta.id = spellID -- very important
 
         -- remove clones of the previous version of the spell
-		local oldOriginalSpell = AptechkaConfigMerged[category][spellID]
-		if oldOriginalSpell and oldOriginalSpell.clones then
-			for i, additionalSpellID in ipairs(oldOriginalSpell.clones) do
-				AptechkaConfigMerged[category][additionalSpellID] = nil
-				AptechkaConfigMerged.spellClones[additionalSpellID] = nil
-			end
-		end
-		----------
+        local oldOriginalSpell = AptechkaConfigMerged[category][spellID]
+        if oldOriginalSpell and oldOriginalSpell.clones then
+            for i, additionalSpellID in ipairs(oldOriginalSpell.clones) do
+                AptechkaConfigMerged[category][additionalSpellID] = nil
+                AptechkaConfigMerged.spellClones[additionalSpellID] = nil
+            end
+        end
+        ----------
 
         if default_opts then
             if delta.clones then Aptechka.RemoveDefaultsPreserve(delta.clones, default_opts.clones) end
             Aptechka.RemoveDefaults(delta, default_opts)
-			AptechkaConfigMerged[category][spellID] = CopyTable(default_opts)
+            AptechkaConfigMerged[category][spellID] = CopyTable(default_opts)
             -- if delta.disabled then
                 -- AptechkaConfigMerged[category][spellID] = nil
             -- else
             Aptechka.MergeTable(AptechkaConfigMerged[category][spellID], delta, true)
             -- end
-		else
-			AptechkaConfigMerged[category][spellID] = delta
-		end
+        else
+            AptechkaConfigMerged[category][spellID] = delta
+        end
 
         -- fill up spell clones of the new version
-		local originalSpell = AptechkaConfigMerged[category][spellID]
-		if originalSpell.clones then
-			for i, additionalSpellID in ipairs(originalSpell.clones) do
-				AptechkaConfigMerged[category][additionalSpellID] = originalSpell
-				AptechkaConfigMerged.spellClones[additionalSpellID] = true
-			end
-		end
-		----------
+        local originalSpell = AptechkaConfigMerged[category][spellID]
+        if originalSpell.clones then
+            for i, additionalSpellID in ipairs(originalSpell.clones) do
+                AptechkaConfigMerged[category][additionalSpellID] = originalSpell
+                AptechkaConfigMerged.spellClones[additionalSpellID] = true
+            end
+        end
+        ----------
 
-		AptechkaConfigCustom[class] = AptechkaConfigCustom[class] or {}
-		AptechkaConfigCustom[class][category] = AptechkaConfigCustom[class][category] or {}
-		if not next(delta) then delta = nil end
-		AptechkaConfigCustom[class][category][spellID] = delta
+        AptechkaConfigCustom[class] = AptechkaConfigCustom[class] or {}
+        AptechkaConfigCustom[class][category] = AptechkaConfigCustom[class][category] or {}
+        if not next(delta) then delta = nil end
+        AptechkaConfigCustom[class][category][spellID] = delta
 
-		AptechkaGUI.frame.tree:UpdateSpellTree()
-		AptechkaGUI.frame.tree:SelectByPath(class, category, spellID)
-		Aptechka:PostSpellListUpdate()
-	end)
-	Form:AddChild(save)
+        AptechkaGUI.frame.tree:UpdateSpellTree()
+        AptechkaGUI.frame.tree:SelectByPath(class, category, spellID)
+        Aptechka:PostSpellListUpdate()
+    end)
+    Form:AddChild(save)
 
-	local delete = AceGUI:Create("Button")
-	delete:SetText("Delete")
-	save:SetRelativeWidth(0.5)
-	delete:SetCallback("OnClick", function(self, event)
-		local p = self.parent
-		local class = p.class
-		local category = p.category
-		local spellID = p.id
-		-- local opts = p.opts
+    local delete = AceGUI:Create("Button")
+    delete:SetText("Delete")
+    save:SetRelativeWidth(0.5)
+    delete:SetCallback("OnClick", function(self, event)
+        local p = self.parent
+        local class = p.class
+        local category = p.category
+        local spellID = p.id
+        -- local opts = p.opts
 
-		AptechkaConfigCustom[class][category][spellID] = nil
-		AptechkaConfigMerged[category][spellID] = AptechkaDefaultConfig[category][spellID]
+        AptechkaConfigCustom[class][category][spellID] = nil
+        AptechkaConfigMerged[category][spellID] = AptechkaDefaultConfig[category][spellID]
 
-		AptechkaGUI.frame.tree:UpdateSpellTree()
-		AptechkaGUI.frame.tree:SelectByPath(class, category, spellID)
-	end)
-	Form.controls.delete = delete
-	Form:AddChild(delete)
+        AptechkaGUI.frame.tree:UpdateSpellTree()
+        AptechkaGUI.frame.tree:SelectByPath(class, category, spellID)
+    end)
+    Form.controls.delete = delete
+    Form:AddChild(delete)
 
-	local spellID = AceGUI:Create("EditBox")
-	spellID:SetLabel("Spell ID")
-	spellID:SetDisabled(true)
+    local spellID = AceGUI:Create("EditBox")
+    spellID:SetLabel("Spell ID")
+    spellID:SetDisabled(true)
     spellID:DisableButton(true)
-	spellID:SetRelativeWidth(0.2)
-	spellID:SetCallback("OnTextChanged", function(self, event, value)
+    spellID:SetRelativeWidth(0.2)
+    spellID:SetCallback("OnTextChanged", function(self, event, value)
         local v = tonumber(value)
         if v and v > 0 and GetSpellInfo(v) then
             self.parent.opts["spellID"] = v
@@ -307,11 +307,11 @@ function AptechkaGUI.CreateCommonForm(self)
             self.editbox:SetTextColor(1,0,0)
         end
         if value == "" then self.parent.opts["spellID"] = nil end
-	end)
-	-- spellID:SetHeight(32)
-	-- spellID.alignoffset = 30
-	Form.controls.spellID = spellID
-	Form:AddChild(spellID)
+    end)
+    -- spellID:SetHeight(32)
+    -- spellID.alignoffset = 30
+    Form.controls.spellID = spellID
+    Form:AddChild(spellID)
 
     local name = AceGUI:Create("EditBox")
     name:SetLabel("Internal Name")
@@ -334,17 +334,17 @@ function AptechkaGUI.CreateCommonForm(self)
     Form:AddChild(name)
     AddTooltip(name, "Custom timer label.\nLeave blank to hide.")
 
-	local disabled = AceGUI:Create("CheckBox")
-	disabled:SetLabel("Disabled")
-	disabled:SetRelativeWidth(0.2)
-	disabled:SetCallback("OnValueChanged", function(self, event, value)
+    local disabled = AceGUI:Create("CheckBox")
+    disabled:SetLabel("Disabled")
+    disabled:SetRelativeWidth(0.2)
+    disabled:SetCallback("OnValueChanged", function(self, event, value)
         if value == false then value = nil end
-		self.parent.opts["disabled"] = value
-	end)
-	-- disabled.alignoffset = 10
-	-- disabled:SetHeight(36)
-	Form.controls.disabled = disabled
-	Form:AddChild(disabled)
+        self.parent.opts["disabled"] = value
+    end)
+    -- disabled.alignoffset = 10
+    -- disabled:SetHeight(36)
+    Form.controls.disabled = disabled
+    Form:AddChild(disabled)
 
 
     local prio = AceGUI:Create("EditBox")
@@ -419,14 +419,14 @@ function AptechkaGUI.CreateCommonForm(self)
     AddTooltip(foreigncolor, "Color for applications from other players")
 
     local fcr = AceGUI:Create("Button")
-	fcr:SetText("X")
-	fcr:SetRelativeWidth(0.1)
-	fcr:SetCallback("OnClick", function(self, event)
-		self.parent.opts["foreigncolor"] = false
-		self.parent.controls.foreigncolor:SetColor(1,1,1,0)
-	end)
-	Form.controls.fcr = fcr
-	Form:AddChild(fcr)
+    fcr:SetText("X")
+    fcr:SetRelativeWidth(0.1)
+    fcr:SetCallback("OnClick", function(self, event)
+        self.parent.opts["foreigncolor"] = false
+        self.parent.controls.foreigncolor:SetColor(1,1,1,0)
+    end)
+    Form.controls.fcr = fcr
+    Form:AddChild(fcr)
     AddTooltip(fcr, "Remove Other's Color")
 
     local isMissing = AceGUI:Create("CheckBox")
@@ -495,33 +495,33 @@ function AptechkaGUI.CreateCommonForm(self)
     AddTooltip(refreshTime, "Pandemic indication. Only works for bars")
 
     local clones = AceGUI:Create("EditBox")
-	clones:SetLabel("Additional Spell IDs")
-	clones:SetRelativeWidth(0.9)
-	clones:SetCallback("OnEnterPressed", function(self, event, value)
-		local cloneList = {}
-		for spellID in string.gmatch(value, "%d+") do
-			table.insert(cloneList, tonumber(spellID))
-		end
+    clones:SetLabel("Additional Spell IDs")
+    clones:SetRelativeWidth(0.9)
+    clones:SetCallback("OnEnterPressed", function(self, event, value)
+        local cloneList = {}
+        for spellID in string.gmatch(value, "%d+") do
+            table.insert(cloneList, tonumber(spellID))
+        end
         if next(cloneList) then
             self.parent.opts["clones"] = cloneList
         else
             self.parent.opts["clones"] = false
             self:SetText("")
         end
-	end)
-	Form.controls.clones = clones
-	Form:AddChild(clones)
-	AddTooltip(clones, "Spell ID list of clones / spell ranks" )
+    end)
+    Form.controls.clones = clones
+    Form:AddChild(clones)
+    AddTooltip(clones, "Spell ID list of clones / spell ranks" )
 
     -- Frame:AddChild(Form)
     -- Frame.top = Form
-	return Form
+    return Form
 end
 
 function AptechkaGUI.CreateAuraForm(self)
-	local topgroup = AptechkaGUI:CreateCommonForm()
+    local topgroup = AptechkaGUI:CreateCommonForm()
 
-	return topgroup
+    return topgroup
 end
 
 local ReverseLookup = function(self, effect)
@@ -539,23 +539,23 @@ local fillAlpha = function(rgb)
 end
 
 function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm)
-	Form.opts = opts
-	Form.class = class
-	Form.category = category
-	Form.id = id
-	local controls = Form.controls
-	controls.spellID:SetText(id or "")
-	controls.spellID:SetDisabled(not isEmptyForm)
-	controls.disabled:SetValue(opts.disabled)
-	controls.disabled:SetDisabled(isEmptyForm)
+    Form.opts = opts
+    Form.class = class
+    Form.category = category
+    Form.id = id
+    local controls = Form.controls
+    controls.spellID:SetText(id or "")
+    controls.spellID:SetDisabled(not isEmptyForm)
+    controls.disabled:SetValue(opts.disabled)
+    controls.disabled:SetDisabled(isEmptyForm)
 
     local widgetName = opts.assignto
     if type(widgetName) == "table" then
         widgetName = widgetName[1]
     end
     controls.assignto:SetValue(widgetName)
-	controls.name:SetText(opts.name or "")
-	controls.priority:SetText(opts.priority)
+    controls.name:SetText(opts.name or "")
+    controls.priority:SetText(opts.priority)
     controls.extend_below:SetText(opts.extend_below)
     controls.isMine:SetValue(opts.isMine)
     controls.isMissing:SetValue(opts.isMissing)
@@ -563,81 +563,81 @@ function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm
     controls.refreshTime:SetText(opts.refreshTime)
 
     local clonesText
-	if opts.clones then
-		clonesText = table.concat(opts.clones, ", ")
-	end
-	controls.clones:SetText(clonesText)
+    if opts.clones then
+        clonesText = table.concat(opts.clones, ", ")
+    end
+    controls.clones:SetText(clonesText)
 
-	-- -- controls.group:SetValue(opts.group or "default")
-	-- controls.duration:SetText((type(opts.duration) == "function" and "<func>") or opts.duration)
-	-- controls.scale:SetValue(opts.scale or 1)
-	-- controls.scale_until:SetText(opts.scale_until)
+    -- -- controls.group:SetValue(opts.group or "default")
+    -- controls.duration:SetText((type(opts.duration) == "function" and "<func>") or opts.duration)
+    -- controls.scale:SetValue(opts.scale or 1)
+    -- controls.scale_until:SetText(opts.scale_until)
  --    controls.hide_until:SetText(opts.hide_until)
-	-- controls.shine:SetValue(opts.shine)
-	-- controls.shinerefresh:SetValue(opts.shinerefresh)
+    -- controls.shine:SetValue(opts.shine)
+    -- controls.shinerefresh:SetValue(opts.shinerefresh)
 
-	-- if opts.ghost then
-	-- 	controls.ghost:SetValue(true)
-	-- else
-	-- 	controls.ghost:SetValue(false)
-	-- end
-	-- controls.maxtimers:SetText(opts.maxtimers)
-	-- controls.singleTarget:SetValue(opts.singleTarget)
-	-- controls.multiTarget:SetValue(opts.multiTarget)
+    -- if opts.ghost then
+    -- 	controls.ghost:SetValue(true)
+    -- else
+    -- 	controls.ghost:SetValue(false)
+    -- end
+    -- controls.maxtimers:SetText(opts.maxtimers)
+    -- controls.singleTarget:SetValue(opts.singleTarget)
+    -- controls.multiTarget:SetValue(opts.multiTarget)
 
     controls.color:SetColor(fillAlpha(opts.color or {0.8, 0.1, 0.7} ))
     controls.foreigncolor:SetColor(fillAlpha(opts.foreigncolor or {1,1,1,0} ))
 
-	-- controls.color2:SetColor(fillAlpha(opts.color2 or {1,1,1,0} ))
-	-- controls.arrow:SetColor(fillAlpha(opts.arrow or {1,1,1,0} ))
+    -- controls.color2:SetColor(fillAlpha(opts.color2 or {1,1,1,0} ))
+    -- controls.arrow:SetColor(fillAlpha(opts.arrow or {1,1,1,0} ))
 
-	-- controls.affiliation:SetValue(opts.affiliation or COMBATLOG_OBJECT_AFFILIATION_MINE)
-	-- controls.nameplates:SetValue(opts.nameplates)
+    -- controls.affiliation:SetValue(opts.affiliation or COMBATLOG_OBJECT_AFFILIATION_MINE)
+    -- controls.nameplates:SetValue(opts.nameplates)
 
-	-- controls.tick:SetText(opts.tick)
-	-- controls.recast_mark:SetText(opts.recast_mark)
-	-- controls.fixedlen:SetText(opts.fixedlen)
+    -- controls.tick:SetText(opts.tick)
+    -- controls.recast_mark:SetText(opts.recast_mark)
+    -- controls.fixedlen:SetText(opts.fixedlen)
 
-	-- if opts.overlay then
-	-- 	controls.overlay_start:SetText(opts.overlay[1])
-	-- 	controls.overlay_end:SetText(opts.overlay[2])
-	-- 	controls.overlay_haste:SetValue(opts.overlay[4])
-	-- else
-	-- 	controls.overlay_start:SetText("")
-	-- 	controls.overlay_end:SetText("")
-	-- 	controls.overlay_haste:SetValue(false)
-	-- end
+    -- if opts.overlay then
+    -- 	controls.overlay_start:SetText(opts.overlay[1])
+    -- 	controls.overlay_end:SetText(opts.overlay[2])
+    -- 	controls.overlay_haste:SetValue(opts.overlay[4])
+    -- else
+    -- 	controls.overlay_start:SetText("")
+    -- 	controls.overlay_end:SetText("")
+    -- 	controls.overlay_haste:SetValue(false)
+    -- end
 
  --    controls.effect:SetValue(opts.effect or "NONE")
  --    controls.ghosteffect:SetValue(opts.ghosteffect or "NONE")
 
-	if id and not AptechkaDefaultConfig[category][id] then
-		controls.delete:SetDisabled(false)
-		controls.delete:SetText("Delete")
-	elseif AptechkaConfigCustom[class] and  AptechkaConfigCustom[class][category] and AptechkaConfigCustom[class][category][id] then
-		controls.delete:SetDisabled(false)
-		controls.delete:SetText("Restore")
-	else
-		controls.delete:SetDisabled(true)
-		controls.delete:SetText("Restore")
-	end
+    if id and not AptechkaDefaultConfig[category][id] then
+        controls.delete:SetDisabled(false)
+        controls.delete:SetText("Delete")
+    elseif AptechkaConfigCustom[class] and  AptechkaConfigCustom[class][category] and AptechkaConfigCustom[class][category][id] then
+        controls.delete:SetDisabled(false)
+        controls.delete:SetText("Restore")
+    else
+        controls.delete:SetDisabled(true)
+        controls.delete:SetText("Restore")
+    end
 
 
     if category == "auras" then
         controls.name:SetDisabled(false)
-		controls.showDuration:SetDisabled(false)
-		controls.isMine:SetDisabled(false)
+        controls.showDuration:SetDisabled(false)
+        controls.isMine:SetDisabled(false)
         controls.extend_below:SetDisabled(false)
         controls.refreshTime:SetDisabled(false)
         controls.isMissing:SetDisabled(false)
     else
         controls.name:SetDisabled(true)
-		controls.showDuration:SetDisabled(true)
+        controls.showDuration:SetDisabled(true)
         controls.isMine:SetDisabled(true)
         controls.extend_below:SetDisabled(true)
         controls.refreshTime:SetDisabled(true)
         controls.isMissing:SetDisabled(true)
-	end
+    end
 
 end
 
@@ -651,47 +651,47 @@ function AptechkaGUI.Create(self, name, parent )
     -- Frame:SetHeight(440)
     -- Frame:EnableResize(false)
     -- -- f:SetStatusText("Status Bar")
-	-- -- Frame:SetParent(InterfaceOptionsFramePanelContainer)
+    -- -- Frame:SetParent(InterfaceOptionsFramePanelContainer)
     -- Frame:SetLayout("Flow")
-	-- Frame:Hide()
+    -- Frame:Hide()
 
-	local Frame = AceGUI:Create("BlizOptionsGroup")
-	Frame:SetName(name, parent)
-	Frame:SetTitle("Aptechka Spell List")
-	Frame:SetLayout("Fill")
-	-- Frame:SetHeight(500)
-	-- Frame:SetWidth(700)
-	-- Frame:Show()
+    local Frame = AceGUI:Create("BlizOptionsGroup")
+    Frame:SetName(name, parent)
+    Frame:SetTitle("Aptechka Spell List")
+    Frame:SetLayout("Fill")
+    -- Frame:SetHeight(500)
+    -- Frame:SetWidth(700)
+    -- Frame:Show()
 
 
 
-	-- local gr = AceGUI:Create("InlineGroup")
-	-- gr:SetLayout("Fill")
-	-- -- gr:SetWidth(600)
-	-- -- gr:SetHeight(600)
-	-- Frame:AddChild(gr)
-	--
-	-- local setcreate = AceGUI:Create("Button")
+    -- local gr = AceGUI:Create("InlineGroup")
+    -- gr:SetLayout("Fill")
+    -- -- gr:SetWidth(600)
+    -- -- gr:SetHeight(600)
+    -- Frame:AddChild(gr)
+    --
+    -- local setcreate = AceGUI:Create("Button")
     -- setcreate:SetText("Save")
     -- -- setcreate:SetWidth(100)
-	-- gr:AddChild(setcreate)
-	-- if true then
-		-- return Frame
-	-- end
+    -- gr:AddChild(setcreate)
+    -- if true then
+        -- return Frame
+    -- end
 
 
-	-- local Frame = CreateFrame("Frame", "AptechkaOptions", UIParent) -- InterfaceOptionsFramePanelContainer)
-	-- -- Frame:Hide()
-	-- Frame.name = "AptechkaOptions"
-	-- Frame.children = {}
-	-- Frame:SetWidth(400)
-	-- Frame:SetHeight(400)
-	-- Frame:SetPoint("CENTER", UIParent, "CENTER",0,0)
-	-- Frame.AddChild = function(self, child)
-	-- 	table.insert(self.children, child)
-	-- 	child:SetParent(self)
-	-- end
-	-- InterfaceOptions_AddCategory(Frame)
+    -- local Frame = CreateFrame("Frame", "AptechkaOptions", UIParent) -- InterfaceOptionsFramePanelContainer)
+    -- -- Frame:Hide()
+    -- Frame.name = "AptechkaOptions"
+    -- Frame.children = {}
+    -- Frame:SetWidth(400)
+    -- Frame:SetHeight(400)
+    -- Frame:SetPoint("CENTER", UIParent, "CENTER",0,0)
+    -- Frame.AddChild = function(self, child)
+    -- 	table.insert(self.children, child)
+    -- 	child:SetParent(self)
+    -- end
+    -- InterfaceOptions_AddCategory(Frame)
 
 
     -- local topgroup = AceGUI:Create("InlineGroup")
@@ -700,14 +700,14 @@ function AptechkaGUI.Create(self, name, parent )
     -- topgroup:SetLayout("Flow")
     -- Frame:AddChild(topgroup)
     -- Frame.top = topgroup
-	--
+    --
     -- local setname = AceGUI:Create("EditBox")
     -- setname:SetWidth(240)
     -- setname:SetText("NewSet1")F
     -- setname:DisableButton(true)
     -- topgroup:AddChild(setname)
     -- topgroup.label = setname
-	--
+    --
     -- local setcreate = AceGUI:Create("Button")
     -- setcreate:SetText("Save")
     -- setcreate:SetWidth(100)
@@ -715,7 +715,7 @@ function AptechkaGUI.Create(self, name, parent )
     -- setcreate:SetCallback("OnEnter", function() Frame:SetStatusText("Create new/overwrite existing set") end)
     -- setcreate:SetCallback("OnLeave", function() Frame:SetStatusText("") end)
     -- topgroup:AddChild(setcreate)
-	--
+    --
     -- local btn4 = AceGUI:Create("Button")
     -- btn4:SetWidth(100)
     -- btn4:SetText("Delete")
@@ -727,133 +727,133 @@ function AptechkaGUI.Create(self, name, parent )
 
 
     local treegroup = AceGUI:Create("TreeGroup") -- "InlineGroup" is also good
-	-- treegroup:SetParent(InterfaceOptionsFramePanelContainer)
-	-- treegroup.name = "AptechkaOptions"
+    -- treegroup:SetParent(InterfaceOptionsFramePanelContainer)
+    -- treegroup.name = "AptechkaOptions"
     -- treegroup:SetFullWidth(true)
     -- treegroup:SetTreeWidth(200, false)
     -- treegroup:SetLayout("Flow")
     treegroup:SetFullHeight(true) -- probably?
-	treegroup:SetFullWidth(true) -- probably?
+    treegroup:SetFullWidth(true) -- probably?
     treegroup:EnableButtonTooltips(false)
     treegroup:SetCallback("OnGroupSelected", function(self, event, group)
-		local path = {}
-		for match in string.gmatch(group, '([^\001]+)') do
-			table.insert(path, match)
-		end
+        local path = {}
+        for match in string.gmatch(group, '([^\001]+)') do
+            table.insert(path, match)
+        end
 
-		local class, category, spellID = unpack(path)
-		if not spellID or not category then
-			Frame.rpane:Clear()
-			if not NewTimerForm then
-				NewTimerForm = AptechkaGUI:CreateNewTimerForm()
-			end
-			NewTimerForm.class = class
-			Frame.rpane:AddChild(NewTimerForm)
+        local class, category, spellID = unpack(path)
+        if not spellID or not category then
+            Frame.rpane:Clear()
+            if not NewTimerForm then
+                NewTimerForm = AptechkaGUI:CreateNewTimerForm()
+            end
+            NewTimerForm.class = class
+            Frame.rpane:AddChild(NewTimerForm)
             if class == "GLOBAL" then
                 NewTimerForm.controls.newtrace:SetDisabled(true)
             else
                 NewTimerForm.controls.newtrace:SetDisabled(false)
             end
 
-			return
-		end
+            return
+        end
 
-		spellID = tonumber(spellID)
-		local opts
-		if not AptechkaConfigCustom[class] or not AptechkaConfigCustom[class][category] or not AptechkaConfigCustom[class][category][spellID] then
-			opts = {}
-		else
-			opts = CopyTable(AptechkaConfigCustom[class][category][spellID])
-		end
-		Aptechka.SetupDefaults(opts, AptechkaDefaultConfig[category][spellID])
+        spellID = tonumber(spellID)
+        local opts
+        if not AptechkaConfigCustom[class] or not AptechkaConfigCustom[class][category] or not AptechkaConfigCustom[class][category][spellID] then
+            opts = {}
+        else
+            opts = CopyTable(AptechkaConfigCustom[class][category][spellID])
+        end
+        Aptechka.SetupDefaults(opts, AptechkaDefaultConfig[category][spellID])
 
-		-- if category == "spells" then
-		Frame.rpane:Clear()
-		if not AuraForm then
-			AuraForm = AptechkaGUI:CreateAuraForm()
-		end
-		AptechkaGUI:FillForm(AuraForm, class, category, spellID, opts)
-		Frame.rpane:AddChild(AuraForm)
+        -- if category == "spells" then
+        Frame.rpane:Clear()
+        if not AuraForm then
+            AuraForm = AptechkaGUI:CreateAuraForm()
+        end
+        AptechkaGUI:FillForm(AuraForm, class, category, spellID, opts)
+        Frame.rpane:AddChild(AuraForm)
 
-		-- end
-	end)
+        -- end
+    end)
 
-	Frame.rpane = treegroup
-	Frame.tree = treegroup
+    Frame.rpane = treegroup
+    Frame.tree = treegroup
 
-	treegroup.UpdateSpellTree = function(self)
-		local lclass, class = UnitClass("player")
-		local classIcon = "Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes"
-		local classCoords = CLASS_ICON_TCOORDS[class]
+    treegroup.UpdateSpellTree = function(self)
+        local lclass, class = UnitClass("player")
+        local classIcon = "Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes"
+        local classCoords = CLASS_ICON_TCOORDS[class]
 
-		local t = {
-			{
-				value = "GLOBAL",
-				text = "Global",
-				icon = "Interface\\Icons\\spell_holy_resurrection",
-				children = {
-					{
-						value = "auras",
-						text = "Auras",
-						icon = "Interface\\Icons\\spell_shadow_manaburn",
-						children = AptechkaGUI:GenerateCategoryTree(true, "auras")
-					},
-				},
-			},
-			{
-				value = class,
-				text = lclass,
-				icon = classIcon,
-				iconCoords = classCoords,
-				children = {
-					{
-						value = "auras",
-						text = "Auras",
-						icon = "Interface\\Icons\\spell_shadow_manaburn",
-						children = AptechkaGUI:GenerateCategoryTree(false,"auras")
-					},
-					{
-						value = "traces",
-						text = "Traces",
-						icon = "Interface\\Icons\\spell_nature_astralrecal",
-						children = AptechkaGUI:GenerateCategoryTree(false,"traces")
-					},
-				}
-			},
-		}
-		self:SetTree(t)
-		return t
-	end
-
-
-	local t = treegroup:UpdateSpellTree()
-
-	Frame:AddChild(treegroup)
+        local t = {
+            {
+                value = "GLOBAL",
+                text = "Global",
+                icon = "Interface\\Icons\\spell_holy_resurrection",
+                children = {
+                    {
+                        value = "auras",
+                        text = "Auras",
+                        icon = "Interface\\Icons\\spell_shadow_manaburn",
+                        children = AptechkaGUI:GenerateCategoryTree(true, "auras")
+                    },
+                },
+            },
+            {
+                value = class,
+                text = lclass,
+                icon = classIcon,
+                iconCoords = classCoords,
+                children = {
+                    {
+                        value = "auras",
+                        text = "Auras",
+                        icon = "Interface\\Icons\\spell_shadow_manaburn",
+                        children = AptechkaGUI:GenerateCategoryTree(false,"auras")
+                    },
+                    {
+                        value = "traces",
+                        text = "Traces",
+                        icon = "Interface\\Icons\\spell_nature_astralrecal",
+                        children = AptechkaGUI:GenerateCategoryTree(false,"traces")
+                    },
+                }
+            },
+        }
+        self:SetTree(t)
+        return t
+    end
 
 
+    local t = treegroup:UpdateSpellTree()
 
-	local categories = {"auras", "traces"}
-	for i,group in ipairs(t) do -- expand all groups
-		if group.value ~= "GLOBAL" then
-			treegroup.localstatus.groups[group.value] = true
-			for _, cat in ipairs(categories) do
-				treegroup.localstatus.groups[group.value.."\001"..cat] = true
-			end
-		end
-	end
+    Frame:AddChild(treegroup)
 
 
-	Frame.rpane.Clear = function(self)
-		for i, child in ipairs(self.children) do
-			child:SetParent(UIParent)
-			child.frame:Hide()
-		end
-		table.wipe(self.children)
-	end
+
+    local categories = {"auras", "traces"}
+    for i,group in ipairs(t) do -- expand all groups
+        if group.value ~= "GLOBAL" then
+            treegroup.localstatus.groups[group.value] = true
+            for _, cat in ipairs(categories) do
+                treegroup.localstatus.groups[group.value.."\001"..cat] = true
+            end
+        end
+    end
 
 
-	local _, class = UnitClass("player")
-	Frame.tree:SelectByPath(class)
+    Frame.rpane.Clear = function(self)
+        for i, child in ipairs(self.children) do
+            child:SetParent(UIParent)
+            child.frame:Hide()
+        end
+        table.wipe(self.children)
+    end
+
+
+    local _, class = UnitClass("player")
+    Frame.tree:SelectByPath(class)
 
 
 
@@ -1076,7 +1076,7 @@ local function MakeGeneralOptions()
                     --     width = "full",
                     --     type = "toggle",
                     --     confirm = true,
-					-- 	confirmText = "Warning: Will completely disable Blizzard CompactRaidFrames, but you also lose raid leader functionality. If you delete this addon, you can only revert with this macro:\n/script EnableAddOn('Blizzard_CompactRaidFrames'); EnableAddOn('Blizzard_CUFProfiles')",
+                    -- 	confirmText = "Warning: Will completely disable Blizzard CompactRaidFrames, but you also lose raid leader functionality. If you delete this addon, you can only revert with this macro:\n/script EnableAddOn('Blizzard_CompactRaidFrames'); EnableAddOn('Blizzard_CUFProfiles')",
                     --     get = function(info) return not IsAddOnLoaded("Blizzard_CompactRaidFrames") end,
                     --     set = function(info, v)
                     --         Aptechka:ToggleCompactRaidFrames()
@@ -1106,7 +1106,7 @@ local function MakeGeneralOptions()
                         name = L"Show Aggro",
                         type = "toggle",
                         confirm = true,
-						confirmText = L"Warning: Requires UI reloading.",
+                        confirmText = L"Warning: Requires UI reloading.",
                         get = function(info) return Aptechka.db.showAggro end,
                         set = function(info, v)
                             Aptechka.db.showAggro = not Aptechka.db.showAggro
@@ -1129,7 +1129,7 @@ local function MakeGeneralOptions()
                         disabled = true,
                         type = "toggle",
                         confirm = true,
-						confirmText = L"Warning: Requires UI reloading.",
+                        confirmText = L"Warning: Requires UI reloading.",
                         order = 11.3,
                         get = function(info) return Aptechka.db.useCombatLogHealthUpdates end,
                         set = function(info, v)
@@ -1141,7 +1141,7 @@ local function MakeGeneralOptions()
                         name = L"Use Debuff Ordering",
                         type = "toggle",
                         confirm = true,
-						confirmText = L"Warning: Requires UI reloading.",
+                        confirmText = L"Warning: Requires UI reloading.",
                         order = 11.2,
                         get = function(info) return Aptechka.db.useDebuffOrdering end,
                         set = function(info, v)
@@ -1153,7 +1153,7 @@ local function MakeGeneralOptions()
                         name = L"Show Casts",
                         type = "toggle",
                         confirm = true,
-						confirmText = L"Warning: Requires UI reloading.",
+                        confirmText = L"Warning: Requires UI reloading.",
                         get = function(info) return Aptechka.db.showCasts end,
                         set = function(info, v)
                             Aptechka.db.showCasts = not Aptechka.db.showCasts
@@ -1189,51 +1189,51 @@ local function MakeGeneralOptions()
                     },
 
                     healthTexture = {
-						type = "select",
-						name = L"Health Texture",
-						order = 13,
-						desc = L"Set the statusbar texture.",
-						get = function(info) return Aptechka.db.healthTexture end,
-						set = function(info, value)
-							Aptechka.db.healthTexture = value
+                        type = "select",
+                        name = L"Health Texture",
+                        order = 13,
+                        desc = L"Set the statusbar texture.",
+                        get = function(info) return Aptechka.db.healthTexture end,
+                        set = function(info, value)
+                            Aptechka.db.healthTexture = value
                             Aptechka:ReconfigureUnprotected()
-						end,
-						values = LSM:HashTable("statusbar"),
-						dialogControl = "LSM30_Statusbar",
-					},
+                        end,
+                        values = LSM:HashTable("statusbar"),
+                        dialogControl = "LSM30_Statusbar",
+                    },
 
                     powerTexture = {
-						type = "select",
-						name = L"Power Texture",
-						order = 14,
-						desc = L"Set the statusbar texture.",
-						get = function(info) return Aptechka.db.powerTexture end,
-						set = function(info, value)
-							Aptechka.db.powerTexture = value
+                        type = "select",
+                        name = L"Power Texture",
+                        order = 14,
+                        desc = L"Set the statusbar texture.",
+                        get = function(info) return Aptechka.db.powerTexture end,
+                        set = function(info, value)
+                            Aptechka.db.powerTexture = value
                             Aptechka:ReconfigureUnprotected()
-						end,
-						values = LSM:HashTable("statusbar"),
-						dialogControl = "LSM30_Statusbar",
+                        end,
+                        values = LSM:HashTable("statusbar"),
+                        dialogControl = "LSM30_Statusbar",
                     },
                     nameFont = {
-						type = "select",
-						name = L"Name Font",
-						order = 14.1,
-						get = function(info) return Aptechka.db.nameFontName end,
-						set = function(info, value)
-							Aptechka.db.nameFontName = value
-							Aptechka:ReconfigureUnprotected()
-						end,
-						values = LSM:HashTable("font"),
-						dialogControl = "LSM30_Font",
-					},
-					nameFontSize = {
+                        type = "select",
+                        name = L"Name Font",
+                        order = 14.1,
+                        get = function(info) return Aptechka.db.nameFontName end,
+                        set = function(info, value)
+                            Aptechka.db.nameFontName = value
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        values = LSM:HashTable("font"),
+                        dialogControl = "LSM30_Font",
+                    },
+                    nameFontSize = {
                         name = L"Name Font Size",
                         type = "range",
                         get = function(info) return Aptechka.db.nameFontSize end,
                         set = function(info, v)
-							Aptechka.db.nameFontSize = v
-							Aptechka:ReconfigureUnprotected()
+                            Aptechka.db.nameFontSize = v
+                            Aptechka:ReconfigureUnprotected()
                         end,
                         min = 3,
                         max = 30,
@@ -1535,33 +1535,33 @@ end
 
 
 local function MakeBlacklistHelp()
-	local opt = {
+    local opt = {
         type = 'group',
         name = "Debuff Blacklist",
         order = 1,
         args = {
-			msg = {
-				name = [[
+            msg = {
+                name = [[
 Blacklist is only accesible with console commands:
 
 /apt blacklist show
 /apt blacklist add <spellID>
 /apt blacklist del <spellID>
 ]],
-				type = "description",
-				fontSize = "medium",
+                type = "description",
+                fontSize = "medium",
                 width = "full",
                 order = 1,
             },
-		},
-	}
-	local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+        },
+    }
+    local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
     AceConfigRegistry:RegisterOptionsTable("AptechkaHelp", opt)
 
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
     local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaHelp", "Blacklist", "Aptechka")
 
-	return panelFrame
+    return panelFrame
 end
 
 
