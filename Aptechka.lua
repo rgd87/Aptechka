@@ -2454,6 +2454,13 @@ Aptechka.Commands = {
             anchor:Hide()
         end
     end,
+    ["gui"] = function(v)
+        if not IsAddOnLoaded("AptechkaOptions") then
+            LoadAddOn("AptechkaOptions")
+        end
+        InterfaceOptionsFrame_OpenToCategory("Aptechka")
+        InterfaceOptionsFrame_OpenToCategory("Aptechka")
+    end,
     ["reset"] = function()
         anchors[1].san.point = "CENTER"
         anchors[1].san.x = 0
@@ -2593,6 +2600,7 @@ function Aptechka.SlashCmd(msg)
     if not k or k == "help" then print([=[Usage:
       |cff00ff00/aptechka|r lock
       |cff00ff00/aptechka|r unlock
+      |cff00ff00/aptechka|r gui
       |cff00ff00/aptechka|r reset|r
       |cff00ff00/aptechka|r createpets
       |cff00ff00/aptechka|r blacklist add <spellID>
