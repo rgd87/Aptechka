@@ -60,7 +60,6 @@ local customBossAuras = helpers.customBossAuras
 local default_blacklist = helpers.auraBlacklist
 local blacklist
 local importantTargetedCasts = helpers.importantTargetedCasts
-local OORUnits = setmetatable({},{__mode = 'k'})
 local inCL = setmetatable({},{__index = function (t,k) return 0 end})
 local buffer = {}
 local loaded = {}
@@ -1110,12 +1109,7 @@ local vehicleHack = function (self, time)
     local owner = self.parent.unitOwner
     if not ( UnitHasVehicleUI(owner) or UnitInVehicle(owner) or UnitUsingVehicle(owner) ) then
         if Roster[self.parent.unit] then
-            -- local original_unit = self.parent.unit
-            -- print(string.format("L1>>Unit: %s-",original_unit))
-            -- print(string.format("L1>>Unit- Owner: %s",self.parent.unitOwner))
-            -- print(string.format("D3>>-Dumping Roster"))
-            -- d87add.dump("ROSTER")-
-            -- print(string.format("Restoring %s <- %s", owner, self.parent.unit) )
+            -- Restore owner unit in the roster, delete vehicle unit
             Roster[owner] = Roster[self.parent.unit]
             Roster[self.parent.unit] = nil
             self.parent.unit = owner
@@ -1127,7 +1121,9 @@ local vehicleHack = function (self, time)
             -- print(string.format("D4>[%s]>Dumping- Roster",NAME))
             -- d87add.dump("ROSTER")-
 
+            -- Remove vehicle status
             SetJob(owner,config.InVehicleStatus,false)
+            -- Update unitframe back to owner's unit health, etc.
             Aptechka:UNIT_HEALTH("VEHICLE",owner)
             if self.parent.power then
                 Aptechka:UNIT_DISPLAYPOWER(nil, owner)
@@ -1138,6 +1134,7 @@ local vehicleHack = function (self, time)
             end
             Aptechka.ScanAuras(owner)
 
+            -- Stop periodic checks
             self:SetScript("OnUpdate",nil)
         end
     end
@@ -1147,34 +1144,35 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
     for self in pairs(Roster[unit]) do
         if not self.InVehicle then --print("Already in vehicle")
             local vehicleUnit = SecureButton_GetModifiedUnit(self)
+            -- local vehicleOwner = SecureButton_GetUnit(self)
             if unit ~= vehicleUnit then
                 self.InVehicle = true
                 self.unitOwner = unit --original unit
                 self.unit = vehicleUnit
 
-                Aptechka:Colorize(nil, self.unitOwner)
                 self.guid = UnitGUID(vehicleUnit)
                 if self.guid then guidMap[self.guid] = vehicleUnit end
 
-                -- print(string.format("Overriding %s with %s", self.unitOwner, self.unit))
+                -- Delete owner unit from Roster and add point vehicle unit to this button instead
                 Roster[self.unit] = Roster[self.unitOwner]
                 Roster[self.unitOwner] = nil
 
-                -- ROSTER = Roster
-                -- local NAME = UnitName(unit)
-                -- print(string.format("D1>[%s]>Dumping Roster",NAME))
-                -- d87add.dump("ROSTER")
-
+                -- A small frame is crated to start 1s periodic OnUpdate checks when unit has left the vehicle
                 if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
                 self.vehicleFrame.OnUpdateCounter = -1.5
                 self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
 
+                -- Set in vehicle status
                 SetJob(self.unit,config.InVehicleStatus,true)
+                -- Update unitframe for the new vehicle unit
                 Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
                 if self.power then Aptechka:UNIT_POWER_UPDATE(nil,self.unit) end
                 if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
                 Aptechka:CheckPhase(self, self.unit)
                 Aptechka.ScanAuras(self.unit)
+
+                -- Except class color, it's still tied to owner
+                Aptechka:Colorize(nil, self.unitOwner)
             end
         end
     end

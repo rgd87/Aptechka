@@ -204,4 +204,8 @@ globals = {
 	"GetShapeshiftForm",
 	"CanAccessObject",
 	"SecureHandlerSetFrameRef",
+	"IsModifierKeyDown",
+	"MouselookStart",
+	"MouselookStop",
+	"IsMouselooking",
 }
