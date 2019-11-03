@@ -7,6 +7,7 @@ local LSM = LibStub("LibSharedMedia-3.0")
     -- self[event](self, event, ...)
 -- end)
 -- AptechkaGUI:RegisterEvent("ADDON_LOADED")
+local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
 
@@ -1027,7 +1028,7 @@ local function MakeGeneralOptions()
                     },
                     RMBClickthrough = {
                         name = L"RMB Mouselook Clickthrough"..newFeatureIcon,
-                        desc = L"If using Clique, this will override its RMB binding",
+                        desc = L"Allows to turn with RMB without moving mouse away from the unitframes.\nIf using Clique, this will override its RMB binding",
                         type = "toggle",
                         width = "full",
                         confirm = true,
@@ -1041,12 +1042,13 @@ local function MakeGeneralOptions()
                     },
                     sortUnitsByRole = {
                         name = L"Sort Units by Role",
+                        disable = isClassic,
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.sortUnitsByRole end,
                         set = function(info, v)
                             Aptechka.db.sortUnitsByRole = not Aptechka.db.sortUnitsByRole
-                            print("Aptechka: Changes will effect after /reload")
+                            Aptechka:PrintReloadUIWarning()
                         end,
                         order = 8.5,
                     },
@@ -1058,7 +1060,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.disableBlizzardParty end,
                         set = function(info, v)
                             Aptechka.db.disableBlizzardParty = not Aptechka.db.disableBlizzardParty
-                            print("Aptechka: Changes will effect after /reload")
+                            Aptechka:PrintReloadUIWarning()
                         end,
                         order = 9,
                     },
@@ -1069,7 +1071,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.hideBlizzardRaid end,
                         set = function(info, v)
                             Aptechka.db.hideBlizzardRaid = not Aptechka.db.hideBlizzardRaid
-                            print("Aptechka: Changes will effect after /reload")
+                            Aptechka:PrintReloadUIWarning()
                         end,
                         order = 10,
                     },
@@ -1091,7 +1093,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.petGroup end,
                         set = function(info, v)
                             Aptechka.db.petGroup = not Aptechka.db.petGroup
-                            print("Aptechka: Changes will effect after /reload")
+                            Aptechka:PrintReloadUIWarning()
                         end,
                         order = 10.7,
                     },
@@ -1122,7 +1124,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.showAFK end,
                         set = function(info, v)
                             Aptechka.db.showAFK = not Aptechka.db.showAFK
-                            print("Aptechka: Changes will effect after /reload")
+                            Aptechka:PrintReloadUIWarning()
                         end,
                         order = 11,
                     },

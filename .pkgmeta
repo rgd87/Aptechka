@@ -4,10 +4,6 @@ enable-nolib-creation: no
 move-folders:
   Aptechka/Options/loader: AptechkaOptions
 
-manual-changelog:
-  filename: CHANGELOG
-  markup-type: markdown
-
 externals:
   Libs/LibStub: svn://svn.wowace.com/wow/libstub/mainline/tags/1.0
   Libs/CallbackHandler-1.0: https://repos.wowace.com/wow/ace3/trunk/CallbackHandler-1.0
