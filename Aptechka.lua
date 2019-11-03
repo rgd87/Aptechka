@@ -156,7 +156,6 @@ local defaults = {
     sortUnitsByRole = false,
     showAFK = false,
     showCasts = true,
-    showAllCasts = true,
     showAggro = true,
     healthOrientation = "VERTICAL",
     customBlacklist = {},
@@ -2487,6 +2486,16 @@ local ParseOpts = function(str)
     str:gsub("(%w+)%s*=%s*%[%[(.-)%]%]", capture):gsub("(%w+)%s*=%s*(%S+)", capture)
     return t
 end
+function Aptechka:PrintReloadUIWarning()
+    print(Aptechka.L"Aptechka: Changes will effect after /reload")
+    -- print("|cffffffff|Hgarrmission:APTECHKAReload:|h[/reload]|h|r")
+end
+-- hooksecurefunc("SetItemRef", function(link, text)
+--     local _, linkType = strsplit(":", link)
+--     if linkType == "APTECHKAReload" then
+--         ReloadUI()
+--     end
+-- end)
 Aptechka.Commands = {
     ["unlockall"] = function()
         for _,anchor in pairs(anchors) do
@@ -2695,7 +2704,7 @@ function Aptechka.SPELLCAST_UPDATE(event, GUID)
                 local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = unpack(castInfo)
 
                 local isImportant = importantTargetedCasts[spellID]
-                if (AptechkaDB.showAllCasts or isImportant) and not blacklist[spellID] then
+                if not blacklist[spellID] then
                     totalCasts = totalCasts + 1
                     if castType == "CHANNEL" then endTime = endTime - 5 end -- prioritizing channels
                     if isImportant then endTime = endTime - 100 end
