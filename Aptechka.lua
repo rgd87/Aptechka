@@ -148,6 +148,7 @@ local defaults = {
     groupGap = 7,
     showSolo = true,
     showParty = true,
+    RMBClickthrough = true,
     cropNamesLen = 7,
     disableBlizzardParty = true,
     hideBlizzardRaid = true,
@@ -1675,6 +1676,23 @@ function Aptechka.CreateHeader(self,group,petgroup)
         if(snippet) then self:Run(snippet) end
         self:CallMethod("onleave")
     ]])
+
+    --[[
+    f:SetAttribute('_initialAttribute-_onmousedown', [==[
+        print("OnMouseDown", self:GetName(), button)
+        if (button == "RightButton") then
+            self:SetAttribute("mouselook", "started")
+        end
+        --self:CallMethod("onMouseDown", button)
+    ]==])
+    f:SetAttribute('_initialAttribute-_onmouseup', [==[
+        print("OnMouseUp", self:GetName(), button)
+        if (button == "RightButton") then
+            self:SetAttribute("mouselook", "stopped")
+        end
+        --self:CallMethod("onMouseUp")
+    ]==])
+    ]]
     -- f:SetAttribute('_initialAttribute-refreshUnitChange', [[
     --     local unit = self:GetAttribute('unit')
     --     if(unit) then
@@ -1875,6 +1893,35 @@ function Aptechka.SetupFrame(header, frameName)
 
     f.onenter = onenter
     f.onleave = onleave
+
+    if AptechkaDB.RMBClickthrough then
+        -- Another way of doing this:
+        -- f:RegisterForClicks("AnyUp", "RightButtonDown")
+        -- And then in button setup
+        -- self:SetAttribute("type2","macro")
+        -- self:SetAttribute("macrotext2", "/script MouselookStart()"
+        -- But click on mouse down screws up unit's menu
+        -- And using OnMouseDown allows it to still work with Clique, only breaking the nomodifier-RMB bind
+
+        f:SetScript("OnMouseDown", function(self, button)
+            if not IsModifierKeyDown() then
+                if button == "RightButton" then
+                    MouselookStart()
+                -- elseif LMBClickThrough and button == "LeftButton" then
+                --     MouselookStart()
+                end
+            end
+        end)
+
+        -- f:SetScript("OnMouseUp", function(self, button)
+        --     print(GetTime(), "OnMouseUp", self:GetName(), button)
+        --     if RMBClickthrough and button == "RightButton" then
+        --         if (IsMouselooking()) then MouselookStop() end
+        --     elseif LMBClickThrough and button == "LeftButton" then
+        --         if (IsMouselooking()) then MouselookStop() end
+        --     end
+        -- end)
+    end
 
     f:RegisterForClicks(unpack(config.registerForClicks))
     f.vHealthMax = 1

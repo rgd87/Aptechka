@@ -8,6 +8,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 -- end)
 -- AptechkaGUI:RegisterEvent("ADDON_LOADED")
 
+local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
+
 local AceGUI = LibStub("AceGUI-3.0")
 
 function AptechkaGUI.SlashCmd(msg)
@@ -1020,6 +1022,20 @@ local function MakeGeneralOptions()
                             Aptechka:ReconfigureProtected()
                         end,
                         order = 8.1,
+                    },
+                    RMBClickthrough = {
+                        name = L"RMB Mouselook Clickthrough"..newFeatureIcon,
+                        desc = L"If using Clique, this will override its RMB binding",
+                        type = "toggle",
+                        width = "full",
+                        confirm = true,
+                        confirmText = L"Warning: Requires UI reloading.",
+                        get = function(info) return Aptechka.db.RMBClickthrough end,
+                        set = function(info, v)
+                            Aptechka.db.RMBClickthrough = not Aptechka.db.RMBClickthrough
+                            ReloadUI()
+                        end,
+                        order = 8.3,
                     },
                     sortUnitsByRole = {
                         name = L"Sort Units by Role",
