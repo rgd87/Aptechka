@@ -1042,7 +1042,7 @@ local function MakeGeneralOptions()
                     },
                     sortUnitsByRole = {
                         name = L"Sort Units by Role",
-                        disable = isClassic,
+                        disabled = isClassic,
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.sortUnitsByRole end,
