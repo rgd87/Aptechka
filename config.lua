@@ -428,6 +428,12 @@ config.autoload = {
 
 
 helpers.auraBlacklist = {
+    -- Corruption effects
+    -- [315179] = true, -- Creeping Death
+    [315184] = true, -- Grand Delusions
+    [315175] = true, -- Grasping Tendrils
+    [315169] = true, -- Corrupted Zone
+
     -- cast blacklist is shared with auras
     [120651] = true, -- explosive orb affix cast
 
