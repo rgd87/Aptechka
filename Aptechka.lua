@@ -2195,7 +2195,7 @@ end
 
 function Aptechka.OrderedDebuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
-        local rootSpellID, spellType, prio = LibAuraTypes.GetAuraInfo(spellID, "ALLY")
+        local prio, spellType = LibAuraTypes.GetAuraInfo(spellID, "ALLY")
         if not prio then
             prio = (isBossAura and 60) or (debuffType and 10) or 0
         end
