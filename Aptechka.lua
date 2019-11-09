@@ -2148,11 +2148,8 @@ end
 local function SpellLocksProc(unit)
     -- local spellLocked = LibSpellLocks:GetSpellLockInfo(unit)
     local spellID, name, icon, duration, expirationTime = LibSpellLocks:GetSpellLockInfo(unit)
-    -- if spellLocked then
     if spellID then
-        tinsert(debuffList, { -1, LibAuraTypes.GetDebuffTypePriority("SILENCE")})
-        -- local silencePrio = LibAuraTypes.GetDebuffTypePriority("SILENCE")
-        -- tinsert(debuffList, { -1, silencePrio, name, icon, 0, nil, duration, expirationTime, nil, nil, nil, spellID, nil, true })
+        tinsert(debuffList, { -1, LibAuraTypes.GetAuraTypePriority("SILENCE", "ALLY")})
     end
 end
 
@@ -2162,9 +2159,9 @@ end
 
 function Aptechka.OrderedDebuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
-        local rootSpellID, spellType, prio = LibAuraTypes.GetDebuffInfo(spellID)
+        local rootSpellID, spellType, prio = LibAuraTypes.GetAuraInfo(spellID, "ALLY")
         if not prio then
-            prio = (isBossAura and 10) or (debuffType and 1) or 0
+            prio = (isBossAura and 60) or (debuffType and 10) or 0
         end
         tinsert(debuffList, { slot or index, prio, filter })
         -- tinsert(debuffList, { index, prio, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura })
@@ -2175,7 +2172,7 @@ end
 
 function Aptechka.OrderedBuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     if isBossAura and not blacklist[spellID] then
-        local prio = 10
+        local prio = 60
         tinsert(debuffList, { slot or index, prio, filter })
         return 1
     end
@@ -2202,7 +2199,7 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
                 debuffType = "Helpful"
             end
             -- name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
-            if prio >= 9 then
+            if prio >= 50 then -- 50 is roots
                 isBossAura = true
             end
         else
@@ -2210,10 +2207,7 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
             count = 0
             isBossAura = true
         end
-        -- local index, prio, name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = unpack(debuffIndexCont)
-        -- if prio >= 9 then
-        --     isBossAura = true
-        -- end
+
         fill = fill + (isBossAura and AptechkaDB.debuffBossScale or 1)
 
         if fill <= debuffLineLength then
