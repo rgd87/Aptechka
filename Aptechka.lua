@@ -1662,9 +1662,9 @@ function Aptechka.CreateHeader(self,group,petgroup)
     if not petgroup
     then
         f:SetAttribute("groupFilter", group)
-        if not isClassic and AptechkaDB.sortUnitsByRole then
-            f:SetAttribute("groupBy", "ASSIGNEDROLE")
-            f:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER,NONE")
+        if AptechkaDB.sortUnitsByRole then
+            f:SetAttribute("groupBy", "ROLE")
+            f:SetAttribute("groupingOrder", "MAINTANK,MAINASSIST")
         end
     else
         f.isPetGroup = true
