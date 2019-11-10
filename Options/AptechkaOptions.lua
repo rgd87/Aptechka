@@ -1040,7 +1040,6 @@ local function MakeGeneralOptions()
                     },
                     sortUnitsByRole = {
                         name = L"Sort Units by Role",
-                        disabled = isClassic,
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.sortUnitsByRole end,
@@ -1154,7 +1153,6 @@ local function MakeGeneralOptions()
                     showCasts = {
                         name = L"Show Casts",
                         type = "toggle",
-                        disabled = isClassic,
                         confirm = true,
                         confirmText = L"Warning: Requires UI reloading.",
                         get = function(info) return Aptechka.db.showCasts end,
