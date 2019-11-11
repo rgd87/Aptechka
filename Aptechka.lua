@@ -35,7 +35,7 @@ if isClassic then
     UnitGetTotalHealAbsorbs = dummy0
     UnitThreatSituation = dummyNil
     UnitIsWarModePhased = dummyFalse
-    UnitGroupRolesAssigned = dummyNil
+    UnitGroupRolesAssigned = function(unit) if GetPartyAssignment("MAINTANK", unit) then return "TANK" end end
     GetSpecialization = function() return 1 end
     GetSpecializationInfo = function() return "DAMAGER" end
     HasIncomingSummon = dummyNil
@@ -1297,19 +1297,14 @@ function Aptechka.CheckRoles(apt, self, unit )
             local isAssistant = UnitIsGroupAssistant(unit)
             FrameSetJob(self, config.AssistStatus, isAssistant)
         end
-        -- self.text3:SetFormattedText("%s%s", isLeader and "L" or "",
-            -- (role == "HEALER" and "|cff88ff88H|r") or
-            -- (role == "TANK" and "|cff8888ffT|r") or ""
-        -- )
 
         local icon = self.roleicon.texture
         if icon then
             if UnitGroupRolesAssigned(unit) == "HEALER" then
-                -- icon:SetTexCoord(0, 0.25, 0, 1); icon:Show()
-                icon:SetTexCoord(GetTexCoordsForRoleSmallCircle("HEALER")); icon:Show()
+                -- GetTexCoordsForRoleSmallCircle("HEALER") -- Classic doesn't have this function
+                icon:SetTexCoord(20/64, 39/64, 1/64, 20/64); icon:Show()
             elseif isTankRoleAssigned then
-                -- icon:SetTexCoord(0.25, 0.5, 0, 1); icon:Show()
-                icon:SetTexCoord(GetTexCoordsForRoleSmallCircle("TANK")); icon:Show()
+                icon:SetTexCoord(0, 19/64, 22/64, 41/64); icon:Show()
             else
                 icon:Hide()
             end
