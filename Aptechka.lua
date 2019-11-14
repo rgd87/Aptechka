@@ -1925,6 +1925,9 @@ function Aptechka.SetupFrame(header, frameName)
     config.GridSkin(f)
 
     f:ReconfigureUnitFrame()
+    if Aptechka.PostFrameCreate then
+        Aptechka.PostFrameCreate(f)
+    end
     if Aptechka.PostFrameUpdate then
         Aptechka.PostFrameUpdate(f)
     end
