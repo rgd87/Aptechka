@@ -504,7 +504,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if AptechkaDB.useDebuffOrdering then
         LibSpellLocks = LibStub("LibSpellLocks")
 
-        LibSpellLocks.RegisterCallback(self, "UPDATE_INTERRUPT", function(event, guid)
+        LibSpellLocks.RegisterCallback("Aptechka", "UPDATE_INTERRUPT", function(event, guid)
             local unit = guidMap[guid]
             if unit then
                 Aptechka.ScanAuras(unit)
@@ -525,7 +525,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     LibTargetedCasts = LibStub("LibTargetedCasts", true)
     if LibTargetedCasts and AptechkaDB.showCasts then
-        LibTargetedCasts:RegisterCallback("SPELLCAST_UPDATE", Aptechka.SPELLCAST_UPDATE)
+        LibTargetedCasts.RegisterCallback("Aptechka", "SPELLCAST_UPDATE", Aptechka.SPELLCAST_UPDATE)
     end
 
     AptechkaDB.useCombatLogHealthUpdates = false
