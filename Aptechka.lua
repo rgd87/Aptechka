@@ -542,7 +542,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if AptechkaDB.useDebuffOrdering then
         LibSpellLocks = LibStub("LibSpellLocks")
 
-        LibSpellLocks.RegisterCallback(self, "UPDATE_INTERRUPT", function(event, guid)
+        LibSpellLocks.RegisterCallback("Aptechka", "UPDATE_INTERRUPT", function(event, guid)
             local unit = guidMap[guid]
             if unit then
                 Aptechka.ScanAuras(unit)
@@ -1961,6 +1961,9 @@ function Aptechka.SetupFrame(header, frameName)
     config.GridSkin(f)
 
     f:ReconfigureUnitFrame()
+    if Aptechka.PostFrameCreate then
+        Aptechka.PostFrameCreate(f)
+    end
     if Aptechka.PostFrameUpdate then
         Aptechka.PostFrameUpdate(f)
     end
@@ -2224,7 +2227,7 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
     for i, debuffIndexCont in ipairs(debuffList) do
         local indexOrSlot, prio, auraFilter = unpack(debuffIndexCont)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
-        if indexOrSlot > 0 then
+        if indexOrSlot >= 0 then
             name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, auraFilter)
             if auraFilter == "HELPFUL" then
                 debuffType = "Helpful"
