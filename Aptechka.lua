@@ -2191,7 +2191,7 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
     for i, debuffIndexCont in ipairs(debuffList) do
         local indexOrSlot, prio, auraFilter = unpack(debuffIndexCont)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
-        if indexOrSlot > 0 then
+        if indexOrSlot >= 0 then
             name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot) -- UnitAura(unit, indexOrSlot, auraFilter)
             if auraFilter == "HELPFUL" then
                 debuffType = "Helpful"
