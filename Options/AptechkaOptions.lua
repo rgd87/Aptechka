@@ -1065,6 +1065,7 @@ local function MakeGeneralOptions()
                     },
                     showCasts = {
                         name = L"Show Casts",
+                        disabled = isClassic,
                         type = "toggle",
                         get = function(info) return Aptechka.db.showCasts end,
                         set = function(info, v)
