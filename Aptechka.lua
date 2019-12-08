@@ -156,6 +156,7 @@ local defaults = {
     showAFK = false,
     showCasts = true,
     showAggro = true,
+    showRaidIcons = true,
     healthOrientation = "VERTICAL",
     customBlacklist = {},
     healthTexture = "Gradient",
@@ -545,7 +546,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("SPELLS_CHANGED")
     self:RegisterEvent("GROUP_ROSTER_UPDATE")
 
-    if config.raidIcons then
+    if AptechkaDB.showRaidIcons then
         self:RegisterEvent("RAID_TARGET_UPDATE")
     end
     if config.enableVehicleSwap then
@@ -1410,6 +1411,14 @@ function Aptechka.RAID_TARGET_UPDATE(self, event)
                 icon:Hide()
             end
             end
+        end
+    end
+end
+
+function Aptechka:ForEachFrame(func)
+    for unit, frames in pairs(Roster) do
+        for frame in pairs(frames) do
+            func(frame)
         end
     end
 end

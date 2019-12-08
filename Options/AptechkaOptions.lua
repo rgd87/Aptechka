@@ -1125,6 +1125,21 @@ local function MakeGeneralOptions()
                         end,
                         order = 11,
                     },
+                    showRaidIcons = {
+                        name = L"Show Raid Icons",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.showRaidIcons end,
+                        set = function(info, v)
+                            Aptechka.db.showRaidIcons = not Aptechka.db.showRaidIcons
+                            if not Aptechka.db.showRaidIcons then
+                                Aptechka:ForEachFrame(function(self) self.raidicon:Hide() end)
+                            else
+                                Aptechka:RAID_TARGET_UPDATE()
+                            end
+                        end,
+                        order = 11.1,
+                    },
+                    --[==[
                     useCLH = {
                         name = L"Use LibCLH",
                         disabled = true,
@@ -1138,6 +1153,7 @@ local function MakeGeneralOptions()
                             ReloadUI()
                         end
                     },
+                    ]==]
                     useDebuffOrdering = {
                         name = L"Use Debuff Ordering",
                         type = "toggle",
