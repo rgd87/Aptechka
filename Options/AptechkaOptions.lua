@@ -1076,6 +1076,19 @@ local function MakeGeneralOptions()
                         end,
                         order = 11.4,
                     },
+                    forceShamanColor = {
+                        name = "Retail Shaman Color",
+                        desc = "Use the usual blue color for shamans. Overriden by ClassColors addon if present",
+                        type = "toggle",
+                        confirm = true,
+						confirmText = "Warning: Requires UI reloading.",
+                        get = function(info) return Aptechka.db.forceShamanColor end,
+                        set = function(info, v)
+                            Aptechka.db.forceShamanColor = not Aptechka.db.forceShamanColor
+                            ReloadUI()
+                        end,
+                        order = 15.8,
+                    },
                 }
             },
 
@@ -1282,19 +1295,6 @@ local function MakeGeneralOptions()
                             Aptechka:RefreshAllUnitsHealth()
                         end,
                         order = 15,
-                    },
-                    forceShamanColor = {
-                        name = "Retail Shaman Color",
-                        desc = "Use the usual blue color for shamans. Overriden by ClassColors addon if present",
-                        type = "toggle",
-                        confirm = true,
-						confirmText = "Warning: Requires UI reloading.",
-                        get = function(info) return Aptechka.db.forceShamanColor end,
-                        set = function(info, v)
-                            Aptechka.db.forceShamanColor = not Aptechka.db.forceShamanColor
-                            ReloadUI()
-                        end,
-                        order = 15.8,
                     },
                     mulGroup = {
                         type = "group",
