@@ -1613,6 +1613,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local raidicon = CreateFrame("Frame",nil,self)
     raidicon:SetWidth(20); raidicon:SetHeight(20)
+    raidicon:Hide()
     raidicon:SetPoint("CENTER",hp,"TOPLEFT",0,0)
     local raidicontex = raidicon:CreateTexture(nil,"OVERLAY")
     raidicontex:SetAllPoints(raidicon)
