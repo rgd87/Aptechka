@@ -1399,6 +1399,7 @@ end
 
 --raid icons
 function Aptechka.RAID_TARGET_UPDATE(self, event)
+    if not AptechkaDB.showRaidIcons then return end
     for unit, frames in pairs(Roster) do
         for self in pairs(frames) do
             local index = GetRaidTargetIndex(unit)
@@ -1556,9 +1557,7 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_POWER_UPDATE(nil, unit)
     end
     Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
-    if config.raidIcons then
-        Aptechka:RAID_TARGET_UPDATE()
-    end
+    Aptechka:RAID_TARGET_UPDATE()
     if config.enableVehicleSwap and UnitHasVehicleUI(owner) then
         Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
     end
