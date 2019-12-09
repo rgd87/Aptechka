@@ -1034,6 +1034,7 @@ local function MakeGeneralOptions()
                                 Aptechka:ForEachFrame(function(self) self.raidicon:Hide() end)
                             else
                                 Aptechka:RAID_TARGET_UPDATE()
+                                Aptechka:RegisterEvent("RAID_TARGET_UPDATE")
                             end
                         end,
                         order = 11.1,
