@@ -2252,13 +2252,13 @@ end
 function Aptechka.SimpleDebuffPostUpdate(unit)
     local shown = 0
     local fill = 0
-    local debuffLineLength = 4
+    local debuffLineLength = debuffLimit
 
     for i, indexOrSlot in ipairs(debuffList) do
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot) -- UnitAura(unit, indexOrSlot, "HARMFUL")
         -- local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
 
-        fill = fill + (isBossAura and 1.5 or 1)
+        fill = fill + (isBossAura and AptechkaDB.debuffBossScale or 1)
 
         if fill <= debuffLineLength then
             shown = shown + 1
