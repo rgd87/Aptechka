@@ -49,7 +49,7 @@ local uir -- current range check function
 local auras
 local traceheals
 local colors
-local threshold --incoming heals
+local threshold = 0 --incoming heals
 local ignoreplayer
 local fgShowMissing
 
@@ -456,7 +456,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("UNIT_HEALTH_FREQUENT")
     self:RegisterEvent("UNIT_MAXHEALTH")
     Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
-    Aptechka.UNIT_MAXHEALTH = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
     if AptechkaDB.showAFK then
         self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- UNIT_AFK_CHANGED
@@ -773,7 +772,6 @@ function Aptechka:ReconfigureUnprotected()
     end
 end
 function Aptechka:UpdateUnprotectedUpvalues()
-    threshold = UnitHealthMax("player")/40
     ignoreplayer = config.incomingHealIgnorePlayer or false
     fgShowMissing = Aptechka.db.fgShowMissing
     debuffLimit = AptechkaDB.debuffLimit
@@ -909,6 +907,13 @@ local function GetForegroundSeparation(health, healthMax, showMissing)
     else
         return health/healthMax, health/healthMax
     end
+end
+
+function Aptechka:UNIT_MAXHEALTH(event, unit)
+    if unit == "player" then
+        threshold = UnitHealthMax("player")*0.04 -- 4% of player max health
+    end
+    return Aptechka:UNIT_HEALTH(event, unit)
 end
 
 function Aptechka.UNIT_HEALTH(self, event, unit)
