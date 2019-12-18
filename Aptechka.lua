@@ -166,11 +166,17 @@ local defaults = {
     useDebuffOrdering = true,
     disableTooltip = false,
     scale = 1,
-    autoscale = {
-        damageMediumRaid = 0.8,
-        damageBigRaid = 0.7,
-        healerMediumRaid = 1,
-        healerBigRaid = 0.8,
+    roleProfile = {
+        HEALER = {
+            point = "CENTER", x = 0, y = 0,
+            scaleMediumRaid = 1,
+            scaleBigRaid = 0.8,
+        },
+        DAMAGER = {
+            point = "CENTER", x = 0, y = 0,
+            scaleMediumRaid = 0.8,
+            scaleBigRaid = 0.7,
+        },
     },
     debuffSize = 13,
     debuffLimit = 4,
@@ -282,6 +288,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         AptechkaDB = AptechkaDB_Global
     end
     Aptechka.db = AptechkaDB
+    self:DoMigrations(AptechkaDB)
     SetupDefaults(AptechkaDB, defaults)
 
     Aptechka.SetJob = SetJob
@@ -528,6 +535,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         LibTargetedCasts.RegisterCallback("Aptechka", "SPELLCAST_UPDATE", Aptechka.SPELLCAST_UPDATE)
     end
 
+    --[[
     AptechkaDB.useCombatLogHealthUpdates = false
     if AptechkaDB.useCombatLogHealthUpdates then
         local CLH = LibStub("LibCombatLogHealth-1.0")
@@ -540,6 +548,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             -- return Aptechka:COMBAT_LOG_HEALTH(nil, unit, health)
         end)
     end
+    ]]
 
     self:RegisterEvent("UNIT_AURA")
     self:RegisterEvent("SPELLS_CHANGED")
@@ -778,6 +787,8 @@ function Aptechka:UpdateUnprotectedUpvalues()
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
+
+    self:RepositionAnchor()
 
     local width = pixelperfect(AptechkaDB.width or config.width)
     local height = pixelperfect(AptechkaDB.height or config.height)
@@ -1365,22 +1376,13 @@ Aptechka.SPELLS_CHANGED = Aptechka.GROUP_ROSTER_UPDATE
 --     self:SetScale1(UIParent:GetScale()*scale)
 -- end
 function Aptechka:DecideGroupScale(numMembers, role, spec)
-    if role == "HEALER" then
-        if numMembers > 30 then
-            return AptechkaDB.autoscale.healerBigRaid
-        elseif numMembers > 12 then
-            return AptechkaDB.autoscale.healerMediumRaid
-        else
-            return AptechkaDB.scale
-        end
+    local role = self:GetRoleProfile()
+    if numMembers > 30 then
+        return AptechkaDB.roleProfile[role].scaleBigRaid
+    elseif numMembers > 12 then
+        return AptechkaDB.roleProfile[role].scaleMediumRaid
     else
-        if numMembers > 30 then
-            return AptechkaDB.autoscale.damageBigRaid
-        elseif numMembers > 12 then
-            return AptechkaDB.autoscale.damageMediumRaid
-        else
-            return AptechkaDB.scale
-        end
+        return AptechkaDB.scale
     end
 end
 
@@ -1390,7 +1392,7 @@ function Aptechka.LayoutUpdate(self)
     Aptechka:UpdateDebuffScanningMethod()
 
     local spec = GetSpecialization()
-    local role = spec and select(5,GetSpecializationInfo(spec)) or "DAMAGER"
+    local role = self:GetRoleProfile()
 
     local scale = self:DecideGroupScale(numMembers, role, spec)
 
@@ -1781,6 +1783,25 @@ function Aptechka:SetAnchorpoint(unitGrowth, groupGrowth)
     end
 end
 
+function Aptechka:GetRoleProfile()
+    local spec = GetSpecialization()
+    local role = GetSpecializationRole(spec)
+    if role ~= "HEALER" then role = "DAMAGER" end
+    return role
+end
+
+function Aptechka:RepositionAnchor()
+    local role = self:GetRoleProfile()
+    local anchorTable = AptechkaDB.roleProfile[role]
+    if not anchorTable then
+        AptechkaDB.roleProfile[role] = { point = "CENTER", x = 0, y = 0 }
+        anchorTable = AptechkaDB.roleProfile[role]
+    end
+    anchors[1].san = anchorTable
+    local san = anchorTable
+    anchors[1]:SetPoint(san.point,UIParent,san.point,san.x,san.y)
+end
+
 function Aptechka.CreateAnchor(self,hdr,num)
     local f = CreateFrame("Frame","NugRaidAnchor"..num,UIParent)
 
@@ -1800,13 +1821,6 @@ function Aptechka.CreateAnchor(self,hdr,num)
     else t:SetVertexColor(0, 1, 0) end
     t:SetAllPoints(f)
 
-    local text = f:CreateFontString()
-    text:SetPoint("RIGHT",f,"LEFT",0,0)
-    text:SetFontObject("GameFontNormal")
-    text:SetJustifyH("RIGHT")
-    if num ~= 1 then text:SetText(num) end
-    if num == 9 then text:SetText("P") end
-
     f:RegisterForDrag("LeftButton")
     f:EnableMouse(true)
     f:SetMovable(true)
@@ -1815,35 +1829,12 @@ function Aptechka.CreateAnchor(self,hdr,num)
     hdr:SetPoint(config.anchorpoint,f,reverse(config.anchorpoint),0,0)
     anchors[num] = f
     f:Hide()
-
-    if not AptechkaDB[skinAnchorsName] then AptechkaDB[skinAnchorsName] = {} end
-    if not AptechkaDB[skinAnchorsName][num] then
-        if num == 1 then AptechkaDB[skinAnchorsName][num] = { point = "CENTER", x = 0, y = 0 }
-        elseif num == 9 then AptechkaDB[skinAnchorsName][num] = { point = "BOTTOMLEFT", x = 0, y = -60 }
-        else AptechkaDB[skinAnchorsName][num] = { point = "TOPLEFT", x = 0, y = 60} end
-    end
-    local san = AptechkaDB[skinAnchorsName][num]
-    if num == 1 then
-        f.root = true
-        f:SetPoint(san.point,UIParent,san.point,san.x,san.y)
-    else
-        f.prev = anchors[#anchors-1]
-        if num == 9 then f.prev = anchors[1] end
-        f:SetPoint(san.point,f.prev,san.point,san.x,san.y)
-    end
-    f.san = san
+    self:RepositionAnchor()
 
     f:SetScript("OnDragStart",function(self) self:StartMoving() end)
     f:SetScript("OnDragStop",function(self)
         self:StopMovingOrSizing();
-        if self.root then
-            _,_, self.san.point, self.san.x, self.san.y = self:GetPoint(1)
-        else
-            self.san.y = self:GetTop() - self.prev:GetTop()
-            self.san.x = self:GetLeft() - self.prev:GetLeft()
-            self:ClearAllPoints()
-            self:SetPoint(san.point,self.prev,san.point,san.x,san.y)
-        end
+        _,_, self.san.point, self.san.x, self.san.y = self:GetPoint(1)
     end)
 end
 
@@ -2749,6 +2740,39 @@ function Aptechka.SPELLCAST_UPDATE(event, GUID)
             else
                 icon:Hide()
             end
+        end
+    end
+end
+
+do
+    local CURRENT_DB_VERSION = 1
+    function Aptechka:DoMigrations(db)
+        if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
+            db.DB_VERSION = CURRENT_DB_VERSION
+            return
+        end
+
+        if db.DB_VERSION == nil then
+            if not db.roleProfile then
+                db.roleProfile = {}
+            end
+            if db["GridSkin"] then
+                local oldAnchorData = db["GridSkin"][1]
+                db.roleProfile.DAMAGER = oldAnchorData
+                db.roleProfile.HEALER = oldAnchorData
+                db.GridSkin = nil
+                print("Removing gridskin")
+            end
+            if db.autoscale then
+                db.roleProfile.DAMAGER.scaleMediumRaid = db.autoscale.damageMediumRaid
+                db.roleProfile.DAMAGER.scaleBigRaid = db.autoscale.damageBigRaid
+                db.roleProfile.HEALER.scaleMediumRaid = db.autoscale.healerMediumRaid
+                db.roleProfile.HEALER.scaleBigRaid = db.autoscale.healerBigRaid
+                db.autoscale = nil
+                print("Removing autoscale")
+            end
+
+            db.DB_VERSION = 1
         end
     end
 end
