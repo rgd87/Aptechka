@@ -166,6 +166,7 @@ local defaults = {
     useDebuffOrdering = true,
     disableTooltip = false,
     scale = 1,
+    useRoleProfiles = false,
     roleProfile = {
         HEALER = {
             point = "CENTER", x = 0, y = 0,
@@ -1369,7 +1370,21 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
 
     Aptechka:UpdateRangeChecker()
 end
-Aptechka.SPELLS_CHANGED = Aptechka.GROUP_ROSTER_UPDATE
+
+
+function Aptechka:OnRoleChanged()
+    if not InCombatLockdown() then Aptechka:LayoutUpdate() end
+    Aptechka:ReconfigureProtected() -- Schedules update on combat exit, that also includes layout update
+end
+do
+    local currentRole
+    function Aptechka:SPELLS_CHANGED()
+        local role = self:GetRoleProfile()
+        if role ~= currentRole then
+            self:OnRoleChanged()
+        end
+    end
+end
 
 -- Aptechka.SetScale1 = Aptechka.SetScale
 -- Aptechka.SetScale = function(self, scale)
@@ -1784,6 +1799,7 @@ function Aptechka:SetAnchorpoint(unitGrowth, groupGrowth)
 end
 
 function Aptechka:GetRoleProfile()
+    if not AptechkaDB.useRoleProfiles then return "HEALER" end
     local spec = GetSpecialization()
     local role = GetSpecializationRole(spec)
     if role ~= "HEALER" then role = "DAMAGER" end
@@ -1799,6 +1815,7 @@ function Aptechka:RepositionAnchor()
     end
     anchors[1].san = anchorTable
     local san = anchorTable
+    anchors[1]:ClearAllPoints()
     anchors[1]:SetPoint(san.point,UIParent,san.point,san.x,san.y)
 end
 
