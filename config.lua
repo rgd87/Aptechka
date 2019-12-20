@@ -428,16 +428,10 @@ config.autoload = {
 
 
 helpers.auraBlacklist = {
-    -- Corruption effects
-    -- [315179] = true, -- Creeping Death
-    [315184] = true, -- Grand Delusions
-    [315175] = true, -- Grasping Tendrils
-    [315169] = true, -- Corrupted Zone
-
     -- cast blacklist is shared with auras
     [120651] = true, -- explosive orb affix cast
 
-    -- nazjatar
+    -- nazjatar pvp event participation states
     [304966] = true,
     [304959] = true,
     [304851] = true,
@@ -454,7 +448,6 @@ helpers.auraBlacklist = {
     [80354] = true, -- Temporal Displacement (Mage BL)
     [95809] = true, -- Insanity (old Hunter BL, Ancient Hysteria)
     [57723] = true, -- Drums BL debuff, and Heroism?
-    [95223] = true, -- Mass Res
     [26013] = true, -- PVP Deserter
     [71041] = true, -- Deserter
     [8326] = true, -- Ghost
