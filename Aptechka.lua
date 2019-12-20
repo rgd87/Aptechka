@@ -2777,7 +2777,6 @@ do
                 db.roleProfile.DAMAGER = oldAnchorData
                 db.roleProfile.HEALER = oldAnchorData
                 db.GridSkin = nil
-                print("Removing gridskin")
             end
             if db.autoscale then
                 db.roleProfile.DAMAGER.scaleMediumRaid = db.autoscale.damageMediumRaid
@@ -2785,7 +2784,6 @@ do
                 db.roleProfile.HEALER.scaleMediumRaid = db.autoscale.healerMediumRaid
                 db.roleProfile.HEALER.scaleBigRaid = db.autoscale.healerBigRaid
                 db.autoscale = nil
-                print("Removing autoscale")
             end
 
             db.DB_VERSION = 1
