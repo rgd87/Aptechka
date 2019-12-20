@@ -536,8 +536,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         LibTargetedCasts.RegisterCallback("Aptechka", "SPELLCAST_UPDATE", Aptechka.SPELLCAST_UPDATE)
     end
 
-    --[[
-    AptechkaDB.useCombatLogHealthUpdates = false
+
+    -- AptechkaDB.useCombatLogHealthUpdates = false
     if AptechkaDB.useCombatLogHealthUpdates then
         local CLH = LibStub("LibCombatLogHealth-1.0")
         UnitHealth = CLH.UnitHealth
@@ -549,7 +549,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             -- return Aptechka:COMBAT_LOG_HEALTH(nil, unit, health)
         end)
     end
-    ]]
 
     self:RegisterEvent("UNIT_AURA")
     self:RegisterEvent("SPELLS_CHANGED")
