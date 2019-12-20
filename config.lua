@@ -442,6 +442,8 @@ helpers.auraBlacklist = {
     [304959] = true,
     [304851] = true,
 
+    [26218] = true, -- Winterveil something
+
     [287825] = true, -- Lethargy, Hit or run azerite trait
 
     [209261] = true, -- Uncontained Fel (DH, Last Resort cooldown)
