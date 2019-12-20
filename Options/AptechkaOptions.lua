@@ -1036,25 +1036,22 @@ local function MakeGeneralOptions()
                                 Aptechka:ForEachFrame(function(self) self.raidicon:Hide() end)
                             else
                                 Aptechka:RAID_TARGET_UPDATE()
+                                Aptechka:RegisterEvent("RAID_TARGET_UPDATE")
                             end
                         end,
                         order = 11.1,
                     },
-                    --[==[
                     useCLH = {
-                        name = L"Use LibCLH",
-                        disabled = true,
+                        name = L"Use LibCLHealth"..newFeatureIcon,
+                        desc = L"More frequent health updates based combat log",
                         type = "toggle",
-                        confirm = true,
-                        confirmText = L"Warning: Requires UI reloading.",
                         order = 11.3,
                         get = function(info) return Aptechka.db.useCombatLogHealthUpdates end,
                         set = function(info, v)
                             Aptechka.db.useCombatLogHealthUpdates = not Aptechka.db.useCombatLogHealthUpdates
-                            ReloadUI()
+                            Aptechka:PrintReloadUIWarning()
                         end
                     },
-                    ]==]
                     useDebuffOrdering = {
                         name = L"Use Debuff Ordering",
                         type = "toggle",
@@ -1474,18 +1471,38 @@ local function MakeScalingOptions()
                 step = 0.01,
                 order = 1,
             },
-            healer = {
+            useRoleProfiles = {
+                name = L"Use Role-specific settings",
+                desc = "Also turns on different frame position for each role",
+                type = "toggle",
+                width = "double",
+                get = function(info) return Aptechka.db.useRoleProfiles end,
+                set = function(info, v)
+                    Aptechka.db.useRoleProfiles = not Aptechka.db.useRoleProfiles
+                    Aptechka:OnRoleChanged()
+                end,
+                order = 2,
+            },
+            msg = {
+                name = function()
+                    if not Aptechka.db.useRoleProfiles then return "GLOBAL" end
+                    return "Current Role: "..Aptechka:GetRoleProfile()
+                end,
+                type = "header",
+                order = 3,
+            },
+            autoscaleForRole = {
                 type = "group",
-                name = L"Healer Autoscale",
+                name = L"Autoscale",
                 width = "double",
                 guiInline = true,
-                order = 2,
+                order = 4,
                 args = {
 
                     healerRaid = {
                         name = L"Raid (12-30 players)",
                         type = "range",
-                        get = function(info) return Aptechka.db.autoscale.healerMediumRaid end,
+                        get = function(info) return Aptechka.db.roleProfile[Aptechka:GetRoleProfile()].scaleMediumRaid end,
                         set = function(info, v)
                             Aptechka.db.autoscale.healerMediumRaid = v
                             Aptechka:LayoutUpdate()
@@ -1498,46 +1515,9 @@ local function MakeScalingOptions()
                     healerBigRaid = {
                         name = L"Big Raid (30+ players)",
                         type = "range",
-                        get = function(info) return Aptechka.db.autoscale.healerBigRaid end,
+                        get = function(info) return Aptechka.db.roleProfile[Aptechka:GetRoleProfile()].scaleBigRaid end,
                         set = function(info, v)
                             Aptechka.db.autoscale.healerBigRaid = v
-                            Aptechka:LayoutUpdate()
-                        end,
-                        min = 0.3,
-                        max = 3,
-                        step = 0.01,
-                        order = 2,
-                    },
-
-                },
-            },
-            damage = {
-                type = "group",
-                name = L"Damage Autoscale",
-                width = "double",
-                guiInline = true,
-                order = 3,
-                args = {
-
-                    damageRaid = {
-                        name = L"Raid (12-30 players)",
-                        type = "range",
-                        get = function(info) return Aptechka.db.autoscale.damageMediumRaid end,
-                        set = function(info, v)
-                            Aptechka.db.autoscale.damageMediumRaid = v
-                            Aptechka:LayoutUpdate()
-                        end,
-                        min = 0.3,
-                        max = 3,
-                        step = 0.01,
-                        order = 1,
-                    },
-                    damageBigRaid = {
-                        name = L"Big Raid (30+ players)",
-                        type = "range",
-                        get = function(info) return Aptechka.db.autoscale.damageBigRaid end,
-                        set = function(info, v)
-                            Aptechka.db.autoscale.damageBigRaid = v
                             Aptechka:LayoutUpdate()
                         end,
                         min = 0.3,

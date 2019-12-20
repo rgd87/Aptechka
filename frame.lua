@@ -842,6 +842,8 @@ local CreateProgressIcon = function(parent, width, height, alpha, point, frame, 
     local icontex = icon.texture
     icontex:SetParent(iconSubFrame)
     icontex:SetDrawLayer("ARTWORK", 5)
+    local stacktext = icon.stacktext
+    stacktext:SetParent(iconSubFrame)
 
     icon.SetJob = SetJob_ProgressIcon
 
