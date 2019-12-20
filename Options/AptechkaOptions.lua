@@ -1039,21 +1039,17 @@ local function MakeGeneralOptions()
                         end,
                         order = 11.1,
                     },
-                    --[==[
                     useCLH = {
-                        name = L"Use LibCLH",
-                        disabled = true,
+                        name = L"Use LibCLHealth"..newFeatureIcon,
+                        desc = L"More frequent health updates based combat log",
                         type = "toggle",
-                        confirm = true,
-                        confirmText = L"Warning: Requires UI reloading.",
                         order = 11.3,
                         get = function(info) return Aptechka.db.useCombatLogHealthUpdates end,
                         set = function(info, v)
                             Aptechka.db.useCombatLogHealthUpdates = not Aptechka.db.useCombatLogHealthUpdates
-                            ReloadUI()
+                            Aptechka:PrintReloadUIWarning()
                         end
                     },
-                    ]==]
                     useDebuffOrdering = {
                         name = L"Use Debuff Ordering",
                         type = "toggle",
