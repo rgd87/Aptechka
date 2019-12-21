@@ -1823,8 +1823,7 @@ end
 
 function Aptechka:GetRoleProfile()
     if not AptechkaDB.useRoleProfiles then return "HEALER" end
-    local spec = GetSpecialization()
-    local role = GetSpecializationRole(spec)
+    local role = AptechkaDB_Char.forcedClassicRole
     if role ~= "HEALER" then role = "DAMAGER" end
     return role
 end
@@ -2577,6 +2576,16 @@ Aptechka.Commands = {
                 hdr:Show()
             end
         end
+    end,
+    ["setrole"] = function(v)
+        v = string.upper(v)
+        if v == "HEALER" then
+            AptechkaDB_Char.forcedClassicRole = v
+        else
+            AptechkaDB_Char.forcedClassicRole = "DAMAGER"
+        end
+        print("Role changed to", AptechkaDB_Char.forcedClassicRole)
+        Aptechka:OnRoleChanged()
     end,
     ["createpets"] = function()
         if not AptechkaDB.petGroup then
