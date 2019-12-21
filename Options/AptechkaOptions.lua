@@ -1504,7 +1504,7 @@ local function MakeScalingOptions()
                         type = "range",
                         get = function(info) return Aptechka.db.roleProfile[Aptechka:GetRoleProfile()].scaleMediumRaid end,
                         set = function(info, v)
-                            Aptechka.db.autoscale.healerMediumRaid = v
+                            Aptechka.db.roleProfile[Aptechka:GetRoleProfile()].scaleMediumRaid = v
                             Aptechka:LayoutUpdate()
                         end,
                         min = 0.3,
@@ -1517,7 +1517,7 @@ local function MakeScalingOptions()
                         type = "range",
                         get = function(info) return Aptechka.db.roleProfile[Aptechka:GetRoleProfile()].scaleBigRaid end,
                         set = function(info, v)
-                            Aptechka.db.autoscale.healerBigRaid = v
+                            Aptechka.db.roleProfile[Aptechka:GetRoleProfile()].scaleBigRaid = v
                             Aptechka:LayoutUpdate()
                         end,
                         min = 0.3,
