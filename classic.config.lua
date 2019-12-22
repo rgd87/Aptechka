@@ -62,6 +62,8 @@ A{ id = {
     430, 431, 432, 1133, 1135, 1137, 22734 -- Classic water
 }, assignto = "text2", color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
+A{ id = 5384, assignto = "text2", color = {0, 0.7, 1}, text = "FD", global = true, priority = 75 } -- Feign Death
+
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude and Prayer of Fortitude
     A{ id = { 1243, 1244, 1245, 2791, 10937, 10938, 21562, 21564 }, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1243) end }
@@ -172,7 +174,7 @@ if playerClass == "SHAMAN" then
     A{ id = 25909, type = "HELPFUL", assignto = "totemCluster3", isMine = true, color = {149/255, 121/255, 214/255} }  -- Tranquil Air Totem
     A{ id = { 8836, 10626, 25360 }, type = "HELPFUL", assignto = "totemCluster3", isMine = true, color = { 65/255, 110/255, 1 } }  -- Grace of Air Totem
     A{ id = { 10596, 10598, 10599 }, type = "HELPFUL", assignto = "totemCluster3", isMine = true, color = {52/255, 172/255, 114/255} }  -- Nature Resistance Totem
-    
+
     -- Ancestral Healing
     A{ id = { 16177, 16236, 16237 }, type = "HELPFUL", assignto = "bars", showDuration = true, color = { 1, 0.85, 0} }
 
