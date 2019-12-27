@@ -270,7 +270,7 @@ Aptechka:RegisterEvent("PLAYER_LOGOUT")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
     local uir2 = function(unit)
-        if UnitIsDeadOrGhost(unit) then --IsSpellInRange doesn't work with dead people
+        if UnitIsDeadOrGhost(unit) or UnitIsEnemy(unit, "player") then --IsSpellInRange doesn't work with dead people
             return UnitInRange(unit)
         else
             return uir(unit)
