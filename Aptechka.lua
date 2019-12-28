@@ -469,6 +469,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- UNIT_AFK_CHANGED
     end
 
+    self:RegisterEvent("UNIT_FACTION")
+    self:RegisterEvent("UNIT_FLAGS")
+    self.UNIT_FLAGS = self.UNIT_FACTION
+
     self:RegisterEvent("UNIT_PHASE")
     self:RegisterEvent("PARTY_MEMBER_ENABLE")
     self:RegisterEvent("PARTY_MEMBER_DISABLE")
@@ -1013,6 +1017,36 @@ function Aptechka.UNIT_PHASE(self, event, unit)
     end
 end
 
+function Aptechka:UpdateMindControl(unit)
+    local frames = Roster[unit]
+    if frames then
+        for frame in pairs(frames) do
+            -- local currentUnit = SecureButton_GetModifiedUnit(frame)
+            local ownerUnit = SecureButton_GetUnit(frame)
+            -- if a button is currently overridden by pet(vehicle) unit, it'll report as charmed
+            -- so always using owner unit to check
+            local isMindControlled = UnitIsCharmed(ownerUnit)
+
+            FrameSetJob(frame, config.MindControlStatus, isMindControlled)
+        end
+    end
+end
+
+function Aptechka:UpdateUnhealable(unit)
+    local frames = Roster[unit]
+    if frames then
+        for frame in pairs(frames) do
+            local isUnhealable = SecureCmdOptionParse(string.format("[target=%s,help] 1; 2", unit)) == "2"
+            FrameSetJob(frame, config.UnhealableStatus, isUnhealable)
+        end
+    end
+end
+
+function Aptechka.UNIT_FACTION(self, event, unit)
+    self:UpdateMindControl(unit)
+    self:UpdateUnhealable(unit)
+end
+
 function Aptechka:PLAYER_ENTERING_WORLD(event)
     for unit in pairs(Roster) do
         Aptechka:INCOMING_SUMMON_CHANGED(nil, unit)
@@ -1151,6 +1185,10 @@ local vehicleHack = function (self, time)
             end
             Aptechka.ScanAuras(owner)
 
+            --UNIT_FACTIOn
+            Aptechka:UpdateMindControl(owner)
+            Aptechka:UpdateUnhealable(owner)
+
             -- Stop periodic checks
             self:SetScript("OnUpdate",nil)
         end
@@ -1187,6 +1225,9 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
                 Aptechka:CheckPhase(self, self.unit)
                 Aptechka.ScanAuras(self.unit)
+
+                Aptechka:UpdateMindControl(self.unit) -- pet unit will be marked as 'charmed'
+                Aptechka:UpdateUnhealable(self.unit)
 
                 -- Except class color, it's still tied to owner
                 Aptechka:Colorize(nil, self.unitOwner)
@@ -1578,6 +1619,8 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_POWER_UPDATE(nil, unit)
     end
     Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
+    Aptechka:UpdateMindControl(unit)
+    Aptechka:UpdateUnhealable(unit)
     Aptechka:RAID_TARGET_UPDATE()
     if config.enableVehicleSwap and UnitHasVehicleUI(owner) then
         Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
