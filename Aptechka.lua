@@ -1185,7 +1185,6 @@ local vehicleHack = function (self, time)
             end
             Aptechka.ScanAuras(owner)
 
-            --UNIT_FACTIOn
             Aptechka:UpdateMindControl(owner)
             Aptechka:UpdateUnhealable(owner)
 
