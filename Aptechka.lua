@@ -273,7 +273,7 @@ Aptechka:RegisterEvent("PLAYER_LOGOUT")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
     local uir2 = function(unit)
-        if UnitIsDeadOrGhost(unit) then --IsSpellInRange doesn't work with dead people
+        if UnitIsDeadOrGhost(unit) or UnitIsEnemy(unit, "player") then --IsSpellInRange doesn't work with dead people
             return UnitInRange(unit)
         else
             return uir(unit)
@@ -294,9 +294,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.db = AptechkaDB
     self:DoMigrations(AptechkaDB)
     SetupDefaults(AptechkaDB, defaults)
-
-    Aptechka.SetJob = SetJob
-    Aptechka.FrameSetJob = FrameSetJob
 
     if AptechkaDB.forceShamanColor and not CUSTOM_CLASS_COLORS then
         customColors = {
@@ -495,6 +492,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if AptechkaDB.showAFK then
         self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- UNIT_AFK_CHANGED
     end
+
+    self:RegisterEvent("UNIT_FACTION")
+    self:RegisterEvent("UNIT_FLAGS")
+    self.UNIT_FLAGS = self.UNIT_FACTION
 
     self:RegisterEvent("UNIT_PHASE")
 
@@ -858,29 +859,6 @@ function Aptechka:ReconfigureProtected()
         header:SetAttribute("showSolo", showSolo)
 
         header:SetAttribute("showParty", AptechkaDB.showParty)
-
-        -- header:SetAttribute("initialConfigFunction", self.initConfSnippet)
-
-        -- local xgap = AptechkaDB.unitGap or config.unitGap
-        -- local ygap = AptechkaDB.unitGap or config.unitGap
-        -- local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
-        -- local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
-        -- local unitgr = reverse(unitGrowth)
-        -- if unitgr == "RIGHT" then
-        --     xgap = -xgap
-        -- elseif unitgr == "TOP" then
-        --     ygap = -ygap
-        -- end
-        -- header:SetAttribute("point", unitgr)
-        -- header:SetAttribute("xOffset", xgap)
-        -- header:SetAttribute("yOffset", ygap)
-
-        -- if group >= 2 then
-        --     f:SetPoint(arrangeHeaders(group_headers[group-1], nil, unitGrowth, groupGrowth))
-        -- end
-
-
-
     end
 
     local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
@@ -955,17 +933,6 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit, guid)
         end
     end
 end
-
--- function Aptechka.COMBAT_LOG_HEALTH(self, event, unit, h)
---     if not Roster[unit] then return end
---     -- print(event, unit, UnitHealth(unit))
---     for self in pairs(Roster[unit]) do
---         local hm = UnitHealthMax(unit)
---         if hm == 0 then return end
---         self.health2:SetValue(h/hm*100)
---     end
--- end
-
 
 function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     local rosterunit = Roster[unit]
@@ -1087,6 +1054,36 @@ function Aptechka.UNIT_PHASE(self, event, unit)
     end
 end
 
+function Aptechka:UpdateMindControl(unit)
+    local frames = Roster[unit]
+    if frames then
+        for frame in pairs(frames) do
+            -- local currentUnit = SecureButton_GetModifiedUnit(frame)
+            local ownerUnit = SecureButton_GetUnit(frame)
+            -- if a button is currently overridden by pet(vehicle) unit, it'll report as charmed
+            -- so always using owner unit to check
+            local isMindControlled = UnitIsCharmed(ownerUnit)
+
+            FrameSetJob(frame, config.MindControlStatus, isMindControlled)
+        end
+    end
+end
+
+function Aptechka:UpdateUnhealable(unit)
+    local frames = Roster[unit]
+    if frames then
+        for frame in pairs(frames) do
+            local isUnhealable = SecureCmdOptionParse(string.format("[target=%s,help] 1; 2", unit)) == "2"
+            FrameSetJob(frame, config.UnhealableStatus, isUnhealable)
+        end
+    end
+end
+
+function Aptechka.UNIT_FACTION(self, event, unit)
+    self:UpdateMindControl(unit)
+    self:UpdateUnhealable(unit)
+end
+
 local afkPlayerTable = {}
 function Aptechka.UNIT_AFK_CHANGED(self, event, unit)
     if not Roster[unit] then return end
@@ -1202,6 +1199,9 @@ local vehicleHack = function (self, time)
             end
             Aptechka.ScanAuras(owner)
 
+            Aptechka:UpdateMindControl(owner)
+            Aptechka:UpdateUnhealable(owner)
+
             -- Stop periodic checks
             self:SetScript("OnUpdate",nil)
         end
@@ -1238,6 +1238,9 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
                 Aptechka:CheckPhase(self, self.unit)
                 Aptechka.ScanAuras(self.unit)
+
+                Aptechka:UpdateMindControl(self.unit) -- pet unit will be marked as 'charmed'
+                Aptechka:UpdateUnhealable(self.unit)
 
                 -- Except class color, it's still tied to owner
                 Aptechka:Colorize(nil, self.unitOwner)
@@ -1409,10 +1412,6 @@ do
     end
 end
 
--- Aptechka.SetScale1 = Aptechka.SetScale
--- Aptechka.SetScale = function(self, scale)
---     self:SetScale1(UIParent:GetScale()*scale)
--- end
 function Aptechka:DecideGroupScale(numMembers, role, spec)
     local role = self:GetRoleProfile()
     if numMembers > 30 then
@@ -1433,11 +1432,6 @@ function Aptechka.LayoutUpdate(self)
     local role = self:GetRoleProfile()
 
     local scale = self:DecideGroupScale(numMembers, role, spec)
-
-    -- for _, layout in ipairs(config.layouts) do
-    --     if layout(self, numMembers, role, spec) then return end
-    -- end
-    -- local scale = AptechkaDB.scale or config.scale
 
     self:SetScale(scale or 1)
 end
@@ -1602,6 +1596,8 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_POWER_UPDATE(nil, unit)
     end
     Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
+    Aptechka:UpdateMindControl(unit)
+    Aptechka:UpdateUnhealable(unit)
     Aptechka:RAID_TARGET_UPDATE()
     if config.enableVehicleSwap and UnitHasVehicleUI(owner) then
         Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
@@ -1772,10 +1768,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
 end
 
 do -- this function supposed to be called from layout switchers
-    -- local reversed = false
     function Aptechka:SetGrowth(unitGrowth, groupGrowth)
         if config.useGroupAnchors then return end
-        -- reversed = to or (not reversed)
 
         local anchorpoint = self:SetAnchorpoint(unitGrowth, groupGrowth)
 
@@ -2022,7 +2016,6 @@ local AssignToSlot = function(frame, opts, status, slot)
                 jobs = self.jobs
             end
 
-
             if status then
                 jobs[opts.name] = opts
                 if opts.realID and not opts.isMissing then
@@ -2031,7 +2024,6 @@ local AssignToSlot = function(frame, opts, status, slot)
             else
                 jobs[opts.name] = nil
             end
-            -- print("Job Status:", opts.name, jobs[opts.name])
 
             if next(jobs) then
                 local max
@@ -2058,7 +2050,7 @@ local AssignToSlot = function(frame, opts, status, slot)
     end
 end
 
-FrameSetJob = function (frame, opts, status)
+function Aptechka.FrameSetJob(frame, opts, status)
     if opts and opts.assignto then
         if type(opts.assignto) == "string" then
             AssignToSlot(frame, opts, status, opts.assignto)
@@ -2069,24 +2061,17 @@ FrameSetJob = function (frame, opts, status)
         end
     end
 end
+FrameSetJob = Aptechka.FrameSetJob
 
-Aptechka.FrameSetJob = FrameSetJob
-
-SetJob = function (unit, opts, status)
+function Aptechka.SetJob(unit, opts, status)
     if not Roster[unit] then return end
     for frame in pairs(Roster[unit]) do
         FrameSetJob(frame, opts, status)
     end
 end
+SetJob = Aptechka.SetJob
 
-local GetRealID = function(id)
-    if type(id) == "table" then
-        return id[1]
-    else
-        return id
-    end
-end
-
+local GetRealID = function(id) return type(id) == "table" and id[1] or id end
 -----------------------
 -- AURAS
 -----------------------

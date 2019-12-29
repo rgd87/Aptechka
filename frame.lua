@@ -8,6 +8,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 LSM:Register("statusbar", "Gradient", [[Interface\AddOns\Aptechka\gradient.tga]])
 LSM:Register("font", "ClearFont", [[Interface\AddOns\Aptechka\ClearFont.ttf]], GetLocale() ~= "enUS" and 15)
 
+local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+
 --[[
 2 shield icon border
 0 shield icon texture
@@ -1147,6 +1149,55 @@ local CreateTextTimer = function(parent,point,frame,to,x,y,hjustify,fontsize,fon
 end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
+local CreateUnhealableOverlay = function(parent)
+    local tex2 = parent.health:CreateTexture(nil, "ARTWORK", nil, -4)
+    tex2:SetHorizTile(true)
+    tex2:SetVertTile(true)
+    tex2:SetTexture("Interface\\AddOns\\Aptechka\\swirl", "REPEAT", "REPEAT")
+    tex2:SetVertexColor(0,0,0, 0.8)
+
+    tex2:SetBlendMode("BLEND")
+    tex2:SetAllPoints(parent)
+
+    tex2:Hide()
+    return tex2
+end
+
+
+local SetJob_InngerGlow = function(self,job)
+    if job.color then
+        local r,g,b = unpack(job.color)
+        self:SetVertexColor(r,g,b)
+    end
+end
+local CreateInnerGlow = function(parent)
+    local tex = parent.health:CreateTexture(nil, "ARTWORK", nil, -4)
+    tex:SetTexture("Interface\\AddOns\\Aptechka\\innerglow")
+    tex:SetAlpha(0.6)
+    tex:SetVertexColor(0.5,0,1)
+    tex:SetAllPoints(parent)
+    tex.SetJob = SetJob_InngerGlow
+
+    tex:Hide()
+    return tex
+end
+
+local CreateMindControlIcon = function(parent)
+    if select(4, GetBuildInfo()) < 80300 then return end
+
+    local tex = parent.health:CreateTexture(nil, "ARTWORK", nil, -3)
+    tex:SetTexture("Interface/CorruptedItems/CorruptedInventoryIcon")
+    tex:SetTexCoord(0.02, 0.5, 0.02, 0.5)
+    local height = parent:GetHeight()
+    local width = parent:GetWidth()
+    local len = math.min(height, width)
+    tex:SetSize(len, len)
+    tex:SetPoint("TOPLEFT",parent,"TOPLEFT",0,0)
+
+    tex:Hide()
+    return tex
+end
+
 
 local border_backdrop = {
     edgeFile = "Interface\\Addons\\Aptechka\\border", tileEdge = true, edgeSize = 14,
@@ -1256,6 +1307,10 @@ local optional_widgets = {
 
         bars = CreateBars,
 
+        mindcontrol = CreateMindControlIcon,
+        unhealable = CreateUnhealableOverlay,
+        innerglow = CreateInnerGlow,
+
         vbar1   = function(self) return CreateStatusBar(self, 4, 20, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true) end,
 
         smist  = function(self) return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
@@ -1274,7 +1329,7 @@ local function Reconf(self)
 
     local texpath2 = LSM:Fetch("statusbar", db.powerTexture)
     self.power:SetStatusBarTexture(texpath2)
-    self.power:GetStatusBarTexture():SetDrawLayer("ARTWORK",-2)
+    self.power:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     self.power.bg:SetTexture(texpath2)
 
     if not db.fgShowMissing then
@@ -1700,6 +1755,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
         list["bar1"] = nil
         list["bar2"] = nil
         list["bar3"] = nil
+        list["mindcontrol"] = nil
+        list["unhealable"] = nil
         Aptechka.widget_list = list
     end
 

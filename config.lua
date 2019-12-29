@@ -86,6 +86,10 @@ config.InVehicleStatus = { name = "InVehicle", assignto = "border", color = {0.3
 config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, resetAnimation = true, priority = 95, fade = 0.3 }
 config.DispelStatus = { name = "Dispel", assignto = "bossdebuff", scale = 0.85, priority = 6 }
 
+-- config.MindControl = { name = "MIND_CONTROL", assignto = { "mindcontrol" }, color = {1,0,0}, priority = 52 }
+config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow" }, color = {0.5,0,1}, priority = 52 }
+config.UnhealableStatus = { name = "UNHEALABLE", assignto = { "unhealable" }, color = {0.5,0,1}, priority = 50 }
+
 local IsSpellInRange = IsSpellInRange
 helpers.RangeCheckBySpell = function (spellID)
     local spellName = GetSpellInfo(spellID)
