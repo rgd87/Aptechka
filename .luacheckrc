@@ -6,8 +6,8 @@ exclude_files = {
 only = {
     "011", -- syntax
     "1", -- globals
-    -- "3", -- Value unused
-    -- "41", -- Redefining
+    "3", -- Value unused
+    "41", -- Redefining
 }
 ignore = {
     "11/SLASH_.*", -- slash handlers

@@ -91,8 +91,8 @@ config.SummonAccepted = { name = "SUMMON_ACCEPTED", assignto = { "text2" }, colo
 config.SummonDeclined = { name = "SUMMON_DECLINED", assignto = { "text2" }, color = {1,0,0}, text = "DECLINED", priority = 52 }
 
 -- config.MindControl = { name = "MIND_CONTROL", assignto = { "mindcontrol" }, color = {1,0,0}, priority = 52 }
-config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow" }, color = {0.5,0,1}, priority = 52 }
-config.UnhealableStatus = { name = "UNHEALABLE", assignto = { "unhealable" }, color = {0.5,0,1}, priority = 50 }
+config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow", "unhealable" }, color = {0.5,0,1}, priority = 52 }
+-- config.UnhealableStatus = { name = "UNHEALABLE", assignto = { "unhealable" }, color = {0.5,0,1}, priority = 50 }
 
 -- default priority is 80
 
