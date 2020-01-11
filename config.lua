@@ -87,8 +87,8 @@ config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6
 config.DispelStatus = { name = "Dispel", assignto = "bossdebuff", scale = 0.85, priority = 6 }
 
 -- config.MindControl = { name = "MIND_CONTROL", assignto = { "mindcontrol" }, color = {1,0,0}, priority = 52 }
-config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow" }, color = {0.5,0,1}, priority = 52 }
-config.UnhealableStatus = { name = "UNHEALABLE", assignto = { "unhealable" }, color = {0.5,0,1}, priority = 50 }
+config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow", "unhealable" }, color = {0.5,0,1}, priority = 52 }
+-- config.UnhealableStatus = { name = "UNHEALABLE", assignto = { "unhealable" }, color = {0.5,0,1}, priority = 50 }
 
 local IsSpellInRange = IsSpellInRange
 helpers.RangeCheckBySpell = function (spellID)

@@ -1070,6 +1070,7 @@ function Aptechka:UpdateMindControl(unit)
 end
 
 function Aptechka:UpdateUnhealable(unit)
+    --[[
     local frames = Roster[unit]
     if frames then
         for frame in pairs(frames) do
@@ -1077,6 +1078,7 @@ function Aptechka:UpdateUnhealable(unit)
             FrameSetJob(frame, config.UnhealableStatus, isUnhealable)
         end
     end
+    ]]
 end
 
 function Aptechka.UNIT_FACTION(self, event, unit)
@@ -1413,7 +1415,6 @@ do
 end
 
 function Aptechka:DecideGroupScale(numMembers, role, spec)
-    local role = self:GetRoleProfile()
     if numMembers > 30 then
         return AptechkaDB.roleProfile[role].scaleBigRaid
     elseif numMembers > 12 then
@@ -1425,15 +1426,13 @@ end
 
 function Aptechka.LayoutUpdate(self)
     local numMembers = GetNumGroupMembers()
-
-    Aptechka:UpdateDebuffScanningMethod()
-
     local spec = GetSpecialization()
     local role = self:GetRoleProfile()
 
     local scale = self:DecideGroupScale(numMembers, role, spec)
-
     self:SetScale(scale or 1)
+
+    Aptechka:UpdateDebuffScanningMethod()
 end
 
 --raid icons
