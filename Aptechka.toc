@@ -1,4 +1,4 @@
-## Interface: 80205
+## Interface: 80300
 ## Title: Aptechka
 ## Notes: Raid Frames
 ## Version: @project-version@

@@ -440,6 +440,9 @@ helpers.auraBlacklist = {
     [304959] = true,
     [304851] = true,
 
+    [312243] = true, -- Amber Casing (Eternal Blossoms assault debuff)
+    [318391] = true, -- Great Worm's Foul Stench
+
     [26218] = true, -- Winterveil something
 
     [287825] = true, -- Lethargy, Hit or run azerite trait
