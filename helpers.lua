@@ -190,6 +190,12 @@ function helpers.DisableBlizzParty(self)
         local frame = _G[party]
 
         frame:UnregisterAllEvents()
+        frame:Hide()
+        hooksecurefunc("ShowPartyFrame", HidePartyFrame)
+        hooksecurefunc("PartyMemberFrame_UpdateMember", function(self)
+            self:Hide()
+        end)
+
         _G[party..'HealthBar']:UnregisterAllEvents()
         _G[party..'ManaBar']:UnregisterAllEvents()
     end
