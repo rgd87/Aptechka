@@ -1,4 +1,4 @@
-## Interface: 80200
+## Interface: 80300
 ## Title: AptechkaOptions
 ## Notes: Options module for Aptechka
 ## Author: d87
