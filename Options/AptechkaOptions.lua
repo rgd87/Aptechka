@@ -1041,17 +1041,6 @@ local function MakeGeneralOptions()
                         end,
                         order = 11.1,
                     },
-                    useCLH = {
-                        name = L"Use LibCLHealth"..newFeatureIcon,
-                        desc = L"More frequent health updates based combat log",
-                        type = "toggle",
-                        order = 11.3,
-                        get = function(info) return Aptechka.db.useCombatLogHealthUpdates end,
-                        set = function(info, v)
-                            Aptechka.db.useCombatLogHealthUpdates = not Aptechka.db.useCombatLogHealthUpdates
-                            Aptechka:PrintReloadUIWarning()
-                        end
-                    },
                     useDebuffOrdering = {
                         name = L"Use Debuff Ordering",
                         type = "toggle",
@@ -1059,6 +1048,16 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.useDebuffOrdering end,
                         set = function(info, v)
                             Aptechka.db.useDebuffOrdering = not Aptechka.db.useDebuffOrdering
+                            Aptechka:UpdateDebuffScanningMethod()
+                        end
+                    },
+                    showDispels = {
+                        name = L"Dispel Indicator",
+                        type = "toggle",
+                        order = 11.3,
+                        get = function(info) return Aptechka.db.showDispels end,
+                        set = function(info, v)
+                            Aptechka.db.showDispels = not Aptechka.db.showDispels
                             Aptechka:UpdateDebuffScanningMethod()
                         end
                     },
@@ -1071,7 +1070,19 @@ local function MakeGeneralOptions()
                             Aptechka.db.showCasts = not Aptechka.db.showCasts
                             Aptechka:PrintReloadUIWarning()
                         end,
-                        order = 11.4,
+                        order = 12,
+                    },
+                    useCLH = {
+                        name = L"Use LibCLHealth"..newFeatureIcon,
+                        desc = L"More frequent health updates based combat log",
+                        type = "toggle",
+                        width = "full",
+                        order = 18,
+                        get = function(info) return Aptechka.db.useCombatLogHealthUpdates end,
+                        set = function(info, v)
+                            Aptechka.db.useCombatLogHealthUpdates = not Aptechka.db.useCombatLogHealthUpdates
+                            Aptechka:PrintReloadUIWarning()
+                        end
                     },
                     forceShamanColor = {
                         name = "Retail Shaman Color",
