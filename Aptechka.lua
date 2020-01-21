@@ -2413,13 +2413,15 @@ end
 
 
 function Aptechka:UpdateDebuffScanningMethod()
-    local useOrdering = false
+    local useOrdering = AptechkaDB.useDebuffOrdering
+    --[[
     if AptechkaDB.useDebuffOrdering  then
         local numMembers = GetNumGroupMembers()
         local _, instanceType = GetInstanceInfo()
         local isBattleground = instanceType == "arena" or instanceType == "pvp"
         useOrdering = not IsInRaid() or (isBattleground and numMembers <= 15)
     end
+    ]]
     if useOrdering then
         DebuffProc = Aptechka.OrderedDebuffProc
         BuffProc = Aptechka.OrderedBuffProc
