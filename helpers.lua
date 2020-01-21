@@ -27,25 +27,26 @@ helpers.PercentColor = function(percent)
     end
 end
 
-config.BITMASK_DISPELLABLE = 0
 helpers.BITMASK_DISEASE = 0xF000
 helpers.BITMASK_POISON = 0x0F00
 helpers.BITMASK_CURSE = 0x00F0
 helpers.BITMASK_MAGIC = 0x000F
 function helpers.DispelTypes(...)
     local numArgs = select("#", ...)
+    local BITMASK_DISPELLABLE = 0
     for i=1, numArgs do
         local debuffType = select(i, ...)
         if debuffType == "Magic" then
-            config.BITMASK_DISPELLABLE = bit.bor( config.BITMASK_DISPELLABLE, helpers.BITMASK_MAGIC)
+            BITMASK_DISPELLABLE = bit.bor( BITMASK_DISPELLABLE, helpers.BITMASK_MAGIC)
         elseif debuffType == "Poison" then
-            config.BITMASK_DISPELLABLE = bit.bor( config.BITMASK_DISPELLABLE, helpers.BITMASK_POISON)
+            BITMASK_DISPELLABLE = bit.bor( BITMASK_DISPELLABLE, helpers.BITMASK_POISON)
         elseif debuffType == "Disease" then
-            config.BITMASK_DISPELLABLE = bit.bor( config.BITMASK_DISPELLABLE, helpers.BITMASK_DISEASE)
+            BITMASK_DISPELLABLE = bit.bor( BITMASK_DISPELLABLE, helpers.BITMASK_DISEASE)
         elseif debuffType == "Curse" then
-            config.BITMASK_DISPELLABLE = bit.bor( config.BITMASK_DISPELLABLE, helpers.BITMASK_CURSE)
+            BITMASK_DISPELLABLE = bit.bor( BITMASK_DISPELLABLE, helpers.BITMASK_CURSE)
         end
     end
+    return BITMASK_DISPELLABLE
 end
 
 local protomt = { __index = function(t,k) return t.prototype[k] end }

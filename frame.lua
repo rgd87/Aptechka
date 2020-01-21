@@ -1311,6 +1311,8 @@ local optional_widgets = {
         unhealable = CreateUnhealableOverlay,
         innerglow = CreateInnerGlow,
 
+        dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,
+
         vbar1   = function(self) return CreateStatusBar(self, 4, 20, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true) end,
 
         smist  = function(self) return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
@@ -1732,7 +1734,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.healfeedback = trcorner
 
     -- local roundIndicator = CreateRoundIndicator(self, 13, 13, "BOTTOMLEFT", self, "BOTTOMLEFT",-8, -8)
-    -- self.dispel = roundIndicator
 
     self.health = hp
     self.text1 = text

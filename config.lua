@@ -270,7 +270,11 @@ if playerClass == "PRIEST" then
         RangeCheckBySpell(17), -- Shadow: PWS
     }
 
-    DispelTypes("Magic", "Disease")
+    config.DispelBitmasks = {
+        DispelTypes("Magic", "Disease"),
+        DispelTypes("Magic", "Disease"),
+        DispelTypes("Disease")
+    }
 
 end
 
@@ -308,7 +312,11 @@ if playerClass == "MONK" then
         RangeCheckBySpell(116670),
     }
 
-    DispelTypes("Magic", "Disease", "Poison")
+    config.DispelBitmasks = {
+        DispelTypes("Disease", "Poison"),
+        DispelTypes("Magic", "Disease", "Poison"),
+        DispelTypes("Curse", "Disease", "Poison"),
+    }
 end
 
 if playerClass == "WARLOCK" then
@@ -352,7 +360,11 @@ if playerClass == "PALADIN" then
         RangeCheckBySpell(19750),
     }
 
-    DispelTypes("Magic", "Disease", "Poison")
+    config.DispelBitmasks = {
+        DispelTypes("Magic", "Disease", "Poison"),
+        DispelTypes("Disease", "Poison"),
+        DispelTypes("Disease", "Poison"),
+    }
 end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
@@ -381,8 +393,11 @@ if playerClass == "SHAMAN" then
         RangeCheckBySpell(8004),
     }
 
-
-    DispelTypes("Magic", "Curse")
+    config.DispelBitmasks = {
+        DispelTypes("Curse"),
+        DispelTypes("Curse"),
+        DispelTypes("Magic", "Curse"),
+    }
 end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = "raidbuff", color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
@@ -407,7 +422,12 @@ if playerClass == "DRUID" then
         RangeCheckBySpell(8936),
     }
 
-    DispelTypes("Magic", "Curse", "Poison")
+    config.DispelBitmasks = {
+        DispelTypes("Curse", "Poison"),
+        DispelTypes("Curse", "Poison"),
+        DispelTypes("Curse", "Poison"),
+        DispelTypes("Magic", "Curse", "Poison"),
+    }
 end
 
 if playerClass == "WARRIOR" then
@@ -419,7 +439,11 @@ if playerClass == "MAGE" then
     -- A{ id = 61316, type = "HELPFUL", assignto = "spell2", color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
     -- A{ id = 54648, type = "HELPFUL", assignto = "spell2", color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
 
-    -- DispelTypes("CURSE")
+    config.DispelBitmasks = {
+        DispelTypes("Curse"),
+        DispelTypes("Curse"),
+        DispelTypes("Curse"),
+    }
 end
 -- if not isHealer or playerClass == "PALADIN" then
     -- config.redirectPowerBar = "spell1"

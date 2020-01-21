@@ -70,7 +70,7 @@ local group_headers = {}
 local missingFlagSpells = {}
 local anchors = {}
 local skinAnchorsName
-local BITMASK_DISPELLABLE
+local BITMASK_DISPELLABLE = 0
 local RosterUpdateOccured
 local LastCastSentTime = 0
 local LastCastTargetName
@@ -113,8 +113,8 @@ local tinsert = table.insert
 local tsort = table.sort
 local CreatePetsFunc
 local BuffProc
-local DebuffProc
-local DebuffPostUpdate
+local DebuffProc, DebuffPostUpdate
+local DispelTypeProc, DispelTypePostUpdate
 local debuffLimit
 local staggerUnits = {}
 
@@ -157,6 +157,7 @@ local defaults = {
     showCasts = true,
     showAggro = true,
     showRaidIcons = true,
+    showDispels = false,
     healthOrientation = "VERTICAL",
     customBlacklist = {},
     healthTexture = "Gradient",
@@ -269,6 +270,8 @@ Aptechka:RegisterEvent("PLAYER_LOGIN")
 Aptechka:RegisterEvent("PLAYER_LOGOUT")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
+    Aptechka:UpdateDispelBitmask()
+
     local uir2 = function(unit)
         if UnitIsDeadOrGhost(unit) or UnitIsEnemy(unit, "player") then --IsSpellInRange doesn't work with dead people
             return UnitInRange(unit)
@@ -313,7 +316,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     config.traces = config.traces or {}
     auras = config.auras
     traceheals = config.traces
-    BITMASK_DISPELLABLE = config.BITMASK_DISPELLABLE
 
     local _, class = UnitClass("player")
     local categories = {"auras", "traces"}
@@ -1349,10 +1351,18 @@ end
 function Aptechka:UpdateRangeChecker()
     local spec = GetSpecialization() or 1
     if config.UnitInRangeFunctions and config.UnitInRangeFunctions[spec] then
-        -- print('using function')
         uir = config.UnitInRangeFunctions[spec]
     else
         uir = UnitInRange
+    end
+end
+
+function Aptechka:UpdateDispelBitmask()
+    local spec = GetSpecialization() or 1
+    if config.DispelBitmasks and config.DispelBitmasks[spec] then
+        BITMASK_DISPELLABLE = config.DispelBitmasks[spec]
+    else
+        BITMASK_DISPELLABLE = 0
     end
 end
 
@@ -1371,8 +1381,6 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
             Aptechka:CheckRoles(frame, unit)
         end
     end
-
-    Aptechka:UpdateRangeChecker()
 end
 
 
@@ -1383,6 +1391,9 @@ end
 do
     local currentRole
     function Aptechka:SPELLS_CHANGED()
+        Aptechka:UpdateRangeChecker()
+        Aptechka:UpdateDispelBitmask()
+
         local role = self:GetRoleProfile()
         if role ~= currentRole then
             self:OnRoleChanged()
@@ -1946,7 +1957,7 @@ function Aptechka.SetupFrame(header, frameName)
     end
 
     f.self = f
-    f.HideFunc = f.HideFunc or function() end
+    f.HideFunc = f.HideFunc or Aptechka.DummyFunction
 
     if config.disableManaBar or not f.power then
         Aptechka:UnregisterEvent("UNIT_POWER_UPDATE")
@@ -2272,12 +2283,12 @@ end
 ---------------------------
 -- Dispel Type Indicator
 ---------------------------
-local debuffTypeMask = 0
+local debuffTypeMask -- Resets to 0 at the start of every aura scan
 local BITMASK_DISEASE = helpers.BITMASK_DISEASE
 local BITMASK_POISON = helpers.BITMASK_POISON
 local BITMASK_CURSE = helpers.BITMASK_CURSE
 local BITMASK_MAGIC = helpers.BITMASK_MAGIC
-local function DispelTypeProc(unit, index, slot, filter, name, icon, count, debuffType)
+function Aptechka.DispelTypeProc(unit, index, slot, filter, name, icon, count, debuffType)
     if debuffType == "Magic" then
         debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_MAGIC)
         return
@@ -2297,7 +2308,7 @@ local MagicColor = { 0.2, 0.6, 1}
 local CurseColor = { 0.6, 0, 1}
 local PoisonColor = { 0, 0.6, 0}
 local DiseaseColor = { 0.6, 0.4, 0}
-local function DispelTypePostUpdate(unit)
+function Aptechka.DispelTypePostUpdate(unit)
     local debuffTypeMaskDispellable = bit_band( debuffTypeMask, BITMASK_DISPELLABLE )
 
     local frames = Roster[unit]
@@ -2328,6 +2339,7 @@ local function DispelTypePostUpdate(unit)
         end
     end
 end
+function Aptechka.DummyFunction() end
 
 local handleBuffs = function(unit, index, slot, filter, ...)
     IndicatorAurasProc(unit, index, slot, filter, ...)
@@ -2337,7 +2349,7 @@ end
 local handleDebuffs = function(unit, index, slot, filter, ...)
     IndicatorAurasProc(unit, index, slot, filter, ...)
     DebuffProc(unit, index, slot, filter, ...)
-    -- DispelTypeProc(unit, index, slot, filter, ...)
+    DispelTypeProc(unit, index, slot, filter, ...)
 end
 
 function Aptechka.ScanAuras(unit)
@@ -2376,7 +2388,7 @@ function Aptechka.ScanAuras(unit)
 
     IndicatorAurasPostUpdate(unit)
     DebuffPostUpdate(unit)
-    -- DispelTypePostUpdate(unit)
+    DispelTypePostUpdate(unit)
 end
 local debugprofilestop = debugprofilestop
 function Aptechka.UNIT_AURA(self, event, unit)
@@ -2404,6 +2416,13 @@ function Aptechka:UpdateDebuffScanningMethod()
         DebuffProc = Aptechka.SimpleDebuffProc
         BuffProc = Aptechka.SimpleBuffProc
         DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
+    end
+    if AptechkaDB.showDispels then
+        DispelTypeProc = Aptechka.DispelTypeProc
+        DispelTypePostUpdate = Aptechka.DispelTypePostUpdate
+    else
+        DispelTypeProc = Aptechka.DummyFunction
+        DispelTypePostUpdate = Aptechka.DummyFunction
     end
 end
 
