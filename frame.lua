@@ -892,9 +892,11 @@ local SetJob_Text2 = function(self,job) -- text2 is always green
     end
 
     local c
-    if job.percentColor then
-        self:SetTextColor(helpers.PercentColor(job.text))
-        self:SetFormattedText("%.0f%%", job.text*100)
+    if job.percentColor then -- stagger
+        local stagger = self.parent.stagger
+        if not stagger then return end
+        self:SetTextColor(helpers.PercentColor(stagger))
+        self:SetFormattedText("%.0f%%", stagger*100)
     else
         if job.color then
             c = job.textcolor or job.color

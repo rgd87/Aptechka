@@ -1288,7 +1288,7 @@ function Aptechka:UpdateStagger()
                 end
                 local maxHP = UnitHealthMax(unit)
                 local staggerPercent = currentStagger/maxHP
-                config.StaggerStatus.text = staggerPercent
+                frame.stagger = staggerPercent
                 FrameSetJob(frame, config.StaggerStatus, currentStagger > 0)
             end
         end
