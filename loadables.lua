@@ -38,9 +38,6 @@ local healred = { 147/255, 54/255, 115/255 }
 local BossDebuff = { type = "HARMFUL", assignto = "bossdebuff", color = color1, priority = 40, pulse = true }
 AptechkaDefaultConfig.BossDebuffPrototype = BossDebuff
 
--- 8.3 M+ Debuffs
-helpers.AddAura{ id = 314308, prototype = BossDebuff } -- Spirit Breaker, increase all damage they take by 100% for 8 sec.
-
 AptechkaDefaultConfig.LoadableDebuffs = {
 
     ["Ny'alotha"] = function()

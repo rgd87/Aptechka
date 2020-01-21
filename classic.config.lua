@@ -98,7 +98,9 @@ if playerClass == "PRIEST" then
         RangeCheckBySpell(2050),
     }
 
-    DispelTypes("Magic", "Disease")
+    config.DispelBitmasks = {
+        DispelTypes("Magic", "Disease")
+    }
 
 end
 
@@ -122,7 +124,9 @@ if playerClass == "DRUID" then
         RangeCheckBySpell(5185),
     }
 
-    DispelTypes("Curse", "Poison")
+    config.DispelBitmasks = {
+        DispelTypes("Curse", "Poison")
+    }
 end
 
 
@@ -145,7 +149,9 @@ if playerClass == "PALADIN" then
         RangeCheckBySpell(635),
     }
 
-    DispelTypes("Magic", "Disease", "Poison")
+    config.DispelBitmasks = {
+        DispelTypes("Magic", "Disease", "Poison")
+    }
 
 end
 
@@ -189,7 +195,9 @@ if playerClass == "SHAMAN" then
         RangeCheckBySpell(331),
     }
 
-    DispelTypes("Poison", "Disease")
+    config.DispelBitmasks = {
+        DispelTypes("Poison", "Disease")
+    }
 
 end
 
@@ -202,7 +210,9 @@ if playerClass == "MAGE" then
     -- Amplify Magic
     A{ id = { 1008, 8455, 10169, 10170 }, type = "HELPFUL", assignto = "spell3", color = {1,0.7,0.5}, priority = 80 }
 
-    DispelTypes("Curse")
+    config.DispelBitmasks = {
+        DispelTypes("Curse")
+    }
 end
 
 if playerClass == "WARRIOR" then
