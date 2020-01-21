@@ -210,6 +210,10 @@ if playerClass == "MAGE" then
     -- Amplify Magic
     A{ id = { 1008, 8455, 10169, 10170 }, type = "HELPFUL", assignto = "spell3", color = {1,0.7,0.5}, priority = 80 }
 
+    config.UnitInRangeFunctions = {
+        RangeCheckBySpell(1459), -- Arcane Intellect, 30yd range
+    }
+
     config.DispelBitmasks = {
         DispelTypes("Curse")
     }
