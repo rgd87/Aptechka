@@ -1154,7 +1154,7 @@ local CreateUnhealableOverlay = function(parent)
     tex2:SetHorizTile(true)
     tex2:SetVertTile(true)
     tex2:SetTexture("Interface\\AddOns\\Aptechka\\swirl", "REPEAT", "REPEAT")
-    tex2:SetVertexColor(0,0,0, 0.8)
+    tex2:SetVertexColor(0,0,0, 0.6)
 
     tex2:SetBlendMode("BLEND")
     tex2:SetAllPoints(parent)
@@ -1183,17 +1183,20 @@ local CreateInnerGlow = function(parent)
 end
 
 local CreateMindControlIcon = function(parent)
-    local tex = parent.health:CreateTexture(nil, "ARTWORK", nil, -3)
+    local f = CreateFrame("Frame", nil, parent)
+    local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
+    tex:SetAllPoints(f)
     tex:SetTexture("Interface/CorruptedItems/CorruptedInventoryIcon")
     tex:SetTexCoord(0.02, 0.5, 0.02, 0.5)
     local height = parent:GetHeight()
     local width = parent:GetWidth()
     local len = math.min(height, width)
-    tex:SetSize(len, len)
-    tex:SetPoint("TOPLEFT",parent,"TOPLEFT",0,0)
+    f:SetFrameLevel(7)
+    f:SetSize(len, len)
+    f:SetPoint("TOPLEFT",parent,"TOPLEFT",0,0)
 
-    tex:Hide()
-    return tex
+    f:Hide()
+    return f
 end
 
 --[[
