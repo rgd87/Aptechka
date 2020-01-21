@@ -2169,12 +2169,34 @@ end
 ---------------------------
 -- Ordered
 ---------------------------
+local BITMASK_DISEASE = helpers.BITMASK_DISEASE
+local BITMASK_POISON = helpers.BITMASK_POISON
+local BITMASK_CURSE = helpers.BITMASK_CURSE
+local BITMASK_MAGIC = helpers.BITMASK_MAGIC
+local function GetDebuffTypeBitmask(debuffType)
+    if debuffType == "Magic" then
+        return BITMASK_MAGIC
+    elseif debuffType == "Poison" then
+        return BITMASK_POISON
+    elseif debuffType == "Disease" then
+        return BITMASK_DISEASE
+    elseif debuffType == "Curse" then
+        return BITMASK_CURSE
+    end
+    return 0
+end
 
 function Aptechka.OrderedDebuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
         local prio, spellType = LibAuraTypes.GetAuraInfo(spellID, "ALLY")
         if not prio then
-            prio = (isBossAura and 60) or (debuffType and 10) or 0
+            prio = (isBossAura and 60) or 0
+        end
+        if debuffType then
+            local mask = GetDebuffTypeBitmask(debuffType)
+            if bit_band( mask, BITMASK_DISPELLABLE ) > 0 then
+                prio = prio + 15
+            end
         end
         tinsert(debuffList, { slot or index, prio, filter })
         -- tinsert(debuffList, { index, prio, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura })
@@ -2284,24 +2306,8 @@ end
 -- Dispel Type Indicator
 ---------------------------
 local debuffTypeMask -- Resets to 0 at the start of every aura scan
-local BITMASK_DISEASE = helpers.BITMASK_DISEASE
-local BITMASK_POISON = helpers.BITMASK_POISON
-local BITMASK_CURSE = helpers.BITMASK_CURSE
-local BITMASK_MAGIC = helpers.BITMASK_MAGIC
 function Aptechka.DispelTypeProc(unit, index, slot, filter, name, icon, count, debuffType)
-    if debuffType == "Magic" then
-        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_MAGIC)
-        return
-    elseif debuffType == "Poison" then
-        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_POISON)
-        return
-    elseif debuffType == "Disease" then
-        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_DISEASE)
-        return
-    elseif debuffType == "Curse" then
-        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_CURSE)
-        return
-    end
+    debuffTypeMask = bit_bor( debuffTypeMask,  GetDebuffTypeBitmask(debuffType))
 end
 
 local MagicColor = { 0.2, 0.6, 1}
@@ -2335,7 +2341,7 @@ function Aptechka.DispelTypePostUpdate(unit)
                 if color then
                     config.DispelStatus.color = color
                     -- config.DispelStatus.debuffType = debuffType
-                    FrameSetJob(frame, config.DispelStatus, true, debuffType)
+                    FrameSetJob(frame, config.DispelStatus, true) --, debuffType)
                 else
                     FrameSetJob(frame, config.DispelStatus, false)
                 end
