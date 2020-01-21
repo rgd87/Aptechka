@@ -1974,7 +1974,7 @@ function Aptechka.SetupFrame(header, frameName)
     f:HookScript("OnAttributeChanged", OnAttributeChanged)
 end
 
-local AssignToSlot = function(frame, opts, status, slot)
+local AssignToSlot = function(frame, opts, status, slot, ...)
     local self = frame[slot]
     if not self then
         if frame._optional_widgets[slot] then
@@ -2017,32 +2017,32 @@ local AssignToSlot = function(frame, opts, status, slot)
                     max = opts.name
                 end
                 if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
-                if self.SetJob  then self:SetJob(jobs[max]) end
+                if self.SetJob  then self:SetJob(jobs[max], ...) end
             else
-                if self.rawAssignments then self:SetJob(opts) end
+                if self.rawAssignments then self:SetJob(opts, ...) end
                 if self.HideFunc then self:HideFunc() else self:Hide() end
                 self.currentJob = nil
             end
     end
 end
 
-function Aptechka.FrameSetJob(frame, opts, status)
+function Aptechka.FrameSetJob(frame, opts, status, ...)
     if opts and opts.assignto then
         if type(opts.assignto) == "string" then
-            AssignToSlot(frame, opts, status, opts.assignto)
+            AssignToSlot(frame, opts, status, opts.assignto, ...)
         else
             for _, slot in ipairs(opts.assignto) do
-                AssignToSlot(frame, opts, status, slot)
+                AssignToSlot(frame, opts, status, slot, ...)
             end
         end
     end
 end
 FrameSetJob = Aptechka.FrameSetJob
 
-function Aptechka.SetJob(unit, opts, status)
+function Aptechka.SetJob(unit, opts, status, ...)
     if not Roster[unit] then return end
     for frame in pairs(Roster[unit]) do
-        FrameSetJob(frame, opts, status)
+        FrameSetJob(frame, opts, status, ...)
     end
 end
 SetJob = Aptechka.SetJob
@@ -2317,19 +2317,25 @@ function Aptechka.DispelTypePostUpdate(unit)
             if frame.debuffTypeMask ~= debuffTypeMaskDispellable then
 
                 local color
+                -- local debuffType
                 if bit_band(debuffTypeMaskDispellable, BITMASK_MAGIC) > 0 then
                     color = MagicColor
+                    -- debuffType = 1
                 elseif bit_band(debuffTypeMaskDispellable, BITMASK_POISON) > 0 then
                     color = PoisonColor
+                    -- debuffType = 2
                 elseif bit_band(debuffTypeMaskDispellable, BITMASK_DISEASE) > 0 then
                     color = DiseaseColor
+                    -- debuffType = 3
                 elseif bit_band(debuffTypeMaskDispellable, BITMASK_CURSE) > 0 then
                     color = CurseColor
+                    -- debuffType = 4
                 end
 
                 if color then
                     config.DispelStatus.color = color
-                    FrameSetJob(frame, config.DispelStatus, true)
+                    -- config.DispelStatus.debuffType = debuffType
+                    FrameSetJob(frame, config.DispelStatus, true, debuffType)
                 else
                     FrameSetJob(frame, config.DispelStatus, false)
                 end

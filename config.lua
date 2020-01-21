@@ -109,7 +109,7 @@ end
 local tankCD = { type = "HELPFUL", assignto = { "icon", "text3" }, global = true, showDuration = true, priority = 94}
 local survivalCD = { type = "HELPFUL", assignto = "shieldicon", global = true, showDuration = true, priority = 90 }
 
--- A{ id = 25163, type = "HARMFUL", assignto = "bossdebuff", scale = 0.85, color = { 0.2, 0.6, 1 }, priority = 40, pulse = true } -- Oozeling
+-- A{ id = 25163, type = "HARMFUL", assignto = "bossdebuff", scale = 0.85, color = { 1,0,0 }, priority = 40, pulse = true } -- Oozeling
 
 -- ESSENCES
 A{ id = 296094, prototype = tankCD } --Standstill (Artifice of Time)
