@@ -1183,8 +1183,6 @@ local CreateInnerGlow = function(parent)
 end
 
 local CreateMindControlIcon = function(parent)
-    if select(4, GetBuildInfo()) < 80300 then return end
-
     local tex = parent.health:CreateTexture(nil, "ARTWORK", nil, -3)
     tex:SetTexture("Interface/CorruptedItems/CorruptedInventoryIcon")
     tex:SetTexCoord(0.02, 0.5, 0.02, 0.5)
@@ -1197,6 +1195,28 @@ local CreateMindControlIcon = function(parent)
     tex:Hide()
     return tex
 end
+
+--[[
+local dispelTypeTextures = {
+    "Interface\\RaidFrame\\Raid-Icon-DebuffMagic",
+    "Interface\\RaidFrame\\Raid-Icon-DebuffPoison",
+    "Interface\\RaidFrame\\Raid-Icon-DebuffDisease",
+    "Interface\\RaidFrame\\Raid-Icon-DebuffCurse",
+}
+local SetJob_Dispel = function(self, job, debuffType)
+    self:SetTexture(dispelTypeTextures[debuffType])
+end
+local CreateDebuffTypeIndicator = function(parent)
+    local tex = parent.health:CreateTexture(nil, "ARTWORK", nil, -2)
+    -- local debuffType = "Disease"
+    -- tex:SetTexture("Interface\\RaidFrame\\Raid-Icon-Debuff"..debuffType)
+    tex.SetJob = SetJob_Dispel
+    tex:SetSize(22, 22)
+    tex:SetPoint("CENTER", parent.bossdebuff, "CENTER", 3, -1)
+    tex:Hide()
+    return tex
+end
+]]
 
 
 local border_backdrop = {
@@ -1311,6 +1331,9 @@ local optional_widgets = {
         unhealable = CreateUnhealableOverlay,
         innerglow = CreateInnerGlow,
 
+        -- dispel = CreateDebuffTypeIndicator,
+        -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,
+
         vbar1   = function(self) return CreateStatusBar(self, 4, 20, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true) end,
 
         smist  = function(self) return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
@@ -1420,7 +1443,6 @@ local function Reconf(self)
         self.debuffIcons:Align("VERTICAL")
 
         self.bossdebuff:SetPoint("BOTTOMLEFT", self.debuffIcons[1], "BOTTOMRIGHT",0,0)
-
     else
         self.health:SetOrientation("HORIZONTAL")
         self.power:SetOrientation("HORIZONTAL")
@@ -1731,7 +1753,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.healfeedback = trcorner
 
     -- local roundIndicator = CreateRoundIndicator(self, 13, 13, "BOTTOMLEFT", self, "BOTTOMLEFT",-8, -8)
-    -- self.dispel = roundIndicator
 
     self.health = hp
     self.text1 = text

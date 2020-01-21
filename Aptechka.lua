@@ -70,7 +70,7 @@ local group_headers = {}
 local missingFlagSpells = {}
 local anchors = {}
 local skinAnchorsName
-local BITMASK_DISPELLABLE
+local BITMASK_DISPELLABLE = 0
 local RosterUpdateOccured
 local LastCastSentTime = 0
 local LastCastTargetName
@@ -116,8 +116,8 @@ local tsort = table.sort
 local CreatePetsFunc
 local HealComm
 local BuffProc
-local DebuffProc
-local DebuffPostUpdate
+local DebuffProc, DebuffPostUpdate
+local DispelTypeProc, DispelTypePostUpdate
 local debuffLimit
 
 Aptechka.L = setmetatable({}, {
@@ -159,6 +159,7 @@ local defaults = {
     showCasts = true,
     showAggro = true,
     showRaidIcons = true,
+    showDispels = false,
     healthOrientation = "VERTICAL",
     customBlacklist = {},
     healthTexture = "Gradient",
@@ -272,6 +273,8 @@ Aptechka:RegisterEvent("PLAYER_LOGIN")
 Aptechka:RegisterEvent("PLAYER_LOGOUT")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
+    Aptechka:UpdateDispelBitmask()
+
     local uir2 = function(unit)
         if UnitIsDeadOrGhost(unit) or UnitIsEnemy(unit, "player") then --IsSpellInRange doesn't work with dead people
             return UnitInRange(unit)
@@ -326,7 +329,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     config.traces = config.traces or {}
     auras = config.auras
     traceheals = config.traces
-    BITMASK_DISPELLABLE = config.BITMASK_DISPELLABLE
 
     local _, class = UnitClass("player")
     local categories = {"auras", "traces"}
@@ -1373,10 +1375,18 @@ end
 function Aptechka:UpdateRangeChecker()
     local spec = GetSpecialization() or 1
     if config.UnitInRangeFunctions and config.UnitInRangeFunctions[spec] then
-        -- print('using function')
         uir = config.UnitInRangeFunctions[spec]
     else
         uir = UnitInRange
+    end
+end
+
+function Aptechka:UpdateDispelBitmask()
+    local spec = GetSpecialization() or 1
+    if config.DispelBitmasks and config.DispelBitmasks[spec] then
+        BITMASK_DISPELLABLE = config.DispelBitmasks[spec]
+    else
+        BITMASK_DISPELLABLE = 0
     end
 end
 
@@ -1395,8 +1405,6 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
             Aptechka:CheckRoles(frame, unit)
         end
     end
-
-    Aptechka:UpdateRangeChecker()
 end
 
 
@@ -1407,6 +1415,9 @@ end
 do
     local currentRole
     function Aptechka:SPELLS_CHANGED()
+        Aptechka:UpdateRangeChecker()
+        Aptechka:UpdateDispelBitmask()
+
         local role = self:GetRoleProfile()
         if role ~= currentRole then
             self:OnRoleChanged()
@@ -1980,7 +1991,7 @@ function Aptechka.SetupFrame(header, frameName)
     end
 
     f.self = f
-    f.HideFunc = f.HideFunc or function() end
+    f.HideFunc = f.HideFunc or Aptechka.DummyFunction
 
     if config.disableManaBar or not f.power then
         Aptechka:UnregisterEvent("UNIT_POWER_UPDATE")
@@ -1997,7 +2008,7 @@ function Aptechka.SetupFrame(header, frameName)
     f:HookScript("OnAttributeChanged", OnAttributeChanged)
 end
 
-local AssignToSlot = function(frame, opts, status, slot)
+local AssignToSlot = function(frame, opts, status, slot, ...)
     local self = frame[slot]
     if not self then
         if frame._optional_widgets[slot] then
@@ -2040,32 +2051,32 @@ local AssignToSlot = function(frame, opts, status, slot)
                     max = opts.name
                 end
                 if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
-                if self.SetJob  then self:SetJob(jobs[max]) end
+                if self.SetJob  then self:SetJob(jobs[max], ...) end
             else
-                if self.rawAssignments then self:SetJob(opts) end
+                if self.rawAssignments then self:SetJob(opts, ...) end
                 if self.HideFunc then self:HideFunc() else self:Hide() end
                 self.currentJob = nil
             end
     end
 end
 
-function Aptechka.FrameSetJob(frame, opts, status)
+function Aptechka.FrameSetJob(frame, opts, status, ...)
     if opts and opts.assignto then
         if type(opts.assignto) == "string" then
-            AssignToSlot(frame, opts, status, opts.assignto)
+            AssignToSlot(frame, opts, status, opts.assignto, ...)
         else
             for _, slot in ipairs(opts.assignto) do
-                AssignToSlot(frame, opts, status, slot)
+                AssignToSlot(frame, opts, status, slot, ...)
             end
         end
     end
 end
 FrameSetJob = Aptechka.FrameSetJob
 
-function Aptechka.SetJob(unit, opts, status)
+function Aptechka.SetJob(unit, opts, status, ...)
     if not Roster[unit] then return end
     for frame in pairs(Roster[unit]) do
-        FrameSetJob(frame, opts, status)
+        FrameSetJob(frame, opts, status, ...)
     end
 end
 SetJob = Aptechka.SetJob
@@ -2192,12 +2203,34 @@ end
 ---------------------------
 -- Ordered
 ---------------------------
+local BITMASK_DISEASE = helpers.BITMASK_DISEASE
+local BITMASK_POISON = helpers.BITMASK_POISON
+local BITMASK_CURSE = helpers.BITMASK_CURSE
+local BITMASK_MAGIC = helpers.BITMASK_MAGIC
+local function GetDebuffTypeBitmask(debuffType)
+    if debuffType == "Magic" then
+        return BITMASK_MAGIC
+    elseif debuffType == "Poison" then
+        return BITMASK_POISON
+    elseif debuffType == "Disease" then
+        return BITMASK_DISEASE
+    elseif debuffType == "Curse" then
+        return BITMASK_CURSE
+    end
+    return 0
+end
 
 function Aptechka.OrderedDebuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
         local prio, spellType = LibAuraTypes.GetAuraInfo(spellID, "ALLY")
         if not prio then
-            prio = (isBossAura and 60) or (debuffType and 10) or 0
+            prio = (isBossAura and 60) or 0
+        end
+        if debuffType then
+            local mask = GetDebuffTypeBitmask(debuffType)
+            if bit_band( mask, BITMASK_DISPELLABLE ) > 0 then
+                prio = prio + 15
+            end
         end
         tinsert(debuffList, { slot or index, prio, filter })
         -- tinsert(debuffList, { index, prio, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura })
@@ -2306,32 +2339,16 @@ end
 ---------------------------
 -- Dispel Type Indicator
 ---------------------------
-local debuffTypeMask = 0
-local BITMASK_DISEASE = helpers.BITMASK_DISEASE
-local BITMASK_POISON = helpers.BITMASK_POISON
-local BITMASK_CURSE = helpers.BITMASK_CURSE
-local BITMASK_MAGIC = helpers.BITMASK_MAGIC
-local function DispelTypeProc(unit, index, slot, filter, name, icon, count, debuffType)
-    if debuffType == "Magic" then
-        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_MAGIC)
-        return
-    elseif debuffType == "Poison" then
-        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_POISON)
-        return
-    elseif debuffType == "Disease" then
-        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_DISEASE)
-        return
-    elseif debuffType == "Curse" then
-        debuffTypeMask = bit_bor( debuffTypeMask, BITMASK_CURSE)
-        return
-    end
+local debuffTypeMask -- Resets to 0 at the start of every aura scan
+function Aptechka.DispelTypeProc(unit, index, slot, filter, name, icon, count, debuffType)
+    debuffTypeMask = bit_bor( debuffTypeMask,  GetDebuffTypeBitmask(debuffType))
 end
 
 local MagicColor = { 0.2, 0.6, 1}
 local CurseColor = { 0.6, 0, 1}
 local PoisonColor = { 0, 0.6, 0}
 local DiseaseColor = { 0.6, 0.4, 0}
-local function DispelTypePostUpdate(unit)
+function Aptechka.DispelTypePostUpdate(unit)
     local debuffTypeMaskDispellable = bit_band( debuffTypeMask, BITMASK_DISPELLABLE )
 
     local frames = Roster[unit]
@@ -2340,19 +2357,25 @@ local function DispelTypePostUpdate(unit)
             if frame.debuffTypeMask ~= debuffTypeMaskDispellable then
 
                 local color
+                -- local debuffType
                 if bit_band(debuffTypeMaskDispellable, BITMASK_MAGIC) > 0 then
                     color = MagicColor
+                    -- debuffType = 1
                 elseif bit_band(debuffTypeMaskDispellable, BITMASK_POISON) > 0 then
                     color = PoisonColor
+                    -- debuffType = 2
                 elseif bit_band(debuffTypeMaskDispellable, BITMASK_DISEASE) > 0 then
                     color = DiseaseColor
+                    -- debuffType = 3
                 elseif bit_band(debuffTypeMaskDispellable, BITMASK_CURSE) > 0 then
                     color = CurseColor
+                    -- debuffType = 4
                 end
 
                 if color then
                     config.DispelStatus.color = color
-                    FrameSetJob(frame, config.DispelStatus, true)
+                    -- config.DispelStatus.debuffType = debuffType
+                    FrameSetJob(frame, config.DispelStatus, true) --, debuffType)
                 else
                     FrameSetJob(frame, config.DispelStatus, false)
                 end
@@ -2362,6 +2385,7 @@ local function DispelTypePostUpdate(unit)
         end
     end
 end
+function Aptechka.DummyFunction() end
 
 local handleBuffs = function(unit, index, slot, filter, ...)
     IndicatorAurasProc(unit, index, slot, filter, ...)
@@ -2371,7 +2395,7 @@ end
 local handleDebuffs = function(unit, index, slot, filter, ...)
     IndicatorAurasProc(unit, index, slot, filter, ...)
     DebuffProc(unit, index, slot, filter, ...)
-    -- DispelTypeProc(unit, index, slot, filter, ...)
+    DispelTypeProc(unit, index, slot, filter, ...)
 end
 
 function Aptechka.ScanAuras(unit)
@@ -2408,7 +2432,7 @@ function Aptechka.ScanAuras(unit)
 
     IndicatorAurasPostUpdate(unit)
     DebuffPostUpdate(unit)
-    -- DispelTypePostUpdate(unit)
+    DispelTypePostUpdate(unit)
 end
 local debugprofilestop = debugprofilestop
 function Aptechka.UNIT_AURA(self, event, unit)
@@ -2421,13 +2445,15 @@ end
 
 
 function Aptechka:UpdateDebuffScanningMethod()
-    local useOrdering = false
+    local useOrdering = AptechkaDB.useDebuffOrdering
+    --[[
     if AptechkaDB.useDebuffOrdering  then
         local numMembers = GetNumGroupMembers()
         local _, instanceType = GetInstanceInfo()
         local isBattleground = instanceType == "arena" or instanceType == "pvp"
         useOrdering = not IsInRaid() or (isBattleground and numMembers <= 15)
     end
+    ]]
     if useOrdering then
         DebuffProc = Aptechka.OrderedDebuffProc
         BuffProc = Aptechka.OrderedBuffProc
@@ -2436,6 +2462,13 @@ function Aptechka:UpdateDebuffScanningMethod()
         DebuffProc = Aptechka.SimpleDebuffProc
         BuffProc = Aptechka.SimpleBuffProc
         DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
+    end
+    if AptechkaDB.showDispels then
+        DispelTypeProc = Aptechka.DispelTypeProc
+        DispelTypePostUpdate = Aptechka.DispelTypePostUpdate
+    else
+        DispelTypeProc = Aptechka.DummyFunction
+        DispelTypePostUpdate = Aptechka.DummyFunction
     end
 end
 

@@ -175,7 +175,7 @@ globals = {
     "UnitFrame_OnLeave",
     "GetNumGroupMembers",
     "GetInstanceInfo",
-
+    "HidePartyFrame",
     "UnitPower",
     "UnitPowerMax",
     "UnitAura",
