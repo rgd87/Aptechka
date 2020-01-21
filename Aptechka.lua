@@ -110,6 +110,7 @@ local reverse = helpers.Reverse
 local AptechkaDB
 local LibSpellLocks
 local LibAuraTypes
+local LibTargetedCasts
 local LibClassicDurations = LibStub("LibClassicDurations")
 local tinsert = table.insert
 local tsort = table.sort
@@ -570,6 +571,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.enableAbsorbBar then
         self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
         self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
+    end
+
+    LibTargetedCasts = LibStub("LibTargetedCasts", true)
+    if LibTargetedCasts and AptechkaDB.showCasts then
+        -- LibTargetedCasts.RegisterCallback("Aptechka", "SPELLCAST_UPDATE", Aptechka.SPELLCAST_UPDATE)
     end
 
     -- AptechkaDB.useCombatLogHealthUpdates = false
