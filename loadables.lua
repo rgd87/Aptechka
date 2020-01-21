@@ -17,6 +17,8 @@ AptechkaDefaultConfig.MapIDs = {
     [1162] = "Siege of Boralus",
     [1148] = "Uldir",
 
+    [1581] = "Ny'alotha",
+
     [704] = "Halls of Valor",
     [706] = "Maw of Souls",
     [731] = "Neltharion's Lair",
@@ -36,7 +38,24 @@ local healred = { 147/255, 54/255, 115/255 }
 local BossDebuff = { type = "HARMFUL", assignto = "bossdebuff", color = color1, priority = 40, pulse = true }
 AptechkaDefaultConfig.BossDebuffPrototype = BossDebuff
 
+-- 8.3 M+ Debuffs
+helpers.AddAura{ id = 314308, prototype = BossDebuff } -- Spirit Breaker, increase all damage they take by 100% for 8 sec.
+
 AptechkaDefaultConfig.LoadableDebuffs = {
+
+    ["Ny'alotha"] = function()
+        A{ id = 314992, prototype = BossDebuff } -- Maut, Drain Essence
+
+        A{ id = 307645, prototype = BossDebuff } -- Vexiona, Heart of Darkness fear
+        A{ id = 310224, prototype = BossDebuff } -- Vexiona, Annihilation
+
+        A{ id = 310361, prototype = BossDebuff } -- Drest'agath, Unleashed Insanity stun
+
+        A{ id = 312486, prototype = BossDebuff } -- Il'gynoth, Recurring Nightmare
+
+        A{ id = 313400, prototype = BossDebuff } -- N'Zoth, the Corruptor, Corrupted Mind
+        A{ id = 313793, prototype = BossDebuff } -- N'Zoth, the Corruptor, Flames of Insanity disorient
+    end,
 
     ["Freehold"] = function()
         A{ id = 258323, prototype = BossDebuff } -- Infected Wound
