@@ -1183,6 +1183,8 @@ local CreateInnerGlow = function(parent)
 end
 
 local CreateMindControlIcon = function(parent)
+    if isClassic then return end
+
     local f = CreateFrame("Frame", nil, parent)
     local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
     tex:SetAllPoints(f)
