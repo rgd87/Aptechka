@@ -315,7 +315,7 @@ if playerClass == "MONK" then
     config.DispelBitmasks = {
         DispelTypes("Disease", "Poison"),
         DispelTypes("Magic", "Disease", "Poison"),
-        DispelTypes("Curse", "Disease", "Poison"),
+        DispelTypes("Disease", "Poison"),
     }
 end
 

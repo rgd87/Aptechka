@@ -390,7 +390,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         -- raid
         local hider = CreateFrame("Frame")
         hider:Hide()
-        if CompactRaidFrameManager then
+        if CompactRaidFrameManager and CompactUnitFrameProfiles then
             CompactRaidFrameManager:SetParent(hider)
             -- CompactRaidFrameManager:UnregisterAllEvents()
             CompactUnitFrameProfiles:UnregisterAllEvents()
