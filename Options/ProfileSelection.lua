@@ -15,7 +15,7 @@ end
 function ns.MakeProfileSelection()
     local opt = {
         type = 'group',
-        name = L"Aptechka Profile Settings",
+        name = L"Aptechka Profiles",
         order = 1,
         args = {
             currentProfile = {
