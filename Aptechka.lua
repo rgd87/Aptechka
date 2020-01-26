@@ -791,6 +791,7 @@ end
 
 function Aptechka:Reconfigure()
     if not self.isInitialized then return end
+    if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
     self:ReconfigureProtected()
     self:ReconfigureUnprotected()
 
@@ -1422,8 +1423,7 @@ function Aptechka.SetScale(self, scale)
     end
 end
 function Aptechka.PLAYER_REGEN_ENABLED(self,event)
-    self:GROUP_ROSTER_UPDATE()
-    self:ReconfigureProtected()
+    self:Reconfigure()
     self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 end
 
