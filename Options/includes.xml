@@ -10,5 +10,6 @@
     <Script file="..\Locales\zhCN.lua"/>
     <Script file="..\Locales\deDE.lua"/>
 
+    <Script file="ProfileSelection.lua"/>
     <Script file="AptechkaOptions.lua"/>
 </Ui>

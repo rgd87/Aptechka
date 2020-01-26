@@ -1488,11 +1488,18 @@ function Aptechka:GetCurrentGroupType()
             return "bigRaid"
         elseif numMembers > 15 then
             return "mediumRaid"
-        else
+        elseif numMembers > 5 then
             return "smallRaid"
+        else
+            return "party"
         end
     elseif IsInGroup() then
-        return "party"
+        local numMembers = GetNumGroupMembers()
+        if numMembers > 1 then
+            return "party"
+        else
+            return "solo"
+        end
     else
         return "solo"
     end
@@ -2928,8 +2935,6 @@ do
         end
 
         if db.DB_VERSION == 1 then
-            print("starting migration...")
-
             db.global = {}
             db.global.disableBlizzardParty = db.disableBlizzardParty
             db.global.hideBlizzardRaid = db.hideBlizzardRaid
@@ -2977,21 +2982,15 @@ do
             default_profile.fgColorMultiplier = db.fgColorMultiplier
             default_profile.bgColorMultiplier = db.bgColorMultiplier
 
-            -- if db.useRoleProfiles then
-            print("roleProfile:",db.roleProfile)
             if db.roleProfile then
-                print('have roleprofile')
                 if db.roleProfile["HEALER"] then
-                    print('have healer')
                     local old_healer_profile = db.roleProfile["HEALER"]
                     default_profile.point = old_healer_profile.point
                     default_profile.x = old_healer_profile.x
                     default_profile.y = old_healer_profile.y
-                    print("Copied over anchor data")
                 end
                 if db.useRoleProfiles and db.roleProfile["DAMAGER"] then
                     local old_damager_profile = db.roleProfile["DAMAGER"]
-                    print('have damager')
                     -- Create a second profile, copied from our new Default profile
                     db.profiles["DefaultNonHealer"] = CopyTable(default_profile)
 
@@ -3000,6 +2999,16 @@ do
                     default_damager_profile.point = old_damager_profile.point
                     default_damager_profile.x = old_damager_profile.x
                     default_damager_profile.y = old_damager_profile.y
+
+                    db.global.profileSelection = {
+                        DAMAGER = {
+                            solo = "DefaultNonHealer",
+                            party = "DefaultNonHealer",
+                            smallRaid = "DefaultNonHealer",
+                            mediumRaid = "DefaultNonHealer",
+                            bigRaid = "DefaultNonHealer",
+                        },
+                    }
                 end
             end
 
