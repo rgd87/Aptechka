@@ -909,9 +909,9 @@ local function MakeGeneralOptions()
                     showSolo = {
                         name = L"Show Solo",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.showSolo end,
+                        get = function(info) return Aptechka.db.profile.showSolo end,
                         set = function(info, v)
-                            Aptechka.db.showSolo = not Aptechka.db.showSolo
+                            Aptechka.db.profile.showSolo = not Aptechka.db.profile.showSolo
                             Aptechka:ReconfigureProtected()
                         end,
                         order = 8,
@@ -920,9 +920,9 @@ local function MakeGeneralOptions()
                         name = L"Show In Party",
                         type = "toggle",
                         width = "double",
-                        get = function(info) return Aptechka.db.showParty end,
+                        get = function(info) return Aptechka.db.profile.showParty end,
                         set = function(info, v)
-                            Aptechka.db.showParty = not Aptechka.db.showParty
+                            Aptechka.db.profile.showParty = not Aptechka.db.profile.showParty
                             Aptechka:ReconfigureProtected()
                         end,
                         order = 8.1,
@@ -934,9 +934,9 @@ local function MakeGeneralOptions()
                         width = "full",
                         confirm = true,
                         confirmText = L"Warning: Requires UI reloading.",
-                        get = function(info) return Aptechka.db.RMBClickthrough end,
+                        get = function(info) return Aptechka.db.global.RMBClickthrough end,
                         set = function(info, v)
-                            Aptechka.db.RMBClickthrough = not Aptechka.db.RMBClickthrough
+                            Aptechka.db.global.RMBClickthrough = not Aptechka.db.global.RMBClickthrough
                             ReloadUI()
                         end,
                         order = 8.3,
@@ -945,9 +945,9 @@ local function MakeGeneralOptions()
                         name = L"Sort Units by Role",
                         width = "full",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.sortUnitsByRole end,
+                        get = function(info) return Aptechka.db.global.sortUnitsByRole end,
                         set = function(info, v)
-                            Aptechka.db.sortUnitsByRole = not Aptechka.db.sortUnitsByRole
+                            Aptechka.db.global.sortUnitsByRole = not Aptechka.db.global.sortUnitsByRole
                             Aptechka:PrintReloadUIWarning()
                         end,
                         order = 8.5,
@@ -957,9 +957,9 @@ local function MakeGeneralOptions()
                         name = L"Disable Blizzard Party Frames",
                         width = "double",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.disableBlizzardParty end,
+                        get = function(info) return Aptechka.db.global.disableBlizzardParty end,
                         set = function(info, v)
-                            Aptechka.db.disableBlizzardParty = not Aptechka.db.disableBlizzardParty
+                            Aptechka.db.global.disableBlizzardParty = not Aptechka.db.global.disableBlizzardParty
                             Aptechka:PrintReloadUIWarning()
                         end,
                         order = 9,
@@ -968,9 +968,9 @@ local function MakeGeneralOptions()
                         name = L"Hide Blizzard Raid Frames",
                         width = "full",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.hideBlizzardRaid end,
+                        get = function(info) return Aptechka.db.global.hideBlizzardRaid end,
                         set = function(info, v)
-                            Aptechka.db.hideBlizzardRaid = not Aptechka.db.hideBlizzardRaid
+                            Aptechka.db.global.hideBlizzardRaid = not Aptechka.db.global.hideBlizzardRaid
                             Aptechka:PrintReloadUIWarning()
                         end,
                         order = 10,
@@ -990,9 +990,9 @@ local function MakeGeneralOptions()
                     petGroup = {
                         name = L"Enable Pet Group",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.petGroup end,
+                        get = function(info) return Aptechka.db.profile.petGroup end,
                         set = function(info, v)
-                            Aptechka.db.petGroup = not Aptechka.db.petGroup
+                            Aptechka.db.profile.petGroup = not Aptechka.db.profile.petGroup
                             Aptechka:PrintReloadUIWarning()
                         end,
                         order = 15.7,
@@ -1000,18 +1000,18 @@ local function MakeGeneralOptions()
                     disableTooltip = {
                         name = L"Disable Tooltips",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.disableTooltip end,
+                        get = function(info) return Aptechka.db.global.disableTooltip end,
                         set = function(info, v)
-                            Aptechka.db.disableTooltip = not Aptechka.db.disableTooltip
+                            Aptechka.db.global.disableTooltip = not Aptechka.db.global.disableTooltip
                         end,
                         order = 10.8,
                     },
                     showAggro = {
                         name = L"Show Aggro",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.showAggro end,
+                        get = function(info) return Aptechka.db.profile.showAggro end,
                         set = function(info, v)
-                            Aptechka.db.showAggro = not Aptechka.db.showAggro
+                            Aptechka.db.profile.showAggro = not Aptechka.db.profile.showAggro
                             Aptechka:PrintReloadUIWarning()
                         end,
                         order = 10.9,
@@ -1019,9 +1019,9 @@ local function MakeGeneralOptions()
                     showAFK = {
                         name = L"Show AFK",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.showAFK end,
+                        get = function(info) return Aptechka.db.global.showAFK end,
                         set = function(info, v)
-                            Aptechka.db.showAFK = not Aptechka.db.showAFK
+                            Aptechka.db.global.showAFK = not Aptechka.db.global.showAFK
                             Aptechka:PrintReloadUIWarning()
                         end,
                         order = 11,
@@ -1029,10 +1029,10 @@ local function MakeGeneralOptions()
                     showRaidIcons = {
                         name = L"Show Raid Icons",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.showRaidIcons end,
+                        get = function(info) return Aptechka.db.profile.showRaidIcons end,
                         set = function(info, v)
-                            Aptechka.db.showRaidIcons = not Aptechka.db.showRaidIcons
-                            if not Aptechka.db.showRaidIcons then
+                            Aptechka.db.profile.showRaidIcons = not Aptechka.db.profile.showRaidIcons
+                            if not Aptechka.db.profile.showRaidIcons then
                                 Aptechka:ForEachFrame(function(self) self.raidicon:Hide() end)
                             else
                                 Aptechka:RAID_TARGET_UPDATE()
@@ -1045,9 +1045,9 @@ local function MakeGeneralOptions()
                         name = L"Use Debuff Ordering",
                         type = "toggle",
                         order = 11.2,
-                        get = function(info) return Aptechka.db.useDebuffOrdering end,
+                        get = function(info) return Aptechka.db.global.useDebuffOrdering end,
                         set = function(info, v)
-                            Aptechka.db.useDebuffOrdering = not Aptechka.db.useDebuffOrdering
+                            Aptechka.db.global.useDebuffOrdering = not Aptechka.db.global.useDebuffOrdering
                             Aptechka:UpdateDebuffScanningMethod()
                         end
                     },
@@ -1055,9 +1055,9 @@ local function MakeGeneralOptions()
                         name = L"Dispel Indicator",
                         type = "toggle",
                         order = 11.3,
-                        get = function(info) return Aptechka.db.showDispels end,
+                        get = function(info) return Aptechka.db.profile.showDispels end,
                         set = function(info, v)
-                            Aptechka.db.showDispels = not Aptechka.db.showDispels
+                            Aptechka.db.profile.showDispels = not Aptechka.db.profile.showDispels
                             Aptechka:UpdateDebuffScanningMethod()
                         end
                     },
@@ -1065,9 +1065,9 @@ local function MakeGeneralOptions()
                         name = L"Show Casts",
                         disabled = isClassic,
                         type = "toggle",
-                        get = function(info) return Aptechka.db.showCasts end,
+                        get = function(info) return Aptechka.db.profile.showCasts end,
                         set = function(info, v)
-                            Aptechka.db.showCasts = not Aptechka.db.showCasts
+                            Aptechka.db.profile.showCasts = not Aptechka.db.profile.showCasts
                             Aptechka:PrintReloadUIWarning()
                         end,
                         order = 12,
@@ -1078,9 +1078,9 @@ local function MakeGeneralOptions()
                         type = "toggle",
                         width = "full",
                         order = 18,
-                        get = function(info) return Aptechka.db.useCombatLogHealthUpdates end,
+                        get = function(info) return Aptechka.db.global.useCombatLogHealthUpdates end,
                         set = function(info, v)
-                            Aptechka.db.useCombatLogHealthUpdates = not Aptechka.db.useCombatLogHealthUpdates
+                            Aptechka.db.global.useCombatLogHealthUpdates = not Aptechka.db.global.useCombatLogHealthUpdates
                             Aptechka:PrintReloadUIWarning()
                         end
                     },
@@ -1109,9 +1109,9 @@ local function MakeGeneralOptions()
                     width = {
                         name = L"Width",
                         type = "range",
-                        get = function(info) return Aptechka.db.width end,
+                        get = function(info) return Aptechka.db.profile.width end,
                         set = function(info, v)
-                            Aptechka.db.width = v
+                            Aptechka.db.profile.width = v
                             Aptechka:Reconfigure()
                         end,
                         min = 10,
@@ -1122,9 +1122,9 @@ local function MakeGeneralOptions()
                     height = {
                         name = L"Height",
                         type = "range",
-                        get = function(info) return Aptechka.db.height end,
+                        get = function(info) return Aptechka.db.profile.height end,
                         set = function(info, v)
-                            Aptechka.db.height = v
+                            Aptechka.db.profile.height = v
                             Aptechka:Reconfigure()
                         end,
                         min = 10,
@@ -1136,9 +1136,9 @@ local function MakeGeneralOptions()
                         name = L"Name Length",
                         desc = L"Takes effect after /reload",
                         type = "range",
-                        get = function(info) return Aptechka.db.cropNamesLen end,
+                        get = function(info) return Aptechka.db.profile.cropNamesLen end,
                         set = function(info, v)
-                            Aptechka.db.cropNamesLen = v
+                            Aptechka.db.profile.cropNamesLen = v
                         end,
                         min = 2,
                         max = 25,
@@ -1155,9 +1155,9 @@ local function MakeGeneralOptions()
                             TOP = L"Up",
                             BOTTOM = L"Down",
                         },
-                        get = function(info) return Aptechka.db.groupGrowth end,
+                        get = function(info) return Aptechka.db.profile.groupGrowth end,
                         set = function( info, v )
-                            Aptechka.db.groupGrowth = v
+                            Aptechka.db.profile.groupGrowth = v
                             Aptechka:ReconfigureProtected()
                         end,
                     },
@@ -1165,9 +1165,9 @@ local function MakeGeneralOptions()
                         name = L"Group Gap",
                         type = "range",
                         width = "double",
-                        get = function(info) return Aptechka.db.groupGap end,
+                        get = function(info) return Aptechka.db.profile.groupGap end,
                         set = function(info, v)
-                            Aptechka.db.groupGap = v
+                            Aptechka.db.profile.groupGap = v
                             Aptechka:ReconfigureProtected()
                         end,
                         min = 4,
@@ -1185,9 +1185,9 @@ local function MakeGeneralOptions()
                             TOP = L"Up",
                             BOTTOM = L"Down",
                         },
-                        get = function(info) return Aptechka.db.unitGrowth end,
+                        get = function(info) return Aptechka.db.profile.unitGrowth end,
                         set = function( info, v )
-                            Aptechka.db.unitGrowth = v
+                            Aptechka.db.profile.unitGrowth = v
                             Aptechka:ReconfigureProtected()
                         end,
                     },
@@ -1195,9 +1195,9 @@ local function MakeGeneralOptions()
                         name = L"Unit Gap",
                         type = "range",
                         width = "double",
-                        get = function(info) return Aptechka.db.unitGap end,
+                        get = function(info) return Aptechka.db.profile.unitGap end,
                         set = function(info, v)
-                            Aptechka.db.unitGap = v
+                            Aptechka.db.profile.unitGap = v
                             Aptechka:ReconfigureProtected()
                         end,
                         min = 4,
@@ -1216,9 +1216,9 @@ local function MakeGeneralOptions()
                             ["VERTICAL"] = L"Vertical",
                         },
                         -- values = MakeValuesForKeys(Aptechka.FrameTextures),
-                        get = function(info) return Aptechka.db.healthOrientation end,
+                        get = function(info) return Aptechka.db.profile.healthOrientation end,
                         set = function( info, v )
-                            Aptechka.db.healthOrientation = v
+                            Aptechka.db.profile.healthOrientation = v
                             Aptechka:ReconfigureUnprotected()
                         end,
                     },
@@ -1228,9 +1228,9 @@ local function MakeGeneralOptions()
                         name = L"Health Texture",
                         order = 13,
                         desc = L"Set the statusbar texture.",
-                        get = function(info) return Aptechka.db.healthTexture end,
+                        get = function(info) return Aptechka.db.profile.healthTexture end,
                         set = function(info, value)
-                            Aptechka.db.healthTexture = value
+                            Aptechka.db.profile.healthTexture = value
                             Aptechka:ReconfigureUnprotected()
                         end,
                         values = LSM:HashTable("statusbar"),
@@ -1242,9 +1242,9 @@ local function MakeGeneralOptions()
                         name = L"Power Texture",
                         order = 14,
                         desc = L"Set the statusbar texture.",
-                        get = function(info) return Aptechka.db.powerTexture end,
+                        get = function(info) return Aptechka.db.profile.powerTexture end,
                         set = function(info, value)
-                            Aptechka.db.powerTexture = value
+                            Aptechka.db.profile.powerTexture = value
                             Aptechka:ReconfigureUnprotected()
                         end,
                         values = LSM:HashTable("statusbar"),
@@ -1254,9 +1254,9 @@ local function MakeGeneralOptions()
                         type = "select",
                         name = L"Name Font",
                         order = 14.1,
-                        get = function(info) return Aptechka.db.nameFontName end,
+                        get = function(info) return Aptechka.db.profile.nameFontName end,
                         set = function(info, value)
-                            Aptechka.db.nameFontName = value
+                            Aptechka.db.profile.nameFontName = value
                             Aptechka:ReconfigureUnprotected()
                         end,
                         values = LSM:HashTable("font"),
@@ -1265,9 +1265,9 @@ local function MakeGeneralOptions()
                     nameFontSize = {
                         name = L"Name Font Size",
                         type = "range",
-                        get = function(info) return Aptechka.db.nameFontSize end,
+                        get = function(info) return Aptechka.db.profile.nameFontSize end,
                         set = function(info, v)
-                            Aptechka.db.nameFontSize = v
+                            Aptechka.db.profile.nameFontSize = v
                             Aptechka:ReconfigureUnprotected()
                         end,
                         min = 3,
@@ -1284,9 +1284,9 @@ local function MakeGeneralOptions()
                             SHADOW = L"Shadow",
                             OUTLINE = L"Outline",
                         },
-                        get = function(info) return Aptechka.db.nameFontOutline end,
+                        get = function(info) return Aptechka.db.profile.nameFontOutline end,
                         set = function( info, v )
-                            Aptechka.db.nameFontOutline = v
+                            Aptechka.db.profile.nameFontOutline = v
                             Aptechka:ReconfigureUnprotected()
                         end,
                     },
@@ -1296,9 +1296,9 @@ local function MakeGeneralOptions()
                         name = L"Show Missing Health/Power as Foreground",
                         width = "full",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.fgShowMissing end,
+                        get = function(info) return Aptechka.db.profile.fgShowMissing end,
                         set = function(info, v)
-                            Aptechka.db.fgShowMissing = not Aptechka.db.fgShowMissing
+                            Aptechka.db.profile.fgShowMissing = not Aptechka.db.profile.fgShowMissing
                             Aptechka:ReconfigureUnprotected()
                             Aptechka:RefreshAllUnitsHealth()
                         end,
@@ -1312,13 +1312,13 @@ local function MakeGeneralOptions()
                             fgColor = {
                                 name = L"Foreground",
                                 type = "range",
-                                get = function(info) return Aptechka.db.fgColorMultiplier end,
+                                get = function(info) return Aptechka.db.profile.fgColorMultiplier end,
                                 set = function(info, v)
-                                    if v > Aptechka.db.bgColorMultiplier then
-                                        Aptechka.db.fgColorMultiplier = v
+                                    if v > Aptechka.db.profile.bgColorMultiplier then
+                                        Aptechka.db.profile.fgColorMultiplier = v
                                         Aptechka:RefreshAllUnitsColors()
                                     else
-                                        Aptechka.db.fgColorMultiplier = Aptechka.db.bgColorMultiplier
+                                        Aptechka.db.profile.fgColorMultiplier = Aptechka.db.profile.bgColorMultiplier
                                     end
                                 end,
                                 min = 0,
@@ -1329,13 +1329,13 @@ local function MakeGeneralOptions()
                             bgColor = {
                                 name = L"Background",
                                 type = "range",
-                                get = function(info) return Aptechka.db.bgColorMultiplier end,
+                                get = function(info) return Aptechka.db.profile.bgColorMultiplier end,
                                 set = function(info, v)
-                                    if v < Aptechka.db.fgColorMultiplier then
-                                        Aptechka.db.bgColorMultiplier = v
+                                    if v < Aptechka.db.profile.fgColorMultiplier then
+                                        Aptechka.db.profile.bgColorMultiplier = v
                                         Aptechka:RefreshAllUnitsColors()
                                     else
-                                        Aptechka.db.bgColorMultiplier = Aptechka.db.fgColorMultiplier
+                                        Aptechka.db.profile.bgColorMultiplier = Aptechka.db.profile.fgColorMultiplier
                                     end
                                 end,
                                 min = 0,
@@ -1346,9 +1346,9 @@ local function MakeGeneralOptions()
                             nameColor = {
                                 name = L"Name",
                                 type = "range",
-                                get = function(info) return Aptechka.db.nameColorMultiplier end,
+                                get = function(info) return Aptechka.db.profile.nameColorMultiplier end,
                                 set = function(info, v)
-                                    Aptechka.db.nameColorMultiplier = v
+                                    Aptechka.db.profile.nameColorMultiplier = v
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                                 min = 0,
@@ -1368,9 +1368,9 @@ local function MakeGeneralOptions()
                             debuffSize = {
                                 name = L"Debuff Size",
                                 type = "range",
-                                get = function(info) return Aptechka.db.debuffSize end,
+                                get = function(info) return Aptechka.db.profile.debuffSize end,
                                 set = function(info, v)
-                                    Aptechka.db.debuffSize = v
+                                    Aptechka.db.profile.debuffSize = v
                                     Aptechka:ReconfigureUnprotected()
                                 end,
                                 min = 5,
@@ -1382,9 +1382,9 @@ local function MakeGeneralOptions()
                                 type = "select",
                                 name = L"Font",
                                 order = 2,
-                                get = function(info) return Aptechka.db.stackFontName end,
+                                get = function(info) return Aptechka.db.profile.stackFontName end,
                                 set = function(info, value)
-                                    Aptechka.db.stackFontName = value
+                                    Aptechka.db.profile.stackFontName = value
                                     Aptechka:ReconfigureUnprotected()
                                 end,
                                 values = LSM:HashTable("font"),
@@ -1393,9 +1393,9 @@ local function MakeGeneralOptions()
                             stackFontSize = {
                                 name = L"Stack Font Size",
                                 type = "range",
-                                get = function(info) return Aptechka.db.stackFontSize end,
+                                get = function(info) return Aptechka.db.profile.stackFontSize end,
                                 set = function(info, v)
-                                    Aptechka.db.stackFontSize = v
+                                    Aptechka.db.profile.stackFontSize = v
                                     Aptechka:ReconfigureUnprotected()
                                 end,
                                 min = 3,
@@ -1406,9 +1406,9 @@ local function MakeGeneralOptions()
                             debuffLimit = {
                                 name = L"Debuff Limit",
                                 type = "range",
-                                get = function(info) return Aptechka.db.debuffLimit end,
+                                get = function(info) return Aptechka.db.profile.debuffLimit end,
                                 set = function(info, v)
-                                    Aptechka.db.debuffLimit = v
+                                    Aptechka.db.profile.debuffLimit = v
                                     Aptechka:UpdateUnprotectedUpvalues()
                                 end,
                                 min = 1,
@@ -1419,9 +1419,9 @@ local function MakeGeneralOptions()
                             debuffBossScale = {
                                 name = L"Boss Aura Scale",
                                 type = "range",
-                                get = function(info) return Aptechka.db.debuffBossScale end,
+                                get = function(info) return Aptechka.db.profile.debuffBossScale end,
                                 set = function(info, v)
-                                    Aptechka.db.debuffBossScale = v
+                                    Aptechka.db.profile.debuffBossScale = v
                                 end,
                                 min = 1,
                                 max = 1.8,
@@ -1444,7 +1444,7 @@ local function MakeGeneralOptions()
                 type = "execute",
                 desc = L"Wipe all your settings and restore to defaults",
                 func = function()
-                    table.wipe(Aptechka.db)
+                    table.wipe(Aptechka.db.profile)
                     ReloadUI()
                 end,
                 order = 50,
@@ -1462,7 +1462,177 @@ local function MakeGeneralOptions()
 end
 
 
+local profilesTable = {}
+local function GetProfileList(db)
+    local profiles = db:GetProfiles(profilesTable)
+    local t = {}
+    for i,v in ipairs(profiles) do
+        t[v] = v
+    end
+    return t
+end
 
+local function MakeScalingOptions()
+    local opt = {
+        type = 'group',
+        name = L"Aptechka Profile Settings",
+        order = 1,
+        args = {
+            normalScale = {
+                name = L"Current Profile",
+                type = 'select',
+                width = 2,
+                order = 1,
+                values = function()
+                    return GetProfileList(Aptechka.db)
+                end,
+                get = function(info)
+                    return Aptechka.db:GetCurrentProfile()
+                end,
+                set = function(info, v)
+                    Aptechka.db:SetProfile(v)
+                end,
+            },
+            healerGroup = {
+                type = 'group',
+                name = L"Profile Auto-Switching",
+                order = 2,
+
+                guiInline = true,
+                args = {
+                    HEALER_solo = {
+                        name = L"HEALER"..": Solo",
+                        type = 'select',
+                        order = 1,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.HEALER.solo end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.HEALER.solo = v
+                            Aptechka:Reconfigure()
+                        end,
+                    },
+                    DAMAGER_solo = {
+                        name = L"DAMAGER"..": Solo",
+                        type = 'select',
+                        order = 2,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.solo end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.DAMAGER.solo = v
+                            Aptechka:Reconfigure()
+                        end,
+                    },
+
+
+                    HEALER_party = {
+                        name = L"HEALER"..": 5man",
+                        type = 'select',
+                        order = 3,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.HEALER.party end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.HEALER.party = v
+                            Aptechka:Reconfigure()
+                        end,
+                    },
+                    DAMAGER_party = {
+                        name = L"DAMAGER"..": 5man",
+                        type = 'select',
+                        order = 4,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.party end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.DAMAGER.party = v
+                            Aptechka:Reconfigure()
+                        end,
+                    },
+
+
+                    HEALER_smallRaid = {
+                        name = L"HEALER"..": Small Raid",
+                        type = 'select',
+                        order = 5,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.HEALER.smallRaid end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.HEALER.smallRaid = v
+                            Aptechka:Reconfigure()
+                        end,
+                    },
+                    DAMAGER_smallRaid = {
+                        name = L"DAMAGER"..": Small Raid",
+                        type = 'select',
+                        order = 6,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.smallRaid end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.DAMAGER.smallRaid = v
+                            Aptechka:Reconfigure()
+                        end,
+                    },
+
+
+                    HEALER_mediumRaid = {
+                        name = L"HEALER"..": Medium Raid",
+                        type = 'select',
+                        order = 5,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.HEALER.mediumRaid end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.HEALER.mediumRaid = v
+                            Aptechka:Reconfigure()
+                        end,
+                    },
+                    DAMAGER_mediumRaid = {
+                        name = L"DAMAGER"..": Medium Raid",
+                        type = 'select',
+                        order = 6,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.mediumRaid end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.DAMAGER.mediumRaid = v
+                            Aptechka:Reconfigure()
+                        end,
+                    },
+                },
+            },
+        },
+    }
+
+    local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+    AceConfigRegistry:RegisterOptionsTable("AptechkaProfile", opt)
+
+    local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaProfile", "Profile Selection", "Aptechka")
+
+    return panelFrame
+end
+
+--[[
 local function MakeScalingOptions()
     local opt = {
         type = 'group',
@@ -1472,9 +1642,9 @@ local function MakeScalingOptions()
             normalScale = {
                 name = L"Normal Scale (1-11 players)",
                 type = "range",
-                get = function(info) return Aptechka.db.scale end,
+                get = function(info) return Aptechka.db.profile.scale end,
                 set = function(info, v)
-                    Aptechka.db.scale = v
+                    Aptechka.db.profile.scale = v
                     Aptechka:LayoutUpdate()
                 end,
                 min = 0.3,
@@ -1487,16 +1657,16 @@ local function MakeScalingOptions()
                 desc = "Also turns on different frame position for each role",
                 type = "toggle",
                 width = "double",
-                get = function(info) return Aptechka.db.useRoleProfiles end,
+                get = function(info) return Aptechka.db.profile.useRoleProfiles end,
                 set = function(info, v)
-                    Aptechka.db.useRoleProfiles = not Aptechka.db.useRoleProfiles
+                    Aptechka.db.profile.useRoleProfiles = not Aptechka.db.profile.useRoleProfiles
                     Aptechka:OnRoleChanged()
                 end,
                 order = 2,
             },
             msg = {
                 name = function()
-                    if not Aptechka.db.useRoleProfiles then return "GLOBAL" end
+                    if not Aptechka.db.profile.useRoleProfiles then return "GLOBAL" end
                     return "Current Role: "..Aptechka:GetRoleProfile()
                 end,
                 type = "header",
@@ -1513,9 +1683,9 @@ local function MakeScalingOptions()
                     healerRaid = {
                         name = L"Raid (12-30 players)",
                         type = "range",
-                        get = function(info) return Aptechka.db.roleProfile[Aptechka:GetRoleProfile()].scaleMediumRaid end,
+                        get = function(info) return Aptechka.db.profile.roleProfile[Aptechka:GetRoleProfile()].scaleMediumRaid end,
                         set = function(info, v)
-                            Aptechka.db.roleProfile[Aptechka:GetRoleProfile()].scaleMediumRaid = v
+                            Aptechka.db.profile.roleProfile[Aptechka:GetRoleProfile()].scaleMediumRaid = v
                             Aptechka:LayoutUpdate()
                         end,
                         min = 0.3,
@@ -1526,9 +1696,9 @@ local function MakeScalingOptions()
                     healerBigRaid = {
                         name = L"Big Raid (30+ players)",
                         type = "range",
-                        get = function(info) return Aptechka.db.roleProfile[Aptechka:GetRoleProfile()].scaleBigRaid end,
+                        get = function(info) return Aptechka.db.profile.roleProfile[Aptechka:GetRoleProfile()].scaleBigRaid end,
                         set = function(info, v)
-                            Aptechka.db.roleProfile[Aptechka:GetRoleProfile()].scaleBigRaid = v
+                            Aptechka.db.profile.roleProfile[Aptechka:GetRoleProfile()].scaleBigRaid = v
                             Aptechka:LayoutUpdate()
                         end,
                         min = 0.3,
@@ -1580,7 +1750,7 @@ local function MakeScalingOptions()
 
     return panelFrame
 end
-
+]]
 
 local function MakeBlacklistHelp()
     local opt = {
