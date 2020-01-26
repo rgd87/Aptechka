@@ -138,60 +138,70 @@ do
 end
 
 local defaults = {
-    growth = "up",
-    width = 55,
-    height = 55,
-    unitGrowth = "RIGHT",
-    groupGrowth = "TOP",
-    unitGap = 7,
-    groupGap = 7,
-    showSolo = true,
-    showParty = true,
-    RMBClickthrough = false,
-    cropNamesLen = 7,
-    disableBlizzardParty = true,
-    hideBlizzardRaid = true,
-    petGroup = false,
-    sortUnitsByRole = false,
-    showAFK = false,
-    showCasts = true,
-    showAggro = true,
-    showRaidIcons = true,
-    showDispels = false,
-    healthOrientation = "VERTICAL",
-    customBlacklist = {},
-    healthTexture = "Gradient",
-    powerTexture = "Gradient",
-    invertedColors = false,
-    useCombatLogHealthUpdates = false,
-    useDebuffOrdering = true,
-    disableTooltip = false,
-    scale = 1,
-    useRoleProfiles = false,
-    roleProfile = {
-        HEALER = {
-            point = "CENTER", x = 0, y = 0,
-            scaleMediumRaid = 1,
-            scaleBigRaid = 0.8,
-        },
-        DAMAGER = {
-            point = "CENTER", x = 0, y = 0,
-            scaleMediumRaid = 0.8,
-            scaleBigRaid = 0.7,
+    global = {
+        disableBlizzardParty = true,
+        hideBlizzardRaid = true,
+        RMBClickthrough = false,
+        sortUnitsByRole = false,
+        showAFK = false,
+        customBlacklist = {},
+        useCombatLogHealthUpdates = false,
+        disableTooltip = false,
+        useDebuffOrdering = true, -- On always?
+
+        profileSelection = {
+            HEALER = {
+                solo = "Default",
+                party = "Default",
+                smallRaid = "Default",
+                mediumRaid = "Default",
+                bigRaid = "Default",
+            },
+            DAMAGER = {
+                solo = "Default",
+                party = "Default",
+                smallRaid = "Default",
+                mediumRaid = "Default",
+                bigRaid = "Default",
+            },
         },
     },
-    debuffSize = 13,
-    debuffLimit = 4,
-    debuffBossScale = 1.3,
-    stackFontName = "ClearFont",
-    stackFontSize = 12,
-    nameFontName = defaultFont,
-    nameFontSize = 12,
-    nameFontOutline = "SHADOW",
-    nameColorMultiplier = 1,
-    fgShowMissing = true,
-    fgColorMultiplier = 1,
-    bgColorMultiplier = 0.2,
+    profile = {
+        point = "CENTER",
+        x = 0,
+        y = 0,
+        width = 55,
+        height = 55,
+        healthOrientation = "VERTICAL",
+        unitGrowth = "RIGHT",
+        groupGrowth = "TOP",
+        unitGap = 7,
+        groupGap = 7,
+        showSolo = true,
+        showParty = true,
+        cropNamesLen = 7,
+        showCasts = true,
+        showAggro = true,
+        petGroup = false,
+        showRaidIcons = true,
+        showDispels = false,
+        healthTexture = "Gradient",
+        powerTexture = "Gradient",
+
+        scale = 1, --> into
+        debuffSize = 13,
+        debuffLimit = 4,
+        debuffBossScale = 1.3,
+        stackFontName = "ClearFont",
+        stackFontSize = 12,
+        nameFontName = defaultFont,
+        nameFontSize = 12,
+        nameFontOutline = "SHADOW",
+        nameColorMultiplier = 1,
+        fgShowMissing = true,
+        fgColorMultiplier = 1,
+        bgColorMultiplier = 0.2,
+    },
 }
 
 local function SetupDefaults(t, defaults)
@@ -267,7 +277,7 @@ end
 Aptechka.MergeTable = MergeTable
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
-Aptechka:RegisterEvent("PLAYER_LOGOUT")
+-- Aptechka:RegisterEvent("PLAYER_LOGOUT")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
     Aptechka:UpdateDispelBitmask()
@@ -284,20 +294,29 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     AptechkaDB_Global = AptechkaDB_Global or {}
     AptechkaDB_Char = AptechkaDB_Char or {}
-    AptechkaDB_Global.charspec = AptechkaDB_Global.charspec or {}
-    local user = UnitName("player").."@"..GetRealmName()
-    if AptechkaDB_Global.charspec[user] then
-        AptechkaDB = AptechkaDB_Char
-    else
-        AptechkaDB = AptechkaDB_Global
-    end
-    Aptechka.db = AptechkaDB
-    self:DoMigrations(AptechkaDB)
-    SetupDefaults(AptechkaDB, defaults)
+    -- AptechkaDB_Global.charspec = AptechkaDB_Global.charspec or {}
+    -- local user = UnitName("player").."@"..GetRealmName()
+    -- if AptechkaDB_Global.charspec[user] then
+    --     AptechkaDB = AptechkaDB_Char
+    -- else
+    --     AptechkaDB = AptechkaDB_Global
+    -- end
+    -- Aptechka.db = AptechkaDB
+    self:DoMigrations(AptechkaDB_Global)
+    self.db = LibStub("AceDB-3.0"):New("AptechkaDB_Global", defaults, "Default") -- Create a DB using defaults and using a shared default profile
+    AptechkaDB = self.db
+    -- SetupDefaults(AptechkaDB, defaults)
+
+    -- TODO:
+    -- Restore custom blacklist
+
+    self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
+    self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
+    self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
 
     if AptechkaDB.invertedColors then
         AptechkaDB.invertedColors = nil
-        AptechkaDB.fgShowMissing = false
+        AptechkaDB.profile.fgShowMissing = false
     end
 
     Aptechka:UpdateUnprotectedUpvalues()
@@ -305,7 +324,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
     colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
 
-    blacklist = setmetatable(AptechkaDB.customBlacklist, { __index = default_blacklist})
+    blacklist = default_blacklist--setmetatable(AptechkaDB.global.customBlacklist, { __index = default_blacklist})
 
     AptechkaConfigCustom = AptechkaConfigCustom or {}
     AptechkaConfigMerged = CopyTable(AptechkaDefaultConfig)
@@ -380,10 +399,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka.Roster = Roster
 
-    if AptechkaDB.disableBlizzardParty then
+    if AptechkaDB.global.disableBlizzardParty then
         helpers.DisableBlizzParty()
     end
-    if AptechkaDB.hideBlizzardRaid then
+    if AptechkaDB.global.hideBlizzardRaid then
         -- disable Blizzard party & raid frame if our Raid Frames are loaded
         -- InterfaceOptionsFrameCategoriesButton11:SetScale(0.00001)
         -- InterfaceOptionsFrameCategoriesButton11:SetAlpha(0)
@@ -426,8 +445,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     -- local ccmacro = config.ClickCastingMacro or "__none__"
 
-    local width = pixelperfect(AptechkaDB.width or config.width)
-    local height = pixelperfect(AptechkaDB.height or config.height)
+    local width = pixelperfect(AptechkaDB.profile.width or config.width)
+    local height = pixelperfect(AptechkaDB.profile.height or config.height)
     -- local scale = AptechkaDB.scale or config.scale
     local strata = config.frameStrata or "LOW"
     local scale = 1
@@ -458,13 +477,14 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     ]=]
 
     self:LayoutUpdate()
+    self:UpdateDebuffScanningMethod()
 
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_HEALTH_FREQUENT")
     self:RegisterEvent("UNIT_MAXHEALTH")
     Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
-    if AptechkaDB.showAFK then
+    if AptechkaDB.global.showAFK then
         self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- UNIT_AFK_CHANGED
     end
 
@@ -487,7 +507,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_DISPLAYPOWER")
         Aptechka.UNIT_MAXPOWER = Aptechka.UNIT_POWER_UPDATE
     end
-    if AptechkaDB.showAggro and config.AggroStatus then
+    if AptechkaDB.profile.showAggro and config.AggroStatus then
         self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
     end
     if config.ReadyCheck then
@@ -512,7 +532,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
 
     LibAuraTypes = LibStub("LibAuraTypes")
-    if AptechkaDB.useDebuffOrdering then
+    if AptechkaDB.profile.useDebuffOrdering then
         LibSpellLocks = LibStub("LibSpellLocks")
 
         LibSpellLocks.RegisterCallback("Aptechka", "UPDATE_INTERRUPT", function(event, guid)
@@ -535,13 +555,13 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     LibTargetedCasts = LibStub("LibTargetedCasts", true)
-    if LibTargetedCasts and AptechkaDB.showCasts then
+    if LibTargetedCasts and AptechkaDB.profile.showCasts then
         LibTargetedCasts.RegisterCallback("Aptechka", "SPELLCAST_UPDATE", Aptechka.SPELLCAST_UPDATE)
     end
 
 
-    -- AptechkaDB.useCombatLogHealthUpdates = false
-    if AptechkaDB.useCombatLogHealthUpdates then
+    -- AptechkaDB.global.useCombatLogHealthUpdates = false
+    if AptechkaDB.global.useCombatLogHealthUpdates then
         local CLH = LibStub("LibCombatLogHealth-1.0")
         UnitHealth = CLH.UnitHealth
         self:UnregisterEvent("UNIT_HEALTH")
@@ -557,7 +577,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("SPELLS_CHANGED")
     self:RegisterEvent("GROUP_ROSTER_UPDATE")
 
-    if AptechkaDB.showRaidIcons then
+    if AptechkaDB.profile.showRaidIcons then
         self:RegisterEvent("RAID_TARGET_UPDATE")
     end
     if config.enableVehicleSwap then
@@ -579,12 +599,12 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         local pets  = Aptechka:CreateHeader(9,true)
         group_headers[9] = pets
     end
-    if AptechkaDB.petGroup then
+    if AptechkaDB.profile.petGroup then
         CreatePetsFunc()
     end
     if config.unlocked then anchors[1]:Show() end
-    local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
-    local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
+    local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
+    local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
     Aptechka:SetGrowth(unitGrowth, groupGrowth)
 
     -- if config.DispelFilterAll
@@ -722,6 +742,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:SetScript('OnShow', nil)
         LoadAddOn('AptechkaOptions')
     end)
+
+    self.isInitialized = true
 end  -- END PLAYER_LOGIN
 
 function Aptechka.PLAYER_LOGOUT(self, event)
@@ -754,6 +776,8 @@ function Aptechka:UpdateMissingAuraList()
 end
 
 function Aptechka:Reconfigure()
+    if not self.isInitialized then return end
+    print("Aptechka - Reconfigure")
     self:ReconfigureProtected()
     self:ReconfigureUnprotected()
 end
@@ -785,17 +809,17 @@ function Aptechka:ReconfigureUnprotected()
 end
 function Aptechka:UpdateUnprotectedUpvalues()
     ignoreplayer = config.incomingHealIgnorePlayer or false
-    fgShowMissing = Aptechka.db.fgShowMissing
-    debuffLimit = AptechkaDB.debuffLimit
+    fgShowMissing = Aptechka.db.profile.fgShowMissing
+    debuffLimit = AptechkaDB.profile.debuffLimit
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
 
     self:RepositionAnchor()
 
-    local width = pixelperfect(AptechkaDB.width or config.width)
-    local height = pixelperfect(AptechkaDB.height or config.height)
-    -- local scale = AptechkaDB.scale or config.scale
+    local width = pixelperfect(AptechkaDB.profile.width or config.width)
+    local height = pixelperfect(AptechkaDB.profile.height or config.height)
+    -- local scale = AptechkaDB.profile.scale or config.scale
     -- local strata = config.frameStrata or "LOW"
     local scale = 1
     -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
@@ -810,14 +834,14 @@ function Aptechka:ReconfigureProtected()
             f:SetScale(scale)
         end
 
-        local showSolo = AptechkaDB.showSolo
+        local showSolo = AptechkaDB.profile.showSolo
         header:SetAttribute("showSolo", showSolo)
 
-        header:SetAttribute("showParty", AptechkaDB.showParty)
+        header:SetAttribute("showParty", AptechkaDB.profile.showParty)
     end
 
-    local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
-    local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
+    local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
+    local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
     Aptechka:SetGrowth(unitGrowth, groupGrowth)
 end
 
@@ -1394,37 +1418,57 @@ do
         Aptechka:UpdateRangeChecker()
         Aptechka:UpdateDispelBitmask()
 
-        local role = self:GetRoleProfile()
+        local role = self:GetSpecRole()
         if role ~= currentRole then
             self:OnRoleChanged()
+            currentRole = role
         end
     end
 end
 
-function Aptechka:DecideGroupScale(numMembers, role, spec)
-    if numMembers > 30 then
-        return AptechkaDB.roleProfile[role].scaleBigRaid
-    elseif numMembers > 12 then
-        return AptechkaDB.roleProfile[role].scaleMediumRaid
+function Aptechka:GetCurrentGroupType()
+    if IsInRaid() then
+        local numMembers = GetNumGroupMembers()
+        if numMembers > 30 then
+            return "bigRaid"
+        elseif numMembers > 15 then
+            return "mediumRaid"
+        else
+            return "smallRaid"
+        end
+    elseif IsInGroup() then
+        return "party"
     else
-        return AptechkaDB.scale
+        return "solo"
     end
+end
+
+function Aptechka:DecideGroupScale(numMembers, role, spec)
+    -- if numMembers > 30 then
+    --     return AptechkaDB.roleProfile[role].scaleBigRaid
+    -- elseif numMembers > 12 then
+    --     return AptechkaDB.roleProfile[role].scaleMediumRaid
+    -- else
+        return AptechkaDB.profile.scale
+    -- end
 end
 
 function Aptechka.LayoutUpdate(self)
     local numMembers = GetNumGroupMembers()
     local spec = GetSpecialization()
-    local role = self:GetRoleProfile()
+    local role = self:GetSpecRole()
+    local groupType = self:GetCurrentGroupType()
 
-    local scale = self:DecideGroupScale(numMembers, role, spec)
-    self:SetScale(scale or 1)
+    local newProfileName = self.db.global.profileSelection[role][groupType]
 
-    Aptechka:UpdateDebuffScanningMethod()
+    self.db:SetProfile(newProfileName)
+    -- local scale = self:DecideGroupScale(numMembers, role, spec)
+    -- self:SetScale(scale or 1)
 end
 
 --raid icons
 function Aptechka.RAID_TARGET_UPDATE(self, event)
-    if not AptechkaDB.showRaidIcons then return end
+    if not AptechkaDB.profile.showRaidIcons then return end
     for unit, frames in pairs(Roster) do
         for self in pairs(frames) do
             local index = GetRaidTargetIndex(unit)
@@ -1550,7 +1594,7 @@ local function updateUnitButton(self, unit)
     if name == UNKNOWNOBJECT or name == nil then
         has_unknowns = true
     end
-    self.name = name and utf8sub(name,1, AptechkaDB.cropNamesLen) or "Unknown"
+    self.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
 
     self.unit = unit
     Roster[unit] = Roster[unit] or {}
@@ -1572,7 +1616,7 @@ local function updateUnitButton(self, unit)
     end
     Aptechka:UNIT_CONNECTION("ONATTR", owner)
 
-    if AptechkaDB.showAFK then
+    if AptechkaDB.global.showAFK then
         Aptechka:UNIT_AFK_CHANGED(nil, owner)
     end
     Aptechka:CheckPhase(self, unit)
@@ -1616,7 +1660,7 @@ end
 local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         local p1, p2
         local xgap = 0
-        local ygap = AptechkaDB.groupGap or config.groupGap
+        local ygap = AptechkaDB.profile.groupGap or config.groupGap
         local point, direction = reverse(unitGrowth or config.unitGrowth)
         local grgrowth = groupGrowth or (notreverse and reverse(config.groupGrowth) or config.groupGrowth)
         -- print(point, direction, grgrowth)
@@ -1652,8 +1696,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
     end
 
 
-    local xgap = AptechkaDB.unitGap or config.unitGap
-    local ygap = AptechkaDB.unitGap or config.unitGap
+    local xgap = AptechkaDB.profile.unitGap or config.unitGap
+    local ygap = AptechkaDB.profile.unitGap or config.unitGap
     local unitgr = reverse(AptechkaDB.unitGrowth or config.unitGrowth)
     if unitgr == "RIGHT" then
         xgap = -xgap
@@ -1667,7 +1711,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     if not petgroup
     then
         f:SetAttribute("groupFilter", group)
-        if AptechkaDB.sortUnitsByRole then
+        if AptechkaDB.global.sortUnitsByRole then
             f:SetAttribute("groupBy", "ASSIGNEDROLE")
             f:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER,NONE")
         end
@@ -1679,16 +1723,16 @@ function Aptechka.CreateHeader(self,group,petgroup)
     end
     --our group header doesn't really inherits SecureHandlerBaseTemplate
 
-    local showSolo = AptechkaDB.showSolo -- or config.showSolo
+    local showSolo = AptechkaDB.profile.showSolo -- or config.showSolo
     f:SetAttribute("showRaid", true)
-    f:SetAttribute("showParty", AptechkaDB.showParty)
+    f:SetAttribute("showParty", AptechkaDB.profile.showParty)
     f:SetAttribute("showSolo", showSolo)
     f:SetAttribute("showPlayer", true)
     f.initialConfigFunction = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
 
-    local width = pixelperfect(AptechkaDB.width or config.width)
-    local height = pixelperfect(AptechkaDB.height or config.height)
+    local width = pixelperfect(AptechkaDB.profile.width or config.width)
+    local height = pixelperfect(AptechkaDB.profile.height or config.height)
     f:SetAttribute("frameWidth", width)
     f:SetAttribute("frameHeight", height)
 
@@ -1737,8 +1781,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
     --     end
     -- ]])
 
-    local unitGrowth = AptechkaDB.unitGrowth or config.unitGrowth
-    local groupGrowth = AptechkaDB.groupGrowth or config.groupGrowth
+    local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
+    local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
 
     if group == 1 then
         Aptechka:CreateAnchor(f,group)
@@ -1759,8 +1803,8 @@ do -- this function supposed to be called from layout switchers
 
         local anchorpoint = self:SetAnchorpoint(unitGrowth, groupGrowth)
 
-        local xgap = AptechkaDB.unitGap or config.unitGap
-        local ygap = AptechkaDB.unitGap or config.unitGap
+        local xgap = AptechkaDB.profile.unitGap or config.unitGap
+        local ygap = AptechkaDB.profile.unitGap or config.unitGap
         local unitgr = reverse(unitGrowth)
         if unitgr == "RIGHT" then
             xgap = -xgap
@@ -1801,7 +1845,7 @@ function Aptechka:SetAnchorpoint(unitGrowth, groupGrowth)
     end
 end
 
-function Aptechka:GetRoleProfile()
+function Aptechka:GetSpecRole()
     if not AptechkaDB.useRoleProfiles then return "HEALER" end
     local spec = GetSpecialization()
     local role = GetSpecializationRole(spec)
@@ -1810,12 +1854,8 @@ function Aptechka:GetRoleProfile()
 end
 
 function Aptechka:RepositionAnchor()
-    local role = self:GetRoleProfile()
-    local anchorTable = AptechkaDB.roleProfile[role]
-    if not anchorTable then
-        AptechkaDB.roleProfile[role] = { point = "CENTER", x = 0, y = 0 }
-        anchorTable = AptechkaDB.roleProfile[role]
-    end
+    -- local role = self:GetSpecRole()
+    local anchorTable = AptechkaDB.profile
     anchors[1].san = anchorTable
     local san = anchorTable
     anchors[1]:ClearAllPoints()
@@ -1897,8 +1937,8 @@ end
 function Aptechka.SetupFrame(header, frameName)
     local f = _G[frameName]
 
-    local width = pixelperfect(AptechkaDB.width or config.width)
-    local height = pixelperfect(AptechkaDB.height or config.height)
+    local width = pixelperfect(AptechkaDB.profile.width or config.width)
+    local height = pixelperfect(AptechkaDB.profile.height or config.height)
     if InCombatLockdown() then
         Aptechka:ReconfigureProtected()
     end
@@ -1910,7 +1950,7 @@ function Aptechka.SetupFrame(header, frameName)
     f.onenter = onenter
     f.onleave = onleave
 
-    if AptechkaDB.RMBClickthrough then
+    if AptechkaDB.global.RMBClickthrough then
         -- Another way of doing this:
         -- f:RegisterForClicks("AnyUp", "RightButtonDown")
         -- And then in button setup
@@ -2243,7 +2283,7 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
             isBossAura = true
         end
 
-        fill = fill + (isBossAura and AptechkaDB.debuffBossScale or 1)
+        fill = fill + (isBossAura and AptechkaDB.profile.debuffBossScale or 1)
 
         if fill <= debuffLineLength then
             shown = shown + 1
@@ -2287,7 +2327,7 @@ function Aptechka.SimpleDebuffPostUpdate(unit)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot) -- UnitAura(unit, indexOrSlot, "HARMFUL")
         -- local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
 
-        fill = fill + (isBossAura and AptechkaDB.debuffBossScale or 1)
+        fill = fill + (isBossAura and AptechkaDB.profile.debuffBossScale or 1)
 
         if fill <= debuffLineLength then
             shown = shown + 1
@@ -2413,9 +2453,9 @@ end
 
 
 function Aptechka:UpdateDebuffScanningMethod()
-    local useOrdering = AptechkaDB.useDebuffOrdering
+    local useOrdering = AptechkaDB.global.useDebuffOrdering
     --[[
-    if AptechkaDB.useDebuffOrdering  then
+    if AptechkaDB.global.useDebuffOrdering  then
         local numMembers = GetNumGroupMembers()
         local _, instanceType = GetInstanceInfo()
         local isBattleground = instanceType == "arena" or instanceType == "pvp"
@@ -2431,7 +2471,7 @@ function Aptechka:UpdateDebuffScanningMethod()
         BuffProc = Aptechka.SimpleBuffProc
         DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
     end
-    if AptechkaDB.showDispels then
+    if AptechkaDB.profile.showDispels then
         DispelTypeProc = Aptechka.DispelTypeProc
         DispelTypePostUpdate = Aptechka.DispelTypePostUpdate
     else
@@ -2461,7 +2501,7 @@ function Aptechka.TestDebuffSlots()
         local debuffType = debuffTypes[math.random(#debuffTypes)]
         local expirationTime = now + duration
         local isBossAura = shown < numBossAuras
-        fill = fill + (isBossAura and AptechkaDB.debuffBossScale or 1)
+        fill = fill + (isBossAura and AptechkaDB.profile.debuffBossScale or 1)
 
         -- print(fill, debuffLineLength, fill < debuffLineLength)
 
@@ -2563,7 +2603,7 @@ Aptechka.Commands = {
         end
     end,
     ["createpets"] = function()
-        if not AptechkaDB.petGroup then
+        if not AptechkaDB.profile.petGroup then
             if not InCombatLockdown() then
                 CreatePetsFunc()
             else
@@ -2621,13 +2661,13 @@ Aptechka.Commands = {
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(point, UIParent, point, x, y)
     end,
-    ["charspec"] = function()
-        local user = UnitName("player").."@"..GetRealmName()
-        if AptechkaDB_Global.charspec[user] then AptechkaDB_Global.charspec[user] = nil
-        else AptechkaDB_Global.charspec[user] = true
-        end
-        print (AptechkaString..(AptechkaDB_Global.charspec[user] and "Enabled" or "Disabled").." character specific options for this toon. Will take effect after ui reload",0.7,1,0.7)
-    end,
+    -- ["charspec"] = function()
+    --     local user = UnitName("player").."@"..GetRealmName()
+    --     if AptechkaDB_Global.charspec[user] then AptechkaDB_Global.charspec[user] = nil
+    --     else AptechkaDB_Global.charspec[user] = true
+    --     end
+    --     print (AptechkaString..(AptechkaDB_Global.charspec[user] and "Enabled" or "Disabled").." character specific options for this toon. Will take effect after ui reload",0.7,1,0.7)
+    -- end,
     ["listauras"] = function(v)
         local unit = v
         local h = false
@@ -2778,7 +2818,7 @@ function Aptechka.SPELLCAST_UPDATE(event, GUID)
 end
 
 do
-    local CURRENT_DB_VERSION = 1
+    local CURRENT_DB_VERSION = 2
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -2804,6 +2844,131 @@ do
             end
 
             db.DB_VERSION = 1
+        end
+
+        if db.DB_VERSION == 1 then
+            print("starting migration...")
+
+            db.global = {}
+            db.global.disableBlizzardParty = db.disableBlizzardParty
+            db.global.hideBlizzardRaid = db.hideBlizzardRaid
+            db.global.RMBClickthrough = db.RMBClickthrough
+            db.global.sortUnitsByRole = db.sortUnitsByRole
+            db.global.showAFK = db.showAFK
+            db.global.customBlacklist = db.customBlacklist
+            db.global.useCombatLogHealthUpdates = db.useCombatLogHealthUpdates
+            db.global.disableTooltip = db.disableTooltip
+            db.global.useDebuffOrdering = db.useDebuffOrdering
+
+            db.profiles = {
+                Default = {}
+            }
+            local default_profile = db.profiles["Default"]
+            default_profile.width = db.width
+            default_profile.height = db.height
+            default_profile.healthOrientation = db.healthOrientation
+            default_profile.unitGrowth = db.unitGrowth
+            default_profile.groupGrowth = db.groupGrowth
+            default_profile.unitGap = db.unitGap
+            default_profile.groupGap = db.groupGap
+            default_profile.showSolo = db.showSolo
+            default_profile.showParty = db.showParty
+            default_profile.cropNamesLen = db.cropNamesLen
+            default_profile.showCasts = db.showCasts
+            default_profile.showAggro = db.showAggro
+            default_profile.petGroup = db.petGroup
+            default_profile.showRaidIcons = db.showRaidIcons
+            default_profile.showDispels = db.showDispels
+            default_profile.healthTexture = db.healthTexture
+            default_profile.powerTexture = db.powerTexture
+
+            default_profile.scale = db.scale
+            default_profile.debuffSize = db.debuffSize
+            default_profile.debuffLimit = db.debuffLimit
+            default_profile.debuffBossScale = db.debuffBossScale
+            default_profile.stackFontName = db.stackFontName
+            default_profile.stackFontSize = db.stackFontSize
+            default_profile.nameFontName = db.nameFontName
+            default_profile.nameFontSize = db.nameFontSize
+            default_profile.nameFontOutline = db.nameFontOutline
+            default_profile.nameColorMultiplier = db.nameColorMultiplier
+            default_profile.fgShowMissing = db.fgShowMissing
+            default_profile.fgColorMultiplier = db.fgColorMultiplier
+            default_profile.bgColorMultiplier = db.bgColorMultiplier
+
+            -- if db.useRoleProfiles then
+            print("roleProfile:",db.roleProfile)
+            if db.roleProfile then
+                print('have roleprofile')
+                if db.roleProfile["HEALER"] then
+                    print('have healer')
+                    local old_healer_profile = db.roleProfile["HEALER"]
+                    default_profile.point = old_healer_profile.point
+                    default_profile.x = old_healer_profile.x
+                    default_profile.y = old_healer_profile.y
+                    print("Copied over anchor data")
+                end
+                if db.useRoleProfiles and db.roleProfile["DAMAGER"] then
+                    local old_damager_profile = db.roleProfile["DAMAGER"]
+                    print('have damager')
+                    -- Create a second profile, copied from our new Default profile
+                    db.profiles["DefaultNonHealer"] = CopyTable(default_profile)
+
+                    local default_damager_profile = db.profiles["DefaultNonHealer"]
+
+                    default_damager_profile.point = old_damager_profile.point
+                    default_damager_profile.x = old_damager_profile.x
+                    default_damager_profile.y = old_damager_profile.y
+                end
+            end
+
+            db.disableBlizzardParty = nil
+            db.hideBlizzardRaid = nil
+            db.RMBClickthrough = nil
+            db.sortUnitsByRole = nil
+            db.showAFK = nil
+            db.customBlacklist = nil
+            db.useCombatLogHealthUpdates = nil
+            db.disableTooltip = nil
+            db.useDebuffOrdering = nil
+
+            db.width = nil
+            db.height = nil
+            db.healthOrientation = nil
+            db.unitGrowth = nil
+            db.groupGrowth = nil
+            db.unitGap = nil
+            db.groupGap = nil
+            db.showSolo = nil
+            db.showParty = nil
+            db.cropNamesLen = nil
+            db.showCasts = nil
+            db.showAggro = nil
+            db.petGroup = nil
+            db.showRaidIcons = nil
+            db.showDispels = nil
+            db.healthTexture = nil
+            db.powerTexture = nil
+            db.scale = nil
+            db.debuffSize = nil
+            db.debuffLimit = nil
+            db.debuffBossScale = nil
+            db.stackFontName = nil
+            db.stackFontSize = nil
+            db.nameFontName = nil
+            db.nameFontSize = nil
+            db.nameFontOutline = nil
+            db.nameColorMultiplier = nil
+            db.fgShowMissing = nil
+            db.fgColorMultiplier = nil
+            db.bgColorMultiplier = nil
+
+            db.roleProfile = nil
+            db.useRoleProfiles = nil
+
+            db.charspec = nil
+
+            db.DB_VERSION = 2
         end
     end
 end

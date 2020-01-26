@@ -69,8 +69,8 @@ local SetJob_HealthBar = function(self, job)
     end
     if c then
         local r,g,b,a = unpack(c)
-        local mulFG = Aptechka.db.fgColorMultiplier or 1
-        local mulBG = Aptechka.db.bgColorMultiplier or 0.2
+        local mulFG = Aptechka.db.profile.fgColorMultiplier or 1
+        local mulBG = Aptechka.db.profile.bgColorMultiplier or 0.2
         self:SetColor(r,g,b,a,mulFG)
         self.bg:SetColor(r,g,b,a,mulBG)
     end
@@ -90,7 +90,7 @@ local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
     powerType = powerType or self.power.powerType
     self.power.powerType = powerType
 
-    local isVertical = Aptechka.db.healthOrientation == "VERTICAL"
+    local isVertical = Aptechka.db.profile.healthOrientation == "VERTICAL"
     if powerType ~= "MANA" or isDead then
         self.power.disabled = true
         self.power:Hide()
@@ -115,7 +115,7 @@ local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
 
     -- if self.healfeedbackpassive then
     --     self.healfeedbackpassive:ClearAllPoints()
-    --     if self.power:IsShown() and Aptechka.db.healthOrientation == "VERTICAL" then
+    --     if self.power:IsShown() and Aptechka.db.profile.healthOrientation == "VERTICAL" then
     --         self.healfeedbackpassive:SetPoint("TOPRIGHT", self.power, "TOPLEFT", 0,0)
     --     else
     --         self.healfeedbackpassive:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0,0)
@@ -646,8 +646,8 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     stackframe:SetAllPoints(icon)
     local stacktext = stackframe:CreateFontString(nil,"ARTWORK")
     stacktext:SetDrawLayer("ARTWORK",1)
-    local stackFont = LSM:Fetch("font",  Aptechka.db.nameFontName)
-    local stackFontSize = Aptechka.db.stackFontSize
+    local stackFont = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+    local stackFontSize = Aptechka.db.profile.stackFontSize
     stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
     -- stackframe:SetFrameLevel(7)
 
@@ -685,7 +685,7 @@ local function SetJob_DebuffIcon(self, debuffType, expirationTime, duration, ico
     self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 1)
 
     if isBossAura then
-        self:SetScale(Aptechka.db.debuffBossScale)
+        self:SetScale(Aptechka.db.profile.debuffBossScale)
     else
         self:SetScale(1)
     end
@@ -876,7 +876,7 @@ local SetJob_Text1 = function(self,job)
     end
     if c then
         local r,g,b,a = unpack(c)
-        local mul = Aptechka.db.nameColorMultiplier or 1
+        local mul = Aptechka.db.profile.nameColorMultiplier or 1
         self:SetColor(multiplyColor(mul, r,g,b,a))
     end
 end
@@ -1349,7 +1349,7 @@ local optional_widgets = {
 local function Reconf(self)
     local config = AptechkaDefaultConfig
 
-    local db = Aptechka.db
+    local db = Aptechka.db.profile
     local isVertical = db.healthOrientation == "VERTICAL"
 
     local texpath = LSM:Fetch("statusbar", db.healthTexture)
@@ -1389,9 +1389,9 @@ local function Reconf(self)
     Aptechka.FrameSetJob(self,config.PowerBarColor,true)
     Aptechka.FrameSetJob(self,config.UnitNameStatus,true)
 
-    local nameFont = LSM:Fetch("font",  Aptechka.db.nameFontName)
-    local nameFontSize = Aptechka.db.nameFontSize
-    local nameFontOutline = Aptechka.db.nameFontOutline
+    local nameFont = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+    local nameFontSize = Aptechka.db.profile.nameFontSize
+    local nameFontOutline = Aptechka.db.profile.nameFontOutline
     local outline = nameFontOutline == "OUTLINE" and "OUTLINE"
     self.text1:SetFont(nameFont, nameFontSize, outline)
     if nameFontOutline == "SHADOW" then
@@ -1400,8 +1400,8 @@ local function Reconf(self)
         self.text1:SetShadowOffset(0,0)
     end
 
-    local stackFont = LSM:Fetch("font", Aptechka.db.stackFontName)
-    local stackFontSize = Aptechka.db.stackFontSize
+    local stackFont = LSM:Fetch("font", Aptechka.db.profile.stackFontName)
+    local stackFontSize = Aptechka.db.profile.stackFontSize
     for i, icon in ipairs(self.debuffIcons) do
         icon.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
     end
@@ -1443,7 +1443,7 @@ local function Reconf(self)
         hpi:ClearAllPoints()
         hpi.UpdatePosition = hpi.UpdatePositionVertical
 
-        local debuffSize = pixelperfect(Aptechka.db.debuffSize)
+        local debuffSize = pixelperfect(Aptechka.db.profile.debuffSize)
         for i, icon in ipairs(self.debuffIcons) do
             icon:SetOrientation("VERTICAL", debuffSize)
         end
@@ -1487,7 +1487,7 @@ local function Reconf(self)
         hpi:ClearAllPoints()
         hpi.UpdatePosition = hpi.UpdatePositionHorizontal
 
-        local debuffSize = pixelperfect(Aptechka.db.debuffSize)
+        local debuffSize = pixelperfect(Aptechka.db.profile.debuffSize)
         for i, icon in ipairs(self.debuffIcons) do
             icon:SetOrientation("HORIZONTAL", debuffSize)
         end
@@ -1501,14 +1501,14 @@ end
 AptechkaDefaultConfig.GridSkin = function(self)
     Aptechka = _G.Aptechka
 
-    local db = Aptechka.db
+    local db = Aptechka.db.profile
 
     local config = AptechkaDefaultConfig
 
     local texture = LSM:Fetch("statusbar", db.healthTexture)
     local powertexture = LSM:Fetch("statusbar", db.powerTexture)
-    local font = LSM:Fetch("font",  Aptechka.db.nameFontName)
-    local fontsize = Aptechka.db.nameFontSize
+    local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+    local fontsize = Aptechka.db.profile.nameFontSize
     local manabar_width = config.manabarwidth
     local outlineSize = pixelperfect(2)
 
@@ -1743,7 +1743,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
     -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
 
-    local debuffSize = Aptechka.db.debuffSize
+    local debuffSize = Aptechka.db.profile.debuffSize
     self.debuffIcons = { parent = self }
     self.debuffIcons.Align = AlignDebuffIcons
 
