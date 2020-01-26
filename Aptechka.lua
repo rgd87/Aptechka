@@ -114,7 +114,6 @@ local LibTargetedCasts
 local LibClassicDurations = LibStub("LibClassicDurations")
 local tinsert = table.insert
 local tsort = table.sort
-local CreatePetsFunc
 local HealComm
 local BuffProc
 local DebuffProc, DebuffPostUpdate
@@ -527,22 +526,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_DISPLAYPOWER")
         Aptechka.UNIT_MAXPOWER = Aptechka.UNIT_POWER_UPDATE
     end
-    if AptechkaDB.profile.showAggro and config.AggroStatus then
-        if isClassic then
-            local LB = LibStub("LibBanzai-2.0", true)
-            if LB then
-                UnitThreatSituation = function(unit)
-                    local gotAggro = LB:GetUnitAggroByUnitId(unit)
-                    return gotAggro and 3 or 0
-                end
-                LB:RegisterCallback(function(aggroInt, name, unit)
-                    return Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
-                end)
-            end
-        else
-            self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
-        end
-    end
+
+    Aptechka:UpdateAggroConfig()
+
     if config.ReadyCheck then
         self:RegisterEvent("READY_CHECK")
         self:RegisterEvent("READY_CHECK_CONFIRM")
@@ -592,10 +578,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
     end
 
-    LibTargetedCasts = LibStub("LibTargetedCasts", true)
-    if LibTargetedCasts and AptechkaDB.profile.showCasts then
-        -- LibTargetedCasts.RegisterCallback("Aptechka", "SPELLCAST_UPDATE", Aptechka.SPELLCAST_UPDATE)
-    end
+    self:UpdateCastsConfig()
 
 
     -- AptechkaDB.global.useCombatLogHealthUpdates = false
@@ -633,13 +616,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         group_headers[i] = f
         i = i + 1
     end
-    CreatePetsFunc = function()
-        local pets  = Aptechka:CreateHeader(9,true)
-        group_headers[9] = pets
-    end
-    if AptechkaDB.profile.petGroup then
-        CreatePetsFunc()
-    end
+    self:UpdatePetGroupConfig()
+
     if config.unlocked then anchors[1]:Show() end
     local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
     local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
@@ -816,11 +794,38 @@ function Aptechka:UpdateMissingAuraList()
     end
 end
 
+
+function Aptechka:CreatePetGroup()
+    if group_headers[9] then return end -- already exists
+    local pets  = Aptechka:CreateHeader(9,true)
+    group_headers[9] = pets
+    pets:Show()
+end
+function Aptechka:UpdatePetGroupConfig()
+    if AptechkaDB.profile.petGroup then
+        Aptechka:CreatePetGroup()
+    else
+        if group_headers[9] then
+            group_headers[9]:Hide()
+        end
+    end
+end
+
+function Aptechka:UpdateName(frame)
+    local name = frame.nameFull
+    frame.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
+    FrameSetJob(frame, config.UnitNameStatus, true)
+end
+
 function Aptechka:Reconfigure()
     if not self.isInitialized then return end
-    print("Aptechka - Reconfigure")
     self:ReconfigureProtected()
     self:ReconfigureUnprotected()
+
+    self:UpdateDebuffScanningMethod()
+    self:UpdateRaidIconsConfig()
+    self:UpdateAggroConfig()
+    self:UpdateCastsConfig()
 end
 function Aptechka:RefreshAllUnitsHealth()
     for unit, frames in pairs(Roster) do
@@ -841,6 +846,7 @@ function Aptechka:ReconfigureUnprotected()
     self:UpdateUnprotectedUpvalues()
     for group, header in ipairs(group_headers) do
         for _, f in ipairs({ header:GetChildren() }) do
+            self:UpdateName(f)
             f:ReconfigureUnitFrame()
             if Aptechka.PostFrameUpdate then
                 Aptechka.PostFrameUpdate(f)
@@ -857,6 +863,7 @@ function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
 
     self:RepositionAnchor()
+    self:UpdatePetGroupConfig()
 
     local width = pixelperfect(AptechkaDB.profile.width or config.width)
     local height = pixelperfect(AptechkaDB.profile.height or config.height)
@@ -1326,6 +1333,41 @@ Aptechka.OnRangeUpdate = function (self, time)
 end
 
 --Aggro
+function Aptechka:UpdateAggroConfig()
+    if not config.AggroStatus then return end
+    if AptechkaDB.profile.showAggro then
+        if isClassic then
+            local LB = LibStub("LibBanzai-2.0", true)
+            if LB then
+                UnitThreatSituation = function(unit)
+                    local gotAggro = LB:GetUnitAggroByUnitId(unit)
+                    return gotAggro and 3 or 0
+                end
+                LB:RegisterCallback(function(aggroInt, name, unit)
+                    if not AptechkaDB.profile.showAggro then return end
+                    return Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
+                end)
+            end
+        else
+            self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
+        end
+    else
+        if isClassic then
+            -- local LB = LibStub("LibBanzai-2.0", true)
+            -- if LB then
+            --     LB:UnregisterCallback(LibBanzaiCallback) -- It can't fail silently
+            -- end
+        else
+            self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE")
+        end
+
+        if self.isInitialized then
+            self:ForEachFrame(function(frame)
+                FrameSetJob(frame, config.AggroStatus, false)
+            end)
+        end
+    end
+end
 function Aptechka.UNIT_THREAT_SITUATION_UPDATE(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
@@ -1497,6 +1539,15 @@ function Aptechka.LayoutUpdate(self)
 end
 
 --raid icons
+function Aptechka:UpdateRaidIconsConfig()
+    if not Aptechka.db.profile.showRaidIcons then
+        Aptechka:ForEachFrame(function(self) self.raidicon:Hide() end)
+        Aptechka:UnregisterEvent("RAID_TARGET_UPDATE")
+    else
+        Aptechka:RAID_TARGET_UPDATE()
+        Aptechka:RegisterEvent("RAID_TARGET_UPDATE")
+    end
+end
 function Aptechka.RAID_TARGET_UPDATE(self, event)
     if not AptechkaDB.profile.showRaidIcons then return end
     for unit, frames in pairs(Roster) do
@@ -1624,7 +1675,8 @@ local function updateUnitButton(self, unit)
     if name == UNKNOWNOBJECT or name == nil then
         has_unknowns = true
     end
-    self.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
+    self.nameFull = name
+    Aptechka:UpdateName(self)
 
     self.unit = unit
     Roster[unit] = Roster[unit] or {}
@@ -1639,7 +1691,6 @@ local function updateUnitButton(self, unit)
     FrameSetJob(self,config.HealthBarColor,true)
     FrameSetJob(self,config.PowerBarColor,true)
     Aptechka.ScanAuras(unit)
-    FrameSetJob(self, config.UnitNameStatus, true)
     Aptechka:UNIT_HEALTH("UNIT_HEALTH", unit)
     if config.enableAbsorbBar then
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
@@ -2653,11 +2704,11 @@ Aptechka.Commands = {
     ["createpets"] = function()
         if not AptechkaDB.profile.petGroup then
             if not InCombatLockdown() then
-                CreatePetsFunc()
+                Aptechka:CreatePetGroup()
             else
                 local f = CreateFrame('Frame')
                 f:SetScript("OnEvent",function(self)
-                    CreatePetsFunc()
+                    Aptechka:CreatePetGroup()
                     self:SetScript("OnEvent",nil)
                 end)
                 f:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -2808,6 +2859,23 @@ function Aptechka:VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED(event, member
     end
 end
 
+
+function Aptechka:UpdateCastsConfig()
+    LibTargetedCasts = LibStub("LibTargetedCasts", true)
+    if LibTargetedCasts then
+        if AptechkaDB.profile.showCasts then
+            LibTargetedCasts.RegisterCallback("Aptechka", "SPELLCAST_UPDATE", Aptechka.SPELLCAST_UPDATE)
+        else
+            LibTargetedCasts.UnregisterCallback("Aptechka", "SPELLCAST_UPDATE")
+
+            if self.isInitialized then
+                self:ForEachFrame(function(self)
+                    self.castIcon:Hide()
+                end)
+            end
+        end
+    end
+end
 function Aptechka.SPELLCAST_UPDATE(event, GUID)
     local unit = guidMap[GUID]
     if unit and Roster[unit] then

@@ -1012,7 +1012,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.profile.showAggro end,
                         set = function(info, v)
                             Aptechka.db.profile.showAggro = not Aptechka.db.profile.showAggro
-                            Aptechka:PrintReloadUIWarning()
+                            Aptechka:UpdateAggroConfig()
                         end,
                         order = 10.9,
                     },
@@ -1032,12 +1032,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.profile.showRaidIcons end,
                         set = function(info, v)
                             Aptechka.db.profile.showRaidIcons = not Aptechka.db.profile.showRaidIcons
-                            if not Aptechka.db.profile.showRaidIcons then
-                                Aptechka:ForEachFrame(function(self) self.raidicon:Hide() end)
-                            else
-                                Aptechka:RAID_TARGET_UPDATE()
-                                Aptechka:RegisterEvent("RAID_TARGET_UPDATE")
-                            end
+                            Aptechka:UpdateRaidIconsConfig()
                         end,
                         order = 11.1,
                     },
@@ -1068,7 +1063,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.profile.showCasts end,
                         set = function(info, v)
                             Aptechka.db.profile.showCasts = not Aptechka.db.profile.showCasts
-                            Aptechka:PrintReloadUIWarning()
+                            Aptechka:UpdateCastsConfig()
                         end,
                         order = 12,
                     },
@@ -1139,6 +1134,7 @@ local function MakeGeneralOptions()
                         get = function(info) return Aptechka.db.profile.cropNamesLen end,
                         set = function(info, v)
                             Aptechka.db.profile.cropNamesLen = v
+                            Aptechka:ReconfigureUnprotected()
                         end,
                         min = 2,
                         max = 25,
