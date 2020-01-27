@@ -893,6 +893,96 @@ function ns.MakeProfileSettings()
                     },
                 },
             },
+            currentProfile = {
+                type = 'group',
+                order = 2.1,
+                name = L"Current Profile",
+                guiInline = true,
+                args = {
+                    curProfile = {
+                        name = "",
+                        type = 'select',
+                        width = 1.5,
+                        order = 1,
+                        values = function()
+                            return ns.GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info)
+                            return Aptechka.db:GetCurrentProfile()
+                        end,
+                        set = function(info, v)
+                            Aptechka.db:SetProfile(v)
+                        end,
+                    },
+                    copyButton = {
+                        name = L"Copy",
+                        type = 'execute',
+                        order = 2,
+                        width = 0.5,
+                        func = function(info)
+                            local p = Aptechka.db:GetCurrentProfile()
+                            ns.storedProfile = p
+                        end,
+                    },
+                    pasteButton = {
+                        name = L"Paste",
+                        type = 'execute',
+                        order = 3,
+                        width = 0.5,
+                        disabled = function()
+                            return ns.storedProfile == nil
+                        end,
+                        func = function(info)
+                            if ns.storedProfile then
+                                Aptechka.db:CopyProfile(ns.storedProfile, true)
+                            end
+                        end,
+                    },
+                    deleteButton = {
+                        name = L"Delete",
+                        type = 'execute',
+                        order = 4,
+                        confirm = true,
+                        confirmText = L"Are you sure?",
+                        width = 0.5,
+                        disabled = function()
+                            return Aptechka.db:GetCurrentProfile() == "Default"
+                        end,
+                        func = function(info)
+                            local p = Aptechka.db:GetCurrentProfile()
+                            Aptechka.db:SetProfile("Default")
+                            Aptechka.db:DeleteProfile(p, true)
+                        end,
+                    },
+                    newProfileName = {
+                        name = L"New Profile Name",
+                        type = 'input',
+                        order = 5,
+                        width = 2,
+                        get = function(info) return ns.newProfileName end,
+                        set = function(info, v)
+                            ns.newProfileName = v
+                        end,
+                    },
+                    createButton = {
+                        name = L"Create New Profile",
+                        type = 'execute',
+                        order = 6,
+                        disabled = function()
+                            return not ns.newProfileName
+                            or strlenutf8(ns.newProfileName) == 0
+                            or Aptechka.db.profiles[ns.newProfileName]
+                        end,
+                        func = function(info)
+                            if ns.newProfileName and strlenutf8(ns.newProfileName) > 0 then
+                                Aptechka.db:SetProfile(ns.newProfileName)
+                                Aptechka.db:CopyProfile("Default", true)
+                                ns.newProfileName = ""
+                            end
+                        end,
+                    },
+                },
+            },
             switches = {
                 type = "group",
                 name = " ",
@@ -1006,18 +1096,17 @@ function ns.MakeProfileSettings()
                         step = 1,
                         order = 2,
                     },
-                    nameLength = {
-                        name = L"Name Length",
-                        desc = L"Takes effect after /reload",
+                    scale = {
+                        name = L"Scale",
                         type = "range",
-                        get = function(info) return Aptechka.db.profile.cropNamesLen end,
+                        get = function(info) return Aptechka.db.profile.scale end,
                         set = function(info, v)
-                            Aptechka.db.profile.cropNamesLen = v
-                            Aptechka:ReconfigureUnprotected()
+                            Aptechka.db.profile.scale = v
+                            Aptechka:ReconfigureProtected()
                         end,
-                        min = 2,
-                        max = 25,
-                        step = 1,
+                        min = 0.5,
+                        max = 3,
+                        step = 0.01,
                         order = 3,
                     },
                     groupGrowth = {
@@ -1045,7 +1134,7 @@ function ns.MakeProfileSettings()
                             Aptechka.db.profile.groupGap = v
                             Aptechka:ReconfigureProtected()
                         end,
-                        min = 4,
+                        min = 3,
                         max = 20,
                         step = 1,
                         order = 5,
@@ -1075,7 +1164,7 @@ function ns.MakeProfileSettings()
                             Aptechka.db.profile.unitGap = v
                             Aptechka:ReconfigureProtected()
                         end,
-                        min = 4,
+                        min = 3,
                         max = 20,
                         step = 1,
                         order = 7,
@@ -1165,7 +1254,19 @@ function ns.MakeProfileSettings()
                             Aptechka:ReconfigureUnprotected()
                         end,
                     },
-
+                    nameLength = {
+                        name = L"Name Length",
+                        type = "range",
+                        get = function(info) return Aptechka.db.profile.cropNamesLen end,
+                        set = function(info, v)
+                            Aptechka.db.profile.cropNamesLen = v
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        min = 2,
+                        max = 25,
+                        step = 1,
+                        order = 14.5,
+                    },
 
                     showMissingFG = {
                         name = L"Show Missing Health/Power as Foreground",
