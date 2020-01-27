@@ -81,6 +81,35 @@ function ns.MakeProfileSelection()
                     },
                 },
             },
+            manualRoleSelection = {
+                type = "group",
+                name = "(Classic) "..L"Manual Role selection for current character",
+                width = "double",
+                guiInline = true,
+                order = 1.5,
+                args = {
+                    healer = {
+                        name = L"Healer",
+                        type = "toggle",
+                        get = function(info) return AptechkaDB_Char.forcedClassicRole == "HEALER" end,
+                        set = function(info, v)
+                            AptechkaDB_Char.forcedClassicRole = "HEALER"
+                            Aptechka:OnRoleChanged()
+                        end,
+                        order = 1,
+                    },
+                    damager = {
+                        name = L"Damager/Tank",
+                        type = "toggle",
+                        get = function(info) return AptechkaDB_Char.forcedClassicRole == "DAMAGER" end,
+                        set = function(info, v)
+                            AptechkaDB_Char.forcedClassicRole = "DAMAGER"
+                            Aptechka:OnRoleChanged()
+                        end,
+                        order = 2,
+                    },
+                }
+            },
             healerGroup = {
                 type = 'group',
                 name = L"Profile Auto-Switching",
