@@ -1,21 +1,14 @@
-AptechkaGUI = CreateFrame("Frame","AptechkaGUI")
+local addonName, ns = ...
+
 local L = Aptechka.L
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
--- AptechkaGUI:SetScript("OnEvent", function(self, event, ...)
-    -- self[event](self, event, ...)
--- end)
--- AptechkaGUI:RegisterEvent("ADDON_LOADED")
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
 
 local AceGUI = LibStub("AceGUI-3.0")
-
-function AptechkaGUI.SlashCmd(msg)
-    AptechkaGUI.frame:Show()
-end
 
 local sortfunc = function(a,b)
     if a.order == b.order then
@@ -33,7 +26,7 @@ local MakeValuesForKeys = function(t)
     return t1
 end
 
-function AptechkaGUI.GenerateCategoryTree(self, isGlobal, category)
+function ns.GenerateCategoryTree(self, isGlobal, category)
     local _,class = UnitClass("player")
     local custom = isGlobal and AptechkaConfigCustom["GLOBAL"] or AptechkaConfigCustom[class]
 
@@ -78,7 +71,7 @@ local CooldownForm
 local NewTimerForm
 
 
-function AptechkaGUI.CreateNewTimerForm(self)
+function ns.CreateNewTimerForm(self)
     local Form = AceGUI:Create("InlineGroup")
     Form:SetFullWidth(true)
     -- Form:SetHeight(0)
@@ -88,12 +81,12 @@ function AptechkaGUI.CreateNewTimerForm(self)
 
     Form.ShowNewTimer = function(self, category)
         assert(category)
-        local Frame = AptechkaGUI.frame
+        local Frame = ns.frame
         local class = self.class
 
         Frame.rpane:Clear()
         if not AuraForm then
-            AuraForm = AptechkaGUI:CreateAuraForm()
+            AuraForm = ns:CreateAuraForm()
         end
         local opts
         if category == "auras" then
@@ -102,7 +95,7 @@ function AptechkaGUI.CreateNewTimerForm(self)
             opts = { assignto = "spell1", fade = 0.7, type = "SPELL_HEAL" }
         end
         if class == "GLOBAL" then opts.global = true end
-        AptechkaGUI:FillForm(AuraForm, class, category, nil, opts, true)
+        ns:FillForm(AuraForm, class, category, nil, opts, true)
         Frame.rpane:AddChild(AuraForm)
     end
 
@@ -146,7 +139,7 @@ local clean = function(delta, default_opts, property, emptyValue)
     if delta[property] == emptyValue and default_opts[property] == nil then delta[property] = nil end
 end
 
-function AptechkaGUI.CreateCommonForm(self)
+function ns.CreateCommonForm(self)
     local Form = AceGUI:Create("ScrollFrame")
     Form:SetFullWidth(true)
     -- Form:SetHeight(0)
@@ -271,8 +264,8 @@ function AptechkaGUI.CreateCommonForm(self)
         if not next(delta) then delta = nil end
         AptechkaConfigCustom[class][category][spellID] = delta
 
-        AptechkaGUI.frame.tree:UpdateSpellTree()
-        AptechkaGUI.frame.tree:SelectByPath(class, category, spellID)
+        ns.frame.tree:UpdateSpellTree()
+        ns.frame.tree:SelectByPath(class, category, spellID)
         Aptechka:PostSpellListUpdate()
     end)
     Form:AddChild(save)
@@ -290,8 +283,8 @@ function AptechkaGUI.CreateCommonForm(self)
         AptechkaConfigCustom[class][category][spellID] = nil
         AptechkaConfigMerged[category][spellID] = AptechkaDefaultConfig[category][spellID]
 
-        AptechkaGUI.frame.tree:UpdateSpellTree()
-        AptechkaGUI.frame.tree:SelectByPath(class, category, spellID)
+        ns.frame.tree:UpdateSpellTree()
+        ns.frame.tree:SelectByPath(class, category, spellID)
     end)
     Form.controls.delete = delete
     Form:AddChild(delete)
@@ -521,8 +514,8 @@ function AptechkaGUI.CreateCommonForm(self)
     return Form
 end
 
-function AptechkaGUI.CreateAuraForm(self)
-    local topgroup = AptechkaGUI:CreateCommonForm()
+function ns.CreateAuraForm(self)
+    local topgroup = ns:CreateCommonForm()
 
     return topgroup
 end
@@ -541,7 +534,7 @@ local fillAlpha = function(rgb)
     return r,g,b,a
 end
 
-function AptechkaGUI.FillForm(self, Form, class, category, id, opts, isEmptyForm)
+function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     Form.opts = opts
     Form.class = class
     Form.category = category
@@ -646,10 +639,10 @@ end
 
 
 
-function AptechkaGUI.Create(self, name, parent )
+function ns.Create(self, name, parent )
     -- Create a container frame
     -- local Frame = AceGUI:Create("Frame")
-    -- Frame:SetTitle("AptechkaGUI")
+    -- Frame:SetTitle("ns")
     -- Frame:SetWidth(500)
     -- Frame:SetHeight(440)
     -- Frame:EnableResize(false)
@@ -714,7 +707,7 @@ function AptechkaGUI.Create(self, name, parent )
     -- local setcreate = AceGUI:Create("Button")
     -- setcreate:SetText("Save")
     -- setcreate:SetWidth(100)
-    -- setcreate:SetCallback("OnClick", function(self) AptechkaGUI:SaveSet() end)
+    -- setcreate:SetCallback("OnClick", function(self) ns:SaveSet() end)
     -- setcreate:SetCallback("OnEnter", function() Frame:SetStatusText("Create new/overwrite existing set") end)
     -- setcreate:SetCallback("OnLeave", function() Frame:SetStatusText("") end)
     -- topgroup:AddChild(setcreate)
@@ -722,7 +715,7 @@ function AptechkaGUI.Create(self, name, parent )
     -- local btn4 = AceGUI:Create("Button")
     -- btn4:SetWidth(100)
     -- btn4:SetText("Delete")
-    -- btn4:SetCallback("OnClick", function() AptechkaGUI:DeleteSet() end)
+    -- btn4:SetCallback("OnClick", function() ns:DeleteSet() end)
     -- topgroup:AddChild(btn4)
     -- -- Frame.rpane:AddChild(btn4)
     -- -- Frame.rpane.deletebtn = btn4
@@ -748,7 +741,7 @@ function AptechkaGUI.Create(self, name, parent )
         if not spellID or not category then
             Frame.rpane:Clear()
             if not NewTimerForm then
-                NewTimerForm = AptechkaGUI:CreateNewTimerForm()
+                NewTimerForm = ns:CreateNewTimerForm()
             end
             NewTimerForm.class = class
             Frame.rpane:AddChild(NewTimerForm)
@@ -773,9 +766,9 @@ function AptechkaGUI.Create(self, name, parent )
         -- if category == "spells" then
         Frame.rpane:Clear()
         if not AuraForm then
-            AuraForm = AptechkaGUI:CreateAuraForm()
+            AuraForm = ns:CreateAuraForm()
         end
-        AptechkaGUI:FillForm(AuraForm, class, category, spellID, opts)
+        ns:FillForm(AuraForm, class, category, spellID, opts)
         Frame.rpane:AddChild(AuraForm)
 
         -- end
@@ -799,7 +792,7 @@ function AptechkaGUI.Create(self, name, parent )
                         value = "auras",
                         text = "Auras",
                         icon = "Interface\\Icons\\spell_shadow_manaburn",
-                        children = AptechkaGUI:GenerateCategoryTree(true, "auras")
+                        children = ns:GenerateCategoryTree(true, "auras")
                     },
                 },
             },
@@ -813,13 +806,13 @@ function AptechkaGUI.Create(self, name, parent )
                         value = "auras",
                         text = "Auras",
                         icon = "Interface\\Icons\\spell_shadow_manaburn",
-                        children = AptechkaGUI:GenerateCategoryTree(false,"auras")
+                        children = ns:GenerateCategoryTree(false,"auras")
                     },
                     {
                         value = "traces",
                         text = "Traces",
                         icon = "Interface\\Icons\\spell_nature_astralrecal",
-                        children = AptechkaGUI:GenerateCategoryTree(false,"traces")
+                        children = ns:GenerateCategoryTree(false,"traces")
                     },
                 }
             },
@@ -863,10 +856,10 @@ function AptechkaGUI.Create(self, name, parent )
     return Frame
 end
 
-local function MakeGeneralOptions()
+function ns.MakeProfileSettings()
     local opt = {
         type = 'group',
-        name = L"Aptechka Settings",
+        name = L"Aptechka Profile Settings",
         order = 1,
         args = {
             anchors = {
@@ -927,66 +920,6 @@ local function MakeGeneralOptions()
                         end,
                         order = 8.1,
                     },
-                    RMBClickthrough = {
-                        name = L"RMB Mouselook Clickthrough"..newFeatureIcon,
-                        desc = L"Allows to turn with RMB without moving mouse away from the unitframes.\nIf using Clique, this will override its RMB binding",
-                        type = "toggle",
-                        width = "full",
-                        confirm = true,
-                        confirmText = L"Warning: Requires UI reloading.",
-                        get = function(info) return Aptechka.db.global.RMBClickthrough end,
-                        set = function(info, v)
-                            Aptechka.db.global.RMBClickthrough = not Aptechka.db.global.RMBClickthrough
-                            ReloadUI()
-                        end,
-                        order = 8.3,
-                    },
-                    sortUnitsByRole = {
-                        name = L"Sort Units by Role",
-                        width = "full",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.global.sortUnitsByRole end,
-                        set = function(info, v)
-                            Aptechka.db.global.sortUnitsByRole = not Aptechka.db.global.sortUnitsByRole
-                            Aptechka:PrintReloadUIWarning()
-                        end,
-                        order = 8.5,
-                    },
-
-                    disableBlizzardParty = {
-                        name = L"Disable Blizzard Party Frames",
-                        width = "double",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.global.disableBlizzardParty end,
-                        set = function(info, v)
-                            Aptechka.db.global.disableBlizzardParty = not Aptechka.db.global.disableBlizzardParty
-                            Aptechka:PrintReloadUIWarning()
-                        end,
-                        order = 9,
-                    },
-                    hideBlizzardRaid = {
-                        name = L"Hide Blizzard Raid Frames",
-                        width = "full",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.global.hideBlizzardRaid end,
-                        set = function(info, v)
-                            Aptechka.db.global.hideBlizzardRaid = not Aptechka.db.global.hideBlizzardRaid
-                            Aptechka:PrintReloadUIWarning()
-                        end,
-                        order = 10,
-                    },
-                    -- disableBlizzardRaid = {
-                    --     name = "Disable Blizzard Raid Frames (not recommended)",
-                    --     width = "full",
-                    --     type = "toggle",
-                    --     confirm = true,
-                    -- 	confirmText = "Warning: Will completely disable Blizzard CompactRaidFrames, but you also lose raid leader functionality. If you delete this addon, you can only revert with this macro:\n/script EnableAddOn('Blizzard_CompactRaidFrames'); EnableAddOn('Blizzard_CUFProfiles')",
-                    --     get = function(info) return not IsAddOnLoaded("Blizzard_CompactRaidFrames") end,
-                    --     set = function(info, v)
-                    --         Aptechka:ToggleCompactRaidFrames()
-                    --     end,
-                    --     order = 10.4,
-                    -- },
                     petGroup = {
                         name = L"Enable Pet Group",
                         type = "toggle",
@@ -996,15 +929,6 @@ local function MakeGeneralOptions()
                             Aptechka:PrintReloadUIWarning()
                         end,
                         order = 15.7,
-                    },
-                    disableTooltip = {
-                        name = L"Disable Tooltips",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.global.disableTooltip end,
-                        set = function(info, v)
-                            Aptechka.db.global.disableTooltip = not Aptechka.db.global.disableTooltip
-                        end,
-                        order = 10.8,
                     },
                     showAggro = {
                         name = L"Show Aggro",
@@ -1016,16 +940,6 @@ local function MakeGeneralOptions()
                         end,
                         order = 10.9,
                     },
-                    showAFK = {
-                        name = L"Show AFK",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.global.showAFK end,
-                        set = function(info, v)
-                            Aptechka.db.global.showAFK = not Aptechka.db.global.showAFK
-                            Aptechka:PrintReloadUIWarning()
-                        end,
-                        order = 11,
-                    },
                     showRaidIcons = {
                         name = L"Show Raid Icons",
                         type = "toggle",
@@ -1035,16 +949,6 @@ local function MakeGeneralOptions()
                             Aptechka:UpdateRaidIconsConfig()
                         end,
                         order = 11.1,
-                    },
-                    useDebuffOrdering = {
-                        name = L"Use Debuff Ordering",
-                        type = "toggle",
-                        order = 11.2,
-                        get = function(info) return Aptechka.db.global.useDebuffOrdering end,
-                        set = function(info, v)
-                            Aptechka.db.global.useDebuffOrdering = not Aptechka.db.global.useDebuffOrdering
-                            Aptechka:UpdateDebuffScanningMethod()
-                        end
                     },
                     showDispels = {
                         name = L"Dispel Indicator",
@@ -1066,31 +970,6 @@ local function MakeGeneralOptions()
                             Aptechka:UpdateCastsConfig()
                         end,
                         order = 12,
-                    },
-                    useCLH = {
-                        name = L"Use LibCLHealth"..newFeatureIcon,
-                        desc = L"More frequent health updates based combat log",
-                        type = "toggle",
-                        width = "full",
-                        order = 18,
-                        get = function(info) return Aptechka.db.global.useCombatLogHealthUpdates end,
-                        set = function(info, v)
-                            Aptechka.db.global.useCombatLogHealthUpdates = not Aptechka.db.global.useCombatLogHealthUpdates
-                            Aptechka:PrintReloadUIWarning()
-                        end
-                    },
-                    forceShamanColor = {
-                        name = "Retail Shaman Color",
-                        desc = "Use the usual blue color for shamans. Overriden by ClassColors addon if present",
-                        type = "toggle",
-                        confirm = true,
-						confirmText = "Warning: Requires UI reloading.",
-                        get = function(info) return Aptechka.db.forceShamanColor end,
-                        set = function(info, v)
-                            Aptechka.db.forceShamanColor = not Aptechka.db.forceShamanColor
-                            ReloadUI()
-                        end,
-                        order = 15.8,
                     },
                 }
             },
@@ -1434,199 +1313,20 @@ local function MakeGeneralOptions()
                     },
                 },
             },
-            resetAll = {
-                name = L"Full Settings Reset",
-                width = "full",
-                type = "execute",
-                desc = L"Wipe all your settings and restore to defaults",
-                func = function()
-                    table.wipe(Aptechka.db.profile)
-                    ReloadUI()
-                end,
-                order = 50,
-            },
         },
     }
 
     local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
-    AceConfigRegistry:RegisterOptionsTable("AptechkaGeneral", opt)
+    AceConfigRegistry:RegisterOptionsTable("AptechkaProfileSettings", opt)
 
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaGeneral", "General", "Aptechka")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaProfileSettings", "Profile Settings", "Aptechka")
 
     return panelFrame
 end
 
 
-local profilesTable = {}
-local function GetProfileList(db)
-    local profiles = db:GetProfiles(profilesTable)
-    local t = {}
-    for i,v in ipairs(profiles) do
-        t[v] = v
-    end
-    return t
-end
 
-local function MakeScalingOptions()
-    local opt = {
-        type = 'group',
-        name = L"Aptechka Profile Settings",
-        order = 1,
-        args = {
-            normalScale = {
-                name = L"Current Profile",
-                type = 'select',
-                width = 2,
-                order = 1,
-                values = function()
-                    return GetProfileList(Aptechka.db)
-                end,
-                get = function(info)
-                    return Aptechka.db:GetCurrentProfile()
-                end,
-                set = function(info, v)
-                    Aptechka.db:SetProfile(v)
-                end,
-            },
-            healerGroup = {
-                type = 'group',
-                name = L"Profile Auto-Switching",
-                order = 2,
-
-                guiInline = true,
-                args = {
-                    HEALER_solo = {
-                        name = L"HEALER"..": Solo",
-                        type = 'select',
-                        order = 1,
-                        width = 1.6,
-                        values = function()
-                            return GetProfileList(Aptechka.db)
-                        end,
-                        get = function(info) return Aptechka.db.global.profileSelection.HEALER.solo end,
-                        set = function(info, v)
-                            Aptechka.db.global.profileSelection.HEALER.solo = v
-                            Aptechka:Reconfigure()
-                        end,
-                    },
-                    DAMAGER_solo = {
-                        name = L"DAMAGER"..": Solo",
-                        type = 'select',
-                        order = 2,
-                        width = 1.6,
-                        values = function()
-                            return GetProfileList(Aptechka.db)
-                        end,
-                        get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.solo end,
-                        set = function(info, v)
-                            Aptechka.db.global.profileSelection.DAMAGER.solo = v
-                            Aptechka:Reconfigure()
-                        end,
-                    },
-
-
-                    HEALER_party = {
-                        name = L"HEALER"..": 5man",
-                        type = 'select',
-                        order = 3,
-                        width = 1.6,
-                        values = function()
-                            return GetProfileList(Aptechka.db)
-                        end,
-                        get = function(info) return Aptechka.db.global.profileSelection.HEALER.party end,
-                        set = function(info, v)
-                            Aptechka.db.global.profileSelection.HEALER.party = v
-                            Aptechka:Reconfigure()
-                        end,
-                    },
-                    DAMAGER_party = {
-                        name = L"DAMAGER"..": 5man",
-                        type = 'select',
-                        order = 4,
-                        width = 1.6,
-                        values = function()
-                            return GetProfileList(Aptechka.db)
-                        end,
-                        get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.party end,
-                        set = function(info, v)
-                            Aptechka.db.global.profileSelection.DAMAGER.party = v
-                            Aptechka:Reconfigure()
-                        end,
-                    },
-
-
-                    HEALER_smallRaid = {
-                        name = L"HEALER"..": Small Raid",
-                        type = 'select',
-                        order = 5,
-                        width = 1.6,
-                        values = function()
-                            return GetProfileList(Aptechka.db)
-                        end,
-                        get = function(info) return Aptechka.db.global.profileSelection.HEALER.smallRaid end,
-                        set = function(info, v)
-                            Aptechka.db.global.profileSelection.HEALER.smallRaid = v
-                            Aptechka:Reconfigure()
-                        end,
-                    },
-                    DAMAGER_smallRaid = {
-                        name = L"DAMAGER"..": Small Raid",
-                        type = 'select',
-                        order = 6,
-                        width = 1.6,
-                        values = function()
-                            return GetProfileList(Aptechka.db)
-                        end,
-                        get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.smallRaid end,
-                        set = function(info, v)
-                            Aptechka.db.global.profileSelection.DAMAGER.smallRaid = v
-                            Aptechka:Reconfigure()
-                        end,
-                    },
-
-
-                    HEALER_mediumRaid = {
-                        name = L"HEALER"..": Medium Raid",
-                        type = 'select',
-                        order = 5,
-                        width = 1.6,
-                        values = function()
-                            return GetProfileList(Aptechka.db)
-                        end,
-                        get = function(info) return Aptechka.db.global.profileSelection.HEALER.mediumRaid end,
-                        set = function(info, v)
-                            Aptechka.db.global.profileSelection.HEALER.mediumRaid = v
-                            Aptechka:Reconfigure()
-                        end,
-                    },
-                    DAMAGER_mediumRaid = {
-                        name = L"DAMAGER"..": Medium Raid",
-                        type = 'select',
-                        order = 6,
-                        width = 1.6,
-                        values = function()
-                            return GetProfileList(Aptechka.db)
-                        end,
-                        get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.mediumRaid end,
-                        set = function(info, v)
-                            Aptechka.db.global.profileSelection.DAMAGER.mediumRaid = v
-                            Aptechka:Reconfigure()
-                        end,
-                    },
-                },
-            },
-        },
-    }
-
-    local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
-    AceConfigRegistry:RegisterOptionsTable("AptechkaProfile", opt)
-
-    local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaProfile", "Profile Selection", "Aptechka")
-
-    return panelFrame
-end
 
 --[[
 local function MakeScalingOptions()
@@ -1787,19 +1487,19 @@ do
     InterfaceOptions_AddCategory(f);
 
 
-    f.general = MakeGeneralOptions()
-    f.scaling = MakeScalingOptions()
+    f.globals = ns.MakeGlobalSettings()
+    f.profile = ns.MakeProfileSettings()
+    f.profileSelection = ns.MakeProfileSelection()
     f.blacklist = MakeBlacklistHelp()
 
-    AptechkaGUI.frame = AptechkaGUI:Create("Spell List", "Aptechka")
-    f.spell_list = AptechkaGUI.frame.frame
+    ns.frame = ns:Create("Spell List", "Aptechka")
+    f.spell_list = ns.frame.frame
     InterfaceOptions_AddCategory(f.spell_list);
 
     f:Hide()
     f:SetScript("OnShow", function(self)
             self:Hide();
-            -- local first = self.spell_list
-            local first = self.general
+            local first = self.profile
             InterfaceOptionsFrame_OpenToCategory (first)
             InterfaceOptionsFrame_OpenToCategory (first)
     end)

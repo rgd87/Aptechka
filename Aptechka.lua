@@ -279,7 +279,6 @@ end
 Aptechka.MergeTable = MergeTable
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
--- Aptechka:RegisterEvent("PLAYER_LOGOUT")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
     Aptechka:UpdateDispelBitmask()
@@ -296,21 +295,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     AptechkaDB_Global = AptechkaDB_Global or {}
     AptechkaDB_Char = AptechkaDB_Char or {}
-    -- AptechkaDB_Global.charspec = AptechkaDB_Global.charspec or {}
-    -- local user = UnitName("player").."@"..GetRealmName()
-    -- if AptechkaDB_Global.charspec[user] then
-    --     AptechkaDB = AptechkaDB_Char
-    -- else
-    --     AptechkaDB = AptechkaDB_Global
-    -- end
-    -- Aptechka.db = AptechkaDB
     self:DoMigrations(AptechkaDB_Global)
     self.db = LibStub("AceDB-3.0"):New("AptechkaDB_Global", defaults, "Default") -- Create a DB using defaults and using a shared default profile
     AptechkaDB = self.db
-    -- SetupDefaults(AptechkaDB, defaults)
-
-    -- TODO:
-    -- Restore custom blacklist
 
     self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
     self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
@@ -336,7 +323,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
     colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
 
-    blacklist = default_blacklist--setmetatable(AptechkaDB.global.customBlacklist, { __index = default_blacklist})
+    blacklist = setmetatable({}, {
+        __index = function(t,k)
+            return AptechkaDB.global.customBlacklist[k] or default_blacklist[k]
+        end,
+    })
 
     AptechkaConfigCustom = AptechkaConfigCustom or {}
     AptechkaConfigMerged = CopyTable(AptechkaDefaultConfig)
@@ -705,57 +696,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end)
 
 
-
-
-    -- if config.useCombatLogFiltering then
-    --     local timer = CreateFrame("Frame")
-    --     timer.OnUpdateCounter = 0
-    --     timer:SetScript("OnUpdate",function(self, time)
-    --         self.OnUpdateCounter = self.OnUpdateCounter + time
-    --         if self.OnUpdateCounter < 1 then return end
-    --         self.OnUpdateCounter = 0
-    --         for unit in pairs(buffer) do
-    --             Aptechka.ScanAuras(unit)
-    --             buffer[unit] = nil
-    --         end
-    --     end)
-
-    --     Aptechka.UNIT_AURA = function(self, event, unit)
-    --         if not Roster[unit] then return end
-    --         Aptechka.ScanDispels(unit)
-    --         if OORUnits[unit] and inCL[unit] +5 < GetTime() then
-    --             buffer[unit] = true
-    --         end
-    --     end
-
-    --     auraUpdateEvents = {
-    --         ["SPELL_AURA_REFRESH"] = true,
-    --         ["SPELL_AURA_APPLIED"] = true,
-    --         ["SPELL_AURA_APPLIED_DOSE"] = true,
-    --         ["SPELL_AURA_REMOVED"] = true,
-    --         ["SPELL_AURA_REMOVED_DOSE"] = true,
-    --     }
-    --     if select(2,UnitClass("player")) == "SHAMAN" then auraUpdateEvents["SPELL_HEAL"] = true end
-    --     local cleuEvent = CreateFrame("Frame")
-    --     cleuEvent:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    --     cleuEvent:SetScript("OnEvent",
-    --     function( self, event, timestamp, eventType, hideCaster,
-    --                     srcGUID, srcName, srcFlags, srcFlags2,
-    --                     dstGUID, dstName, dstFlags, dstFlags2,
-    --                     spellID, spellName, spellSchool, auraType, amount)
-    --         if auras[spellName] then
-    --             if auraUpdateEvents[eventType] then
-    --                 local unit = guidMap[dstGUID]
-    --                 if unit then
-    --                     buffer[unit] = nil
-    --                     inCL[unit] = GetTime()
-    --                     Aptechka.ScanAuras(unit)
-    --                 end
-    --             end
-    --         end
-    --     end)
-    -- end
-
     local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
     f:SetScript('OnShow', function(self)
         self:SetScript('OnShow', nil)
@@ -764,10 +704,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self.isInitialized = true
 end  -- END PLAYER_LOGIN
-
-function Aptechka.PLAYER_LOGOUT(self, event)
-    RemoveDefaults(AptechkaDB, defaults)
-end
 
 
 function Aptechka:ToggleCompactRaidFrames()
@@ -819,6 +755,7 @@ end
 
 function Aptechka:Reconfigure()
     if not self.isInitialized then return end
+    if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
     self:ReconfigureProtected()
     self:ReconfigureUnprotected()
 
@@ -1439,8 +1376,7 @@ function Aptechka.SetScale(self, scale)
     end
 end
 function Aptechka.PLAYER_REGEN_ENABLED(self,event)
-    self:GROUP_ROSTER_UPDATE()
-    self:ReconfigureProtected()
+    self:Reconfigure()
     self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 end
 
@@ -1505,11 +1441,18 @@ function Aptechka:GetCurrentGroupType()
             return "bigRaid"
         elseif numMembers > 15 then
             return "mediumRaid"
-        else
+        elseif numMembers > 5 then
             return "smallRaid"
+        else
+            return "party"
         end
     elseif IsInGroup() then
-        return "party"
+        local numMembers = GetNumGroupMembers()
+        if numMembers > 1 then
+            return "party"
+        else
+            return "solo"
+        end
     else
         return "solo"
     end
@@ -2963,8 +2906,6 @@ do
         end
 
         if db.DB_VERSION == 1 then
-            print("starting migration...")
-
             db.global = {}
             db.global.disableBlizzardParty = db.disableBlizzardParty
             db.global.hideBlizzardRaid = db.hideBlizzardRaid
@@ -3012,21 +2953,15 @@ do
             default_profile.fgColorMultiplier = db.fgColorMultiplier
             default_profile.bgColorMultiplier = db.bgColorMultiplier
 
-            -- if db.useRoleProfiles then
-            print("roleProfile:",db.roleProfile)
             if db.roleProfile then
-                print('have roleprofile')
                 if db.roleProfile["HEALER"] then
-                    print('have healer')
                     local old_healer_profile = db.roleProfile["HEALER"]
                     default_profile.point = old_healer_profile.point
                     default_profile.x = old_healer_profile.x
                     default_profile.y = old_healer_profile.y
-                    print("Copied over anchor data")
                 end
                 if db.useRoleProfiles and db.roleProfile["DAMAGER"] then
                     local old_damager_profile = db.roleProfile["DAMAGER"]
-                    print('have damager')
                     -- Create a second profile, copied from our new Default profile
                     db.profiles["DefaultNonHealer"] = CopyTable(default_profile)
 
@@ -3035,6 +2970,16 @@ do
                     default_damager_profile.point = old_damager_profile.point
                     default_damager_profile.x = old_damager_profile.x
                     default_damager_profile.y = old_damager_profile.y
+
+                    db.global.profileSelection = {
+                        DAMAGER = {
+                            solo = "DefaultNonHealer",
+                            party = "DefaultNonHealer",
+                            smallRaid = "DefaultNonHealer",
+                            mediumRaid = "DefaultNonHealer",
+                            bigRaid = "DefaultNonHealer",
+                        },
+                    }
                 end
             end
 
