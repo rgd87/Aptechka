@@ -116,7 +116,7 @@ function ns.MakeProfileSelection()
 
 
                     HEALER_smallRaid = {
-                        name = L"HEALER"..": Small Raid (6-15)",
+                        name = L"HEALER"..": Small Raid (6-10)",
                         type = 'select',
                         order = 5,
                         width = 1.6,
@@ -130,7 +130,7 @@ function ns.MakeProfileSelection()
                         end,
                     },
                     DAMAGER_smallRaid = {
-                        name = L"DAMAGER"..": Small Raid (6-15)",
+                        name = L"DAMAGER"..": Small Raid (6-10)",
                         type = 'select',
                         order = 6,
                         width = 1.6,
@@ -146,7 +146,7 @@ function ns.MakeProfileSelection()
 
 
                     HEALER_mediumRaid = {
-                        name = L"HEALER"..": Medium Raid (16-25)",
+                        name = L"HEALER"..": Medium Raid (11-22)",
                         type = 'select',
                         order = 7,
                         width = 1.6,
@@ -160,7 +160,7 @@ function ns.MakeProfileSelection()
                         end,
                     },
                     DAMAGER_mediumRaid = {
-                        name = L"DAMAGER"..": Medium Raid (16-25)",
+                        name = L"DAMAGER"..": Medium Raid (11-22)",
                         type = 'select',
                         order = 8,
                         width = 1.6,
@@ -176,7 +176,7 @@ function ns.MakeProfileSelection()
 
 
                     HEALER_bigRaid = {
-                        name = L"HEALER"..": Big Raid (26-40)",
+                        name = L"HEALER"..": Big Raid (23-30)",
                         type = 'select',
                         order = 9,
                         width = 1.6,
@@ -190,7 +190,7 @@ function ns.MakeProfileSelection()
                         end,
                     },
                     DAMAGER_bigRaid = {
-                        name = L"DAMAGER"..": Big Raid (26-40)",
+                        name = L"DAMAGER"..": Big Raid (23-30)",
                         type = 'select',
                         order = 10,
                         width = 1.6,
@@ -200,6 +200,35 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.bigRaid end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.DAMAGER.bigRaid = v
+                            Aptechka:Reconfigure()
+                        end,
+                    },
+
+                    HEALER_fullRaid = {
+                        name = L"HEALER"..": Full Raid (31-40)",
+                        type = 'select',
+                        order = 11,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.HEALER.fullRaid end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.HEALER.fullRaid = v
+                            Aptechka:Reconfigure()
+                        end,
+                    },
+                    DAMAGER_fullRaid = {
+                        name = L"DAMAGER"..": Full Raid (31-40)",
+                        type = 'select',
+                        order = 12,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.fullRaid end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.DAMAGER.fullRaid = v
                             Aptechka:Reconfigure()
                         end,
                     },

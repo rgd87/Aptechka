@@ -158,6 +158,7 @@ local defaults = {
                 smallRaid = "Default",
                 mediumRaid = "Default",
                 bigRaid = "Default",
+                fullRaid = "Default",
             },
             DAMAGER = {
                 solo = "Default",
@@ -165,6 +166,7 @@ local defaults = {
                 smallRaid = "Default",
                 mediumRaid = "Default",
                 bigRaid = "Default",
+                fullRaid = "Default",
             },
         },
     },
@@ -1392,11 +1394,7 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
     RosterUpdateOccured = GetTime()
 
     --raid autoscaling
-    if not InCombatLockdown() then
-        Aptechka:LayoutUpdate()
-    else
-        self:RegisterEvent("PLAYER_REGEN_ENABLED")
-    end
+    Aptechka:LayoutUpdate()
 
     for unit, frames in pairs(Roster) do
         for frame in pairs(frames) do
@@ -1408,7 +1406,7 @@ end
 
 function Aptechka:OnRoleChanged()
     if not InCombatLockdown() then Aptechka:LayoutUpdate() end
-    Aptechka:ReconfigureProtected() -- Schedules update on combat exit, that also includes layout update
+    Aptechka:Reconfigure() -- Schedules update on combat exit, that also includes layout update
 end
 do
     local currentRole
@@ -1428,8 +1426,10 @@ function Aptechka:GetCurrentGroupType()
     if IsInRaid() then
         local numMembers = GetNumGroupMembers()
         if numMembers > 30 then
+            return "fullRaid"
+        elseif numMembers > 22 then
             return "bigRaid"
-        elseif numMembers > 15 then
+        elseif numMembers > 10 then
             return "mediumRaid"
         elseif numMembers > 5 then
             return "smallRaid"
@@ -2541,7 +2541,7 @@ local ParseOpts = function(str)
     return t
 end
 function Aptechka:PrintReloadUIWarning()
-    print(Aptechka.L"Aptechka: Changes will effect after /reload")
+    print(AptechkaString..Aptechka.L"Changes will take effect after /reload")
     -- print("|cffffffff|Hgarrmission:APTECHKAReload:|h[/reload]|h|r")
 end
 -- hooksecurefunc("SetItemRef", function(link, text)
@@ -2861,6 +2861,8 @@ do
         end
 
         if db.DB_VERSION == 1 then
+            print(AptechkaString.."Now using full profile switching instead of simple autoscaling. Migrating your settings...")
+
             db.global = {}
             db.global.disableBlizzardParty = db.disableBlizzardParty
             db.global.hideBlizzardRaid = db.hideBlizzardRaid
@@ -2933,6 +2935,7 @@ do
                             smallRaid = "DefaultNonHealer",
                             mediumRaid = "DefaultNonHealer",
                             bigRaid = "DefaultNonHealer",
+                            fullRaid = "DefaultNonHealer",
                         },
                     }
                 end
