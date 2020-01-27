@@ -323,7 +323,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
     colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
 
-    blacklist = default_blacklist--setmetatable(AptechkaDB.global.customBlacklist, { __index = default_blacklist})
+    blacklist = setmetatable({}, {
+        __index = function(t,k)
+            return AptechkaDB.global.customBlacklist[k] or default_blacklist[k]
+        end,
+    })
 
     AptechkaConfigCustom = AptechkaConfigCustom or {}
     AptechkaConfigMerged = CopyTable(AptechkaDefaultConfig)
