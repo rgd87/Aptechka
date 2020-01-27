@@ -105,6 +105,19 @@ function ns.MakeGlobalSettings()
                             Aptechka:UpdateDebuffScanningMethod()
                         end
                     },
+                    forceShamanColor = {
+                        name = "Retail Shaman Color",
+                        desc = "Use the usual blue color for shamans. Overriden by ClassColors addon if present",
+                        type = "toggle",
+                        confirm = true,
+						confirmText = "Warning: Requires UI reloading.",
+                        get = function(info) return Aptechka.db.forceShamanColor end,
+                        set = function(info, v)
+                            Aptechka.db.forceShamanColor = not Aptechka.db.forceShamanColor
+                            ReloadUI()
+                        end,
+                        order = 15.8,
+                    },
                     useCLH = {
                         name = L"Use LibCLHealth"..newFeatureIcon,
                         desc = L"More frequent health updates based combat log",
