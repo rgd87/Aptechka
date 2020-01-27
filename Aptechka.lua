@@ -300,11 +300,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
     self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
 
-    if AptechkaDB.invertedColors then
-        AptechkaDB.invertedColors = nil
-        AptechkaDB.profile.fgShowMissing = false
-    end
-
     Aptechka:UpdateUnprotectedUpvalues()
 
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
@@ -435,19 +430,20 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     -- local ccmacro = config.ClickCastingMacro or "__none__"
 
-    local width = pixelperfect(AptechkaDB.profile.width or config.width)
-    local height = pixelperfect(AptechkaDB.profile.height or config.height)
-    -- local scale = AptechkaDB.scale or config.scale
-    local strata = config.frameStrata or "LOW"
-    local scale = 1
+    -- local width = pixelperfect(AptechkaDB.profile.width or config.width)
+    -- local height = pixelperfect(AptechkaDB.profile.height or config.height)
+    -- local scale = AptechkaDB.profile.scale or config.scale
+    -- local strata = config.frameStrata or "LOW"
     self.initConfSnippet = [=[
             RegisterUnitWatch(self)
 
             local header = self:GetParent()
             local width = header:GetAttribute("frameWidth")
             local height = header:GetAttribute("frameHeight")
+            local scale = header:GetAttribute("frameScale")
             self:SetWidth(width)
             self:SetHeight(height)
+            self:SetScale(scale)
             self:SetFrameStrata("LOW")
             self:SetFrameLevel(3)
 
@@ -522,7 +518,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
 
     LibAuraTypes = LibStub("LibAuraTypes")
-    if AptechkaDB.profile.useDebuffOrdering then
+    if AptechkaDB.global.useDebuffOrdering then
         LibSpellLocks = LibStub("LibSpellLocks")
 
         LibSpellLocks.RegisterCallback("Aptechka", "UPDATE_INTERRUPT", function(event, guid)
@@ -776,14 +772,14 @@ function Aptechka:ReconfigureProtected()
 
     local width = pixelperfect(AptechkaDB.profile.width or config.width)
     local height = pixelperfect(AptechkaDB.profile.height or config.height)
-    -- local scale = AptechkaDB.profile.scale or config.scale
+    local scale = AptechkaDB.profile.scale or config.scale
     -- local strata = config.frameStrata or "LOW"
-    local scale = 1
     -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
     for group, header in ipairs(group_headers) do
         if header:CanChangeAttribute() then
             header:SetAttribute("frameWidth", width)
             header:SetAttribute("frameHeight", height)
+            header:SetAttribute("frameScale", scale)
         end
         for _, f in ipairs({ header:GetChildren() }) do
             f:SetWidth(width)
@@ -1206,7 +1202,7 @@ Aptechka.OnRangeUpdate = function (self, time)
                 RosterUpdateOccured = nil
 
                 for i,hdr in pairs(group_headers) do
-                    local showSolo = AptechkaDB.showSolo
+                    local showSolo = AptechkaDB.profile.showSolo
                     hdr:SetAttribute("showSolo", not showSolo)
                     hdr:SetAttribute("showSolo", showSolo)
                 end
@@ -1352,12 +1348,6 @@ function Aptechka.CheckRoles(apt, self, unit )
     end
 end
 
-function Aptechka.SetScale(self, scale)
-    if InCombatLockdown() then return end
-    for i,hdr in pairs(group_headers) do
-        hdr:SetScale(scale)
-    end
-end
 function Aptechka.PLAYER_REGEN_ENABLED(self,event)
     self:Reconfigure()
     self:UnregisterEvent("PLAYER_REGEN_ENABLED")
@@ -1441,16 +1431,6 @@ function Aptechka:GetCurrentGroupType()
     end
 end
 
-function Aptechka:DecideGroupScale(numMembers, role, spec)
-    -- if numMembers > 30 then
-    --     return AptechkaDB.roleProfile[role].scaleBigRaid
-    -- elseif numMembers > 12 then
-    --     return AptechkaDB.roleProfile[role].scaleMediumRaid
-    -- else
-        return AptechkaDB.profile.scale
-    -- end
-end
-
 function Aptechka.LayoutUpdate(self)
     local numMembers = GetNumGroupMembers()
     local spec = GetSpecialization()
@@ -1460,8 +1440,6 @@ function Aptechka.LayoutUpdate(self)
     local newProfileName = self.db.global.profileSelection[role][groupType]
 
     self.db:SetProfile(newProfileName)
-    -- local scale = self:DecideGroupScale(numMembers, role, spec)
-    -- self:SetScale(scale or 1)
 end
 
 --raid icons
@@ -1705,7 +1683,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
 
     local xgap = AptechkaDB.profile.unitGap or config.unitGap
     local ygap = AptechkaDB.profile.unitGap or config.unitGap
-    local unitgr = reverse(AptechkaDB.unitGrowth or config.unitGrowth)
+    local unitgr = reverse(AptechkaDB.profile.unitGrowth or config.unitGrowth)
     if unitgr == "RIGHT" then
         xgap = -xgap
     elseif unitgr == "TOP" then
@@ -1740,8 +1718,10 @@ function Aptechka.CreateHeader(self,group,petgroup)
 
     local width = pixelperfect(AptechkaDB.profile.width or config.width)
     local height = pixelperfect(AptechkaDB.profile.height or config.height)
+    local scale = AptechkaDB.profile.scale or config.scale
     f:SetAttribute("frameWidth", width)
     f:SetAttribute("frameHeight", height)
+    f:SetAttribute("frameScale", scale)
 
     f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange,_onstate-vehicleui')
     f:SetAttribute('_initialAttribute-_onenter', [[
@@ -1853,7 +1833,6 @@ function Aptechka:SetAnchorpoint(unitGrowth, groupGrowth)
 end
 
 function Aptechka:GetSpecRole()
-    if not AptechkaDB.useRoleProfiles then return "HEALER" end
     local spec = GetSpecialization()
     local role = GetSpecializationRole(spec)
     if role ~= "HEALER" then role = "DAMAGER" end
@@ -1905,33 +1884,9 @@ function Aptechka.CreateAnchor(self,hdr,num)
     end)
 end
 
-function Aptechka.SwitchAnchors(self, newAnchors)
-    skinAnchorsName = newAnchors
-    for num, f in ipairs(anchors) do
-        if not AptechkaDB[skinAnchorsName] then AptechkaDB[skinAnchorsName] = {} end
-        if not AptechkaDB[skinAnchorsName][num] then
-            if num == 1 then AptechkaDB[skinAnchorsName][num] = { point = "CENTER", x = 0, y = 0 }
-            elseif num == 9 then AptechkaDB[skinAnchorsName][num] = { point = "BOTTOMLEFT", x = 0, y = -60 }
-            else AptechkaDB[skinAnchorsName][num] = { point = "TOPLEFT", x = 0, y = 60} end
-        end
-        local san = AptechkaDB[skinAnchorsName][num]
-        if num == 1 then
-            f.root = true
-            f:ClearAllPoints()
-            f:SetPoint(san.point,UIParent,san.point,san.x,san.y)
-        else
-            f.prev = anchors[num-1]
-            if num == 9 then f.prev = anchors[1] end
-            f:ClearAllPoints()
-            f:SetPoint(san.point,f.prev,san.point,san.x,san.y)
-        end
-        f.san = san
-    end
-end
-
 local onenter = function(self)
     if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
-    if AptechkaDB.disableTooltip or UnitAffectingCombat("player") then return end
+    if AptechkaDB.global.disableTooltip or UnitAffectingCombat("player") then return end
     UnitFrame_OnEnter(self)
     self:SetScript("OnUpdate", UnitFrame_OnUpdate)
 end
