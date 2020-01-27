@@ -3,7 +3,7 @@ local addonName, ns = ...
 local L = Aptechka.L
 
 local profilesTable = {}
-local function GetProfileList(db)
+function ns.GetProfileList(db)
     local profiles = db:GetProfiles(profilesTable)
     local t = {}
     for i,v in ipairs(profiles) do
@@ -11,6 +11,7 @@ local function GetProfileList(db)
     end
     return t
 end
+local GetProfileList = ns.GetProfileList
 
 function ns.MakeProfileSelection()
     local opt = {
@@ -18,69 +19,7 @@ function ns.MakeProfileSelection()
         name = L"Aptechka Profiles",
         order = 1,
         args = {
-            currentProfile = {
-                type = 'group',
-                order = 1,
-                name = " ",
-                guiInline = true,
-                args = {
-                    normalScale = {
-                        name = L"Current Profile",
-                        type = 'select',
-                        width = 1.5,
-                        order = 1,
-                        values = function()
-                            return GetProfileList(Aptechka.db)
-                        end,
-                        get = function(info)
-                            return Aptechka.db:GetCurrentProfile()
-                        end,
-                        set = function(info, v)
-                            Aptechka.db:SetProfile(v)
-                        end,
-                    },
-                    copyButton = {
-                        name = L"Copy",
-                        type = 'execute',
-                        order = 2,
-                        width = 0.5,
-                        func = function(info)
-                            local p = Aptechka.db:GetCurrentProfile()
-                            ns.storedProfile = p
-                        end,
-                    },
-                    pasteButton = {
-                        name = L"Paste",
-                        type = 'execute',
-                        order = 3,
-                        width = 0.5,
-                        disabled = function()
-                            return ns.storedProfile == nil
-                        end,
-                        func = function(info)
-                            if ns.storedProfile then
-                                Aptechka.db:CopyProfile(ns.storedProfile, true)
-                            end
-                        end,
-                    },
-                    deleteButton = {
-                        name = L"Delete",
-                        type = 'execute',
-                        order = 4,
-                        confirm = true,
-                        confirmText = L"Are you sure?",
-                        width = 0.5,
-                        disabled = function()
-                            return Aptechka.db:GetCurrentProfile() == "Default"
-                        end,
-                        func = function(info)
-                            local p = Aptechka.db:GetCurrentProfile()
-                            Aptechka.db:SetProfile("Default")
-                            Aptechka.db:DeleteProfile(p, true)
-                        end,
-                    },
-                },
-            },
+
             healerGroup = {
                 type = 'group',
                 name = L"Profile Auto-Switching",
@@ -234,42 +173,6 @@ function ns.MakeProfileSelection()
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.DAMAGER.bigRaid = v
                             Aptechka:Reconfigure()
-                        end,
-                    },
-                },
-            },
-
-            NewProfile = {
-                type = 'group',
-                order = 4,
-                name = " ",
-                guiInline = true,
-                args = {
-                    profileName = {
-                        name = L"New Profile Name",
-                        type = 'input',
-                        order = 1,
-                        width = 1.6,
-                        get = function(info) return ns.newProfileName end,
-                        set = function(info, v)
-                            ns.newProfileName = v
-                        end,
-                    },
-                    createButton = {
-                        name = L"Create New Profile",
-                        type = 'execute',
-                        order = 2,
-                        disabled = function()
-                            return not ns.newProfileName
-                            or strlenutf8(ns.newProfileName) == 0
-                            or Aptechka.db.profiles[ns.newProfileName]
-                        end,
-                        func = function(info)
-                            if ns.newProfileName and strlenutf8(ns.newProfileName) > 0 then
-                                Aptechka.db:SetProfile(ns.newProfileName)
-                                Aptechka.db:CopyProfile("Default", true)
-                                ns.newProfileName = ""
-                            end
                         end,
                     },
                 },
