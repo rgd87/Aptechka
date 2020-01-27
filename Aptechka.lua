@@ -276,7 +276,6 @@ end
 Aptechka.MergeTable = MergeTable
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
--- Aptechka:RegisterEvent("PLAYER_LOGOUT")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
     Aptechka:UpdateDispelBitmask()
@@ -293,21 +292,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     AptechkaDB_Global = AptechkaDB_Global or {}
     AptechkaDB_Char = AptechkaDB_Char or {}
-    -- AptechkaDB_Global.charspec = AptechkaDB_Global.charspec or {}
-    -- local user = UnitName("player").."@"..GetRealmName()
-    -- if AptechkaDB_Global.charspec[user] then
-    --     AptechkaDB = AptechkaDB_Char
-    -- else
-    --     AptechkaDB = AptechkaDB_Global
-    -- end
-    -- Aptechka.db = AptechkaDB
     self:DoMigrations(AptechkaDB_Global)
     self.db = LibStub("AceDB-3.0"):New("AptechkaDB_Global", defaults, "Default") -- Create a DB using defaults and using a shared default profile
     AptechkaDB = self.db
-    -- SetupDefaults(AptechkaDB, defaults)
-
-    -- TODO:
-    -- Restore custom blacklist
 
     self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
     self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
@@ -681,57 +668,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end)
 
 
-
-
-    -- if config.useCombatLogFiltering then
-    --     local timer = CreateFrame("Frame")
-    --     timer.OnUpdateCounter = 0
-    --     timer:SetScript("OnUpdate",function(self, time)
-    --         self.OnUpdateCounter = self.OnUpdateCounter + time
-    --         if self.OnUpdateCounter < 1 then return end
-    --         self.OnUpdateCounter = 0
-    --         for unit in pairs(buffer) do
-    --             Aptechka.ScanAuras(unit)
-    --             buffer[unit] = nil
-    --         end
-    --     end)
-
-    --     Aptechka.UNIT_AURA = function(self, event, unit)
-    --         if not Roster[unit] then return end
-    --         Aptechka.ScanDispels(unit)
-    --         if OORUnits[unit] and inCL[unit] +5 < GetTime() then
-    --             buffer[unit] = true
-    --         end
-    --     end
-
-    --     auraUpdateEvents = {
-    --         ["SPELL_AURA_REFRESH"] = true,
-    --         ["SPELL_AURA_APPLIED"] = true,
-    --         ["SPELL_AURA_APPLIED_DOSE"] = true,
-    --         ["SPELL_AURA_REMOVED"] = true,
-    --         ["SPELL_AURA_REMOVED_DOSE"] = true,
-    --     }
-    --     if select(2,UnitClass("player")) == "SHAMAN" then auraUpdateEvents["SPELL_HEAL"] = true end
-    --     local cleuEvent = CreateFrame("Frame")
-    --     cleuEvent:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-    --     cleuEvent:SetScript("OnEvent",
-    --     function( self, event, timestamp, eventType, hideCaster,
-    --                     srcGUID, srcName, srcFlags, srcFlags2,
-    --                     dstGUID, dstName, dstFlags, dstFlags2,
-    --                     spellID, spellName, spellSchool, auraType, amount)
-    --         if auras[spellName] then
-    --             if auraUpdateEvents[eventType] then
-    --                 local unit = guidMap[dstGUID]
-    --                 if unit then
-    --                     buffer[unit] = nil
-    --                     inCL[unit] = GetTime()
-    --                     Aptechka.ScanAuras(unit)
-    --                 end
-    --             end
-    --         end
-    --     end)
-    -- end
-
     local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
     f:SetScript('OnShow', function(self)
         self:SetScript('OnShow', nil)
@@ -740,10 +676,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self.isInitialized = true
 end  -- END PLAYER_LOGIN
-
-function Aptechka.PLAYER_LOGOUT(self, event)
-    RemoveDefaults(AptechkaDB, defaults)
-end
 
 
 function Aptechka:ToggleCompactRaidFrames()
