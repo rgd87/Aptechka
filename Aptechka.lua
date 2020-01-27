@@ -303,7 +303,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
     self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
 
-<<<<<<< HEAD
     if AptechkaDB.forceShamanColor and not CUSTOM_CLASS_COLORS then
         customColors = {
             SHAMAN = {
@@ -314,13 +313,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         }
     end
 
-    if AptechkaDB.invertedColors then
-        AptechkaDB.invertedColors = nil
-        AptechkaDB.profile.fgShowMissing = false
-    end
-
-=======
->>>>>>> origin/master
     Aptechka:UpdateUnprotectedUpvalues()
 
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
