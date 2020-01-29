@@ -17,6 +17,7 @@ AptechkaDefaultConfig.MapIDs = {
     [1162] = "Siege of Boralus",
     [1148] = "Uldir",
 
+    [1580] = "Ny'alotha", -- Wrathion room
     [1581] = "Ny'alotha",
 
     [704] = "Halls of Valor",

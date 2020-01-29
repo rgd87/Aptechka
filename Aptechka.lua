@@ -202,6 +202,7 @@ local defaults = {
         fgShowMissing = true,
         fgColorMultiplier = 1,
         bgColorMultiplier = 0.2,
+        groupFilter = 255,
     },
 }
 
@@ -777,7 +778,7 @@ function Aptechka:ReconfigureProtected()
     local scale = AptechkaDB.profile.scale or config.scale
     -- local strata = config.frameStrata or "LOW"
     -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
-    for group, header in ipairs(group_headers) do
+    for groupId, header in ipairs(group_headers) do
         if header:CanChangeAttribute() then
             header:SetAttribute("frameWidth", width)
             header:SetAttribute("frameHeight", height)
@@ -789,10 +790,11 @@ function Aptechka:ReconfigureProtected()
             f:SetScale(scale)
         end
 
-        local showSolo = AptechkaDB.profile.showSolo
-        header:SetAttribute("showSolo", showSolo)
-
-        header:SetAttribute("showParty", AptechkaDB.profile.showParty)
+        if self:IsGroupEnabled(groupId) then
+            header:Enable()
+        else
+            header:Disable()
+        end
     end
 
     local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
@@ -1668,6 +1670,31 @@ local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         end
         return p1, prv_group, p2, xgap, ygap
 end
+local AptechkaHeader_Disable = function(hdr)
+    hdr:SetAttribute("showRaid", false)
+    hdr:SetAttribute("showParty", false)
+    hdr:SetAttribute("showSolo", false)
+end
+local AptechkaHeader_Enable = function(hdr)
+    hdr:SetAttribute("showRaid", true)
+    hdr:SetAttribute("showParty", AptechkaDB.profile.showParty)
+    hdr:SetAttribute("showSolo", AptechkaDB.profile.showSolo)
+end
+function Aptechka:IsGroupEnabled(id)
+    local filterBits = self.db.profile.groupFilter
+    local n = math.pow(2,id-1)
+    return bit.band(filterBits, n) > 0
+end
+function Aptechka:GroupFilterSet(id, state)
+    local filterBits = self.db.profile.groupFilter
+    local n = math.pow(2,id-1)
+    if state then
+        self.db.profile.groupFilter = bit.bor(filterBits, n)
+    else
+        local n2 = 255 - n
+        self.db.profile.groupFilter = bit.band(filterBits, n2)
+    end
+end
 function Aptechka.CreateHeader(self,group,petgroup)
     local frameName = "NugRaid"..group
 
@@ -1709,10 +1736,9 @@ function Aptechka.CreateHeader(self,group,petgroup)
     end
     --our group header doesn't really inherits SecureHandlerBaseTemplate
 
-    local showSolo = AptechkaDB.profile.showSolo -- or config.showSolo
-    f:SetAttribute("showRaid", true)
-    f:SetAttribute("showParty", AptechkaDB.profile.showParty)
-    f:SetAttribute("showSolo", showSolo)
+    f.Enable = AptechkaHeader_Enable
+    f.Disable = AptechkaHeader_Disable
+    f:Enable()
     f:SetAttribute("showPlayer", true)
     f.initialConfigFunction = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
