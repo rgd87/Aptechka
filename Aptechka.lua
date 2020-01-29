@@ -1596,8 +1596,6 @@ local function updateUnitButton(self, unit)
     if name == UNKNOWNOBJECT or name == nil then
         has_unknowns = true
     end
-    self.nameFull = name
-    Aptechka:UpdateName(self)
 
     self.unit = unit
     Roster[unit] = Roster[unit] or {}
@@ -1609,6 +1607,9 @@ local function updateUnitButton(self, unit)
     end
 
     Aptechka:Colorize(nil, owner)
+    self.nameFull = name
+    Aptechka:UpdateName(self)
+
     FrameSetJob(self,config.HealthBarColor,true)
     FrameSetJob(self,config.PowerBarColor,true)
     Aptechka.ScanAuras(unit)
