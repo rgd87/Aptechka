@@ -1424,99 +1424,6 @@ function ns.MakeProfileSettings()
     return panelFrame
 end
 
-
-
-
---[[
-local function MakeScalingOptions()
-    local opt = {
-        type = 'group',
-        name = L"Aptechka Autoscaling",
-        order = 1,
-        args = {
-            normalScale = {
-                name = L"Normal Scale (1-11 players)",
-                type = "range",
-                get = function(info) return Aptechka.db.profile.scale end,
-                set = function(info, v)
-                    Aptechka.db.profile.scale = v
-                    Aptechka:LayoutUpdate()
-                end,
-                min = 0.3,
-                max = 3,
-                step = 0.01,
-                order = 1,
-            },
-            useRoleProfiles = {
-                name = L"Use Role-specific settings",
-                desc = "Also turns on different frame position for each role",
-                type = "toggle",
-                width = "double",
-                get = function(info) return Aptechka.db.profile.useRoleProfiles end,
-                set = function(info, v)
-                    Aptechka.db.profile.useRoleProfiles = not Aptechka.db.profile.useRoleProfiles
-                    Aptechka:OnRoleChanged()
-                end,
-                order = 2,
-            },
-            msg = {
-                name = function()
-                    if not Aptechka.db.profile.useRoleProfiles then return "GLOBAL" end
-                    return "Current Role: "..Aptechka:GetRoleProfile()
-                end,
-                type = "header",
-                order = 3,
-            },
-            autoscaleForRole = {
-                type = "group",
-                name = L"Autoscale",
-                width = "double",
-                guiInline = true,
-                order = 4,
-                args = {
-
-                    healerRaid = {
-                        name = L"Raid (12-30 players)",
-                        type = "range",
-                        get = function(info) return Aptechka.db.profile.roleProfile[Aptechka:GetRoleProfile()].scaleMediumRaid end,
-                        set = function(info, v)
-                            Aptechka.db.profile.roleProfile[Aptechka:GetRoleProfile()].scaleMediumRaid = v
-                            Aptechka:LayoutUpdate()
-                        end,
-                        min = 0.3,
-                        max = 3,
-                        step = 0.01,
-                        order = 1,
-                    },
-                    healerBigRaid = {
-                        name = L"Big Raid (30+ players)",
-                        type = "range",
-                        get = function(info) return Aptechka.db.profile.roleProfile[Aptechka:GetRoleProfile()].scaleBigRaid end,
-                        set = function(info, v)
-                            Aptechka.db.profile.roleProfile[Aptechka:GetRoleProfile()].scaleBigRaid = v
-                            Aptechka:LayoutUpdate()
-                        end,
-                        min = 0.3,
-                        max = 3,
-                        step = 0.01,
-                        order = 2,
-                    },
-
-                },
-            },
-        },
-    }
-
-    local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
-    AceConfigRegistry:RegisterOptionsTable("AptechkaScaling", opt)
-
-    local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaScaling", "Scaling", "Aptechka")
-
-    return panelFrame
-end
-]]
-
 local function MakeBlacklistHelp()
     local opt = {
         type = 'group',
@@ -1560,6 +1467,7 @@ do
     f.profile = ns.MakeProfileSettings()
     f.profileSelection = ns.MakeProfileSelection()
     f.blacklist = MakeBlacklistHelp()
+    f.blacklist = ns.MakeDebuffHighlight()
 
     ns.frame = ns:Create("Spell List", "Aptechka")
     f.spell_list = ns.frame.frame

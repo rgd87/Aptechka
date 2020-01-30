@@ -1,0 +1,564 @@
+local addonName, ns = ...
+
+
+local defaultSpellList = {
+    ["Ny'alotha"] = {
+        [314992] = { 314992, 1, "Maut, Drain Essence" },
+
+        [307645] = { 307645, 1, "Vexiona, Heart of Darkness fear" },
+        [310224] = { 310224, 1, "Vexiona, Annihilation" },
+
+        [310361] = { 310361, 1, "Drest'agath, Unleashed Insanity stun" },
+
+        [312486] = { 312486, 1, "Il'gynoth, Recurring Nightmare" },
+
+        [313400] = { 313400, 1, "N'Zoth, the Corruptor, Corrupted Mind" },
+        [313793] = { 313793, 1, "N'Zoth, the Corruptor, Flames of Insanity disorient" },
+    },
+
+    ["Freehold"] = {
+        [258323] = { 258323, 1, "Infected Wound" },
+        [257908] = { 257908, 1, "Oiled Blade" },
+    },
+
+    ["Shrine of the Storm"] = {
+        [268233] = { 268233, 1, "Electrifying Shock" },
+    },
+
+    ["Temple of Sethraliss"] = {
+        [280032] = { 280032, 1, "Neurotoxin" },
+        [268008] = { 268008, 1, "Snake Charm" },
+        [263958] = { 263958, 1, "A Knot of Snakes" },
+    },
+
+    ["Atal'Dazar"] = {
+        [257407] = { 257407, 1, "Pursuit" },
+    },
+
+    ["Waycrest Manor"] = {
+        [260741] = { 260741, 1, "Jagged Nettles" },
+        [267907] = { 267907, 1, "Soul Thorns" },
+        [268202] = { 268202, 1, "Death Lens" },
+        [263891] = { 263891, 1, "Grasping Thorns" },
+    },
+
+    ["Kings Rest"] = {
+        [270920] = { 270920, 1, "Seduction" },
+        [270865] = { 270865, 1, "Hidden Blade" },
+    },
+
+    ["The Underrot"] = {
+        [278961] = { 278961, 1, "Decaying Mind" },
+    },
+
+    ["Siege of Boralus"] = {
+        [272571] = { 272571, 1, "Choking Waters" },
+    },
+}
+
+local customSpellList = {}
+
+local workHashMap = {}
+local function GenHighlightHashMap()
+    table.wipe(workHashMap)
+    for cat, spells in pairs(defaultSpellList) do
+        for spellId, opts in pairs(spells) do
+            workHashMap[spellId] = opts      
+        end
+    end
+    for cat, spells in pairs(customSpellList) do
+        for spellId, opts in pairs(spells) do
+            if opts == false then
+                workHashMap[spellId] = nil
+            else
+                workHashMap[spellId] = opts
+            end
+        end
+    end
+end
+GenHighlightHashMap()
+
+local function IsSpellInList(list, id)
+    for cat, spells in pairs(list) do
+        for spellId, opts in pairs(spells) do
+            if spellId == id then return true, cat, opts end
+        end
+    end
+end
+
+local function IsSpellDataEqual(opts1, opts2)
+    for name, value1 in pairs(opts1) do
+        local value2 = opts2[name]
+        if value1 ~= value2 then return false end
+    end
+    return true
+end
+
+local function DeleteHighlightInfo(spellId, noRegen, customOnly)
+    local exists, category
+    repeat
+        exists, category= IsSpellInList(customSpellList, spellId)
+        if exists then
+            customSpellList[category][spellId] = nil
+            if not next(customSpellList[category]) then
+                customSpellList[category] = nil
+            end
+        end
+    until not exists
+
+    if not customOnly then
+        exists, category = IsSpellInList(defaultSpellList, spellId)
+        if exists then
+            customSpellList[category] = customSpellList[category] or {}
+            customSpellList[category][spellId] = "__REMOVED__"
+        end
+    end
+
+    if not noRegen then
+        GenHighlightHashMap()
+    end
+end
+
+local function SaveHighlightInfo(spellId, category, priority, comment)
+    DeleteHighlightInfo(spellId, true)
+
+    local defaultExists, defaultCategory, defaultOpts = IsSpellInList(defaultSpellList, spellId)
+
+    local newOpts = { spellId, priority or 1, comment }
+
+    if defaultExists and IsSpellDataEqual(defaultOpts, newOpts) then
+        DeleteHighlightInfo(spellId, true, true)
+    else
+        customSpellList[category] = customSpellList[category] or {}
+        customSpellList[category][spellId] = newOpts
+        print(category)
+    end
+    GenHighlightHashMap()
+end
+
+
+local function GenListItems()
+
+    local orderedBlackList = {}
+
+    local merged = CopyTable(defaultSpellList)
+    Aptechka.MergeTable(merged, customSpellList)
+
+    for category, spells in pairs(merged) do
+        table.insert(orderedBlackList, { -19, category })
+        local count = 0
+        for spellId, opts in pairs(spells) do
+            table.insert(orderedBlackList, opts)
+            count = count + 1
+        end
+        if count == 0 then -- Remove empty headers
+            table.remove(orderedBlackList)
+        end
+    end
+    -- for spellId, comment in pairs(listMap) do
+    --     if comment == true then comment = GetSpellInfo(spellId) end
+    --     table.insert(orderedBlackList, { spellId, comment })
+    -- end
+
+    return orderedBlackList;
+end
+
+AptechkaHybridScrollMixin = {};
+
+function AptechkaHybridScrollMixin:RefreshItems()
+    -- Create the item model that we'll be displaying.
+    self.items = GenListItems()
+end
+
+function AptechkaHybridScrollMixin:Initialize()
+    -- Bind the update field on the scrollframe to a function that'll update
+    -- the displayed contents. This is called when the frame is scrolled.
+    self.ListScrollFrame.update = function() self:RefreshLayout(); end
+
+    -- OPTIONAL: Keep the scrollbar visible even if there's nothing to scroll.
+    HybridScrollFrame_SetDoNotHideScrollBar(self.ListScrollFrame, true);
+end
+
+function AptechkaHybridScrollMixin:CreateButtons()
+    -- Create the buttons for the scrollframe when we initially show. This
+    -- can be done OnLoad, but we might as well wait until the UI is in use.
+    --
+    -- If the frame size ever changes, you'll generally want to re-call this.
+    HybridScrollFrame_CreateButtons(self.ListScrollFrame,
+        "AptechkaHybridScrollSpellListItemTemplate");
+    self:RefreshLayout();
+end
+
+function AptechkaHybridScrollMixin:RemoveItem(index)
+    table.remove(self.items, index);
+    self:RefreshLayout();
+end
+
+function AptechkaHybridScrollMixin:SelectItem(index)
+    local form = self.editForm
+    local spell = self.items[index]
+    local spellID, prio, comment = unpack(spell)
+
+    local categoryName
+    for i=index,1,-1 do
+        local item = self.items[i]
+        if item[1] == -19 then
+            categoryName = item[2]
+            break
+        end
+    end
+
+    form.opts = {
+        spellID = spellID,
+        priority = prio,
+        comment = comment,
+        category = categoryName
+    }
+    form.controls.spellID:SetText(spellID)
+    form.controls.priority:SetText(prio)
+    form.controls.comment:SetText(comment)
+    form.controls.category:SetText(categoryName)
+end
+
+-- function AptechkaHybridScrollMixin.ItemOnEnter(mixin, self)
+--     local parent = self:GetParent()
+--     local prevMouseoverFrame = parent.mouseoverFrame
+--     if prevMouseoverFrame then
+--         prevMouseoverFrame.DeleteButton:Hide()
+--     end
+
+--     if self.isHeader then
+--         parent.mouseoverFrame = nil
+--     else
+--         self.DeleteButton:Show()
+--         parent.mouseoverFrame = self
+--     end
+-- end
+
+function AptechkaHybridScrollMixin:RefreshLayout()
+    local items = self.items;
+    local buttons = HybridScrollFrame_GetButtons(self.ListScrollFrame);
+    local offset = HybridScrollFrame_GetOffset(self.ListScrollFrame);
+
+    for buttonIndex = 1, #buttons do
+        local button = buttons[buttonIndex];
+        local itemIndex = buttonIndex + offset;
+
+        -- Usually the check you'd want to apply here is that if itemIndex
+        -- is greater than the size of your model contents, you'll hide the
+        -- button. Otherwise, update it visually and show it.
+        if itemIndex <= #items then
+            local item = items[itemIndex];
+            button:SetID(itemIndex);
+
+            local icon = button.Icon
+            local text = button.Text
+            local comment = button.Comment
+
+            local isHeader = item[1] == -19
+            if isHeader then
+                button.categoryLeft:Show();
+				button.categoryRight:Show();
+                button.categoryMiddle:Show();
+                
+                local name = item[2]
+                text:SetText(name)
+                icon:SetTexture(nil)
+                comment:SetText(nil)
+                text:SetPoint("LEFT", button, "LEFT", 8, 0)
+            else
+                button.categoryLeft:Hide();
+				button.categoryRight:Hide();
+                button.categoryMiddle:Hide();
+                
+                local spellId, prio, commentText = unpack(item)
+                local spellName, _, tex = GetSpellInfo(spellId)
+                icon:SetPoint("LEFT", 15, 0)
+                icon:SetTexture(tex);
+                text:SetText(spellName)
+                comment:SetText(commentText)
+                text:SetPoint("LEFT", icon, "RIGHT", 8, 0)
+            end
+            button.isHeader = isHeader
+
+            -- One caveat is buttons are only anchored below one another with
+            -- one point, so an explicit width is needed on each row or you
+            -- need to add the second point manually.
+            button:SetWidth(self.ListScrollFrame.scrollChild:GetWidth());
+            button:Show();
+        else
+            button:Hide();
+        end
+    end
+
+    -- The last step is to ensure the scroll range is updated appropriately.
+    -- Calculate the total height of the scrollable region (using the model
+    -- size), and the displayed height based on the number of shown buttons.
+    local buttonHeight = self.ListScrollFrame.buttonHeight;
+    local totalHeight = #items * buttonHeight;
+    local shownHeight = #buttons * buttonHeight;
+
+    HybridScrollFrame_Update(self.ListScrollFrame, totalHeight, shownHeight);
+end
+
+function ns.CreateSpellDataPanel()
+    local AceGUI = LibStub("AceGUI-3.0")
+
+    local Group = AceGUI:Create("SimpleGroup")
+    Group:SetFullWidth(true)
+    Group:SetLayout("Flow")
+    Group.opts = {}
+    Group.controls = {}
+
+    local spellID = AceGUI:Create("EditBox")
+    spellID:SetLabel("Spell ID")
+    -- spellID:SetDisabled(true)
+    spellID:DisableButton(true)
+    spellID:SetRelativeWidth(0.13)
+    spellID:SetCallback("OnTextChanged", function(self, event, value)
+        local v = tonumber(value)
+        if v and v > 0 and GetSpellInfo(v) then
+            self.parent.opts["spellID"] = v
+            self.editbox:SetTextColor(1,1,1)
+        else
+            self.editbox:SetTextColor(1,0,0)
+        end
+        if value == "" then self.parent.opts["spellID"] = nil end
+    end)
+    Group.controls.spellID = spellID
+    Group:AddChild(spellID)
+
+    local priority = AceGUI:Create("Button")
+    priority:SetText("1")
+    priority:SetRelativeWidth(0.08)
+    priority:SetCallback("OnClick", function(self, event)
+        local priority = self.parent.opts["priority"] or 1
+        self.parent.opts["priority"] = priority + 1
+        if self.parent.opts["priority"] > 3 then
+            self.parent.opts["priority"] = 1
+        end
+        self:SetText(self.parent.opts["priority"])
+    end)
+    Group.controls.priority = priority
+    Group:AddChild(priority)
+    -- AddTooltip(fcr, "Remove Other's Color")
+
+    local category = AceGUI:Create("EditBox")
+    category:SetLabel("Category")
+    -- category:SetDisabled(true)
+    category:DisableButton(true)
+    category:SetRelativeWidth(0.4)
+    category:SetCallback("OnTextChanged", function(self, event, text)
+        self.parent.opts["category"] = text
+        if text == "" then self.parent.opts["category"] = nil end
+    end)
+    Group.controls.category = category
+    Group:AddChild(category)
+
+
+    local save = AceGUI:Create("Button")
+    save:SetText("Save")
+    save:SetRelativeWidth(0.15)
+    save:SetCallback("OnClick", function(self, event)
+        local opts = self.parent.opts
+        local spellId = opts.spellID
+        local category = opts.category
+        local comment = opts.comment
+        local priority = opts.priority
+        SaveHighlightInfo(spellId, category, priority, comment)
+        AptechkaHighlightHybridScrollFrame:RefreshItems()
+        AptechkaHighlightHybridScrollFrame:RefreshLayout()
+    end)
+    Group.controls.save = save
+    Group:AddChild(save)
+
+    local delete = AceGUI:Create("Button")
+    delete:SetText("Delete")
+    delete:SetRelativeWidth(0.15)
+    delete:SetCallback("OnClick", function(self, event)
+        local opts = self.parent.opts
+        local spellId = opts.spellID
+        local category = opts.category
+        local comment = opts.comment
+        local priority = opts.priority
+        DeleteHighlightInfo(spellId)
+        AptechkaHighlightHybridScrollFrame:RefreshItems()
+        AptechkaHighlightHybridScrollFrame:RefreshLayout()
+    end)
+    Group.controls.delete = delete
+    Group:AddChild(delete)
+
+    
+
+    local comment = AceGUI:Create("EditBox")
+    comment:SetLabel("Comment")
+    -- comment:SetDisabled(true)
+    comment:DisableButton(true)
+    comment:SetRelativeWidth(0.8)
+    comment:SetCallback("OnTextChanged", function(self, event, text)
+        self.parent.opts["comment"] = text
+        if text == "" then self.parent.opts["comment"] = nil end
+    end)
+    Group.controls.comment = comment
+    Group:AddChild(comment)
+
+    return Group
+end
+
+local PaneBackdrop  = {
+	bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+	tile = true, tileSize = 16, edgeSize = 16,
+	insets = { left = 3, right = 3, top = 5, bottom = 3 }
+}
+function ns.MakeDebuffHighlight()
+    local panel = CreateFrame("Frame", nil, InterfaceOptionsFrame)
+    panel.name = "Debuff Highlight"
+    panel.parent = "Aptechka"
+    InterfaceOptions_AddCategory(panel);
+    panel:Hide() -- hide initially, otherwise OnShow won't fire on the first activation
+    panel:SetScript("OnShow", function(self)
+        if not self.isCreated then
+
+            local form = ns.CreateSpellDataPanel()
+            form.frame:SetParent(panel)
+            -- form:SetWidth(400)
+            -- form:SetHeight(200)
+            form:SetPoint("TOPLEFT", panel, "TOPLEFT", 12, -10)
+            form:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", -10, -200)
+            form:PerformLayout() -- That's AceGUI Layout
+
+            local f = CreateFrame("Frame", "AptechkaHighlightHybridScrollFrame", panel, "AptechkaHybridScrollFrameTemplate")
+            -- f:SetWidth(623)
+            f:SetWidth(603)
+            f:SetHeight(450)
+            -- f:SetPoint("TOPLEFT", panel, "TOPLEFT", 15,-50)
+            f:SetPoint("BOTTOMLEFT", panel, "BOTTOMLEFT", 10, 10)
+
+            f.editForm = form
+
+            f.ListScrollFrame.scrollBar.ScrollBarTop:Hide()
+            f.ListScrollFrame.scrollBar.ScrollBarBottom:Hide()
+            f.ListScrollFrame.scrollBar.ScrollBarMiddle:Hide()
+
+            f:RefreshItems()
+            f:Initialize()
+            f:CreateButtons()
+
+            local border = CreateFrame("Frame", nil, f)
+            border:SetPoint("TOPLEFT", 0, -17)
+            border:SetPoint("BOTTOMRIGHT", -1, 0)
+            border:SetBackdrop(PaneBackdrop)
+            border:SetBackdropColor(0.1, 0.1, 0.1, 0.5)
+            border:SetBackdropBorderColor(0.4, 0.4, 0.4)
+
+            self.isCreated = true
+        end
+    end)
+
+    return panel
+end
+
+--[[
+local BUTTON_HEIGHT = 16
+
+local function MakeFrameList(parent)
+    local prev
+    parent.frameList = {}
+    for i=1,20 do
+        local f = CreateFrame("Frame", nil, parent)
+        f:SetSize(540, BUTTON_HEIGHT)
+
+        if prev then
+            f:SetPoint("TOPLEFT", prev, "BOTTOMLEFT",0,0)
+        else
+            f:SetPoint("TOPLEFT", parent, "TOPLEFT",0,0)
+        end
+        prev = f
+
+        local bg = f:CreateTexture(nil, "BACKGROUND")
+        bg:SetAllPoints(f)
+        bg:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+        if math.fmod(i,2) == 0 then
+            bg:SetVertexColor(0,0,0,0.1)
+        else
+            bg:SetVertexColor(1,1,1,0.1)
+        end
+
+        local icon = f:CreateTexture(nil, "ARTWORK")
+        icon:SetTexture(135882)
+        icon:SetSize(BUTTON_HEIGHT-2, BUTTON_HEIGHT-2)
+        icon:SetPoint("TOPLEFT",1,-1)
+        f.icon = icon
+
+        local label = f:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+        label:SetPoint("TOPLEFT", f, "TOPLEFT", BUTTON_HEIGHT+10, 0)
+        label:SetText("ASS")
+        f.label = label
+
+        parent.frameList[i] = f
+    end
+end
+
+function ns.MakeBlacklistHelp()
+    local panel = CreateFrame("Frame", nil, InterfaceOptionsFrame)
+    panel.name = "Blacklist"
+    panel.parent = "Aptechka"
+    InterfaceOptions_AddCategory(panel);
+    panel:Hide() -- hide initially, otherwise OnShow won't fire on the first activation
+    panel:SetScript("OnShow", function(self)
+        if not self.isCreated then
+            print("Creating blacklist")
+
+            local f = CreateFrame("ScrollFrame", "APTFAUXSCROLL", panel, "FauxScrollFrameTemplate")
+            f:SetSize(575, 320)
+            f:SetPoint("TOPLEFT", panel, "TOPLEFT", 15,-50)
+
+            MakeFrameList(f)
+
+            local ScrollFrame_Update = function(frame)
+
+                if not frame.orderedBlackList then
+                    frame.orderedBlackList = {}
+                    for spellId, comment in pairs(Aptechka.default_blacklist) do
+                        if comment == true then comment = "" end
+                        table.insert(frame.orderedBlackList, { spellId, comment })
+                    end
+                end
+
+
+                FauxScrollFrame_Update(frame, #frame.orderedBlackList, 20, BUTTON_HEIGHT);
+                -- 50 is max entries, 20 is number of lines, 16 is pixel height of each line
+                print("We're at "..FauxScrollFrame_GetOffset(frame));
+
+
+
+                local offset = FauxScrollFrame_GetOffset(frame)
+                for i=1,20 do
+                    local j = i+offset
+                    if frame.orderedBlackList[j] then
+                        local spellId, comment = unpack(frame.orderedBlackList[j])
+                        local spellName, _, tex = GetSpellInfo(spellId)
+                        frame.frameList[i].icon:SetTexture(tex)
+                        frame.frameList[i].label:SetText(spellName..comment)
+                    else
+                        frame.frameList[i]:Hide()
+                    end
+                end
+
+
+            end
+            ScrollFrame_Update(f)
+
+            f:SetScript("OnVerticalScroll", function(self, offset)
+                FauxScrollFrame_OnVerticalScroll(self, offset, BUTTON_HEIGHT, ScrollFrame_Update);
+            end)
+
+
+            self.isCreated = true
+        end
+    end)
+
+    return panel
+end
+]]
