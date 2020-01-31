@@ -1,5 +1,6 @@
 local addonName, ns = ...
 
+local defaultDebuffHighlights = AptechkaDefaultConfig.defaultDebuffHighlights
 
 local function IsSpellInList(list, id)
     for cat, spells in pairs(list) do
@@ -17,57 +18,81 @@ local function IsSpellDataEqual(opts1, opts2)
     return true
 end
 
-local function DeleteHighlightInfo(spellId, noRegen, customOnly)
+function Aptechka:DeleteHighlightInfo(spellId, noRegen, customOnly)
+    local customDebuffHighlights = self.db.global.customDebuffHighlights
+
     local exists, category
     repeat
-        exists, category= IsSpellInList(customSpellList, spellId)
+        exists, category = IsSpellInList(customDebuffHighlights, spellId)
         if exists then
-            customSpellList[category][spellId] = nil
-            if not next(customSpellList[category]) then
-                customSpellList[category] = nil
+            customDebuffHighlights[category][spellId] = nil
+            if not next(customDebuffHighlights[category]) then
+                customDebuffHighlights[category] = nil
             end
         end
     until not exists
 
     if not customOnly then
-        exists, category = IsSpellInList(defaultSpellList, spellId)
+        exists, category = IsSpellInList(defaultDebuffHighlights, spellId)
         if exists then
-            customSpellList[category] = customSpellList[category] or {}
-            customSpellList[category][spellId] = "__REMOVED__"
+            customDebuffHighlights[category] = customDebuffHighlights[category] or {}
+            customDebuffHighlights[category][spellId] = "__REMOVED__"
         end
     end
 
     if not noRegen then
-        UpdateHighlightedDebuffsHashMap()
+        self:UpdateHighlightedDebuffsHashMap()
     end
 end
 
-local function SaveHighlightInfo(spellId, category, priority, comment)
-    DeleteHighlightInfo(spellId, true)
+function Aptechka:SaveHighlightInfo(spellId, category, priority, comment)
+    self:DeleteHighlightInfo(spellId, true)
+    local customDebuffHighlights = self.db.global.customDebuffHighlights
 
-    local defaultExists, defaultCategory, defaultOpts = IsSpellInList(defaultSpellList, spellId)
+    local defaultExists, defaultCategory, defaultOpts = IsSpellInList(defaultDebuffHighlights, spellId)
 
     local newOpts = { spellId, priority or 1, comment }
 
     if defaultExists and IsSpellDataEqual(defaultOpts, newOpts) then
-        DeleteHighlightInfo(spellId, true, true)
+        self:DeleteHighlightInfo(spellId, true, true)
     else
-        customSpellList[category] = customSpellList[category] or {}
-        customSpellList[category][spellId] = newOpts
-        print(category)
+        customDebuffHighlights[category] = customDebuffHighlights[category] or {}
+        customDebuffHighlights[category][spellId] = newOpts
     end
-    UpdateHighlightedDebuffsHashMap()
+    self:UpdateHighlightedDebuffsHashMap()
 end
 
 
 local function GenListItems()
 
+    local merged = CopyTable(defaultDebuffHighlights)
+    Aptechka.MergeTable(merged, Aptechka.db.global.customDebuffHighlights)
+
+    local mapIDs = AptechkaDefaultConfig.MapIDs
+    local reverseMapsIDs = {}
+    for id,name in pairs(mapIDs) do
+        reverseMapsIDs[name] = id
+    end
+
+    local orderedCategories = {}
+    for name in pairs(merged) do
+        table.insert(orderedCategories, name)
+    end
+
+
+
+    table.sort(orderedCategories, function(a,b)
+        local ap = reverseMapsIDs[a] or 9999999
+        local bp = reverseMapsIDs[b] or 9999999
+        return ap > bp
+    end)
+
     local orderedBlackList = {}
 
-    local merged = CopyTable(defaultSpellList)
-    Aptechka.MergeTable(merged, customSpellList)
+    -- for category, spells in pairs(merged) do
+    for i, category in ipairs(orderedCategories) do
+        local spells = merged[category]
 
-    for category, spells in pairs(merged) do
         table.insert(orderedBlackList, { -19, category })
         local count = 0
         for spellId, opts in pairs(spells) do
@@ -288,7 +313,7 @@ function ns.CreateSpellDataPanel()
         local category = opts.category
         local comment = opts.comment
         local priority = opts.priority
-        SaveHighlightInfo(spellId, category, priority, comment)
+        Aptechka:SaveHighlightInfo(spellId, category, priority, comment)
         AptechkaHighlightHybridScrollFrame:RefreshItems()
         AptechkaHighlightHybridScrollFrame:RefreshLayout()
     end)
@@ -304,7 +329,7 @@ function ns.CreateSpellDataPanel()
         local category = opts.category
         local comment = opts.comment
         local priority = opts.priority
-        DeleteHighlightInfo(spellId)
+        Aptechka:DeleteHighlightInfo(spellId)
         AptechkaHighlightHybridScrollFrame:RefreshItems()
         AptechkaHighlightHybridScrollFrame:RefreshLayout()
     end)

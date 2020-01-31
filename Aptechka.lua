@@ -2337,6 +2337,7 @@ function Aptechka.HighlightProc(unit, index, slot, filter, name, icon, count, de
         local opts = highlightedDebuffs[spellID]
         local priority = opts[2]
         highlightedDebuffsBits = helpers.SetBit( highlightedDebuffsBits, priority)
+        return true
     end
 end
 
