@@ -38,7 +38,7 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
 
     ["Mythic+ 8.3"] = {
         [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
-        [25163] = { 25163, 2, "Disgusting Oozeling" },
+        [25163] = { 25163, 5, "Disgusting Oozeling" },
     },
     ["Ny'alotha"] = {
         [314992] = { 314992, 1, "Maut, Drain Essence" },

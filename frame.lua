@@ -1203,6 +1203,50 @@ local CreateMindControlIcon = function(parent)
     return f
 end
 
+local LibCustomGlow = LibStub("LibCustomGlow-1.0")
+local SetJob_PixelGlow = function(self, job)
+    local color = job.color or {1,1,1,1}
+    local thickness = pixelperfect(2)
+    local offset = pixelperfect(4)
+    local freq = 0.35
+    local length = 4
+    local border = nil -- false hides border
+    LibCustomGlow.PixelGlow_Start(self, color, 12, freq, length, thickness, offset, offset, border, nil )
+    local glow = self["_PixelGlow"]
+    glow.bg:SetColorTexture(0,0,0,0.5)
+end
+local CreatePixelGlow = function(parent)
+    local f = CreateFrame("Frame", nil, parent)
+
+    f.SetJob = SetJob_PixelGlow
+    f:SetAllPoints(parent)
+    f:Hide()
+
+    f:SetScript("OnHide", function(self)
+        LibCustomGlow.PixelGlow_Stop(self)
+    end)
+
+    return f
+end
+
+local SetJob_AutocastGlow = function(self, job)
+    local color = job.color or {1,1,1,1}
+    local offset = pixelperfect(3)
+    LibCustomGlow.AutoCastGlow_Start(self, color, 10, 0.24, 1.15, offset, offset, nil, nil )
+end
+local CreateAutocastGlow = function(parent)
+    local f = CreateFrame("Frame", nil, parent)
+
+    f.SetJob = SetJob_AutocastGlow
+    f:SetAllPoints(parent)
+    f:Hide()
+
+    f:SetScript("OnHide", function(self)
+        LibCustomGlow.AutoCastGlow_Stop(self)
+    end)
+
+    return f
+end
 --[[
 local dispelTypeTextures = {
     "Interface\\RaidFrame\\Raid-Icon-DebuffMagic",
@@ -1333,6 +1377,9 @@ local optional_widgets = {
         bar4    = function(self) return CreateStatusBar(self, 21, 5, "TOPRIGHT", self, "TOPRIGHT",0,2) end,
 
         bars = CreateBars,
+
+        pixelGlow = CreatePixelGlow,
+        autocastGlow = CreateAutocastGlow,
 
         mindcontrol = CreateMindControlIcon,
         unhealable = CreateUnhealableOverlay,

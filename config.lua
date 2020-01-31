@@ -98,8 +98,9 @@ config.BossDebuffs = {
     { name = "BossDebuffLevel1", assignto = "bossdebuff", color = {1,0,0}, priority = 95, pulse = true, },
     { name = "BossDebuffLevel2", assignto = "bossdebuff", color = {1,0,1}, priority = 95, pulse = true, },
     { name = "BossDebuffLevel3", assignto = "innerglow", color = {1,0,1}, priority = 90 },
-    { name = "BossDebuffLevel4", assignto = "innerglow", color = {1,0,0}, priority = 90 },
-    { name = "BossDebuffLevel5", assignto = "border", color = {1,0,0}, priority = 90 },
+    -- { name = "BossDebuffLevel4", assignto = "autocastGlow", color = {1,0.5,0.7}, priority = 90 },
+    { name = "BossDebuffLevel4", assignto = "border", color = {1,0,0}, priority = 95 },
+    { name = "BossDebuffLevel5", assignto = "pixelGlow", color = {1,1,1}, priority = 95 },
 }
 
 -- default priority is 80
