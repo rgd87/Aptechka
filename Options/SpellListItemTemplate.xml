@@ -18,14 +18,14 @@
                         <Anchor point="LEFT" x="0" y="0"/>
                     </Anchors>
                 </Texture>
-                <FontString parentKey="Text" inherits="GameFontNormal" justifyH="LEFT">
+                <FontString parentKey="Text" inherits="GameFontNormal" wordwrap="false" justifyH="LEFT">
                     <Size x="200"/>
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Icon" relativePoint="RIGHT" x="8" y="0"/>
                         <!-- <Anchor point="RIGHT" relativeKey="$parent.DeleteButton" x="-8" y="0"/> -->
                     </Anchors>
                 </FontString>
-                <FontString parentKey="Comment" inherits="GameFontDisable" justifyH="LEFT">
+                <FontString parentKey="Comment" inherits="GameFontDisable" wordwrap="false" justifyH="LEFT">
                     <Anchors>
                         <Anchor point="LEFT" relativeKey="$parent.Text" relativePoint="RIGHT" x="8" y="0"/>
                         <Anchor point="RIGHT" relativeKey="$parent.DeleteButton" x="-8" y="0"/>
@@ -64,7 +64,7 @@
                 </Texture>
             </Layer>
         </Layers>
-        <Frames>
+        <!-- <Frames>
             <Button parentKey="DeleteButton" hidden="true">
                 <Size x="14" y="14"/>
                 <Anchors>
@@ -78,25 +78,30 @@
                     </OnClick>
                 </Scripts>
             </Button>
-        </Frames>
+        </Frames> -->
         <Scripts>
             <OnEnter>
                 local parent = self:GetParent()
                 local prevMouseoverFrame = parent.mouseoverFrame
                 if prevMouseoverFrame then
-                    prevMouseoverFrame.DeleteButton:Hide()
+                    -- prevMouseoverFrame.DeleteButton:Hide()
                 end
 
                 if self.isHeader then
                     parent.mouseoverFrame = nil
                 else
-                    self.DeleteButton:Show()
+                    -- self.DeleteButton:Show()
                     parent.mouseoverFrame = self
                     self.Highlight:Show()
+
+                    GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
+                    GameTooltip:SetSpellByID(self.spellId)
+                    GameTooltip:Show();
                 end
             </OnEnter>
             <OnLeave>
                 self.Highlight:Hide()
+                GameTooltip:Hide();
             </OnLeave>
             <OnClick>
                 if self.isHeader then return end

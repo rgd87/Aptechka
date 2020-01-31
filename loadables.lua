@@ -40,6 +40,29 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
         [25163] = { 25163, 5, "Disgusting Oozeling" },
     },
+    ["Horrific Visions"] = {
+        [306965] = { 306965, 1, "Madness: Dark Delusions Stun" },
+        [306545] = { 306545, 2, "Madness: Haunting Shadows Fear" },
+        [316510] = { 316510, 2, "Madness: Split Personality Disorient" },
+        [298033] = { 298033, 1, "K'thir Dominator and SI:7 Informant, Touch of the Abyss" },
+        [300530] = { 300530, 1, "K'thir Mindcarver, Mind Carver" },
+        [298514] = { 298514, 1, "Aqiri Mind Toxin Stun" },
+        [11641] = { 11641, 1, "Bwemba, Hex" },
+        [304969] = { 304969, 1, "Inquisitor Gnshal, Void Torrent Stun" },
+        -- [304634] = { 304634, 1, "Oblivion Elemental, Despair Stun" },
+        [304350] = { 304350, 1, "Rexxar, Mind Trap Stun" },
+        -- [306726] = { 306726, 1, "Vez'okk the Lightless, Defiled Ground Stun" },
+        -- [306646] = { 306646, 1, "Vez'okk the Lightless, Ring of Chaos Stun" },
+        -- [305378] = { 305378, 1, "Voidbound Honor Guard, Horrifying Shout Fear" },
+        -- [298630] = { 298630, 1, "Voidbound Shieldbearer, Shockwave Stun" },
+        -- Agustus Moulaine Stun
+        [309648] = { 309648, 1, "Magister Umbric, Tainted Polymorph" },
+        [309882] = { 309882, 1, "Cultist Slavedriver, Brutal Smash" },
+        -- Fallen Riftwalker, Rift Strike
+        [308380] = { 308380, 5, "Inquisitor Darkspeak, Convert" }, -- Will normal MC pick it up?
+        -- 308375 Portal Keeper, Psychic Scream
+        -- [298770] = { 298770, 1, "Slavemaster Ul'rok, Chains of Servitude Stun" },
+    },
     ["Ny'alotha"] = {
         [314992] = { 314992, 1, "Maut, Drain Essence" },
 

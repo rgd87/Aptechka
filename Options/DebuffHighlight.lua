@@ -221,6 +221,7 @@ function AptechkaHybridScrollMixin:RefreshLayout()
 
                 local spellId, prio, commentText = unpack(item)
                 local spellName, _, tex = GetSpellInfo(spellId)
+                button.spellId = spellId
                 icon:SetPoint("LEFT", 15, 0)
                 icon:SetTexture(tex);
                 text:SetText(spellName)
@@ -361,7 +362,7 @@ local PaneBackdrop  = {
 }
 function ns.MakeDebuffHighlight()
     local panel = CreateFrame("Frame", nil, InterfaceOptionsFrame)
-    panel.name = "Debuff Highlight"
+    panel.name = "Debuff Highlighting"
     panel.parent = "Aptechka"
     InterfaceOptions_AddCategory(panel);
     panel:Hide() -- hide initially, otherwise OnShow won't fire on the first activation
