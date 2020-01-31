@@ -225,7 +225,7 @@ function AptechkaHybridScrollMixin:RefreshLayout()
                 icon:SetPoint("LEFT", 15, 0)
                 icon:SetTexture(tex);
                 text:SetText(spellName)
-                comment:SetText(commentText)
+                comment:SetText(prio.."   "..commentText)
                 text:SetPoint("LEFT", icon, "RIGHT", 8, 0)
             end
             button.isHeader = isHeader
@@ -283,7 +283,7 @@ function ns.CreateSpellDataPanel()
     priority:SetCallback("OnClick", function(self, event)
         local priority = self.parent.opts["priority"] or 1
         self.parent.opts["priority"] = priority + 1
-        if self.parent.opts["priority"] > 3 then
+        if self.parent.opts["priority"] > 5 then
             self.parent.opts["priority"] = 1
         end
         self:SetText(self.parent.opts["priority"])
@@ -296,7 +296,7 @@ function ns.CreateSpellDataPanel()
     category:SetLabel("Category")
     -- category:SetDisabled(true)
     category:DisableButton(true)
-    category:SetRelativeWidth(0.4)
+    category:SetRelativeWidth(0.45)
     category:SetCallback("OnTextChanged", function(self, event, text)
         self.parent.opts["category"] = text
         if text == "" then self.parent.opts["category"] = nil end
@@ -343,13 +343,22 @@ function ns.CreateSpellDataPanel()
     comment:SetLabel("Comment")
     -- comment:SetDisabled(true)
     comment:DisableButton(true)
-    comment:SetRelativeWidth(0.8)
+    comment:SetRelativeWidth(0.94)
     comment:SetCallback("OnTextChanged", function(self, event, text)
         self.parent.opts["comment"] = text
         if text == "" then self.parent.opts["comment"] = nil end
     end)
     Group.controls.comment = comment
     Group:AddChild(comment)
+
+    -- local help = AceGUI:Create("Button")
+    -- help:SetText("help")
+    -- help:SetRelativeWidth(0.08)
+    -- help:SetCallback("OnClick", function(self, event)
+    --     print(Aptechka.InfoString, "To quickly find out spell IDs from Encounter Journal, use this macro when mo")
+    -- end)
+    -- Group.controls.help = help
+    -- Group:AddChild(help)
 
     return Group
 end
@@ -376,6 +385,13 @@ function ns.MakeDebuffHighlight()
             form:SetPoint("TOPLEFT", panel, "TOPLEFT", 12, -10)
             form:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", -10, -200)
             form:PerformLayout() -- That's AceGUI Layout
+
+            -- local helpButton = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+            -- helpButton:SetSize(60, 25)
+            -- helpButton:SetPoint("TOPRIGHT", 0,0)
+            -- helpButton:GetFontString():SetText("Help")
+            -- helpButton:SetScript("OnClick", function()
+            -- end)
 
             local f = CreateFrame("Frame", "AptechkaHighlightHybridScrollFrame", panel, "AptechkaHybridScrollFrameTemplate")
             -- f:SetWidth(623)

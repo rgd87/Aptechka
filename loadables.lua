@@ -47,7 +47,7 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         [298033] = { 298033, 1, "K'thir Dominator and SI:7 Informant, Touch of the Abyss" },
         [300530] = { 300530, 1, "K'thir Mindcarver, Mind Carver" },
         [298514] = { 298514, 1, "Aqiri Mind Toxin Stun" },
-        [11641] = { 11641, 1, "Bwemba, Hex" },
+        -- [11641] = { 11641, 1, "Bwemba, Hex" },
         [304969] = { 304969, 1, "Inquisitor Gnshal, Void Torrent Stun" },
         -- [304634] = { 304634, 1, "Oblivion Elemental, Despair Stun" },
         [304350] = { 304350, 1, "Rexxar, Mind Trap Stun" },
@@ -116,12 +116,14 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         [272571] = { 272571, 1, "Choking Waters" },
     },
 
+    --[[
     ["Ulduar"] = {
         [64125] = { 64125, 1, "Squeeze, Yogg-Saron" },
         [62717] = { 62717, 1, "Slag Pot, Ignis" },
         [61903] = { 61903, 1, "Fusion Punch, Assembly of Iron" },
         [64290] = { 64290, 1, "Stone Grip, Kologarn" },
     },
+    ]]
 }
 
 
