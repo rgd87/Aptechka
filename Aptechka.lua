@@ -1,7 +1,6 @@
 local _, helpers = ...
 
-Aptechka = CreateFrame("Frame","Aptechka",UIParent)
-local Aptechka = Aptechka
+local Aptechka = helpers.frame
 
 Aptechka:SetScript("OnEvent", function(self, event, ...)
     self[event](self, event, ...)
@@ -74,6 +73,7 @@ local BITMASK_DISPELLABLE = 0
 local RosterUpdateOccured
 local LastCastSentTime = 0
 local LastCastTargetName
+local highlightedDebuffs = {}
 
 local AptechkaString = "|cffff7777Aptechka: |r"
 local GetTime = GetTime
@@ -147,6 +147,7 @@ local defaults = {
         useCombatLogHealthUpdates = false,
         disableTooltip = false,
         useDebuffOrdering = true, -- On always?
+        customDebuffHighlights = {},
 
         profileSelection = {
             HEALER = {
@@ -467,6 +468,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self:LayoutUpdate()
     self:UpdateDebuffScanningMethod()
+    self:UpdateHighlightedDebuffsHashMap()
 
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_HEALTH_FREQUENT")
@@ -1681,18 +1683,14 @@ local AptechkaHeader_Enable = function(hdr)
     hdr:SetAttribute("showSolo", AptechkaDB.profile.showSolo)
 end
 function Aptechka:IsGroupEnabled(id)
-    local filterBits = self.db.profile.groupFilter
-    local n = math.pow(2,id-1)
-    return bit.band(filterBits, n) > 0
+    return helpers.CheckBit(self.db.profile.groupFilter, id)
 end
 function Aptechka:GroupFilterSet(id, state)
     local filterBits = self.db.profile.groupFilter
-    local n = math.pow(2,id-1)
     if state then
-        self.db.profile.groupFilter = bit.bor(filterBits, n)
+        self.db.profile.groupFilter = helpers.SetBit(filterBits, id)
     else
-        local n2 = 255 - n
-        self.db.profile.groupFilter = bit.band(filterBits, n2)
+        self.db.profile.groupFilter = helpers.UnsetBit(filterBits, id)
     end
 end
 function Aptechka.CreateHeader(self,group,petgroup)
@@ -2330,6 +2328,33 @@ function Aptechka.SimpleDebuffPostUpdate(unit)
         SetDebuffIcon(unit, i, false)
     end
 end
+---------------------------
+-- Debuff Highlight
+---------------------------
+local highlightedDebuffsBits -- Resets to 0 at the start of every aura scan
+function Aptechka.HighlightProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID)
+    if highlightedDebuffs[spellID] then
+        local opts = highlightedDebuffs[spellID]
+        local priority = opts[2]
+        highlightedDebuffsBits = helpers.SetBit( highlightedDebuffsBits, priority)
+    end
+end
+
+function Aptechka.HighlightPostUpdate(unit)
+    local frames = Roster[unit]
+    if frames then
+        for frame in pairs(frames) do
+            if frame.highlightedDebuffsBits ~= highlightedDebuffsBits then
+                for i=1,5 do
+                    FrameSetJob(frame, config.BossDebuffs[i], helpers.CheckBit(highlightedDebuffsBits, i))
+                end
+                frame.highlightedDebuffsBits = highlightedDebuffsBits
+            end
+        end
+    end
+end
+local HighlightProc = Aptechka.HighlightProc
+local HighlightPostUpdate = Aptechka.HighlightPostUpdate
 
 ---------------------------
 -- Dispel Type Indicator
@@ -2390,6 +2415,7 @@ end
 local handleDebuffs = function(unit, index, slot, filter, ...)
     IndicatorAurasProc(unit, index, slot, filter, ...)
     DebuffProc(unit, index, slot, filter, ...)
+    HighlightProc(unit, index, slot, filter, ...)
     DispelTypeProc(unit, index, slot, filter, ...)
 end
 
@@ -2397,6 +2423,7 @@ function Aptechka.ScanAuras(unit)
     -- indicator cleanup
     table_wipe(encountered)
     debuffTypeMask = 0
+    highlightedDebuffsBits = 0
     -- debuffs cleanup
     table_wipe(debuffList)
 
@@ -2430,6 +2457,7 @@ function Aptechka.ScanAuras(unit)
     IndicatorAurasPostUpdate(unit)
     DebuffPostUpdate(unit)
     DispelTypePostUpdate(unit)
+    HighlightPostUpdate(unit)
 end
 local debugprofilestop = debugprofilestop
 function Aptechka.UNIT_AURA(self, event, unit)
@@ -2469,7 +2497,23 @@ function Aptechka:UpdateDebuffScanningMethod()
     end
 end
 
-
+function Aptechka:UpdateHighlightedDebuffsHashMap()
+    table.wipe(highlightedDebuffs)
+    for cat, spells in pairs(config.defaultDebuffHighlights) do
+        for spellId, opts in pairs(spells) do
+            highlightedDebuffs[spellId] = opts
+        end
+    end
+    for cat, spells in pairs(self.db.global.customDebuffHighlights) do
+        for spellId, opts in pairs(spells) do
+            if opts == false then
+                highlightedDebuffs[spellId] = nil
+            else
+                highlightedDebuffs[spellId] = opts
+            end
+        end
+    end
+end
 
 function Aptechka.TestDebuffSlots()
     local debuffLineLength = debuffLimit

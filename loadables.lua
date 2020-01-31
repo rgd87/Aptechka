@@ -4,7 +4,11 @@ local _, helpers = ...
 -- to find out current zone map id type: /dump C_Map.GetBestMapForUnit("player")
 -- OR
 -- Open dungeon in Encounter Journal and type: /dump EJ_GetInstanceInfo(), 7th return value will be the mapID
+-- Getting Spell IDs from Encounter Journal:
+-- Mouseover the spell and use this macro /dump GetMouseFocus():GetParent().spellID
 AptechkaDefaultConfig.MapIDs = {
+    [147] = "Ulduar",
+
     [934] = "Atal'Dazar",
     [936] = "Freehold",
     [974] = "Tol Dagor",
@@ -25,7 +29,79 @@ AptechkaDefaultConfig.MapIDs = {
     [731] = "Neltharion's Lair",
     [733] = "Darkheart Thicket",
     [751] = "Black Rook Hold",
+
+    -- This table is also used for debuff highlight sorting by content relevance
+    [99990] = "Mythic+ 8.3",
 }
+
+AptechkaDefaultConfig.defaultDebuffHighlights = {
+
+    ["Mythic+ 8.3"] = {
+        [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
+        [25163] = { 25163, 2, "Disgusting Oozeling" },
+    },
+    ["Ny'alotha"] = {
+        [314992] = { 314992, 1, "Maut, Drain Essence" },
+
+        [307645] = { 307645, 1, "Vexiona, Heart of Darkness fear" },
+        [310224] = { 310224, 1, "Vexiona, Annihilation" },
+
+        [310361] = { 310361, 1, "Drest'agath, Unleashed Insanity stun" },
+
+        [312486] = { 312486, 1, "Il'gynoth, Recurring Nightmare" },
+
+        [313400] = { 313400, 1, "N'Zoth, the Corruptor, Corrupted Mind" },
+        [313793] = { 313793, 1, "N'Zoth, the Corruptor, Flames of Insanity disorient" },
+    },
+
+    ["Freehold"] = {
+        [258323] = { 258323, 1, "Infected Wound" },
+        [257908] = { 257908, 1, "Oiled Blade" },
+    },
+
+    ["Shrine of the Storm"] = {
+        [268233] = { 268233, 1, "Electrifying Shock" },
+    },
+
+    ["Temple of Sethraliss"] = {
+        [280032] = { 280032, 1, "Neurotoxin" },
+        [268008] = { 268008, 1, "Snake Charm" },
+        [263958] = { 263958, 1, "A Knot of Snakes" },
+    },
+
+    ["Atal'Dazar"] = {
+        [257407] = { 257407, 1, "Pursuit" },
+    },
+
+    ["Waycrest Manor"] = {
+        [260741] = { 260741, 1, "Jagged Nettles" },
+        [267907] = { 267907, 1, "Soul Thorns" },
+        [268202] = { 268202, 1, "Death Lens" },
+        [263891] = { 263891, 1, "Grasping Thorns" },
+    },
+
+    ["Kings Rest"] = {
+        [270920] = { 270920, 1, "Seduction" },
+        [270865] = { 270865, 1, "Hidden Blade" },
+    },
+
+    ["The Underrot"] = {
+        [278961] = { 278961, 1, "Decaying Mind" },
+    },
+
+    ["Siege of Boralus"] = {
+        [272571] = { 272571, 1, "Choking Waters" },
+    },
+
+    ["Ulduar"] = {
+        [64125] = { 64125, 1, "Squeeze, Yogg-Saron" },
+        [62717] = { 62717, 1, "Slag Pot, Ignis" },
+        [61903] = { 61903, 1, "Fusion Punch, Assembly of Iron" },
+        [64290] = { 64290, 1, "Stone Grip, Kologarn" },
+    },
+}
+
+
 
 local A = helpers.AddLoadableAura
 
@@ -39,11 +115,8 @@ local healred = { 147/255, 54/255, 115/255 }
 local BossDebuff = { type = "HARMFUL", assignto = "bossdebuff", color = color1, priority = 40, pulse = true }
 AptechkaDefaultConfig.BossDebuffPrototype = BossDebuff
 
--- 8.3 M+ Debuffs
-helpers.AddAura{ id = 314308, prototype = BossDebuff } -- Spirit Breaker, increase all damage they take by 100% for 8 sec.
-
 AptechkaDefaultConfig.LoadableDebuffs = {
-
+--[[
     ["Ny'alotha"] = function()
         A{ id = 314992, prototype = BossDebuff } -- Maut, Drain Essence
 
@@ -94,7 +167,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     ["Siege of Boralus"] = function()
         A{ id = 272571, prototype = BossDebuff } -- Choking Waters
     end,
-
+]]
 
 
     -- ["Emerald Nightmare"] = function()

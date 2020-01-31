@@ -94,6 +94,14 @@ config.SummonDeclined = { name = "SUMMON_DECLINED", assignto = { "text2" }, colo
 config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow", "unhealable" }, color = {0.5,0,1}, priority = 52 }
 -- config.UnhealableStatus = { name = "UNHEALABLE", assignto = { "unhealable" }, color = {0.5,0,1}, priority = 50 }
 
+config.BossDebuffs = {
+    { name = "BossDebuffLevel1", assignto = "bossdebuff", color = {1,0,0}, priority = 95, pulse = true, },
+    { name = "BossDebuffLevel2", assignto = "bossdebuff", color = {1,0,1}, priority = 95, pulse = true, },
+    { name = "BossDebuffLevel3", assignto = "innerglow", color = {1,0,1}, priority = 90 },
+    { name = "BossDebuffLevel4", assignto = "innerglow", color = {1,0,0}, priority = 90 },
+    { name = "BossDebuffLevel5", assignto = "border", color = {1,0,0}, priority = 90 },
+}
+
 -- default priority is 80
 
 local IsSpellInRange = _G.IsSpellInRange

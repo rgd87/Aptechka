@@ -1,83 +1,6 @@
 local addonName, ns = ...
 
 
-local defaultSpellList = {
-    ["Ny'alotha"] = {
-        [314992] = { 314992, 1, "Maut, Drain Essence" },
-
-        [307645] = { 307645, 1, "Vexiona, Heart of Darkness fear" },
-        [310224] = { 310224, 1, "Vexiona, Annihilation" },
-
-        [310361] = { 310361, 1, "Drest'agath, Unleashed Insanity stun" },
-
-        [312486] = { 312486, 1, "Il'gynoth, Recurring Nightmare" },
-
-        [313400] = { 313400, 1, "N'Zoth, the Corruptor, Corrupted Mind" },
-        [313793] = { 313793, 1, "N'Zoth, the Corruptor, Flames of Insanity disorient" },
-    },
-
-    ["Freehold"] = {
-        [258323] = { 258323, 1, "Infected Wound" },
-        [257908] = { 257908, 1, "Oiled Blade" },
-    },
-
-    ["Shrine of the Storm"] = {
-        [268233] = { 268233, 1, "Electrifying Shock" },
-    },
-
-    ["Temple of Sethraliss"] = {
-        [280032] = { 280032, 1, "Neurotoxin" },
-        [268008] = { 268008, 1, "Snake Charm" },
-        [263958] = { 263958, 1, "A Knot of Snakes" },
-    },
-
-    ["Atal'Dazar"] = {
-        [257407] = { 257407, 1, "Pursuit" },
-    },
-
-    ["Waycrest Manor"] = {
-        [260741] = { 260741, 1, "Jagged Nettles" },
-        [267907] = { 267907, 1, "Soul Thorns" },
-        [268202] = { 268202, 1, "Death Lens" },
-        [263891] = { 263891, 1, "Grasping Thorns" },
-    },
-
-    ["Kings Rest"] = {
-        [270920] = { 270920, 1, "Seduction" },
-        [270865] = { 270865, 1, "Hidden Blade" },
-    },
-
-    ["The Underrot"] = {
-        [278961] = { 278961, 1, "Decaying Mind" },
-    },
-
-    ["Siege of Boralus"] = {
-        [272571] = { 272571, 1, "Choking Waters" },
-    },
-}
-
-local customSpellList = {}
-
-local workHashMap = {}
-local function GenHighlightHashMap()
-    table.wipe(workHashMap)
-    for cat, spells in pairs(defaultSpellList) do
-        for spellId, opts in pairs(spells) do
-            workHashMap[spellId] = opts      
-        end
-    end
-    for cat, spells in pairs(customSpellList) do
-        for spellId, opts in pairs(spells) do
-            if opts == false then
-                workHashMap[spellId] = nil
-            else
-                workHashMap[spellId] = opts
-            end
-        end
-    end
-end
-GenHighlightHashMap()
-
 local function IsSpellInList(list, id)
     for cat, spells in pairs(list) do
         for spellId, opts in pairs(spells) do
@@ -115,7 +38,7 @@ local function DeleteHighlightInfo(spellId, noRegen, customOnly)
     end
 
     if not noRegen then
-        GenHighlightHashMap()
+        UpdateHighlightedDebuffsHashMap()
     end
 end
 
@@ -133,7 +56,7 @@ local function SaveHighlightInfo(spellId, category, priority, comment)
         customSpellList[category][spellId] = newOpts
         print(category)
     end
-    GenHighlightHashMap()
+    UpdateHighlightedDebuffsHashMap()
 end
 
 
@@ -260,7 +183,7 @@ function AptechkaHybridScrollMixin:RefreshLayout()
                 button.categoryLeft:Show();
 				button.categoryRight:Show();
                 button.categoryMiddle:Show();
-                
+
                 local name = item[2]
                 text:SetText(name)
                 icon:SetTexture(nil)
@@ -270,7 +193,7 @@ function AptechkaHybridScrollMixin:RefreshLayout()
                 button.categoryLeft:Hide();
 				button.categoryRight:Hide();
                 button.categoryMiddle:Hide();
-                
+
                 local spellId, prio, commentText = unpack(item)
                 local spellName, _, tex = GetSpellInfo(spellId)
                 icon:SetPoint("LEFT", 15, 0)
@@ -388,7 +311,7 @@ function ns.CreateSpellDataPanel()
     Group.controls.delete = delete
     Group:AddChild(delete)
 
-    
+
 
     local comment = AceGUI:Create("EditBox")
     comment:SetLabel("Comment")
