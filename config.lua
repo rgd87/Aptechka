@@ -332,6 +332,10 @@ if playerClass == "WARLOCK" then
 end
 
 if playerClass == "PALADIN" then
+
+    --Glimmer of Light
+    A{ id = 287280,type = "HELPFUL", assignto = "bars", color = { 1, .3, .3}, showDuration = true, isMine = true}
+
     --Tyr's Deliverance
     A{ id = 200654, type = "HELPFUL", assignto = "spell3", color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true }
      --Bestow Faith
