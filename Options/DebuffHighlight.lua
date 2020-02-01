@@ -163,6 +163,7 @@ function AptechkaHybridScrollMixin:SelectItem(index)
         category = categoryName
     }
     form.controls.spellID:SetText(spellID)
+    form.controls.save:SetDisabled(false)
     form.controls.priority:SetText(prio)
     form.controls.comment:SetText(comment)
     form.controls.category:SetText(categoryName)
@@ -269,10 +270,15 @@ function ns.CreateSpellDataPanel()
         if v and v > 0 and GetSpellInfo(v) then
             self.parent.opts["spellID"] = v
             self.editbox:SetTextColor(1,1,1)
+            self.parent.controls.save:SetDisabled(false)
         else
             self.editbox:SetTextColor(1,0,0)
+            self.parent.controls.save:SetDisabled(true)
         end
-        if value == "" then self.parent.opts["spellID"] = nil end
+        if value == "" then
+            self.parent.opts["spellID"] = nil
+            self.parent.controls.save:SetDisabled(true)
+        end
     end)
     Group.controls.spellID = spellID
     Group:AddChild(spellID)
@@ -283,14 +289,14 @@ function ns.CreateSpellDataPanel()
     priority:SetCallback("OnClick", function(self, event)
         local priority = self.parent.opts["priority"] or 1
         self.parent.opts["priority"] = priority + 1
-        if self.parent.opts["priority"] > 5 then
+        if self.parent.opts["priority"] > 4 then
             self.parent.opts["priority"] = 1
         end
         self:SetText(self.parent.opts["priority"])
     end)
     Group.controls.priority = priority
     Group:AddChild(priority)
-    -- AddTooltip(fcr, "Remove Other's Color")
+    ns.WidgetAddTooltip(priority, "1 - Red Corner\n2 - Pink Corner\n3 - Red Border\n4 - Pixel Glow")
 
     local category = AceGUI:Create("EditBox")
     category:SetLabel("Category")
@@ -307,10 +313,12 @@ function ns.CreateSpellDataPanel()
 
     local save = AceGUI:Create("Button")
     save:SetText("Save")
+    save:SetDisabled(true)
     save:SetRelativeWidth(0.15)
     save:SetCallback("OnClick", function(self, event)
         local opts = self.parent.opts
         local spellId = opts.spellID
+        if not spellId then return end
         local category = opts.category
         local comment = opts.comment
         local priority = opts.priority

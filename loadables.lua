@@ -21,6 +21,9 @@ AptechkaDefaultConfig.MapIDs = {
     [1162] = "Siege of Boralus",
     [1148] = "Uldir",
 
+    [1469] = "Horrific Visions", -- Orgrimmar
+    [1470] = "Horrific Visions", -- Stormwind
+
     [1580] = "Ny'alotha", -- Wrathion room
     [1581] = "Ny'alotha",
 
@@ -38,7 +41,7 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
 
     ["Mythic+ 8.3"] = {
         [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
-        [25163] = { 25163, 5, "Disgusting Oozeling" },
+        -- [25163] = { 25163, 4, "Disgusting Oozeling" },
     },
     ["Horrific Visions"] = {
         [306965] = { 306965, 1, "Madness: Dark Delusions Stun" },
@@ -59,7 +62,7 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         [309648] = { 309648, 1, "Magister Umbric, Tainted Polymorph" },
         [309882] = { 309882, 1, "Cultist Slavedriver, Brutal Smash" },
         -- Fallen Riftwalker, Rift Strike
-        [308380] = { 308380, 5, "Inquisitor Darkspeak, Convert" }, -- Will normal MC pick it up?
+        [308380] = { 308380, 3, "Inquisitor Darkspeak, Convert" }, -- Will normal MC pick it up?
         -- 308375 Portal Keeper, Psychic Scream
         -- [298770] = { 298770, 1, "Slavemaster Ul'rok, Chains of Servitude Stun" },
     },

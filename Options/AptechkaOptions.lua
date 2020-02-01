@@ -134,6 +134,7 @@ local function AddTooltip(widget, tooltipText)
     widget:SetCallback("OnEnter", tooltipOnEnter)
     widget:SetCallback("OnLeave", tooltipOnLeave)
 end
+ns.WidgetAddTooltip = AddTooltip
 
 local clean = function(delta, default_opts, property, emptyValue)
     if delta[property] == emptyValue and default_opts[property] == nil then delta[property] = nil end
