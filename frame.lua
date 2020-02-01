@@ -1166,7 +1166,7 @@ local CreateUnhealableOverlay = function(parent)
 end
 
 
-local SetJob_InngerGlow = function(self,job)
+local SetJob_InnerGlow = function(self,job)
     if job.color then
         local r,g,b = unpack(job.color)
         self:SetVertexColor(r,g,b)
@@ -1178,10 +1178,61 @@ local CreateInnerGlow = function(parent)
     tex:SetAlpha(0.6)
     tex:SetVertexColor(0.5,0,1)
     tex:SetAllPoints(parent)
-    tex.SetJob = SetJob_InngerGlow
+    tex.SetJob = SetJob_InnerGlow
 
     tex:Hide()
     return tex
+end
+
+local SetJob_Flash = function(self,job)
+    if job.color then
+        local r,g,b = unpack(job.color)
+        self.texture:SetVertexColor(r,g,b)
+    end
+end
+local CreateFlash = function(parent)
+    local f = CreateFrame("Frame", nil, parent.health)
+    local tex = f:CreateTexture(nil, "OVERLAY", nil, -4)
+    tex:SetTexture([[Interface\SpellActivationOverlay\IconAlert]])
+    tex:SetTexCoord(0, 78/128, 0, 69/256)
+    local m = 1.8
+    tex:SetAlpha(0.8)
+    tex:SetVertexColor(1,0,0)
+    tex:SetAllPoints(f)
+    f.texture = tex
+    f:SetPoint("TOPLEFT", parent, "TOPLEFT", -22*m, 17*m)
+    f:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 21*m, -17*m)
+    f.SetJob = SetJob_Flash
+
+    f:SetAlpha(0)
+
+    local bag = f:CreateAnimationGroup()
+    bag:SetLooping("NONE")
+    local ba1 = bag:CreateAnimation("Alpha")
+    ba1:SetFromAlpha(0)
+    ba1:SetToAlpha(1)
+    ba1:SetDuration(0.08)
+    ba1:SetOrder(1)
+    local ba2 = bag:CreateAnimation("Alpha")
+    ba2:SetFromAlpha(1)
+    ba2:SetToAlpha(0)
+    ba2:SetDuration(0.4)
+    ba2:SetOrder(2)
+    bag.a2 = ba2
+
+    f:SetScript("OnShow", function(self)
+        self.blink:Play()
+    end)
+
+    bag:SetScript("OnFinished",function(ag)
+        local self = ag:GetParent()
+        ag:Stop()
+        self:Hide()
+    end)
+    f.blink = bag
+
+    f:Hide()
+    return f
 end
 
 local CreateMindControlIcon = function(parent)
@@ -1203,6 +1254,50 @@ local CreateMindControlIcon = function(parent)
     return f
 end
 
+local LibCustomGlow = LibStub("LibCustomGlow-1.0")
+local SetJob_PixelGlow = function(self, job)
+    local color = job.color or {1,1,1,1}
+    local thickness = pixelperfect(2)
+    local offset = pixelperfect(4)
+    local freq = 0.35
+    local length = 4
+    local border = nil -- false hides border
+    LibCustomGlow.PixelGlow_Start(self, color, 12, freq, length, thickness, offset, offset, border, nil )
+    local glow = self["_PixelGlow"]
+    glow.bg:SetColorTexture(0,0,0,0.5)
+end
+local CreatePixelGlow = function(parent)
+    local f = CreateFrame("Frame", nil, parent)
+
+    f.SetJob = SetJob_PixelGlow
+    f:SetAllPoints(parent)
+    f:Hide()
+
+    f:SetScript("OnHide", function(self)
+        LibCustomGlow.PixelGlow_Stop(self)
+    end)
+
+    return f
+end
+
+local SetJob_AutocastGlow = function(self, job)
+    local color = job.color or {1,1,1,1}
+    local offset = pixelperfect(3)
+    LibCustomGlow.AutoCastGlow_Start(self, color, 10, 0.24, 1.15, offset, offset, nil, nil )
+end
+local CreateAutocastGlow = function(parent)
+    local f = CreateFrame("Frame", nil, parent)
+
+    f.SetJob = SetJob_AutocastGlow
+    f:SetAllPoints(parent)
+    f:Hide()
+
+    f:SetScript("OnHide", function(self)
+        LibCustomGlow.AutoCastGlow_Stop(self)
+    end)
+
+    return f
+end
 --[[
 local dispelTypeTextures = {
     "Interface\\RaidFrame\\Raid-Icon-DebuffMagic",
@@ -1334,9 +1429,13 @@ local optional_widgets = {
 
         bars = CreateBars,
 
+        pixelGlow = CreatePixelGlow,
+        autocastGlow = CreateAutocastGlow,
+
         mindcontrol = CreateMindControlIcon,
         unhealable = CreateUnhealableOverlay,
         innerglow = CreateInnerGlow,
+        flash = CreateFlash,
 
         -- dispel = CreateDebuffTypeIndicator,
         -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,

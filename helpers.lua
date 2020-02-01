@@ -1,4 +1,7 @@
 local _, helpers = ...
+
+helpers.frame = CreateFrame("Frame","Aptechka",UIParent)
+
 AptechkaDefaultConfig = {}
 local config = AptechkaDefaultConfig
 AptechkaUserConfig = AptechkaDefaultConfig
@@ -258,4 +261,28 @@ function helpers.ForEachAura(unit, filter, maxCount, func)
     until continuationToken == nil;
 
     return index
+end
+
+
+do
+    local pow = math.pow
+    local band = bit.band
+    local bor = bit.bor
+    function helpers.CheckBit(num, index)
+        local n = pow(2,index-1)
+        return band(num, n) > 0
+    end
+
+    function helpers.SetBit(num, index)
+        local n = pow(2,index-1)
+        return bor(num, n)
+    end
+
+    function helpers.UnsetBit(num, index)
+        local n = pow(2,index-1)
+        if n >= num then
+            return num - n
+        end
+        return num
+    end
 end

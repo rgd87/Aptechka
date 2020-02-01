@@ -4,7 +4,11 @@ local _, helpers = ...
 -- to find out current zone map id type: /dump C_Map.GetBestMapForUnit("player")
 -- OR
 -- Open dungeon in Encounter Journal and type: /dump EJ_GetInstanceInfo(), 7th return value will be the mapID
+-- Getting Spell IDs from Encounter Journal:
+-- Mouseover the spell and use this macro /dump GetMouseFocus():GetParent().spellID
 AptechkaDefaultConfig.MapIDs = {
+    [147] = "Ulduar",
+
     [934] = "Atal'Dazar",
     [936] = "Freehold",
     [974] = "Tol Dagor",
@@ -17,6 +21,10 @@ AptechkaDefaultConfig.MapIDs = {
     [1162] = "Siege of Boralus",
     [1148] = "Uldir",
 
+    [1469] = "Horrific Visions", -- Orgrimmar
+    [1470] = "Horrific Visions", -- Stormwind
+
+    [1580] = "Ny'alotha", -- Wrathion room
     [1581] = "Ny'alotha",
 
     [704] = "Halls of Valor",
@@ -24,7 +32,104 @@ AptechkaDefaultConfig.MapIDs = {
     [731] = "Neltharion's Lair",
     [733] = "Darkheart Thicket",
     [751] = "Black Rook Hold",
+
+    -- This table is also used for debuff highlight sorting by content relevance
+    [99990] = "Mythic+ 8.3",
 }
+
+AptechkaDefaultConfig.defaultDebuffHighlights = {
+
+    ["Mythic+ 8.3"] = {
+        [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
+        -- [25163] = { 25163, 4, "Disgusting Oozeling" },
+    },
+    ["Horrific Visions"] = {
+        [306965] = { 306965, 1, "Madness: Dark Delusions Stun" },
+        [306545] = { 306545, 2, "Madness: Haunting Shadows Fear" },
+        [316510] = { 316510, 2, "Madness: Split Personality Disorient" },
+        [298033] = { 298033, 1, "K'thir Dominator and SI:7 Informant, Touch of the Abyss" },
+        [300530] = { 300530, 1, "K'thir Mindcarver, Mind Carver" },
+        [298514] = { 298514, 1, "Aqiri Mind Toxin Stun" },
+        -- [11641] = { 11641, 1, "Bwemba, Hex" },
+        [304969] = { 304969, 1, "Inquisitor Gnshal, Void Torrent Stun" },
+        -- [304634] = { 304634, 1, "Oblivion Elemental, Despair Stun" },
+        [304350] = { 304350, 1, "Rexxar, Mind Trap Stun" },
+        -- [306726] = { 306726, 1, "Vez'okk the Lightless, Defiled Ground Stun" },
+        -- [306646] = { 306646, 1, "Vez'okk the Lightless, Ring of Chaos Stun" },
+        -- [305378] = { 305378, 1, "Voidbound Honor Guard, Horrifying Shout Fear" },
+        -- [298630] = { 298630, 1, "Voidbound Shieldbearer, Shockwave Stun" },
+        -- Agustus Moulaine Stun
+        [309648] = { 309648, 1, "Magister Umbric, Tainted Polymorph" },
+        [309882] = { 309882, 1, "Cultist Slavedriver, Brutal Smash" },
+        -- Fallen Riftwalker, Rift Strike
+        [308380] = { 308380, 3, "Inquisitor Darkspeak, Convert" }, -- Will normal MC pick it up?
+        -- 308375 Portal Keeper, Psychic Scream
+        -- [298770] = { 298770, 1, "Slavemaster Ul'rok, Chains of Servitude Stun" },
+    },
+    ["Ny'alotha"] = {
+        [314992] = { 314992, 1, "Maut, Drain Essence" },
+
+        [307645] = { 307645, 1, "Vexiona, Heart of Darkness fear" },
+        [310224] = { 310224, 1, "Vexiona, Annihilation" },
+
+        [310361] = { 310361, 1, "Drest'agath, Unleashed Insanity stun" },
+
+        [312486] = { 312486, 1, "Il'gynoth, Recurring Nightmare" },
+
+        [313400] = { 313400, 1, "N'Zoth, the Corruptor, Corrupted Mind" },
+        [313793] = { 313793, 1, "N'Zoth, the Corruptor, Flames of Insanity disorient" },
+    },
+
+    ["Freehold"] = {
+        [258323] = { 258323, 1, "Infected Wound" },
+        [257908] = { 257908, 1, "Oiled Blade" },
+    },
+
+    ["Shrine of the Storm"] = {
+        [268233] = { 268233, 1, "Electrifying Shock" },
+    },
+
+    ["Temple of Sethraliss"] = {
+        [280032] = { 280032, 1, "Neurotoxin" },
+        [268008] = { 268008, 1, "Snake Charm" },
+        [263958] = { 263958, 1, "A Knot of Snakes" },
+    },
+
+    ["Atal'Dazar"] = {
+        [257407] = { 257407, 1, "Pursuit" },
+    },
+
+    ["Waycrest Manor"] = {
+        [260741] = { 260741, 1, "Jagged Nettles" },
+        [267907] = { 267907, 1, "Soul Thorns" },
+        [268202] = { 268202, 1, "Death Lens" },
+        [263891] = { 263891, 1, "Grasping Thorns" },
+    },
+
+    ["Kings Rest"] = {
+        [270920] = { 270920, 1, "Seduction" },
+        [270865] = { 270865, 1, "Hidden Blade" },
+    },
+
+    ["The Underrot"] = {
+        [278961] = { 278961, 1, "Decaying Mind" },
+    },
+
+    ["Siege of Boralus"] = {
+        [272571] = { 272571, 1, "Choking Waters" },
+    },
+
+    --[[
+    ["Ulduar"] = {
+        [64125] = { 64125, 1, "Squeeze, Yogg-Saron" },
+        [62717] = { 62717, 1, "Slag Pot, Ignis" },
+        [61903] = { 61903, 1, "Fusion Punch, Assembly of Iron" },
+        [64290] = { 64290, 1, "Stone Grip, Kologarn" },
+    },
+    ]]
+}
+
+
 
 local A = helpers.AddLoadableAura
 
@@ -39,7 +144,7 @@ local BossDebuff = { type = "HARMFUL", assignto = "bossdebuff", color = color1, 
 AptechkaDefaultConfig.BossDebuffPrototype = BossDebuff
 
 AptechkaDefaultConfig.LoadableDebuffs = {
-
+--[[
     ["Ny'alotha"] = function()
         A{ id = 314992, prototype = BossDebuff } -- Maut, Drain Essence
 
@@ -90,7 +195,7 @@ AptechkaDefaultConfig.LoadableDebuffs = {
     ["Siege of Boralus"] = function()
         A{ id = 272571, prototype = BossDebuff } -- Choking Waters
     end,
-
+]]
 
 
     -- ["Emerald Nightmare"] = function()

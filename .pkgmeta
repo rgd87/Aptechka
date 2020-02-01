@@ -16,6 +16,7 @@ externals:
   Libs/LibClassicDurations: https://repos.curseforge.com/wow/libclassicdurations
   Libs/LibHealComm-4.0: https://repos.wowace.com/wow/libhealcomm-4-0
   Libs/LibBanzai-2.0: https://github.com/rgd87/LibBanzai-2.0-classic.git
+  Libs/LibCustomGlow: https://github.com/Stanzilla/LibCustomGlow.git
   Libs/LibSpellLocks:
     url: https://github.com/rgd87/LibSpellLocks.git
     tag: classic

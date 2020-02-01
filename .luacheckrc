@@ -214,4 +214,11 @@ globals = {
     "MouselookStart",
     "MouselookStop",
     "IsMouselooking",
+    "AptechkaHybridScrollMixin",
+    "AptechkaHighlightHybridScrollFrame",
+    "HybridScrollFrame_SetDoNotHideScrollBar",
+    "HybridScrollFrame_CreateButtons",
+    "HybridScrollFrame_GetButtons",
+    "HybridScrollFrame_GetOffset",
+    "HybridScrollFrame_Update",
 }

@@ -12,5 +12,7 @@
 
     <Script file="GlobalSettings.lua"/>
     <Script file="ProfileSelection.lua"/>
+    <Script file="DebuffHighlight.lua"/>
+    <Include file="SpellListItemTemplate.xml"/>
     <Script file="AptechkaOptions.lua"/>
 </Ui>
