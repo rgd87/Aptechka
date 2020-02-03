@@ -24,6 +24,8 @@ AptechkaDefaultConfig.MapIDs = {
     [1469] = "Horrific Visions", -- Orgrimmar
     [1470] = "Horrific Visions", -- Stormwind
 
+    [1490] = "Operation: Mechagon",
+
     [1580] = "Ny'alotha", -- Wrathion room
     [1581] = "Ny'alotha",
 
@@ -41,7 +43,7 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
 
     ["Mythic+ 8.3"] = {
         [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
-        -- [25163] = { 25163, 4, "Disgusting Oozeling" },
+        [25163] = { 25163, 3, "Disgusting Oozeling" },
     },
     ["Horrific Visions"] = {
         [306965] = { 306965, 1, "Madness: Dark Delusions Stun" },
@@ -80,6 +82,10 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         [313793] = { 313793, 1, "N'Zoth, the Corruptor, Flames of Insanity disorient" },
     },
 
+    ["Operation: Mechagon"] = {
+        [294929] = { 294929, 1, "K.U.-J.0., Blazing Chomp" },
+        [299572] = { 299572, 3, "Mechagon Renormalizer, Shrink" },
+    },
     ["Freehold"] = {
         [258323] = { 258323, 1, "Infected Wound" },
         [257908] = { 257908, 1, "Oiled Blade" },
