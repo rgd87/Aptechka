@@ -32,6 +32,8 @@ AptechkaDefaultConfig.MapIDs = {
     [1469] = "Horrific Visions", -- Orgrimmar
     [1470] = "Horrific Visions", -- Stormwind
 
+    [1490] = "Operation: Mechagon",
+
     [1580] = "Ny'alotha", -- Wrathion room
     [1581] = "Ny'alotha",
 

@@ -1,5 +1,7 @@
 local addonName, ns = ...
 
+local L = Aptechka.L
+
 local defaultDebuffHighlights = AptechkaDefaultConfig.defaultDebuffHighlights
 
 local function IsSpellInList(list, id)
@@ -261,7 +263,7 @@ function ns.CreateSpellDataPanel()
     Group.controls = {}
 
     local spellID = AceGUI:Create("EditBox")
-    spellID:SetLabel("Spell ID")
+    spellID:SetLabel(L"Spell ID")
     -- spellID:SetDisabled(true)
     spellID:DisableButton(true)
     spellID:SetRelativeWidth(0.13)
@@ -299,10 +301,10 @@ function ns.CreateSpellDataPanel()
     ns.WidgetAddTooltip(priority, "1 - Red Corner\n2 - Pink Corner\n3 - Red Border\n4 - Pixel Glow")
 
     local category = AceGUI:Create("EditBox")
-    category:SetLabel("Category")
+    category:SetLabel(L"Category")
     -- category:SetDisabled(true)
     category:DisableButton(true)
-    category:SetRelativeWidth(0.45)
+    category:SetRelativeWidth(0.40)
     category:SetCallback("OnTextChanged", function(self, event, text)
         self.parent.opts["category"] = text
         if text == "" then self.parent.opts["category"] = nil end
@@ -312,9 +314,9 @@ function ns.CreateSpellDataPanel()
 
 
     local save = AceGUI:Create("Button")
-    save:SetText("Save")
+    save:SetText(L"Save")
     save:SetDisabled(true)
-    save:SetRelativeWidth(0.15)
+    save:SetRelativeWidth(0.20)
     save:SetCallback("OnClick", function(self, event)
         local opts = self.parent.opts
         local spellId = opts.spellID
@@ -330,7 +332,7 @@ function ns.CreateSpellDataPanel()
     Group:AddChild(save)
 
     local delete = AceGUI:Create("Button")
-    delete:SetText("Delete")
+    delete:SetText(L"Delete")
     delete:SetRelativeWidth(0.15)
     delete:SetCallback("OnClick", function(self, event)
         local opts = self.parent.opts
@@ -348,7 +350,7 @@ function ns.CreateSpellDataPanel()
 
 
     local comment = AceGUI:Create("EditBox")
-    comment:SetLabel("Comment")
+    comment:SetLabel(L"Comment")
     -- comment:SetDisabled(true)
     comment:DisableButton(true)
     comment:SetRelativeWidth(0.94)

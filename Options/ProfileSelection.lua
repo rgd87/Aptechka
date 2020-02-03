@@ -19,10 +19,22 @@ function ns.MakeProfileSelection()
         name = L"Aptechka Profiles",
         order = 1,
         args = {
+            enableAutoProfiles = {
+                name = L"Enable Profile Auto-Switching",
+                type = "toggle",
+                width = "full",
+                get = function(info) return Aptechka.db.global.enableProfileSwitching end,
+                set = function(info, v)
+                    Aptechka.db.global.enableProfileSwitching = not Aptechka.db.global.enableProfileSwitching
+                    Aptechka:ReconfigureProtected()
+                end,
+                order = 0.5,
+            },
             manualRoleSelection = {
                 type = "group",
-                name = "(Classic) "..L"Manual Role selection for current character",
+                name = L"Manual Role selection for current character",
                 width = "double",
+                disabled = function() return not Aptechka.db.global.enableProfileSwitching end,
                 guiInline = true,
                 order = 1.5,
                 args = {
@@ -50,13 +62,13 @@ function ns.MakeProfileSelection()
             },
             healerGroup = {
                 type = 'group',
-                name = L"Profile Auto-Switching",
+                name = " ",
                 order = 2,
-
+                disabled = function() return not Aptechka.db.global.enableProfileSwitching end,
                 guiInline = true,
                 args = {
                     HEALER_solo = {
-                        name = L"HEALER"..": Solo",
+                        name = string.format("%s: %s", L"HEALER", L"Solo"),
                         type = 'select',
                         order = 1,
                         width = 1.6,
@@ -70,7 +82,7 @@ function ns.MakeProfileSelection()
                         end,
                     },
                     DAMAGER_solo = {
-                        name = L"DAMAGER"..": Solo",
+                        name = string.format("%s: %s", L"DAMAGER", L"Solo"),
                         type = 'select',
                         order = 2,
                         width = 1.6,
@@ -86,7 +98,7 @@ function ns.MakeProfileSelection()
 
 
                     HEALER_party = {
-                        name = L"HEALER"..": 5-man",
+                        name = string.format("%s: %s", L"HEALER", L"5-man"),
                         type = 'select',
                         order = 3,
                         width = 1.6,
@@ -100,7 +112,7 @@ function ns.MakeProfileSelection()
                         end,
                     },
                     DAMAGER_party = {
-                        name = L"DAMAGER"..": 5-man",
+                        name = string.format("%s: %s", L"DAMAGER", L"5-man"),
                         type = 'select',
                         order = 4,
                         width = 1.6,
@@ -116,7 +128,7 @@ function ns.MakeProfileSelection()
 
 
                     HEALER_smallRaid = {
-                        name = L"HEALER"..": Small Raid (6-10)",
+                        name = string.format("%s: %s %s", L"HEALER", L"Small Raid", "(6-10)"),
                         type = 'select',
                         order = 5,
                         width = 1.6,
@@ -130,7 +142,7 @@ function ns.MakeProfileSelection()
                         end,
                     },
                     DAMAGER_smallRaid = {
-                        name = L"DAMAGER"..": Small Raid (6-10)",
+                        name = string.format("%s: %s %s", L"DAMAGER", L"Small Raid", "(6-10)"),
                         type = 'select',
                         order = 6,
                         width = 1.6,
@@ -146,7 +158,7 @@ function ns.MakeProfileSelection()
 
 
                     HEALER_mediumRaid = {
-                        name = L"HEALER"..": Medium Raid (11-22)",
+                        name = string.format("%s: %s %s", L"HEALER", L"Medium Raid", "(11-22)"),
                         type = 'select',
                         order = 7,
                         width = 1.6,
@@ -160,7 +172,7 @@ function ns.MakeProfileSelection()
                         end,
                     },
                     DAMAGER_mediumRaid = {
-                        name = L"DAMAGER"..": Medium Raid (11-22)",
+                        name = string.format("%s: %s %s", L"DAMAGER", L"Medium Raid", "(11-22)"),
                         type = 'select',
                         order = 8,
                         width = 1.6,
@@ -176,7 +188,7 @@ function ns.MakeProfileSelection()
 
 
                     HEALER_bigRaid = {
-                        name = L"HEALER"..": Big Raid (23-30)",
+                        name = string.format("%s: %s %s", L"HEALER", L"Big Raid", "(23-30)"),
                         type = 'select',
                         order = 9,
                         width = 1.6,
@@ -190,7 +202,7 @@ function ns.MakeProfileSelection()
                         end,
                     },
                     DAMAGER_bigRaid = {
-                        name = L"DAMAGER"..": Big Raid (23-30)",
+                        name = string.format("%s: %s %s", L"DAMAGER", L"Big Raid", "(23-30)"),
                         type = 'select',
                         order = 10,
                         width = 1.6,
@@ -205,7 +217,7 @@ function ns.MakeProfileSelection()
                     },
 
                     HEALER_fullRaid = {
-                        name = L"HEALER"..": Full Raid (31-40)",
+                        name = string.format("%s: %s %s", L"HEALER", L"Full Raid", "(31-40)"),
                         type = 'select',
                         order = 11,
                         width = 1.6,
@@ -219,7 +231,7 @@ function ns.MakeProfileSelection()
                         end,
                     },
                     DAMAGER_fullRaid = {
-                        name = L"DAMAGER"..": Full Raid (31-40)",
+                        name = string.format("%s: %s %s", L"DAMAGER", L"Full Raid", "(31-40)"),
                         type = 'select',
                         order = 12,
                         width = 1.6,

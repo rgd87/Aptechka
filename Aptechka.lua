@@ -144,7 +144,7 @@ local defaults = {
         disableBlizzardParty = true,
         hideBlizzardRaid = true,
         RMBClickthrough = false,
-        sortUnitsByRole = false,
+        sortUnitsByRole = true,
         showAFK = false,
         customBlacklist = {},
         useCombatLogHealthUpdates = false,
@@ -152,6 +152,7 @@ local defaults = {
         useDebuffOrdering = true, -- On always?
         customDebuffHighlights = {},
 
+        enableProfileSwitching = true,
         profileSelection = {
             HEALER = {
                 solo = "Default",
@@ -189,7 +190,7 @@ local defaults = {
         showAggro = true,
         petGroup = false,
         showRaidIcons = true,
-        showDispels = false,
+        showDispels = true,
         healthTexture = "Gradient",
         powerTexture = "Gradient",
 
@@ -1453,6 +1454,7 @@ function Aptechka:GetCurrentGroupType()
 end
 
 function Aptechka.LayoutUpdate(self)
+    if not self.db.global.enableProfileSwitching then return end
     local numMembers = GetNumGroupMembers()
     local spec = GetSpecialization()
     local role = self:GetSpecRole()
