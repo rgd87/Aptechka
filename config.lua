@@ -83,7 +83,7 @@ config.PowerBarColor = { name = "PowerBar", assignto = "power", color = {.5,.5,1
 config.OutOfRangeStatus = { name = "OOR", assignto = "self", color = {0.5,0.5,0.5}, alpha = 0.5, text = "OOR", priority = 50 }
 config.InVehicleStatus = { name = "InVehicle", assignto = "border", color = {0.3,1,0.3}, priority = 21 }
 config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, resetAnimation = true, priority = 95, fade = 0.3 }
-config.DispelStatus = { name = "Dispel", assignto = "bossdebuff", scale = 0.85, priority = 6 }
+config.DispelStatus = { name = "Dispel", assignto = "bossdebuff", scale = 0.8, priority = 6 }
 config.StaggerStatus = { name = "Stagger", assignto = "text2", percentColor = true, priority = 20 }
 
 config.SummonPending = { name = "SUMMON_PENDING", assignto = { "text2" }, color = {1,0.7,0}, text = "PENDING", priority = 50 }
