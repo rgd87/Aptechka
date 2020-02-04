@@ -189,16 +189,23 @@ function helpers.utf8sub(str, start, numChars)
 end
 
 function helpers.DisableBlizzParty(self)
+    local hiddenParent = helpers.hiddenParent or CreateFrame('Frame', nil, UIParent)
+    helpers.hiddenParent = hiddenParent
+    hiddenParent:SetAllPoints()
+    hiddenParent:Hide()
     for i=1,4 do
         local party = "PartyMemberFrame"..i
         local frame = _G[party]
 
         frame:UnregisterAllEvents()
         frame:Hide()
-        hooksecurefunc("ShowPartyFrame", HidePartyFrame)
-        hooksecurefunc("PartyMemberFrame_UpdateMember", function(self)
-            self:Hide()
-        end)
+        frame:SetParent(hiddenParent)
+        -- hooksecurefunc("ShowPartyFrame", HidePartyFrame)
+        -- hooksecurefunc("PartyMemberFrame_UpdateMember", function(self)
+            -- if not InCombatLockdown() then
+                -- self:Hide()
+            -- end
+        -- end)
 
         _G[party..'HealthBar']:UnregisterAllEvents()
         _G[party..'ManaBar']:UnregisterAllEvents()
