@@ -1017,7 +1017,8 @@ function ns.MakeProfileSettings()
                         get = function(info) return Aptechka.db.profile.petGroup end,
                         set = function(info, v)
                             Aptechka.db.profile.petGroup = not Aptechka.db.profile.petGroup
-                            Aptechka:PrintReloadUIWarning()
+                            Aptechka:UpdatePetGroupConfig()
+                            Aptechka:ReconfigureProtected()
                         end,
                         order = 15.7,
                     },
