@@ -712,12 +712,8 @@ function Aptechka:CreatePetGroup()
     pets:Show()
 end
 function Aptechka:UpdatePetGroupConfig()
-    if AptechkaDB.profile.petGroup then
+    if self.db.profile.petGroup then
         Aptechka:CreatePetGroup()
-    else
-        if group_headers[9] then
-            group_headers[9]:Hide()
-        end
     end
 end
 
@@ -793,7 +789,9 @@ function Aptechka:ReconfigureProtected()
             f:SetScale(scale)
         end
 
-        if self:IsGroupEnabled(groupId) then
+        local groupEnabled = self:IsGroupEnabled(groupId)
+        if groupId == 9 then groupEnabled = self.db.profile.petGroup end
+        if groupEnabled then
             header:Enable()
         else
             header:Disable()
