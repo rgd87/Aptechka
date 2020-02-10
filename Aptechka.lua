@@ -445,10 +445,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             local header = self:GetParent()
             local width = header:GetAttribute("frameWidth")
             local height = header:GetAttribute("frameHeight")
-            local scale = header:GetAttribute("frameScale")
             self:SetWidth(width)
             self:SetHeight(height)
-            self:SetScale(scale)
             self:SetFrameStrata("LOW")
             self:SetFrameLevel(3)
 
@@ -781,12 +779,11 @@ function Aptechka:ReconfigureProtected()
         if header:CanChangeAttribute() then
             header:SetAttribute("frameWidth", width)
             header:SetAttribute("frameHeight", height)
-            header:SetAttribute("frameScale", scale)
         end
+        header:SetScale(scale)
         for _, f in ipairs({ header:GetChildren() }) do
             f:SetWidth(width)
             f:SetHeight(height)
-            f:SetScale(scale)
         end
 
         local groupEnabled = self:IsGroupEnabled(groupId)
@@ -1746,7 +1743,6 @@ function Aptechka.CreateHeader(self,group,petgroup)
     local scale = AptechkaDB.profile.scale or config.scale
     f:SetAttribute("frameWidth", width)
     f:SetAttribute("frameHeight", height)
-    f:SetAttribute("frameScale", scale)
 
     f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange,_onstate-vehicleui')
     f:SetAttribute('_initialAttribute-_onenter', [[
@@ -1811,7 +1807,6 @@ end
 
 do -- this function supposed to be called from layout switchers
     function Aptechka:SetGrowth(unitGrowth, groupGrowth)
-        if config.useGroupAnchors then return end
 
         local anchorpoint = self:SetAnchorpoint(unitGrowth, groupGrowth)
 
@@ -1850,8 +1845,7 @@ function Aptechka:SetAnchorpoint(unitGrowth, groupGrowth)
     local gg = groupGrowth or config.groupGrowth
     local rug, ud = reverse(ug)
     local rgg, gd = reverse(gg)
-    if config.useGroupAnchors then return rug
-    elseif ud == gd then return rug
+    if ud == gd then return rug
     elseif gd == "VERTICAL" and ud == "HORIZONTAL" then return rgg..rug
     elseif ud == "VERTICAL" and gd == "HORIZONTAL" then return rug..rgg
     end
