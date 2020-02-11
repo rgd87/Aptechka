@@ -480,6 +480,7 @@ helpers.auraBlacklist = {
     [318391] = true, -- Great Worm's Foul Stench
 
     [26218] = true, -- Winterveil something
+    [26680] = true, -- Adored (Love is in the Air)
 
     [287825] = true, -- Lethargy, Hit or run azerite trait
 
