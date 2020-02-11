@@ -234,6 +234,8 @@ helpers.auraBlacklist = {
     [6788] = true, -- Weakened Soul
     [11196] = true, -- Recently Bandaged
 
+    [26680] = true, -- Adored (Love is in the Air)
+
     -- Trash
     [22959] = true, -- Fire Vulnerability
     [15258] = true, -- Shadow Vulnerability
