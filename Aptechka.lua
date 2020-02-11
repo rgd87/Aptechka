@@ -325,7 +325,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     blacklist = setmetatable({}, {
         __index = function(t,k)
-            return AptechkaDB.global.customBlacklist[k] or default_blacklist[k]
+            if AptechkaDB.global.customBlacklist[k] == nil then
+                return default_blacklist[k]
+            else
+                return AptechkaDB.global.customBlacklist[k]
+            end
         end,
     })
 
@@ -2754,7 +2758,7 @@ Aptechka.Commands = {
         if cmd == "add" then
             local spellID = tonumber(args)
             if spellID then
-                blacklist[spellID] = true
+                Aptechka.db.global.customBlacklist[spellID] = true
                 local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
                 print(string.format("%s (%d) added to debuff blacklist", spellName, spellID))
             end
@@ -2763,7 +2767,7 @@ Aptechka.Commands = {
             if spellID then
                 local val = nil
                 if default_blacklist[spellID] then val = false end -- if nil it'll fallback on __index
-                blacklist[spellID] = val
+                Aptechka.db.global.customBlacklist[spellID] = val
                 local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
                 print(string.format("%s (%d) removed from debuff blacklist", spellName, spellID))
             end
@@ -2774,7 +2778,7 @@ Aptechka.Commands = {
                 print(string.format("    %s (%d)", spellName, spellID))
             end
             print("Custom blacklist:")
-            for spellID in pairs(blacklist) do
+            for spellID in pairs(Aptechka.db.global.customBlacklist) do
                 local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
                 print(string.format("    %s (%d)", spellName, spellID))
             end
