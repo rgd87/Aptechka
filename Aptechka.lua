@@ -108,6 +108,7 @@ Aptechka.helpers = helpers
 local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
 local AptechkaDB
+local NickTag
 local LibSpellLocks
 local LibAuraTypes
 local LibTargetedCasts
@@ -144,6 +145,7 @@ local defaults = {
         disableBlizzardParty = true,
         hideBlizzardRaid = true,
         RMBClickthrough = false,
+        enableNickTag = true,
         sortUnitsByRole = true,
         showAFK = false,
         customBlacklist = {},
@@ -550,6 +552,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         UnitAura = LibClassicDurations.UnitAuraWrapper
     end
 
+    NickTag = LibStub("NickTag-1.0", true)
+
     LibAuraTypes = LibStub("LibAuraTypes")
     if AptechkaDB.global.useDebuffOrdering then
         LibSpellLocks = LibStub("LibSpellLocks")
@@ -749,6 +753,9 @@ end
 
 function Aptechka:UpdateName(frame)
     local name = frame.nameFull
+    if NickTag and self.db.global.enableNickTag then
+        name = NickTag:GetNickname(name, nil, true) -- name, default, silent
+    end
     frame.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
     FrameSetJob(frame, config.UnitNameStatus, true)
 end

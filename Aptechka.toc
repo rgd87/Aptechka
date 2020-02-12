@@ -5,7 +5,7 @@
 ## Author: d87
 ## SavedVariablesPerCharacter: AptechkaDB_Char
 ## SavedVariables: AptechkaDB_Global, AptechkaConfigCustom
-## OptionalDeps: Clique
+## OptionalDeps: Clique, Details
 
 ## X-WoWI-ID: 14339
 ## X-Curse-Project-ID: 280790
