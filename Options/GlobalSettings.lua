@@ -64,6 +64,17 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 10,
                     },
+                    supportNickTag = {
+                        name = L"Use Details Nicknames",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.enableNickTag end,
+                        set = function(info, v)
+                            Aptechka.db.global.enableNickTag = not Aptechka.db.global.enableNickTag
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        order = 10.1,
+                    },
                     -- disableBlizzardRaid = {
                     --     name = "Disable Blizzard Raid Frames (not recommended)",
                     --     width = "full",
