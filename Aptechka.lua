@@ -726,7 +726,8 @@ end
 function Aptechka:UpdateName(frame)
     local name = frame.nameFull
     if NickTag and self.db.global.enableNickTag then
-        name = NickTag:GetNickname(name, nil, true) -- name, default, silent
+        local nickname = NickTag:GetNickname(name, nil, true) -- name, default, silent
+        if nickname then name = nickname end
     end
     frame.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
     FrameSetJob(frame, config.UnitNameStatus, true)
