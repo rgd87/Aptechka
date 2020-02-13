@@ -664,7 +664,7 @@ AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 local DebuffTypeColor = DebuffTypeColor
 local helpful_color = { r = 0, g = 1, b = 0}
-local function SetJob_DebuffIcon(self, debuffType, expirationTime, duration, icon, count, isBossAura)
+local function SetJob_DebuffIcon(self, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
     if expirationTime then
         self.cd:SetReverse(true)
         self.cd:SetCooldown(expirationTime - duration, duration)
@@ -673,6 +673,7 @@ local function SetJob_DebuffIcon(self, debuffType, expirationTime, duration, ico
         self.cd:Hide()
     end
     self.texture:SetTexture(icon)
+    self.spellID = spellID
 
     if count then self.stacktext:SetText(count > 1 and count) end
 
@@ -772,6 +773,22 @@ local AlignDebuffIcons = function(icons, orientation)
     end
 end
 
+
+local IsControlKeyDown = IsControlKeyDown
+local DebuffIcon_OnEnter = function(self)
+    if not IsControlKeyDown() then return end
+    local spellID = self.spellID
+    if not spellID then return end
+    GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
+    GameTooltip:SetSpellByID(spellID)
+    GameTooltip:Show();
+end
+local DebuffIcon_OnLeave = function(self)
+    if GameTooltip:IsOwned(self) then
+        GameTooltip:Hide();
+    end
+end
+
 local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to, x, y)
     local icon = CreateIcon(parent, width, height, alpha, point, frame, to, x, y)
 
@@ -790,6 +807,9 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
     icon:SetOrientation("VERTICAL", w)
 
     icon.SetJob = SetJob_DebuffIcon
+
+    icon:SetScript("OnEnter", DebuffIcon_OnEnter)
+    icon:SetScript("OnLeave", DebuffIcon_OnLeave)
 
     icon:Hide()
 

@@ -221,4 +221,5 @@ globals = {
     "HybridScrollFrame_GetButtons",
     "HybridScrollFrame_GetOffset",
     "HybridScrollFrame_Update",
+    "IsControlKeyDown",
 }
