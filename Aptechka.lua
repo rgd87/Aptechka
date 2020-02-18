@@ -142,7 +142,7 @@ local defaults = {
         disableBlizzardParty = true,
         hideBlizzardRaid = true,
         RMBClickthrough = false,
-        enableNickTag = true,
+        enableNickTag = false,
         sortUnitsByRole = true,
         showAFK = false,
         customBlacklist = {},
@@ -528,6 +528,13 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
 
     NickTag = LibStub("NickTag-1.0", true)
+    if NickTag then
+        NickTag.RegisterCallback("Aptechka", "NickTag_Update", function()
+            Aptechka:ForEachUnitFrame("player", function(frame)
+                Aptechka:UpdateName(frame)
+            end)
+        end)
+    end
 
     LibAuraTypes = LibStub("LibAuraTypes")
     if AptechkaDB.global.useDebuffOrdering then
@@ -1488,6 +1495,14 @@ function Aptechka:ForEachFrame(func)
         for frame in pairs(frames) do
             func(frame)
         end
+    end
+end
+
+function Aptechka:ForEachUnitFrame(unit, func)
+    local frames = Roster[unit]
+    if not frames then return end
+    for frame in pairs(frames) do
+        func(frame)
     end
 end
 
