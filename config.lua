@@ -329,6 +329,11 @@ end
 
 if playerClass == "WARLOCK" then
     A{ id = 20707, type = "HELPFUL", assignto = "raidbuff", color = { 180/255, 0, 1 }, priority = 81 } --Soulstone Resurrection
+    config.DispelBitmasks = {
+        DispelTypes("Magic"),
+        DispelTypes(),
+        DispelTypes("Magic"),
+    }
 end
 
 if playerClass == "PALADIN" then
