@@ -1169,6 +1169,21 @@ function ns.MakeProfileSettings()
                         step = 1,
                         order = 7,
                     },
+                    groupsInARow = {
+                        name = L"Groups in a Row"..newFeatureIcon,
+                        desc = L"Allows 10x4 layouts",
+                        type = "range",
+                        width = "full",
+                        get = function(info) return Aptechka.db.profile.groupsInRow end,
+                        set = function(info, v)
+                            Aptechka.db.profile.groupsInRow = v
+                            Aptechka:ReconfigureProtected()
+                        end,
+                        min = 1,
+                        max = 2,
+                        step = 1,
+                        order = 8,
+                    },
 
 
                     orientation = {

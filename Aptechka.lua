@@ -181,6 +181,7 @@ local defaults = {
         healthOrientation = "VERTICAL",
         unitGrowth = "RIGHT",
         groupGrowth = "TOP",
+        groupsInRow = 1,
         unitGap = 7,
         groupGap = 7,
         showSolo = true,
@@ -1857,7 +1858,17 @@ do -- this function supposed to be called from layout switchers
             ygap = -ygap
         end
 
-        for group,hdr in ipairs(group_headers) do
+        local maxGroupsInRow = self.db.profile.groupsInRow
+
+        local numGroups = #group_headers
+
+        local groupIndex = 1
+        local prevRowIndex = 1
+
+        while groupIndex <= numGroups do
+
+            local hdr = group_headers[groupIndex]
+
             for _,button in ipairs{ hdr:GetChildren() } do -- group header doesn't clear points when attribute value changes
                 button:ClearAllPoints()
             end
@@ -1867,13 +1878,21 @@ do -- this function supposed to be called from layout switchers
             local petgroup = hdr.isPetGroup
 
             hdr:ClearAllPoints()
-            if group == 1 then
-                hdr:SetPoint(anchorpoint, anchors[group], reverse(anchorpoint),0,0)
+            if groupIndex == 1 then
+                hdr:SetPoint(anchorpoint, anchors[groupIndex], reverse(anchorpoint),0,0)
             elseif petgroup then
                 hdr:SetPoint(arrangeHeaders(group_headers[1], nil, unitGrowth, reverse(groupGrowth)))
             else
-                hdr:SetPoint(arrangeHeaders(group_headers[group-1], nil, unitGrowth, groupGrowth))
+                if groupIndex >= prevRowIndex + maxGroupsInRow then
+                    local prevRowHeader = group_headers[prevRowIndex]
+                    hdr:SetPoint(arrangeHeaders(prevRowHeader, nil, unitGrowth, groupGrowth))
+                    prevRowIndex = groupIndex
+                else
+                    local prevHeader = group_headers[groupIndex-1]
+                    hdr:SetPoint(arrangeHeaders(prevHeader, nil, groupGrowth, unitGrowth))
+                end
             end
+            groupIndex = groupIndex + 1
         end
     end
 end
