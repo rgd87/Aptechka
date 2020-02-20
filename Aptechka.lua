@@ -145,9 +145,10 @@ local defaults = {
         disableBlizzardParty = true,
         hideBlizzardRaid = true,
         RMBClickthrough = false,
-        enableNickTag = true,
+        enableNickTag = false,
         sortUnitsByRole = true,
         showAFK = false,
+        enableMouseoverStatus = true,
         customBlacklist = {},
         useCombatLogHealthUpdates = false,
         disableTooltip = false,
@@ -183,6 +184,7 @@ local defaults = {
         healthOrientation = "VERTICAL",
         unitGrowth = "RIGHT",
         groupGrowth = "TOP",
+        groupsInRow = 1,
         unitGap = 7,
         groupGap = 7,
         showSolo = true,
@@ -553,6 +555,13 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     NickTag = LibStub("NickTag-1.0", true)
+    if NickTag then
+        NickTag.RegisterCallback("Aptechka", "NickTag_Update", function()
+            Aptechka:ForEachUnitFrame("player", function(frame)
+                Aptechka:UpdateName(frame)
+            end)
+        end)
+    end
 
     LibAuraTypes = LibStub("LibAuraTypes")
     if AptechkaDB.global.useDebuffOrdering then
@@ -1508,6 +1517,14 @@ function Aptechka:ForEachFrame(func)
     end
 end
 
+function Aptechka:ForEachUnitFrame(unit, func)
+    local frames = Roster[unit]
+    if not frames then return end
+    for frame in pairs(frames) do
+        func(frame)
+    end
+end
+
 
 -- function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
     -- if not Roster[unit] then return end
@@ -1516,6 +1533,16 @@ end
     -- end
 -- end
 
+
+function Aptechka:UpdateTargetStatusConfig()
+    if not self.db.global.enableTargetStatus then
+        Aptechka:ForEachFrame(function(self) SetJob(self, config.TargetStatus, false) end)
+        Aptechka:UnregisterEvent("PLAYER_TARGET_CHANGED")
+    else
+        Aptechka:PLAYER_TARGET_CHANGED()
+        Aptechka:RegisterEvent("PLAYER_TARGET_CHANGED")
+    end
+end
 --Target Indicator
 function Aptechka.PLAYER_TARGET_CHANGED(self, event)
     local newTargetUnit = guidMap[UnitGUID("target")]
@@ -1848,7 +1875,26 @@ do -- this function supposed to be called from layout switchers
             ygap = -ygap
         end
 
-        for group,hdr in ipairs(group_headers) do
+        local maxGroupsInRow = self.db.profile.groupsInRow
+
+        local numGroups = #group_headers
+
+        local groupIndex = 1
+        local prevRowIndex = 1
+
+        local groupRowGrowth = unitGrowth
+        local _, unitDirection = reverse(unitGrowth)
+        local _, groupDirection = reverse(groupGrowth)
+        -- Group Growth within a single row is typically the same as unit growth, but
+        -- if for some reason both directions are on the same axis we use the other axis
+        if unitDirection == groupDirection then
+            groupRowGrowth = groupDirection == "VERTICAL" and "RIGHT" or "TOP"
+        end
+
+        while groupIndex <= numGroups do
+
+            local hdr = group_headers[groupIndex]
+
             for _,button in ipairs{ hdr:GetChildren() } do -- group header doesn't clear points when attribute value changes
                 button:ClearAllPoints()
             end
@@ -1858,13 +1904,21 @@ do -- this function supposed to be called from layout switchers
             local petgroup = hdr.isPetGroup
 
             hdr:ClearAllPoints()
-            if group == 1 then
-                hdr:SetPoint(anchorpoint, anchors[group], reverse(anchorpoint),0,0)
+            if groupIndex == 1 then
+                hdr:SetPoint(anchorpoint, anchors[groupIndex], reverse(anchorpoint),0,0)
             elseif petgroup then
                 hdr:SetPoint(arrangeHeaders(group_headers[1], nil, unitGrowth, reverse(groupGrowth)))
             else
-                hdr:SetPoint(arrangeHeaders(group_headers[group-1], nil, unitGrowth, groupGrowth))
+                if groupIndex >= prevRowIndex + maxGroupsInRow then
+                    local prevRowHeader = group_headers[prevRowIndex]
+                    hdr:SetPoint(arrangeHeaders(prevRowHeader, nil, unitGrowth, groupGrowth))
+                    prevRowIndex = groupIndex
+                else
+                    local prevHeader = group_headers[groupIndex-1]
+                    hdr:SetPoint(arrangeHeaders(prevHeader, nil, groupGrowth, groupRowGrowth))
+                end
             end
+            groupIndex = groupIndex + 1
         end
     end
 end
@@ -1934,11 +1988,15 @@ end
 local onenter = function(self)
     if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
     if AptechkaDB.global.disableTooltip or UnitAffectingCombat("player") then return end
+    if AptechkaDB.global.enableMouseoverStatus then
+        FrameSetJob(self, config.MouseoverStatus, true)
+    end
     UnitFrame_OnEnter(self)
     self:SetScript("OnUpdate", UnitFrame_OnUpdate)
 end
 local onleave = function(self)
     if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
+    FrameSetJob(self, config.MouseoverStatus, false)
     UnitFrame_OnLeave(self)
     self:SetScript("OnUpdate", nil)
 end

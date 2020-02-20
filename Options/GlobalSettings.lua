@@ -42,6 +42,16 @@ function ns.MakeGlobalSettings()
                         order = 8.5,
                     },
 
+                    mouseoverStatus = {
+                        name = L"Mouseover Border"..newFeatureIcon,
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.enableMouseoverStatus end,
+                        set = function(info, v)
+                            Aptechka.db.global.enableMouseoverStatus = not Aptechka.db.global.enableMouseoverStatus
+                        end,
+                        order = 8.6,
+                    },
                     disableBlizzardParty = {
                         name = L"Disable Blizzard Party Frames",
                         width = "double",
