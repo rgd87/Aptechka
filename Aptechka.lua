@@ -1865,6 +1865,15 @@ do -- this function supposed to be called from layout switchers
         local groupIndex = 1
         local prevRowIndex = 1
 
+        local groupRowGrowth = unitGrowth
+        local _, unitDirection = reverse(unitGrowth)
+        local _, groupDirection = reverse(groupGrowth)
+        -- Group Growth within a single row is typically the same as unit growth, but
+        -- if for some reason both directions are on the same axis we use the other axis
+        if unitDirection == groupDirection then
+            groupRowGrowth = groupDirection == "VERTICAL" and "RIGHT" or "TOP"
+        end
+
         while groupIndex <= numGroups do
 
             local hdr = group_headers[groupIndex]
@@ -1889,7 +1898,7 @@ do -- this function supposed to be called from layout switchers
                     prevRowIndex = groupIndex
                 else
                     local prevHeader = group_headers[groupIndex-1]
-                    hdr:SetPoint(arrangeHeaders(prevHeader, nil, groupGrowth, unitGrowth))
+                    hdr:SetPoint(arrangeHeaders(prevHeader, nil, groupGrowth, groupRowGrowth))
                 end
             end
             groupIndex = groupIndex + 1
