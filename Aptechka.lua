@@ -145,6 +145,7 @@ local defaults = {
         enableNickTag = false,
         sortUnitsByRole = true,
         showAFK = false,
+        enableMouseoverStatus = true,
         customBlacklist = {},
         useCombatLogHealthUpdates = false,
         disableTooltip = false,
@@ -1514,6 +1515,16 @@ end
     -- end
 -- end
 
+
+function Aptechka:UpdateTargetStatusConfig()
+    if not self.db.global.enableTargetStatus then
+        Aptechka:ForEachFrame(function(self) SetJob(self, config.TargetStatus, false) end)
+        Aptechka:UnregisterEvent("PLAYER_TARGET_CHANGED")
+    else
+        Aptechka:PLAYER_TARGET_CHANGED()
+        Aptechka:RegisterEvent("PLAYER_TARGET_CHANGED")
+    end
+end
 --Target Indicator
 function Aptechka.PLAYER_TARGET_CHANGED(self, event)
     local newTargetUnit = guidMap[UnitGUID("target")]
@@ -1933,11 +1944,15 @@ end
 local onenter = function(self)
     if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
     if AptechkaDB.global.disableTooltip or UnitAffectingCombat("player") then return end
+    if AptechkaDB.global.enableMouseoverStatus then
+        FrameSetJob(self, config.MouseoverStatus, true)
+    end
     UnitFrame_OnEnter(self)
     self:SetScript("OnUpdate", UnitFrame_OnUpdate)
 end
 local onleave = function(self)
     if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
+    FrameSetJob(self, config.MouseoverStatus, false)
     UnitFrame_OnLeave(self)
     self:SetScript("OnUpdate", nil)
 end

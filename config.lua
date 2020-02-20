@@ -59,7 +59,8 @@ config.enableAbsorbBar = true
 
 config.useCombatLogHealthUpdates = isHealer
 
-config.TargetStatus = { name = "Target", assignto = "border", color = {0.8,0.3,0.6}, priority = 65 }
+config.TargetStatus = { name = "Target", assignto = "border", color = {0.7,0.2,0.5}, priority = 65 }
+config.MouseoverStatus = { name = "Mouseover", assignto = "border", color = {1,0.5,0.8}, priority = 66 }
 config.AggroStatus = { name = "Aggro", assignto = "raidbuff",  color = { 0.7, 0, 0},priority = 55 }
 config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = "spell3", stackcolor = {
                                                                             ['ready'] = { 0, 1, 0},
