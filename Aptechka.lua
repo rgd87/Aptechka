@@ -152,6 +152,7 @@ local defaults = {
         customBlacklist = {},
         useCombatLogHealthUpdates = false,
         disableTooltip = false,
+        debuffTooltip = false,
         useDebuffOrdering = true, -- On always?
         customDebuffHighlights = {},
 
@@ -189,6 +190,7 @@ local defaults = {
         groupGap = 7,
         showSolo = true,
         showParty = true,
+        showRaid = true,
         cropNamesLen = 7,
         showCasts = true,
         showAggro = true,
@@ -1269,7 +1271,7 @@ Aptechka.OnRangeUpdate = function (self, time)
                 RosterUpdateOccured = nil
 
                 for i,hdr in pairs(group_headers) do
-                    local showSolo = AptechkaDB.profile.showSolo
+                    local showSolo = hdr:GetAttribute("showSolo")
                     hdr:SetAttribute("showSolo", not showSolo)
                     hdr:SetAttribute("showSolo", showSolo)
                 end
@@ -1731,9 +1733,15 @@ local AptechkaHeader_Disable = function(hdr)
     hdr:SetAttribute("showSolo", false)
 end
 local AptechkaHeader_Enable = function(hdr)
-    hdr:SetAttribute("showRaid", true)
-    hdr:SetAttribute("showParty", AptechkaDB.profile.showParty)
-    hdr:SetAttribute("showSolo", AptechkaDB.profile.showSolo)
+    local groupID = hdr:GetID()
+    hdr:SetAttribute("showRaid", AptechkaDB.profile.showRaid)
+    if groupID >= 2 and groupID <= 8 then
+        hdr:SetAttribute("showParty", false)
+        hdr:SetAttribute("showSolo", false)
+    else
+        hdr:SetAttribute("showParty", AptechkaDB.profile.showParty)
+        hdr:SetAttribute("showSolo", AptechkaDB.profile.showSolo)
+    end
 end
 function Aptechka:IsGroupEnabled(id)
     return helpers.CheckBit(self.db.profile.groupFilter, id)
@@ -1787,6 +1795,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     end
     --our group header doesn't really inherits SecureHandlerBaseTemplate
 
+    f:SetID(group)
     f.Enable = AptechkaHeader_Enable
     f.Disable = AptechkaHeader_Disable
     f:Enable()
