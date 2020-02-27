@@ -149,6 +149,7 @@ local defaults = {
         customBlacklist = {},
         useCombatLogHealthUpdates = false,
         disableTooltip = false,
+        debuffTooltip = false,
         useDebuffOrdering = true, -- On always?
         customDebuffHighlights = {},
 

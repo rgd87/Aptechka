@@ -808,9 +808,6 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
 
     icon.SetJob = SetJob_DebuffIcon
 
-    icon:SetScript("OnEnter", DebuffIcon_OnEnter)
-    icon:SetScript("OnLeave", DebuffIcon_OnLeave)
-
     icon:Hide()
 
     return icon
@@ -1523,6 +1520,13 @@ local function Reconf(self)
     local stackFontSize = Aptechka.db.profile.stackFontSize
     for i, icon in ipairs(self.debuffIcons) do
         icon.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
+        if Aptechka.db.global.debuffTooltip then
+            icon:SetScript("OnEnter", DebuffIcon_OnEnter)
+            icon:SetScript("OnLeave", DebuffIcon_OnLeave)
+        else
+            icon:SetScript("OnEnter", nil)
+            icon:SetScript("OnLeave", nil)
+        end
     end
 
     if isVertical then
