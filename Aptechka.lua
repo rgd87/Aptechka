@@ -735,12 +735,12 @@ function Aptechka:UpdatePetGroupConfig()
 end
 
 function Aptechka:UpdateName(frame)
-    local name = frame.nameFull
+    local name = frame.state.nameFull
     if NickTag and self.db.global.enableNickTag then
         local nickname = NickTag:GetNickname(name, nil, true) -- name, default, silent
         if nickname then name = nickname end
     end
-    frame.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
+    frame.state.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
     FrameSetJob(frame, config.UnitNameStatus, true)
 end
 
@@ -910,8 +910,9 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         local incomingHeal = GetIncomingHealsCustom(unit, ignoreplayer)
         if hm == 0 then return end
         local healthPercent, fgSep = GetForegroundSeparation(h, hm, fgShowMissing)
-        self.vHealth = h
-        self.vHealthMax = hm
+        local state = self.state
+        state.vHealth = h
+        state.vHealthMax = hm
         self.health:SetValue(healthPercent*100)
         self.healabsorb:SetValue(healabsorb/hm, fgSep)
         self.absorb2:SetValue(shields/hm, fgSep)
@@ -926,18 +927,18 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
                 local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
                 SetJob(unit, deadorghost, true)
                 SetJob(unit,config.HealthDeficitStatus, false )
-                self.isDead = true
+                state.isDead = true
+                state.isGhost = isGhost
                 Aptechka:UNIT_DISPLAYPOWER(event, unit, true)
-                if self.OnDead then self:OnDead() end
-            elseif self.isDead then
-                self.isDead = false
+            elseif state.isDead then
+                state.isDead = nil
+                state.isGhost = nil
                 Aptechka.ScanAuras(unit)
                 SetJob(unit, config.GhostStatus, false)
                 SetJob(unit, config.DeadStatus, false)
                 SetJob(unit, config.ResPendingStatus, false)
                 SetJob(unit, config.ResIncomingStatus, false)
                 Aptechka:UNIT_DISPLAYPOWER(event, unit, false)
-                if self.OnAlive then self:OnAlive() end
             end
         end
 
@@ -966,7 +967,7 @@ function Aptechka:CheckPhase(frame, unit)
         frame.centericon.texture:SetTexCoord(0,1,0,1);
         frame.centericon:Show()
     ]]
-    elseif (not UnitInPhase(unit) or UnitIsWarModePhased(unit)) and not frame.InVehicle then
+    elseif (not UnitInPhase(unit) or UnitIsWarModePhased(unit)) and not frame.state.isInVehicle then
         frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
         frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
         frame.centericon:Show()
@@ -1135,7 +1136,7 @@ local vehicleHack = function (self, time)
             self.parent.unit = owner
             self.parent.unitOwner = nil
             self.parent.guid = UnitGUID(owner)
-            self.parent.InVehicle = nil
+            self.parent.state.isInVehicle = nil
 
             -- print(string.format("L1>>Unit: %-s",original_unit))
             -- print(string.format("D4>[%s]>Dumping- Roster",NAME))
@@ -1165,11 +1166,12 @@ end
 function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
-        if not self.InVehicle then --print("Already in vehicle")
+        local state = self.state
+        if not state.isInVehicle then
             local vehicleUnit = SecureButton_GetModifiedUnit(self)
             -- local vehicleOwner = SecureButton_GetUnit(self)
             if unit ~= vehicleUnit then
-                self.InVehicle = true
+                state.isInVehicle = true
                 self.unitOwner = unit --original unit
                 self.unit = vehicleUnit
 
@@ -1325,7 +1327,7 @@ function Aptechka:UpdateStagger()
                 end
                 local maxHP = UnitHealthMax(unit)
                 local staggerPercent = currentStagger/maxHP
-                frame.stagger = staggerPercent
+                frame.state.stagger = staggerPercent
                 FrameSetJob(frame, config.StaggerStatus, currentStagger > 0)
             end
         end
@@ -1572,12 +1574,12 @@ function Aptechka.Colorize(self, event, unit)
         --    if unit == "" then unit = "player" end
         --end
         if hdr.isPetGroup then
-            self.classcolor = config.petcolor
+            self.state.classcolor = config.petcolor
         else
             local _,class = UnitClass(unit)
             if class then
                 local color = colors[class] -- or { r = 1, g = 1, b = 0}
-                self.classcolor = {color.r,color.g,color.b}
+                self.state.classcolor = {color.r,color.g,color.b}
             end
         end
     end
@@ -1589,18 +1591,19 @@ local UNKNOWNOBJECT = UNKNOWNOBJECT
 
 local function updateUnitButton(self, unit)
     local owner = unit
-    -- print("InVehicle:", self.InVehicle, "  unitOwner:", self.unitOwner, "  unit:", unit)
-    if self.InVehicle and unit and unit == self.unitOwner then
+    local state = self.state
+
+    if state.isInVehicle and unit and unit == self.unitOwner then
         unit = self.unit
         owner = self.unitOwner
         --if for some reason game will decide to update unit whose frame is mapped to vehicleunit in roster
-    elseif self.InVehicle and unit then
+    elseif state.isInVehicle and unit then
         owner = self.unitOwner
     else
         if self.vehicleFrame then
             self.vehicleFrame:SetScript("OnUpdate",nil)
             self.vehicleFrame = nil
-            self.InVehicle = nil
+            state.isInVehicle = nil
             FrameSetJob(self,config.InVehicleStatus,false)
             -- print ("Killing orphan vehicle frame")
         end
@@ -1608,7 +1611,7 @@ local function updateUnitButton(self, unit)
 
     -- Removing frames that no longer associated with this unit from Roster
     for roster_unit, frames in pairs(Roster) do
-        if frames[self] and (  self:GetAttribute("unit") ~= roster_unit   ) then -- or (self.InVehicle and self.unitOwner ~= roster_unit)
+        if frames[self] and (  self:GetAttribute("unit") ~= roster_unit   ) then
             -- print ("Removing frame", self:GetName(), roster_unit, "=>", self:GetAttribute("unit"))
             frames[self] = nil
         end
@@ -1632,7 +1635,7 @@ local function updateUnitButton(self, unit)
     end
 
     Aptechka:Colorize(nil, owner)
-    self.nameFull = name
+    self.state.nameFull = name
     Aptechka:UpdateName(self)
 
     FrameSetJob(self,config.HealthBarColor,true)
@@ -2040,9 +2043,11 @@ function Aptechka.SetupFrame(header, frameName)
     end
 
     f:RegisterForClicks(unpack(config.registerForClicks))
-    f.vHealthMax = 1
-    f.vHealth = 1
 
+    f.state = {}
+    local state = f.state
+    state.vHealthMax = 1
+    state.vHealth = 1
 
     f.activeAuras = {}
 
@@ -2117,9 +2122,15 @@ local AssignToSlot = function(frame, opts, status, slot, ...)
                     max = opts.name
                 end
                 if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
-                if self.SetJob  then self:SetJob(jobs[max], ...) end
+                if self.SetJob then
+                    local state = frame.state
+                    self:SetJob(jobs[max], state, ...)
+                end
             else
-                if self.rawAssignments then self:SetJob(opts, ...) end
+                if self.rawAssignments then
+                    local state = frame.state
+                    self:SetJob(opts, state, ...)
+                end
                 if self.HideFunc then self:HideFunc() else self:Hide() end
                 self.currentJob = nil
             end
@@ -2418,11 +2429,11 @@ function Aptechka.HighlightPostUpdate(unit)
     local frames = Roster[unit]
     if frames then
         for frame in pairs(frames) do
-            if frame.highlightedDebuffsBits ~= highlightedDebuffsBits then
+            if frame.state.highlightedDebuffsBits ~= highlightedDebuffsBits then
                 for i=1,5 do
                     FrameSetJob(frame, config.BossDebuffs[i], helpers.CheckBit(highlightedDebuffsBits, i))
                 end
-                frame.highlightedDebuffsBits = highlightedDebuffsBits
+                frame.state.highlightedDebuffsBits = highlightedDebuffsBits
             end
         end
     end
