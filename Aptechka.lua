@@ -921,10 +921,10 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit, guid)
     for self in pairs(Roster[unit]) do
         if config.IncomingHealStatus then
             if showHeal then
-                self.vIncomingHeal = heal
+                self.state.vIncomingHeal = heal
                 SetJob(unit, config.IncomingHealStatus, true)
             else
-                self.vIncomingHeal = 0
+                self.state.vIncomingHeal = 0
                 SetJob(unit, config.IncomingHealStatus, false)
             end
         end
