@@ -60,10 +60,10 @@ local formatMissingHealth = function(text, mh)
     end
 end
 
-local SetJob_HealthBar = function(self, job)
+local SetJob_HealthBar = function(self, job, state)
     local c
     if job.classcolor then
-        c = self.parent.classcolor
+        c = state.classcolor
     elseif job.color then
         c = job.color
     end
@@ -75,16 +75,7 @@ local SetJob_HealthBar = function(self, job)
         self.bg:SetColor(r,g,b,a,mulBG)
     end
 end
-local OnDead = function(self)
-    self.power:Hide()
-end
-local OnAlive = function(self)
-    if not self.power.disabled then
-        self.power:Show()
-    else
-        self.power:Hide()
-    end
-end
+
 local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
     local self = powerbar:GetParent()
     powerType = powerType or self.power.powerType
@@ -877,17 +868,17 @@ end
 local Text1_SetColorInverted = function(self, r,g,b)
     self:SetTextColor(r*0.2,g*0.2,b*0.2)
 end
-local SetJob_Text1 = function(self,job)
+local SetJob_Text1 = function(self,job,state)
     if job.healthtext then
-        self:SetFormattedText("-%.0fk", (self.parent.vHealthMax - self.parent.vHealth) / 1e3)
+        self:SetFormattedText("-%.0fk", (state.vHealthMax - state.vHealth) / 1e3)
     elseif job.nametext then
-        self:SetText(self.parent.name)
+        self:SetText(state.name)
     elseif job.text then
         self:SetText(job.text)
     end
     local c
     if job.classcolor then
-        c = self.parent.classcolor
+        c = state.classcolor
     elseif job.color then
         c = job.textcolor or job.color
     end
@@ -897,20 +888,20 @@ local SetJob_Text1 = function(self,job)
         self:SetColor(multiplyColor(mul, r,g,b,a))
     end
 end
-local SetJob_Text2 = function(self,job) -- text2 is always green
+local SetJob_Text2 = function(self,job, state) -- text2 is always green
     if job.healthtext then
-        formatMissingHealth(self, self.parent.vHealthMax - self.parent.vHealth)
+        formatMissingHealth(self, state.vHealthMax - state.vHealth)
     elseif job.inchealtext then
-        self:SetFormattedText("+%d", self.parent.vIncomingHeal)
+        self:SetFormattedText("+%d", state.vIncomingHeal)
     elseif job.nametext then
-        self:SetText(self.parent.name)
+        self:SetText(state.name)
     elseif job.text then
         self:SetText(job.text)
     end
 
     local c
     if job.percentColor then -- stagger
-        local stagger = self.parent.stagger
+        local stagger = state.stagger
         if not stagger then return end
         self:SetTextColor(helpers.PercentColor(stagger))
         self:SetFormattedText("%.0f%%", stagger*100)
@@ -1523,6 +1514,7 @@ local function Reconf(self)
         if Aptechka.db.global.debuffTooltip then
             icon:SetScript("OnEnter", DebuffIcon_OnEnter)
             icon:SetScript("OnLeave", DebuffIcon_OnLeave)
+            icon:SetMouseClickEnabled(false)
         else
             icon:SetScript("OnEnter", nil)
             icon:SetScript("OnLeave", nil)
@@ -1938,8 +1930,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.OnMouseEnterFunc = OnMouseEnterFunc
     self.OnMouseLeaveFunc = OnMouseLeaveFunc
-    self.OnDead = OnDead
-    self.OnAlive = OnAlive
 end
 
 
