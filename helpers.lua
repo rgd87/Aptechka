@@ -166,7 +166,16 @@ end
 --~ end
 
 
-
+local xor = bit.bxor
+local byte = string.byte
+function helpers.GetAuraHash(spellId, duration, expirationTime, count, caster)
+    local hash = xor(spellId, expirationTime*1000)
+    hash = xor(hash, duration)
+    hash = xor(hash, (count+1)*100000+count)
+    local casterInt = caster and (byte(caster, -2)^2 + byte(caster, -1)) or 14894
+    hash = xor(hash, casterInt)
+    return hash
+end
 
 
 

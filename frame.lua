@@ -113,20 +113,23 @@ local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
     --     end
     -- end
 end
-local SetJob_Indicator = function(self,job)
-    if job.showDuration then
-        self.cd:SetReverse(not job.reverseDuration)
-        self.cd:SetCooldown(job.expirationTime - job.duration,job.duration,0,0)
-        self.cd:Show()
-    elseif job.showStacks then
-        local stime = 300
-        local completed = (job.showStacks - job.stacks) * stime
-        local total = job.showStacks * stime
-        local start = GetTime() - completed
-        self.cd:SetReverse(true)
-        self.cd:SetCooldown(start, total)
-    else
-        self.cd:Hide()
+local SetJob_Indicator = function(self, job, state, contentType, ...)
+    if contentType == "AURA" then
+        local duration, expirationTime, count = ...
+        if job.showDuration then
+            self.cd:SetReverse(not job.reverseDuration)
+            self.cd:SetCooldown(expirationTime - duration, duration, 0,0)
+            self.cd:Show()
+        elseif job.showStacks then
+            local stime = 300
+            local completed = (job.showStacks - count) * stime
+            local total = job.showStacks * stime
+            local start = GetTime() - completed
+            self.cd:SetReverse(true)
+            self.cd:SetCooldown(start, total)
+        else
+            self.cd:Hide()
+        end
     end
 
     local color
@@ -415,7 +418,7 @@ local StatusBarOnUpdate = function(self, time)
 
     self:SetValue(timeLeft)
 end
-local SetJob_StatusBar = function(self,job)
+local SetJob_StatusBar = function(self, job, state, contentType, ...)
     local color
     if job.foreigncolor and job.isforeign then
         color = job.foreigncolor
@@ -423,34 +426,37 @@ local SetJob_StatusBar = function(self,job)
         color = job.color or { 1,1,1,1 }
     end
 
-    if job.showStacks then
-        self:SetMinMaxValues(0, job.showStacks)
-        self:SetValue(job.stacks)
-        self:SetScript("OnUpdate", nil)
-        self:SetStatusBarColor(unpack(color))
-    else
-        self.expires = job.expirationTime
-        local pandemic = job.refreshTime
-        self.pandemic = pandemic
-        self:SetMinMaxValues(0, job.duration)
-        local timeLeft = self.expires - GetTime()
-        if pandemic and pandemic >= timeLeft then
-            self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
-        else
-            self:SetStatusBarColor(unpack(color))
-        end
-        if not job.showDuration then
-            self:SetMinMaxValues(0, 1)
-            self:SetValue(1)
+    if contentType == "AURA" then
+        local duration, expirationTime, count, texture = ...
+
+        if job.showStacks then
+            self:SetMinMaxValues(0, job.showStacks)
+            self:SetValue(count)
             self:SetScript("OnUpdate", nil)
+            self:SetStatusBarColor(unpack(color))
         else
-            self:SetValue(timeLeft)
-            self:SetScript("OnUpdate", StatusBarOnUpdate)
+            self.expires = expirationTime
+            local pandemic = job.refreshTime
+            self.pandemic = pandemic
+            self:SetMinMaxValues(0, duration)
+            local timeLeft = self.expires - GetTime()
+            if pandemic and pandemic >= timeLeft then
+                self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
+            else
+                self:SetStatusBarColor(unpack(color))
+            end
+            if not job.showDuration then
+                self:SetMinMaxValues(0, 1)
+                self:SetValue(1)
+                self:SetScript("OnUpdate", nil)
+            else
+                self:SetValue(timeLeft)
+                self:SetScript("OnUpdate", StatusBarOnUpdate)
+            end
         end
     end
 
     self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
-    -- self.pandot:SetVertexColor(color[1]*0.6, color[2]*0.6, color[3]*0.6)
 end
 local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackdrop, isVertical)
     local f = CreateFrame("StatusBar",nil,parent)
@@ -538,19 +544,25 @@ local CreateRoundIndicator = function (parent,width,height,point,frame,to,x,y)
 end
 ]]
 
-local SetJob_Icon = function(self,job)
+local SetJob_Icon = function(self, job, state, contentType, ...)
     if job.fade then self.jobs[job.name] = nil; return end
-    if job.showDuration then
-        self.cd:SetReverse(not job.reverseDuration)
-        self.cd:SetCooldown(job.expirationTime - job.duration,job.duration)
-        self.cd:Show()
-    else
-        self.cd:Hide()
-    end
-    self.texture:SetTexture(job.texture)
 
-    if self.stacktext then
-        if job.stacks then self.stacktext:SetText(job.stacks > 1 and job.stacks or "") end
+    if contentType == "AURA" then
+        local duration, expirationTime, count, texture = ...
+        if job.showDuration then
+            self.cd:SetReverse(not job.reverseDuration)
+            self.cd:SetCooldown(expirationTime - duration, duration)
+            self.cd:Show()
+        else
+            self.cd:Hide()
+        end
+        self.texture:SetTexture(texture)
+
+        if count and count > 1 then
+            self.stacktext:SetText(count)
+        else
+            self.stacktext:SetText()
+        end
     end
     -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
         -- if not self.pulse:IsPlaying() then self.pulse:Play() end
@@ -1098,7 +1110,7 @@ end
     end
 
     local Text3_OnUpdate = function(t3frame,time)
-        local remains = t3frame.text.expirationTime - GetTime()
+        local remains = t3frame.expirationTime - GetTime()
         if remains >= 0 then
             t3frame.text:SetText(string.format("%.1f", remains))
         else
@@ -1106,56 +1118,44 @@ end
         end
     end
     local Text3_OnUpdateForward = function(t3frame,time)
-        local elapsed = GetTime() - t3frame.text.startTime
+        local elapsed = GetTime() - t3frame.startTime
         if elapsed >= 0 then
             t3frame.text:SetFormattedText(FormatTime(elapsed))
         end
     end
-    local Text3_HideFunc = function(self)
-        self.frame:SetScript("OnUpdate",nil)
-        self:Hide()
-    end
-local SetJob_Text3 = function(self,job)
-    -- if job.startTime then
-        -- self.expirationTime = nil
-        -- self.startTime = job.startTime
-    -- end
-    if job.expirationTime then
-        self.expirationTime = job.expirationTime
+local SetJob_Text3 = function(self, job, state, contentType, ...)
+    if contentType == "AURA" then
+        local duration, expirationTime = ...
+        self.expirationTime = expirationTime
         self.startTime = nil
-        self.frame:SetScript("OnUpdate",Text3_OnUpdate) --.frame is for text3 container
-    elseif job.startTime then
-        self.startTime = job.startTime
+        self:SetScript("OnUpdate", Text3_OnUpdate) --.frame is for text3 container
+    elseif contentType == "TIMER" then
+        self.startTime = ...
         self.expirationTime = nil
-        self.frame:SetScript("OnUpdate",Text3_OnUpdateForward) --.frame is for text3 container
+        self:SetScript("OnUpdate", Text3_OnUpdateForward) --.frame is for text3 container
     else
-        self.frame:SetScript("OnUpdate",nil)
-    end
-
-    if job.text then
-        self:SetText(job.text)
+        if job.text then
+            self:SetScript("OnUpdate", nil)
+            self.text:SetText(job.text)
+        end
     end
 
     local c = job.textcolor or job.color
     if c then
-        self:SetTextColor(unpack(c))
+        self.text:SetTextColor(unpack(c))
     else
-        self:SetTextColor(1,1,1)
+        self.text:SetTextColor(1,1,1)
     end
 end
 local CreateTextTimer = function(parent,point,frame,to,x,y,hjustify,fontsize,font,flags)
-    local text3container = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
-    local text3 = text3container:CreateFontString(nil, "ARTWORK")
-    text3container.text = text3
---~     text3container:Hide()
+    local text3frame = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
+    local text3 = text3frame:CreateFontString(nil, "ARTWORK")
+    text3frame.text = text3
     text3:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
     text3:SetJustifyH"LEFT"
     text3:SetFont(font, fontsize or 11, flags)
-    text3.SetJob = SetJob_Text3
-    text3.HideFunc = Text3_HideFunc
-    text3.parent = parent
-    text3.frame = text3container
-    return text3
+    text3frame.SetJob = SetJob_Text3
+    return text3frame
 end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
@@ -1340,39 +1340,70 @@ local SetJob_Border = function(self,job)
     end
 end
 
-local ordered_jobs = {}
+-- local ordered_jobs = {}
+local updateTable = function(tbl, ...)
+    local numArgs = select("#", ...)
+    for i=1, numArgs do
+        tbl[i] = select(i, ...)
+    end
+end
 local table_wipe = table.wipe
 local table_sort = table.sort
 local table_insert = table.insert
 local sortfunc = function(a,b)
-    local ap = a.priority or 80
-    local bp = b.priority or 80
+    local ap = a.job.priority or 80
+    local bp = b.job.priority or 80
     if ap == bp then
-        return a.expirationTime > b.expirationTime
+        return a[3] > b[3] -- expirationTime
     else
         return ap > bp
     end
 end
-local SetJob_Bars = function(self, _job)
-    table_wipe(ordered_jobs)
+local SetJobRaw_Bars = function(self, job, status, state, contentType, ...)
 
-    for name, job in pairs(self.jobs) do
-        table_insert(ordered_jobs, job)
+
+    local widgetState = state.widgets[self]
+    if not widgetState then
+        widgetState = {}
+        state.widgets[self] = widgetState
     end
 
-    self.currentJob = ordered_jobs[1]
+    local orderedJobs = widgetState
 
-    table_sort(ordered_jobs, sortfunc)
+    local numLocalJobs = #orderedJobs
+
+    local found
+    for i=1,numLocalJobs do
+        local localJobState = orderedJobs[i]
+        if localJobState.job == job then
+            found = true
+            if status then
+                updateTable(localJobState, contentType, ...)
+            else
+                table.remove(orderedJobs, i)
+            end
+            break
+        end
+    end
+    if not found then
+        local localJobState = { contentType, ... }
+        localJobState.job = job
+        table.insert(orderedJobs, localJobState)
+    end
+
+    table_sort(orderedJobs, sortfunc)
+
+    self.currentJob = orderedJobs[1]
 
     local frame = self:GetParent()
 
     for i, widgetname in ipairs(self.widgets) do
         local bar = frame[widgetname]
-        local ojob = ordered_jobs[i]
-        -- print(i, widgetname, ojob and ojob.name)
-        if ojob then
-            bar:SetJob(ojob)
-            bar.currentJob = ojob
+        local localJobState = orderedJobs[i]
+        if localJobState then
+            local barJob = localJobState.job
+            bar:SetJob(barJob, state, unpack(localJobState))
+            bar.currentJob = barJob
             bar:Show()
         else
             bar.currentJob = nil
@@ -1383,10 +1414,10 @@ end
 
 
 local CreateBars = function(self, optional_widgets)
-    local  bars = CreateFrame("Frame", nil, self)
+    local bars = CreateFrame("Frame", nil, self)
     bars.widgets = { "bar1", "bar2", "bar3" }
     bars.rawAssignments = true
-    bars.SetJob = SetJob_Bars
+    bars.SetJobRaw = SetJobRaw_Bars
 
     for i, widget in ipairs(bars.widgets) do
         self[widget] = optional_widgets[widget](self)

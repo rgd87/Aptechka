@@ -105,6 +105,7 @@ local next = next
 Aptechka.helpers = helpers
 local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
+local GetAuraHash = helpers.GetAuraHash
 local AptechkaDB
 local NickTag
 local LibSpellLocks
@@ -1044,22 +1045,18 @@ local afkPlayerTable = {}
 function Aptechka.UNIT_AFK_CHANGED(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
-        local name = UnitGUID(unit)
+        local guid = UnitGUID(unit)
         if UnitIsAFK(unit) then
-            if name then
-                local startTime = afkPlayerTable[name]
-                if not startTime then
-                    startTime = GetTime()
-                    afkPlayerTable[name] = startTime
-                end
-
-                local job = config.AwayStatus
-                job.startTime = startTime
+            local startTime = afkPlayerTable[guid]
+            if not startTime then
+                startTime = GetTime()
+                afkPlayerTable[guid] = startTime
             end
-            SetJob(unit, config.AwayStatus, true)
+
+            SetJob(unit, config.AwayStatus, true, "TIMER", startTime)
         else
-            if name then
-                afkPlayerTable[name] = nil
+            if guid then
+                afkPlayerTable[guid] = nil
             end
             SetJob(unit, config.AwayStatus, false)
         end
@@ -2044,7 +2041,9 @@ function Aptechka.SetupFrame(header, frameName)
 
     f:RegisterForClicks(unpack(config.registerForClicks))
 
-    f.state = {}
+    f.state = {
+        widgets = {}
+    }
     local state = f.state
     state.vHealthMax = 1
     state.vHealth = 1
@@ -2080,60 +2079,69 @@ function Aptechka.SetupFrame(header, frameName)
 end
 
 local AssignToSlot = function(frame, opts, status, slot, ...)
-    local self = frame[slot]
-    if not self then
+    local widget = frame[slot]
+    if not widget then
         if frame._optional_widgets[slot] then
             frame[slot] = frame._optional_widgets[slot](frame)
-            self = frame[slot]
+            widget = frame[slot]
+        else
+            return
         end
     end
-    if self then
-            -- short exit if disabling auras on already empty widget
-            if not self.currentJob and status == false then return end
 
-            local jobs = self.jobs
-            if not jobs then
-                self.jobs = {}
-                jobs = self.jobs
-            end
 
-            if status then
-                jobs[opts.name] = opts
-                if opts.realID and not opts.isMissing then
-                    frame.activeAuras[opts.realID] = opts
-                end
-            else
-                jobs[opts.name] = nil
-            end
+    -- short exit if disabling auras on already empty widget
+    if not widget.currentJob and status == false then return end
 
-            if next(jobs) then
-                local max
-                if not self.rawAssignments then
-                    local max_priority = 0
-                    for name, opts in pairs(jobs) do
-                        local opts_priority = opts.priority or 80
-                        if max_priority < opts_priority then
-                            max_priority = opts_priority
-                            max = name
-                        end
-                    end
-                    self.currentJob = jobs[max] -- important that it's before SetJob
-                else
-                    max = opts.name
-                end
-                if self ~= frame then self:Show() end   -- taint if we show protected unitbutton frame
-                if self.SetJob then
-                    local state = frame.state
-                    self:SetJob(jobs[max], state, ...)
-                end
-            else
-                if self.rawAssignments then
-                    local state = frame.state
-                    self:SetJob(opts, state, ...)
-                end
-                if self.HideFunc then self:HideFunc() else self:Hide() end
-                self.currentJob = nil
+    local jobs = widget.jobs
+    if not jobs then
+        widget.jobs = {}
+        jobs = widget.jobs
+    end
+
+    local already_exists
+    if status then
+        already_exists = jobs[opts] ~= nil
+        jobs[opts] = opts
+        if opts.realID and not opts.isMissing then
+            frame.activeAuras[opts.realID] = opts
+        end
+    else
+        jobs[opts] = nil
+    end
+
+    if widget.rawAssignments then
+        local state = frame.state
+        widget:SetJobRaw(opts, status, state, ...)
+        return
+    end
+
+    if next(jobs) then
+        local highestPriorityJob
+        local maxPrio = 0
+        for opts in pairs(jobs) do
+            local optsPrio = opts.priority or 80
+            if maxPrio < optsPrio then
+                maxPrio = optsPrio
+                highestPriorityJob = opts
             end
+        end
+
+        local newJob = highestPriorityJob
+        if newJob ~= opts then return end
+        -- if widget.currentJob == highestPriorityJob then -- refresh
+        -- else --activate
+        widget.currentJob = highestPriorityJob -- important that it's before SetJob
+        -- end
+
+        if widget ~= frame then widget:Show() end   -- taint if we show protected unitbutton frame
+        if widget.SetJob then
+            local state = frame.state
+            widget:SetJob(highestPriorityJob, state, ...)
+        end
+    else
+        if widget ~= frame then widget:Hide() end
+        widget.currentJob = nil
     end
 end
 
@@ -2201,15 +2209,15 @@ local function IndicatorAurasProc(unit, index, slot, filter, name, icon, count, 
             if opts.foreigncolor then
                 opts.isforeign = (caster ~= "player")
             end
-            opts.expirationTime = expirationTime
             local minduration = opts.extend_below
             if minduration and opts.duration and duration < minduration then
                 duration = opts.duration
             end
-            opts.duration = duration
-            opts.texture = opts.texture or icon
-            opts.stacks = count
-            SetJob(unit, opts, status)
+            local texture = opts.texture or icon
+
+            -- local hash = GetAuraHash(spellID, duration, expirationTime, count, caster)
+
+            SetJob(unit, opts, status, "AURA", duration, expirationTime, count, texture, spellID, caster)
         end
     end
 end
