@@ -991,6 +991,7 @@ function ns.MakeProfileSettings()
                     showSolo = {
                         name = L"Show Solo",
                         type = "toggle",
+                        width = 1,
                         get = function(info) return Aptechka.db.profile.showSolo end,
                         set = function(info, v)
                             Aptechka.db.profile.showSolo = not Aptechka.db.profile.showSolo
@@ -999,15 +1000,28 @@ function ns.MakeProfileSettings()
                         order = 8,
                     },
                     showParty = {
-                        name = L"Show In Party",
+                        name = L"Show Party",
                         type = "toggle",
-                        width = "double",
+                        -- disabled = function() return not Aptechka.db.profile.showRaid end,
+                        width = 1,
                         get = function(info) return Aptechka.db.profile.showParty end,
                         set = function(info, v)
                             Aptechka.db.profile.showParty = not Aptechka.db.profile.showParty
                             Aptechka:ReconfigureProtected()
                         end,
                         order = 8.1,
+                    },
+                    showRaid = {
+                        name = L"Show Raid",
+                        type = "toggle",
+                        -- disabled = function() return not Aptechka.db.profile.showParty end,
+                        width = 1,
+                        get = function(info) return Aptechka.db.profile.showRaid end,
+                        set = function(info, v)
+                            Aptechka.db.profile.showRaid = not Aptechka.db.profile.showRaid
+                            Aptechka:ReconfigureProtected()
+                        end,
+                        order = 8.2,
                     },
                     petGroup = {
                         name = L"Enable Pet Group",
@@ -1170,7 +1184,7 @@ function ns.MakeProfileSettings()
                         order = 7,
                     },
                     groupsInARow = {
-                        name = L"Groups in a Row"..newFeatureIcon,
+                        name = L"Groups in a Row",
                         desc = L"Allows 10x4 layouts",
                         type = "range",
                         width = "full",

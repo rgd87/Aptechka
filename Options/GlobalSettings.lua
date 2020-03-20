@@ -127,7 +127,7 @@ function ns.MakeGlobalSettings()
                         end
                     },
                     useCLH = {
-                        name = L"Use LibCLHealth"..newFeatureIcon,
+                        name = L"Use LibCLHealth",
                         desc = L"More frequent health updates based combat log",
                         type = "toggle",
                         width = "full",
