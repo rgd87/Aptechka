@@ -2128,7 +2128,7 @@ local AssignToSlot = function(frame, opts, status, slot, ...)
         end
 
         local newJob = highestPriorityJob
-        if newJob ~= opts then return end
+
         -- if widget.currentJob == highestPriorityJob then -- refresh
         -- else --activate
         widget.currentJob = highestPriorityJob -- important that it's before SetJob
