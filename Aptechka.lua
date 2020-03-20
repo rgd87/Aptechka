@@ -155,6 +155,7 @@ local defaults = {
         debuffTooltip = false,
         useDebuffOrdering = true, -- On always?
         customDebuffHighlights = {},
+        forceShamanColor = false,
 
         enableProfileSwitching = true,
         profileSelection = {
@@ -314,7 +315,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
     self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
 
-    if AptechkaDB.forceShamanColor and not CUSTOM_CLASS_COLORS then
+    if self.db.global.forceShamanColor and not CUSTOM_CLASS_COLORS then
         customColors = {
             SHAMAN = {
                 b=0.86666476726532,

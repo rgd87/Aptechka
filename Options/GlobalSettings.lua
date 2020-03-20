@@ -132,9 +132,9 @@ function ns.MakeGlobalSettings()
                         type = "toggle",
                         confirm = true,
 						confirmText = "Warning: Requires UI reloading.",
-                        get = function(info) return Aptechka.db.forceShamanColor end,
+                        get = function(info) return Aptechka.db.global.forceShamanColor end,
                         set = function(info, v)
-                            Aptechka.db.forceShamanColor = not Aptechka.db.forceShamanColor
+                            Aptechka.db.global.forceShamanColor = not Aptechka.db.global.forceShamanColor
                             ReloadUI()
                         end,
                         order = 15.8,
