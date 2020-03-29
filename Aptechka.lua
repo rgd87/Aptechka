@@ -7,7 +7,7 @@ Aptechka:SetScript("OnEvent", function(self, event, ...)
 end)
 
 --- Compatibility with Classic
-local isClassic = select(4,GetBuildInfo()) <= 19999
+local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local UnitHasVehicleUI = UnitHasVehicleUI
 local UnitInVehicle = UnitInVehicle
@@ -51,6 +51,7 @@ local colors
 local threshold = 0 --incoming heals
 local ignoreplayer
 local fgShowMissing
+local gradientHealthColor
 
 local config = AptechkaDefaultConfig
 Aptechka.loadedAuras = {}
@@ -59,8 +60,6 @@ local customBossAuras = helpers.customBossAuras
 local default_blacklist = helpers.auraBlacklist
 local blacklist
 local importantTargetedCasts = helpers.importantTargetedCasts
-local inCL = setmetatable({},{__index = function (t,k) return 0 end})
-local buffer = {}
 local loaded = {}
 local auraUpdateEvents
 local Roster = {}
@@ -197,6 +196,11 @@ local defaults = {
         showDispels = true,
         healthTexture = "Gradient",
         powerTexture = "Gradient",
+        gradientHealthColor = false,
+        healthColorByClass = true,
+        healthColor1 = {0,1,0},
+        healthColor2 = {1,1,0},
+        healthColor3 = {1,0,0},
 
         scale = 1, --> into
         debuffSize = 13,
@@ -787,6 +791,7 @@ function Aptechka:UpdateUnprotectedUpvalues()
     ignoreplayer = config.incomingHealIgnorePlayer or false
     fgShowMissing = Aptechka.db.profile.fgShowMissing
     debuffLimit = AptechkaDB.profile.debuffLimit
+    gradientHealthColor = Aptechka.db.profile.gradientHealthColor
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
@@ -910,15 +915,19 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         local healabsorb = UnitGetTotalHealAbsorbs(unit)
         local incomingHeal = GetIncomingHealsCustom(unit, ignoreplayer)
         if hm == 0 then return end
-        local healthPercent, fgSep = GetForegroundSeparation(h, hm, fgShowMissing)
+        local healthValue, fgSep = GetForegroundSeparation(h, hm, fgShowMissing)
         local state = self.state
         state.vHealth = h
         state.vHealthMax = hm
-        self.health:SetValue(healthPercent*100)
+        self.health:SetValue(healthValue*100)
         self.healabsorb:SetValue(healabsorb/hm, fgSep)
         self.absorb2:SetValue(shields/hm, fgSep)
         self.absorb:SetValue(shields/hm, fgSep)
         self.health.incoming:SetValue(incomingHeal/hm, fgSep)
+        if gradientHealthColor then
+            state.healthPercent = h/hm
+            FrameSetJob(self, config.HealthBarColor, true)
+        end
         FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
 
         if event then
@@ -1564,20 +1573,33 @@ end
 --applying UnitButton color
 function Aptechka.Colorize(self, event, unit)
     if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
-        local hdr = self:GetParent()
-        --if hdr.isPetGroup then   -- use owner color
-        --    unit = string.gsub(unit,"pet","")
-        --    if unit == "" then unit = "player" end
-        --end
+    for frame in pairs(Roster[unit]) do
+        local hdr = frame:GetParent()
+
+        local state = frame.state
+
         if hdr.isPetGroup then
-            self.state.classcolor = config.petcolor
+            state.classColor = config.petcolor
         else
             local _,class = UnitClass(unit)
             if class then
-                local color = colors[class] -- or { r = 1, g = 1, b = 0}
-                self.state.classcolor = {color.r,color.g,color.b}
+                local color = colors[class]
+                state.classColor = {color.r,color.g,color.b}
             end
+        end
+
+        local profile = self.db.profile
+
+        if profile.healthColorByClass then
+            state.healthColor1 = state.classColor
+        else
+            state.healthColor1 = profile.healthColor1
+        end
+
+        state.gradientHealthColor = profile.gradientHealthColor
+        if profile.gradientHealthColor then
+            state.healthColor2 = profile.healthColor2
+            state.healthColor3 = profile.healthColor3
         end
     end
 end

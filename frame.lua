@@ -61,14 +61,26 @@ local formatMissingHealth = function(text, mh)
 end
 
 local SetJob_HealthBar = function(self, job, state)
-    local c
-    if job.classcolor then
-        c = state.classcolor
+    local r,g,b,a
+    if job.name == "HealthBar" then
+        local isGradient = state.gradientHealthColor
+        local c1 = state.healthColor1
+        if not c1 then return end -- At some point during initialization health updates before colors are determined
+        if isGradient then
+            local c2 = state.healthColor2
+            local c3 = state.healthColor3
+
+            local progress = state.healthPercent or 1
+            progress = progress*1.2-0.2
+            r,g,b = helpers.GetGradientColor3(c1, c2, c3, progress)
+        else
+            r,g,b = unpack(c1)
+        end
     elseif job.color then
-        c = job.color
+        local c = job.color
+        r,g,b,a = unpack(c)
     end
-    if c then
-        local r,g,b,a = unpack(c)
+    if b then
         local mulFG = Aptechka.db.profile.fgColorMultiplier or 1
         local mulBG = Aptechka.db.profile.bgColorMultiplier or 0.2
         self:SetColor(r,g,b,a,mulFG)
@@ -890,7 +902,7 @@ local SetJob_Text1 = function(self,job,state)
     end
     local c
     if job.classcolor then
-        c = state.classcolor
+        c = state.classColor
     elseif job.color then
         c = job.textcolor or job.color
     end

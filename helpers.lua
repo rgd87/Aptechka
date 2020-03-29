@@ -30,6 +30,27 @@ helpers.PercentColor = function(percent)
     end
 end
 
+helpers.GetGradientColor2 = function(c1, c2, v)
+    if v > 1 then v = 1 end
+    local r = c2[1] + v*(c1[1]-c2[1])
+    local g = c2[2] + v*(c1[2]-c2[2])
+    local b = c2[3] + v*(c1[3]-c2[3])
+    return r,g,b
+end
+local GetGradientColor2 = helpers.GetGradientColor2
+
+helpers.GetGradientColor3 = function(c1, c2, c3, v)
+    if v >= 1 then
+        return unpack(c1)
+    elseif v >= 0.5 then
+        return GetGradientColor2(c1,c2, (v-0.5)*2)
+    elseif v > 0 then
+        return GetGradientColor2(c2,c3, v*2)
+    else
+        return unpack(c3)
+    end
+end
+
 helpers.BITMASK_DISEASE = 0xF000
 helpers.BITMASK_POISON = 0x0F00
 helpers.BITMASK_CURSE = 0x00F0
