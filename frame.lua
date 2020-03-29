@@ -828,8 +828,8 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
     return icon
 end
 
-local SetJob_ProgressIcon = function(self, job)
-    SetJob_Icon(self, job)
+local SetJob_ProgressIcon = function(self, job, state, contentType, ...)
+    SetJob_Icon(self, job, state, contentType, ...)
 
     self.cd:SetReverse(job.reverseDuration)
 
