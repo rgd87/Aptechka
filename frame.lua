@@ -1716,11 +1716,95 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hpbg.SetColor = HealthBarSetColorBG
     hp.bg = hpbg
 
-    --[[
     ----------------------
     -- HEALTH LOST EFFECT
     ----------------------
 
+    local flashPool = CreateTexturePool(hp, "ARTWORK", -5)
+    flashPool.StopEffect = function(self, flash)
+        flash.ag:Finish()
+    end
+    flashPool.FireEffect = function(self, flash, p, health, frameState, flashId)
+        if p >= 0 then return end
+
+        local tex = flash
+        local hp = tex:GetParent()
+        -- local frame = hp:GetParent()
+        local frameLength = hp.frameLength
+        tex:SetWidth(frameLength)
+        tex:SetHeight(10)
+        tex:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+        -- tex:SetBlendMode("ADD")
+        tex:SetVertexColor(1,1,1, 1)
+        tex:Show()
+
+        tex:SetHeight(-p*frameLength)
+        local offset = health*frameLength
+        tex:SetPoint("BOTTOMRIGHT", hp, "BOTTOMRIGHT", 0, offset)
+        tex:SetPoint("BOTTOMLEFT", hp, "BOTTOMLEFT", 0, offset)
+
+        if not tex.ag then
+            local bag = tex:CreateAnimationGroup()
+
+            -- local ba1 = bag:CreateAnimation("Alpha")
+            -- ba1:SetFromAlpha(0)
+            -- ba1:SetToAlpha(0.8)
+            -- ba1:SetDuration(0.1)
+            -- ba1:SetOrder(1)
+
+            -- local s1 = bag:CreateAnimation("Scale")
+            -- s1:SetOrigin("LEFT",0,0)
+            -- s1:SetFromScale(1, 1)
+            -- s1:SetToScale(0.01, 1)
+            -- s1:SetDuration(0.3)
+            -- s1:SetOrder(1)
+
+            -- local t1 = bag:CreateAnimation("Translation")
+            -- t1:SetOffset(10, 0)
+            -- t1:SetDuration(0.15)
+            -- t1:SetOrder(1)
+
+            local ba2 = bag:CreateAnimation("Alpha")
+            -- ba2:SetStartDelay(0.1)
+            ba2:SetFromAlpha(1)
+            ba2:SetToAlpha(0)
+            ba2:SetDuration(0.2)
+            ba2:SetOrder(1)
+            bag.a2 = ba2
+
+            -- local t2 = bag:CreateAnimation("Scale")
+            -- t2:SetFromScale(1.1, 1)
+            -- t2:SetToScale(1, 1)
+            -- t2:SetDuration(0.7)
+            -- t2:SetOrder(2)
+
+            bag.pool = flashPool
+            bag:SetScript("OnFinished", function(self)
+                self.pool:Release(self:GetParent())
+                local frameState = self.state
+                local id = self.flashId
+                frameState.flashes[id] = nil
+            end)
+
+            tex.ag = bag
+        end
+
+        tex.ag.state = frameState
+        tex.ag.flashId = flashId
+
+        tex.ag:Play()
+        return true
+    end
+    self.flashPool = flashPool
+
+    local hpMask = hp:CreateMaskTexture(nil, "ARTWORK", nil, 5)
+    hpMask:SetWidth(20)
+    hpMask:SetHeight(20)
+    hpMask:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+    hpMask:SetVertexColor(0,0,0)
+    hpMask:SetPoint("CENTER",0,0)
+
+    --[[
     hplost = hp:CreateTexture(nil, "ARTWORK", nil, -4)
     hplost:SetTexture("Interface\\BUTTONS\\WHITE8X8")
     hplost:SetVertexColor(0.8, 0, 0)

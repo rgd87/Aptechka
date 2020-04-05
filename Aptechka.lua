@@ -52,6 +52,7 @@ local threshold = 0 --incoming heals
 local ignoreplayer
 local fgShowMissing
 local gradientHealthColor
+local healthDropEffect
 
 local config = AptechkaDefaultConfig
 Aptechka.loadedAuras = {}
@@ -196,6 +197,7 @@ local defaults = {
         showDispels = true,
         healthTexture = "Gradient",
         powerTexture = "Gradient",
+        healthDropEffect = true,
         gradientHealthColor = false,
         healthColorByClass = true,
         healthColor1 = {0,1,0},
@@ -792,6 +794,7 @@ function Aptechka:UpdateUnprotectedUpvalues()
     fgShowMissing = Aptechka.db.profile.fgShowMissing
     debuffLimit = AptechkaDB.profile.debuffLimit
     gradientHealthColor = Aptechka.db.profile.gradientHealthColor
+    healthDropEffect = Aptechka.db.profile.healthDropEffect
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
@@ -915,17 +918,41 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         local healabsorb = UnitGetTotalHealAbsorbs(unit)
         local incomingHeal = GetIncomingHealsCustom(unit, ignoreplayer)
         if hm == 0 then return end
-        local healthValue, fgSep = GetForegroundSeparation(h, hm, fgShowMissing)
+        local foregroundValue, perc = GetForegroundSeparation(h, hm, fgShowMissing)
         local state = self.state
         state.vHealth = h
         state.vHealthMax = hm
-        self.health:SetValue(healthValue*100)
-        self.healabsorb:SetValue(healabsorb/hm, fgSep)
-        self.absorb2:SetValue(shields/hm, fgSep)
-        self.absorb:SetValue(shields/hm, fgSep)
-        self.health.incoming:SetValue(incomingHeal/hm, fgSep)
+        self.health:SetValue(foregroundValue*100)
+        self.healabsorb:SetValue(healabsorb/hm, perc)
+        self.absorb2:SetValue(shields/hm, perc)
+        self.absorb:SetValue(shields/hm, perc)
+        self.health.incoming:SetValue(incomingHeal/hm, perc)
+
+        if healthDropEffect then
+            local diff = perc - (state.healthPercent or perc)
+            local flashes = state.flashes
+            if not flashes then
+                state.flashes = {}
+                flashes = state.flashes
+            end
+
+            if diff < -0.02 then -- Damage taken is more than 2%
+                local flash = self.flashPool:Acquire()
+                local oldPerc = perc + (-diff)
+                if self.flashPool:FireEffect(flash, diff, perc, state, oldPerc) then
+                    flashes[oldPerc] = flash
+                end
+            elseif diff > 0 then -- Heals
+                for oldPerc, flash in pairs(flashes) do
+                    if perc >= oldPerc then
+                        self.flashPool:StopEffect(flash)
+                    end
+                end
+            end
+        end
+
+        state.healthPercent = perc
         if gradientHealthColor then
-            state.healthPercent = h/hm
             FrameSetJob(self, config.HealthBarColor, true)
         end
         FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
@@ -2067,8 +2094,6 @@ function Aptechka.SetupFrame(header, frameName)
         widgets = {}
     }
     local state = f.state
-    state.vHealthMax = 1
-    state.vHealth = 1
 
     f.activeAuras = {}
 
