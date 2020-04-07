@@ -1132,7 +1132,7 @@ function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
     local rosterunit = Roster[unit]
     if not rosterunit then return end
     for self in pairs(rosterunit) do
-        if self.power and not self.power.disabled then
+        if self.power and ptype == "MANA" then-- not self.power.disabled then
             local powerMax = UnitPowerMax(unit)
             local power = UnitPower(unit)
             if powerMax == 0 then
