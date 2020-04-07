@@ -1297,17 +1297,83 @@ function ns.MakeProfileSettings()
                         order = 14.5,
                     },
 
-                    showMissingFG = {
-                        name = L"Show Missing Health/Power as Foreground",
-                        width = "full",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.profile.fgShowMissing end,
-                        set = function(info, v)
-                            Aptechka.db.profile.fgShowMissing = not Aptechka.db.profile.fgShowMissing
-                            Aptechka:ReconfigureUnprotected()
-                            Aptechka:RefreshAllUnitsHealth()
-                        end,
-                        order = 15,
+
+                    healthColorGroup = {
+                        type = "group",
+                        name = L"Health Color",
+                        order = 15.1,
+                        args = {
+                            showMissingFG = {
+                                name = L"Show Missing Health/Power as Foreground",
+                                width = "full",
+                                type = "toggle",
+                                get = function(info) return Aptechka.db.profile.fgShowMissing end,
+                                set = function(info, v)
+                                    Aptechka.db.profile.fgShowMissing = not Aptechka.db.profile.fgShowMissing
+                                    Aptechka:ReconfigureUnprotected()
+                                    Aptechka:RefreshAllUnitsHealth()
+                                end,
+                                order = 1,
+                            },
+                            enableClasscolor = {
+                                name = L"Use Class Color",
+                                type = "toggle",
+                                get = function(info) return Aptechka.db.profile.healthColorByClass end,
+                                set = function(info, v)
+                                    Aptechka.db.profile.healthColorByClass = not Aptechka.db.profile.healthColorByClass
+                                end,
+                                order = 2,
+                            },
+                            color1 = {
+                                name = L"Base Color",
+                                type = 'color',
+                                width = 2,
+                                order = 3,
+                                disabled = function() return Aptechka.db.profile.healthColorByClass end,
+                                get = function(info)
+                                    local r,g,b = unpack(Aptechka.db.profile.healthColor1)
+                                    return r,g,b
+                                end,
+                                set = function(info, r, g, b)
+                                    Aptechka.db.profile.healthColor1 = {r,g,b}
+                                end,
+                            },
+                            enableGradient = {
+                                name = L"Use Gradient Color",
+                                type = "toggle",
+                                get = function(info) return Aptechka.db.profile.gradientHealthColor end,
+                                set = function(info, v)
+                                    Aptechka.db.profile.gradientHealthColor = not Aptechka.db.profile.gradientHealthColor
+                                end,
+                                order = 4,
+                            },
+                            color2 = {
+                                name = L"Mid Color",
+                                type = 'color',
+                                order = 5,
+                                disabled = function() return not Aptechka.db.profile.gradientHealthColor end,
+                                get = function(info)
+                                    local r,g,b = unpack(Aptechka.db.profile.healthColor2)
+                                    return r,g,b
+                                end,
+                                set = function(info, r, g, b)
+                                    Aptechka.db.profile.healthColor2 = {r,g,b}
+                                end,
+                            },
+                            color3 = {
+                                name = L"End Color",
+                                type = 'color',
+                                order = 6,
+                                disabled = function() return not Aptechka.db.profile.gradientHealthColor end,
+                                get = function(info)
+                                    local r,g,b = unpack(Aptechka.db.profile.healthColor3)
+                                    return r,g,b
+                                end,
+                                set = function(info, r, g, b)
+                                    Aptechka.db.profile.healthColor3 = {r,g,b}
+                                end,
+                            },
+                        }
                     },
                     mulGroup = {
                         type = "group",
