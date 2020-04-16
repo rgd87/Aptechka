@@ -1593,6 +1593,9 @@ local function Reconf(self)
         absorb.AlignAbsorb = AlignAbsorbVertical
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
 
+        local flashPool = self.flashPool
+        flashPool.UpdatePosition = flashPool.UpdatePositionVertical
+
         local healAbsorb = self.health.healabsorb
         healAbsorb:ClearAllPoints()
         healAbsorb.UpdatePosition = healAbsorb.UpdatePositionVertical
@@ -1636,6 +1639,9 @@ local function Reconf(self)
         absorb.orientation = "HORIZONTAL"
         absorb.AlignAbsorb = AlignAbsorbHorizontal
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
+
+        local flashPool = self.flashPool
+        flashPool.UpdatePosition = flashPool.UpdatePositionHorizontal
 
         local healAbsorb = self.health.healabsorb
         healAbsorb:ClearAllPoints()
@@ -1728,24 +1734,34 @@ AptechkaDefaultConfig.GridSkin = function(self)
     flashPool.StopEffect = function(self, flash)
         flash.ag:Finish()
     end
+    flashPool.UpdatePositionVertical = function(pool, self, p, health, parent)
+        local frameLength = parent.frameLength
+        self:SetHeight(-p*frameLength)
+        local offset = health*frameLength
+        self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, offset)
+        self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 0, offset)
+    end
+    flashPool.UpdatePositionHorizontal = function(pool, self, p, health, parent)
+        local frameLength = parent.frameLength
+        self:SetWidth(-p*frameLength)
+        local offset = health*frameLength
+        self:SetPoint("TOPLEFT", parent, "TOPLEFT", offset, 0)
+        self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", offset, 0)
+    end
+    flashPool.UpdatePosition = flashPool.bUpdatePositionVertical
     flashPool.FireEffect = function(self, flash, p, health, frameState, flashId)
         if p >= 0 then return end
 
         local tex = flash
         local hp = tex:GetParent()
-        -- local frame = hp:GetParent()
         local frameLength = hp.frameLength
-        tex:SetWidth(frameLength)
-        tex:SetHeight(10)
         tex:SetTexture("Interface\\BUTTONS\\WHITE8X8")
         -- tex:SetBlendMode("ADD")
         tex:SetVertexColor(1,1,1, 1)
         tex:Show()
 
-        tex:SetHeight(-p*frameLength)
-        local offset = health*frameLength
-        tex:SetPoint("BOTTOMRIGHT", hp, "BOTTOMRIGHT", 0, offset)
-        tex:SetPoint("BOTTOMLEFT", hp, "BOTTOMLEFT", 0, offset)
+        tex:ClearAllPoints()
+        self:UpdatePosition(tex, p, health, hp)
 
         if not tex.ag then
             local bag = tex:CreateAnimationGroup()
