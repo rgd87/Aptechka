@@ -113,7 +113,7 @@ globals = {
     "GetReadyCheckStatus",
     "SetRaidTargetIconTexture",
     "GetRaidTargetIndex",
-
+    "CreateTexturePool",
 
     "GetSpellTexture",
     "GetSpellInfo",
