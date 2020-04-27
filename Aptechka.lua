@@ -21,6 +21,8 @@ local UnitIsWarModePhased = UnitIsWarModePhased
 local GetSpecialization = GetSpecialization
 local GetSpecializationInfo = GetSpecializationInfo
 local HasIncomingSummon = C_IncomingSummon and C_IncomingSummon.HasIncomingSummon
+local COMBATLOG_OBJECT_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
+local COMBATLOG_OBJECT_AFFILIATION_UPTORAID = COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE
 
 if isClassic then
     local dummyFalse = function() return false end
@@ -62,7 +64,6 @@ local default_blacklist = helpers.auraBlacklist
 local blacklist
 local importantTargetedCasts = helpers.importantTargetedCasts
 local loaded = {}
-local auraUpdateEvents
 local Roster = {}
 local guidMap = {}
 local group_headers = {}
@@ -116,6 +117,8 @@ local tsort = table.sort
 local BuffProc
 local DebuffProc, DebuffPostUpdate
 local DispelTypeProc, DispelTypePostUpdate
+local enableTraceheals
+local enableAuraEvents
 local debuffLimit
 local staggerUnits = {}
 
@@ -198,6 +201,7 @@ local defaults = {
         healthTexture = "Gradient",
         powerTexture = "Gradient",
         healthDropEffect = true,
+        auraUpdateEffect = true,
         gradientHealthColor = false,
         healthColorByClass = true,
         healthColor1 = {0,1,0},
@@ -318,8 +322,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
     self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
 
-    Aptechka:UpdateUnprotectedUpvalues()
-
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
     colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
 
@@ -342,6 +344,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     config.traces = config.traces or {}
     auras = config.auras
     traceheals = config.traces
+
+    Aptechka:UpdateUnprotectedUpvalues()
 
     local _, class = UnitClass("player")
     local categories = {"auras", "traces"}
@@ -638,27 +642,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UI_ERROR_MESSAGE")
     end
 
-    if config.enableTraceHeals and next(traceheals) then
-        self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-        self.COMBAT_LOG_EVENT_UNFILTERED = function( self, event)
-            local timestamp, eventType, hideCaster,
-            srcGUID, srcName, srcFlags, srcFlags2,
-            dstGUID, dstName, dstFlags, dstFlags2,
-            spellID, spellName, spellSchool, amount, overhealing, absorbed, critical = CombatLogGetCurrentEventInfo()
-            if bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE then
-                local opts = traceheals[spellID]
-                if opts and eventType == opts.type then
-                    if guidMap[dstGUID] then
-                        local minamount = opts.minamount
-                        if not minamount or amount > minamount then
-                            SetJob(guidMap[dstGUID],opts,true)
-                        end
-                    end
-                end
-            end
-        end
-
-    end
+    self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
     -- --autoloading
     for _,spell_group in pairs(config.autoload) do
@@ -795,6 +779,8 @@ function Aptechka:UpdateUnprotectedUpvalues()
     debuffLimit = AptechkaDB.profile.debuffLimit
     gradientHealthColor = Aptechka.db.profile.gradientHealthColor
     healthDropEffect = Aptechka.db.profile.healthDropEffect
+    enableTraceheals = config.enableTraceHeals and next(traceheals)
+    enableAuraEvents = Aptechka.db.profile.auraUpdateEffect
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
@@ -1049,15 +1035,53 @@ function Aptechka:UpdateUnhealable(unit)
     ]]
 end
 
+function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
+    local timestamp, eventType, hideCaster,
+    srcGUID, srcName, srcFlags, srcFlags2,
+    dstGUID, dstName, dstFlags, dstFlags2,
+    spellID, spellName, spellSchool, amount, overhealing, absorbed, critical = CombatLogGetCurrentEventInfo()
+    if enableTraceheals and bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE then
+        local opts = traceheals[spellID]
+        if opts and eventType == opts.type then
+            if guidMap[dstGUID] then
+                local minamount = opts.minamount
+                if not minamount or amount > minamount then
+                    SetJob(guidMap[dstGUID],opts,true)
+                end
+            end
+        end
+    end
+    if enableAuraEvents and bit_band(dstFlags, COMBATLOG_OBJECT_AFFILIATION_UPTORAID) > 0 then
+        if  eventType == "SPELL_AURA_APPLIED" or
+            eventType == "SPELL_AURA_REFRESH" or
+            eventType == "SPELL_AURA_APPLIED_DOSE"
+        then
+            local unit = guidMap[dstGUID]
+
+            local frames = Roster[unit]
+            if not frames then return end
+
+            for frame in pairs(frames) do
+                frame.auraEvents[spellID] = GetTime()
+            end
+        end
+    end
+end
+
 function Aptechka.UNIT_FACTION(self, event, unit)
     self:UpdateMindControl(unit)
     self:UpdateUnhealable(unit)
+end
+
+local purgeOldAuraEvents = function(frame)
+    table.wipe(frame.auraEvents)
 end
 
 function Aptechka:PLAYER_ENTERING_WORLD(event)
     for unit in pairs(Roster) do
         Aptechka:INCOMING_SUMMON_CHANGED(nil, unit)
     end
+    Aptechka:ForEachFrame(purgeOldAuraEvents)
 end
 
 function Aptechka.INCOMING_SUMMON_CHANGED(self, event, unit)
@@ -2096,6 +2120,7 @@ function Aptechka.SetupFrame(header, frameName)
     local state = f.state
 
     f.activeAuras = {}
+    f.auraEvents = {}
 
     config.GridSkin(f)
 
@@ -2229,6 +2254,15 @@ local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, 
         else
             iconFrame:SetJob(debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
             iconFrame:Show()
+
+            local refreshTimestamp = frame.auraEvents[spellID]
+            local now = GetTime()
+            if refreshTimestamp and now - refreshTimestamp < 0.1 then
+                frame.auraEvents[spellID] = nil
+
+                iconFrame.eyeCatcher:Stop()
+                iconFrame.eyeCatcher:Play()
+            end
         end
     end
 end

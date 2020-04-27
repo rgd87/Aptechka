@@ -825,6 +825,19 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
 
     icon:Hide()
 
+    local ag = icon:CreateAnimationGroup()
+    local t1 = ag:CreateAnimation("Translation")
+    t1:SetOffset(-10,0)
+    t1:SetDuration(0.1)
+    t1:SetSmoothing("OUT")
+    t1:SetOrder(1)
+    local t2 = ag:CreateAnimation("Translation")
+    t2:SetOffset(10,0)
+    t2:SetDuration(0.5)
+    t2:SetSmoothing("IN")
+    t2:SetOrder(2)
+    icon.eyeCatcher = ag
+
     return icon
 end
 
