@@ -1143,7 +1143,7 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
             if not frames then return end
 
             for frame in pairs(frames) do
-                frame.auraEvents[spellID] = GetTime()
+                frame.auraEvents[spellName] = GetTime()
             end
         end
     end
@@ -2319,10 +2319,10 @@ local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, 
             iconFrame:SetJob(debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
             iconFrame:Show()
 
-            local refreshTimestamp = frame.auraEvents[spellID]
+            local refreshTimestamp = frame.auraEvents[spellName]
             local now = GetTime()
             if refreshTimestamp and now - refreshTimestamp < 0.1 then
-                frame.auraEvents[spellID] = nil
+                frame.auraEvents[spellName] = nil
 
                 iconFrame.eyeCatcher:Stop()
                 iconFrame.eyeCatcher:Play()
