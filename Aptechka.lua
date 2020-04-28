@@ -2307,7 +2307,7 @@ local GetRealID = function(id) return type(id) == "table" and id[1] or id end
 -- AURAS
 -----------------------
 
-local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, spellName)
     local frames = Roster[unit]
     if not frames then return end
 
@@ -2511,7 +2511,7 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
         else
             break
         end
@@ -2555,7 +2555,7 @@ function Aptechka.SimpleDebuffPostUpdate(unit)
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
         else
             break
         end
@@ -2763,7 +2763,7 @@ function Aptechka.TestDebuffSlots()
     local randomIDs = { 5211, 19577, 172, 408, 15286, 853, 980, 589, 118, 605 }
     for i=1,6 do
         local spellID = randomIDs[math.random(#randomIDs)]
-        local _, _, icon = GetSpellInfo(spellID)
+        local name, _, icon = GetSpellInfo(spellID)
         local duration = math.random(20)+5
         local hasCount = math.random(3) == 1
         local count = hasCount and math.random(18) or 0
@@ -2776,7 +2776,7 @@ function Aptechka.TestDebuffSlots()
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
         else
             break
         end
