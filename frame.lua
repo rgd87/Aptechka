@@ -825,6 +825,19 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
 
     icon:Hide()
 
+    local ag = icon:CreateAnimationGroup()
+    local t1 = ag:CreateAnimation("Translation")
+    t1:SetOffset(-10,0)
+    t1:SetDuration(0.1)
+    t1:SetSmoothing("OUT")
+    t1:SetOrder(1)
+    local t2 = ag:CreateAnimation("Translation")
+    t2:SetOffset(10,0)
+    t2:SetDuration(0.5)
+    t2:SetSmoothing("IN")
+    t2:SetOrder(2)
+    icon.eyeCatcher = ag
+
     return icon
 end
 
@@ -1274,6 +1287,24 @@ local CreateMindControlIcon = function(parent)
     return f
 end
 
+local CreateVehicleIcon = function(parent)
+    if isClassic then return end
+
+    local f = CreateFrame("Frame", nil, parent)
+    local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
+    tex:SetAllPoints(f)
+    tex:SetTexture("Interface/AddOns/Aptechka/gear")
+    local height = parent:GetHeight()
+    local width = parent:GetWidth()
+    local len = math.min(height, width) / 1.8
+    f:SetFrameLevel(7)
+    f:SetSize(len, len)
+    f:SetPoint("TOPLEFT",parent,"TOPLEFT",0,0)
+
+    f:Hide()
+    return f
+end
+
 local LibCustomGlow = LibStub("LibCustomGlow-1.0")
 local SetJob_PixelGlow = function(self, job)
     local color = job.color or {1,1,1,1}
@@ -1484,6 +1515,7 @@ local optional_widgets = {
         autocastGlow = CreateAutocastGlow,
 
         mindcontrol = CreateMindControlIcon,
+        vehicle = CreateVehicleIcon,
         unhealable = CreateUnhealableOverlay,
         innerglow = CreateInnerGlow,
         flash = CreateFlash,

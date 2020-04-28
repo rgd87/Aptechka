@@ -1077,6 +1077,16 @@ function ns.MakeProfileSettings()
                         end,
                         order = 12,
                     },
+                    healthDropEffect = {
+                        name = L"Health Drop Effect"..newFeatureIcon,
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.profile.healthDropEffect end,
+                        set = function(info, v)
+                            Aptechka.db.profile.healthDropEffect = not Aptechka.db.profile.healthDropEffect
+                            Aptechka:UpdateUnprotectedUpvalues()
+                        end,
+                        order = 16,
+                    },
                 }
             },
 
