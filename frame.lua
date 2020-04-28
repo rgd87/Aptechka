@@ -1444,27 +1444,26 @@ local SetJobRaw_Bars = function(self, job, status, state, contentType, ...)
         local bar = frame[widgetname]
         local localJobState = orderedJobs[i]
         if localJobState then
+            if not bar then -- dynamically create missing bar widgets
+                bar = Aptechka:GetOptionalWidgetConstructor(widgetname)(frame)
+                frame[widgetname] = bar
+            end
             local barJob = localJobState.job
             bar:SetJob(barJob, state, unpack(localJobState))
             bar.currentJob = barJob
             bar:Show()
-        else
+        elseif bar then
             bar.currentJob = nil
             bar:Hide()
         end
     end
 end
 
-
 local CreateBars = function(self, optional_widgets)
     local bars = CreateFrame("Frame", nil, self)
-    bars.widgets = { "bar1", "bar2", "bar3" }
+    bars.widgets = { "bar1", "bar2", "bar3", "bar3a", "bar3b" }
     bars.rawAssignments = true
     bars.SetJobRaw = SetJobRaw_Bars
-
-    for i, widget in ipairs(bars.widgets) do
-        self[widget] = optional_widgets[widget](self)
-    end
 
     return bars
 end
@@ -1504,10 +1503,21 @@ local optional_widgets = {
         end,
         bar3    = function(self)
             if self.bar2 then
-                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar2, "TOPLEFT",0, pixelperfect(1))
+                return CreateStatusBar(self, 21, 3, "BOTTOMLEFT", self.bar2, "TOPLEFT",0, pixelperfect(1))
             end
         end,
         bar4    = function(self) return CreateStatusBar(self, 21, 5, "TOPRIGHT", self, "TOPRIGHT",0,2) end,
+
+        bar3a    = function(self)
+            if self.bar3 then
+                return CreateStatusBar(self, 21, 3, "BOTTOMLEFT", self.bar3, "TOPLEFT",0, pixelperfect(1))
+            end
+        end,
+        bar3b    = function(self)
+            if self.bar3a then
+                return CreateStatusBar(self, 21, 3, "BOTTOMLEFT", self.bar3a, "TOPLEFT",0, pixelperfect(1))
+            end
+        end,
 
         bars = CreateBars,
 
@@ -1527,6 +1537,10 @@ local optional_widgets = {
 
         smist  = function(self) return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
 }
+
+function Aptechka:GetOptionalWidgetConstructor(name)
+    return optional_widgets[name]
+end
 
 local function Reconf(self)
     local config = AptechkaDefaultConfig
@@ -2078,6 +2092,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
         list["bar1"] = nil
         list["bar2"] = nil
         list["bar3"] = nil
+        list["bar3a"] = nil
+        list["bar3b"] = nil
         list["mindcontrol"] = nil
         list["unhealable"] = nil
         Aptechka.widget_list = list
