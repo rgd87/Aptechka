@@ -1085,6 +1085,16 @@ function ns.MakeProfileSettings()
                         end,
                         order = 16,
                     },
+                    auraUpdateEffect = {
+                        name = L"Aura Update Effect"..newFeatureIcon,
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.profile.auraUpdateEffect end,
+                        set = function(info, v)
+                            Aptechka.db.profile.auraUpdateEffect = not Aptechka.db.profile.auraUpdateEffect
+                            Aptechka:UpdateUnprotectedUpvalues()
+                        end,
+                        order = 16,
+                    },
                 }
             },
 
