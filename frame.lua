@@ -747,6 +747,8 @@ local SetDebuffOrientation = function(self, orientation, size)
         dtt:SetPoint("TOPLEFT", it, "TOPRIGHT", 0, 0)
         dtt:SetTexCoord(0,1,0,1)
         text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 2,-1)
+        self.eyeCatcher.t1:SetOffset(-10,0)
+        self.eyeCatcher.t2:SetOffset(10,0)
     else
         local dttLen = h*0.25
         self:SetSize(h,w + dttLen)
@@ -756,6 +758,8 @@ local SetDebuffOrientation = function(self, orientation, size)
         it:SetSize(h,h)
         it:SetPoint("BOTTOMLEFT", dtt, "TOPLEFT", 0, 0)
         text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 3,1)
+        self.eyeCatcher.t1:SetOffset(0,-10)
+        self.eyeCatcher.t2:SetOffset(0,10)
     end
 end
 
@@ -818,9 +822,6 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
     icon.debuffTypeTexture = dttex
 
     icon.SetOrientation = SetDebuffOrientation
-
-    icon:SetOrientation("VERTICAL", w)
-
     icon.SetJob = SetJob_DebuffIcon
 
     icon:Hide()
@@ -836,7 +837,11 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
     t2:SetDuration(0.5)
     t2:SetSmoothing("IN")
     t2:SetOrder(2)
+    ag.t1 = t1
+    ag.t2 = t2
     icon.eyeCatcher = ag
+
+    icon:SetOrientation("VERTICAL", w)
 
     return icon
 end
