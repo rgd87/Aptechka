@@ -1341,6 +1341,7 @@ function ns.MakeProfileSettings()
                                 get = function(info) return Aptechka.db.profile.healthColorByClass end,
                                 set = function(info, v)
                                     Aptechka.db.profile.healthColorByClass = not Aptechka.db.profile.healthColorByClass
+                                    Aptechka:RefreshAllUnitsColors()
                                 end,
                                 order = 2,
                             },
@@ -1356,6 +1357,7 @@ function ns.MakeProfileSettings()
                                 end,
                                 set = function(info, r, g, b)
                                     Aptechka.db.profile.healthColor1 = {r,g,b}
+                                    Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
                             enableGradient = {
@@ -1364,6 +1366,8 @@ function ns.MakeProfileSettings()
                                 get = function(info) return Aptechka.db.profile.gradientHealthColor end,
                                 set = function(info, v)
                                     Aptechka.db.profile.gradientHealthColor = not Aptechka.db.profile.gradientHealthColor
+                                    Aptechka:UpdateUnprotectedUpvalues()
+                                    Aptechka:RefreshAllUnitsColors()
                                 end,
                                 order = 4,
                             },
@@ -1378,6 +1382,7 @@ function ns.MakeProfileSettings()
                                 end,
                                 set = function(info, r, g, b)
                                     Aptechka.db.profile.healthColor2 = {r,g,b}
+                                    Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
                             color3 = {
@@ -1391,6 +1396,7 @@ function ns.MakeProfileSettings()
                                 end,
                                 set = function(info, r, g, b)
                                     Aptechka.db.profile.healthColor3 = {r,g,b}
+                                    Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
                         }

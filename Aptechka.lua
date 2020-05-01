@@ -754,6 +754,7 @@ function Aptechka:RefreshAllUnitsHealth()
 end
 function Aptechka:RefreshAllUnitsColors()
     for unit, frames in pairs(Roster) do
+        Aptechka:Colorize(nil, unit)
         for frame in pairs(frames) do
             FrameSetJob(frame, config.UnitNameStatus, true)
             FrameSetJob(frame, config.HealthBarColor, true)
