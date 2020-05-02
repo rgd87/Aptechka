@@ -11,8 +11,10 @@
     <Script file="..\Locales\deDE.lua"/>
 
     <Script file="GlobalSettings.lua"/>
+    <Script file="ProfileSettings.lua"/>
     <Script file="ProfileSelection.lua"/>
     <Script file="DebuffHighlight.lua"/>
     <Include file="SpellListItemTemplate.xml"/>
-    <Script file="AptechkaOptions.lua"/>
+    <Script file="WidgetSpellList.lua"/>
+    <Script file="LoadHooks.lua"/>
 </Ui>

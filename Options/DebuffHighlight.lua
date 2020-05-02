@@ -434,6 +434,36 @@ function ns.MakeDebuffHighlight()
     return panel
 end
 
+function ns.MakeBlacklistHelp()
+    local opt = {
+        type = 'group',
+        name = "Debuff Blacklist",
+        order = 1,
+        args = {
+            msg = {
+                name = [[
+Blacklist is only accesible with console commands:
+
+/apt blacklist show
+/apt blacklist add <spellID>
+/apt blacklist del <spellID>
+]],
+                type = "description",
+                fontSize = "medium",
+                width = "full",
+                order = 1,
+            },
+        },
+    }
+    local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+    AceConfigRegistry:RegisterOptionsTable("AptechkaHelp", opt)
+
+    local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaHelp", L"Blacklist", "Aptechka")
+
+    return panelFrame
+end
+
 --[[
 local BUTTON_HEIGHT = 16
 
