@@ -652,7 +652,7 @@ function ns.Create(self, name, parent )
 
     local Frame = AceGUI:Create("BlizOptionsGroup")
     Frame:SetName(name, parent)
-    Frame:SetTitle("Aptechka Spell List")
+    Frame:SetTitle("Aptechka "..L"Spell List")
     Frame:SetLayout("Fill")
     -- Frame:SetHeight(500)
     -- Frame:SetWidth(700)
@@ -858,7 +858,7 @@ end
 function ns.MakeProfileSettings()
     local opt = {
         type = 'group',
-        name = L"Aptechka Profile Settings",
+        name = "Aptechka "..L"Profile Settings",
         order = 1,
         args = {
             anchors = {
@@ -1542,7 +1542,7 @@ function ns.MakeProfileSettings()
     AceConfigRegistry:RegisterOptionsTable("AptechkaProfileSettings", opt)
 
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaProfileSettings", "Profile Settings", "Aptechka")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaProfileSettings", L"Profile Settings", "Aptechka")
 
     return panelFrame
 end
@@ -1572,7 +1572,7 @@ Blacklist is only accesible with console commands:
     AceConfigRegistry:RegisterOptionsTable("AptechkaHelp", opt)
 
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaHelp", "Blacklist", "Aptechka")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaHelp", L"Blacklist", "Aptechka")
 
     return panelFrame
 end
@@ -1592,7 +1592,7 @@ do
     f.blacklist = MakeBlacklistHelp()
     f.blacklist = ns.MakeDebuffHighlight()
 
-    ns.frame = ns:Create("Spell List", "Aptechka")
+    ns.frame = ns:Create(L"Spell List", "Aptechka")
     f.spell_list = ns.frame.frame
     InterfaceOptions_AddCategory(f.spell_list);
 

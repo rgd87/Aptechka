@@ -16,7 +16,7 @@ local GetProfileList = ns.GetProfileList
 function ns.MakeProfileSelection()
     local opt = {
         type = 'group',
-        name = L"Aptechka Profiles",
+        name = "Aptechka "..L"Profile Selection",
         order = 1,
         args = {
             enableAutoProfiles = {
@@ -223,7 +223,7 @@ function ns.MakeProfileSelection()
     AceConfigRegistry:RegisterOptionsTable("AptechkaProfile", opt)
 
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaProfile", "Profile Selection", "Aptechka")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaProfile", L"Profile Selection", "Aptechka")
 
     return panelFrame
 end
