@@ -54,7 +54,7 @@ local threshold = 0 --incoming heals
 local ignoreplayer
 local fgShowMissing
 local gradientHealthColor
-local healthDropEffect
+local damageEffect
 
 local config = AptechkaDefaultConfig
 Aptechka.loadedAuras = {}
@@ -200,7 +200,7 @@ local defaults = {
         showDispels = true,
         healthTexture = "Gradient",
         powerTexture = "Gradient",
-        healthDropEffect = true,
+        damageEffect = true,
         auraUpdateEffect = true,
         gradientHealthColor = false,
         healthColorByClass = true,
@@ -779,7 +779,7 @@ function Aptechka:UpdateUnprotectedUpvalues()
     fgShowMissing = Aptechka.db.profile.fgShowMissing
     debuffLimit = AptechkaDB.profile.debuffLimit
     gradientHealthColor = Aptechka.db.profile.gradientHealthColor
-    healthDropEffect = Aptechka.db.profile.healthDropEffect
+    damageEffect = Aptechka.db.profile.damageEffect
     enableTraceheals = config.enableTraceHeals and next(traceheals)
     enableAuraEvents = Aptechka.db.profile.auraUpdateEffect
 end
@@ -915,7 +915,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
         self.absorb:SetValue(shields/hm, perc)
         self.health.incoming:SetValue(incomingHeal/hm, perc)
 
-        if healthDropEffect then
+        if damageEffect then
             local diff = perc - (state.healthPercent or perc)
             local flashes = state.flashes
             if not flashes then
