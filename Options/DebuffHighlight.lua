@@ -381,7 +381,7 @@ local PaneBackdrop  = {
 }
 function ns.MakeDebuffHighlight()
     local panel = CreateFrame("Frame", nil, InterfaceOptionsFrame)
-    panel.name = "Debuff Highlighting"
+    panel.name = L"Debuff Highlighting"
     panel.parent = "Aptechka"
     InterfaceOptions_AddCategory(panel);
     panel:Hide() -- hide initially, otherwise OnShow won't fire on the first activation

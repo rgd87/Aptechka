@@ -7,7 +7,7 @@ local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIco
 function ns.MakeGlobalSettings()
     local opt = {
         type = 'group',
-        name = L"Aptechka Global Settings",
+        name = "Aptechka "..L"Global Settings",
         order = 1,
         args = {
             switches = {
@@ -160,7 +160,7 @@ function ns.MakeGlobalSettings()
     AceConfigRegistry:RegisterOptionsTable("AptechkaGlobalSettings", opt)
 
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaGlobalSettings", "Global Settings", "Aptechka")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaGlobalSettings", L"Global Settings", "Aptechka")
 
     return panelFrame
 end

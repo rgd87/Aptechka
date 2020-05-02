@@ -654,7 +654,7 @@ function ns.Create(self, name, parent )
 
     local Frame = AceGUI:Create("BlizOptionsGroup")
     Frame:SetName(name, parent)
-    Frame:SetTitle("Aptechka Spell List")
+    Frame:SetTitle("Aptechka "..L"Spell List")
     Frame:SetLayout("Fill")
     -- Frame:SetHeight(500)
     -- Frame:SetWidth(700)
@@ -860,7 +860,7 @@ end
 function ns.MakeProfileSettings()
     local opt = {
         type = 'group',
-        name = L"Aptechka Profile Settings",
+        name = "Aptechka "..L"Profile Settings",
         order = 1,
         args = {
             anchors = {
@@ -1077,12 +1077,22 @@ function ns.MakeProfileSettings()
                         end,
                         order = 12,
                     },
-                    healthDropEffect = {
-                        name = L"Health Drop Effect"..newFeatureIcon,
+                    damageEffect = {
+                        name = L"Damage Effect"..newFeatureIcon,
                         type = "toggle",
-                        get = function(info) return Aptechka.db.profile.healthDropEffect end,
+                        get = function(info) return Aptechka.db.profile.damageEffect end,
                         set = function(info, v)
-                            Aptechka.db.profile.healthDropEffect = not Aptechka.db.profile.healthDropEffect
+                            Aptechka.db.profile.damageEffect = not Aptechka.db.profile.damageEffect
+                            Aptechka:UpdateUnprotectedUpvalues()
+                        end,
+                        order = 16,
+                    },
+                    auraUpdateEffect = {
+                        name = L"Aura Update Effect"..newFeatureIcon,
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.profile.auraUpdateEffect end,
+                        set = function(info, v)
+                            Aptechka.db.profile.auraUpdateEffect = not Aptechka.db.profile.auraUpdateEffect
                             Aptechka:UpdateUnprotectedUpvalues()
                         end,
                         order = 16,
@@ -1333,6 +1343,7 @@ function ns.MakeProfileSettings()
                                 get = function(info) return Aptechka.db.profile.healthColorByClass end,
                                 set = function(info, v)
                                     Aptechka.db.profile.healthColorByClass = not Aptechka.db.profile.healthColorByClass
+                                    Aptechka:RefreshAllUnitsColors()
                                 end,
                                 order = 2,
                             },
@@ -1348,6 +1359,7 @@ function ns.MakeProfileSettings()
                                 end,
                                 set = function(info, r, g, b)
                                     Aptechka.db.profile.healthColor1 = {r,g,b}
+                                    Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
                             enableGradient = {
@@ -1356,6 +1368,8 @@ function ns.MakeProfileSettings()
                                 get = function(info) return Aptechka.db.profile.gradientHealthColor end,
                                 set = function(info, v)
                                     Aptechka.db.profile.gradientHealthColor = not Aptechka.db.profile.gradientHealthColor
+                                    Aptechka:UpdateUnprotectedUpvalues()
+                                    Aptechka:RefreshAllUnitsColors()
                                 end,
                                 order = 4,
                             },
@@ -1370,6 +1384,7 @@ function ns.MakeProfileSettings()
                                 end,
                                 set = function(info, r, g, b)
                                     Aptechka.db.profile.healthColor2 = {r,g,b}
+                                    Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
                             color3 = {
@@ -1383,6 +1398,7 @@ function ns.MakeProfileSettings()
                                 end,
                                 set = function(info, r, g, b)
                                     Aptechka.db.profile.healthColor3 = {r,g,b}
+                                    Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
                         }
@@ -1528,7 +1544,7 @@ function ns.MakeProfileSettings()
     AceConfigRegistry:RegisterOptionsTable("AptechkaProfileSettings", opt)
 
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaProfileSettings", "Profile Settings", "Aptechka")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaProfileSettings", L"Profile Settings", "Aptechka")
 
     return panelFrame
 end
@@ -1558,7 +1574,7 @@ Blacklist is only accesible with console commands:
     AceConfigRegistry:RegisterOptionsTable("AptechkaHelp", opt)
 
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaHelp", "Blacklist", "Aptechka")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaHelp", L"Blacklist", "Aptechka")
 
     return panelFrame
 end
@@ -1578,7 +1594,7 @@ do
     f.blacklist = MakeBlacklistHelp()
     f.blacklist = ns.MakeDebuffHighlight()
 
-    ns.frame = ns:Create("Spell List", "Aptechka")
+    ns.frame = ns:Create(L"Spell List", "Aptechka")
     f.spell_list = ns.frame.frame
     InterfaceOptions_AddCategory(f.spell_list);
 
