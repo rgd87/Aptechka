@@ -115,6 +115,7 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
     ["Kings Rest"] = {
         [270920] = { 270920, 1, "Seduction" },
         [270865] = { 270865, 1, "Hidden Blade" },
+        [270487] = { 270487, 1, "Severing Blade" },
     },
 
     ["The Underrot"] = {
