@@ -2155,7 +2155,9 @@ local AssignToSlot = function(frame, opts, status, slot, ...)
     local widget = frame[slot]
     if not widget then
         if frame._optional_widgets[slot] then
-            frame[slot] = frame._optional_widgets[slot](frame)
+            local newWidget = frame._optional_widgets[slot](frame)
+            if not newWidget then return end
+            frame[slot] = newWidget
             widget = frame[slot]
         else
             return
