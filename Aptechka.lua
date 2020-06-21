@@ -34,7 +34,6 @@ if isClassic then
     UnitGetIncomingHeals = dummy0
     UnitGetTotalAbsorbs = dummy0
     UnitGetTotalHealAbsorbs = dummy0
-    UnitThreatSituation = dummyNil
     UnitIsWarModePhased = dummyFalse
     UnitGroupRolesAssigned = function(unit) if GetPartyAssignment("MAINTANK", unit) then return "TANK" end end
     GetSpecialization = function() return 1 end
