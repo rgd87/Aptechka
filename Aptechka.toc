@@ -20,7 +20,6 @@ Libs\LibSpellLocks\LibSpellLocks.lua
 Libs\LibAuraTypes\LibAuraTypes.lua
 Libs\LibClassicDurations\LibClassicDurations.xml
 Libs\LibHealComm-4.0\LibHealComm-4.0.xml
-Libs\LibBanzai-2.0\lib.xml
 
 helpers.lua
 config.lua
