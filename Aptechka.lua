@@ -1156,6 +1156,7 @@ function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
     local rosterunit = Roster[unit]
     if not rosterunit then return end
     for self in pairs(rosterunit) do
+        -- ptype = ptype or self.power.powerType
         if self.power and ptype == "MANA" then-- not self.power.disabled then
             local powerMax = UnitPowerMax(unit)
             local power = UnitPower(unit)
@@ -1164,7 +1165,6 @@ function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
                 powerMax = 1
             end
             local manaPercent = GetForegroundSeparation(power, powerMax, fgShowMissing)
-            -- print(manaPercent, power, powerMax, fgShowMissing)
             self.power:SetValue(manaPercent*100)
         end
     end
@@ -1205,7 +1205,8 @@ local vehicleHack = function (self, time)
             Aptechka:UNIT_HEALTH("VEHICLE",owner)
             if self.parent.power then
                 Aptechka:UNIT_DISPLAYPOWER(nil, owner)
-                Aptechka:UNIT_POWER_UPDATE(nil,owner)
+                local ptype = select(2,UnitPowerType(owner))
+                Aptechka:UNIT_POWER_UPDATE(nil,owner, ptype)
             end
             if self.parent.absorb then
                 Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
@@ -1703,7 +1704,8 @@ local function updateUnitButton(self, unit)
     SetJob(unit, config.ReadyCheck, false)
     if not config.disableManaBar then
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
-        Aptechka:UNIT_POWER_UPDATE(nil, unit)
+        local ptype = select(2,UnitPowerType(owner))
+        Aptechka:UNIT_POWER_UPDATE(nil, unit, ptype)
     end
     Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
     Aptechka:UpdateMindControl(unit)
