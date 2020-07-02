@@ -34,7 +34,6 @@ if isClassic then
     UnitGetIncomingHeals = dummy0
     UnitGetTotalAbsorbs = dummy0
     UnitGetTotalHealAbsorbs = dummy0
-    UnitThreatSituation = dummyNil
     UnitIsWarModePhased = dummyFalse
     UnitGroupRolesAssigned = function(unit) if GetPartyAssignment("MAINTANK", unit) then return "TANK" end end
     GetSpecialization = function() return 1 end
@@ -1392,30 +1391,9 @@ end
 function Aptechka:UpdateAggroConfig()
     if not config.AggroStatus then return end
     if AptechkaDB.profile.showAggro then
-        if isClassic then
-            local LB = LibStub("LibBanzai-2.0", true)
-            if LB then
-                UnitThreatSituation = function(unit)
-                    local gotAggro = LB:GetUnitAggroByUnitId(unit)
-                    return gotAggro and 3 or 0
-                end
-                LB:RegisterCallback(function(aggroInt, name, unit)
-                    if not AptechkaDB.profile.showAggro then return end
-                    return Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
-                end)
-            end
-        else
-            self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
-        end
+        self:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
     else
-        if isClassic then
-            -- local LB = LibStub("LibBanzai-2.0", true)
-            -- if LB then
-            --     LB:UnregisterCallback(LibBanzaiCallback) -- It can't fail silently
-            -- end
-        else
-            self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE")
-        end
+        self:UnregisterEvent("UNIT_THREAT_SITUATION_UPDATE")
 
         if self.isInitialized then
             self:ForEachFrame(function(frame)
