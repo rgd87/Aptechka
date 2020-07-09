@@ -64,13 +64,28 @@ A{ id = {
 
 A{ id = 5384, assignto = "text2", color = {0, 0.7, 1}, text = "FD", global = true, priority = 75 } -- Feign Death
 
+local manaClasses = {
+    HUNTER = true,
+    MAGE = true,
+    DRUID = true,
+    PRIEST = true,
+    SHAMAN = true,
+    WARLOCK = true,
+    PALADIN = true
+}
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude and Prayer of Fortitude
     A{ id = { 1243, 1244, 1245, 2791, 10937, 10938, 21562, 21564 }, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1243) end }
     -- Prayer of Shadow Protection
     -- A{ id = { 976, 10957, 10958, 27683 }, type = "HELPFUL", assignto = "raidbuff", color = { 151/255, 86/255, 168/255 }, priority = 80, isMissing = true, isKnownCheck = function() return IsPlayerSpell(976) end }
+
     -- Prayer of Spirit, Divine Spirit
-    A{ id = { 14752, 14818, 14819, 27841, 27681 }, type = "HELPFUL", assignto = "raidbuff", color = {52/255, 172/255, 114/255}, priority = 90, isMissing = true, isKnownCheck = function() return IsPlayerSpell(14752) end }
+    A{ id = { 14752, 14818, 14819, 27841, 27681 }, type = "HELPFUL", assignto = "raidbuff", color = {52/255, 172/255, 114/255}, priority = 90, isMissing = true,
+        isKnownCheck = function(unit)
+            local isKnown = IsPlayerSpell(14752)
+            local isSpiritClass = manaClasses[select(2,UnitClass(unit))]
+            return isKnown and isSpiritClass
+        end }
 
     A{ id = 6346, type = "HELPFUL", assignto = "bar4", priority = 30, color = { 1, 0.7, 0} , showDuration = true } -- Fear Ward
 
@@ -204,7 +219,12 @@ end
 if playerClass == "MAGE" then
 
     -- Arcane Intellect and Brilliance
-    A{ id = { 1459, 1460, 1461, 10156, 10157, 23028 }, type = "HELPFUL", assignto = "raidbuff", color = { .4 , .4, 1 }, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1459) end }
+    A{ id = { 1459, 1460, 1461, 10156, 10157, 23028 }, type = "HELPFUL", assignto = "raidbuff", color = { .4 , .4, 1 }, priority = 50, isMissing = true,
+        isKnownCheck = function(unit)
+            local isKnown = IsPlayerSpell(1459)
+            local isSpiritClass = manaClasses[select(2,UnitClass(unit))]
+            return isKnown and isSpiritClass
+        end }
     -- Dampen Magic
     A{ id = { 604, 8450, 8451, 10173, 10174 }, type = "HELPFUL", assignto = "spell3", color = {52/255, 172/255, 114/255}, priority = 80 }
     -- Amplify Magic
