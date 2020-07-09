@@ -2371,7 +2371,7 @@ local function IndicatorAurasPostUpdate(unit)
                 if not isPresent then
                     local isKnown = true
                     if optsMissing.isKnownCheck then
-                        isKnown = optsMissing.isKnownCheck()
+                        isKnown = optsMissing.isKnownCheck(unit)
                     end
                     if isKnown then
                         FrameSetJob(frame, optsMissing, true)
