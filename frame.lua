@@ -1360,6 +1360,23 @@ local CreateVehicleIcon = function(parent)
     return f
 end
 
+local CreateMitigationIcon = function(parent)
+    if isClassic then return end
+
+    local f = CreateFrame("Frame", nil, parent)
+    f:SetSize(10, 10)
+
+    local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
+    -- tex:SetAllPoints(f)
+    tex:SetAtlas("Warfronts-BaseMapIcons-Empty-Armory-Minimap-small", true)
+    tex:SetPoint("TOPLEFT")
+
+    f:SetPoint("TOPLEFT",parent,"TOPLEFT",0,0)
+
+    f:Hide()
+    return f
+end
+
 local LibCustomGlow = LibStub("LibCustomGlow-1.0")
 local SetJob_PixelGlow = function(self, job)
     local color = job.color or {1,1,1,1}
@@ -1584,6 +1601,7 @@ local optional_widgets = {
         unhealable = CreateUnhealableOverlay,
         innerglow = CreateInnerGlow,
         flash = CreateFlash,
+        mitigation = CreateMitigationIcon,
 
         -- dispel = CreateDebuffTypeIndicator,
         -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,

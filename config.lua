@@ -214,6 +214,9 @@ A{ id = {
     274914, -- BfA water
 }, assignto = "text2", color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
+--SOTR
+A{ id = 132403, type = "HELPFUL", assignto = "mitigation", global = true, color = {1,1,1}} -- isKnownCheck = function(unit) return true end}
+
 
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude
