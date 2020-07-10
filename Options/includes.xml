@@ -13,6 +13,7 @@
     <Script file="GlobalSettings.lua"/>
     <Script file="ProfileSettings.lua"/>
     <Script file="ProfileSelection.lua"/>
+    <Script file="ElementConfig.lua"/>
     <Script file="DebuffHighlight.lua"/>
     <Include file="SpellListItemTemplate.xml"/>
     <Script file="WidgetSpellList.lua"/>
