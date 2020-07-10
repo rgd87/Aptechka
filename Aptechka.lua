@@ -365,12 +365,16 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         fixOldAuraFormat(globalConfig.traces)
     end
     MergeTable(AptechkaConfigMerged, globalConfig)
+
     local classConfig = AptechkaConfigCustom[class]
     if classConfig then
         fixOldAuraFormat(classConfig.auras)
         fixOldAuraFormat(classConfig.traces)
     end
     MergeTable(AptechkaConfigMerged, classConfig)
+
+    local widgetConfig = AptechkaConfigCustom["WIDGET"]
+    MergeTable(AptechkaConfigMerged, widgetConfig)
 
 
     -- compiling a list of spells that should activate indicator when missing

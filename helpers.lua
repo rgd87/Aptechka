@@ -144,6 +144,18 @@ helpers.AddDebuff = function (index, data)
 end
 
 
+function helpers.MakeTables(rootTable, ...)
+    local n = select("#", ...)
+    local t = rootTable
+    for i=1, n do
+        local key = select(i, ...)
+        if not t[key] then
+            t[key] = {}
+        end
+        t = t[key]
+    end
+end
+
 helpers.ClickMacro = function(macro)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not config.enableClickCasting then return end

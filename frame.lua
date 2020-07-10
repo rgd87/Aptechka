@@ -2094,6 +2094,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
         list["raidbuff"] = "raidbuff"
         list["healfeedback"] = "healfeedback"
         list["icon"] = "icon"
+        list["border"] = "border"
         list["bar1"] = nil
         list["bar2"] = nil
         list["bar3"] = nil

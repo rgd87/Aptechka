@@ -43,7 +43,7 @@ function ns.MakeGlobalSettings()
                     },
 
                     mouseoverStatus = {
-                        name = L"Mouseover Border"..newFeatureIcon,
+                        name = L"Mouseover Status"..newFeatureIcon,
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.global.enableMouseoverStatus end,
