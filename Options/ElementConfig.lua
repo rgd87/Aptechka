@@ -28,7 +28,7 @@ function ns.MakeElementConfig()
                 priority = {
                     name = L"Priority",
                     type = "input",
-                    width = 0.3,
+                    width = 0.5,
                     get = function(info) return tostring(AptechkaConfigMerged[status].priority) end,
                     set = function(info, v)
                         -- local st = info[1]
