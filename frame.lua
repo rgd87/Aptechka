@@ -39,6 +39,51 @@ local MakeBorder = function(self, tex, left, right, top, bottom, level)
 end
 
 
+local CompositeBorder_Set = function(self, left, right, top, bottom)
+    local frame = self[5]
+    local ttop = self[1]
+    ttop:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, top)
+    ttop:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", right, 0)
+
+    local tright = self[2]
+    tright:SetPoint("TOPRIGHT", frame, "TOPRIGHT", right, 0)
+    tright:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 0, -bottom)
+
+    local tbot = self[3]
+    tbot:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, -bottom)
+    tbot:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", -left, 0)
+
+    local tleft = self[4]
+    tleft:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -left, 0)
+    tleft:SetPoint("TOPRIGHT", frame, "TOPLEFT", 0, top)
+end
+local MakeCompositeBorder = function(frame, tex, left, right, top, bottom, drawLayer, level)
+    local ttop = frame:CreateTexture(nil, drawLayer, nil, level)
+    ttop:SetTexture(tex)
+    ttop:SetVertexColor(0,0,0,1)
+
+    local tright = frame:CreateTexture(nil, drawLayer, nil, level)
+    tright:SetTexture(tex)
+    tright:SetVertexColor(0,0,0,1)
+
+    local tbot = frame:CreateTexture(nil, drawLayer, nil, level)
+    tbot:SetTexture(tex)
+    tbot:SetVertexColor(0,0,0,1)
+
+    local tleft = frame:CreateTexture(nil, drawLayer, nil, level)
+    tleft:SetTexture(tex)
+    tleft:SetVertexColor(0,0,0,1)
+
+    local border = { ttop, tright, tbot, tleft, frame }
+    border.parent = frame
+    border.Set = CompositeBorder_Set
+
+    border:Set(left, right, top, bottom)
+
+    return border
+end
+
+
 local function multiplyColor(mul, r,g,b,a)
     return r*mul, g*mul, b*mul, a
 end
@@ -83,8 +128,9 @@ local SetJob_HealthBar = function(self, job, state)
     if b then
         local mulFG = Aptechka.db.profile.fgColorMultiplier or 1
         local mulBG = Aptechka.db.profile.bgColorMultiplier or 0.2
+        local alphaBG = 1
         self:SetColor(r,g,b,a,mulFG)
-        self.bg:SetColor(r,g,b,a,mulBG)
+        self.bg:SetColor(r,g,b, alphaBG,mulBG)
     end
 end
 
@@ -193,11 +239,8 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
 
     f:SetWidth(w); f:SetHeight(h);
     if not nobackdrop then
-    f:SetBackdrop{
-        bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
-        insets = {left = -border, right = -border, top = -border, bottom = -border},
-    }
-    f:SetBackdropColor(0, 0, 0, 1)
+        local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
+        outline:SetVertexColor(0,0,0)
     end
     f:SetFrameLevel(6)
     local t = f:CreateTexture(nil,"ARTWORK")
@@ -477,11 +520,8 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     local border = pixelperfect(2)
     f:SetWidth(w); f:SetHeight(h);
     if not nobackdrop then
-    f:SetBackdrop{
-        bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
-        insets = {left = -border, right = -border, top = -border, bottom = -border},
-    }
-    f:SetBackdropColor(0, 0, 0, 1)
+        local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
+        outline:SetVertexColor(0,0,0)
     end
     f:SetFrameLevel(7)
 
@@ -1733,8 +1773,17 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.ReconfigureUnitFrame = Reconf
 
-    local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
-    outline:SetVertexColor(0,0,0,1)
+    local outline = MakeCompositeBorder(self, "Interface\\BUTTONS\\WHITE8X8", outlineSize, outlineSize, outlineSize, outlineSize, "BACKGROUND", -2)
+    -- outline:Set(1,1,1,1)
+
+    -- local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
+    -- outline:SetVertexColor(0,0,0,1)
+    -- outline:SetDrawLayer("BACKGROUND", -1)
+
+    -- local outlineMask = self:CreateMaskTexture(nil, "BACKGROUND", nil, 0)
+    -- outlineMask:SetTexture("Interface\\Addons\\Aptechka\\tmask", "CLAMPTOWHITE", "CLAMPTOWHITE")
+    -- outlineMask:SetAllPoints(self)
+    -- outline:AddMaskTexture(outlineMask)
 
     -- local powerbar = CreateFrame("StatusBar", nil, self)
     local powerbar = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
