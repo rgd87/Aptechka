@@ -215,7 +215,9 @@ A{ id = {
 }, assignto = "text2", color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
 --SOTR
-A{ id = 132403, type = "HELPFUL", assignto = "mitigation", global = true, color = {1,1,1}} -- isKnownCheck = function(unit) return true end}
+A{ id = 132403, type = "HELPFUL", assignto = "mitigation", global = true, color = {1,1,1}, isMissing = true,
+    isKnownCheck = function(unit) return Aptechka.TankingUnits[unit] end
+}
 
 
 if playerClass == "PRIEST" then

@@ -1334,14 +1334,23 @@ function Aptechka:UpdateAggroConfig()
         end
     end
 end
+Aptechka.TankingUnits = {
+
+}
 function Aptechka.UNIT_THREAT_SITUATION_UPDATE(self, event, unit)
     if not Roster[unit] then return end
     for self in pairs(Roster[unit]) do
         local sit = UnitThreatSituation(unit)
         if sit and sit > 1 then
             SetJob(unit, config.AggroStatus, true)
+            -- if self:IsTankUnit(unit) then
+            if true then
+                Aptechka.TankingUnits[unit] = true
+                Aptechka.ScanAuras(unit)
+            end
         else
             SetJob(unit, config.AggroStatus, false)
+            Aptechka.TankingUnits[unit] = nil
         end
     end
 end
@@ -1380,6 +1389,12 @@ function Aptechka:UpdateStagger()
             end
         end
     end
+end
+
+function Aptechka:IsTankUnit(unit)
+    local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
+    local isTankRoleAssigned = UnitGroupRolesAssigned(unit) == "TANK"
+    return isRaidMaintank or isTankRoleAssigned
 end
 
 function Aptechka.CheckRoles(apt, self, unit )
