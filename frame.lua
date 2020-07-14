@@ -2027,7 +2027,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hpi.parent = hp
     hp.incoming = hpi
 
-    local p4 = pixelperfect(3.5)
+    local p4 = outlineSize + pixelperfect(2)
     local border = CreateFrame("Frame", nil, self)
     border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
     border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
