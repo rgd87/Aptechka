@@ -265,7 +265,7 @@ function ns.MakeProfileSettings()
                             Aptechka:Reconfigure()
                         end,
                         min = 10,
-                        max = 100,
+                        max = 200,
                         step = 1,
                         order = 1,
                     },
@@ -278,7 +278,7 @@ function ns.MakeProfileSettings()
                             Aptechka:Reconfigure()
                         end,
                         min = 10,
-                        max = 100,
+                        max = 150,
                         step = 1,
                         order = 2,
                     },
@@ -591,6 +591,19 @@ function ns.MakeProfileSettings()
                                 max = 1,
                                 step = 0.05,
                                 order = 2,
+                            },
+                            bgAlpha = {
+                                name = L"Background Alpha"..newFeatureIcon,
+                                type = "range",
+                                get = function(info) return Aptechka.db.profile.bgAlpha end,
+                                set = function(info, v)
+                                    Aptechka.db.profile.bgAlpha = v
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                                min = 0,
+                                max = 1,
+                                step = 0.05,
+                                order = 2.5,
                             },
                             nameColor = {
                                 name = L"Name",

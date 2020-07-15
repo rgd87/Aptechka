@@ -39,6 +39,51 @@ local MakeBorder = function(self, tex, left, right, top, bottom, level)
 end
 
 
+local CompositeBorder_Set = function(self, left, right, top, bottom)
+    local frame = self[5]
+    local ttop = self[1]
+    ttop:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, top)
+    ttop:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", right, 0)
+
+    local tright = self[2]
+    tright:SetPoint("TOPRIGHT", frame, "TOPRIGHT", right, 0)
+    tright:SetPoint("BOTTOMLEFT", frame, "BOTTOMRIGHT", 0, -bottom)
+
+    local tbot = self[3]
+    tbot:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, -bottom)
+    tbot:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", -left, 0)
+
+    local tleft = self[4]
+    tleft:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -left, 0)
+    tleft:SetPoint("TOPRIGHT", frame, "TOPLEFT", 0, top)
+end
+local MakeCompositeBorder = function(frame, tex, left, right, top, bottom, drawLayer, level)
+    local ttop = frame:CreateTexture(nil, drawLayer, nil, level)
+    ttop:SetTexture(tex)
+    ttop:SetVertexColor(0,0,0,1)
+
+    local tright = frame:CreateTexture(nil, drawLayer, nil, level)
+    tright:SetTexture(tex)
+    tright:SetVertexColor(0,0,0,1)
+
+    local tbot = frame:CreateTexture(nil, drawLayer, nil, level)
+    tbot:SetTexture(tex)
+    tbot:SetVertexColor(0,0,0,1)
+
+    local tleft = frame:CreateTexture(nil, drawLayer, nil, level)
+    tleft:SetTexture(tex)
+    tleft:SetVertexColor(0,0,0,1)
+
+    local border = { ttop, tright, tbot, tleft, frame }
+    border.parent = frame
+    border.Set = CompositeBorder_Set
+
+    border:Set(left, right, top, bottom)
+
+    return border
+end
+
+
 local function multiplyColor(mul, r,g,b,a)
     return r*mul, g*mul, b*mul, a
 end
@@ -83,8 +128,9 @@ local SetJob_HealthBar = function(self, job, state)
     if b then
         local mulFG = Aptechka.db.profile.fgColorMultiplier or 1
         local mulBG = Aptechka.db.profile.bgColorMultiplier or 0.2
+        local bgAlpha = Aptechka.db.profile.bgAlpha
         self:SetColor(r,g,b,a,mulFG)
-        self.bg:SetColor(r,g,b,a,mulBG)
+        self.bg:SetColor(r,g,b, bgAlpha,mulBG)
     end
 end
 
@@ -189,15 +235,12 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     local f = CreateFrame("Frame",nil,parent)
     local w = pixelperfect(width)
     local h = pixelperfect(height)
-    local border = pixelperfect(2)
+    local border = pixelperfect(Aptechka.db.global.borderWidth)
 
     f:SetWidth(w); f:SetHeight(h);
     if not nobackdrop then
-    f:SetBackdrop{
-        bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
-        insets = {left = -border, right = -border, top = -border, bottom = -border},
-    }
-    f:SetBackdropColor(0, 0, 0, 1)
+        local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
+        outline:SetVertexColor(0,0,0)
     end
     f:SetFrameLevel(6)
     local t = f:CreateTexture(nil,"ARTWORK")
@@ -474,14 +517,11 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     local f = CreateFrame("StatusBar",nil,parent)
     local w = pixelperfect(width)
     local h = pixelperfect(height)
-    local border = pixelperfect(2)
+    local border = pixelperfect(Aptechka.db.global.borderWidth)
     f:SetWidth(w); f:SetHeight(h);
     if not nobackdrop then
-    f:SetBackdrop{
-        bgFile = "Interface\\BUTTONS\\WHITE8X8", tile = true, tileSize = 0,
-        insets = {left = -border, right = -border, top = -border, bottom = -border},
-    }
-    f:SetBackdropColor(0, 0, 0, 1)
+        local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
+        outline:SetVertexColor(0,0,0)
     end
     f:SetFrameLevel(7)
 
@@ -1231,15 +1271,20 @@ end
 local CreateFlash = function(parent)
     local f = CreateFrame("Frame", nil, parent.health)
     local tex = f:CreateTexture(nil, "OVERLAY", nil, -4)
-    tex:SetTexture([[Interface\SpellActivationOverlay\IconAlert]])
-    tex:SetTexCoord(0, 78/128, 0, 69/256)
+    tex:SetAtlas("QuestLegendary")
+    -- tex:SetTexture([[Interface\SpellActivationOverlay\IconAlert]])
+    -- tex:SetTexCoord(0, 78/128, 0, 69/256)
     local m = 1.8
     tex:SetAlpha(0.8)
     tex:SetVertexColor(1,0,0)
     tex:SetAllPoints(f)
     f.texture = tex
-    f:SetPoint("TOPLEFT", parent, "TOPLEFT", -22*m, 17*m)
-    f:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 21*m, -17*m)
+
+    local size = parent:GetHeight()
+    f:SetSize(size*0.6, size*0.6)
+    f:SetPoint("CENTER", parent, "TOPLEFT", 20, -20)
+    -- f:SetPoint("TOPLEFT", parent, "TOPLEFT", -22*m, 17*m)
+    -- f:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 21*m, -17*m)
     f.SetJob = SetJob_Flash
 
     f:SetAlpha(0)
@@ -1257,6 +1302,11 @@ local CreateFlash = function(parent)
     ba2:SetDuration(0.4)
     ba2:SetOrder(2)
     bag.a2 = ba2
+
+    local t1 = bag:CreateAnimation("Translation")
+    t1:SetOffset(-size*0.2, size*0.5)
+    t1:SetDuration(0.4)
+    t1:SetOrder(2)
 
     f:SetScript("OnShow", function(self)
         self.blink:Play()
@@ -1729,12 +1779,21 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
     local fontsize = Aptechka.db.profile.nameFontSize
     local manabar_width = config.manabarwidth
-    local outlineSize = pixelperfect(2)
+    local outlineSize = pixelperfect(Aptechka.db.global.borderWidth)
 
     self.ReconfigureUnitFrame = Reconf
 
-    local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
-    outline:SetVertexColor(0,0,0,1)
+    local outline = MakeCompositeBorder(self, "Interface\\BUTTONS\\WHITE8X8", outlineSize, outlineSize, outlineSize, outlineSize, "BACKGROUND", -2)
+    -- outline:Set(1,1,1,1)
+
+    -- local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
+    -- outline:SetVertexColor(0,0,0,1)
+    -- outline:SetDrawLayer("BACKGROUND", -1)
+
+    -- local outlineMask = self:CreateMaskTexture(nil, "BACKGROUND", nil, 0)
+    -- outlineMask:SetTexture("Interface\\Addons\\Aptechka\\tmask", "CLAMPTOWHITE", "CLAMPTOWHITE")
+    -- outlineMask:SetAllPoints(self)
+    -- outline:AddMaskTexture(outlineMask)
 
     -- local powerbar = CreateFrame("StatusBar", nil, self)
     local powerbar = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
@@ -1978,7 +2037,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hpi.parent = hp
     hp.incoming = hpi
 
-    local p4 = pixelperfect(3.5)
+    local p4 = outlineSize + pixelperfect(2)
     local border = CreateFrame("Frame", nil, self)
     border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
     border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)

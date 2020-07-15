@@ -43,7 +43,7 @@ function ns.MakeGlobalSettings()
                     },
 
                     mouseoverStatus = {
-                        name = L"Mouseover Status"..newFeatureIcon,
+                        name = L"Mouseover Status",
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.global.enableMouseoverStatus end,
@@ -51,6 +51,17 @@ function ns.MakeGlobalSettings()
                             Aptechka.db.global.enableMouseoverStatus = not Aptechka.db.global.enableMouseoverStatus
                         end,
                         order = 8.6,
+                    },
+                    thickBorder = {
+                        name = L"Thick Frame Outline"..newFeatureIcon,
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.borderWidth == 2 end,
+                        set = function(info, v)
+                            Aptechka.db.global.borderWidth = (Aptechka.db.global.borderWidth == 2) and 1 or 2
+                            Aptechka:PrintReloadUIWarning()
+                        end,
+                        order = 8.7,
                     },
                     disableBlizzardParty = {
                         name = L"Disable Blizzard Party Frames",

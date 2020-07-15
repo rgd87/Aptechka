@@ -159,7 +159,7 @@ local defaults = {
         useDebuffOrdering = true, -- On always?
         customDebuffHighlights = {},
         forceShamanColor = false,
-
+        borderWidth = 2,
         enableProfileSwitching = true,
         profileSelection = {
             HEALER = {
@@ -225,6 +225,7 @@ local defaults = {
         fgColorMultiplier = 1,
         bgColorMultiplier = 0.2,
         groupFilter = 255,
+        bgAlpha = 1,
     },
 }
 
@@ -787,7 +788,7 @@ function Aptechka:RefreshAllUnitsColors()
         for frame in pairs(frames) do
             FrameSetJob(frame, config.UnitNameStatus, true)
             FrameSetJob(frame, config.HealthBarColor, true)
-            FrameSetJob(frame, config.PowerBarColor, true)
+            if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
         end
     end
 end
