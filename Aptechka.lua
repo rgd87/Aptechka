@@ -155,7 +155,7 @@ local defaults = {
         debuffTooltip = false,
         useDebuffOrdering = true, -- On always?
         customDebuffHighlights = {},
-
+        borderWidth = 2,
         enableProfileSwitching = true,
         profileSelection = {
             HEALER = {
@@ -221,6 +221,7 @@ local defaults = {
         fgColorMultiplier = 1,
         bgColorMultiplier = 0.2,
         groupFilter = 255,
+        bgAlpha = 1,
     },
 }
 

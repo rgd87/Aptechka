@@ -235,7 +235,7 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     local f = CreateFrame("Frame",nil,parent)
     local w = pixelperfect(width)
     local h = pixelperfect(height)
-    local border = pixelperfect(2)
+    local border = pixelperfect(Aptechka.db.global.borderWidth)
 
     f:SetWidth(w); f:SetHeight(h);
     if not nobackdrop then
@@ -517,7 +517,7 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     local f = CreateFrame("StatusBar",nil,parent)
     local w = pixelperfect(width)
     local h = pixelperfect(height)
-    local border = pixelperfect(2)
+    local border = pixelperfect(Aptechka.db.global.borderWidth)
     f:SetWidth(w); f:SetHeight(h);
     if not nobackdrop then
         local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
@@ -1769,7 +1769,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
     local fontsize = Aptechka.db.profile.nameFontSize
     local manabar_width = config.manabarwidth
-    local outlineSize = pixelperfect(2)
+    local outlineSize = pixelperfect(Aptechka.db.global.borderWidth)
 
     self.ReconfigureUnitFrame = Reconf
 
