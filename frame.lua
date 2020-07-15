@@ -1271,15 +1271,20 @@ end
 local CreateFlash = function(parent)
     local f = CreateFrame("Frame", nil, parent.health)
     local tex = f:CreateTexture(nil, "OVERLAY", nil, -4)
-    tex:SetTexture([[Interface\SpellActivationOverlay\IconAlert]])
-    tex:SetTexCoord(0, 78/128, 0, 69/256)
+    tex:SetAtlas("QuestLegendary")
+    -- tex:SetTexture([[Interface\SpellActivationOverlay\IconAlert]])
+    -- tex:SetTexCoord(0, 78/128, 0, 69/256)
     local m = 1.8
     tex:SetAlpha(0.8)
     tex:SetVertexColor(1,0,0)
     tex:SetAllPoints(f)
     f.texture = tex
-    f:SetPoint("TOPLEFT", parent, "TOPLEFT", -22*m, 17*m)
-    f:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 21*m, -17*m)
+
+    local size = parent:GetHeight()
+    f:SetSize(size*0.6, size*0.6)
+    f:SetPoint("CENTER", parent, "TOPLEFT", 20, -20)
+    -- f:SetPoint("TOPLEFT", parent, "TOPLEFT", -22*m, 17*m)
+    -- f:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 21*m, -17*m)
     f.SetJob = SetJob_Flash
 
     f:SetAlpha(0)
@@ -1297,6 +1302,11 @@ local CreateFlash = function(parent)
     ba2:SetDuration(0.4)
     ba2:SetOrder(2)
     bag.a2 = ba2
+
+    local t1 = bag:CreateAnimation("Translation")
+    t1:SetOffset(-size*0.2, size*0.5)
+    t1:SetDuration(0.4)
+    t1:SetOrder(2)
 
     f:SetScript("OnShow", function(self)
         self.blink:Play()
