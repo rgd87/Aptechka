@@ -762,7 +762,7 @@ function Aptechka:RefreshAllUnitsColors()
         for frame in pairs(frames) do
             FrameSetJob(frame, config.UnitNameStatus, true)
             FrameSetJob(frame, config.HealthBarColor, true)
-            FrameSetJob(frame, config.PowerBarColor, true)
+            if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
         end
     end
 end

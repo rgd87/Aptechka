@@ -128,9 +128,9 @@ local SetJob_HealthBar = function(self, job, state)
     if b then
         local mulFG = Aptechka.db.profile.fgColorMultiplier or 1
         local mulBG = Aptechka.db.profile.bgColorMultiplier or 0.2
-        local alphaBG = 1
+        local bgAlpha = Aptechka.db.profile.bgAlpha
         self:SetColor(r,g,b,a,mulFG)
-        self.bg:SetColor(r,g,b, alphaBG,mulBG)
+        self.bg:SetColor(r,g,b, bgAlpha,mulBG)
     end
 end
 
