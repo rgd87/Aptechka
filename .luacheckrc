@@ -222,4 +222,5 @@ globals = {
     "HybridScrollFrame_GetOffset",
     "HybridScrollFrame_Update",
     "IsControlKeyDown",
+    "BackdropTemplateMixin",
 }

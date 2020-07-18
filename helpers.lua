@@ -95,7 +95,7 @@ helpers.AddAura = function (data, todefault)
     end
 
     if data.id and not data.name then data.name = GetSpellInfo(data.id) end
-    if data.name == nil then print (data.id.." spell id missing") return end
+    if data.name == nil then print (string.format("[Aptechka] %d spell id missing", data.id)) return end
     -- if data.isMine then data.type = data.type.."|PLAYER" end
 
     if data.prototype then -- metatables break because of config merging for gui
