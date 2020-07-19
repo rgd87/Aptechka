@@ -1673,7 +1673,7 @@ local function Reconf(self)
         self.health:SetOrientation("VERTICAL")
         self.power:SetOrientation("VERTICAL")
 
-        local frameLength = db.height
+        local frameLength = pixelperfect(db.height)
         self.health.frameLength = frameLength
 
         self.health:ClearAllPoints()
@@ -1720,7 +1720,7 @@ local function Reconf(self)
         self.health:SetOrientation("HORIZONTAL")
         self.power:SetOrientation("HORIZONTAL")
 
-        local frameLength = db.width
+        local frameLength = pixelperfect(db.width)
         self.health.frameLength = frameLength
 
         self.health:ClearAllPoints()
