@@ -8,6 +8,7 @@ end)
 
 --- Compatibility with Classic
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local isShadowlands = select(4,GetBuildInfo()) > 90000
 
 local UnitHasVehicleUI = UnitHasVehicleUI
 local UnitInVehicle = UnitInVehicle
@@ -523,7 +524,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:UpdateHighlightedDebuffsHashMap()
 
     self:RegisterEvent("UNIT_HEALTH")
-    self:RegisterEvent("UNIT_HEALTH_FREQUENT")
+    if not isShadowlands then self:RegisterEvent("UNIT_HEALTH_FREQUENT") end
     self:RegisterEvent("UNIT_MAXHEALTH")
     Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
@@ -612,7 +613,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         local CLH = LibStub("LibCombatLogHealth-1.0")
         UnitHealth = CLH.UnitHealth
         self:UnregisterEvent("UNIT_HEALTH")
-        self:UnregisterEvent("UNIT_HEALTH_FREQUENT")
+        if not isShadowlands then self:UnregisterEvent("UNIT_HEALTH_FREQUENT") end
         -- table.insert(config.HealthBarColor.assignto, "health2")
         CLH.RegisterCallback(self, "COMBAT_LOG_HEALTH", function(event, unit, eventType)
             return Aptechka:UNIT_HEALTH(eventType, unit)

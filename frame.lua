@@ -1673,7 +1673,7 @@ local function Reconf(self)
         self.health:SetOrientation("VERTICAL")
         self.power:SetOrientation("VERTICAL")
 
-        local frameLength = db.height
+        local frameLength = pixelperfect(db.height)
         self.health.frameLength = frameLength
 
         self.health:ClearAllPoints()
@@ -1720,7 +1720,7 @@ local function Reconf(self)
         self.health:SetOrientation("HORIZONTAL")
         self.power:SetOrientation("HORIZONTAL")
 
-        local frameLength = db.width
+        local frameLength = pixelperfect(db.width)
         self.health.frameLength = frameLength
 
         self.health:ClearAllPoints()
@@ -2038,7 +2038,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp.incoming = hpi
 
     local p4 = outlineSize + pixelperfect(2)
-    local border = CreateFrame("Frame", nil, self)
+    local border = CreateFrame("Frame", nil, self, BackdropTemplateMixin and "BackdropTemplate" or nil)
     border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
     border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
     border:SetBackdrop(border_backdrop)
