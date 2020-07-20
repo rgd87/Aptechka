@@ -2153,6 +2153,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
         list["healfeedback"] = "healfeedback"
         list["icon"] = "icon"
         list["border"] = "border"
+        list["bossdebuff"] = "bossdebuff"
         list["bar1"] = nil
         list["bar2"] = nil
         list["bar3"] = nil
