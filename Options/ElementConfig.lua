@@ -17,6 +17,7 @@ function ns.MakeElementConfig()
         "TargetStatus",
         "MouseoverStatus",
         "MainTankStatus",
+        "DispelStatus",
     }
 
     for i, status in ipairs(configurableWidgets) do
@@ -70,7 +71,14 @@ function ns.MakeElementConfig()
                     name = L"Color",
                     type = "color",
                     width = 0.6,
-                    get = function(info) return unpack(AptechkaConfigMerged[status].color) end,
+                    get = function(info)
+                        local color = AptechkaConfigMerged[status].color
+                        if color then
+                            return unpack(AptechkaConfigMerged[status].color)
+                        else
+                            return 0,0,0
+                        end
+                    end,
                     set = function(info, r,g,b)
                         local c = {r,g,b}
                         AptechkaConfigMerged[status].color = c
