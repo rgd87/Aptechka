@@ -313,6 +313,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     AptechkaUnitInRange = uir2
 
+    local firstTimeUse = AptechkaDB_Global == nil
     AptechkaDB_Global = AptechkaDB_Global or {}
     AptechkaDB_Char = AptechkaDB_Char or {}
     self:DoMigrations(AptechkaDB_Global)
@@ -631,6 +632,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
     Aptechka:Show()
+
+    if firstTimeUse then
+        Aptechka.Commands.unlock()
+    end
 
     SLASH_APTECHKA1= "/aptechka"
     SLASH_APTECHKA2= "/apt"
