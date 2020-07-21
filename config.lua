@@ -181,7 +181,7 @@ A{ id = 498,    prototype = survivalCD } -- Divine Protection
 A{ id = 6940,   prototype = survivalCD } -- Blessing of Sacrifice
 A{ id = 31850,  prototype = tankCD, priority = 88 } --Ardent Defender
 A{ id = 86659,  prototype = tankCD } --Guardian of Ancient Kings 50%
-A{ id = 204150, prototype = tankCD, priority = 85 } -- Aegis of Light
+-- A{ id = 204150, prototype = tankCD, priority = 85 } -- Aegis of Light
 -- Guardian of the Forgotten Queen - Divine Shield (PvP)
 A{ id = 228050, prototype = tankCD, priority = 97 }
 
