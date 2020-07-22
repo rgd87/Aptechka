@@ -75,6 +75,7 @@ local RosterUpdateOccured
 local LastCastSentTime = 0
 local LastCastTargetName
 local highlightedDebuffs = {}
+local damageReductions = {}
 
 local AptechkaString = "|cffff7777Aptechka: |r"
 local GetTime = GetTime
@@ -1350,7 +1351,10 @@ function Aptechka.UNIT_THREAT_SITUATION_UPDATE(self, event, unit)
             end
         else
             SetJob(unit, config.AggroStatus, false)
-            Aptechka.TankingUnits[unit] = nil
+            if Aptechka.TankingUnits[unit] then
+                Aptechka.TankingUnits[unit] = nil
+                Aptechka.ScanAuras(unit)
+            end
         end
     end
 end
@@ -2550,6 +2554,37 @@ local HighlightProc = Aptechka.HighlightProc
 local HighlightPostUpdate = Aptechka.HighlightPostUpdate
 
 ---------------------------
+-- Damage Reduction Calc
+---------------------------
+
+damageReductions = {
+    [132403] = 0.2,
+}
+
+local currentDamageReduction = 1
+function Aptechka.DamageReductionProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID)
+    if damageReductions[spellID] then
+        local drp = damageReductions[spellID]
+        currentDamageReduction = currentDamageReduction * (1-drp)
+    end
+end
+
+function Aptechka.DamageReductionPostUpdate(unit)
+    local frames = Roster[unit]
+    if frames then
+        for frame in pairs(frames) do
+            local oldDR = frame.state.damageReduction
+            if oldDR ~= currentDamageReduction then
+                frame.state.damageReduction = currentDamageReduction
+                print("NEW DR:", currentDamageReduction)
+            end
+        end
+    end
+end
+local DamageReductionProc = Aptechka.DamageReductionProc
+local DamageReductionPostUpdate = Aptechka.DamageReductionPostUpdate
+
+---------------------------
 -- Dispel Type Indicator
 ---------------------------
 local debuffTypeMask -- Resets to 0 at the start of every aura scan
@@ -2603,6 +2638,7 @@ function Aptechka.DummyFunction() end
 local handleBuffs = function(unit, index, slot, filter, ...)
     IndicatorAurasProc(unit, index, slot, filter, ...)
     BuffProc(unit, index, slot, filter, ...)
+    DamageReductionProc(unit, index, slot, filter, ...)
 end
 
 local handleDebuffs = function(unit, index, slot, filter, ...)
@@ -2617,6 +2653,7 @@ function Aptechka.ScanAuras(unit)
     table_wipe(encountered)
     debuffTypeMask = 0
     highlightedDebuffsBits = 0
+    currentDamageReduction = 1
     -- debuffs cleanup
     table_wipe(debuffList)
 
@@ -2651,6 +2688,7 @@ function Aptechka.ScanAuras(unit)
     DebuffPostUpdate(unit)
     DispelTypePostUpdate(unit)
     HighlightPostUpdate(unit)
+    DamageReductionPostUpdate(unit)
 end
 local debugprofilestop = debugprofilestop
 function Aptechka.UNIT_AURA(self, event, unit)

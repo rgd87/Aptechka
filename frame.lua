@@ -1377,6 +1377,42 @@ local CreateMitigationIcon = function(parent)
     return f
 end
 
+local CreateSideGlow = function(parent)
+    local f = CreateFrame("Frame", nil, parent)
+    f:SetAllPoints()
+    -- f:SetSize(10, 10)
+
+    local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
+    -- tex:SetAllPoints(f)
+    -- tex:SetAtlas("Warfronts-BaseMapIcons-Empty-Armory-Minimap-small", true)
+    -- tex:SetPoint("TOPLEFT")
+
+    -- f:SetPoint("TOPLEFT",parent,"TOPLEFT",0,0)
+    tex:SetTexture("Interface/AddOns/Aptechka/sideglow2")
+    tex:SetVertexColor(1,0,0)
+    tex:SetAllPoints()
+
+    f:Hide()
+    return f
+end
+
+local CreateCornerType2 = function(parent)
+    local f = CreateFrame("Frame", nil, parent)
+    f:SetSize(40, 40)
+
+    local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
+    tex:SetTexture("Interface/AddOns/Aptechka/corner2")
+    -- tex:SetVertexColor(0.7,0.7,0.7)
+    tex:SetVertexColor(1,0,0)
+    tex:SetAllPoints()
+    tex:SetTexCoord(0,1,0,0,1,1,1,0)
+
+    f:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0,0)
+
+    f:Hide()
+    return f
+end
+
 local LibCustomGlow = LibStub("LibCustomGlow-1.0")
 local SetJob_PixelGlow = function(self, job)
     local color = job.color or {1,1,1,1}
@@ -1550,9 +1586,9 @@ end
 
 local optional_widgets = {
         raidbuff = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0) end,
-        totemCluster1 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",7,0) end,
-        totemCluster2 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",14,0) end,
-        totemCluster3 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",21,0) end,
+        totemCluster1 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 5 + pixelperfect(1), 0) end,
+        totemCluster2 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 10 + pixelperfect(1)*2,0) end,
+        totemCluster3 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 15 + pixelperfect(1)*3,0) end,
         --top
         spell1  = function(self) return CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0) end,
         --bottomright
@@ -1602,6 +1638,8 @@ local optional_widgets = {
         innerglow = CreateInnerGlow,
         flash = CreateFlash,
         mitigation = CreateMitigationIcon,
+        sideglow = CreateSideGlow,
+        corner2 = CreateCornerType2,
 
         -- dispel = CreateDebuffTypeIndicator,
         -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,
