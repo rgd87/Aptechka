@@ -76,7 +76,7 @@ config.DeadStatus = { name = "DEAD", assignto = { "text2","health" }, color = {.
 config.GhostStatus = { name = "GHOST", assignto = { "text2","health" }, color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
 config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","text3","health" }, color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.AwayStatus = { name = "AFK", assignto = { "text2","text3" }, color = {.15,.15,.15}, textcolor = {1,0.8,0}, text = "AFK",  priority = 60}
--- config.IncomingHealStatus = { name = "IncomingHeal", assignto = "text2", color = { 0, 1, 0}, priority = 15 }
+-- config.IncomingHealStatus = { name = "IncomingHeal", assignto = "text2", inchealtext = true, color = { 0, 1, 0}, priority = 15 }
 config.HealthDeficitStatus = { name = "HealthDeficit", assignto = "healthtext", color = { 54/255, 201/255, 99/256 }, priority = 10 }
 config.UnitNameStatus = { name = "UnitName", assignto = "text1", classcolor = true, priority = 20 }
 config.HealthBarColor = { name = "HealthBar", assignto = "health", color = {1, .3, .3}, classcolor = true, priority = 20 }
