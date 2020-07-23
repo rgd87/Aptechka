@@ -86,6 +86,7 @@ config.InVehicleStatus = { name = "InVehicle", assignto = "vehicle", color = {0.
 config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, resetAnimation = true, priority = 95, fade = 0.3 }
 config.DispelStatus = { name = "Dispel", assignto = "bossdebuff", scale = 0.8, priority = 6 }
 config.StaggerStatus = { name = "Stagger", assignto = "text2", percentColor = true, priority = 20 }
+config.DamageReductionStatus = { name = "DamRed", assignto = "text2", percentColor = true, priority = 20 }
 
 config.SummonPending = { name = "SUMMON_PENDING", assignto = { "text2" }, color = {1,0.7,0}, text = "PENDING", priority = 50 }
 config.SummonAccepted = { name = "SUMMON_ACCEPTED", assignto = { "text2" }, color = {0,1,0}, text = "ACCEPTED", priority = 51 }

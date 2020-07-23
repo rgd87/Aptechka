@@ -2558,7 +2558,9 @@ local HighlightPostUpdate = Aptechka.HighlightPostUpdate
 ---------------------------
 
 damageReductions = {
-    [132403] = 0.2,
+    [132403] = 0.2, --
+    [132404] = 0.2, -- Shield Block
+    [871] = 0.4, -- Shield Wall
 }
 
 local currentDamageReduction = 1
@@ -2573,10 +2575,15 @@ function Aptechka.DamageReductionPostUpdate(unit)
     local frames = Roster[unit]
     if frames then
         for frame in pairs(frames) do
+            local newDR = 1 - currentDamageReduction
             local oldDR = frame.state.damageReduction
-            if oldDR ~= currentDamageReduction then
-                frame.state.damageReduction = currentDamageReduction
-                print("NEW DR:", currentDamageReduction)
+            if oldDR ~= newDR then
+                frame.state.damageReduction = newDR
+                if newDR == 0 then
+                    FrameSetJob(frame, config.DamageReductionStatus, false)
+                else
+                    FrameSetJob(frame, config.DamageReductionStatus, true)
+                end
             end
         end
     end

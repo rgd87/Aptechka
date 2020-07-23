@@ -18,6 +18,56 @@ if res then
     pmult = (768/h) / UIParent:GetScale()
 end
 
+local function GetThresholdPercentage(quality, ...)
+	local n = select('#', ...)
+	if n <= 1 then
+		return GetThresholdPercentage(quality, 0, ... or 1)
+	end
+
+	local worst = ...
+	local best = select(n, ...)
+
+	if worst == best and quality == worst then
+		return 0.5
+	end
+
+	if worst <= best then
+		if quality <= worst then
+			return 0
+		elseif quality >= best then
+			return 1
+		end
+		local last = worst
+		for i = 2, n-1 do
+			local value = select(i, ...)
+			if quality <= value then
+				return ((i-2) + (quality - last) / (value - last)) / (n-1)
+			end
+			last = value
+		end
+
+		local value = select(n, ...)
+		return ((n-2) + (quality - last) / (value - last)) / (n-1)
+	else
+		if quality >= worst then
+			return 0
+		elseif quality <= best then
+			return 1
+		end
+		local last = worst
+		for i = 2, n-1 do
+			local value = select(i, ...)
+			if quality >= value then
+				return ((i-2) + (quality - last) / (value - last)) / (n-1)
+			end
+			last = value
+		end
+
+		local value = select(n, ...)
+		return ((n-2) + (quality - last) / (value - last)) / (n-1)
+	end
+end
+
 helpers.PercentColor = function(percent)
     if percent <= 0 then
         return 0, 1, 0
@@ -28,6 +78,10 @@ helpers.PercentColor = function(percent)
     else
         return 1, 2 - percent*2, 0
     end
+end
+
+function helpers.PercentColorByThreshold(value, ...)
+    return helpers.PercentColor(GetThresholdPercentage(value, ...))
 end
 
 helpers.GetGradientColor2 = function(c1, c2, v)
