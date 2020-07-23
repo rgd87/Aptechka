@@ -1572,8 +1572,9 @@ end
 
 local optional_widgets = {
         -- raidbuff = function(self) return CreateIndicator(self,6,6,"TOPLEFT",self,"TOPLEFT",0,0) end,
-        raidbuff = function(self) return CreateStatusBar(self,6,6,"TOPLEFT",self,"TOPLEFT",0,0, nil, true) end,
-        totemCluster1 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 6 + pixelperfect(1), 0) end,
+        raidbuff = function(self) return CreateStatusBar(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0, nil, true) end,
+        mitigation = function(self) return CreateStatusBar(self,14,4,"TOPLEFT",self,"TOPLEFT",6+pixelperfect(1),0) end,
+        totemCluster1 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 5 + pixelperfect(1), 0) end,
         totemCluster2 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 10 + pixelperfect(1)*2,0) end,
         totemCluster3 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 15 + pixelperfect(1)*3,0) end,
         --top

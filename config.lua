@@ -126,10 +126,10 @@ A{ id = 296230, prototype = survivalCD } --Vitality Conduit
 -- A{ id = 296211, type = "HELPFUL", assignto = "bars", color = { 1, 0.7, 0}, priority = 50, showDuration = true, isMine = true }
 
 -- ACTIVE MITIGATION
--- A{ id = 132404, prototype = survivalCD, priority = 80 } -- Shield Block
--- A{ id = 132403, prototype = survivalCD, priority = 80 } -- Shield of the Righteousness
--- A{ id = 203819, prototype = survivalCD, priority = 80 } -- Demon Spikes
--- A{ id = 192081, prototype = survivalCD, priority = 80 } -- Ironfur
+A{ id = 132404, assignto = "mitigation", showDuration = true, color = {0.7, 0.7, 0.7}, priority = 80 } -- Shield Block
+A{ id = 132403, assignto = "mitigation", showDuration = true, color = {0.7, 0.7, 0.7}, priority = 80 } -- Shield of the Righteousness
+A{ id = 203819, assignto = "mitigation", showDuration = true, color = {0.7, 0.7, 0.7}, priority = 80 } -- Demon Spikes
+A{ id = 192081, assignto = "mitigation", showDuration = true, color = {0.7, 0.7, 0.7}, priority = 80 } -- Ironfur
 
 -- MONK
 A{ id = 122783, prototype = survivalCD } -- Diffuse Magic
