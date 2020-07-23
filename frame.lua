@@ -105,9 +105,9 @@ local formatMissingHealth = function(text, mh)
     end
 end
 
-local SetJob_HealthBar = function(self, job, state)
+local SetJob_HealthBar = function(self, job, state, contentType)
     local r,g,b,a
-    if job.name == "HealthBar" then
+    if contentType == "HealthBar" then
         local isGradient = state.gradientHealthColor
         local c1 = state.healthColor1
         if not c1 then return end -- At some point during initialization health updates before colors are determined
@@ -950,10 +950,10 @@ end
 local Text1_SetColorInverted = function(self, r,g,b)
     self:SetTextColor(r*0.2,g*0.2,b*0.2)
 end
-local SetJob_Text1 = function(self,job,state)
-    if job.healthtext then
+local SetJob_Text1 = function(self, job, state, contentType)
+    if contentType == "HealthDeficit" then
         self:SetFormattedText("-%.0fk", (state.vHealthMax - state.vHealth) / 1e3)
-    elseif job.nametext then
+    elseif contentType == "UnitName" then
         self:SetText(state.name)
     elseif job.text then
         self:SetText(job.text)
@@ -970,12 +970,12 @@ local SetJob_Text1 = function(self,job,state)
         self:SetColor(multiplyColor(mul, r,g,b,a))
     end
 end
-local SetJob_Text2 = function(self,job, state) -- text2 is always green
-    if job.healthtext then
+local SetJob_Text2 = function(self, job, state, contentType) -- text2 is always green
+    if contentType == "HealthDeficit" then
         formatMissingHealth(self, state.vHealthMax - state.vHealth)
-    -- elseif job.inchealtext then
+    -- elseif contentType == "IncomingHeal" then
         -- self:SetFormattedText("+%.0fk", state.vIncomingHeal / 1e3)
-    elseif job.nametext then
+    elseif contentType == "UnitName" then
         self:SetText(state.name)
     elseif job.text then
         self:SetText(job.text)
