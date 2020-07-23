@@ -2206,7 +2206,8 @@ function Aptechka.SetupFrame(header, frameName)
     f:HookScript("OnAttributeChanged", OnAttributeChanged)
 end
 
-local AssignToSlot = function(frame, opts, status, slot, ...)
+
+local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
     local widget = frame[slot]
     if not widget then
         if frame._optional_widgets[slot] then
@@ -2229,11 +2230,14 @@ local AssignToSlot = function(frame, opts, status, slot, ...)
         jobs = widget.jobs
     end
 
-    local already_exists
     if status then
-        already_exists = jobs[opts] ~= nil
-        jobs[opts] = opts
-        if opts.realID and not opts.isMissing then
+        contentType = contentType or opts.name
+
+        -- Creating new table here every time
+        local data = select("#", ...) > 0 and { contentType, ... } or contentType
+        jobs[opts] = data
+
+        if contentType == "AURA" and opts.realID and not opts.isMissing then
             frame.activeAuras[opts.realID] = opts
         end
     else
@@ -2242,18 +2246,20 @@ local AssignToSlot = function(frame, opts, status, slot, ...)
 
     if widget.rawAssignments then
         local state = frame.state
-        widget:SetJobRaw(opts, status, state, ...)
+        widget:SetJobRaw(opts, status, state, contentType, ...)
         return
     end
 
     if next(jobs) then
         local highestPriorityJob
+        local hpJobData
         local maxPrio = 0
-        for opts in pairs(jobs) do
+        for opts, jobData in pairs(jobs) do
             local optsPrio = opts.priority or 80
             if maxPrio < optsPrio then
                 maxPrio = optsPrio
                 highestPriorityJob = opts
+                hpJobData = jobData
             end
         end
 
@@ -2267,7 +2273,11 @@ local AssignToSlot = function(frame, opts, status, slot, ...)
         if widget ~= frame then widget:Show() end   -- taint if we show protected unitbutton frame
         if widget.SetJob then
             local state = frame.state
-            widget:SetJob(highestPriorityJob, state, ...)
+            if type(hpJobData) == "table" then
+                widget:SetJob(highestPriorityJob, state, unpack(hpJobData))
+            else
+                widget:SetJob(highestPriorityJob, state, hpJobData)
+            end
         end
     else
         if widget ~= frame then widget:Hide() end
