@@ -2236,6 +2236,7 @@ local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
 
         -- if widget.currentJob == highestPriorityJob then -- refresh
         -- else --activate
+        widget.previousJob = widget.currentJob
         widget.currentJob = highestPriorityJob -- important that it's before SetJob
         -- end
 
@@ -2250,6 +2251,7 @@ local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
         end
     else
         if widget ~= frame then widget:Hide() end
+        widget.previousJob = widget.currentJob
         widget.currentJob = nil
     end
 end

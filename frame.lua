@@ -188,6 +188,8 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
         else
             self.cd:Hide()
         end
+    else
+        self.cd:Hide()
     end
 
     local color
@@ -264,17 +266,34 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     f.parent = parent
     f.SetJob = SetJob_Indicator
 
-    local pag = f:CreateAnimationGroup()
-    local pa1 = pag:CreateAnimation("Scale")
-    pa1:SetScale(2,2)
-    pa1:SetDuration(0.2)
-    pa1:SetOrder(1)
-    local pa2 = pag:CreateAnimation("Scale")
-    pa2:SetScale(0.5,0.5)
-    pa2:SetDuration(0.8)
-    pa2:SetOrder(2)
+    -- local pag = f:CreateAnimationGroup()
+    -- local pa1 = pag:CreateAnimation("Scale")
+    -- pa1:SetScale(2,2)
+    -- pa1:SetDuration(0.2)
+    -- pa1:SetOrder(1)
+    -- local pa2 = pag:CreateAnimation("Scale")
+    -- pa2:SetScale(0.5,0.5)
+    -- pa2:SetDuration(0.8)
+    -- pa2:SetOrder(2)
 
-    f.pulse = pag
+    local rag = f:CreateAnimationGroup()
+    local r1 = rag:CreateAnimation("Rotation")
+    r1:SetDegrees(180)
+    r1:SetSmoothing("IN_OUT")
+    r1:SetDuration(0.5)
+    r1:SetOrder(1)
+
+    local t1 = rag:CreateAnimation("Translation")
+    t1:SetOffset(0, 7)
+    t1:SetDuration(0.5)
+    t1:SetOrder(1)
+
+    local t2 = rag:CreateAnimation("Translation")
+    t2:SetOffset(0, -7)
+    t2:SetDuration(0.5)
+    t2:SetOrder(2)
+
+    f.jump = rag
 
     local bag = f:CreateAnimationGroup()
     bag:SetLooping("NONE")
@@ -509,6 +528,19 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
                 self:SetScript("OnUpdate", StatusBarOnUpdate)
             end
         end
+    else
+        self:SetStatusBarColor(unpack(color))
+        self:SetMinMaxValues(0, 1)
+        self:SetValue(1)
+        self:SetScript("OnUpdate", nil)
+    end
+
+    if self.currentJob ~= self.previousJob then
+        if job.jump then
+            if not self.jump:IsPlaying() then self.jump:Play() end
+        else
+            self.jump:Stop()
+        end
     end
 
     self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
@@ -551,17 +583,24 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     f.SetJob = SetJob_StatusBar
     f:SetScript("OnUpdate", StatusBarOnUpdate)
 
-    -- local pag = f:CreateAnimationGroup()
-    -- local pa1 = pag:CreateAnimation("Scale")
-    -- pa1:SetScale(2,2)
-    -- pa1:SetDuration(0.2)
-    -- pa1:SetOrder(1)
-    -- local pa2 = pag:CreateAnimation("Scale")
-    -- pa2:SetScale(0.5,0.5)
-    -- pa2:SetDuration(0.8)
-    -- pa2:SetOrder(2)
+    local rag = f:CreateAnimationGroup()
+    local r1 = rag:CreateAnimation("Rotation")
+    r1:SetDegrees(180)
+    r1:SetSmoothing("IN_OUT")
+    r1:SetDuration(0.5)
+    r1:SetOrder(1)
 
-    -- f.pulse = pag
+    local t1 = rag:CreateAnimation("Translation")
+    t1:SetOffset(0, 7)
+    t1:SetDuration(0.5)
+    t1:SetOrder(1)
+
+    local t2 = rag:CreateAnimation("Translation")
+    t2:SetOffset(0, -7)
+    t2:SetDuration(0.5)
+    t2:SetOrder(2)
+
+    f.jump = rag
 
     f:Hide()
     return f
@@ -1590,8 +1629,9 @@ end
 
 
 local optional_widgets = {
-        raidbuff = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0) end,
-        totemCluster1 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 5 + pixelperfect(1), 0) end,
+        -- raidbuff = function(self) return CreateIndicator(self,6,6,"TOPLEFT",self,"TOPLEFT",0,0) end,
+        raidbuff = function(self) return CreateStatusBar(self,6,6,"TOPLEFT",self,"TOPLEFT",0,0, nil, true) end,
+        totemCluster1 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 6 + pixelperfect(1), 0) end,
         totemCluster2 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 10 + pixelperfect(1)*2,0) end,
         totemCluster3 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 15 + pixelperfect(1)*3,0) end,
         --top

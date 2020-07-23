@@ -61,7 +61,7 @@ config.useCombatLogHealthUpdates = isHealer
 
 config.TargetStatus = { name = "Target", assignto = "border", color = {0.7,0.2,0.5}, priority = 65 }
 config.MouseoverStatus = { name = "Mouseover", assignto = "border", color = {1,0.5,0.8}, priority = 66 }
-config.AggroStatus = { name = "Aggro", assignto = "raidbuff",  color = { 0.7, 0, 0},priority = 55 }
+config.AggroStatus = { name = "Aggro", assignto = "raidbuff",  color = { 0.7, 0, 0},priority = 55, jump = true }
 config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = "spell3", stackcolor = {
                                                                             ['ready'] = { 0, 1, 0},
                                                                             ['notready'] = { 1, 0, 0},
@@ -222,6 +222,7 @@ A{ id = {
 
 -- AM: SotR
 A{ id = 132403, type = "HELPFUL", assignto = "corner2", global = true, color = {0.5,0.5,0.5}, showDuration = true }
+A{ id = 132404, type = "HELPFUL", assignto = "raidbuff", global = true, priority = 85, color = {0.7,0.7,0.7}, showDuration = true } -- Shield Block
 
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude
