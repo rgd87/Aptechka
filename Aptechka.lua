@@ -1401,13 +1401,21 @@ function Aptechka:IsTankUnit(unit)
     return isRaidMaintank or isTankRoleAssigned
 end
 
+local customNormalDamageReductionTable = {
+    WARRIOR = 0.2,
+    PALADIN = 0.2,
+    DEMONHUNTER = 0.2,
+    DRUID = 0.2,
+}
+
 function Aptechka.CheckRoles(apt, self, unit )
 
     local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
     local isTankRoleAssigned = UnitGroupRolesAssigned(unit) == "TANK"
     local isAnyTank = isRaidMaintank or isTankRoleAssigned
+    local unitClass = select(2, UnitClass(unit))
 
-    if isAnyTank and select(2, UnitClass(unit)) == "MONK" then
+    if isAnyTank and unitClass == "MONK" then
         staggerUnits[unit] = true
     elseif staggerUnits[unit] then
         staggerUnits[unit] = nil
@@ -1416,6 +1424,12 @@ function Aptechka.CheckRoles(apt, self, unit )
 
     if config.MainTankStatus then
         FrameSetJob(self, config.MainTankStatus, isAnyTank)
+    end
+
+    if isAnyTank or true and customNormalDamageReductionTable[unitClass] then
+        self.state.normalDamageReduction = customNormalDamageReductionTable[unitClass]
+    else
+        self.state.normalDamageReduction = 1
     end
 
     if config.displayRoles then
@@ -2571,19 +2585,20 @@ function Aptechka.DamageReductionProc(unit, index, slot, filter, name, icon, cou
     end
 end
 
+local function round(value)
+    return floor((value+0.005)*100)/100
+end
+
 function Aptechka.DamageReductionPostUpdate(unit)
     local frames = Roster[unit]
     if frames then
         for frame in pairs(frames) do
-            local newDR = 1 - currentDamageReduction
+            local normalDamageReduction = frame.state.normalDamageReduction or 0
+            local newDR = round(1 - currentDamageReduction) - normalDamageReduction
             local oldDR = frame.state.damageReduction
             if oldDR ~= newDR then
                 frame.state.damageReduction = newDR
-                if newDR == 0 then
-                    FrameSetJob(frame, config.DamageReductionStatus, false)
-                else
-                    FrameSetJob(frame, config.DamageReductionStatus, true)
-                end
+                FrameSetJob(frame, config.DamageReductionStatus, newDR ~= 0)
             end
         end
     end
