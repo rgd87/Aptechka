@@ -719,7 +719,7 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     icd.noCooldownCount = true -- disable OmniCC for this cooldown
     icd:SetHideCountdownNumbers(true)
     icd:SetReverse(true)
-    icd:SetDrawEdge(false)
+    icd:SetDrawEdge(true)
     icd:SetAllPoints(icontex)
     icon.cd = icd
 
@@ -1573,7 +1573,7 @@ end
 local optional_widgets = {
         -- raidbuff = function(self) return CreateIndicator(self,6,6,"TOPLEFT",self,"TOPLEFT",0,0) end,
         raidbuff = function(self) return CreateStatusBar(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0, nil, true) end,
-        mitigation = function(self) return CreateStatusBar(self,14,4,"TOPLEFT",self,"TOPLEFT",6+pixelperfect(1),0) end,
+        mitigation = function(self) return CreateStatusBar(self,14,4,"TOPLEFT",self,"TOPLEFT",5+pixelperfect(1),0) end,
         totemCluster1 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 5 + pixelperfect(1), 0) end,
         totemCluster2 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 10 + pixelperfect(1)*2,0) end,
         totemCluster3 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 15 + pixelperfect(1)*3,0) end,
@@ -2107,7 +2107,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text2:SetTextColor(0.2, 1, 0.2)
     text2.parent = self
 
-    local icon = CreateIcon(self,24,24,0.4,"CENTER",self,"CENTER",0,0)
+    local icon = CreateIcon(self,24,24,0.5,"CENTER",self,"CENTER",0,0)
     local progressIcon = CreateProgressIcon(self,18,18, 1,"TOPLEFT",self,"TOPLEFT",-3,3)
 
     local raidicon = CreateFrame("Frame",nil,self)
