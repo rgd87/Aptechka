@@ -1196,7 +1196,7 @@ end
 local afkPlayerTable = {}
 function Aptechka.UNIT_AFK_CHANGED(self, event, unit)
     if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
+    for frame in pairs(Roster[unit]) do
         local guid = UnitGUID(unit)
         if UnitIsAFK(unit) then
             local startTime = afkPlayerTable[guid]
@@ -1205,12 +1205,12 @@ function Aptechka.UNIT_AFK_CHANGED(self, event, unit)
                 afkPlayerTable[guid] = startTime
             end
 
-            SetJob(unit, config.AwayStatus, true, "TIMER", startTime)
+            FrameSetJob(frame, config.AwayStatus, true, "TIMER", startTime)
         else
             if guid then
                 afkPlayerTable[guid] = nil
             end
-            SetJob(unit, config.AwayStatus, false)
+            FrameSetJob(frame, config.AwayStatus, false)
         end
     end
 end
@@ -1224,17 +1224,13 @@ function Aptechka.UNIT_CONNECTION(self, event, unit)
         -- if self.unitOwner then unit = self.unitOwner end
         local name = UnitGUID(unit)
         if not UnitIsConnected(unit) then
-            if name then
-                local startTime = offlinePlayerTable[name]
-                if not startTime then
-                    startTime = GetTime()
-                    offlinePlayerTable[name] = startTime
-                end
-
-                local job = config.OfflineStatus
-                job.startTime = startTime
+            local startTime = offlinePlayerTable[name]
+            if not startTime then
+                startTime = GetTime()
+                offlinePlayerTable[name] = startTime
             end
-            FrameSetJob(frame, config.OfflineStatus, true)
+
+            FrameSetJob(frame, config.OfflineStatus, true, "TIMER", startTime)
         else
             if name then
                 offlinePlayerTable[name] = nil
@@ -2267,6 +2263,7 @@ local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
 
         -- if widget.currentJob == highestPriorityJob then -- refresh
         -- else --activate
+        widget.previousJob = widget.currentJob
         widget.currentJob = highestPriorityJob -- important that it's before SetJob
         -- end
 
@@ -2281,6 +2278,7 @@ local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
         end
     else
         if widget ~= frame then widget:Hide() end
+        widget.previousJob = widget.currentJob
         widget.currentJob = nil
     end
 end
