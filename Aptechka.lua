@@ -1143,13 +1143,16 @@ function Aptechka.UNIT_CONNECTION(self, event, unit)
         -- if self.unitOwner then unit = self.unitOwner end
         local name = UnitGUID(unit)
         if not UnitIsConnected(unit) then
-            local startTime = offlinePlayerTable[name]
-            if not startTime then
-                startTime = GetTime()
-                offlinePlayerTable[name] = startTime
+            if name then
+                local startTime = offlinePlayerTable[name]
+                if not startTime then
+                    startTime = GetTime()
+                    offlinePlayerTable[name] = startTime
+                end
+                FrameSetJob(frame, config.OfflineStatus, true, "TIMER", startTime)
+            else
+                FrameSetJob(frame, config.OfflineStatus, true)
             end
-
-            FrameSetJob(frame, config.OfflineStatus, true, "TIMER", startTime)
         else
             if name then
                 offlinePlayerTable[name] = nil
@@ -1703,6 +1706,7 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
     Aptechka:UNIT_CONNECTION("ONATTR", owner)
+    Aptechka:INCOMING_SUMMON_CHANGED("ONATTR", owner)
 
     if AptechkaDB.global.showAFK then
         Aptechka:UNIT_AFK_CHANGED(nil, owner)
