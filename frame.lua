@@ -333,7 +333,7 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     f:Hide()
     return f
 end
-
+AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
 
 local SetJob_Corner = function(self,job)
     local color
@@ -605,7 +605,8 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     f:Hide()
     return f
 end
-AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
+AptechkaDefaultConfig.GridSkin_CreateStatusBar = CreateStatusBar
+
 
 
 --[[
