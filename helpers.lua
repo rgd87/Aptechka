@@ -2,7 +2,10 @@ local _, helpers = ...
 
 helpers.frame = CreateFrame("Frame","Aptechka",UIParent)
 
-AptechkaDefaultConfig = {}
+AptechkaDefaultConfig = {
+    auras = {},
+    traces = {},
+}
 local config = AptechkaDefaultConfig
 AptechkaUserConfig = AptechkaDefaultConfig
 
