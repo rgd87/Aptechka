@@ -333,7 +333,7 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     f:Hide()
     return f
 end
-
+AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
 
 local SetJob_Corner = function(self,job)
     local color
@@ -605,7 +605,8 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     f:Hide()
     return f
 end
-AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
+AptechkaDefaultConfig.GridSkin_CreateStatusBar = CreateStatusBar
+
 
 
 --[[
@@ -1681,9 +1682,6 @@ local function Reconf(self)
         self.health.absorb2:SetDrawLayer("ARTWORK", -5)
         self.health.incoming:SetDrawLayer("ARTWORK", -5)
     end
-    Aptechka.FrameSetJob(self,config.HealthBarColor,true)
-    Aptechka.FrameSetJob(self,config.PowerBarColor,true)
-    Aptechka.FrameSetJob(self,config.UnitNameStatus,true)
 
     local nameFont = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
     local nameFontSize = Aptechka.db.profile.nameFontSize

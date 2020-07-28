@@ -426,7 +426,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         -- raid
         local hider = CreateFrame("Frame")
         hider:Hide()
-        if CanAccessObject ~= nil and CompactRaidFrameManager and CompactUnitFrameProfiles then
+        if CanAccessObject and CompactRaidFrameManager and CompactUnitFrameProfiles then
             CompactRaidFrameManager:SetParent(hider)
             -- CompactRaidFrameManager:UnregisterAllEvents()
             CompactUnitFrameProfiles:UnregisterAllEvents()
@@ -774,6 +774,7 @@ function Aptechka:RefreshAllUnitsColors()
 end
 function Aptechka:ReconfigureUnprotected()
     self:UpdateUnprotectedUpvalues()
+    self:RefreshAllUnitsColors()
     for group, header in ipairs(group_headers) do
         for _, f in ipairs({ header:GetChildren() }) do
             self:UpdateName(f)
@@ -1054,7 +1055,7 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
     if enableTraceheals and bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE then
         local opts = traceheals[spellID]
         if opts and eventType == opts.type then
-            if guidMap[dstGUID] then
+            if guidMap[dstGUID] and not opts.disabled then
                 local minamount = opts.minamount
                 if not minamount or amount > minamount then
                     SetJob(guidMap[dstGUID],opts,true)
