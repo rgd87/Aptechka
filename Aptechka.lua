@@ -774,6 +774,7 @@ function Aptechka:RefreshAllUnitsColors()
 end
 function Aptechka:ReconfigureUnprotected()
     self:UpdateUnprotectedUpvalues()
+    self:RefreshAllUnitsColors()
     for group, header in ipairs(group_headers) do
         for _, f in ipairs({ header:GetChildren() }) do
             self:UpdateName(f)
