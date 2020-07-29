@@ -1015,6 +1015,11 @@ local SetJob_Text2 = function(self, job, state, contentType) -- text2 is always 
         formatMissingHealth(self, state.vHealthMax - state.vHealth)
     -- elseif contentType == "IncomingHeal" then
         -- self:SetFormattedText("+%.0fk", state.vIncomingHeal / 1e3)
+    elseif contentType == "Stagger" then
+        local stagger = state.stagger
+        if not stagger then return end
+        self:SetTextColor(helpers.PercentColor(stagger))
+        self:SetFormattedText("%.0f%%", stagger*100)
     elseif contentType == "UnitName" then
         self:SetText(state.name)
     elseif job.text then
@@ -1022,16 +1027,9 @@ local SetJob_Text2 = function(self, job, state, contentType) -- text2 is always 
     end
 
     local c
-    if job.percentColor then -- stagger
-        local stagger = state.stagger
-        if not stagger then return end
-        self:SetTextColor(helpers.PercentColor(stagger))
-        self:SetFormattedText("%.0f%%", stagger*100)
-    else
-        if job.color then
-            c = job.textcolor or job.color
-            self:SetTextColor(unpack(c))
-        end
+    if job.color then
+        c = job.textcolor or job.color
+        self:SetTextColor(unpack(c))
     end
 end
 
