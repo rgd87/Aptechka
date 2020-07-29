@@ -607,10 +607,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     end
 
-    if not config.anchorpoint then
-        config.anchorpoint = Aptechka:SetAnchorpoint()
-    end
-
     skinAnchorsName = "GridSkin"
     local i = 1
     while (i <= config.maxgroups) do
@@ -1903,15 +1899,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
     --     end
     -- ]])
 
-    local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
-    local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
-
     if group == 1 then
         Aptechka:CreateAnchor(f,group)
-    elseif petgroup then
-        f:SetPoint(arrangeHeaders(group_headers[1], nil, unitGrowth, reverse(groupGrowth)))
-    else
-        f:SetPoint(arrangeHeaders(group_headers[group-1]))
     end
 
     f:Show()
@@ -2032,7 +2021,6 @@ function Aptechka.CreateAnchor(self,hdr,num)
     f:SetMovable(true)
     f:SetFrameStrata("HIGH")
 
-    hdr:SetPoint(config.anchorpoint,f,reverse(config.anchorpoint),0,0)
     anchors[num] = f
     f:Hide()
     self:RepositionAnchor()
