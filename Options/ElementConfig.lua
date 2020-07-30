@@ -49,7 +49,7 @@ function ns.MakeElementConfig()
                     type = 'select',
                     order = 2,
                     width = 1,
-                    values = Aptechka.widget_list,
+                    values = Aptechka.GetWidgetList,
                     get = function(info)
                         local w = AptechkaConfigMerged[status].assignto
                         if type(w) == "table" then

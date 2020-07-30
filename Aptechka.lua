@@ -176,6 +176,7 @@ local defaults = {
                 fullRaid = "Default",
             },
         },
+        widgetConfig = {},
     },
     profile = {
         point = "CENTER",
@@ -768,6 +769,20 @@ function Aptechka:RefreshAllUnitsColors()
         end
     end
 end
+
+function Aptechka:ReconfigureWidget(widgetName)
+    local new_opts = Aptechka.db.global.widgetConfig[widgetName]
+    local reconfFunc = Aptechka.Widget[new_opts.type].Reconf
+    if reconfFunc then
+        Aptechka:ForEachFrame(function(frame)
+            local widget = frame[widgetName]
+            if widget then
+                reconfFunc(frame, widget, new_opts)
+            end
+        end)
+    end
+end
+
 function Aptechka:ReconfigureUnprotected()
     self:UpdateUnprotectedUpvalues()
     self:RefreshAllUnitsColors()
@@ -2135,14 +2150,8 @@ end
 local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
     local widget = frame[slot]
     if not widget then
-        if frame._optional_widgets[slot] then
-            local newWidget = frame._optional_widgets[slot](frame)
-            if not newWidget then return end
-            frame[slot] = newWidget
-            widget = frame[slot]
-        else
-            return
-        end
+        widget = Aptechka:CreateDynamicWidget(frame, slot)
+        if not widget then return end
     end
 
 
@@ -2749,6 +2758,11 @@ end
 local ParseOpts = function(str)
     local t = {}
     local capture = function(k,v)
+        if type(v) == "string" then
+            local v2 = v:lower()
+            if v2 == "true" then v = true end
+            if v2 == "false" then v = false end
+        end
         t[k:lower()] = tonumber(v) or v
         return ""
     end
@@ -2862,6 +2876,62 @@ Aptechka.Commands = {
         anchors[1].san.y = y
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(point, UIParent, point, x, y)
+    end,
+
+    ["widget"] = function(cmdLine)
+        local cmd,params = string.match(cmdLine, "([%w%+%-%=]+) ?(.*)")
+
+        if cmd == "create" then
+            local p = ParseOpts(params)
+            local wtype = p.type
+            wtype = wtype:sub(1,1):upper()..wtype:sub(2):lower()
+            local wname = p.name
+
+            if not wname then
+                print("Widget name not specified")
+                return
+            end
+
+            if wtype and Aptechka.Widget[wtype] then
+                if not Aptechka.db.global.widgetConfig[wname] then
+                    Aptechka.db.global.widgetConfig[wname] = Aptechka.Widget[wtype].default
+                    print("Created", wtype, wname)
+                end
+            else
+                print("Unknown widget type:", wtype)
+            end
+        elseif cmd == "delete" then
+            local p = ParseOpts(params)
+            local wname = p.name
+            if wname and Aptechka.db.global.widgetConfig[wname] then
+                Aptechka.db.global.widgetConfig[wname] = nil
+                print("Removed", wname)
+            else
+                print("Widget doesn't exist:", wname)
+            end
+        elseif cmd == "set" then
+            local p = ParseOpts(params)
+            local wname = p.name
+            if wname and Aptechka.db.global.widgetConfig[wname] then
+                local opts = Aptechka.db.global.widgetConfig[wname]
+                local wtype = opts.type
+
+                for property in pairs(Aptechka.Widget[wtype].default) do
+                    if p[property] then
+                        opts[property] = p[property]
+                    end
+                end
+
+                Aptechka:ReconfigureWidget(wname)
+            else
+                print("Widget doesn't exist:", wname)
+            end
+        elseif cmd == "list" then
+            print("|cff99FF99Custom widgets:|r")
+            for wname, opts in pairs(Aptechka.db.global.widgetConfig) do
+                print(string.format("     %s [%s]", wname, opts.type))
+            end
+        end
     end,
     -- ["charspec"] = function()
     --     local user = UnitName("player").."@"..GetRealmName()

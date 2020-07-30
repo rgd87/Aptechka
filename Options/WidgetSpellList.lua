@@ -364,8 +364,6 @@ function ns.CreateCommonForm(self)
 
     local assignto = AceGUI:Create("Dropdown")
     assignto:SetLabel("Assign to")
-    local slotList = Aptechka.widget_list
-    assignto:SetList(slotList)
     assignto:SetRelativeWidth(0.30)
     assignto:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["assignto"] = value
@@ -548,6 +546,7 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     if type(widgetName) == "table" then
         widgetName = widgetName[1]
     end
+    controls.assignto:SetList(Aptechka:GetWidgetList())
     controls.assignto:SetValue(widgetName)
     controls.name:SetText(opts.name or "")
     controls.priority:SetText(opts.priority)
