@@ -223,4 +223,5 @@ globals = {
     "HybridScrollFrame_Update",
     "IsControlKeyDown",
     "BackdropTemplateMixin",
+    "UnitPhaseReason",
 }
