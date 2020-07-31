@@ -420,7 +420,7 @@ function ns.MakeDebuffHighlight()
             f:Initialize()
             f:CreateButtons()
 
-            local border = CreateFrame("Frame", nil, f)
+            local border = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate" or nil)
             border:SetPoint("TOPLEFT", 0, -17)
             border:SetPoint("BOTTOMRIGHT", -1, 0)
             border:SetBackdrop(PaneBackdrop)
