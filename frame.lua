@@ -30,6 +30,9 @@ local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 -8 healthbar bg
 ]]
 
+Aptechka.Widget = {}
+
+
 local MakeBorder = function(self, tex, left, right, top, bottom, level)
     local t = self:CreateTexture(nil,"BORDER",nil,level)
     t:SetTexture(tex)
@@ -171,6 +174,11 @@ local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
     --     end
     -- end
 end
+
+-------------------------------------------------------------------------------------------
+-- Square Indicator
+-------------------------------------------------------------------------------------------
+
 local SetJob_Indicator = function(self, job, state, contentType, ...)
     if contentType == "AURA" then
         local duration, expirationTime, count = ...
@@ -335,6 +343,23 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
 end
 AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
 
+Aptechka.Widget.Indicator = {}
+Aptechka.Widget.Indicator.default = { type = "Indicator", width = 7, height = 7, point = "TOPRIGHT", x = 0, y = 0, }
+
+function Aptechka.Widget.Indicator.Create(parent, opts)
+    return CreateIndicator(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y)
+end
+function Aptechka.Widget.Indicator.Reconf(parent, f, opts)
+    f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
+    f:ClearAllPoints()
+    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+end
+
+
+-------------------------------------------------------------------------------------------
+-- CORNER
+-------------------------------------------------------------------------------------------
+
 local SetJob_Corner = function(self,job)
     local color
     if job.foreigncolor and job.isforeign then
@@ -475,6 +500,9 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrde
     return f
 end
 
+-------------------------------------------------------------------------------------------
+-- StatusBar
+-------------------------------------------------------------------------------------------
 
 local StatusBarOnUpdate = function(self, time)
     self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
@@ -607,7 +635,18 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
 end
 AptechkaDefaultConfig.GridSkin_CreateStatusBar = CreateStatusBar
 
+Aptechka.Widget.Bar = {}
+Aptechka.Widget.Bar.default = { type = "Bar", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false }
+function Aptechka.Widget.Bar.Create(parent, opts)
+    return CreateStatusBar(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y, nil, opts.vertical)
+end
 
+function Aptechka.Widget.Bar.Reconf(parent, f, opts)
+    f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
+    f:ClearAllPoints()
+    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+    f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
+end
 
 --[[
 local SetJob_RoundIndicator = function(self,job)
@@ -699,15 +738,21 @@ local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     return icon
 end
 
-local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
-    w = pixelperfect(w)
-    h = pixelperfect(h)
+local AddOutline = function(self)
+    local outlineSize = pixelperfect(1)
+    local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
+    outline:SetVertexColor(0,0,0)
+    return outline
+end
+
+local CreateIcon = function(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+    local w = pixelperfect(width)
+    local h = pixelperfect(height)
 
     local icon = CreateFrame("Frame",nil,parent)
     icon:SetWidth(w); icon:SetHeight(h)
     icon:SetPoint(point,frame,to,x,y)
     local icontex = icon:CreateTexture(nil,"ARTWORK")
-    icontex:SetTexCoord(0.07, 0.93, 0.07, 0.93)
     icon:SetFrameLevel(6)
     icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
     icontex:SetPoint("BOTTOMRIGHT",icon, "BOTTOMRIGHT",0,0)
@@ -716,11 +761,23 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     icon.texture = icontex
     icon:SetAlpha(alpha)
 
+    icon.AddOutline = AddOutline
+    if outlineEnabled then
+        icon.outline = icon:AddOutline()
+    end
+
+    local vscale = math.min(w/h, 1)
+    local hscale = math.min(h/w, 1)
+    local hm = 0.8 * (1-hscale) * 0.5 -- half of the texcoord height * scale difference
+    local vm = 0.8 * (1-vscale) * 0.5
+    icon.texture:SetTexCoord(0.1+vm, 0.9-vm, 0.1+hm, 0.9-hm)
+
     local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
     icd.noCooldownCount = true -- disable OmniCC for this cooldown
     icd:SetHideCountdownNumbers(true)
     icd:SetReverse(true)
-    icd:SetDrawEdge(true)
+    if drawEdge == nil then drawEdge = true end
+    icd:SetDrawEdge(drawEdge)
     icd:SetAllPoints(icontex)
     icon.cd = icd
 
@@ -742,7 +799,7 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     local stacktext = stackframe:CreateFontString(nil,"ARTWORK")
     stacktext:SetDrawLayer("ARTWORK",1)
     local stackFont = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
-    local stackFontSize = Aptechka.db.profile.stackFontSize
+    local stackFontSize = textsize or Aptechka.db.profile.stackFontSize
     stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
     -- stackframe:SetFrameLevel(7)
 
@@ -755,6 +812,43 @@ local CreateIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     return icon
 end
 AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
+
+Aptechka.Widget.Icon = {}
+Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, alpha = 1, y = 0, textsize = 12, outline = true, edge = true }
+function Aptechka.Widget.Icon.Create(parent, opts)
+    return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
+end
+
+function Aptechka.Widget.Icon.Reconf(parent, f, opts)
+    local w = pixelperfect(opts.width)
+    local h = pixelperfect(opts.height)
+
+    f:SetSize(opts.width, opts.height)
+    f:ClearAllPoints()
+    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+    f:SetAlpha(opts.alpha)
+    local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+    f.stacktext:SetFont(font, opts.textsize, "OUTLINE")
+    local drawEdge = opts.edge
+
+    if drawEdge == nil then drawEdge = true end
+    f.cd:SetDrawEdge(drawEdge)
+
+    if opts.outline then
+        if not f.outline then
+            f.outline = f:AddOutline()
+        end
+        f.outline:Show()
+    else
+        if f.outline then f.outline:Hide() end
+    end
+
+    local vscale = math.min(w/h, 1)
+    local hscale = math.min(h/w, 1)
+    local hm = 0.8 * (1-hscale) * 0.5 -- half of the texcoord height * scale difference
+    local vm = 0.8 * (1-vscale) * 0.5
+    f.texture:SetTexCoord(.1+vm, .9-vm, .1+hm, .9-hm)
+end
 
 
 local DebuffTypeColor = DebuffTypeColor
@@ -1015,6 +1109,11 @@ local SetJob_Text2 = function(self, job, state, contentType) -- text2 is always 
         formatMissingHealth(self, state.vHealthMax - state.vHealth)
     -- elseif contentType == "IncomingHeal" then
         -- self:SetFormattedText("+%.0fk", state.vIncomingHeal / 1e3)
+    elseif contentType == "Stagger" then
+        local stagger = state.stagger
+        if not stagger then return end
+        self:SetTextColor(helpers.PercentColor(stagger))
+        self:SetFormattedText("%.0f%%", stagger*100)
     elseif contentType == "UnitName" then
         self:SetText(state.name)
     elseif job.text then
@@ -1022,16 +1121,9 @@ local SetJob_Text2 = function(self, job, state, contentType) -- text2 is always 
     end
 
     local c
-    if job.percentColor then -- stagger
-        local stagger = state.stagger
-        if not stagger then return end
-        self:SetTextColor(helpers.PercentColor(stagger))
-        self:SetFormattedText("%.0f%%", stagger*100)
-    else
-        if job.color then
-            c = job.textcolor or job.color
-            self:SetTextColor(unpack(c))
-        end
+    if job.color then
+        c = job.textcolor or job.color
+        self:SetTextColor(unpack(c))
     end
 end
 
@@ -1207,6 +1299,11 @@ local function CreateAbsorbSideBar(hp)
 end
 
 
+
+------------------------------------------------------------------------------
+-- Text Timer
+------------------------------------------------------------------------------
+
     local hour, minute = 3600, 60
     local format = string.format
     local ceil = math.ceil
@@ -1221,7 +1318,9 @@ end
 
     local Text3_OnUpdate = function(t3frame,time)
         local remains = t3frame.expirationTime - GetTime()
-        if remains >= 0 then
+        if remains >= 2 then
+            t3frame.text:SetText(string.format("%d", remains))
+        elseif remains >= 0 then
             t3frame.text:SetText(string.format("%.1f", remains))
         else
             t3frame:SetScript("OnUpdate", nil)
@@ -1257,17 +1356,33 @@ local SetJob_Text3 = function(self, job, state, contentType, ...)
         self.text:SetTextColor(1,1,1)
     end
 end
-local CreateTextTimer = function(parent,point,frame,to,x,y,hjustify,fontsize,font,flags)
-    local text3frame = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
-    local text3 = text3frame:CreateFontString(nil, "ARTWORK")
-    text3frame.text = text3
-    text3:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
-    text3:SetJustifyH"LEFT"
-    text3:SetFont(font, fontsize or 11, flags)
-    text3frame.SetJob = SetJob_Text3
-    return text3frame
+local CreateTextTimer = function(parent, point, frame, to, x, y, hjustify, fontsize, font, flags)
+    local f = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
+    local text = f:CreateFontString(nil, "ARTWORK")
+    f.text = text
+    text:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
+    -- text:SetJustifyH("LEFT")
+    text:SetFont(font, fontsize or 11, flags)
+    f.SetJob = SetJob_Text3
+    return f
 end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
+
+Aptechka.Widget.Text = {}
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] textsize = 13 }
+function Aptechka.Widget.Text.Create(parent, opts)
+    local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+    return CreateTextTimer(parent, opts.point, parent, opts.point, opts.x, opts.y, opts.justify, opts.textsize, font, nil)
+end
+
+function Aptechka.Widget.Text.Reconf(parent, f, opts)
+    f.text:ClearAllPoints()
+    f.text:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+    -- f.text:SetJustifyH(opts.justify:upper())
+    local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+    f.text:SetFont(font, opts.textsize)
+end
+
 
 local CreateUnhealableOverlay = function(parent)
     local tex2 = parent.health:CreateTexture(nil, "ARTWORK", nil, -4)
@@ -1587,7 +1702,7 @@ local optional_widgets = {
         --bottom
         spell4  = function(self) return CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0) end,
         --left
-        spell5  = function(self) return CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0) end,
+        -- spell5  = function(self) return CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0) end,
 
         -- shieldicon = function(self) return CreateShieldIcon(self,15,15,1,"CENTER",self,"TOPLEFT",14,0) end,
         shieldicon = function(self) return CreateProgressIcon(self,15,15,1,"TOPRIGHT",self,"TOPRIGHT",2,-12) end,
@@ -1637,6 +1752,52 @@ local optional_widgets = {
 
 function Aptechka:GetOptionalWidgetConstructor(name)
     return optional_widgets[name]
+end
+
+function Aptechka.GetWidgetList()
+    local list = {}
+    for slot in pairs(optional_widgets) do
+        list[slot] = slot
+    end
+    for slot in pairs(Aptechka.db.global.widgetConfig) do
+        list[slot] = string.format("|cff77ff77%s|r",slot)
+    end
+    list["raidbuff"] = "raidbuff"
+    list["healfeedback"] = "healfeedback"
+    list["icon"] = "icon"
+    list["border"] = "border"
+    list["bossdebuff"] = "bossdebuff"
+    list["bar1"] = nil
+    list["bar2"] = nil
+    list["bar3"] = nil
+    list["bar3a"] = nil
+    list["bar3b"] = nil
+    list["mindcontrol"] = nil
+    list["unhealable"] = nil
+    return list
+end
+
+function Aptechka:CreateDynamicWidget(frame, widgetName)
+    if optional_widgets[widgetName] then
+        local newWidget = optional_widgets[widgetName](frame)
+        -- if not newWidget then return end
+        frame[widgetName] = newWidget -- Could be nil
+        return newWidget
+    elseif Aptechka.db.global.widgetConfig[widgetName] then
+        local opts = Aptechka.db.global.widgetConfig[widgetName]
+        local widgetType = opts.type
+        if Aptechka.Widget[widgetType] then
+            local newWidget = Aptechka.Widget[widgetType].Create(frame, opts)
+            frame[widgetName] = newWidget
+            return newWidget
+        end
+    else
+        return
+    end
+end
+
+function Aptechka:RegisterWidget(name, func)
+    optional_widgets[name] = func()
 end
 
 local function Reconf(self)
@@ -2182,27 +2343,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.border = border
 
-    self._optional_widgets = optional_widgets
-
-    if not Aptechka.widget_list then
-        local list = {}
-        for slot in pairs(optional_widgets) do
-            list[slot] = slot
-        end
-        list["raidbuff"] = "raidbuff"
-        list["healfeedback"] = "healfeedback"
-        list["icon"] = "icon"
-        list["border"] = "border"
-        list["bossdebuff"] = "bossdebuff"
-        list["bar1"] = nil
-        list["bar2"] = nil
-        list["bar3"] = nil
-        list["bar3a"] = nil
-        list["bar3b"] = nil
-        list["mindcontrol"] = nil
-        list["unhealable"] = nil
-        Aptechka.widget_list = list
-    end
 
     for id, spell in pairs(config.auras) do
         if type(spell.assignto) == "string" then

@@ -364,11 +364,31 @@ function ns.CreateCommonForm(self)
 
     local assignto = AceGUI:Create("Dropdown")
     assignto:SetLabel("Assign to")
-    local slotList = Aptechka.widget_list
-    assignto:SetList(slotList)
+    assignto:SetMultiselect(true)
     assignto:SetRelativeWidth(0.30)
-    assignto:SetCallback("OnValueChanged", function(self, event, value)
-        self.parent.opts["assignto"] = value
+    assignto:SetCallback("OnValueChanged", function(self, event, slot, enabled)
+        local oldvalue = self.parent.opts["assignto"]
+        if type(oldvalue) == "string" then
+            self.parent.opts["assignto"] = { oldvalue }
+        end
+        if self.parent.opts["assignto"] == nil then self.parent.opts["assignto"] = {} end
+
+        local t = self.parent.opts["assignto"]
+        local foundIndex
+        for i,s in ipairs(t) do
+            if s == slot then
+                foundIndex = i
+                break
+            end
+        end
+        if enabled then
+            if foundIndex then return end
+            table.insert(t, slot)
+        else
+            if foundIndex then
+                table.remove(t, foundIndex)
+            end
+        end
     end)
     Form.controls.assignto = assignto
     Form:AddChild(assignto)
@@ -544,11 +564,15 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     controls.disabled:SetValue(opts.disabled)
     controls.disabled:SetDisabled(isEmptyForm)
 
-    local widgetName = opts.assignto
-    if type(widgetName) == "table" then
-        widgetName = widgetName[1]
+    local widgetSelection = opts.assignto
+    if type(widgetSelection) == "string" then
+        widgetSelection = { widgetSelection }
     end
-    controls.assignto:SetValue(widgetName)
+    controls.assignto:SetList(Aptechka:GetWidgetList())
+    for i, slot in ipairs(widgetSelection) do
+        controls.assignto:SetItemValue(slot, true)
+    end
+    -- controls.assignto:SetValue(widgetName)
     controls.name:SetText(opts.name or "")
     controls.priority:SetText(opts.priority)
     controls.extend_below:SetText(opts.extend_below)

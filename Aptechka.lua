@@ -176,6 +176,7 @@ local defaults = {
                 fullRaid = "Default",
             },
         },
+        widgetConfig = {},
     },
     profile = {
         point = "CENTER",
@@ -283,7 +284,7 @@ local function MergeTable(t1, t2)
     if not t2 then return false end
     for k,v in pairs(t2) do
         if type(v) == "table" then
-            if t1[k] == nil then
+            if t1[k] == nil or type(t1[k]) ~= "table" then -- assignto can be string while t2 can be table
                 t1[k] = CopyTable(v)
             else
                 MergeTable(t1[k], v)
@@ -607,10 +608,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_ENTERED_VEHICLE")
     end
 
-    if not config.anchorpoint then
-        config.anchorpoint = Aptechka:SetAnchorpoint()
-    end
-
     skinAnchorsName = "GridSkin"
     local i = 1
     while (i <= config.maxgroups) do
@@ -772,6 +769,20 @@ function Aptechka:RefreshAllUnitsColors()
         end
     end
 end
+
+function Aptechka:ReconfigureWidget(widgetName)
+    local new_opts = Aptechka.db.global.widgetConfig[widgetName]
+    local reconfFunc = Aptechka.Widget[new_opts.type].Reconf
+    if reconfFunc then
+        Aptechka:ForEachFrame(function(frame)
+            local widget = frame[widgetName]
+            if widget then
+                reconfFunc(frame, widget, new_opts)
+            end
+        end)
+    end
+end
+
 function Aptechka:ReconfigureUnprotected()
     self:UpdateUnprotectedUpvalues()
     self:RefreshAllUnitsColors()
@@ -1903,15 +1914,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
     --     end
     -- ]])
 
-    local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
-    local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
-
     if group == 1 then
         Aptechka:CreateAnchor(f,group)
-    elseif petgroup then
-        f:SetPoint(arrangeHeaders(group_headers[1], nil, unitGrowth, reverse(groupGrowth)))
-    else
-        f:SetPoint(arrangeHeaders(group_headers[group-1]))
     end
 
     f:Show()
@@ -2032,7 +2036,6 @@ function Aptechka.CreateAnchor(self,hdr,num)
     f:SetMovable(true)
     f:SetFrameStrata("HIGH")
 
-    hdr:SetPoint(config.anchorpoint,f,reverse(config.anchorpoint),0,0)
     anchors[num] = f
     f:Hide()
     self:RepositionAnchor()
@@ -2147,14 +2150,8 @@ end
 local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
     local widget = frame[slot]
     if not widget then
-        if frame._optional_widgets[slot] then
-            local newWidget = frame._optional_widgets[slot](frame)
-            if not newWidget then return end
-            frame[slot] = newWidget
-            widget = frame[slot]
-        else
-            return
-        end
+        widget = Aptechka:CreateDynamicWidget(frame, slot)
+        if not widget then return end
     end
 
 
@@ -2761,6 +2758,11 @@ end
 local ParseOpts = function(str)
     local t = {}
     local capture = function(k,v)
+        if type(v) == "string" then
+            local v2 = v:lower()
+            if v2 == "true" then v = true end
+            if v2 == "false" then v = false end
+        end
         t[k:lower()] = tonumber(v) or v
         return ""
     end
@@ -2875,6 +2877,75 @@ Aptechka.Commands = {
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(point, UIParent, point, x, y)
     end,
+
+    ["widget"] = function(cmdLine)
+        local cmd,params = string.match(cmdLine, "([%w%+%-%=]+) ?(.*)")
+
+        if cmd == "create" then
+            local p = ParseOpts(params)
+            local wtype = p.type
+            wtype = wtype:sub(1,1):upper()..wtype:sub(2):lower()
+            local wname = p.name
+
+            if not wname then
+                print("Widget name not specified")
+                return
+            end
+
+            if wtype and Aptechka.Widget[wtype] then
+                if not Aptechka.db.global.widgetConfig[wname] then
+                    Aptechka.db.global.widgetConfig[wname] = Aptechka.Widget[wtype].default
+                    print("Created", wtype, wname)
+                end
+            else
+                print("Unknown widget type:", wtype)
+            end
+        elseif cmd == "delete" then
+            local p = ParseOpts(params)
+            local wname = p.name
+            if wname and Aptechka.db.global.widgetConfig[wname] then
+                Aptechka.db.global.widgetConfig[wname] = nil
+                print("Removed", wname)
+            else
+                print("Widget doesn't exist:", wname)
+            end
+        elseif cmd == "set" then
+            local p = ParseOpts(params)
+            local wname = p.name
+            if wname and Aptechka.db.global.widgetConfig[wname] then
+                local opts = Aptechka.db.global.widgetConfig[wname]
+                local wtype = opts.type
+
+                for property in pairs(Aptechka.Widget[wtype].default) do
+                    if p[property] ~= nil then
+                        opts[property] = p[property]
+                    end
+                end
+
+                Aptechka:ReconfigureWidget(wname)
+            else
+                print("Widget doesn't exist:", wname)
+            end
+        elseif cmd == "info" then
+            local p = ParseOpts(params)
+            local wname = p.name
+            if wname and Aptechka.db.global.widgetConfig[wname] then
+                local opts = Aptechka.db.global.widgetConfig[wname]
+                local wtype = opts.type
+                print("===", wname, "===")
+                for k,v in pairs(opts) do
+                    print("  ", k, "=", v)
+                end
+            else
+                print("Widget doesn't exist:", wname)
+            end
+        elseif cmd == "list" then
+            print("|cff99FF99Custom widgets:|r")
+            for wname, opts in pairs(Aptechka.db.global.widgetConfig) do
+                print(string.format("     %s [%s]", wname, opts.type))
+            end
+        end
+    end,
     -- ["charspec"] = function()
     --     local user = UnitName("player").."@"..GetRealmName()
     --     if AptechkaDB_Global.charspec[user] then AptechkaDB_Global.charspec[user] = nil
@@ -2943,6 +3014,11 @@ function Aptechka.SlashCmd(msg)
       |cff00ff00/aptechka|r blacklist add <spellID>
       |cff00ff00/aptechka|r blacklist del <spellID>
       |cff00ff00/aptechka|r blacklist show
+      |cff00ff00/aptechka|r widget create type=<Type> name=<Name>
+      |cff00ff00/aptechka|r widget list
+      |cff00ff00/aptechka|r widget set name=<Name> |cffaaaaaapoint=TOPRIGHT width=5 height=15 x=-10 y=0 vertical=true|r
+      |cff00ff00/aptechka|r widget info name=<Name>
+      |cff00ff00/aptechka|r widget delete name=<Name>
     ]=]
     )end
 
