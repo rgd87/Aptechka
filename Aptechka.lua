@@ -284,7 +284,7 @@ local function MergeTable(t1, t2)
     if not t2 then return false end
     for k,v in pairs(t2) do
         if type(v) == "table" then
-            if t1[k] == nil then
+            if t1[k] == nil or type(t1[k]) ~= "table" then -- assignto can be string while t2 can be table
                 t1[k] = CopyTable(v)
             else
                 MergeTable(t1[k], v)
