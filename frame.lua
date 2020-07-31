@@ -1318,9 +1318,10 @@ end
 
     local Text3_OnUpdate = function(t3frame,time)
         local remains = t3frame.expirationTime - GetTime()
-        if remains >= 0 then
-            -- t3frame.text:SetText(string.format("%.1f", remains))
+        if remains >= 2 then
             t3frame.text:SetText(string.format("%d", remains))
+        elseif remains >= 0 then
+            t3frame.text:SetText(string.format("%.1f", remains))
         else
             t3frame:SetScript("OnUpdate", nil)
         end
@@ -1355,29 +1356,29 @@ local SetJob_Text3 = function(self, job, state, contentType, ...)
         self.text:SetTextColor(1,1,1)
     end
 end
-local CreateTextTimer = function(parent,point,frame,to,x,y,hjustify,fontsize,font,flags)
-    local text3frame = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
-    local text3 = text3frame:CreateFontString(nil, "ARTWORK")
-    text3frame.text = text3
-    text3:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
-    text3:SetJustifyH(hjustify)
-    text3:SetFont(font, fontsize or 11, flags)
-    text3frame.SetJob = SetJob_Text3
-    return text3frame
+local CreateTextTimer = function(parent, point, frame, to, x, y, hjustify, fontsize, font, flags)
+    local f = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
+    local text = f:CreateFontString(nil, "ARTWORK")
+    f.text = text
+    text:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
+    -- text:SetJustifyH("LEFT")
+    text:SetFont(font, fontsize or 11, flags)
+    f.SetJob = SetJob_Text3
+    return f
 end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
 Aptechka.Widget.Text = {}
-Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, justify = "LEFT", textsize = 13 }
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] textsize = 13 }
 function Aptechka.Widget.Text.Create(parent, opts)
     local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
     return CreateTextTimer(parent, opts.point, parent, opts.point, opts.x, opts.y, opts.justify, opts.textsize, font, nil)
 end
 
 function Aptechka.Widget.Text.Reconf(parent, f, opts)
-    f:ClearAllPoints()
+    f.text:ClearAllPoints()
     f.text:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
-    f.text:SetJustifyH(opts.justify:upper())
+    -- f.text:SetJustifyH(opts.justify:upper())
     local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
     f.text:SetFont(font, opts.textsize)
 end

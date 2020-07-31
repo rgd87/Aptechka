@@ -24,7 +24,7 @@ Some examples:
 /apt widget delete name=MyBar
 
 /apt widget create type=Text name=customText1
-/apt widget set name=customText1 textsize=15 point=TOPRIGHT x=0 y=0 justify=RIGHT
+/apt widget set name=customText1 textsize=15 point=TOPRIGHT x=0 y=0
 
 /apt widget create type=Indicator name=customSquare1
 /apt widget set name=customSquare1 width=8 height=8 point=TOPLEFT x=0 y=0
