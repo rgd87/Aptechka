@@ -315,6 +315,16 @@ function helpers.ForEachAura(unit, filter, maxCount, func)
     return index
 end
 
+do
+    local IsSpellInRange = _G.IsSpellInRange
+    function helpers.RangeCheckBySpell(spellID)
+        local spellName = GetSpellInfo(spellID)
+        return function(unit)
+            return (IsSpellInRange(spellName,unit) == 1)
+        end
+    end
+end
+
 
 do
     local pow = math.pow

@@ -46,24 +46,55 @@ function ns.MakeElementConfig()
 
                 widgets = {
                     name = L"Assign to",
-                    type = 'select',
+                    type = 'multiselect',
                     order = 2,
                     width = 1,
-                    values = Aptechka.widget_list,
-                    get = function(info)
-                        local w = AptechkaConfigMerged[status].assignto
-                        if type(w) == "table" then
-                            w = AptechkaConfigMerged[status].assignto[1]
+                    dialogControl = "Dropdown",
+                    values = Aptechka.GetWidgetList,
+                    get = function(info, slot)
+                        local wl = AptechkaConfigMerged[status].assignto
+                        if type(wl) == "string" then
+                            return wl == slot
                         end
-                        return w
+
+                        for i,s in ipairs(wl) do
+                            if s == slot then return true end
+                        end
                     end,
-                    set = function(info, v)
-                        Aptechka:ForEachFrame(function(frame)
-                            Aptechka.FrameSetJob(frame, AptechkaConfigMerged[status], false)
-                        end)
-                        AptechkaConfigMerged[status].assignto = v
+                    set = function(info, slot, enabled)
                         Aptechka.helpers.MakeTables(AptechkaConfigCustom, "WIDGET", status)
-                        AptechkaConfigCustom.WIDGET[status].assignto = v
+
+                        local oldvalue = AptechkaConfigCustom.WIDGET[status].assignto
+                        if type(oldvalue) == "string" then
+                            AptechkaConfigCustom.WIDGET[status].assignto = { oldvalue }
+                        end
+                        if AptechkaConfigCustom.WIDGET[status].assignto == nil then AptechkaConfigCustom.WIDGET[status].assignto = {} end
+
+                        local t = AptechkaConfigCustom.WIDGET[status].assignto
+                        local foundIndex
+                        for i,s in ipairs(t) do
+                            if s == slot then
+                                foundIndex = i
+                                break
+                            end
+                        end
+                        if enabled then
+                            if foundIndex then return end
+                            table.insert(t, slot)
+                        else
+                            if foundIndex then
+                                table.remove(t, foundIndex)
+                            end
+                        end
+
+                        AptechkaConfigMerged[status].assignto = AptechkaConfigCustom.WIDGET[status].assignto
+
+                        -- Removing that status from all frames if something was disabled
+                        if not enabled then
+                            Aptechka:ForEachFrame(function(frame)
+                                Aptechka.FrameSetJob(frame, AptechkaConfigMerged[status], false)
+                            end)
+                        end
                     end,
                 },
 

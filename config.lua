@@ -7,53 +7,15 @@ local D = helpers.AddDebuff
 local Trace = helpers.AddTrace
 local config = AptechkaDefaultConfig
 
-config.auras = {}
-config.autoload = {}
-
-config.skin = "GridSkin"
-config.scale = 1
---config.width = 50 -- defined in skin module
---config.height = 50
--- config.cropNamesLen = 7  -- maximum amount of characters in unit name
 config.raidIcons = true
-config.showSolo = true     -- visible without group/raid
-config.showParty = true    -- in group
-config.unitGap = 10       -- gap between units
-config.unitGrowth = "RIGHT" -- direction for adding new players in group. LEFT / RIGHT / TOP / BOTTOM
-config.groupGrowth = "TOP"
-config.groupGap = 10
-config.unlocked = false  -- when addon initially loaded
 config.frameStrata = "MEDIUM"
-
-config.layouts = {  -- works ONLY with group anchors disabled.
-                    -- layout functions are checked from first to last. function should return true to be accepted.
-    function(self, members, role, spec)
-        if role == "HEALER" and members > 27 then --resize after 27 for healers
-            self:SetScale(.8); return true
-        end
-    end,
-    function(self, members, role, spec)
-        if role ~= "HEALER" and members > 11 then --after 11 for non-healers
-            self:SetScale(.65); return true
-        end
-    end,
-    -- function(self, members, role, spec) -- Example: scale to .8 for non-healer specs regardless of group size
-    --     if role ~= "HEALER" then                    and switch to another anchor that you can place in the corner
-    --         self:SetScale(.8)
-    --         self:SwitchAnchors("GridSkinCustom")
-    --         return true
-    --     end
-    -- end
-}
 config.maxgroups = 8
-config.petgroup = false
 config.petcolor = {1,.5,.5}
 --A maximum of 5 pets can be displayed.
 --You also can use /apt createpets command, it creates pet group on the fly
 
 config.registerForClicks = { "AnyUp" }
 config.enableIncomingHeals = true
-config.incomingHealThreshold = 0
 config.incomingHealIgnorePlayer = false
 config.displayRoles = true
 config.enableTraceHeals = true
@@ -98,11 +60,3 @@ config.BossDebuffs = {
     { name = "BossDebuffLevel4", assignto = "pixelGlow", color = {1,1,1}, priority = 95 },
     -- { name = "BossDebuffLevel3", assignto = "autocastGlow", color = {1,1,0.3}, priority = 90 },
 }
-
-local IsSpellInRange = IsSpellInRange
-helpers.RangeCheckBySpell = function (spellID)
-    local spellName = GetSpellInfo(spellID)
-    return function(unit)
-        return (IsSpellInRange(spellName,unit) == 1)
-    end
-end
