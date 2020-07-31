@@ -144,7 +144,7 @@ end
 local defaults = {
     global = {
         disableBlizzardParty = true,
-        hideBlizzardRaid = false,
+        hideBlizzardRaid = true,
         RMBClickthrough = false,
         enableNickTag = false,
         sortUnitsByRole = true,
