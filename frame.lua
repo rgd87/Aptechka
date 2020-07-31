@@ -350,7 +350,7 @@ function Aptechka.Widget.Indicator.Create(parent, opts)
     return CreateIndicator(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y)
 end
 function Aptechka.Widget.Indicator.Reconf(parent, f, opts)
-    f:SetSize(opts.width, opts.height)
+    f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
 end
@@ -636,13 +636,13 @@ end
 AptechkaDefaultConfig.GridSkin_CreateStatusBar = CreateStatusBar
 
 Aptechka.Widget.Bar = {}
-Aptechka.Widget.Bar.default = { type = "Bar", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0 }
+Aptechka.Widget.Bar.default = { type = "Bar", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false }
 function Aptechka.Widget.Bar.Create(parent, opts)
     return CreateStatusBar(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y, nil, opts.vertical)
 end
 
 function Aptechka.Widget.Bar.Reconf(parent, f, opts)
-    f:SetSize(opts.width, opts.height)
+    f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
@@ -738,15 +738,21 @@ local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     return icon
 end
 
-local CreateIcon = function(parent, w, h, alpha, point, frame, to, x, y, textsize)
-    w = pixelperfect(w)
-    h = pixelperfect(h)
+local AddOutline = function(self)
+    local outlineSize = pixelperfect(1)
+    local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
+    outline:SetVertexColor(0,0,0)
+    return outline
+end
+
+local CreateIcon = function(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+    local w = pixelperfect(width)
+    local h = pixelperfect(height)
 
     local icon = CreateFrame("Frame",nil,parent)
     icon:SetWidth(w); icon:SetHeight(h)
     icon:SetPoint(point,frame,to,x,y)
     local icontex = icon:CreateTexture(nil,"ARTWORK")
-    icontex:SetTexCoord(0.07, 0.93, 0.07, 0.93)
     icon:SetFrameLevel(6)
     icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
     icontex:SetPoint("BOTTOMRIGHT",icon, "BOTTOMRIGHT",0,0)
@@ -755,11 +761,23 @@ local CreateIcon = function(parent, w, h, alpha, point, frame, to, x, y, textsiz
     icon.texture = icontex
     icon:SetAlpha(alpha)
 
+    icon.AddOutline = AddOutline
+    if outlineEnabled then
+        icon.outline = icon:AddOutline()
+    end
+
+    local vscale = math.min(w/h, 1)
+    local hscale = math.min(h/w, 1)
+    local hm = 0.8 * (1-hscale) * 0.5 -- half of the texcoord height * scale difference
+    local vm = 0.8 * (1-vscale) * 0.5
+    icon.texture:SetTexCoord(0.1+vm, 0.9-vm, 0.1+hm, 0.9-hm)
+
     local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
     icd.noCooldownCount = true -- disable OmniCC for this cooldown
     icd:SetHideCountdownNumbers(true)
     icd:SetReverse(true)
-    icd:SetDrawEdge(true)
+    if drawEdge == nil then drawEdge = true end
+    icd:SetDrawEdge(drawEdge)
     icd:SetAllPoints(icontex)
     icon.cd = icd
 
@@ -796,17 +814,40 @@ end
 AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 Aptechka.Widget.Icon = {}
-Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, alpha = 1, y = 0, textsize = 12 }
+Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, alpha = 1, y = 0, textsize = 12, outline = true, edge = true }
 function Aptechka.Widget.Icon.Create(parent, opts)
-    return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize)
+    return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
 end
 
 function Aptechka.Widget.Icon.Reconf(parent, f, opts)
+    local w = pixelperfect(opts.width)
+    local h = pixelperfect(opts.height)
+
+    f:SetSize(opts.width, opts.height)
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
-    f.text:SetJustifyH(opts.justify:upper())
+    f:SetAlpha(opts.alpha)
     local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
-    f.text:SetFont(font, opts.size)
+    f.stacktext:SetFont(font, opts.textsize, "OUTLINE")
+    local drawEdge = opts.edge
+
+    if drawEdge == nil then drawEdge = true end
+    f.cd:SetDrawEdge(drawEdge)
+
+    if opts.outline then
+        if not f.outline then
+            f.outline = f:AddOutline()
+        end
+        f.outline:Show()
+    else
+        if f.outline then f.outline:Hide() end
+    end
+
+    local vscale = math.min(w/h, 1)
+    local hscale = math.min(h/w, 1)
+    local hm = 0.8 * (1-hscale) * 0.5 -- half of the texcoord height * scale difference
+    local vm = 0.8 * (1-vscale) * 0.5
+    f.texture:SetTexCoord(.1+vm, .9-vm, .1+hm, .9-hm)
 end
 
 

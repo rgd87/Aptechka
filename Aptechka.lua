@@ -2917,7 +2917,7 @@ Aptechka.Commands = {
                 local wtype = opts.type
 
                 for property in pairs(Aptechka.Widget[wtype].default) do
-                    if p[property] then
+                    if p[property] ~= nil then
                         opts[property] = p[property]
                     end
                 end

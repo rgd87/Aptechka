@@ -30,7 +30,7 @@ Some examples:
 /apt widget set name=customSquare1 width=8 height=8 point=TOPLEFT x=0 y=0
 
 /apt widget create type=Icon name=customIcon1
-/apt widget set name=customIcon1 width=24 height=24 point=TOPLEFT x=0 y=0 alpha=0.5 textsize=13
+/apt widget set name=customIcon1 width=24 height=24 point=TOPLEFT x=0 y=0 alpha=0.5 textsize=13 edge=true outline=true
 
 ]],
                 type = "description",
