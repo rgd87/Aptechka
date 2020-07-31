@@ -11,6 +11,7 @@ f.globals = ns.MakeGlobalSettings()
 f.profile = ns.MakeProfileSettings()
 f.profileSelection = ns.MakeProfileSelection()
 f.blacklist = ns.MakeBlacklistHelp()
+f.widgets = ns.MakeWidgetConfig()
 f.elements = ns.MakeElementConfig()
 f.highlighting = ns.MakeDebuffHighlight()
 

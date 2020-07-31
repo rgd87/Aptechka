@@ -2926,6 +2926,19 @@ Aptechka.Commands = {
             else
                 print("Widget doesn't exist:", wname)
             end
+        elseif cmd == "info" then
+            local p = ParseOpts(params)
+            local wname = p.name
+            if wname and Aptechka.db.global.widgetConfig[wname] then
+                local opts = Aptechka.db.global.widgetConfig[wname]
+                local wtype = opts.type
+                print("===", wname, "===")
+                for k,v in pairs(opts) do
+                    print("  ", k, "=", v)
+                end
+            else
+                print("Widget doesn't exist:", wname)
+            end
         elseif cmd == "list" then
             print("|cff99FF99Custom widgets:|r")
             for wname, opts in pairs(Aptechka.db.global.widgetConfig) do
@@ -3001,6 +3014,11 @@ function Aptechka.SlashCmd(msg)
       |cff00ff00/aptechka|r blacklist add <spellID>
       |cff00ff00/aptechka|r blacklist del <spellID>
       |cff00ff00/aptechka|r blacklist show
+      |cff00ff00/aptechka|r widget create type=<Type> name=<Name>
+      |cff00ff00/aptechka|r widget list
+      |cff00ff00/aptechka|r widget set name=<Name> |cffaaaaaapoint=TOPRIGHT width=5 height=15 x=-10 y=0 vertical=true|r
+      |cff00ff00/aptechka|r widget info name=<Name>
+      |cff00ff00/aptechka|r widget delete name=<Name>
     ]=]
     )end
 
