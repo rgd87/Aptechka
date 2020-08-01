@@ -648,6 +648,110 @@ function Aptechka.Widget.Bar.Reconf(parent, f, opts)
     f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
 end
 
+----------------------------------------------------------------
+-- Array
+----------------------------------------------------------------
+
+local SetJob_Array = function(hdr, job, state, contentType, ...)
+    local widgetState = state.widgets[hdr]
+
+    for i=1,hdr.maxChildren do
+        local widget = hdr.children[i]
+        local jobData = widgetState[i]
+        if jobData then
+            if not widget then -- dynamically create missing children
+                widget = hdr:Add()
+            end
+            local job = jobData.job
+            widget:SetJob(job, state, unpack(jobData))
+            widget.currentJob = job
+            widget:Show()
+        elseif widget then
+            widget.currentJob = nil
+            widget:Hide()
+        end
+    end
+end
+
+local function ArrayHeader_Arrange(hdr, startIndex)
+    local numChildren = #hdr.children
+    local gap = pixelperfect(1)
+
+    startIndex = startIndex or 1
+    for i=startIndex, numChildren do
+        local widget = hdr.children[i]
+        widget:ClearAllPoints()
+        if i == 1 then
+            local point, relativeTo, relativePoint, _, _ = hdr:GetPoint(1)
+            widget:SetPoint(point, hdr, point, 0,0)
+        else
+            local growthDirection = hdr.growthDirection:upper()
+            local prevWidget = hdr.children[i-1]
+            if growthDirection == "DOWN" then
+                widget:SetPoint("TOPLEFT", prevWidget, "BOTTOMLEFT", 0, -gap)
+            elseif growthDirection == "LEFT" then
+                widget:SetPoint("TOPRIGHT", prevWidget, "TOPLEFT", -gap, 0)
+            elseif growthDirection == "RIGHT" then
+                widget:SetPoint("TOPLEFT", prevWidget, "TOPRIGHT", gap, 0)
+            else
+                widget:SetPoint("BOTTOMLEFT", prevWidget, "TOPLEFT", 0, gap)
+            end
+        end
+    end
+end
+
+local function ArrayHeader_Add(hdr)
+    -- if #hdr.children >= hdr.maxChildren then return end
+
+    local widget = Aptechka.Widget[hdr.childType].Create(hdr, hdr.template)
+    table.insert(hdr.children, widget)
+    hdr:Arrange(#hdr.children)
+
+    return widget
+end
+
+local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, growthDirection, maxChildren)
+    local hdr = CreateFrame("Frame", nil, parent)
+    hdr:SetSize(10, 10)
+    hdr:SetPoint(point, parent, point, x, y)
+
+    -- local firstChild = Aptechka.Widget.Bar.Create(hdr, barTemplate)
+    -- firstChild:ClearAllPoints()
+    -- firstChild:SetPoint(point, hdr, point, 0, 0)
+
+    hdr.childType = childType
+    hdr.children = {}
+    hdr.maxChildren = maxChildren or 5
+    hdr.template = barTemplate
+    hdr.growthDirection = growthDirection
+
+    hdr.Add = ArrayHeader_Add
+    hdr.Arrange = ArrayHeader_Arrange
+
+    hdr.SetJob = SetJob_Array
+
+    return hdr
+end
+
+Aptechka.Widget.BarArray = {}
+Aptechka.Widget.BarArray.default = { type = "BarArray", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 }
+function Aptechka.Widget.BarArray.Create(parent, opts)
+    return CreateArrayHeader("Bar", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+end
+
+function Aptechka.Widget.BarArray.Reconf(parent, hdr, opts)
+    hdr:ClearAllPoints()
+    hdr:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+    hdr.maxChildren = opts.max or 5
+    hdr.template = opts
+    hdr.growthDirection = opts.growth
+    for i, widget in ipairs(hdr.children) do
+        Aptechka.Widget[hdr.childType].Reconf(hdr, widget, opts) -- Ruins anchors until the following :Arrange()
+    end
+    hdr:Arrange()
+end
+
+
 --[[
 local SetJob_RoundIndicator = function(self,job)
     local color
@@ -1593,90 +1697,6 @@ local SetJob_Border = function(self,job)
     end
 end
 
--- local ordered_jobs = {}
-local updateTable = function(tbl, ...)
-    local numArgs = select("#", ...)
-    for i=1, numArgs do
-        tbl[i] = select(i, ...)
-    end
-end
-local table_wipe = table.wipe
-local table_sort = table.sort
-local table_insert = table.insert
-local sortfunc = function(a,b)
-    local ap = a.job.priority or 80
-    local bp = b.job.priority or 80
-    if ap == bp then
-        return a[3] > b[3] -- expirationTime
-    else
-        return ap > bp
-    end
-end
-local SetJobRaw_Bars = function(self, job, status, state, contentType, ...)
-
-
-    local widgetState = state.widgets[self]
-    if not widgetState then
-        widgetState = {}
-        state.widgets[self] = widgetState
-    end
-
-    local orderedJobs = widgetState
-
-    local numLocalJobs = #orderedJobs
-
-    local found
-    for i=1,numLocalJobs do
-        local localJobState = orderedJobs[i]
-        if localJobState.job == job then
-            found = true
-            if status then
-                updateTable(localJobState, contentType, ...)
-            else
-                table.remove(orderedJobs, i)
-            end
-            break
-        end
-    end
-    if not found then
-        local localJobState = { contentType, ... }
-        localJobState.job = job
-        table.insert(orderedJobs, localJobState)
-    end
-
-    table_sort(orderedJobs, sortfunc)
-
-    self.currentJob = orderedJobs[1]
-
-    local frame = self:GetParent()
-
-    for i, widgetname in ipairs(self.widgets) do
-        local bar = frame[widgetname]
-        local localJobState = orderedJobs[i]
-        if localJobState then
-            if not bar then -- dynamically create missing bar widgets
-                bar = Aptechka:GetOptionalWidgetConstructor(widgetname)(frame)
-                frame[widgetname] = bar
-            end
-            local barJob = localJobState.job
-            bar:SetJob(barJob, state, unpack(localJobState))
-            bar.currentJob = barJob
-            bar:Show()
-        elseif bar then
-            bar.currentJob = nil
-            bar:Hide()
-        end
-    end
-end
-
-local CreateBars = function(self, optional_widgets)
-    local bars = CreateFrame("Frame", nil, self)
-    bars.widgets = { "bar1", "bar2", "bar3", "bar3a", "bar3b" }
-    bars.rawAssignments = true
-    bars.SetJobRaw = SetJobRaw_Bars
-
-    return bars
-end
 
 local OnMouseEnterFunc = function(self)
     self.mouseover:Show()
@@ -1731,7 +1751,10 @@ local optional_widgets = {
             end
         end,
 
-        bars = CreateBars,
+        bars = function(self)
+            local template = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 }
+            return Aptechka.Widget.BarArray.Create(self, template)
+        end,
 
         pixelGlow = CreatePixelGlow,
         autocastGlow = CreateAutocastGlow,

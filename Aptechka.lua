@@ -113,6 +113,7 @@ local LibSpellLocks
 local LibAuraTypes
 local LibTargetedCasts
 local tinsert = table.insert
+local tremove = table.remove
 local tsort = table.sort
 local BuffProc
 local DebuffProc, DebuffPostUpdate
@@ -2147,78 +2148,113 @@ function Aptechka.SetupFrame(header, frameName)
 end
 
 
+local updateTable = function(tbl, ...)
+    local numArgs = select("#", ...)
+    for i=1, numArgs do
+        tbl[i] = select(i, ...)
+    end
+end
+
+local jobSortFunc = function(a,b)
+    local ap = a.job.priority or 80
+    local bp = b.job.priority or 80
+    if ap == bp then
+        if not a[3] then return false end
+        if not b[3] then return true end
+        return a[3] > b[3] -- expirationTime
+    else
+        return ap > bp
+    end
+end
+
+
+local function OrderedHashMap_Add(t, dataID, job, ...)
+    local existingIndex = t[dataID]
+    if existingIndex then
+        updateTable(t[existingIndex], ...)
+        -- print(dataID, "table update")
+    else
+        local newData = { ... }
+        newData.job = job
+        tinsert(t, newData)
+        -- print(dataID, "new table")
+    end
+
+    tsort(t, jobSortFunc)
+
+    -- check if after sorting with overwritten data job remained in the same place
+    if not existingIndex or t[existingIndex].job.name ~= dataID then
+        -- print("Updating hash part")
+        for i=1, #t do
+            local id = t[i].job.name
+            t[id] = i
+        end
+    end
+end
+
+local function OrderedHashMap_Remove(t, dataID)
+    local existingIndex = t[dataID]
+    if existingIndex then
+        tremove(t, existingIndex)
+        t[dataID] = nil
+        tsort(t, jobSortFunc)
+        for i=1, #t do
+            local id = t[i].job.name
+            t[id] = i
+        end
+    end
+end
+
+
 local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
     local widget = frame[slot]
+    local state = frame.state
+
     if not widget then
         widget = Aptechka:CreateDynamicWidget(frame, slot)
         if not widget then return end
+    end
+
+    local widgetState = state.widgets[widget]
+    if not widgetState then
+        widgetState = {}
+        state.widgets[widget] = widgetState
     end
 
 
     -- short exit if disabling auras on already empty widget
     if not widget.currentJob and status == false then return end
 
-    local jobs = widget.jobs
-    if not jobs then
-        widget.jobs = {}
-        jobs = widget.jobs
-    end
+    local jobs = widgetState
 
     if status then
         contentType = contentType or opts.name
-
-        -- Creating new table here every time
-        local data = select("#", ...) > 0 and { contentType, ... } or contentType
-        jobs[opts] = data
+        OrderedHashMap_Add(jobs, opts.name, opts, contentType, ...)
 
         if contentType == "AURA" and opts.realID and not opts.isMissing then
             frame.activeAuras[opts.realID] = opts
         end
     else
-        jobs[opts] = nil
+        OrderedHashMap_Remove(jobs, opts.name)
     end
 
-    if widget.rawAssignments then
-        local state = frame.state
-        widget:SetJobRaw(opts, status, state, contentType, ...)
-        return
-    end
 
-    if next(jobs) then
-        local highestPriorityJob
-        local hpJobData
-        local maxPrio = 0
-        for opts, jobData in pairs(jobs) do
-            local optsPrio = opts.priority or 80
-            if maxPrio < optsPrio then
-                maxPrio = optsPrio
-                highestPriorityJob = opts
-                hpJobData = jobData
-            end
-        end
 
-        local newJob = highestPriorityJob
-
-        -- if widget.currentJob == highestPriorityJob then -- refresh
-        -- else --activate
+    local currentJobData = jobs[1]
+    if currentJobData then
         widget.previousJob = widget.currentJob
-        widget.currentJob = highestPriorityJob -- important that it's before SetJob
-        -- end
+        widget.currentJob = currentJobData.job -- important that it's before SetJob
 
         if widget ~= frame then widget:Show() end   -- taint if we show protected unitbutton frame
         if widget.SetJob then
-            local state = frame.state
-            if type(hpJobData) == "table" then
-                widget:SetJob(highestPriorityJob, state, unpack(hpJobData))
-            else
-                widget:SetJob(highestPriorityJob, state, hpJobData)
-            end
+            widget:SetJob(currentJobData.job, state, unpack(currentJobData))
         end
     else
         if widget ~= frame then widget:Hide() end
         widget.previousJob = widget.currentJob
         widget.currentJob = nil
     end
+
 end
 
 function Aptechka.FrameSetJob(frame, opts, status, ...)
@@ -2884,9 +2920,9 @@ Aptechka.Commands = {
         if cmd == "create" then
             local p = ParseOpts(params)
             local wtype = p.type
-            wtype = wtype:sub(1,1):upper()..wtype:sub(2):lower()
-            local wname = p.name
 
+            -- wtype = wtype:upper()
+            local wname = p.name
             if not wname then
                 print("Widget name not specified")
                 return
@@ -2899,6 +2935,10 @@ Aptechka.Commands = {
                 end
             else
                 print("Unknown widget type:", wtype)
+                print("Available types (case sensitive):")
+                for k,v in pairs(Aptechka.Widget) do
+                    print("  ", k)
+                end
             end
         elseif cmd == "delete" then
             local p = ParseOpts(params)
