@@ -1780,7 +1780,6 @@ local optional_widgets = {
         totemCluster3 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 15 + pixelperfect(1)*3,0) end,
 
         icon = function(self) return CreateBarIcon(self,32,16,1,"CENTER",self,"CENTER",0,0, nil , true, true) end,
-        progressIcon = function(self) return CreateProgressIcon(self,18,18, 1,"TOPLEFT",self,"TOPLEFT",-3,3) end,
 
         --top
         spell1  = function(self) return CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0) end,
@@ -2450,8 +2449,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     end
 
     self.bossdebuff = blcorner
-    self.icon = icon
-    self.castIcon = progressIcon
+    self.castIcon = CreateProgressIcon(self,18,18, 1,"TOPLEFT",self,"TOPLEFT",-3,3)
     self.raidicon = raidicon
     self.roleicon = roleicon
     self.healabsorb = healAbsorb
