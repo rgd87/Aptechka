@@ -751,6 +751,13 @@ function Aptechka.Widget.BarArray.Reconf(parent, hdr, opts)
     hdr:Arrange()
 end
 
+Aptechka.Widget.IconArray = {}
+Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
+function Aptechka.Widget.IconArray.Create(parent, opts)
+    return CreateArrayHeader("Icon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+end
+
+Aptechka.Widget.IconArray.Reconf = Aptechka.Widget.BarArray.Reconf
 
 --[[
 local SetJob_RoundIndicator = function(self,job)
@@ -976,7 +983,7 @@ end
 AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 Aptechka.Widget.Icon = {}
-Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, alpha = 1, y = 0, textsize = 12, outline = true, edge = true }
+Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = true, edge = true }
 function Aptechka.Widget.Icon.Create(parent, opts)
     return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
 end
@@ -1771,7 +1778,6 @@ local optional_widgets = {
         totemCluster1 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 5 + pixelperfect(1), 0) end,
         totemCluster2 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 10 + pixelperfect(1)*2,0) end,
         totemCluster3 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 15 + pixelperfect(1)*3,0) end,
-
 
         icon = function(self) return CreateBarIcon(self,32,16,1,"CENTER",self,"CENTER",0,0, nil , true, true) end,
         progressIcon = function(self) return CreateProgressIcon(self,18,18, 1,"TOPLEFT",self,"TOPLEFT",-3,3) end,
