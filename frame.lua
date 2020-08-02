@@ -849,7 +849,7 @@ local AddOutline = function(self)
     return outline
 end
 
-local CreateIcon = function(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
     local w = pixelperfect(width)
     local h = pixelperfect(height)
 
@@ -875,15 +875,6 @@ local CreateIcon = function(parent, width, height, alpha, point, frame, to, x, y
     local hm = 0.8 * (1-hscale) * 0.5 -- half of the texcoord height * scale difference
     local vm = 0.8 * (1-vscale) * 0.5
     icon.texture:SetTexCoord(0.1+vm, 0.9-vm, 0.1+hm, 0.9-hm)
-
-    local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
-    icd.noCooldownCount = true -- disable OmniCC for this cooldown
-    icd:SetHideCountdownNumbers(true)
-    icd:SetReverse(true)
-    if drawEdge == nil then drawEdge = true end
-    icd:SetDrawEdge(drawEdge)
-    icd:SetAllPoints(icontex)
-    icon.cd = icd
 
     local pag = icon:CreateAnimationGroup()
     local pa1 = pag:CreateAnimation("Scale")
@@ -912,6 +903,73 @@ local CreateIcon = function(parent, width, height, alpha, point, frame, to, x, y
     stacktext:SetTextColor(1,1,1)
     icon.stacktext = stacktext
     icon.SetJob = SetJob_Icon
+    icon:Hide()
+
+    return icon
+end
+
+local function CreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+
+    local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
+    icd.noCooldownCount = true -- disable OmniCC for this cooldown
+    icd:SetHideCountdownNumbers(true)
+    icd:SetReverse(true)
+    if drawEdge == nil then drawEdge = true end
+    icd:SetDrawEdge(drawEdge)
+    icd:SetAllPoints(icon.texture)
+    icon.cd = icd
+
+    return icon
+end
+
+local BarIcon_SetCooldown = function(self, startTime, duration)
+    self:SetMinMaxValues(0, duration)
+    self.expirationTime = startTime+duration
+    self.startTime = startTime
+    self.duration = duration
+    self:SetValue(GetTime())
+    self:Show()
+end
+local BarIcon_SetReverse = function() end
+local BarIcon_OnUpdate = function(self)
+    local now = GetTime()
+    local width = self:GetWidth()
+    local elapsed = now - self.startTime
+    local p = width * (elapsed/self.duration)
+    self.spark:SetPoint("CENTER", self, "RIGHT", -p, 0)
+    self:SetValue(elapsed)
+end
+-- local BarIcon_OnUpdateReverse = function(self, elapsed)
+--     local now = GetTime()
+--     -- if now >= self.expirationTime then self:Hide(); return end
+--     self:SetValue(self.expirationTime - now)
+-- end
+local function CreateBarIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+
+    local icd = CreateFrame("StatusBar", nil, icon)
+    icd:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
+    icd:SetStatusBarColor(0,0,0, 0.8)
+    icd:SetReverseFill(true)
+    icd:SetScript("OnUpdate", BarIcon_OnUpdate)
+    icd:Hide()
+
+    icd.SetCooldown = BarIcon_SetCooldown
+    icd.SetDrawEdge = BarIcon_SetReverse
+    icd.SetReverse = BarIcon_SetReverse
+
+    local spark = icd:CreateTexture(nil, "ARTWORK")
+    spark:SetAtlas("honorsystem-bar-spark")
+    spark:SetSize(height/4, height*1.6)
+    spark:SetBlendMode("ADD")
+    spark:SetPoint("CENTER", icd, "CENTER", 0,0)
+    icd.spark = spark
+
+    -- if drawEdge == nil then drawEdge = true end
+    -- icd:SetDrawEdge(drawEdge)
+    icd:SetAllPoints(icon)
+    icon.cd = icd
 
     return icon
 end
@@ -1713,6 +1771,11 @@ local optional_widgets = {
         totemCluster1 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 5 + pixelperfect(1), 0) end,
         totemCluster2 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 10 + pixelperfect(1)*2,0) end,
         totemCluster3 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 15 + pixelperfect(1)*3,0) end,
+
+
+        icon = function(self) return CreateBarIcon(self,32,16,1,"CENTER",self,"CENTER",0,0, nil , true, true) end,
+        progressIcon = function(self) return CreateProgressIcon(self,18,18, 1,"TOPLEFT",self,"TOPLEFT",-3,3) end,
+
         --top
         spell1  = function(self) return CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0) end,
         --bottomright
@@ -2289,8 +2352,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text2:SetTextColor(0.2, 1, 0.2)
     text2.parent = self
 
-    local icon = CreateIcon(self,24,24,0.5,"CENTER",self,"CENTER",0,0)
-    local progressIcon = CreateProgressIcon(self,18,18, 1,"TOPLEFT",self,"TOPLEFT",-3,3)
 
     local raidicon = CreateFrame("Frame",nil,self)
     raidicon:SetWidth(20); raidicon:SetHeight(20)
