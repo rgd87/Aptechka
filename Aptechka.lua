@@ -2966,6 +2966,21 @@ Aptechka.Commands = {
             else
                 print("Widget doesn't exist:", wname)
             end
+        elseif cmd == "rename" then
+            local p = ParseOpts(params)
+            local wname = p.name
+            if wname and Aptechka.db.global.widgetConfig[wname] then
+                local to = p.to
+                if not to then
+                    print("New name not specified")
+                    return
+                end
+                Aptechka.db.global.widgetConfig[to] = Aptechka.db.global.widgetConfig[wname]
+                Aptechka.db.global.widgetConfig[wname] = nil
+                print("Renamed", wname, "to", to)
+            else
+                print("Widget doesn't exist:", wname)
+            end
         elseif cmd == "info" then
             local p = ParseOpts(params)
             local wname = p.name
