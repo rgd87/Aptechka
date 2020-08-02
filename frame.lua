@@ -648,6 +648,117 @@ function Aptechka.Widget.Bar.Reconf(parent, f, opts)
     f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
 end
 
+----------------------------------------------------------------
+-- Array
+----------------------------------------------------------------
+
+local SetJob_Array = function(hdr, job, state, contentType, ...)
+    local widgetState = state.widgets[hdr]
+
+    for i=1,hdr.maxChildren do
+        local widget = hdr.children[i]
+        local jobData = widgetState[i]
+        if jobData then
+            if not widget then -- dynamically create missing children
+                widget = hdr:Add()
+            end
+            local job = jobData.job
+            widget:SetJob(job, state, unpack(jobData))
+            widget.currentJob = job
+            widget:Show()
+        elseif widget then
+            widget.currentJob = nil
+            widget:Hide()
+        end
+    end
+end
+
+local function ArrayHeader_Arrange(hdr, startIndex)
+    local numChildren = #hdr.children
+    local gap = pixelperfect(1)
+
+    startIndex = startIndex or 1
+    for i=startIndex, numChildren do
+        local widget = hdr.children[i]
+        widget:ClearAllPoints()
+        if i == 1 then
+            local point, relativeTo, relativePoint, _, _ = hdr:GetPoint(1)
+            widget:SetPoint(point, hdr, point, 0,0)
+        else
+            local growthDirection = hdr.growthDirection:upper()
+            local prevWidget = hdr.children[i-1]
+            if growthDirection == "DOWN" then
+                widget:SetPoint("TOPLEFT", prevWidget, "BOTTOMLEFT", 0, -gap)
+            elseif growthDirection == "LEFT" then
+                widget:SetPoint("TOPRIGHT", prevWidget, "TOPLEFT", -gap, 0)
+            elseif growthDirection == "RIGHT" then
+                widget:SetPoint("TOPLEFT", prevWidget, "TOPRIGHT", gap, 0)
+            else
+                widget:SetPoint("BOTTOMLEFT", prevWidget, "TOPLEFT", 0, gap)
+            end
+        end
+    end
+end
+
+local function ArrayHeader_Add(hdr)
+    -- if #hdr.children >= hdr.maxChildren then return end
+
+    local widget = Aptechka.Widget[hdr.childType].Create(hdr, hdr.template)
+    table.insert(hdr.children, widget)
+    hdr:Arrange(#hdr.children)
+
+    return widget
+end
+
+local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, growthDirection, maxChildren)
+    local hdr = CreateFrame("Frame", nil, parent)
+    hdr:SetSize(10, 10)
+    hdr:SetPoint(point, parent, point, x, y)
+
+    -- local firstChild = Aptechka.Widget.Bar.Create(hdr, barTemplate)
+    -- firstChild:ClearAllPoints()
+    -- firstChild:SetPoint(point, hdr, point, 0, 0)
+
+    hdr.childType = childType
+    hdr.children = {}
+    hdr.maxChildren = maxChildren or 5
+    hdr.template = barTemplate
+    hdr.growthDirection = growthDirection
+
+    hdr.Add = ArrayHeader_Add
+    hdr.Arrange = ArrayHeader_Arrange
+
+    hdr.SetJob = SetJob_Array
+
+    return hdr
+end
+
+Aptechka.Widget.BarArray = {}
+Aptechka.Widget.BarArray.default = { type = "BarArray", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 }
+function Aptechka.Widget.BarArray.Create(parent, opts)
+    return CreateArrayHeader("Bar", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+end
+
+function Aptechka.Widget.BarArray.Reconf(parent, hdr, opts)
+    hdr:ClearAllPoints()
+    hdr:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+    hdr.maxChildren = opts.max or 5
+    hdr.template = opts
+    hdr.growthDirection = opts.growth
+    for i, widget in ipairs(hdr.children) do
+        Aptechka.Widget[hdr.childType].Reconf(hdr, widget, opts) -- Ruins anchors until the following :Arrange()
+    end
+    hdr:Arrange()
+end
+
+Aptechka.Widget.IconArray = {}
+Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
+function Aptechka.Widget.IconArray.Create(parent, opts)
+    return CreateArrayHeader("Icon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+end
+
+Aptechka.Widget.IconArray.Reconf = Aptechka.Widget.BarArray.Reconf
+
 --[[
 local SetJob_RoundIndicator = function(self,job)
     local color
@@ -745,7 +856,7 @@ local AddOutline = function(self)
     return outline
 end
 
-local CreateIcon = function(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
     local w = pixelperfect(width)
     local h = pixelperfect(height)
 
@@ -771,15 +882,6 @@ local CreateIcon = function(parent, width, height, alpha, point, frame, to, x, y
     local hm = 0.8 * (1-hscale) * 0.5 -- half of the texcoord height * scale difference
     local vm = 0.8 * (1-vscale) * 0.5
     icon.texture:SetTexCoord(0.1+vm, 0.9-vm, 0.1+hm, 0.9-hm)
-
-    local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
-    icd.noCooldownCount = true -- disable OmniCC for this cooldown
-    icd:SetHideCountdownNumbers(true)
-    icd:SetReverse(true)
-    if drawEdge == nil then drawEdge = true end
-    icd:SetDrawEdge(drawEdge)
-    icd:SetAllPoints(icontex)
-    icon.cd = icd
 
     local pag = icon:CreateAnimationGroup()
     local pa1 = pag:CreateAnimation("Scale")
@@ -808,13 +910,80 @@ local CreateIcon = function(parent, width, height, alpha, point, frame, to, x, y
     stacktext:SetTextColor(1,1,1)
     icon.stacktext = stacktext
     icon.SetJob = SetJob_Icon
+    icon:Hide()
+
+    return icon
+end
+
+local function CreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+
+    local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
+    icd.noCooldownCount = true -- disable OmniCC for this cooldown
+    icd:SetHideCountdownNumbers(true)
+    icd:SetReverse(true)
+    if drawEdge == nil then drawEdge = true end
+    icd:SetDrawEdge(drawEdge)
+    icd:SetAllPoints(icon.texture)
+    icon.cd = icd
+
+    return icon
+end
+
+local BarIcon_SetCooldown = function(self, startTime, duration)
+    self:SetMinMaxValues(0, duration)
+    self.expirationTime = startTime+duration
+    self.startTime = startTime
+    self.duration = duration
+    self:SetValue(GetTime())
+    self:Show()
+end
+local BarIcon_SetReverse = function() end
+local BarIcon_OnUpdate = function(self)
+    local now = GetTime()
+    local width = self:GetWidth()
+    local elapsed = now - self.startTime
+    local p = width * (elapsed/self.duration)
+    self.spark:SetPoint("CENTER", self, "RIGHT", -p, 0)
+    self:SetValue(elapsed)
+end
+-- local BarIcon_OnUpdateReverse = function(self, elapsed)
+--     local now = GetTime()
+--     -- if now >= self.expirationTime then self:Hide(); return end
+--     self:SetValue(self.expirationTime - now)
+-- end
+local function CreateBarIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+
+    local icd = CreateFrame("StatusBar", nil, icon)
+    icd:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
+    icd:SetStatusBarColor(0,0,0, 0.8)
+    icd:SetReverseFill(true)
+    icd:SetScript("OnUpdate", BarIcon_OnUpdate)
+    icd:Hide()
+
+    icd.SetCooldown = BarIcon_SetCooldown
+    icd.SetDrawEdge = BarIcon_SetReverse
+    icd.SetReverse = BarIcon_SetReverse
+
+    local spark = icd:CreateTexture(nil, "ARTWORK")
+    spark:SetAtlas("honorsystem-bar-spark")
+    spark:SetSize(height/4, height*1.6)
+    spark:SetBlendMode("ADD")
+    spark:SetPoint("CENTER", icd, "CENTER", 0,0)
+    icd.spark = spark
+
+    -- if drawEdge == nil then drawEdge = true end
+    -- icd:SetDrawEdge(drawEdge)
+    icd:SetAllPoints(icon)
+    icon.cd = icd
 
     return icon
 end
 AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 Aptechka.Widget.Icon = {}
-Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, alpha = 1, y = 0, textsize = 12, outline = true, edge = true }
+Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = true, edge = true }
 function Aptechka.Widget.Icon.Create(parent, opts)
     return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
 end
@@ -1593,90 +1762,6 @@ local SetJob_Border = function(self,job)
     end
 end
 
--- local ordered_jobs = {}
-local updateTable = function(tbl, ...)
-    local numArgs = select("#", ...)
-    for i=1, numArgs do
-        tbl[i] = select(i, ...)
-    end
-end
-local table_wipe = table.wipe
-local table_sort = table.sort
-local table_insert = table.insert
-local sortfunc = function(a,b)
-    local ap = a.job.priority or 80
-    local bp = b.job.priority or 80
-    if ap == bp then
-        return a[3] > b[3] -- expirationTime
-    else
-        return ap > bp
-    end
-end
-local SetJobRaw_Bars = function(self, job, status, state, contentType, ...)
-
-
-    local widgetState = state.widgets[self]
-    if not widgetState then
-        widgetState = {}
-        state.widgets[self] = widgetState
-    end
-
-    local orderedJobs = widgetState
-
-    local numLocalJobs = #orderedJobs
-
-    local found
-    for i=1,numLocalJobs do
-        local localJobState = orderedJobs[i]
-        if localJobState.job == job then
-            found = true
-            if status then
-                updateTable(localJobState, contentType, ...)
-            else
-                table.remove(orderedJobs, i)
-            end
-            break
-        end
-    end
-    if not found then
-        local localJobState = { contentType, ... }
-        localJobState.job = job
-        table.insert(orderedJobs, localJobState)
-    end
-
-    table_sort(orderedJobs, sortfunc)
-
-    self.currentJob = orderedJobs[1]
-
-    local frame = self:GetParent()
-
-    for i, widgetname in ipairs(self.widgets) do
-        local bar = frame[widgetname]
-        local localJobState = orderedJobs[i]
-        if localJobState then
-            if not bar then -- dynamically create missing bar widgets
-                bar = Aptechka:GetOptionalWidgetConstructor(widgetname)(frame)
-                frame[widgetname] = bar
-            end
-            local barJob = localJobState.job
-            bar:SetJob(barJob, state, unpack(localJobState))
-            bar.currentJob = barJob
-            bar:Show()
-        elseif bar then
-            bar.currentJob = nil
-            bar:Hide()
-        end
-    end
-end
-
-local CreateBars = function(self, optional_widgets)
-    local bars = CreateFrame("Frame", nil, self)
-    bars.widgets = { "bar1", "bar2", "bar3", "bar3a", "bar3b" }
-    bars.rawAssignments = true
-    bars.SetJobRaw = SetJobRaw_Bars
-
-    return bars
-end
 
 local OnMouseEnterFunc = function(self)
     self.mouseover:Show()
@@ -1693,6 +1778,10 @@ local optional_widgets = {
         totemCluster1 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 5 + pixelperfect(1), 0) end,
         totemCluster2 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 10 + pixelperfect(1)*2,0) end,
         totemCluster3 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 15 + pixelperfect(1)*3,0) end,
+
+        icon = function(self) return CreateBarIcon(self,32,16,1,"CENTER",self,"CENTER",0,0, nil , true, true) end,
+        progressIcon = function(self) return CreateProgressIcon(self,18,18, 1,"TOPLEFT",self,"TOPLEFT",-3,3) end,
+
         --top
         spell1  = function(self) return CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0) end,
         --bottomright
@@ -1731,7 +1820,10 @@ local optional_widgets = {
             end
         end,
 
-        bars = CreateBars,
+        bars = function(self)
+            local template = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 }
+            return Aptechka.Widget.BarArray.Create(self, template)
+        end,
 
         pixelGlow = CreatePixelGlow,
         autocastGlow = CreateAutocastGlow,
@@ -2266,8 +2358,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     text2:SetTextColor(0.2, 1, 0.2)
     text2.parent = self
 
-    local icon = CreateIcon(self,24,24,0.5,"CENTER",self,"CENTER",0,0)
-    local progressIcon = CreateProgressIcon(self,18,18, 1,"TOPLEFT",self,"TOPLEFT",-3,3)
 
     local raidicon = CreateFrame("Frame",nil,self)
     raidicon:SetWidth(20); raidicon:SetHeight(20)
