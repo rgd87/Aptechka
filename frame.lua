@@ -598,7 +598,6 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     bg:SetAllPoints(f)
     f.bg = bg
 
-
     -- local pandot = f:CreateTexture(nil, "ARTWORK", nil, -1)
     -- pandot:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     -- pandot:SetWidth(pixelperfect(3))
@@ -663,12 +662,16 @@ local SetJob_Array = function(hdr, job, state, contentType, ...)
                 widget = hdr:Add()
             end
             local job = jobData.job
-            widget:SetJob(job, state, unpack(jobData))
+            widget.previousJob = widget.currentJob
             widget.currentJob = job
+            widget:SetJob(job, state, unpack(jobData))
             widget:Show()
         elseif widget then
+            widget.previousJob = widget.currentJob
             widget.currentJob = nil
             widget:Hide()
+        else
+            break
         end
     end
 end
@@ -1773,51 +1776,31 @@ end
 
 local optional_widgets = {
         -- raidbuff = function(self) return CreateIndicator(self,6,6,"TOPLEFT",self,"TOPLEFT",0,0) end,
-        raidbuff = function(self) return CreateStatusBar(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0, nil, true) end,
-        mitigation = function(self) return CreateStatusBar(self,14,4,"TOPLEFT",self,"TOPLEFT",5+pixelperfect(1),0) end,
-        totemCluster1 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 5 + pixelperfect(1), 0) end,
-        totemCluster2 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 10 + pixelperfect(1)*2,0) end,
-        totemCluster3 = function(self) return CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT", 15 + pixelperfect(1)*3,0) end,
+        -- raidbuff = function(self) return CreateStatusBar(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0, nil, true) end,
+        raidbuff = function(self)
+            local template = { type = "BarArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, vertical = true, growth = "DOWN", max = 4 }
+            return Aptechka.Widget.BarArray.Create(self, template)
+        end,
+        -- mitigation = function(self)
+        --     local template = { type = "BarArray", width = 14, height = 5, point = "TOPLEFT", x = 5+pixelperfect(1), y = 0, vertical = false, growth = "DOWN", max = 3 }
+        --     return Aptechka.Widget.BarArray.Create(self, template)
+        -- end,
+        mitigation = function(self) return CreateStatusBar(self,14,5,"TOPLEFT",self,"TOPLEFT",5+pixelperfect(1),0) end,
 
         icon = function(self) return CreateBarIcon(self,32,16,1,"CENTER",self,"CENTER",0,0, nil , true, true) end,
 
-        --top
         spell1  = function(self) return CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0) end,
-        --bottomright
         spell2  = function(self) return CreateIndicator(self,9,9,"TOP",self,"TOP",0,0) end,
-        --topright
         spell3  = function(self) return CreateIndicator(self,9,9,"TOPRIGHT",self,"TOPRIGHT",0,0) end,
-        --bottom
-        spell4  = function(self) return CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0) end,
-        --left
-        -- spell5  = function(self) return CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0) end,
 
-        -- shieldicon = function(self) return CreateShieldIcon(self,15,15,1,"CENTER",self,"TOPLEFT",14,0) end,
-        shieldicon = function(self) return CreateProgressIcon(self,15,15,1,"TOPRIGHT",self,"TOPRIGHT",2,-12) end,
-
-        bar1    = function(self) return CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0) end,
-        bar2    = function(self)
-            if self.bar1 then
-                return CreateStatusBar(self, 21, 4, "BOTTOMLEFT", self.bar1, "TOPLEFT",0, pixelperfect(1))
-            end
-        end,
-        bar3    = function(self)
-            if self.bar2 then
-                return CreateStatusBar(self, 21, 3, "BOTTOMLEFT", self.bar2, "TOPLEFT",0, pixelperfect(1))
-            end
-        end,
         bar4    = function(self) return CreateStatusBar(self, 21, 5, "TOPRIGHT", self, "TOPRIGHT",0,2) end,
 
-        bar3a    = function(self)
-            if self.bar3 then
-                return CreateStatusBar(self, 21, 3, "BOTTOMLEFT", self.bar3, "TOPLEFT",0, pixelperfect(1))
-            end
+        shieldicon = function(self)
+            local template = { type = "IconArray", width = 12, height = 18, point = "TOPRIGHT", x = 0, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, textsize = 12 }
+            return Aptechka.Widget.IconArray.Create(self, template)
         end,
-        bar3b    = function(self)
-            if self.bar3a then
-                return CreateStatusBar(self, 21, 3, "BOTTOMLEFT", self.bar3a, "TOPLEFT",0, pixelperfect(1))
-            end
-        end,
+        -- shieldicon = function(self) return CreateShieldIcon(self,15,15,1,"CENTER",self,"TOPLEFT",14,0) end,
+        -- shieldicon = function(self) return CreateProgressIcon(self,15,15,1,"TOPRIGHT",self,"TOPRIGHT",2,-12) end,
 
         bars = function(self)
             local template = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 }
@@ -1829,7 +1812,6 @@ local optional_widgets = {
 
         mindcontrol = CreateMindControlIcon,
         vehicle = CreateVehicleIcon,
-        unhealable = CreateUnhealableOverlay,
         innerglow = CreateInnerGlow,
         flash = CreateFlash,
 

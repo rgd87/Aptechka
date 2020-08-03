@@ -55,7 +55,7 @@ config.SummonAccepted = { name = "SUMMON_ACCEPTED", assignto = { "text2" }, colo
 config.SummonDeclined = { name = "SUMMON_DECLINED", assignto = { "text2" }, color = {1,0,0}, text = "DECLINED", priority = 52 }
 
 -- config.MindControl = { name = "MIND_CONTROL", assignto = { "mindcontrol" }, color = {1,0,0}, priority = 52 }
-config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow", "unhealable" }, color = {0.5,0,1}, priority = 52 }
+config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow" }, color = {0.5,0,1}, priority = 52 }
 -- config.UnhealableStatus = { name = "UNHEALABLE", assignto = { "unhealable" }, color = {0.5,0,1}, priority = 50 }
 
 config.BossDebuffs = {
@@ -72,8 +72,9 @@ local RangeCheckBySpell = helpers.RangeCheckBySpell
 
 
 
-local tankCD = { type = "HELPFUL", assignto = { "icon", "text3" }, global = true, showDuration = true, priority = 94}
-local survivalCD = { type = "HELPFUL", assignto = "shieldicon", global = true, showDuration = true, priority = 90 }
+local tankCD = { type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94, color = { 1, 0.2, 1} }
+local survivalCD = { type = "HELPFUL", assignto = "shieldicon", global = true, showDuration = true, priority = 90, color = { 0.4, 1, 0.4} }
+local activeMitigation = { type = "HELPFUL", assignto = "mitigation", showDuration = true, global = true, color = {0.7, 0.7, 0.7}, priority = 80 }
 
 -- A{ id = 25163, type = "HARMFUL", assignto = "bossdebuff", scale = 0.85, color = { 1,0,0 }, priority = 40, pulse = true } -- Oozeling
 
@@ -83,10 +84,10 @@ A{ id = 296230, prototype = survivalCD } --Vitality Conduit
 -- A{ id = 296211, type = "HELPFUL", assignto = "bars", color = { 1, 0.7, 0}, priority = 50, showDuration = true, isMine = true }
 
 -- ACTIVE MITIGATION
-A{ id = 132404, assignto = "mitigation", showDuration = true, color = {0.7, 0.7, 0.7}, priority = 80 } -- Shield Block
-A{ id = 132403, assignto = "mitigation", showDuration = true, color = {0.7, 0.7, 0.7}, priority = 80 } -- Shield of the Righteousness
-A{ id = 203819, assignto = "mitigation", showDuration = true, color = {0.7, 0.7, 0.7}, priority = 80 } -- Demon Spikes
-A{ id = 192081, assignto = "mitigation", showDuration = true, color = {0.7, 0.7, 0.7}, priority = 80 } -- Ironfur
+A{ id = 132404, prototype = activeMitigation } -- Shield Block
+A{ id = 132403, prototype = activeMitigation } -- Shield of the Righteousness
+A{ id = 203819, prototype = activeMitigation } -- Demon Spikes
+A{ id = 192081, prototype = activeMitigation } -- Ironfur
 
 -- MONK
 A{ id = 122783, prototype = survivalCD } -- Diffuse Magic
@@ -100,8 +101,9 @@ A{ id = 120954, prototype = tankCD } --Fortifying Brew (Brewmaster)
 -- WARRIOR
 A{ id = 184364, prototype = survivalCD } -- Enraged Regeneration
 A{ id = 118038, prototype = survivalCD } -- Die by the Sword
-A{ id = 12975,  prototype = survivalCD, priority = 85 } --Last Stand
+A{ id = 12975,  prototype = activeMitigation, priority = 75 } --Last Stand
 A{ id = 871,    prototype = tankCD } --Shield Wall 40%
+A{ id = 107574, prototype = survivalCD, priority = 85 } --Avatar
 
 -- DEMON HUNTER
 A{ id = 212800, prototype = survivalCD } -- Blur
@@ -174,7 +176,7 @@ A{ id = {
 
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude
-    A{ id = 21562, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
+    A{ id = 21562, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
 
     --Renew
     A{ id = 139,   type = "HELPFUL", assignto = "bars", refreshTime = 15*0.3, priority = 50, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
@@ -378,7 +380,7 @@ if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = "raidbuff", color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
 
     -- Cenarion Ward
-    A{ id = 102351, type = "HELPFUL", assignto = "spell2", priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
+    A{ id = 102351, type = "HELPFUL", assignto = "bars", priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
     -- Rejuvenation
     A{ id = 774,   type = "HELPFUL", assignto = "bars", extend_below = 15, refreshTime = 4.5, priority = 90, pulse = true, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, showDuration = true, isMine = true }
     -- Germination
