@@ -5,6 +5,7 @@ local A = helpers.AddAura
 local DispelTypes = helpers.DispelTypes
 local D = helpers.AddDebuff
 local Trace = helpers.AddTrace
+local pixelperfect= helpers.pixelperfect
 local config = AptechkaDefaultConfig
 
 config.raidIcons = true
@@ -50,8 +51,24 @@ config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6
 config.DispelStatus = { name = "Dispel", assignto = "bossdebuff", scale = 0.8, priority = 6 }
 
 -- config.MindControl = { name = "MIND_CONTROL", assignto = { "mindcontrol" }, color = {1,0,0}, priority = 52 }
-config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow", "unhealable" }, color = {0.5,0,1}, priority = 52 }
+config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow" }, color = {0.5,0,1}, priority = 52 }
 -- config.UnhealableStatus = { name = "UNHEALABLE", assignto = { "unhealable" }, color = {0.5,0,1}, priority = 50 }
+
+config.DefaultWidgets = {
+    raidbuff = { type = "BarArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, vertical = true, growth = "DOWN", max = 4 },
+    mitigation = { type = "Bar", width=14, height=5, point="TOPLEFT", x=pixelperfect(6), y=0, vertical = false},
+    icon = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = true, edge = true },
+    spell1 = { type = "Indicator", width = 9, height = 8, point = "BOTTOMRIGHT", x = 0, y = 0, },
+    -- spell2 = { type = "Indicator", width = 9, height = 8, point = "TOP", x = 0, y = 0, },
+    spell3 = { type = "Indicator", width = 9, height = 8, point = "TOPRIGHT", x = 0, y = 0, },
+    bar4 = { type = "Bar", width=21, height=5, point="TOPRIGHT", x=0, y=2, vertical = false},
+    buffIcons = { type = "IconArray", width = 12, height = 18, point = "TOPRIGHT", x = 0, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, textsize = 12 },
+    bars = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 },
+    vbar1 = { type = "Bar", width=4, height=20, point="TOPRIGHT", x=-9, y=2, vertical = true},
+}
+-- for name,w in pairs(config.DefaultWidgets) do
+--     w.__protected = true
+-- end
 
 config.BossDebuffs = {
     { name = "BossDebuffLevel1", assignto = "bossdebuff", color = {1,0,0}, priority = 95, pulse = true, },

@@ -26,4 +26,5 @@ config.lua
 classic.config.lua
 loadables.lua
 Aptechka.lua
+migrations.lua
 frame.lua

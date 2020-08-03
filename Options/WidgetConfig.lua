@@ -23,14 +23,21 @@ Some examples:
 /apt widget info name=MyBar
 /apt widget delete name=MyBar
 
+/apt widget create type=BarArray name=bars2
+/apt widget set name=bars2 growth=UP max=6 width=18 height=18 point=TOPLEFT x=0 y=0 vertical=true
+
+/apt widget create type=Icon name=customIcon1
+/apt widget set name=customIcon1 width=24 height=24 point=TOPLEFT x=0 y=0 alpha=0.5 textsize=13 edge=true outline=true
+
+/apt widget create type=IconArray name=icons
+/apt widget set name=icons growth=DOWN max=3 width=18 height=18 point=TOPLEFT x=0 y=0 alpha=0.5 textsize=13 edge=true outline=true
+
 /apt widget create type=Text name=customText1
 /apt widget set name=customText1 textsize=15 point=TOPRIGHT x=0 y=0
 
 /apt widget create type=Indicator name=customSquare1
 /apt widget set name=customSquare1 width=8 height=8 point=TOPLEFT x=0 y=0
 
-/apt widget create type=Icon name=customIcon1
-/apt widget set name=customIcon1 width=24 height=24 point=TOPLEFT x=0 y=0 alpha=0.5 textsize=13 edge=true outline=true
 
 ]],
                 type = "description",

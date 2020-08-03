@@ -116,6 +116,7 @@ local LibAuraTypes
 local LibTargetedCasts
 local LibClassicDurations = LibStub("LibClassicDurations")
 local tinsert = table.insert
+local tremove = table.remove
 local tsort = table.sort
 local HealComm
 local BuffProc
@@ -180,7 +181,7 @@ local defaults = {
                 fullRaid = "Default",
             },
         },
-        widgetConfig = {},
+        widgetConfig = config.DefaultWidgets,
     },
     profile = {
         point = "CENTER",
@@ -767,6 +768,32 @@ function Aptechka:UpdateName(frame)
     frame.state.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
     FrameSetJob(frame, config.UnitNameStatus, true)
 end
+
+function Aptechka.GetWidgetListRaw()
+    local list = {}
+    for slot in pairs(Aptechka.optional_widgets) do
+        list[slot] = string.format("|cffbbbbbb%s|r",slot)--slot
+    end
+    for slot, opts in pairs(Aptechka.db.global.widgetConfig) do
+        if config.DefaultWidgets[slot] then
+            list[slot] = slot
+        else
+            list[slot] = string.format("|cff77ff77%s|r",slot)
+        end
+    end
+    return list
+end
+
+function Aptechka.GetWidgetList()
+    local list = Aptechka.GetWidgetListRaw()
+    list["healfeedback"] = "healfeedback"
+    list["border"] = "border"
+    list["bossdebuff"] = "bossdebuff"
+    list["mindcontrol"] = nil
+    list["unhealable"] = nil
+    return list
+end
+
 
 function Aptechka:Reconfigure()
     if not self.isInitialized then return end
@@ -2211,78 +2238,121 @@ function Aptechka.SetupFrame(header, frameName)
 end
 
 
+local updateTable = function(tbl, ...)
+    local numArgs = select("#", ...)
+    for i=1, numArgs do
+        tbl[i] = select(i, ...)
+    end
+end
+
+local jobSortFunc = function(a,b)
+    local ap = a.job.priority or 80
+    local bp = b.job.priority or 80
+    if ap == bp then
+        if not a[3] then return false end
+        if not b[3] then return true end
+        return a[3] > b[3] -- expirationTime
+    else
+        return ap > bp
+    end
+end
+
+
+local function OrderedHashMap_Add(t, dataID, job, ...)
+    local existingIndex = t[dataID]
+    if existingIndex then
+        updateTable(t[existingIndex], ...)
+        -- print(dataID, "table update")
+    else
+        local newData = { ... }
+        newData.job = job
+        tinsert(t, newData)
+        -- print(dataID, "new table")
+    end
+
+    tsort(t, jobSortFunc)
+
+    -- check if after sorting with overwritten data job remained in the same place
+    if not existingIndex or t[existingIndex].job.name ~= dataID then
+        -- print("Updating hash part")
+        for i=1, #t do
+            local id = t[i].job.name
+            t[id] = i
+        end
+    end
+end
+
+local function OrderedHashMap_Remove(t, dataID)
+    local existingIndex = t[dataID]
+    if existingIndex then
+        tremove(t, existingIndex)
+        t[dataID] = nil
+        tsort(t, jobSortFunc)
+        for i=1, #t do
+            local id = t[i].job.name
+            t[id] = i
+        end
+    end
+end
+
+local lastDeadAssignmentError = 0
 local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
+    -- if widgetSet and not widgetSet[slot] then return end
+
     local widget = frame[slot]
+    local state = frame.state
+
     if not widget then
         widget = Aptechka:CreateDynamicWidget(frame, slot)
-        if not widget then return end
+        if not widget then
+            if GetTime() - lastDeadAssignmentError > 120 then
+                Aptechka:Print(string.format("Widget '%s' called by '%s' doesn't exist. Use |cff88ff99/apt purge|r to clear dead assignments and reload UI.", slot, opts.name))
+                lastDeadAssignmentError = GetTime()
+            end
+            return
+        end
+    end
+
+    local widgetState = state.widgets[widget]
+    if not widgetState then
+        widgetState = {}
+        state.widgets[widget] = widgetState
     end
 
 
     -- short exit if disabling auras on already empty widget
     if not widget.currentJob and status == false then return end
 
-    local jobs = widget.jobs
-    if not jobs then
-        widget.jobs = {}
-        jobs = widget.jobs
-    end
+    local jobs = widgetState
 
     if status then
         contentType = contentType or opts.name
-
-        -- Creating new table here every time
-        local data = select("#", ...) > 0 and { contentType, ... } or contentType
-        jobs[opts] = data
+        OrderedHashMap_Add(jobs, opts.name, opts, contentType, ...)
 
         if contentType == "AURA" and opts.realID and not opts.isMissing then
             frame.activeAuras[opts.realID] = opts
         end
     else
-        jobs[opts] = nil
+        OrderedHashMap_Remove(jobs, opts.name)
     end
 
-    if widget.rawAssignments then
-        local state = frame.state
-        widget:SetJobRaw(opts, status, state, contentType, ...)
-        return
-    end
 
-    if next(jobs) then
-        local highestPriorityJob
-        local hpJobData
-        local maxPrio = 0
-        for opts, jobData in pairs(jobs) do
-            local optsPrio = opts.priority or 80
-            if maxPrio < optsPrio then
-                maxPrio = optsPrio
-                highestPriorityJob = opts
-                hpJobData = jobData
-            end
-        end
 
-        local newJob = highestPriorityJob
-
-        -- if widget.currentJob == highestPriorityJob then -- refresh
-        -- else --activate
+    local currentJobData = jobs[1]
+    if currentJobData then
         widget.previousJob = widget.currentJob
-        widget.currentJob = highestPriorityJob -- important that it's before SetJob
-        -- end
+        widget.currentJob = currentJobData.job -- important that it's before SetJob
 
         if widget ~= frame then widget:Show() end   -- taint if we show protected unitbutton frame
         if widget.SetJob then
-            local state = frame.state
-            if type(hpJobData) == "table" then
-                widget:SetJob(highestPriorityJob, state, unpack(hpJobData))
-            else
-                widget:SetJob(highestPriorityJob, state, hpJobData)
-            end
+            widget:SetJob(currentJobData.job, state, unpack(currentJobData))
         end
     else
         if widget ~= frame then widget:Hide() end
         widget.previousJob = widget.currentJob
         widget.currentJob = nil
     end
+
 end
 
 function Aptechka.FrameSetJob(frame, opts, status, ...)
@@ -2869,6 +2939,9 @@ Aptechka.Commands = {
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(anchors[1].san.point, UIParent, anchors[1].san.point, anchors[1].san.x, anchors[1].san.y)
     end,
+    ["purge"] = function()
+        Aptechka.PurgeDeadAssignments(true)
+    end,
     ["togglegroup"] = function(v)
         local group = tonumber(v)
         if group then
@@ -2956,9 +3029,9 @@ Aptechka.Commands = {
         if cmd == "create" then
             local p = ParseOpts(params)
             local wtype = p.type
-            wtype = wtype:sub(1,1):upper()..wtype:sub(2):lower()
-            local wname = p.name
 
+            -- wtype = wtype:upper()
+            local wname = p.name
             if not wname then
                 print("Widget name not specified")
                 return
@@ -2968,14 +3041,25 @@ Aptechka.Commands = {
                 if not Aptechka.db.global.widgetConfig[wname] then
                     Aptechka.db.global.widgetConfig[wname] = Aptechka.Widget[wtype].default
                     print("Created", wtype, wname)
+                else
+                    print("Widget already exists:", wname)
                 end
             else
                 print("Unknown widget type:", wtype)
+                print("Available types (case sensitive):")
+                for k,v in pairs(Aptechka.Widget) do
+                    print("  ", k)
+                end
             end
         elseif cmd == "delete" then
             local p = ParseOpts(params)
             local wname = p.name
             if wname and Aptechka.db.global.widgetConfig[wname] then
+                if config.DefaultWidgets[wname] then
+                    print("Can't remove default widget")
+                    return
+                end
+
                 Aptechka.db.global.widgetConfig[wname] = nil
                 print("Removed", wname)
             else
@@ -2998,6 +3082,27 @@ Aptechka.Commands = {
             else
                 print("Widget doesn't exist:", wname)
             end
+        elseif cmd == "rename" then
+            local p = ParseOpts(params)
+            local wname = p.name
+            if wname and Aptechka.db.global.widgetConfig[wname] then
+                local to = p.to
+                if not to then
+                    print("New name not specified")
+                    return
+                end
+
+                if config.DefaultWidgets[wname] or config.DefaultWidgets[to] then
+                    print("Can't raname default widget")
+                    return
+                end
+
+                Aptechka.db.global.widgetConfig[to] = Aptechka.db.global.widgetConfig[wname]
+                Aptechka.db.global.widgetConfig[wname] = nil
+                print("Renamed", wname, "to", to)
+            else
+                print("Widget doesn't exist:", wname)
+            end
         elseif cmd == "info" then
             local p = ParseOpts(params)
             local wname = p.name
@@ -3012,9 +3117,13 @@ Aptechka.Commands = {
                 print("Widget doesn't exist:", wname)
             end
         elseif cmd == "list" then
-            print("|cff99FF99Custom widgets:|r")
+            print("|cff99FF99Customizable Widgets:|r")
             for wname, opts in pairs(Aptechka.db.global.widgetConfig) do
-                print(string.format("     %s [%s]", wname, opts.type))
+                local cname = wname
+                if config.DefaultWidgets[wname] then
+                    cname = string.format("|cffaaaaaa%s|r", wname)
+                end
+                print(string.format("     %s [%s]", cname, opts.type))
             end
         end
     end,
@@ -3196,163 +3305,6 @@ function Aptechka.SPELLCAST_UPDATE(event, GUID)
     end
 end
 
-do
-    local CURRENT_DB_VERSION = 2
-    function Aptechka:DoMigrations(db)
-        if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
-            db.DB_VERSION = CURRENT_DB_VERSION
-            return
-        end
-
-        if db.DB_VERSION == nil then
-            if not db.roleProfile then
-                db.roleProfile = {}
-            end
-            if db["GridSkin"] then
-                local oldAnchorData = db["GridSkin"][1]
-                db.roleProfile.DAMAGER = oldAnchorData
-                db.roleProfile.HEALER = oldAnchorData
-                db.GridSkin = nil
-            end
-            if db.autoscale then
-                db.roleProfile.DAMAGER.scaleMediumRaid = db.autoscale.damageMediumRaid
-                db.roleProfile.DAMAGER.scaleBigRaid = db.autoscale.damageBigRaid
-                db.roleProfile.HEALER.scaleMediumRaid = db.autoscale.healerMediumRaid
-                db.roleProfile.HEALER.scaleBigRaid = db.autoscale.healerBigRaid
-                db.autoscale = nil
-            end
-
-            db.DB_VERSION = 1
-        end
-
-        if db.DB_VERSION == 1 then
-            print(AptechkaString.."Now using full profile switching instead of simple autoscaling. Migrating your settings...")
-
-            db.global = {}
-            db.global.disableBlizzardParty = db.disableBlizzardParty
-            db.global.hideBlizzardRaid = db.hideBlizzardRaid
-            db.global.RMBClickthrough = db.RMBClickthrough
-            db.global.sortUnitsByRole = db.sortUnitsByRole
-            db.global.showAFK = db.showAFK
-            db.global.customBlacklist = db.customBlacklist
-            db.global.useCombatLogHealthUpdates = db.useCombatLogHealthUpdates
-            db.global.disableTooltip = db.disableTooltip
-            db.global.useDebuffOrdering = db.useDebuffOrdering
-
-            db.profiles = {
-                Default = {}
-            }
-            local default_profile = db.profiles["Default"]
-            default_profile.width = db.width
-            default_profile.height = db.height
-            default_profile.healthOrientation = db.healthOrientation
-            default_profile.unitGrowth = db.unitGrowth
-            default_profile.groupGrowth = db.groupGrowth
-            default_profile.unitGap = db.unitGap
-            default_profile.groupGap = db.groupGap
-            default_profile.showSolo = db.showSolo
-            default_profile.showParty = db.showParty
-            default_profile.cropNamesLen = db.cropNamesLen
-            default_profile.showCasts = db.showCasts
-            default_profile.showAggro = db.showAggro
-            default_profile.petGroup = db.petGroup
-            default_profile.showRaidIcons = db.showRaidIcons
-            default_profile.showDispels = db.showDispels
-            default_profile.healthTexture = db.healthTexture
-            default_profile.powerTexture = db.powerTexture
-
-            default_profile.scale = db.scale
-            default_profile.debuffSize = db.debuffSize
-            default_profile.debuffLimit = db.debuffLimit
-            default_profile.debuffBossScale = db.debuffBossScale
-            default_profile.stackFontName = db.stackFontName
-            default_profile.stackFontSize = db.stackFontSize
-            default_profile.nameFontName = db.nameFontName
-            default_profile.nameFontSize = db.nameFontSize
-            default_profile.nameFontOutline = db.nameFontOutline
-            default_profile.nameColorMultiplier = db.nameColorMultiplier
-            default_profile.fgShowMissing = db.fgShowMissing
-            default_profile.fgColorMultiplier = db.fgColorMultiplier
-            default_profile.bgColorMultiplier = db.bgColorMultiplier
-
-            if db.roleProfile then
-                if db.roleProfile["HEALER"] then
-                    local old_healer_profile = db.roleProfile["HEALER"]
-                    default_profile.point = old_healer_profile.point
-                    default_profile.x = old_healer_profile.x
-                    default_profile.y = old_healer_profile.y
-                end
-                if db.useRoleProfiles and db.roleProfile["DAMAGER"] then
-                    local old_damager_profile = db.roleProfile["DAMAGER"]
-                    -- Create a second profile, copied from our new Default profile
-                    db.profiles["DefaultNonHealer"] = CopyTable(default_profile)
-
-                    local default_damager_profile = db.profiles["DefaultNonHealer"]
-
-                    default_damager_profile.point = old_damager_profile.point
-                    default_damager_profile.x = old_damager_profile.x
-                    default_damager_profile.y = old_damager_profile.y
-
-                    db.global.profileSelection = {
-                        DAMAGER = {
-                            solo = "DefaultNonHealer",
-                            party = "DefaultNonHealer",
-                            smallRaid = "DefaultNonHealer",
-                            mediumRaid = "DefaultNonHealer",
-                            bigRaid = "DefaultNonHealer",
-                            fullRaid = "DefaultNonHealer",
-                        },
-                    }
-                end
-            end
-
-            db.disableBlizzardParty = nil
-            db.hideBlizzardRaid = nil
-            db.RMBClickthrough = nil
-            db.sortUnitsByRole = nil
-            db.showAFK = nil
-            db.customBlacklist = nil
-            db.useCombatLogHealthUpdates = nil
-            db.disableTooltip = nil
-            db.useDebuffOrdering = nil
-
-            db.width = nil
-            db.height = nil
-            db.healthOrientation = nil
-            db.unitGrowth = nil
-            db.groupGrowth = nil
-            db.unitGap = nil
-            db.groupGap = nil
-            db.showSolo = nil
-            db.showParty = nil
-            db.cropNamesLen = nil
-            db.showCasts = nil
-            db.showAggro = nil
-            db.petGroup = nil
-            db.showRaidIcons = nil
-            db.showDispels = nil
-            db.healthTexture = nil
-            db.powerTexture = nil
-            db.scale = nil
-            db.debuffSize = nil
-            db.debuffLimit = nil
-            db.debuffBossScale = nil
-            db.stackFontName = nil
-            db.stackFontSize = nil
-            db.nameFontName = nil
-            db.nameFontSize = nil
-            db.nameFontOutline = nil
-            db.nameColorMultiplier = nil
-            db.fgShowMissing = nil
-            db.fgColorMultiplier = nil
-            db.bgColorMultiplier = nil
-
-            db.roleProfile = nil
-            db.useRoleProfiles = nil
-
-            db.charspec = nil
-
-            db.DB_VERSION = 2
-        end
-    end
+function Aptechka:Print(...)
+    print(AptechkaString, ...)
 end
