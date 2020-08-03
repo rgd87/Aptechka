@@ -122,6 +122,7 @@ local enableTraceheals
 local enableAuraEvents
 local debuffLimit
 local staggerUnits = {}
+-- local widgetSet
 
 Aptechka.L = setmetatable({}, {
     __index = function(t, k)
@@ -2205,14 +2206,22 @@ local function OrderedHashMap_Remove(t, dataID)
     end
 end
 
-
+local lastDeadAssignmentError = 0
 local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
+    -- if widgetSet and not widgetSet[slot] then return end
+
     local widget = frame[slot]
     local state = frame.state
 
     if not widget then
         widget = Aptechka:CreateDynamicWidget(frame, slot)
-        if not widget then return end
+        if not widget then
+            if GetTime() - lastDeadAssignmentError > 120 then
+                Aptechka:Print(string.format("Widget '%s' called by '%s' doesn't exist. Use |cff88ff99/apt purge|r to clear dead assignments and reload UI.", slot, opts.name))
+                lastDeadAssignmentError = GetTime()
+            end
+            return
+        end
     end
 
     local widgetState = state.widgets[widget]
@@ -2843,6 +2852,9 @@ Aptechka.Commands = {
         anchors[1]:ClearAllPoints()
         anchors[1]:SetPoint(anchors[1].san.point, UIParent, anchors[1].san.point, anchors[1].san.x, anchors[1].san.y)
     end,
+    ["purge"] = function()
+        Aptechka.PurgeDeadAssignments(true)
+    end,
     ["togglegroup"] = function(v)
         local group = tonumber(v)
         if group then
@@ -3179,163 +3191,6 @@ function Aptechka.SPELLCAST_UPDATE(event, GUID)
     end
 end
 
-do
-    local CURRENT_DB_VERSION = 2
-    function Aptechka:DoMigrations(db)
-        if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
-            db.DB_VERSION = CURRENT_DB_VERSION
-            return
-        end
-
-        if db.DB_VERSION == nil then
-            if not db.roleProfile then
-                db.roleProfile = {}
-            end
-            if db["GridSkin"] then
-                local oldAnchorData = db["GridSkin"][1]
-                db.roleProfile.DAMAGER = oldAnchorData
-                db.roleProfile.HEALER = oldAnchorData
-                db.GridSkin = nil
-            end
-            if db.autoscale then
-                db.roleProfile.DAMAGER.scaleMediumRaid = db.autoscale.damageMediumRaid
-                db.roleProfile.DAMAGER.scaleBigRaid = db.autoscale.damageBigRaid
-                db.roleProfile.HEALER.scaleMediumRaid = db.autoscale.healerMediumRaid
-                db.roleProfile.HEALER.scaleBigRaid = db.autoscale.healerBigRaid
-                db.autoscale = nil
-            end
-
-            db.DB_VERSION = 1
-        end
-
-        if db.DB_VERSION == 1 then
-            print(AptechkaString.."Now using full profile switching instead of simple autoscaling. Migrating your settings...")
-
-            db.global = {}
-            db.global.disableBlizzardParty = db.disableBlizzardParty
-            db.global.hideBlizzardRaid = db.hideBlizzardRaid
-            db.global.RMBClickthrough = db.RMBClickthrough
-            db.global.sortUnitsByRole = db.sortUnitsByRole
-            db.global.showAFK = db.showAFK
-            db.global.customBlacklist = db.customBlacklist
-            db.global.useCombatLogHealthUpdates = db.useCombatLogHealthUpdates
-            db.global.disableTooltip = db.disableTooltip
-            db.global.useDebuffOrdering = db.useDebuffOrdering
-
-            db.profiles = {
-                Default = {}
-            }
-            local default_profile = db.profiles["Default"]
-            default_profile.width = db.width
-            default_profile.height = db.height
-            default_profile.healthOrientation = db.healthOrientation
-            default_profile.unitGrowth = db.unitGrowth
-            default_profile.groupGrowth = db.groupGrowth
-            default_profile.unitGap = db.unitGap
-            default_profile.groupGap = db.groupGap
-            default_profile.showSolo = db.showSolo
-            default_profile.showParty = db.showParty
-            default_profile.cropNamesLen = db.cropNamesLen
-            default_profile.showCasts = db.showCasts
-            default_profile.showAggro = db.showAggro
-            default_profile.petGroup = db.petGroup
-            default_profile.showRaidIcons = db.showRaidIcons
-            default_profile.showDispels = db.showDispels
-            default_profile.healthTexture = db.healthTexture
-            default_profile.powerTexture = db.powerTexture
-
-            default_profile.scale = db.scale
-            default_profile.debuffSize = db.debuffSize
-            default_profile.debuffLimit = db.debuffLimit
-            default_profile.debuffBossScale = db.debuffBossScale
-            default_profile.stackFontName = db.stackFontName
-            default_profile.stackFontSize = db.stackFontSize
-            default_profile.nameFontName = db.nameFontName
-            default_profile.nameFontSize = db.nameFontSize
-            default_profile.nameFontOutline = db.nameFontOutline
-            default_profile.nameColorMultiplier = db.nameColorMultiplier
-            default_profile.fgShowMissing = db.fgShowMissing
-            default_profile.fgColorMultiplier = db.fgColorMultiplier
-            default_profile.bgColorMultiplier = db.bgColorMultiplier
-
-            if db.roleProfile then
-                if db.roleProfile["HEALER"] then
-                    local old_healer_profile = db.roleProfile["HEALER"]
-                    default_profile.point = old_healer_profile.point
-                    default_profile.x = old_healer_profile.x
-                    default_profile.y = old_healer_profile.y
-                end
-                if db.useRoleProfiles and db.roleProfile["DAMAGER"] then
-                    local old_damager_profile = db.roleProfile["DAMAGER"]
-                    -- Create a second profile, copied from our new Default profile
-                    db.profiles["DefaultNonHealer"] = CopyTable(default_profile)
-
-                    local default_damager_profile = db.profiles["DefaultNonHealer"]
-
-                    default_damager_profile.point = old_damager_profile.point
-                    default_damager_profile.x = old_damager_profile.x
-                    default_damager_profile.y = old_damager_profile.y
-
-                    db.global.profileSelection = {
-                        DAMAGER = {
-                            solo = "DefaultNonHealer",
-                            party = "DefaultNonHealer",
-                            smallRaid = "DefaultNonHealer",
-                            mediumRaid = "DefaultNonHealer",
-                            bigRaid = "DefaultNonHealer",
-                            fullRaid = "DefaultNonHealer",
-                        },
-                    }
-                end
-            end
-
-            db.disableBlizzardParty = nil
-            db.hideBlizzardRaid = nil
-            db.RMBClickthrough = nil
-            db.sortUnitsByRole = nil
-            db.showAFK = nil
-            db.customBlacklist = nil
-            db.useCombatLogHealthUpdates = nil
-            db.disableTooltip = nil
-            db.useDebuffOrdering = nil
-
-            db.width = nil
-            db.height = nil
-            db.healthOrientation = nil
-            db.unitGrowth = nil
-            db.groupGrowth = nil
-            db.unitGap = nil
-            db.groupGap = nil
-            db.showSolo = nil
-            db.showParty = nil
-            db.cropNamesLen = nil
-            db.showCasts = nil
-            db.showAggro = nil
-            db.petGroup = nil
-            db.showRaidIcons = nil
-            db.showDispels = nil
-            db.healthTexture = nil
-            db.powerTexture = nil
-            db.scale = nil
-            db.debuffSize = nil
-            db.debuffLimit = nil
-            db.debuffBossScale = nil
-            db.stackFontName = nil
-            db.stackFontSize = nil
-            db.nameFontName = nil
-            db.nameFontSize = nil
-            db.nameFontOutline = nil
-            db.nameColorMultiplier = nil
-            db.fgShowMissing = nil
-            db.fgColorMultiplier = nil
-            db.bgColorMultiplier = nil
-
-            db.roleProfile = nil
-            db.useRoleProfiles = nil
-
-            db.charspec = nil
-
-            db.DB_VERSION = 2
-        end
-    end
+function Aptechka:Print(...)
+    print(AptechkaString, ...)
 end

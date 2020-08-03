@@ -1837,15 +1837,13 @@ local optional_widgets = {
         -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,
 
         vbar1   = function(self) return CreateStatusBar(self, 4, 20, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true) end,
-
-        smist  = function(self) return CreateIndicator(self,7,7,"TOPRIGHT",self.vbar1,"TOPLEFT",-1,0) end,
 }
 
 function Aptechka:GetOptionalWidgetConstructor(name)
     return optional_widgets[name]
 end
 
-function Aptechka.GetWidgetList()
+function Aptechka.GetWidgetListRaw()
     local list = {}
     for slot in pairs(optional_widgets) do
         list[slot] = slot
@@ -1853,16 +1851,14 @@ function Aptechka.GetWidgetList()
     for slot in pairs(Aptechka.db.global.widgetConfig) do
         list[slot] = string.format("|cff77ff77%s|r",slot)
     end
-    list["raidbuff"] = "raidbuff"
+    return list
+end
+
+function Aptechka.GetWidgetList()
+    local list = Aptechka.GetWidgetListRaw()
     list["healfeedback"] = "healfeedback"
-    list["icon"] = "icon"
     list["border"] = "border"
     list["bossdebuff"] = "bossdebuff"
-    list["bar1"] = nil
-    list["bar2"] = nil
-    list["bar3"] = nil
-    list["bar3a"] = nil
-    list["bar3b"] = nil
     list["mindcontrol"] = nil
     list["unhealable"] = nil
     return list

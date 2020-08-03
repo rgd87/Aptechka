@@ -214,6 +214,8 @@ globals = {
     "MouselookStart",
     "MouselookStop",
     "IsMouselooking",
+    "GetNumClasses",
+    "GetClassInfo",
     "AptechkaHybridScrollMixin",
     "AptechkaHighlightHybridScrollFrame",
     "HybridScrollFrame_SetDoNotHideScrollBar",
