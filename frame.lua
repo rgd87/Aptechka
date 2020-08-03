@@ -1775,38 +1775,6 @@ end
 
 
 local optional_widgets = {
-        -- raidbuff = function(self) return CreateIndicator(self,6,6,"TOPLEFT",self,"TOPLEFT",0,0) end,
-        -- raidbuff = function(self) return CreateStatusBar(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0, nil, true) end,
-        raidbuff = function(self)
-            local template = { type = "BarArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, vertical = true, growth = "DOWN", max = 4 }
-            return Aptechka.Widget.BarArray.Create(self, template)
-        end,
-        -- mitigation = function(self)
-        --     local template = { type = "BarArray", width = 14, height = 5, point = "TOPLEFT", x = 5+pixelperfect(1), y = 0, vertical = false, growth = "DOWN", max = 3 }
-        --     return Aptechka.Widget.BarArray.Create(self, template)
-        -- end,
-        mitigation = function(self) return CreateStatusBar(self,14,5,"TOPLEFT",self,"TOPLEFT",5+pixelperfect(1),0) end,
-
-        icon = function(self) return CreateBarIcon(self,32,16,1,"CENTER",self,"CENTER",0,0, nil , true, true) end,
-
-        spell1  = function(self) return CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0) end,
-        spell2  = function(self) return CreateIndicator(self,9,9,"TOP",self,"TOP",0,0) end,
-        spell3  = function(self) return CreateIndicator(self,9,9,"TOPRIGHT",self,"TOPRIGHT",0,0) end,
-
-        bar4    = function(self) return CreateStatusBar(self, 21, 5, "TOPRIGHT", self, "TOPRIGHT",0,2) end,
-
-        shieldicon = function(self)
-            local template = { type = "IconArray", width = 12, height = 18, point = "TOPRIGHT", x = 0, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, textsize = 12 }
-            return Aptechka.Widget.IconArray.Create(self, template)
-        end,
-        -- shieldicon = function(self) return CreateShieldIcon(self,15,15,1,"CENTER",self,"TOPLEFT",14,0) end,
-        -- shieldicon = function(self) return CreateProgressIcon(self,15,15,1,"TOPRIGHT",self,"TOPRIGHT",2,-12) end,
-
-        bars = function(self)
-            local template = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 }
-            return Aptechka.Widget.BarArray.Create(self, template)
-        end,
-
         pixelGlow = CreatePixelGlow,
         autocastGlow = CreateAutocastGlow,
 
@@ -1817,34 +1785,8 @@ local optional_widgets = {
 
         -- dispel = CreateDebuffTypeIndicator,
         -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,
-
-        vbar1   = function(self) return CreateStatusBar(self, 4, 20, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true) end,
 }
-
-function Aptechka:GetOptionalWidgetConstructor(name)
-    return optional_widgets[name]
-end
-
-function Aptechka.GetWidgetListRaw()
-    local list = {}
-    for slot in pairs(optional_widgets) do
-        list[slot] = slot
-    end
-    for slot in pairs(Aptechka.db.global.widgetConfig) do
-        list[slot] = string.format("|cff77ff77%s|r",slot)
-    end
-    return list
-end
-
-function Aptechka.GetWidgetList()
-    local list = Aptechka.GetWidgetListRaw()
-    list["healfeedback"] = "healfeedback"
-    list["border"] = "border"
-    list["bossdebuff"] = "bossdebuff"
-    list["mindcontrol"] = nil
-    list["unhealable"] = nil
-    return list
-end
+Aptechka.optional_widgets = optional_widgets
 
 function Aptechka:CreateDynamicWidget(frame, widgetName)
     if optional_widgets[widgetName] then

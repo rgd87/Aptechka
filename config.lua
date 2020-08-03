@@ -5,6 +5,7 @@ local A = helpers.AddAura
 local DispelTypes = helpers.DispelTypes
 local D = helpers.AddDebuff
 local Trace = helpers.AddTrace
+local pixelperfect= helpers.pixelperfect
 local config = AptechkaDefaultConfig
 
 config.raidIcons = true
@@ -58,6 +59,22 @@ config.SummonDeclined = { name = "SUMMON_DECLINED", assignto = { "text2" }, colo
 config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow" }, color = {0.5,0,1}, priority = 52 }
 -- config.UnhealableStatus = { name = "UNHEALABLE", assignto = { "unhealable" }, color = {0.5,0,1}, priority = 50 }
 
+config.DefaultWidgets = {
+    raidbuff = { type = "BarArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, vertical = true, growth = "DOWN", max = 4 },
+    mitigation = { type = "Bar", width=14, height=5, point="TOPLEFT", x=pixelperfect(6), y=0, vertical = false},
+    icon = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = true, edge = true },
+    spell1 = { type = "Indicator", width = 9, height = 8, point = "BOTTOMRIGHT", x = 0, y = 0, },
+    -- spell2 = { type = "Indicator", width = 9, height = 8, point = "TOP", x = 0, y = 0, },
+    spell3 = { type = "Indicator", width = 9, height = 8, point = "TOPRIGHT", x = 0, y = 0, },
+    bar4 = { type = "Bar", width=21, height=5, point="TOPRIGHT", x=0, y=2, vertical = false},
+    buffIcons = { type = "IconArray", width = 12, height = 18, point = "TOPRIGHT", x = 0, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, textsize = 12 },
+    bars = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 },
+    vbar1 = { type = "Bar", width=4, height=20, point="TOPRIGHT", x=-9, y=2, vertical = true},
+}
+-- for name,w in pairs(config.DefaultWidgets) do
+--     w.__protected = true
+-- end
+
 config.BossDebuffs = {
     { name = "BossDebuffLevel1", assignto = "bossdebuff", color = {1,0,0}, priority = 95, pulse = true, },
     { name = "BossDebuffLevel2", assignto = "bossdebuff", color = {1,0,1}, priority = 95, pulse = true, },
@@ -73,7 +90,7 @@ local RangeCheckBySpell = helpers.RangeCheckBySpell
 
 
 local tankCD = { type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94, color = { 1, 0.2, 1} }
-local survivalCD = { type = "HELPFUL", assignto = "shieldicon", global = true, showDuration = true, priority = 90, color = { 0.4, 1, 0.4} }
+local survivalCD = { type = "HELPFUL", assignto = "buffIcons", global = true, showDuration = true, priority = 90, color = { 0.4, 1, 0.4} }
 local activeMitigation = { type = "HELPFUL", assignto = "mitigation", showDuration = true, global = true, color = {0.7, 0.7, 0.7}, priority = 80 }
 
 -- A{ id = 25163, type = "HARMFUL", assignto = "bossdebuff", scale = 0.85, color = { 1,0,0 }, priority = 40, pulse = true } -- Oozeling
@@ -126,6 +143,7 @@ A{ id = 61336,  prototype = tankCD } --Survival Instincts 50% (Feral & Guardian)
 
 -- PRIEST
 A{ id = 19236,  prototype = survivalCD } -- Desperate Prayer
+A{ id = 586,  prototype = survivalCD } -- Fade
 A{ id = 47585,  prototype = survivalCD } -- Dispersion
 A{ id = 47788, prototype = tankCD, priority = 90 } --Guardian Spirit
 A{ id = 33206, prototype = tankCD, priority = 93 } --Pain Suppression
@@ -266,7 +284,7 @@ if playerClass == "MONK" then
     -- A{ id = 157627, type = "HELPFUL", assignto = "bar2", showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
 
     -- Dome of Mist
-    A{ id = 205655, type = "HELPFUL", assignto = "shieldicon", showDuration = true, priority = 97 }
+    A{ id = 205655, type = "HELPFUL", assignto = "buffIcons", showDuration = true, priority = 97 }
 
     --Surging Mist Buff (PvP)
     A{ id = 227344, type = "HELPFUL", assignto = "raidbuff", priority = 50, stackcolor = {

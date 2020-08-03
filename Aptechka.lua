@@ -178,7 +178,7 @@ local defaults = {
                 fullRaid = "Default",
             },
         },
-        widgetConfig = {},
+        widgetConfig = config.DefaultWidgets,
     },
     profile = {
         point = "CENTER",
@@ -743,6 +743,32 @@ function Aptechka:UpdateName(frame)
     frame.state.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
     FrameSetJob(frame, config.UnitNameStatus, true)
 end
+
+function Aptechka.GetWidgetListRaw()
+    local list = {}
+    for slot in pairs(Aptechka.optional_widgets) do
+        list[slot] = string.format("|cffbbbbbb%s|r",slot)--slot
+    end
+    for slot, opts in pairs(Aptechka.db.global.widgetConfig) do
+        if config.DefaultWidgets[slot] then
+            list[slot] = slot
+        else
+            list[slot] = string.format("|cff77ff77%s|r",slot)
+        end
+    end
+    return list
+end
+
+function Aptechka.GetWidgetList()
+    local list = Aptechka.GetWidgetListRaw()
+    list["healfeedback"] = "healfeedback"
+    list["border"] = "border"
+    list["bossdebuff"] = "bossdebuff"
+    list["mindcontrol"] = nil
+    list["unhealable"] = nil
+    return list
+end
+
 
 function Aptechka:Reconfigure()
     if not self.isInitialized then return end
@@ -2944,6 +2970,8 @@ Aptechka.Commands = {
                 if not Aptechka.db.global.widgetConfig[wname] then
                     Aptechka.db.global.widgetConfig[wname] = Aptechka.Widget[wtype].default
                     print("Created", wtype, wname)
+                else
+                    print("Widget already exists:", wname)
                 end
             else
                 print("Unknown widget type:", wtype)
@@ -2956,6 +2984,11 @@ Aptechka.Commands = {
             local p = ParseOpts(params)
             local wname = p.name
             if wname and Aptechka.db.global.widgetConfig[wname] then
+                if config.DefaultWidgets[wname] then
+                    print("Can't remove default widget")
+                    return
+                end
+
                 Aptechka.db.global.widgetConfig[wname] = nil
                 print("Removed", wname)
             else
@@ -2987,6 +3020,12 @@ Aptechka.Commands = {
                     print("New name not specified")
                     return
                 end
+
+                if config.DefaultWidgets[wname] or config.DefaultWidgets[to] then
+                    print("Can't raname default widget")
+                    return
+                end
+
                 Aptechka.db.global.widgetConfig[to] = Aptechka.db.global.widgetConfig[wname]
                 Aptechka.db.global.widgetConfig[wname] = nil
                 print("Renamed", wname, "to", to)
@@ -3007,9 +3046,13 @@ Aptechka.Commands = {
                 print("Widget doesn't exist:", wname)
             end
         elseif cmd == "list" then
-            print("|cff99FF99Custom widgets:|r")
+            print("|cff99FF99Customizable Widgets:|r")
             for wname, opts in pairs(Aptechka.db.global.widgetConfig) do
-                print(string.format("     %s [%s]", wname, opts.type))
+                local cname = wname
+                if config.DefaultWidgets[wname] then
+                    cname = string.format("|cffaaaaaa%s|r", wname)
+                end
+                print(string.format("     %s [%s]", cname, opts.type))
             end
         end
     end,
