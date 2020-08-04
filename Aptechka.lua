@@ -226,6 +226,7 @@ local defaults = {
         bgColorMultiplier = 0.2,
         groupFilter = 255,
         bgAlpha = 1,
+        widgetConfig = {},
     },
 }
 
@@ -774,6 +775,7 @@ function Aptechka:Reconfigure()
     if not self.isInitialized then return end
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
     self:ReconfigureProtected()
+    self:ReconfigureAllWidgets()
     self:ReconfigureUnprotected()
 
     self:UpdateDebuffScanningMethod()
@@ -798,8 +800,16 @@ function Aptechka:RefreshAllUnitsColors()
     end
 end
 
+function Aptechka:ReconfigureAllWidgets()
+    for widgetName in pairs(Aptechka.db.global.widgetConfig) do
+        self:ReconfigureWidget(widgetName)
+    end
+end
+
 function Aptechka:ReconfigureWidget(widgetName)
-    local new_opts = Aptechka.db.global.widgetConfig[widgetName]
+    local gopts = Aptechka.db.global.widgetConfig[widgetName]
+    local popts = Aptechka.db.profile.widgetConfig[widgetName]
+    local new_opts = popts or gopts
     local reconfFunc = Aptechka.Widget[new_opts.type].Reconf
     if reconfFunc then
         Aptechka:ForEachFrame(function(frame)
@@ -2990,15 +3000,54 @@ Aptechka.Commands = {
                 end
 
                 Aptechka.db.global.widgetConfig[wname] = nil
+                for profileName, profile in pairs(Aptechka.db.profiles) do
+                    profile.widgetConfig[wname] = nil
+                end
+
+                Aptechka:ForEachFrame(function(frame)
+                    local widget = frame[wname]
+                    if widget then
+                        widget:SetScript("OnUpdate", nil)
+                        widget:Hide()
+                        frame[wname] = nil
+                    end
+                end)
                 print("Removed", wname)
             else
                 print("Widget doesn't exist:", wname)
             end
-        elseif cmd == "set" then
+        elseif cmd == "pclear" then
             local p = ParseOpts(params)
             local wname = p.name
+            local forAll = p.all
             if wname and Aptechka.db.global.widgetConfig[wname] then
-                local opts = Aptechka.db.global.widgetConfig[wname]
+                if forAll then
+                    for profileName, profile in pairs(Aptechka.db.profiles) do
+                        profile.widgetConfig[wname] = nil
+                    end
+                    print(string.format("Removed '%s' widget settings on all profiles.", wname))
+                else
+                    Aptechka.db.profile.widgetConfig[wname] = nil
+                    print(string.format("Removed '%s' widget settings on '%s' profile.", wname, Aptechka.db:GetCurrentProfile()))
+                end
+
+                Aptechka:ReconfigureWidget(wname)
+            else
+                print("Widget doesn't exist:", wname)
+            end
+        elseif cmd == "set" or cmd == "pset" then
+            local p = ParseOpts(params)
+            local forProfile = cmd == "pset"
+            local wname = p.name
+            local gopts = Aptechka.db.global.widgetConfig
+            local popts = Aptechka.db.profile.widgetConfig
+            if wname and gopts[wname] then
+                if forProfile and not popts[wname] then
+                    Aptechka.db.profile.widgetConfig[wname] = CopyTable(gopts[wname])
+                    print(string.format("Created '%s' settings for '%s' profile.", wname, Aptechka.db:GetCurrentProfile()))
+                end
+
+                local opts = forProfile and popts[wname] or gopts[wname]
                 local wtype = opts.type
 
                 for property in pairs(Aptechka.Widget[wtype].default) do
@@ -3028,6 +3077,12 @@ Aptechka.Commands = {
 
                 Aptechka.db.global.widgetConfig[to] = Aptechka.db.global.widgetConfig[wname]
                 Aptechka.db.global.widgetConfig[wname] = nil
+                for profileName, profile in pairs(Aptechka.db.profiles) do
+                    if profile.widgetConfig[wname] then
+                        profile.widgetConfig[to] = profile.widgetConfig[wname]
+                        profile.widgetConfig[wname] = nil
+                    end
+                end
                 print("Renamed", wname, "to", to)
             else
                 print("Widget doesn't exist:", wname)
