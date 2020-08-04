@@ -2990,7 +2990,7 @@ Aptechka.Commands = {
                     print("  ", k)
                 end
             end
-        elseif cmd == "delete" then
+        elseif cmd == "delete" or cmd == "remove" then
             local p = ParseOpts(params)
             local wname = p.name
             if wname and Aptechka.db.global.widgetConfig[wname] then
@@ -3041,7 +3041,12 @@ Aptechka.Commands = {
             local wname = p.name
             local gopts = Aptechka.db.global.widgetConfig
             local popts = Aptechka.db.profile.widgetConfig
-            if wname and gopts[wname] then
+
+            if not wname then
+                print("Widget name not specified")
+            end
+
+            if gopts[wname] then
                 if forProfile and not popts[wname] then
                     Aptechka.db.profile.widgetConfig[wname] = CopyTable(gopts[wname])
                     print(string.format("Created '%s' settings for '%s' profile.", wname, Aptechka.db:GetCurrentProfile()))
@@ -3049,10 +3054,13 @@ Aptechka.Commands = {
 
                 local opts = forProfile and popts[wname] or gopts[wname]
                 local wtype = opts.type
+                print("|cffffcc55===", wname, forProfile and "(profile) ===|r" or "===|r")
 
                 for property in pairs(Aptechka.Widget[wtype].default) do
                     if p[property] ~= nil then
+                        local oldvalue = opts[property]
                         opts[property] = p[property]
+                        print("  ", string.format("%s:     |cffff5555%s|r", property, oldvalue), "=>", string.format("|cff88ff88%s|r",opts[property]))
                     end
                 end
 
@@ -3091,11 +3099,20 @@ Aptechka.Commands = {
             local p = ParseOpts(params)
             local wname = p.name
             if wname and Aptechka.db.global.widgetConfig[wname] then
-                local opts = Aptechka.db.global.widgetConfig[wname]
-                local wtype = opts.type
-                print("===", wname, "===")
-                for k,v in pairs(opts) do
+                local gopts = Aptechka.db.global.widgetConfig[wname]
+                print("|cffffcc55===", wname, "(default) ===|r")
+                for k,v in pairs(gopts) do
                     print("  ", k, "=", v)
+                end
+
+                local popts = Aptechka.db.profile.widgetConfig[wname]
+                if popts then
+                    print("|cffffcc55===", wname, "(profile) ===|r")
+                    for k,v in pairs(popts) do
+                        if v ~= gopts[k] then
+                            print("  ", k, "=", v)
+                        end
+                    end
                 end
             else
                 print("Widget doesn't exist:", wname)
@@ -3182,8 +3199,10 @@ function Aptechka.SlashCmd(msg)
       |cff00ff00/aptechka|r widget create type=<Type> name=<Name>
       |cff00ff00/aptechka|r widget list
       |cff00ff00/aptechka|r widget set name=<Name> |cffaaaaaapoint=TOPRIGHT width=5 height=15 x=-10 y=0 vertical=true|r
+      |cff00ff00/aptechka|r widget pset name=<Name> |cffaaaaaa...|r - same but for current profile
       |cff00ff00/aptechka|r widget info name=<Name>
       |cff00ff00/aptechka|r widget delete name=<Name>
+      |cff00ff00/aptechka|r widget pclear name=<Name> |cffaaaaaa[all=true]|r - Clear settings for profile
     ]=]
     )end
 
