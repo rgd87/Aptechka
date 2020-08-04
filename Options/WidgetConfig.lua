@@ -13,16 +13,25 @@ function ns.MakeWidgetConfig()
         args = {
             msg = {
                 name = L[[
-Currently custom frame elements can be only created from command line.
+Frame element customization is only avaiable through command line
 
-Some examples:
-
-/apt widget create type=Bar name=MyBar
+Examples:
+|cff888888List all existing customizable widgets:|r
 /apt widget list
+|cff888888Create your own new widget of specified type:|r
+/apt widget create type=Bar name=MyBar
+|cff888888Change its global/default settings:|r
 /apt widget set name=MyBar point=TOPRIGHT width=5 height=15 x=-10 y=0 vertical=true
+|cff888888Change settings only for current profile:|r
+/apt widget pset name=MyBar point=TOPRIGHT width=7 height=20
+|cff888888List all widget properties:|r
 /apt widget info name=MyBar
+|cff888888Clear profile-specific settings from current or all profiles:|r
+/apt widget pclear name=MyBar all=true
+|cff888888Remove widget:|r
 /apt widget delete name=MyBar
 
+|cff888888Other types:|r
 /apt widget create type=BarArray name=bars2
 /apt widget set name=bars2 growth=UP max=6 width=18 height=18 point=TOPLEFT x=0 y=0 vertical=true
 
