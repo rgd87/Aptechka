@@ -654,11 +654,12 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
-    -- --autoloading
+    --[[ --autoloading
     for _,spell_group in pairs(config.autoload) do
         config.LoadableDebuffs[spell_group]()
         loaded[spell_group] = true
     end
+    ]]
     --raid/pvp debuffs loading
     local loader = CreateFrame("Frame")
     loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
