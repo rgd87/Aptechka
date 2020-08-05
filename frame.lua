@@ -1659,13 +1659,14 @@ local CreateFlash = function(parent)
 end
 
 local CreateMindControlIcon = function(parent)
-    if isClassic then return end
-
     local f = CreateFrame("Frame", nil, parent)
-    local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
-    tex:SetAllPoints(f)
-    tex:SetTexture("Interface/CorruptedItems/CorruptedInventoryIcon")
-    tex:SetTexCoord(0.02, 0.5, 0.02, 0.5)
+
+    if not isClassic then
+        local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
+        tex:SetAllPoints(f)
+        tex:SetTexture("Interface/CorruptedItems/CorruptedInventoryIcon")
+        tex:SetTexCoord(0.02, 0.5, 0.02, 0.5)
+    end
     local height = parent:GetHeight()
     local width = parent:GetWidth()
     local len = math.min(height, width)
