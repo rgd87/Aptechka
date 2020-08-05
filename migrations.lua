@@ -159,8 +159,9 @@ do
 
             local amIDs = {132404, 132403, 203819, 192081 }
 
-            for i=1, GetNumClasses() do
-                local class = select(2,GetClassInfo(i))
+            for i=1, 15 do -- GetNumClasses() doesn't exist in classic
+                local class = select(2,C_CreatureInfo.GetClassInfo(i))
+                if not class then break end
                 if AptechkaConfigCustom[class] and AptechkaConfigCustom[class]["auras"] then
                     for _, spellId in ipairs(amIDs) do
                         AptechkaConfigCustom[class]["auras"] = nil
@@ -202,8 +203,9 @@ function Aptechka.PurgeDeadAssignments(searchAllClasses)
 
     local categories = { "GLOBAL" }
     if searchAllClasses then
-        for i=1, GetNumClasses() do
-            local class = select(2,GetClassInfo(i))
+        for i=1, 15 do
+            local class = select(2,C_CreatureInfo.GetClassInfo(i))
+            if not class then break end
             table.insert(categories, class)
         end
     else
