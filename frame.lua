@@ -1207,8 +1207,8 @@ local SetJob_ProgressIcon = function(self, job, state, contentType, ...)
     self.cd:SetSwipeColor(r,g,b)
 end
 
-local CreateProgressIcon = function(parent, width, height, alpha, point, frame, to, x, y)
-    local icon = CreateIcon(parent, width, height, alpha, point, frame, to, x, y)
+local function CreateProgressIcon(parent, width, height, alpha, point, frame, to, x, y, ...)
+    local icon = CreateIcon(parent, width, height, alpha, point, frame, to, x, y, ...)
     local border = pixelperfect(3)
     local frameborder = MakeBorder(icon, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
     frameborder:SetVertexColor(0,0,0,1)
@@ -1249,6 +1249,14 @@ local CreateProgressIcon = function(parent, width, height, alpha, point, frame, 
 
     return icon
 end
+
+Aptechka.Widget.ProgressIcon = {}
+Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = true, edge = true }
+function Aptechka.Widget.ProgressIcon.Create(parent, opts)
+    return CreateProgressIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
+end
+
+Aptechka.Widget.ProgressIcon.Reconf = Aptechka.Widget.Icon.Reconf
 
 local Text1_SetColor = function(self, r,g,b)
     self:SetTextColor(r,g,b)
@@ -1646,13 +1654,14 @@ local CreateFlash = function(parent)
 end
 
 local CreateMindControlIcon = function(parent)
-    if isClassic then return end
-
     local f = CreateFrame("Frame", nil, parent)
-    local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
-    tex:SetAllPoints(f)
-    tex:SetTexture("Interface/CorruptedItems/CorruptedInventoryIcon")
-    tex:SetTexCoord(0.02, 0.5, 0.02, 0.5)
+
+    if not isClassic then
+        local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
+        tex:SetAllPoints(f)
+        tex:SetTexture("Interface/CorruptedItems/CorruptedInventoryIcon")
+        tex:SetTexCoord(0.02, 0.5, 0.02, 0.5)
+    end
     local height = parent:GetHeight()
     local width = parent:GetWidth()
     local len = math.min(height, width)
