@@ -768,6 +768,9 @@ function Aptechka.GetWidgetList()
     list["bossdebuff"] = "bossdebuff"
     list["mindcontrol"] = nil
     list["unhealable"] = nil
+    list["text1"] = nil
+    list["text2"] = nil
+    list["text3"] = nil
     return list
 end
 
