@@ -218,8 +218,6 @@ local defaults = {
         stackFontName = "ClearFont",
         stackFontSize = 12,
         nameFontName = defaultFont,
-        nameFontSize = 12,
-        nameFontOutline = "SHADOW",
         nameColorMultiplier = 1,
         fgShowMissing = true,
         fgColorMultiplier = 1,
@@ -654,11 +652,12 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
-    -- --autoloading
+    --[[ --autoloading
     for _,spell_group in pairs(config.autoload) do
         config.LoadableDebuffs[spell_group]()
         loaded[spell_group] = true
     end
+    ]]
     --raid/pvp debuffs loading
     local loader = CreateFrame("Frame")
     loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
@@ -767,6 +766,9 @@ function Aptechka.GetWidgetList()
     list["bossdebuff"] = "bossdebuff"
     list["mindcontrol"] = nil
     list["unhealable"] = nil
+    list["text1"] = nil
+    list["text2"] = nil
+    list["text3"] = nil
     return list
 end
 
@@ -2843,6 +2845,7 @@ local ParseOpts = function(str)
             local v2 = v:lower()
             if v2 == "true" then v = true end
             if v2 == "false" then v = false end
+            if v2 == "nil" then v = nil end
         end
         t[k:lower()] = tonumber(v) or v
         return ""
