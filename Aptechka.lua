@@ -218,7 +218,6 @@ local defaults = {
         stackFontName = "ClearFont",
         stackFontSize = 12,
         nameFontName = defaultFont,
-        nameFontSize = 12,
         nameFontOutline = "SHADOW",
         nameColorMultiplier = 1,
         fgShowMissing = true,
