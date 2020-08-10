@@ -1533,7 +1533,7 @@ end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
 Aptechka.Widget.Text = {}
-Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] textsize = 13 }
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] textsize = 13, effect = "NONE" }
 function Aptechka.Widget.Text.Create(parent, opts)
     local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
     local text = CreateTextTimer(parent, opts.point, parent, opts.point, opts.x, opts.y, opts.justify, opts.textsize, font, nil)
@@ -1548,7 +1548,13 @@ function Aptechka.Widget.Text.Reconf(parent, f, opts)
     f.text:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     -- f.text:SetJustifyH(opts.justify:upper())
     local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
-    f.text:SetFont(font, opts.textsize)
+    local flags = opts.effect == "OUTLINE" and "OUTLINE"
+    if opts.effect == "SHADOW" then
+        f.text:SetShadowOffset(1,-1)
+    else
+        f.text:SetShadowOffset(0,0)
+    end
+    f.text:SetFont(font, opts.textsize, flags)
 end
 
 Aptechka.Widget.StaticText = CopyTable(Aptechka.Widget.Text)
@@ -1852,15 +1858,6 @@ local function Reconf(self)
     end
 
     local nameFont = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
-    local nameFontSize = Aptechka.db.profile.nameFontSize
-    local nameFontOutline = Aptechka.db.profile.nameFontOutline
-    local outline = nameFontOutline == "OUTLINE" and "OUTLINE"
-    self.text1.text:SetFont(nameFont, nameFontSize, outline)
-    if nameFontOutline == "SHADOW" then
-        self.text1.text:SetShadowOffset(1,-1)
-    else
-        self.text1.text:SetShadowOffset(0,0)
-    end
 
     local stackFont = LSM:Fetch("font", Aptechka.db.profile.stackFontName)
     local stackFontSize = Aptechka.db.profile.stackFontSize

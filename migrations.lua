@@ -180,8 +180,14 @@ do
                         profile.widgetConfig.text1 = profile.widgetConfig.text1 or CopyTable(AptechkaDefaultConfig.DefaultWidgets.text1)
                         profile.widgetConfig.text1.textsize = profile.nameFontSize
                     end
-
                     profile.nameFontSize = nil
+
+                    if profile.nameFontOutline then
+                        profile.widgetConfig = profile.widgetConfig or {}
+                        profile.widgetConfig.text1 = profile.widgetConfig.text1 or CopyTable(AptechkaDefaultConfig.DefaultWidgets.text1)
+                        profile.widgetConfig.text1.effect = profile.nameFontOutline
+                    end
+                    profile.nameFontOutline = nil
                 end
             end
 
