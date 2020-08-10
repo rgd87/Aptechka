@@ -98,13 +98,13 @@ local HealthBarSetColorBG = function(self, r,g,b,a, mul)
     self:SetVertexColor(r*mul, g*mul, b*mul, a)
 end
 
-local formatMissingHealth = function(text, mh)
+local formatMissingHealth = function(mh)
     if mh < 1000 then
-        text:SetFormattedText("-%d", mh)
+        return "-%d", mh
     elseif mh < 10000 then
-        text:SetFormattedText("-%.1fk", mh / 1e3)
+        return "-%.1fk", mh / 1000
     else
-        text:SetFormattedText("-%.0fk", mh / 1e3)
+        return "-%.0fk", mh / 1000
     end
 end
 
@@ -1258,50 +1258,6 @@ end
 
 Aptechka.Widget.ProgressIcon.Reconf = Aptechka.Widget.Icon.Reconf
 
-local Text1_SetColor = function(self, r,g,b)
-    self:SetTextColor(r,g,b)
-end
-local Text1_SetColorInverted = function(self, r,g,b)
-    self:SetTextColor(r*0.2,g*0.2,b*0.2)
-end
-local SetJob_Text1 = function(self, job, state, contentType)
-    if contentType == "HealthDeficit" then
-        self:SetFormattedText("-%.0fk", (state.vHealthMax - state.vHealth) / 1e3)
-    elseif contentType == "UnitName" then
-        self:SetText(state.name)
-    elseif job.text then
-        self:SetText(job.text)
-    end
-    local c
-    if job.classcolor then
-        c = state.classColor
-    elseif job.color then
-        c = job.textcolor or job.color
-    end
-    if c then
-        local r,g,b,a = unpack(c)
-        local mul = Aptechka.db.profile.nameColorMultiplier or 1
-        self:SetColor(multiplyColor(mul, r,g,b,a))
-    end
-end
-local SetJob_Text2 = function(self, job, state, contentType) -- text2 is always green
-    if contentType == "HealthDeficit" then
-        formatMissingHealth(self, state.vHealthMax - state.vHealth)
-    elseif contentType == "IncomingHeal" then
-        self:SetFormattedText("+%d", state.vIncomingHeal)
-    elseif contentType == "UnitName" then
-        self:SetText(state.name)
-    elseif job.text then
-        self:SetText(job.text)
-    end
-
-    local c
-    if job.color then
-        c = job.textcolor or job.color
-        self:SetTextColor(unpack(c))
-    end
-end
-
 ----------------
 -- HEAL ABSORB
 ----------------
@@ -1491,7 +1447,7 @@ end
         return "%ds", floor(s)
     end
 
-    local Text3_OnUpdate = function(t3frame,time)
+    local Text_OnUpdate = function(t3frame,time)
         local remains = t3frame.expirationTime - GetTime()
         if remains >= 2 then
             t3frame.text:SetText(string.format("%d", remains))
@@ -1501,36 +1457,69 @@ end
             t3frame:SetScript("OnUpdate", nil)
         end
     end
-    local Text3_OnUpdateForward = function(t3frame,time)
-        local elapsed = GetTime() - t3frame.startTime
+    local Text_OnUpdateForward = function(frame,time)
+        local elapsed = GetTime() - frame.startTime
         if elapsed >= 0 then
-            t3frame.text:SetFormattedText(FormatTime(elapsed))
-        end
-    end
-local SetJob_Text3 = function(self, job, state, contentType, ...)
-    if contentType == "AURA" then
-        local duration, expirationTime = ...
-        self.expirationTime = expirationTime
-        self.startTime = nil
-        self:SetScript("OnUpdate", Text3_OnUpdate) --.frame is for text3 container
-    elseif contentType == "TIMER" then
-        self.startTime = ...
-        self.expirationTime = nil
-        self:SetScript("OnUpdate", Text3_OnUpdateForward) --.frame is for text3 container
-    else
-        if job.text then
-            self:SetScript("OnUpdate", nil)
-            self.text:SetText(job.text)
+            frame.text:SetFormattedText(FormatTime(elapsed))
         end
     end
 
-    local c = job.textcolor or job.color
+-- TODO: Split reconf and simple value updates for all widgets
+local SetJob_Text = function(self, job, state, contentType, ...)
+    if contentType == "HealthDeficit" then
+        self.text:SetFormattedText(formatMissingHealth(state.vHealthMax - state.vHealth))
+        self:SetScript("OnUpdate", nil)
+    elseif contentType == "IncomingHeal" then -- For Classic
+        self:SetFormattedText("+%d", state.vIncomingHeal)
+        self:SetScript("OnUpdate", nil)
+    elseif contentType == "AURA" then
+        local duration, expirationTime = ...
+        self.expirationTime = expirationTime
+        self.startTime = nil
+        self:SetScript("OnUpdate", Text_OnUpdate) --.frame is for text3 container
+    elseif contentType == "TIMER" then
+        self.startTime = ...
+        self.expirationTime = nil
+        self:SetScript("OnUpdate", Text_OnUpdateForward) --.frame is for text3 container
+    elseif contentType == "UnitName" then
+        self.text:SetText(state.name)
+        self:SetScript("OnUpdate", nil)
+    elseif job.text then
+        self:SetScript("OnUpdate", nil)
+        self.text:SetText(job.text)
+    end
+
+    local c = (job.classcolor and state.classColor) or job.textcolor or job.color
     if c then
         self.text:SetTextColor(unpack(c))
     else
         self.text:SetTextColor(1,1,1)
     end
 end
+
+local SetJob_StaticText = function(self, job, state, contentType, ...)
+    if contentType == "HealthDeficit" then
+        self.text:SetFormattedText(formatMissingHealth(state.vHealthMax - state.vHealth))
+        self:SetScript("OnUpdate", nil)
+    elseif contentType == "IncomingHeal" then -- For Classic
+        self:SetFormattedText("+%d", state.vIncomingHeal)
+        self:SetScript("OnUpdate", nil)
+    elseif contentType == "UnitName" then
+        self.text:SetText(state.name)
+        self:SetScript("OnUpdate", nil)
+    elseif job.text then
+        self:SetScript("OnUpdate", nil)
+        self.text:SetText(job.text)
+    end
+
+    local c = (job.classcolor and state.classColor) or job.textcolor or job.color
+    if c then
+        self.text:SetTextColor(unpack(c))
+    else
+        self.text:SetTextColor(1,1,1)
+    end
+end
+
 local CreateTextTimer = function(parent, point, frame, to, x, y, hjustify, fontsize, font, flags)
     local f = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
     local text = f:CreateFontString(nil, "ARTWORK")
@@ -1538,16 +1527,20 @@ local CreateTextTimer = function(parent, point, frame, to, x, y, hjustify, fonts
     text:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
     -- text:SetJustifyH("LEFT")
     text:SetFont(font, fontsize or 11, flags)
-    f.SetJob = SetJob_Text3
+    f.SetJob = SetJob_Text
     return f
 end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
 Aptechka.Widget.Text = {}
-Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] textsize = 13 }
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] textsize = 13, effect = "NONE" }
 function Aptechka.Widget.Text.Create(parent, opts)
     local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
-    return CreateTextTimer(parent, opts.point, parent, opts.point, opts.x, opts.y, opts.justify, opts.textsize, font, nil)
+    local text = CreateTextTimer(parent, opts.point, parent, opts.point, opts.x, opts.y, opts.justify, opts.textsize, font, nil)
+    if opts.type == "StaticText" then
+        text.SetJob = SetJob_StaticText
+    end
+    return text
 end
 
 function Aptechka.Widget.Text.Reconf(parent, f, opts)
@@ -1555,8 +1548,17 @@ function Aptechka.Widget.Text.Reconf(parent, f, opts)
     f.text:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     -- f.text:SetJustifyH(opts.justify:upper())
     local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
-    f.text:SetFont(font, opts.textsize)
+    local flags = opts.effect == "OUTLINE" and "OUTLINE"
+    if opts.effect == "SHADOW" then
+        f.text:SetShadowOffset(1,-1)
+    else
+        f.text:SetShadowOffset(0,0)
+    end
+    f.text:SetFont(font, opts.textsize, flags)
 end
+
+Aptechka.Widget.StaticText = CopyTable(Aptechka.Widget.Text)
+Aptechka.Widget.StaticText.default.type = "StaticText"
 
 
 local CreateUnhealableOverlay = function(parent)
@@ -1840,8 +1842,6 @@ local function Reconf(self)
 
         -- self.health.SetColor = HealthBarSetColorInverted
         -- self.power.SetColor = HealthBarSetColorInverted
-        -- self.text1.SetColor = Text1_SetColorInverted
-        -- self.text1:SetShadowOffset(0,0)
         self.health.absorb2:SetVertexColor(0.7,0.7,1, 0.65)
         self.health.incoming:SetVertexColor(0.3, 1,0.4, 0.4)
         self.health.absorb2:SetDrawLayer("ARTWORK", -7)
@@ -1851,8 +1851,6 @@ local function Reconf(self)
         self.power:SetFillStyle("REVERSE")
         -- self.health.SetColor = HealthBarSetColor
         -- self.power.SetColor = HealthBarSetColor
-        -- self.text1.SetColor = Text1_SetColor
-        -- self.text1:SetShadowOffset(1,-1)
         self.health.absorb2:SetVertexColor(0,0,0, 0.65)
         self.health.incoming:SetVertexColor(0,0,0, 0.4)
         self.health.absorb2:SetDrawLayer("ARTWORK", -5)
@@ -1860,15 +1858,6 @@ local function Reconf(self)
     end
 
     local nameFont = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
-    local nameFontSize = Aptechka.db.profile.nameFontSize
-    local nameFontOutline = Aptechka.db.profile.nameFontOutline
-    local outline = nameFontOutline == "OUTLINE" and "OUTLINE"
-    self.text1:SetFont(nameFont, nameFontSize, outline)
-    if nameFontOutline == "SHADOW" then
-        self.text1:SetShadowOffset(1,-1)
-    else
-        self.text1:SetShadowOffset(0,0)
-    end
 
     local stackFont = LSM:Fetch("font", Aptechka.db.profile.stackFontName)
     local stackFontSize = Aptechka.db.profile.stackFontSize
@@ -2262,24 +2251,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
     border:Hide()
 
 
-    local text = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    text:SetPoint("CENTER",self,"CENTER",0,0)
-    text:SetJustifyH"CENTER"
-    text:SetFont(font, fontsize)
-    text:SetTextColor(1, 1, 1)
-    text:SetShadowColor(0,0,0)
-    text:SetShadowOffset(1,-1)
-    text.SetColor = Text1_SetColor
-    text.SetJob = SetJob_Text1
-    text.parent = self
+    local text1_opts = Aptechka.db.global.widgetConfig.text1
+    local text = Aptechka.Widget.Text.Create(self, text1_opts)
 
-    local text2 = hp:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    text2:SetPoint("TOP",text,"BOTTOM",0,0)
-    text2:SetJustifyH"CENTER"
-    text2:SetFont(font, fontsize-2)
-    text2.SetJob = SetJob_Text2
-    text2:SetTextColor(0.2, 1, 0.2)
-    text2.parent = self
+    local text2_opts = Aptechka.db.global.widgetConfig.text2
+    local text2 = Aptechka.Widget.Text.Create(self, text2_opts)
 
 
     local raidicon = CreateFrame("Frame",nil,self)
@@ -2320,7 +2296,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local btm = CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0)
     -- local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
     -- local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
-    local text3 = CreateTextTimer(self,"TOPLEFT",self,"TOPLEFT",2,0,"LEFT",fontsize-3,font)--,"OUTLINE")
+
+    local text3_opts = Aptechka.db.global.widgetConfig.text3
+    local text3 = Aptechka.Widget.Text.Create(self, text3_opts)
 
     -- local bar1 = CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
     -- local bar2 = CreateStatusBar(self, 21, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)

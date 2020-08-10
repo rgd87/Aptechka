@@ -221,8 +221,6 @@ local defaults = {
         stackFontName = "ClearFont",
         stackFontSize = 12,
         nameFontName = defaultFont,
-        nameFontSize = 12,
-        nameFontOutline = "SHADOW",
         nameColorMultiplier = 1,
         fgShowMissing = true,
         fgColorMultiplier = 1,
@@ -793,6 +791,9 @@ function Aptechka.GetWidgetList()
     list["bossdebuff"] = "bossdebuff"
     list["mindcontrol"] = nil
     list["unhealable"] = nil
+    list["text1"] = nil
+    list["text2"] = nil
+    list["text3"] = nil
     return list
 end
 
@@ -2905,6 +2906,7 @@ local ParseOpts = function(str)
             local v2 = v:lower()
             if v2 == "true" then v = true end
             if v2 == "false" then v = false end
+            if v2 == "nil" then v = nil end
         end
         t[k:lower()] = tonumber(v) or v
         return ""

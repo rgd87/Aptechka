@@ -417,43 +417,16 @@ function ns.MakeProfileSettings()
                     },
                     nameFont = {
                         type = "select",
-                        name = L"Name Font",
+                        name = L"Main Font",
                         order = 14.1,
                         get = function(info) return Aptechka.db.profile.nameFontName end,
                         set = function(info, value)
                             Aptechka.db.profile.nameFontName = value
                             Aptechka:ReconfigureUnprotected()
+                            Aptechka:ReconfigureAllWidgets()
                         end,
                         values = LSM:HashTable("font"),
                         dialogControl = "LSM30_Font",
-                    },
-                    nameFontSize = {
-                        name = L"Name Font Size",
-                        type = "range",
-                        get = function(info) return Aptechka.db.profile.nameFontSize end,
-                        set = function(info, v)
-                            Aptechka.db.profile.nameFontSize = v
-                            Aptechka:ReconfigureUnprotected()
-                        end,
-                        min = 3,
-                        max = 30,
-                        step = 0.5,
-                        order = 14.2,
-                    },
-                    nameFontOutline = {
-                        name = L"Name Outline",
-                        type = 'select',
-                        order = 14.25,
-                        values = {
-                            NONE = L"None",
-                            SHADOW = L"Shadow",
-                            OUTLINE = L"Outline",
-                        },
-                        get = function(info) return Aptechka.db.profile.nameFontOutline end,
-                        set = function( info, v )
-                            Aptechka.db.profile.nameFontOutline = v
-                            Aptechka:ReconfigureUnprotected()
-                        end,
                     },
                     nameLength = {
                         name = L"Name Length",

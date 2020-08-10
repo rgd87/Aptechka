@@ -1,5 +1,5 @@
 do
-    local CURRENT_DB_VERSION = 3
+    local CURRENT_DB_VERSION = 4
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -170,6 +170,28 @@ do
             end
 
             db.DB_VERSION = 3
+        end
+        if db.DB_VERSION == 3 then
+
+            if db.profiles then
+                for name, profile in pairs(db.profiles) do
+                    if profile.nameFontSize then
+                        profile.widgetConfig = profile.widgetConfig or {}
+                        profile.widgetConfig.text1 = profile.widgetConfig.text1 or CopyTable(AptechkaDefaultConfig.DefaultWidgets.text1)
+                        profile.widgetConfig.text1.textsize = profile.nameFontSize
+                    end
+                    profile.nameFontSize = nil
+
+                    if profile.nameFontOutline then
+                        profile.widgetConfig = profile.widgetConfig or {}
+                        profile.widgetConfig.text1 = profile.widgetConfig.text1 or CopyTable(AptechkaDefaultConfig.DefaultWidgets.text1)
+                        profile.widgetConfig.text1.effect = profile.nameFontOutline
+                    end
+                    profile.nameFontOutline = nil
+                end
+            end
+
+            db.DB_VERSION = 4
         end
     end
 end
