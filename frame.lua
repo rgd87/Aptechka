@@ -1251,7 +1251,7 @@ local function CreateProgressIcon(parent, width, height, alpha, point, frame, to
 end
 
 Aptechka.Widget.ProgressIcon = {}
-Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = true, edge = true }
+Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = false, edge = false }
 function Aptechka.Widget.ProgressIcon.Create(parent, opts)
     return CreateProgressIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
 end
@@ -2323,6 +2323,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
     self.healfeedback = trcorner
 
+    local casticon_opts = Aptechka.db.global.widgetConfig.incomingCastIcon
+    local incomingCastIcon = Aptechka.Widget.ProgressIcon.Create(self, casticon_opts)
+
     -- local roundIndicator = CreateRoundIndicator(self, 13, 13, "BOTTOMLEFT", self, "BOTTOMLEFT",-8, -8)
 
     self.health = hp
@@ -2351,7 +2354,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     end
 
     self.bossdebuff = blcorner
-    self.castIcon = CreateProgressIcon(self,18,18, 1,"TOPLEFT",self,"TOPLEFT",-3,3)
+    self.incomingCastIcon = incomingCastIcon
     self.raidicon = raidicon
     self.roleicon = roleicon
     self.healabsorb = healAbsorb
