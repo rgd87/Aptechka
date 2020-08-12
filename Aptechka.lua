@@ -769,6 +769,7 @@ function Aptechka.GetWidgetList()
     list["text1"] = nil
     list["text2"] = nil
     list["text3"] = nil
+    list["incomingCastIcon"] = nil
     return list
 end
 
@@ -3248,7 +3249,7 @@ function Aptechka:UpdateCastsConfig()
 
             if self.isInitialized then
                 self:ForEachFrame(function(self)
-                    self.castIcon:Hide()
+                    self.incomingCastIcon:Hide()
                 end)
             end
         end
@@ -3278,7 +3279,7 @@ function Aptechka.SPELLCAST_UPDATE(event, GUID)
                 end
             end
 
-            local icon = frame.castIcon
+            local icon = frame.incomingCastIcon
             if minSrcGUID then
                 local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
 

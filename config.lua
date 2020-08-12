@@ -73,6 +73,7 @@ config.DefaultWidgets = {
     text1 = { type = "StaticText", point="CENTER", x=0, y=0, textsize = 12, effect = "SHADOW" },
     text2 = { type = "StaticText", point="CENTER", x=0, y=-10, textsize = 10, effect = "NONE" },
     text3 = { type = "Text", point="TOPLEFT", x=2, y=0, textsize = 9, effect = "NONE" },
+    incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, textsize = 12, outline = false, edge = false },
 }
 -- for name,w in pairs(config.DefaultWidgets) do
 --     w.__protected = true
