@@ -368,7 +368,7 @@ end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
 
-    A{ id = 61295,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide
+    A{ id = 61295,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
     A{ id = 974,    type = "HELPFUL", assignto = "bar4", showStacks = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
                                                                         -- stackcolor =   {
                                                                         --     [1] = { 0,.4, 0},
@@ -382,6 +382,12 @@ if playerClass == "SHAMAN" then
                                                                         --     [9] = {.4, 1, .4},
                                                                         -- },
                                                                         --, } --Earth Shield
+
+    -- Surge of Earth
+    Trace{id = 320747, type = "HEAL", assignto = "healfeedback", color = { 0.8, 0.4, 0.1}, fade = 0.7, priority = 96 } -- Chain Heal
+
+    -- Downpour
+    Trace{id = 207778, type = "HEAL", assignto = "healfeedback", color = { 0.4, 0.4, 1}, fade = 0.7, priority = 96 } -- Chain Heal
 
     Trace{id = 1064, type = "HEAL", assignto = "healfeedback", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = "spell3", color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
@@ -400,6 +406,19 @@ if playerClass == "SHAMAN" then
 end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = "raidbuff", color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
+
+    -- Tranquility
+    --[[
+    A{ id = 157982, type = "HELPFUL", assignto = "mitigation", priority = 60, isMine = true, stackcolor =   {
+        [1] = { 1, 0, 0},
+        [2] = { 1, 0, 102/255},
+        [3] = { 1, 0, 190/255},
+        [4] = { 204/255, 0, 1},
+        [5] = { 108/255, 0, 1},
+        [6] = { 148/255, 0, 1},
+        [7] = { 148/255, 0, 1},
+    }, showStacks = 5}
+    ]]
 
     -- Cenarion Ward
     A{ id = 102351, type = "HELPFUL", assignto = "bars", priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
@@ -434,6 +453,9 @@ if playerClass == "WARRIOR" then
     A{ id = 6673,  type = "HELPFUL", assignto = "raidbuff", color = { 1, .4 , .4}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(6673) end}
 end
 if playerClass == "MAGE" then
+    -- Focus Magic
+    A{ id = 321358,  type = "HELPFUL", assignto = "bars", color = { 206/255, 4/256, 56/256 }, priority = 50, isMine = true} --Arcane Intellect
+
     A{ id = 1459,  type = "HELPFUL", assignto = "raidbuff", color = { .4 , .4, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1459) end} --Arcane Intellect
     -- A{ id = 61316, type = "HELPFUL", assignto = "spell2", color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
     -- A{ id = 54648, type = "HELPFUL", assignto = "spell2", color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
