@@ -333,13 +333,13 @@ if playerClass == "PALADIN" then
 
     -- Beacon of Virtue
     A{ id = 200025, type = "HELPFUL", assignto = "bar4", showDuration = true, isMine = true, color = { 0,.9,0 } }
-    A{ id = 53563, type = "HELPFUL", assignto = "spell3", showDuration = true,
+    A{ id = 53563, type = "HELPFUL", assignto = "bar4",
                                                                             isMine = true,
                                                                             color = { 0,.9,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Light
 
-    A{ id = 156910, type = "HELPFUL", assignto = "spell3", showDuration = true,
+    A{ id = 156910, type = "HELPFUL", assignto = "bar4",
                                                                             isMine = true,
                                                                             color = { 1,.7,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
