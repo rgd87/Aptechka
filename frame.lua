@@ -2353,6 +2353,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
         end
     end
 
+    self.healthColor = self.health
     self.bossdebuff = blcorner
     self.incomingCastIcon = incomingCastIcon
     self.raidicon = raidicon
