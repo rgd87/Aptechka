@@ -196,33 +196,16 @@ do
     end
 end
 
-function Aptechka.PurgeDeadAssignments(searchAllClasses)
-    local list = Aptechka.GetWidgetListRaw()
+function Aptechka:ForAllCustomStatuses(func, searchAllClasses)
+    local list = Aptechka.GetWidgetList()
 
-    local cleanOpts = function(list, opts)
-        if type(opts.assignto) == "string" then
-            local slot = opts.assignto
-            if not list[slot] then opts.assignto = { } end
-        else
-            local i = 1
-            while (i <= #opts.assignto) do
-                local slot = opts.assignto[i]
-                if not list[slot] then
-                    table.remove(opts.assignto, i)
-                    i = i - 1
-                end
-                i = i + 1
-            end
+    if AptechkaConfigCustom.WIDGET then
+        for status, opts in pairs(AptechkaConfigCustom.WIDGET) do
+            func(opts, status, list)
         end
     end
 
-    if AptechkaConfigCustom.WIDGET then
-    for status, opts in pairs(AptechkaConfigCustom.WIDGET) do
-        cleanOpts(list, opts)
-    end
-    end
-
-
+    searchAllClasses = searchAllClasses == nil and true
     local categories = { "GLOBAL" }
     if searchAllClasses then
         for i=1, 15 do
@@ -239,12 +222,34 @@ function Aptechka.PurgeDeadAssignments(searchAllClasses)
     for _,category in ipairs(categories) do
         for _,spellType in ipairs(spellTypes) do
             if AptechkaConfigCustom[category] and AptechkaConfigCustom[category][spellType] then
-            for status, opts in pairs(AptechkaConfigCustom[category][spellType]) do
-                cleanOpts(list, opts)
-            end
+                for status, opts in pairs(AptechkaConfigCustom[category][spellType]) do
+                    func(opts, status, list)
+                end
             end
         end
     end
+end
+
+
+local cleanOpts = function(opts, status, list)
+    if type(opts.assignto) == "string" then
+        local slot = opts.assignto
+        if not list[slot] then opts.assignto = { } end
+    else
+        local i = 1
+        while (i <= #opts.assignto) do
+            local slot = opts.assignto[i]
+            if not list[slot] then
+                table.remove(opts.assignto, i)
+                i = i - 1
+            end
+            i = i + 1
+        end
+    end
+end
+
+function Aptechka.PurgeDeadAssignments(searchAllClasses)
+    Aptechka:ForAllCustomStatuses(cleanOpts)
 
     ReloadUI()
 end

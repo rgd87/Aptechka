@@ -691,6 +691,20 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     f:SetScript('OnShow', function(self)
         self:SetScript('OnShow', nil)
         LoadAddOn('AptechkaOptions')
+        Aptechka:ForAllCustomStatuses(function(opts, status, list)
+            if type(opts.assignto) == "string" then
+                local slot = opts.assignto
+                if not list[slot] then
+                    Aptechka:PrintDeadAssignmentWarning(slot, opts.name or status)
+                end
+            else
+                for _, slot in ipairs(opts.assignto) do
+                    if not list[slot] then
+                        Aptechka:PrintDeadAssignmentWarning(slot, opts.name or status)
+                    end
+                end
+            end
+        end, false)
     end)
 
     self.isInitialized = true
