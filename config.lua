@@ -345,8 +345,7 @@ if playerClass == "PALADIN" then
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Faith
 
-    A{ id = 210320,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { .4, .4, 1} } --Devotion Aura
-    A{ id = 183416,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { 1, .4, .4} } --Aura of Sacrifice
+    A{ id = 465,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { .4, .4, 1} } --Devotion Aura
 
     Trace{id = 225311, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.2}, fade = 0.4, priority = 96 } -- Light of Dawn
 
