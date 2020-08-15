@@ -716,6 +716,20 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     f:SetScript('OnShow', function(self)
         self:SetScript('OnShow', nil)
         LoadAddOn('AptechkaOptions')
+        Aptechka:ForAllCustomStatuses(function(opts, status, list)
+            if type(opts.assignto) == "string" then
+                local slot = opts.assignto
+                if not list[slot] then
+                    Aptechka:PrintDeadAssignmentWarning(slot, opts.name or status)
+                end
+            else
+                for _, slot in ipairs(opts.assignto) do
+                    if not list[slot] then
+                        Aptechka:PrintDeadAssignmentWarning(slot, opts.name or status)
+                    end
+                end
+            end
+        end, false)
     end)
 
     self.isInitialized = true
@@ -781,19 +795,22 @@ function Aptechka.GetWidgetListRaw()
             list[slot] = string.format("|cff77ff77%s|r",slot)
         end
     end
+    list["healfeedback"] = "healfeedback"
+    list["border"] = "border"
+    list["bossdebuff"] = "bossdebuff"
+    list["healthColor"] = "healthColor"
     return list
 end
 
 function Aptechka.GetWidgetList()
     local list = Aptechka.GetWidgetListRaw()
-    list["healfeedback"] = "healfeedback"
-    list["border"] = "border"
-    list["bossdebuff"] = "bossdebuff"
     list["mindcontrol"] = nil
     list["unhealable"] = nil
+    list["vehicle"] = nil
     list["text1"] = nil
     list["text2"] = nil
     list["text3"] = nil
+    list["incomingCastIcon"] = nil
     return list
 end
 
@@ -2308,7 +2325,14 @@ local function OrderedHashMap_Remove(t, dataID)
 end
 
 local lastDeadAssignmentError = 0
-local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
+function Aptechka:PrintDeadAssignmentWarning(slot, statusName)
+    if GetTime() - lastDeadAssignmentError > 120 then
+        Aptechka:Print(string.format("Widget '%s' called by '%s' doesn't exist. Use |cff88ff99/apt purge|r to clear dead assignments and reload UI.", slot, statusName))
+        lastDeadAssignmentError = GetTime()
+    end
+end
+
+local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
     -- if widgetSet and not widgetSet[slot] then return end
 
     local widget = frame[slot]
@@ -2317,10 +2341,7 @@ local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
     if not widget then
         widget = Aptechka:CreateDynamicWidget(frame, slot)
         if not widget then
-            if GetTime() - lastDeadAssignmentError > 120 then
-                Aptechka:Print(string.format("Widget '%s' called by '%s' doesn't exist. Use |cff88ff99/apt purge|r to clear dead assignments and reload UI.", slot, opts.name))
-                lastDeadAssignmentError = GetTime()
-            end
+            Aptechka:PrintDeadAssignmentWarning(slot, opts.name)
             return
         end
     end
@@ -2333,11 +2354,11 @@ local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
 
 
     -- short exit if disabling auras on already empty widget
-    if not widget.currentJob and status == false then return end
+    if not widget.currentJob and enabled == false then return end
 
     local jobs = widgetState
 
-    if status then
+    if enabled then
         contentType = contentType or opts.name
         OrderedHashMap_Add(jobs, opts.name, opts, contentType, ...)
 
@@ -2367,23 +2388,23 @@ local AssignToSlot = function(frame, opts, status, slot, contentType, ...)
 
 end
 
-function Aptechka.FrameSetJob(frame, opts, status, ...)
+function Aptechka.FrameSetJob(frame, opts, enabled, ...)
     if opts and opts.assignto then
         if type(opts.assignto) == "string" then
-            AssignToSlot(frame, opts, status, opts.assignto, ...)
+            AssignToSlot(frame, opts, enabled, opts.assignto, ...)
         else
             for _, slot in ipairs(opts.assignto) do
-                AssignToSlot(frame, opts, status, slot, ...)
+                AssignToSlot(frame, opts, enabled, slot, ...)
             end
         end
     end
 end
 FrameSetJob = Aptechka.FrameSetJob
 
-function Aptechka.SetJob(unit, opts, status, ...)
+function Aptechka.SetJob(unit, opts, enabled, ...)
     if not Roster[unit] then return end
     for frame in pairs(Roster[unit]) do
-        FrameSetJob(frame, opts, status, ...)
+        FrameSetJob(frame, opts, enabled, ...)
     end
 end
 SetJob = Aptechka.SetJob
@@ -3319,7 +3340,7 @@ function Aptechka:UpdateCastsConfig()
 
             if self.isInitialized then
                 self:ForEachFrame(function(self)
-                    self.castIcon:Hide()
+                    self.incomingCastIcon:Hide()
                 end)
             end
         end
@@ -3349,7 +3370,7 @@ function Aptechka.SPELLCAST_UPDATE(event, GUID)
                 end
             end
 
-            local icon = frame.castIcon
+            local icon = frame.incomingCastIcon
             if minSrcGUID then
                 local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
 
