@@ -43,12 +43,11 @@ config.AwayStatus = { name = "AFK", assignto = { "text2","text3" }, color = {.15
 -- config.IncomingHealStatus = { name = "IncomingHeal", assignto = "text2", color = { 0, 1, 0}, priority = 15 }
 config.HealthDeficitStatus = { name = "HealthDeficit", assignto = "healthtext", color = { 54/255, 201/255, 99/256 }, priority = 10 }
 config.UnitNameStatus = { name = "UnitName", assignto = "text1", classcolor = true, priority = 20 }
-config.HealthBarColor = { name = "HealthBar", assignto = "health", color = {1, .3, .3}, classcolor = true, priority = 20 }
+config.HealthBarColor = { name = "HealthBar", assignto = "health", color = {1, .3, .3}, classcolor = true, priority = 10 }
 config.PowerBarColor = { name = "PowerBar", assignto = "power", color = {.5,.5,1}, priority = 20 }
-config.OutOfRangeStatus = { name = "OOR", assignto = "self", color = {0.5,0.5,0.5}, alpha = 0.5, text = "OOR", priority = 50 }
 config.InVehicleStatus = { name = "InVehicle", assignto = "vehicle", color = {0.3,1,0.3}, priority = 21 }
 config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, resetAnimation = true, priority = 95, fade = 0.3 }
-config.DispelStatus = { name = "Dispel", assignto = "bossdebuff", scale = 0.8, priority = 6 }
+config.DispelStatus = { name = "Dispel", assignto = "bossdebuff", scale = 0.8, priority = 20 }
 config.StaggerStatus = { name = "Stagger", assignto = "text2", priority = 20 }
 
 config.SummonPending = { name = "SUMMON_PENDING", assignto = { "text2" }, color = {1,0.7,0}, text = "PENDING", priority = 50 }
@@ -125,6 +124,7 @@ A{ id = 118038, prototype = survivalCD } -- Die by the Sword
 A{ id = 12975,  prototype = activeMitigation, priority = 75 } --Last Stand
 A{ id = 871,    prototype = tankCD } --Shield Wall 40%
 A{ id = 107574, prototype = survivalCD, priority = 85 } --Avatar
+A{ id = 23920, prototype = survivalCD, priority = 85 } --Spell Reflect
 
 -- DEMON HUNTER
 A{ id = 212800, prototype = survivalCD } -- Blur
