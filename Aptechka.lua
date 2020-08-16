@@ -692,6 +692,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:SetScript('OnShow', nil)
         LoadAddOn('AptechkaOptions')
         Aptechka:ForAllCustomStatuses(function(opts, status, list)
+            if not opts.assignto then return end
             if type(opts.assignto) == "string" then
                 local slot = opts.assignto
                 if not list[slot] then
