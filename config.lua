@@ -74,6 +74,12 @@ config.DefaultWidgets = {
     text3 = { type = "Text", point="TOPLEFT", x=2, y=0, textsize = 9, effect = "NONE" },
     incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, textsize = 12, outline = false, edge = false },
 }
+local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+if isClassic then
+    config.DefaultWidgets.totemCluster1 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(6), y = 0 }
+    config.DefaultWidgets.totemCluster2 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(12), y = 0 }
+    config.DefaultWidgets.totemCluster3 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(19), y = 0 }
+end
 -- for name,w in pairs(config.DefaultWidgets) do
 --     w.__protected = true
 -- end

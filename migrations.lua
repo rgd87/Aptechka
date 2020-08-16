@@ -232,6 +232,7 @@ end
 
 
 local cleanOpts = function(opts, status, list)
+    if not opts.assignto then return end
     if type(opts.assignto) == "string" then
         local slot = opts.assignto
         if not list[slot] then opts.assignto = { } end
