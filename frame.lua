@@ -547,7 +547,7 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
             else
                 self:SetStatusBarColor(unpack(color))
             end
-            if not job.showDuration then
+            if not job.showDuration or duration == 0 then
                 self:SetMinMaxValues(0, 1)
                 self:SetValue(1)
                 self:SetScript("OnUpdate", nil)
@@ -1470,7 +1470,7 @@ local SetJob_Text = function(self, job, state, contentType, ...)
         self.text:SetFormattedText(formatMissingHealth(state.vHealthMax - state.vHealth))
         self:SetScript("OnUpdate", nil)
     elseif contentType == "IncomingHeal" then -- For Classic
-        self:SetFormattedText("+%d", state.vIncomingHeal)
+        self.text:SetFormattedText("+%d", state.vIncomingHeal)
         self:SetScript("OnUpdate", nil)
     elseif contentType == "AURA" then
         local duration, expirationTime = ...
