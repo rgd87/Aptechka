@@ -547,7 +547,7 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
             else
                 self:SetStatusBarColor(unpack(color))
             end
-            if not job.showDuration then
+            if not job.showDuration or duration == 0 then
                 self:SetMinMaxValues(0, 1)
                 self:SetValue(1)
                 self:SetScript("OnUpdate", nil)
