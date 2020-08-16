@@ -913,6 +913,8 @@ end
 function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     self:UNIT_HEALTH(event, unit)
 
+    -- local heal = GetIncomingHealsCustom(unit, false)
+    -- local showHeal = (heal and heal > threshold)
     -- if not Roster[unit] then return end
     -- for self in pairs(Roster[unit]) do
         -- if config.IncomingHealStatus then
