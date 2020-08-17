@@ -3124,20 +3124,20 @@ Aptechka.Commands = {
             local p = ParseOpts(params)
             local forProfile = cmd == "pset"
             local wname = p.name
-            local gopts = Aptechka.db.global.widgetConfig
-            local popts = Aptechka.db.profile.widgetConfig
+            local gconfig = Aptechka.db.global.widgetConfig
+            local pconfig = Aptechka.db.profile.widgetConfig
 
             if not wname then
                 print("Widget name not specified")
             end
 
-            if gopts[wname] then
-                if forProfile and not popts[wname] then
+            if gconfig[wname] then
+                if forProfile and not pconfig[wname] then
                     Aptechka.db.profile.widgetConfig[wname] = { }
                     print(string.format("Created '%s' settings for '%s' profile.", wname, Aptechka.db:GetCurrentProfile()))
                 end
 
-                local opts = forProfile and popts[wname] or gopts[wname]
+                local opts = Aptechka:GetWidgetsOptionsMerged(wname)
                 local wtype = opts.type
                 print("|cffffcc55===", wname, forProfile and "(profile) ===|r" or "===|r")
 
