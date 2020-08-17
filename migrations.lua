@@ -1,5 +1,5 @@
 do
-    local CURRENT_DB_VERSION = 4
+    local CURRENT_DB_VERSION = 5
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -177,14 +177,14 @@ do
                 for name, profile in pairs(db.profiles) do
                     if profile.nameFontSize then
                         profile.widgetConfig = profile.widgetConfig or {}
-                        profile.widgetConfig.text1 = profile.widgetConfig.text1 or CopyTable(AptechkaDefaultConfig.DefaultWidgets.text1)
+                        profile.widgetConfig.text1 = profile.widgetConfig.text1 or {}
                         profile.widgetConfig.text1.textsize = profile.nameFontSize
                     end
                     profile.nameFontSize = nil
 
                     if profile.nameFontOutline then
                         profile.widgetConfig = profile.widgetConfig or {}
-                        profile.widgetConfig.text1 = profile.widgetConfig.text1 or CopyTable(AptechkaDefaultConfig.DefaultWidgets.text1)
+                        profile.widgetConfig.text1 = profile.widgetConfig.text1 or {}
                         profile.widgetConfig.text1.effect = profile.nameFontOutline
                     end
                     profile.nameFontOutline = nil
@@ -192,6 +192,38 @@ do
             end
 
             db.DB_VERSION = 4
+        end
+        if db.DB_VERSION == 4 then
+            if db.global and db.global.widgetConfig then
+                for wname, opts in pairs(db.global.widgetConfig) do
+                    if not opts.font then
+                        opts.font = "ClearFont"
+                    end
+                end
+            end
+
+            if db.profiles then
+                for name, profile in pairs(db.profiles) do
+                    if profile.nameFontName then
+                        profile.widgetConfig = profile.widgetConfig or {}
+                        profile.widgetConfig.text1 = profile.widgetConfig.text1 or {}
+                        profile.widgetConfig.text1.font = profile.nameFontName
+                    end
+                    profile.nameFontName = nil
+                end
+            end
+
+            db.DB_VERSION = 5
+        end
+    end
+end
+
+function Aptechka:ForAllCustomWidgets(func)
+    for profileName, profile in pairs(self.db.profiles) do
+        if profile.widgetConfig then
+            for wname, opts in pairs(profile.widgetConfig) do
+                func(opts, wname, profileName)
+            end
         end
     end
 end
