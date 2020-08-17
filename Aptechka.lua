@@ -132,17 +132,6 @@ Aptechka.L = setmetatable({}, {
     __call = function(t,k) return t[k] end,
 })
 
-local defaultFont = "ClearFont"
-do
-    local locale = GetLocale()
-    if locale == "zhTW" or locale == "zhCN" or locale == "koKR" then
-        defaultFont = LibStub("LibSharedMedia-3.0").DefaultMedia["font"]
-        -- "預設" - zhTW
-        -- "默认" - zhCN
-        -- "기본 글꼴" - koKR
-    end
-end
-
 local defaults = {
     global = {
         disableBlizzardParty = true,
@@ -217,7 +206,6 @@ local defaults = {
         debuffBossScale = 1.3,
         stackFontName = "ClearFont",
         stackFontSize = 12,
-        nameFontName = defaultFont,
         nameColorMultiplier = 1,
         fgShowMissing = true,
         fgColorMultiplier = 1,
@@ -829,13 +817,12 @@ end
 function Aptechka:ReconfigureWidget(widgetName)
     local gopts = Aptechka.db.global.widgetConfig[widgetName]
     local popts = Aptechka.db.profile.widgetConfig[widgetName]
-    local new_opts = popts or gopts
-    local reconfFunc = Aptechka.Widget[new_opts.type].Reconf
+    local reconfFunc = Aptechka.Widget[gopts.type].Reconf
     if reconfFunc then
         Aptechka:ForEachFrame(function(frame)
             local widget = frame[widgetName]
             if widget then
-                reconfFunc(frame, widget, new_opts)
+                reconfFunc(frame, widget, popts, gopts)
             end
         end)
     end
@@ -2874,7 +2861,9 @@ local ParseOpts = function(str)
         t[k:lower()] = tonumber(v) or v
         return ""
     end
-    str:gsub("(%w+)%s*=%s*%[%[(.-)%]%]", capture):gsub("(%w+)%s*=%s*(%S+)", capture)
+    str = str:gsub("(%w+)%s*=%s*%[%[(.-)%]%]", capture)
+    str = str:gsub("(%w+)%s*=%s*%\"(.-)%\"", capture)
+    str:gsub("(%w+)%s*=%s*(%S+)", capture)
     return t
 end
 function Aptechka:PrintReloadUIWarning()
@@ -3075,7 +3064,7 @@ Aptechka.Commands = {
 
             if gopts[wname] then
                 if forProfile and not popts[wname] then
-                    Aptechka.db.profile.widgetConfig[wname] = CopyTable(gopts[wname])
+                    Aptechka.db.profile.widgetConfig[wname] = { }
                     print(string.format("Created '%s' settings for '%s' profile.", wname, Aptechka.db:GetCurrentProfile()))
                 end
 

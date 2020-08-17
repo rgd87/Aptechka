@@ -13,7 +13,17 @@ config.frameStrata = "MEDIUM"
 config.maxgroups = 8
 config.petcolor = {1,.5,.5}
 --A maximum of 5 pets can be displayed.
---You also can use /apt createpets command, it creates pet group on the fly
+
+config.defaultFont = "ClearFont"
+do
+    local locale = GetLocale()
+    if locale == "zhTW" or locale == "zhCN" or locale == "koKR" then
+        config.defaultFont = LibStub("LibSharedMedia-3.0").DefaultMedia["font"]
+        -- "預設" - zhTW
+        -- "默认" - zhCN
+        -- "기본 글꼴" - koKR
+    end
+end
 
 config.registerForClicks = { "AnyUp" }
 config.enableIncomingHeals = true
@@ -69,9 +79,9 @@ config.DefaultWidgets = {
     buffIcons = { type = "IconArray", width = 12, height = 18, point = "TOPRIGHT", x = 5, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, textsize = 12 },
     bars = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 },
     vbar1 = { type = "Bar", width=4, height=20, point="TOPRIGHT", x=-9, y=2, vertical = true},
-    text1 = { type = "StaticText", point="CENTER", x=0, y=0, textsize = 12, effect = "SHADOW" },
-    text2 = { type = "StaticText", point="CENTER", x=0, y=-10, textsize = 10, effect = "NONE" },
-    text3 = { type = "Text", point="TOPLEFT", x=2, y=0, textsize = 9, effect = "NONE" },
+    text1 = { type = "StaticText", point="CENTER", x=0, y=0, font = config.defaultFont, textsize = 12, effect = "SHADOW" },
+    text2 = { type = "StaticText", point="CENTER", x=0, y=-10, font = "ClearFont", textsize = 10, effect = "NONE" },
+    text3 = { type = "Text", point="TOPLEFT", x=2, y=0, font = "ClearFont", textsize = 9, effect = "NONE" },
     incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, textsize = 12, outline = false, edge = false },
 }
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
