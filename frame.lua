@@ -33,6 +33,31 @@ local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 Aptechka.Widget = {}
 
 
+
+local function InheritGlobalOptions(popts, gopts)
+    if not popts then
+        return gopts
+    else
+        local mt = getmetatable(popts)
+        if not mt then
+            mt = { __index = gopts }
+            setmetatable(popts, mt)
+        end
+        mt.__index = gopts
+    end
+    return popts
+end
+
+function Aptechka:GetWidgetsOptions(name)
+    local gopts = Aptechka.db.global.widgetConfig[name]
+    if not gopts then return nil end
+    local popts = Aptechka.db.profile.widgetConfig and Aptechka.db.profile.widgetConfig[name]
+    return popts, gopts
+end
+function Aptechka:GetWidgetsOptionsMerged(name)
+    return InheritGlobalOptions(Aptechka:GetWidgetsOptions(name))
+end
+
 local MakeBorder = function(self, tex, left, right, top, bottom, level)
     local t = self:CreateTexture(nil,"BORDER",nil,level)
     t:SetTexture(tex)
@@ -346,10 +371,12 @@ AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
 Aptechka.Widget.Indicator = {}
 Aptechka.Widget.Indicator.default = { type = "Indicator", width = 7, height = 7, point = "TOPRIGHT", x = 0, y = 0, }
 
-function Aptechka.Widget.Indicator.Create(parent, opts)
+function Aptechka.Widget.Indicator.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
     return CreateIndicator(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y)
 end
-function Aptechka.Widget.Indicator.Reconf(parent, f, opts)
+function Aptechka.Widget.Indicator.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
     f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
@@ -636,11 +663,13 @@ AptechkaDefaultConfig.GridSkin_CreateStatusBar = CreateStatusBar
 
 Aptechka.Widget.Bar = {}
 Aptechka.Widget.Bar.default = { type = "Bar", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false }
-function Aptechka.Widget.Bar.Create(parent, opts)
+function Aptechka.Widget.Bar.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
     return CreateStatusBar(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y, nil, opts.vertical)
 end
 
-function Aptechka.Widget.Bar.Reconf(parent, f, opts)
+function Aptechka.Widget.Bar.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
     f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
@@ -738,25 +767,28 @@ end
 
 Aptechka.Widget.BarArray = {}
 Aptechka.Widget.BarArray.default = { type = "BarArray", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 }
-function Aptechka.Widget.BarArray.Create(parent, opts)
+function Aptechka.Widget.BarArray.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
     return CreateArrayHeader("Bar", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
 end
 
-function Aptechka.Widget.BarArray.Reconf(parent, hdr, opts)
+function Aptechka.Widget.BarArray.Reconf(parent, hdr, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
     hdr:ClearAllPoints()
     hdr:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     hdr.maxChildren = opts.max or 5
     hdr.template = opts
     hdr.growthDirection = opts.growth
     for i, widget in ipairs(hdr.children) do
-        Aptechka.Widget[hdr.childType].Reconf(hdr, widget, opts) -- Ruins anchors until the following :Arrange()
+        Aptechka.Widget[hdr.childType].Reconf(hdr, widget, nil, opts) -- Ruins anchors until the following :Arrange()
     end
     hdr:Arrange()
 end
 
 Aptechka.Widget.IconArray = {}
 Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
-function Aptechka.Widget.IconArray.Create(parent, opts)
+function Aptechka.Widget.IconArray.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
     return CreateArrayHeader("Icon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
 end
 
@@ -903,7 +935,7 @@ local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, 
     stackframe:SetAllPoints(icon)
     local stacktext = stackframe:CreateFontString(nil,"ARTWORK")
     stacktext:SetDrawLayer("ARTWORK",1)
-    local stackFont = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+    local stackFont = LSM:Fetch("font",  Aptechka.db.profile.stackFontName)
     local stackFontSize = textsize or Aptechka.db.profile.stackFontSize
     stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
     -- stackframe:SetFrameLevel(7)
@@ -987,11 +1019,13 @@ AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 Aptechka.Widget.Icon = {}
 Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = true, edge = true }
-function Aptechka.Widget.Icon.Create(parent, opts)
+function Aptechka.Widget.Icon.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
     return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
 end
 
-function Aptechka.Widget.Icon.Reconf(parent, f, opts)
+function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
     local w = pixelperfect(opts.width)
     local h = pixelperfect(opts.height)
 
@@ -999,7 +1033,7 @@ function Aptechka.Widget.Icon.Reconf(parent, f, opts)
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     f:SetAlpha(opts.alpha)
-    local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+    local font = LSM:Fetch("font",  Aptechka.db.profile.stackFontName)
     f.stacktext:SetFont(font, opts.textsize, "OUTLINE")
     local drawEdge = opts.edge
 
@@ -1252,7 +1286,8 @@ end
 
 Aptechka.Widget.ProgressIcon = {}
 Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = false, edge = false }
-function Aptechka.Widget.ProgressIcon.Create(parent, opts)
+function Aptechka.Widget.ProgressIcon.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
     return CreateProgressIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
 end
 
@@ -1533,9 +1568,10 @@ end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
 Aptechka.Widget.Text = {}
-Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] textsize = 13, effect = "NONE" }
-function Aptechka.Widget.Text.Create(parent, opts)
-    local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] font = "ClearFont", textsize = 13, effect = "NONE" }
+function Aptechka.Widget.Text.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", "ClearFont")
     local text = CreateTextTimer(parent, opts.point, parent, opts.point, opts.x, opts.y, opts.justify, opts.textsize, font, nil)
     if opts.type == "StaticText" then
         text.SetJob = SetJob_StaticText
@@ -1543,11 +1579,12 @@ function Aptechka.Widget.Text.Create(parent, opts)
     return text
 end
 
-function Aptechka.Widget.Text.Reconf(parent, f, opts)
+function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
     f.text:ClearAllPoints()
     f.text:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     -- f.text:SetJustifyH(opts.justify:upper())
-    local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", "ClearFont")
     local flags = opts.effect == "OUTLINE" and "OUTLINE"
     if opts.effect == "SHADOW" then
         f.text:SetShadowOffset(1,-1)
@@ -1801,10 +1838,11 @@ function Aptechka:CreateDynamicWidget(frame, widgetName)
         frame[widgetName] = newWidget -- Could be nil
         return newWidget
     elseif Aptechka.db.global.widgetConfig[widgetName] then
-        local opts = Aptechka.db.global.widgetConfig[widgetName]
-        local widgetType = opts.type
+        local gopts = Aptechka.db.global.widgetConfig[widgetName]
+        local popts = Aptechka.db.profile.widgetConfig and Aptechka.db.profile.widgetConfig[widgetName]
+        local widgetType = gopts.type
         if Aptechka.Widget[widgetType] then
-            local newWidget = Aptechka.Widget[widgetType].Create(frame, opts)
+            local newWidget = Aptechka.Widget[widgetType].Create(frame, popts, gopts)
             frame[widgetName] = newWidget
             return newWidget
         end
@@ -1856,8 +1894,6 @@ local function Reconf(self)
         self.health.absorb2:SetDrawLayer("ARTWORK", -5)
         self.health.incoming:SetDrawLayer("ARTWORK", -5)
     end
-
-    local nameFont = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
 
     local stackFont = LSM:Fetch("font", Aptechka.db.profile.stackFontName)
     local stackFontSize = Aptechka.db.profile.stackFontSize
@@ -2252,10 +2288,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
 
     local text1_opts = Aptechka.db.global.widgetConfig.text1
-    local text = Aptechka.Widget.Text.Create(self, text1_opts)
+    local text = Aptechka.Widget.Text.Create(self, nil, text1_opts)
 
     local text2_opts = Aptechka.db.global.widgetConfig.text2
-    local text2 = Aptechka.Widget.Text.Create(self, text2_opts)
+    local text2 = Aptechka.Widget.Text.Create(self, nil, text2_opts)
 
 
     local raidicon = CreateFrame("Frame",nil,self)
@@ -2298,7 +2334,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
 
     local text3_opts = Aptechka.db.global.widgetConfig.text3
-    local text3 = Aptechka.Widget.Text.Create(self, text3_opts)
+    local text3 = Aptechka.Widget.Text.Create(self, nil, text3_opts)
 
     -- local bar1 = CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
     -- local bar2 = CreateStatusBar(self, 21, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)
@@ -2323,7 +2359,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.healfeedback = trcorner
 
     local casticon_opts = Aptechka.db.global.widgetConfig.incomingCastIcon
-    local incomingCastIcon = Aptechka.Widget.ProgressIcon.Create(self, casticon_opts)
+    local incomingCastIcon = Aptechka.Widget.ProgressIcon.Create(self, nil, casticon_opts)
 
     -- local roundIndicator = CreateRoundIndicator(self, 13, 13, "BOTTOMLEFT", self, "BOTTOMLEFT",-8, -8)
 
