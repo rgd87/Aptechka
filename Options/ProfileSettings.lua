@@ -417,12 +417,16 @@ function ns.MakeProfileSettings()
                     },
                     nameFont = {
                         type = "select",
-                        name = L"Main Font",
+                        name = L"Name Font",
                         order = 14.1,
-                        get = function(info) return Aptechka.db.profile.nameFontName end,
+                        get = function(info)
+                            local opts = Aptechka:GetWidgetsOptionsMerged("text1")
+                            return opts.font
+                        end,
                         set = function(info, value)
-                            Aptechka.db.profile.nameFontName = value
-                            Aptechka:ReconfigureUnprotected()
+                            Aptechka.db.profile.widgetConfig = Aptechka.db.profile.widgetConfig or {}
+                            Aptechka.db.profile.widgetConfig.text1 = Aptechka.db.profile.widgetConfig.text1 or {}
+                            Aptechka.db.profile.widgetConfig.text1.font = value
                             Aptechka:ReconfigureAllWidgets()
                         end,
                         values = LSM:HashTable("font"),

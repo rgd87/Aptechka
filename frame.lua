@@ -935,7 +935,7 @@ local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, 
     stackframe:SetAllPoints(icon)
     local stacktext = stackframe:CreateFontString(nil,"ARTWORK")
     stacktext:SetDrawLayer("ARTWORK",1)
-    local stackFont = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+    local stackFont = LSM:Fetch("font",  Aptechka.db.profile.stackFontName)
     local stackFontSize = textsize or Aptechka.db.profile.stackFontSize
     stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
     -- stackframe:SetFrameLevel(7)
@@ -1033,7 +1033,7 @@ function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     f:SetAlpha(opts.alpha)
-    local font = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
+    local font = LSM:Fetch("font",  Aptechka.db.profile.stackFontName)
     f.stacktext:SetFont(font, opts.textsize, "OUTLINE")
     local drawEdge = opts.edge
 
@@ -1894,8 +1894,6 @@ local function Reconf(self)
         self.health.absorb2:SetDrawLayer("ARTWORK", -5)
         self.health.incoming:SetDrawLayer("ARTWORK", -5)
     end
-
-    local nameFont = LSM:Fetch("font",  Aptechka.db.profile.nameFontName)
 
     local stackFont = LSM:Fetch("font", Aptechka.db.profile.stackFontName)
     local stackFontSize = Aptechka.db.profile.stackFontSize
