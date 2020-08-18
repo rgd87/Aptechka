@@ -2287,10 +2287,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
     border:Hide()
 
 
-    local text1_opts = Aptechka.db.global.widgetConfig.text1
+    local text1_opts = Aptechka:GetWidgetsOptionsMerged("text1")
     local text = Aptechka.Widget.Text.Create(self, nil, text1_opts)
 
-    local text2_opts = Aptechka.db.global.widgetConfig.text2
+    local text2_opts = Aptechka:GetWidgetsOptionsMerged("text2")
     local text2 = Aptechka.Widget.Text.Create(self, nil, text2_opts)
 
 
@@ -2333,7 +2333,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
     -- local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
 
-    local text3_opts = Aptechka.db.global.widgetConfig.text3
+    local text3_opts = Aptechka:GetWidgetsOptionsMerged("text3")
     local text3 = Aptechka.Widget.Text.Create(self, nil, text3_opts)
 
     -- local bar1 = CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
@@ -2358,7 +2358,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
     self.healfeedback = trcorner
 
-    local casticon_opts = Aptechka.db.global.widgetConfig.incomingCastIcon
+    local casticon_opts = Aptechka:GetWidgetsOptionsMerged("incomingCastIcon")
     local incomingCastIcon = Aptechka.Widget.ProgressIcon.Create(self, nil, casticon_opts)
 
     -- local roundIndicator = CreateRoundIndicator(self, 13, 13, "BOTTOMLEFT", self, "BOTTOMLEFT",-8, -8)
