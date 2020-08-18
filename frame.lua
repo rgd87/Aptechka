@@ -1572,7 +1572,13 @@ Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0,
 function Aptechka.Widget.Text.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", "ClearFont")
-    local text = CreateTextTimer(parent, opts.point, parent, opts.point, opts.x, opts.y, opts.justify, opts.textsize, font, nil)
+    local flags = opts.effect == "OUTLINE" and "OUTLINE"
+    local text = CreateTextTimer(parent, opts.point, parent, opts.point, opts.x, opts.y, opts.justify, opts.textsize, font, flags)
+    if opts.effect == "SHADOW" then
+        text.text:SetShadowOffset(1,-1)
+    else
+        text.text:SetShadowOffset(0,0)
+    end
     if opts.type == "StaticText" then
         text.SetJob = SetJob_StaticText
     end
