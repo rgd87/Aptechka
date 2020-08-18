@@ -574,7 +574,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
 
     -- AptechkaDB.global.useCombatLogHealthUpdates = false
-    if AptechkaDB.global.useCombatLogHealthUpdates then
+    if isClassic and AptechkaDB.global.useCombatLogHealthUpdates then
         local CLH = LibStub("LibCombatLogHealth-1.0")
         UnitHealth = CLH.UnitHealth
         self:UnregisterEvent("UNIT_HEALTH")
