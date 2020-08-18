@@ -3133,6 +3133,15 @@ Aptechka.Commands = {
             else
                 print("Widget doesn't exist:", wname)
             end
+        elseif cmd == "trim" then
+            for profileName, profile in pairs(Aptechka.db.profiles) do
+                if profile.widgetConfig then
+                    for wname, popts in pairs(profile.widgetConfig) do
+                        local gopts = Aptechka.db.global.widgetConfig[wname]
+                        Aptechka.RemoveDefaults(popts, gopts)
+                    end
+                end
+            end
         elseif cmd == "list" then
             print("|cff99FF99Customizable Widgets:|r")
             for wname, opts in pairs(Aptechka.db.global.widgetConfig) do
