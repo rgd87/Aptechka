@@ -416,15 +416,16 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         -- raid
         local hider = CreateFrame("Frame")
         hider:Hide()
-        if CanAccessObject and CompactRaidFrameManager and CompactUnitFrameProfiles then
+        if CompactRaidFrameManager and CompactUnitFrameProfiles then
             CompactRaidFrameManager:SetParent(hider)
             -- CompactRaidFrameManager:UnregisterAllEvents()
             CompactUnitFrameProfiles:UnregisterAllEvents()
 
             local disableCompactRaidFrameUnitButton = function(self)
-                if not CanAccessObject(self) then return end
+                if self:IsForbidden() then return end
                 -- for some reason CompactUnitFrame_OnLoad also gets called for nameplates, so ignoring that
                 local frameName = self:GetName()
+                if not frameName then return end
                 if string.sub(frameName, 1, 16) == "CompactRaidFrame" then
                     -- print(frameName)
                     self:UnregisterAllEvents()
