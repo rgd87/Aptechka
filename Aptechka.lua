@@ -425,6 +425,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 if self:IsForbidden() then return end
                 -- for some reason CompactUnitFrame_OnLoad also gets called for nameplates, so ignoring that
                 local frameName = self:GetName()
+                if not frameName then return end
                 if string.sub(frameName, 1, 16) == "CompactRaidFrame" then
                     -- print(frameName)
                     self:UnregisterAllEvents()
