@@ -432,15 +432,16 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         -- raid
         local hider = CreateFrame("Frame")
         hider:Hide()
-        if CanAccessObject and CompactRaidFrameManager and CompactUnitFrameProfiles then
+        if CompactRaidFrameManager and CompactUnitFrameProfiles then
             CompactRaidFrameManager:SetParent(hider)
             -- CompactRaidFrameManager:UnregisterAllEvents()
             CompactUnitFrameProfiles:UnregisterAllEvents()
 
             local disableCompactRaidFrameUnitButton = function(self)
-                if not CanAccessObject(self) then return end
+                if self:IsForbidden() then return end
                 -- for some reason CompactUnitFrame_OnLoad also gets called for nameplates, so ignoring that
                 local frameName = self:GetName()
+                if not frameName then return end
                 if string.sub(frameName, 1, 16) == "CompactRaidFrame" then
                     -- print(frameName)
                     self:UnregisterAllEvents()
@@ -1135,7 +1136,7 @@ function Aptechka:CheckPhase(frame, unit)
         frame.centericon.texture:SetTexCoord(0,1,0,1);
         frame.centericon:Show()
     ]]
-    elseif (not UnitInPhase(unit) or UnitIsWarModePhased(unit)) and not frame.state.isInVehicle then
+    elseif UnitIsPlayer(unit) and (not UnitInPhase(unit) or UnitIsWarModePhased(unit)) and not frame.state.isInVehicle then
         frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
         frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
         frame.centericon:Show()
