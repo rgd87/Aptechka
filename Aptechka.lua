@@ -1061,7 +1061,7 @@ function Aptechka:CheckPhase(frame, unit)
         frame.centericon.texture:SetTexCoord(0,1,0,1);
         frame.centericon:Show()
     ]]
-    elseif (not UnitInPhase(unit) or UnitIsWarModePhased(unit)) and not frame.state.isInVehicle then
+    elseif UnitIsPlayer(unit) and (not UnitInPhase(unit) or UnitIsWarModePhased(unit)) and not frame.state.isInVehicle then
         frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
         frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
         frame.centericon:Show()
