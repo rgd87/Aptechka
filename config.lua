@@ -337,6 +337,8 @@ if playerClass == "PALADIN" then
     --Glimmer of Light
     A{ id = 287280,type = "HELPFUL", assignto = "bars", color = { 1, .3, .3}, showDuration = true, isMine = true}
 
+    A{ id = { 328282, 328620, 328622, 328281 },  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Blessing of Seasons
+
     --Tyr's Deliverance
     A{ id = 200654, type = "HELPFUL", assignto = "spell3", color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true }
      --Bestow Faith
@@ -397,10 +399,12 @@ if playerClass == "SHAMAN" then
                                                                         --, } --Earth Shield
 
     -- Surge of Earth
-    Trace{id = 320747, type = "HEAL", assignto = "healfeedback", color = { 0.8, 0.4, 0.1}, fade = 0.7, priority = 96 } -- Chain Heal
-
+    Trace{id = 320747, type = "HEAL", assignto = "healfeedback", color = { 0.8, 0.4, 0.1}, fade = 0.7, priority = 96 }
     -- Downpour
-    Trace{id = 207778, type = "HEAL", assignto = "healfeedback", color = { 0.4, 0.4, 1}, fade = 0.7, priority = 96 } -- Chain Heal
+    Trace{id = 207778, type = "HEAL", assignto = "healfeedback", color = { 0.4, 0.4, 1}, fade = 0.7, priority = 96 }
+
+    Trace{id = 77472, type = "HEAL", assignto = "healfeedback", color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Wave
+    Trace{id = 8004, type = "HEAL", assignto = "healfeedback", color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Surge
 
     Trace{id = 1064, type = "HEAL", assignto = "healfeedback", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = "spell3", color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
@@ -419,6 +423,11 @@ if playerClass == "SHAMAN" then
 end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = "raidbuff", color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
+
+    -- A{ id = 327037,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Protection
+    A{ id = 327071,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Focus
+    -- A{ id = 327022,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Empowerment
+    A{ id = 325748,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Adaptive Swarm
 
     -- Tranquility
     --[[
