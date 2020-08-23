@@ -1016,7 +1016,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
         elseif state.isDead then
             state.isDead = nil
             state.isGhost = nil
-            Aptechka.ScanAuras(unit)
+            Aptechka.FrameScanAuras(self, unit)
             SetJob(unit, config.GhostStatus, false)
             SetJob(unit, config.DeadStatus, false)
             SetJob(unit, config.ResPendingStatus, false)
@@ -1126,27 +1126,28 @@ local purgeOldAuraEvents = function(frame)
 end
 
 function Aptechka:PLAYER_ENTERING_WORLD(event)
-    for unit in pairs(Roster) do
-        Aptechka:INCOMING_SUMMON_CHANGED(nil, unit)
-    end
+    self:ForEachFrame(Aptechka.FrameUpdateIncomingSummon)
     Aptechka:ForEachFrame(purgeOldAuraEvents)
 end
 
-function Aptechka.INCOMING_SUMMON_CHANGED(self, event, unit)
+function Aptechka.FrameUpdateIncomingSummon(frame, unit)
     if HasIncomingSummon(unit) then
         local status = C_IncomingSummon.IncomingSummonStatus(unit);
         if(status == Enum.SummonStatus.Pending) then
-            SetJob(unit, config.SummonPending, true)
+            FrameSetJob(frame, config.SummonPending, true)
         elseif( status == Enum.SummonStatus.Accepted ) then
-            SetJob(unit, config.SummonAccepted, true)
+            FrameSetJob(frame, config.SummonAccepted, true)
         elseif( status == Enum.SummonStatus.Declined ) then
-            SetJob(unit, config.SummonDeclined, true)
+            FrameSetJob(frame, config.SummonDeclined, true)
         end
     else
-        SetJob(unit, config.SummonPending, false)
-        SetJob(unit, config.SummonAccepted, false)
-        SetJob(unit, config.SummonDeclined, false)
+        FrameSetJob(frame, config.SummonPending, false)
+        FrameSetJob(frame, config.SummonAccepted, false)
+        FrameSetJob(frame, config.SummonDeclined, false)
     end
+end
+function Aptechka.INCOMING_SUMMON_CHANGED(self, event, unit)
+    self:ForEachUnitFrame(unit, Aptechka.FrameUpdateIncomingSummon)
 end
 
 local afkPlayerTable = {}
@@ -1168,10 +1169,7 @@ function Aptechka.FrameUpdateAFK(frame, unit)
     end
 end
 function Aptechka.UNIT_AFK_CHANGED(self, event, unit)
-    if not Roster[unit] then return end
-    for frame in pairs(Roster[unit]) do
-        Aptechka.FrameUpdateAFK(frame, unit)
-    end
+    self:ForEachUnitFrame(unit, Aptechka.FrameUpdateAFK)
 end
 Aptechka.PLAYER_FLAGS_CHANGED = Aptechka.UNIT_AFK_CHANGED
 
@@ -1259,7 +1257,7 @@ local vehicleHack = function (self, time)
             if self.parent.absorb then
                 Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
             end
-            Aptechka.ScanAuras(owner)
+            Aptechka.FrameScanAuras(frame, owner)
 
             Aptechka.FrameUpdateMindControl(frame, owner)
 
@@ -1299,7 +1297,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 if self.power then Aptechka.FrameUpdatePower(self, self.unit) end
                 if self.absorb then Aptechka.FrameUpdateAbsorb(self, self.unit) end
                 Aptechka.FrameCheckPhase(self, self.unit)
-                Aptechka.ScanAuras(self.unit)
+                Aptechka.FrameScanAuras(self, self.unit)
 
                 Aptechka.FrameUpdateMindControl(self, self.unit) -- pet unit will be marked as 'charmed'
 
@@ -1730,7 +1728,7 @@ local function updateUnitButton(self, unit)
 
     FrameSetJob(self,config.HealthBarColor,true)
     FrameSetJob(self,config.PowerBarColor,true)
-    Aptechka.ScanAuras(unit)
+    Aptechka.FrameScanAuras(self, unit)
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
     if config.enableAbsorbBar then
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
