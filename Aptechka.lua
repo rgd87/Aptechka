@@ -2311,11 +2311,7 @@ local GetRealID = function(id) return type(id) == "table" and id[1] or id end
 -- AURAS
 -----------------------
 
-local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, spellName)
-    local frames = Roster[unit]
-    if not frames then return end
-
-    for frame in pairs(frames) do
+local function SetDebuffIcon(frame, unit, index, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, spellName)
         local iconFrame = frame.debuffIcons[index]
         if debuffType == false then
             iconFrame:Hide()
@@ -2332,7 +2328,6 @@ local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, 
                 iconFrame.eyeCatcher:Play()
             end
         end
-    end
 end
 
 
@@ -2510,14 +2505,14 @@ function Aptechka.OrderedDebuffPostUpdate(frame, unit)
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
+            SetDebuffIcon(frame, unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
         else
             break
         end
     end
 
     for i=shown+1, debuffLineLength do
-        SetDebuffIcon(unit, i, false)
+        SetDebuffIcon(frame, unit, i, false)
     end
 end
 
@@ -2554,14 +2549,14 @@ function Aptechka.SimpleDebuffPostUpdate(frame, unit)
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
+            SetDebuffIcon(frame, unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
         else
             break
         end
     end
 
     for i=shown+1, debuffLineLength do
-        SetDebuffIcon(unit, i, false)
+        SetDebuffIcon(frame, unit, i, false)
     end
 end
 ---------------------------
@@ -2761,6 +2756,8 @@ function Aptechka.TestDebuffSlots()
     local shown = 0
     local fill = 0
     local unit = "player"
+    local frames = Roster[unit]
+    local frame = next(frames)
 
     local numBossAuras = math.random(3)-1
     local now = GetTime()
@@ -2781,7 +2778,7 @@ function Aptechka.TestDebuffSlots()
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
+            SetDebuffIcon(frame, unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
         else
             break
         end
@@ -2814,7 +2811,7 @@ function Aptechka.TestDebuffSlots()
     -- end
 
     for i=shown+1, debuffLineLength do
-        SetDebuffIcon(unit, i, false)
+        SetDebuffIcon(frame, unit, i, false)
     end
 end
 
