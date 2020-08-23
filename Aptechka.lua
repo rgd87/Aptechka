@@ -798,8 +798,8 @@ function Aptechka:RefreshAllUnitsHealth()
 end
 function Aptechka:RefreshAllUnitsColors()
     for unit, frames in pairs(Roster) do
-        Aptechka:Colorize(nil, unit)
         for frame in pairs(frames) do
+            Aptechka.FrameColorize(frame, unit)
             FrameSetJob(frame, config.UnitNameStatus, true)
             FrameSetJob(frame, config.HealthBarColor, true)
             if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
@@ -915,36 +915,33 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     -- end
 end
 
-function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
-    local rosterunit = Roster[unit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        local a,hm = UnitGetTotalAbsorbs(unit), UnitHealthMax(unit)
-        local h = UnitHealth(unit)
-        local ch, p = 0, 0
-        if hm ~= 0 then
-            p = a/hm
-            ch = h/hm
-        end
-        self.absorb:SetValue(p, ch)
-        self.absorb2:SetValue(p, ch)
+function Aptechka.FrameUpdateAbsorb(frame, unit)
+    local a,hm = UnitGetTotalAbsorbs(unit), UnitHealthMax(unit)
+    local h = UnitHealth(unit)
+    local ch, p = 0, 0
+    if hm ~= 0 then
+        p = a/hm
+        ch = h/hm
     end
+    frame.absorb:SetValue(p, ch)
+    frame.absorb2:SetValue(p, ch)
 end
-
-function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
-    local rosterunit = Roster[unit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        local a = UnitGetTotalHealAbsorbs(unit)
-        local hm = UnitHealthMax(unit)
-        local h = UnitHealth(unit)
-        local ch, p = 0, 0
-        if hm ~= 0 then
-            ch = (h/hm)
-            p = a/hm
-        end
-        self.healabsorb:SetValue(p, ch)
+function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateAbsorb)
+end
+function Aptechka.FrameUpdateHealAbsorb(frame, unit)
+    local a = UnitGetTotalHealAbsorbs(unit)
+    local hm = UnitHealthMax(unit)
+    local h = UnitHealth(unit)
+    local ch, p = 0, 0
+    if hm ~= 0 then
+        ch = (h/hm)
+        p = a/hm
     end
+    frame.healabsorb:SetValue(p, ch)
+end
+function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealAbsorb)
 end
 
 local function GetForegroundSeparation(health, healthMax, showMissing)
@@ -1015,7 +1012,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
             SetJob(unit,config.HealthDeficitStatus, false )
             state.isDead = true
             state.isGhost = isGhost
-            Aptechka:UNIT_DISPLAYPOWER(event, unit, true)
+            Aptechka.FrameUpdateDisplayPower(self, unit, true)
         elseif state.isDead then
             state.isDead = nil
             state.isGhost = nil
@@ -1024,7 +1021,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
             SetJob(unit, config.DeadStatus, false)
             SetJob(unit, config.ResPendingStatus, false)
             SetJob(unit, config.ResIncomingStatus, false)
-            Aptechka:UNIT_DISPLAYPOWER(event, unit, false)
+            Aptechka.FrameUpdateDisplayPower(self, unit, false)
         end
     end
 end
@@ -1066,12 +1063,7 @@ function Aptechka.FrameCheckPhase(frame, unit)
 end
 
 function Aptechka.UNIT_PHASE(self, event, unit)
-    local frames = Roster[unit]
-    if frames then
-        for frame in pairs(frames) do
-            Aptechka.FrameCheckPhase(frame,unit)
-        end
-    end
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameCheckPhase)
 end
 
 function Aptechka.FrameUpdateMindControl(frame, unit)
@@ -1185,7 +1177,7 @@ Aptechka.PLAYER_FLAGS_CHANGED = Aptechka.UNIT_AFK_CHANGED
 
 
 local offlinePlayerTable = {}
-function Aptechka.UpdateConnection(frame, unit)
+function Aptechka.FrameUpdateConnection(frame, unit)
     -- if self.unitOwner then unit = self.unitOwner end
     local name = UnitGUID(unit)
     if not UnitIsConnected(unit) then
@@ -1207,7 +1199,7 @@ function Aptechka.UpdateConnection(frame, unit)
     end
 end
 function Aptechka.UNIT_CONNECTION(self, event, unit)
-    Aptechka:ForEachUnitFrame(unit, Aptechka.UpdateConnection)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateConnection)
 end
 function Aptechka.FrameUpdatePower(frame, unit, ptype)
     -- ptype = ptype or self.power.powerType
@@ -1258,11 +1250,11 @@ local vehicleHack = function (self, time)
             -- Remove vehicle status
             SetJob(owner,config.InVehicleStatus,false)
             -- Update unitframe back to owner's unit health, etc.
-            Aptechka:UNIT_HEALTH("VEHICLE",owner)
+            Aptechka.FrameUpdateHealth(frame, owner, "VEHICLE")
             if self.parent.power then
-                Aptechka:UNIT_DISPLAYPOWER(nil, owner)
+                Aptechka.FrameUpdateDisplayPower(frame, owner)
                 local ptype = select(2,UnitPowerType(owner))
-                Aptechka:UNIT_POWER_UPDATE(nil,owner, ptype)
+                Aptechka.FrameUpdatePower(frame, owner, ptype)
             end
             if self.parent.absorb then
                 Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
@@ -1303,9 +1295,9 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 -- Set in vehicle status
                 SetJob(self.unit,config.InVehicleStatus,true)
                 -- Update unitframe for the new vehicle unit
-                Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
-                if self.power then Aptechka:UNIT_POWER_UPDATE(nil,self.unit) end
-                if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
+                Aptechka.FrameUpdateHealth(self, self.unit, "VEHICLE")
+                if self.power then Aptechka.FrameUpdatePower(self, self.unit) end
+                if self.absorb then Aptechka.FrameUpdateAbsorb(self, self.unit) end
                 Aptechka.FrameCheckPhase(self, self.unit)
                 Aptechka.ScanAuras(self.unit)
 
@@ -1739,11 +1731,11 @@ local function updateUnitButton(self, unit)
     FrameSetJob(self,config.HealthBarColor,true)
     FrameSetJob(self,config.PowerBarColor,true)
     Aptechka.ScanAuras(unit)
-    Aptechka:UNIT_HEALTH("UNIT_HEALTH", unit)
+    Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
     if config.enableAbsorbBar then
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
-    Aptechka.UpdateConnection(self, owner)
+    Aptechka.FrameUpdateConnection(self, owner)
     Aptechka:INCOMING_SUMMON_CHANGED("ONATTR", owner)
 
     if AptechkaDB.global.showAFK then
@@ -1752,7 +1744,7 @@ local function updateUnitButton(self, unit)
     Aptechka.FrameCheckPhase(self, unit)
     FrameSetJob(self, config.ReadyCheck, false)
     if not config.disableManaBar then
-        Aptechka:UNIT_DISPLAYPOWER(nil, unit)
+        Aptechka.FrameUpdateDisplayPower(self, unit)
         local ptype = select(2,UnitPowerType(owner))
         Aptechka.FrameUpdatePower(self, unit, ptype)
     end
