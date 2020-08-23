@@ -793,10 +793,8 @@ function Aptechka:Reconfigure()
     self:UpdateCastsConfig()
 end
 function Aptechka:RefreshAllUnitsHealth()
-    for unit, frames in pairs(Roster) do
-        Aptechka:UNIT_HEALTH("UNIT_HEALTH", unit)
-        Aptechka:UNIT_POWER_UPDATE("UNIT_HEALTH", unit)
-    end
+    Aptechka:ForEachFrame(Aptechka.FrameUpdateHealth)
+    Aptechka:ForEachFrame(Aptechka.FrameUpdatePower)
 end
 function Aptechka:RefreshAllUnitsColors()
     for unit, frames in pairs(Roster) do
@@ -963,87 +961,84 @@ function Aptechka:UNIT_MAXHEALTH(event, unit)
     end
     return Aptechka:UNIT_HEALTH(event, unit)
 end
+function Aptechka.FrameUpdateHealth(self, unit, event)
+    local h,hm = UnitHealth(unit), UnitHealthMax(unit)
+    local shields = UnitGetTotalAbsorbs(unit)
+    local healabsorb = UnitGetTotalHealAbsorbs(unit)
+    local incomingHeal = GetIncomingHealsCustom(unit, ignoreplayer)
+    if hm == 0 then return end
+    local foregroundValue, perc = GetForegroundSeparation(h, hm, fgShowMissing)
+    local state = self.state
+    state.vHealth = h
+    state.vHealthMax = hm
+    self.health:SetValue(foregroundValue*100)
+    self.healabsorb:SetValue(healabsorb/hm, perc)
+    self.absorb2:SetValue(shields/hm, perc)
+    self.absorb:SetValue(shields/hm, perc)
+    self.health.incoming:SetValue(incomingHeal/hm, perc)
 
+    if damageEffect then
+        local diff = perc - (state.healthPercent or perc)
+        local flashes = state.flashes
+        if not flashes then
+            state.flashes = {}
+            flashes = state.flashes
+        end
+
+        if diff < -0.02 then -- Damage taken is more than 2%
+            local flash = self.flashPool:Acquire()
+            local oldPerc = perc + (-diff)
+            if self.flashPool:FireEffect(flash, diff, perc, state, oldPerc) then
+                flashes[oldPerc] = flash
+            end
+        elseif diff > 0 then -- Heals
+            for oldPerc, flash in pairs(flashes) do
+                if perc >= oldPerc then
+                    self.flashPool:StopEffect(flash)
+                end
+            end
+        end
+    end
+
+    state.healthPercent = perc
+    if gradientHealthColor then
+        FrameSetJob(self, config.HealthBarColor, true)
+    end
+    FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
+
+    if event then
+        if UnitIsDeadOrGhost(unit) then
+            SetJob(unit, config.AggroStatus, false)
+            local isGhost = UnitIsGhost(unit)
+            local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
+            SetJob(unit, deadorghost, true)
+            SetJob(unit,config.HealthDeficitStatus, false )
+            state.isDead = true
+            state.isGhost = isGhost
+            Aptechka:UNIT_DISPLAYPOWER(event, unit, true)
+        elseif state.isDead then
+            state.isDead = nil
+            state.isGhost = nil
+            Aptechka.ScanAuras(unit)
+            SetJob(unit, config.GhostStatus, false)
+            SetJob(unit, config.DeadStatus, false)
+            SetJob(unit, config.ResPendingStatus, false)
+            SetJob(unit, config.ResIncomingStatus, false)
+            Aptechka:UNIT_DISPLAYPOWER(event, unit, false)
+        end
+    end
+end
 function Aptechka.UNIT_HEALTH(self, event, unit)
     -- local beginTime1 = debugprofilestop();
 
-    local rosterunit = Roster[unit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        local h,hm = UnitHealth(unit), UnitHealthMax(unit)
-        local shields = UnitGetTotalAbsorbs(unit)
-        local healabsorb = UnitGetTotalHealAbsorbs(unit)
-        local incomingHeal = GetIncomingHealsCustom(unit, ignoreplayer)
-        if hm == 0 then return end
-        local foregroundValue, perc = GetForegroundSeparation(h, hm, fgShowMissing)
-        local state = self.state
-        state.vHealth = h
-        state.vHealthMax = hm
-        self.health:SetValue(foregroundValue*100)
-        self.healabsorb:SetValue(healabsorb/hm, perc)
-        self.absorb2:SetValue(shields/hm, perc)
-        self.absorb:SetValue(shields/hm, perc)
-        self.health.incoming:SetValue(incomingHeal/hm, perc)
-
-        if damageEffect then
-            local diff = perc - (state.healthPercent or perc)
-            local flashes = state.flashes
-            if not flashes then
-                state.flashes = {}
-                flashes = state.flashes
-            end
-
-            if diff < -0.02 then -- Damage taken is more than 2%
-                local flash = self.flashPool:Acquire()
-                local oldPerc = perc + (-diff)
-                if self.flashPool:FireEffect(flash, diff, perc, state, oldPerc) then
-                    flashes[oldPerc] = flash
-                end
-            elseif diff > 0 then -- Heals
-                for oldPerc, flash in pairs(flashes) do
-                    if perc >= oldPerc then
-                        self.flashPool:StopEffect(flash)
-                    end
-                end
-            end
-        end
-
-        state.healthPercent = perc
-        if gradientHealthColor then
-            FrameSetJob(self, config.HealthBarColor, true)
-        end
-        FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
-
-        if event then
-            if UnitIsDeadOrGhost(unit) then
-                SetJob(unit, config.AggroStatus, false)
-                local isGhost = UnitIsGhost(unit)
-                local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
-                SetJob(unit, deadorghost, true)
-                SetJob(unit,config.HealthDeficitStatus, false )
-                state.isDead = true
-                state.isGhost = isGhost
-                Aptechka:UNIT_DISPLAYPOWER(event, unit, true)
-            elseif state.isDead then
-                state.isDead = nil
-                state.isGhost = nil
-                Aptechka.ScanAuras(unit)
-                SetJob(unit, config.GhostStatus, false)
-                SetJob(unit, config.DeadStatus, false)
-                SetJob(unit, config.ResPendingStatus, false)
-                SetJob(unit, config.ResIncomingStatus, false)
-                Aptechka:UNIT_DISPLAYPOWER(event, unit, false)
-            end
-        end
-
-    end
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealth, event)
 
     -- local timeUsed1 = debugprofilestop();
     -- print("UNIT_HEALTH", timeUsed1 - beginTime1)
 end
 
 
-function Aptechka:CheckPhase(frame, unit)
+function Aptechka.FrameCheckPhase(frame, unit)
     if UnitHasIncomingResurrection(unit) then
         frame.centericon.texture:SetTexture("Interface\\RaidFrame\\Raid-Icon-Rez");
         frame.centericon.texture:SetTexCoord(0,1,0,1);
@@ -1074,36 +1069,27 @@ function Aptechka.UNIT_PHASE(self, event, unit)
     local frames = Roster[unit]
     if frames then
         for frame in pairs(frames) do
-            Aptechka:CheckPhase(frame,unit)
+            Aptechka.FrameCheckPhase(frame,unit)
         end
     end
 end
 
+function Aptechka.FrameUpdateMindControl(frame, unit)
+    -- local currentUnit = SecureButton_GetModifiedUnit(frame)
+    local ownerUnit = SecureButton_GetUnit(frame)
+    -- if a button is currently overridden by pet(vehicle) unit, it'll report as charmed
+    -- so always using owner unit to check
+    local isMindControlled = UnitIsCharmed(ownerUnit)
+
+    FrameSetJob(frame, config.MindControlStatus, isMindControlled)
+end
 function Aptechka:UpdateMindControl(unit)
     local frames = Roster[unit]
     if frames then
         for frame in pairs(frames) do
-            -- local currentUnit = SecureButton_GetModifiedUnit(frame)
-            local ownerUnit = SecureButton_GetUnit(frame)
-            -- if a button is currently overridden by pet(vehicle) unit, it'll report as charmed
-            -- so always using owner unit to check
-            local isMindControlled = UnitIsCharmed(ownerUnit)
-
-            FrameSetJob(frame, config.MindControlStatus, isMindControlled)
+            Aptechka.FrameUpdateMindControl(frame, unit)
         end
     end
-end
-
-function Aptechka:UpdateUnhealable(unit)
-    --[[
-    local frames = Roster[unit]
-    if frames then
-        for frame in pairs(frames) do
-            local isUnhealable = SecureCmdOptionParse(string.format("[target=%s,help] 1; 2", unit)) == "2"
-            FrameSetJob(frame, config.UnhealableStatus, isUnhealable)
-        end
-    end
-    ]]
 end
 
 function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
@@ -1141,7 +1127,6 @@ end
 
 function Aptechka.UNIT_FACTION(self, event, unit)
     self:UpdateMindControl(unit)
-    self:UpdateUnhealable(unit)
 end
 
 local purgeOldAuraEvents = function(frame)
@@ -1173,88 +1158,90 @@ function Aptechka.INCOMING_SUMMON_CHANGED(self, event, unit)
 end
 
 local afkPlayerTable = {}
+function Aptechka.FrameUpdateAFK(frame, unit)
+    local guid = UnitGUID(unit)
+    if UnitIsAFK(unit) then
+        local startTime = afkPlayerTable[guid]
+        if not startTime then
+            startTime = GetTime()
+            afkPlayerTable[guid] = startTime
+        end
+
+        FrameSetJob(frame, config.AwayStatus, true, "TIMER", startTime)
+    else
+        if guid then
+            afkPlayerTable[guid] = nil
+        end
+        FrameSetJob(frame, config.AwayStatus, false)
+    end
+end
 function Aptechka.UNIT_AFK_CHANGED(self, event, unit)
     if not Roster[unit] then return end
     for frame in pairs(Roster[unit]) do
-        local guid = UnitGUID(unit)
-        if UnitIsAFK(unit) then
-            local startTime = afkPlayerTable[guid]
-            if not startTime then
-                startTime = GetTime()
-                afkPlayerTable[guid] = startTime
-            end
-
-            FrameSetJob(frame, config.AwayStatus, true, "TIMER", startTime)
-        else
-            if guid then
-                afkPlayerTable[guid] = nil
-            end
-            FrameSetJob(frame, config.AwayStatus, false)
-        end
+        Aptechka.FrameUpdateAFK(frame, unit)
     end
 end
 Aptechka.PLAYER_FLAGS_CHANGED = Aptechka.UNIT_AFK_CHANGED
 
 
 local offlinePlayerTable = {}
-function Aptechka.UNIT_CONNECTION(self, event, unit)
-    if not Roster[unit] then return end
-    for frame in pairs(Roster[unit]) do
-        -- if self.unitOwner then unit = self.unitOwner end
-        local name = UnitGUID(unit)
-        if not UnitIsConnected(unit) then
-            if name then
-                local startTime = offlinePlayerTable[name]
-                if not startTime then
-                    startTime = GetTime()
-                    offlinePlayerTable[name] = startTime
-                end
-                FrameSetJob(frame, config.OfflineStatus, true, "TIMER", startTime)
-            else
-                FrameSetJob(frame, config.OfflineStatus, true)
+function Aptechka.UpdateConnection(frame, unit)
+    -- if self.unitOwner then unit = self.unitOwner end
+    local name = UnitGUID(unit)
+    if not UnitIsConnected(unit) then
+        if name then
+            local startTime = offlinePlayerTable[name]
+            if not startTime then
+                startTime = GetTime()
+                offlinePlayerTable[name] = startTime
             end
+            FrameSetJob(frame, config.OfflineStatus, true, "TIMER", startTime)
         else
-            if name then
-                offlinePlayerTable[name] = nil
-            end
-            FrameSetJob(frame, config.OfflineStatus, false)
+            FrameSetJob(frame, config.OfflineStatus, true)
         end
+    else
+        if name then
+            offlinePlayerTable[name] = nil
+        end
+        FrameSetJob(frame, config.OfflineStatus, false)
     end
 end
-
-function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
-    local rosterunit = Roster[unit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        -- ptype = ptype or self.power.powerType
-        if self.power and ptype == "MANA" then-- not self.power.disabled then
-            local powerMax = UnitPowerMax(unit)
-            local power = UnitPower(unit)
-            if powerMax == 0 then
-                power = 1
-                powerMax = 1
-            end
-            local manaPercent = GetForegroundSeparation(power, powerMax, fgShowMissing)
-            self.power:SetValue(manaPercent*100)
+function Aptechka.UNIT_CONNECTION(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.UpdateConnection)
+end
+function Aptechka.FrameUpdatePower(frame, unit, ptype)
+    -- ptype = ptype or self.power.powerType
+    if frame.power and ptype == "MANA" then-- not frame.power.disabled then
+        local powerMax = UnitPowerMax(unit)
+        local power = UnitPower(unit)
+        if powerMax == 0 then
+            power = 1
+            powerMax = 1
         end
+        local manaPercent = GetForegroundSeparation(power, powerMax, fgShowMissing)
+        frame.power:SetValue(manaPercent*100)
+    end
+end
+function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdatePower, ptype)
+end
+
+function Aptechka.FrameUpdateDisplayPower(frame, unit, isDead)
+    if frame.power and frame.power.OnPowerTypeChange then
+        local tnum, tname = UnitPowerType(unit)
+        frame.power:OnPowerTypeChange(tname, isDead)
     end
 end
 function Aptechka.UNIT_DISPLAYPOWER(self, event, unit, isDead)
-    if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
-        if self.power and self.power.OnPowerTypeChange then
-            local tnum, tname = UnitPowerType(unit)
-            self.power:OnPowerTypeChange(tname, isDead)
-        end
-    end
+    self:ForEachUnitFrame(unit, Aptechka.FrameUpdateDisplayPower, isDead)
 end
 
--- STAY AWAY FROM DA VOODOO
 local vehicleHack = function (self, time)
     self.OnUpdateCounter = self.OnUpdateCounter + time
     if self.OnUpdateCounter < 1 then return end
     self.OnUpdateCounter = 0
-    local owner = self.parent.unitOwner
+    local frame = self.parent
+    local owner = frame.unitOwner
     if not ( UnitHasVehicleUI(owner) or UnitInVehicle(owner) or UnitUsingVehicle(owner) ) then
         if Roster[self.parent.unit] then
             -- Restore owner unit in the roster, delete vehicle unit
@@ -1267,7 +1254,6 @@ local vehicleHack = function (self, time)
 
             -- print(string.format("L1>>Unit: %-s",original_unit))
             -- print(string.format("D4>[%s]>Dumping- Roster",NAME))
-            -- d87add.dump("ROSTER")-
 
             -- Remove vehicle status
             SetJob(owner,config.InVehicleStatus,false)
@@ -1283,8 +1269,7 @@ local vehicleHack = function (self, time)
             end
             Aptechka.ScanAuras(owner)
 
-            Aptechka:UpdateMindControl(owner)
-            Aptechka:UpdateUnhealable(owner)
+            Aptechka.FrameUpdateMindControl(frame, owner)
 
             -- Stop periodic checks
             self:SetScript("OnUpdate",nil)
@@ -1311,7 +1296,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 Roster[self.unitOwner] = nil
 
                 -- A small frame is crated to start 1s periodic OnUpdate checks when unit has left the vehicle
-                if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame"); self.vehicleFrame.parent = self end
+                if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame", nil, self); self.vehicleFrame.parent = self end
                 self.vehicleFrame.OnUpdateCounter = -1.5
                 self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
 
@@ -1321,19 +1306,17 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
                 if self.power then Aptechka:UNIT_POWER_UPDATE(nil,self.unit) end
                 if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
-                Aptechka:CheckPhase(self, self.unit)
+                Aptechka.FrameCheckPhase(self, self.unit)
                 Aptechka.ScanAuras(self.unit)
 
-                Aptechka:UpdateMindControl(self.unit) -- pet unit will be marked as 'charmed'
-                Aptechka:UpdateUnhealable(self.unit)
+                Aptechka.FrameUpdateMindControl(self, self.unit) -- pet unit will be marked as 'charmed'
 
                 -- Except class color, it's still tied to owner
-                Aptechka:Colorize(nil, self.unitOwner)
+                Aptechka.FrameColorize(self, self.unitOwner)
             end
         end
     end
 end
--- VOODOO ENDS HERE
 
 
 --Range check
@@ -1393,16 +1376,16 @@ function Aptechka:UpdateAggroConfig()
         end
     end
 end
-function Aptechka.UNIT_THREAT_SITUATION_UPDATE(self, event, unit)
-    if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
-        local sit = UnitThreatSituation(unit)
-        if sit and sit > 1 then
-            SetJob(unit, config.AggroStatus, true)
-        else
-            SetJob(unit, config.AggroStatus, false)
-        end
+function Aptechka.FrameUpdateThreat(frame, unit)
+    local sit = UnitThreatSituation(unit)
+    if sit and sit > 1 then
+        FrameSetJob(frame, config.AggroStatus, true)
+    else
+        FrameSetJob(frame, config.AggroStatus, false)
     end
+end
+function Aptechka.UNIT_THREAT_SITUATION_UPDATE(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateThreat)
 end
 
 function Aptechka.UNIT_SPELLCAST_SENT(self, event, unit, targetName, lineID, spellID)
@@ -1423,25 +1406,23 @@ function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
     end
 end
 
+function Aptechka.FrameUpdateStagger(frame, unit)
+    local currentStagger = UnitStagger(unit)
+    if not currentStagger then
+        return FrameSetJob(frame, config.StaggerStatus, false)
+    end
+    local maxHP = UnitHealthMax(unit)
+    local staggerPercent = currentStagger/maxHP
+    frame.state.stagger = staggerPercent
+    FrameSetJob(frame, config.StaggerStatus, currentStagger > 0)
+end
 function Aptechka:UpdateStagger()
     for unit in pairs(staggerUnits) do
-        local frames = Roster[unit]
-        if frames then
-            for frame in pairs(frames) do
-                local currentStagger = UnitStagger(unit)
-                if not currentStagger then
-                    return FrameSetJob(frame, config.StaggerStatus, false)
-                end
-                local maxHP = UnitHealthMax(unit)
-                local staggerPercent = currentStagger/maxHP
-                frame.state.stagger = staggerPercent
-                FrameSetJob(frame, config.StaggerStatus, currentStagger > 0)
-            end
-        end
+        Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateStagger)
     end
 end
 
-function Aptechka.CheckRoles(apt, self, unit )
+function Aptechka.FrameCheckRoles(self, unit )
 
     local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
     local isTankRoleAssigned = UnitGroupRolesAssigned(unit) == "TANK"
@@ -1510,12 +1491,7 @@ function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
 
     --raid autoscaling
     Aptechka:LayoutUpdate()
-
-    for unit, frames in pairs(Roster) do
-        for frame in pairs(frames) do
-            Aptechka:CheckRoles(frame, unit)
-        end
-    end
+    Aptechka:ForEachFrame(Aptechka.FrameCheckRoles)
 end
 
 
@@ -1585,37 +1561,37 @@ function Aptechka:UpdateRaidIconsConfig()
         Aptechka:RegisterEvent("RAID_TARGET_UPDATE")
     end
 end
-function Aptechka.RAID_TARGET_UPDATE(self, event)
-    if not AptechkaDB.profile.showRaidIcons then return end
-    for unit, frames in pairs(Roster) do
-        for self in pairs(frames) do
-            local index = GetRaidTargetIndex(unit)
-            local icon = self.raidicon
-            if icon then
-            if index then
-                SetRaidTargetIconTexture(icon.texture, index)
-                icon:Show()
-            else
-                icon:Hide()
-            end
-            end
+
+function Aptechka.FrameUpdateRaidTarget(frame, unit)
+    local index = GetRaidTargetIndex(unit)
+    local icon = frame.raidicon
+    if icon then
+        if index then
+            SetRaidTargetIconTexture(icon.texture, index)
+            icon:Show()
+        else
+            icon:Hide()
         end
     end
+end
+function Aptechka.RAID_TARGET_UPDATE(self, event)
+    if not AptechkaDB.profile.showRaidIcons then return end
+    Aptechka:ForEachFrame(Aptechka.FrameUpdateRaidTarget)
 end
 
 function Aptechka:ForEachFrame(func)
     for unit, frames in pairs(Roster) do
         for frame in pairs(frames) do
-            func(frame)
+            func(frame, unit)
         end
     end
 end
 
-function Aptechka:ForEachUnitFrame(unit, func)
+function Aptechka:ForEachUnitFrame(unit, func, ...)
     local frames = Roster[unit]
     if not frames then return end
     for frame in pairs(frames) do
-        func(frame)
+        func(frame, unit, ...)
     end
 end
 
@@ -1672,37 +1648,39 @@ function Aptechka.READY_CHECK_FINISHED(self, event)
 end
 
 --applying UnitButton color
-function Aptechka.Colorize(self, event, unit)
-    if not Roster[unit] then return end
-    for frame in pairs(Roster[unit]) do
-        local hdr = frame:GetParent()
 
-        local state = frame.state
+function Aptechka.FrameColorize(frame, unit)
+    local hdr = frame:GetParent()
 
-        if hdr.isPetGroup then
-            state.classColor = config.petcolor
-        else
-            local _,class = UnitClass(unit)
-            if class then
-                local color = colors[class]
-                state.classColor = {color.r,color.g,color.b}
-            end
-        end
+    local state = frame.state
 
-        local profile = self.db.profile
-
-        if profile.healthColorByClass then
-            state.healthColor1 = state.classColor
-        else
-            state.healthColor1 = profile.healthColor1
-        end
-
-        state.gradientHealthColor = profile.gradientHealthColor
-        if profile.gradientHealthColor then
-            state.healthColor2 = profile.healthColor2
-            state.healthColor3 = profile.healthColor3
+    if hdr.isPetGroup then
+        state.classColor = config.petcolor
+    else
+        local _,class = UnitClass(unit)
+        if class then
+            local color = colors[class]
+            state.classColor = {color.r,color.g,color.b}
         end
     end
+
+    local profile = Aptechka.db.profile
+
+    if profile.healthColorByClass then
+        state.healthColor1 = state.classColor
+    else
+        state.healthColor1 = profile.healthColor1
+    end
+
+    state.gradientHealthColor = profile.gradientHealthColor
+    if profile.gradientHealthColor then
+        state.healthColor2 = profile.healthColor2
+        state.healthColor3 = profile.healthColor3
+    end
+end
+
+function Aptechka.Colorize(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameColorize)
 end
 
 
@@ -1754,7 +1732,7 @@ local function updateUnitButton(self, unit)
         if not Roster[gunit] or guid ~= UnitGUID(gunit) then guidMap[guid] = nil end
     end
 
-    Aptechka:Colorize(nil, owner)
+    Aptechka.FrameColorize(self, owner)
     self.state.nameFull = name
     Aptechka:UpdateName(self)
 
@@ -1765,27 +1743,26 @@ local function updateUnitButton(self, unit)
     if config.enableAbsorbBar then
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
-    Aptechka:UNIT_CONNECTION("ONATTR", owner)
+    Aptechka.UpdateConnection(self, owner)
     Aptechka:INCOMING_SUMMON_CHANGED("ONATTR", owner)
 
     if AptechkaDB.global.showAFK then
-        Aptechka:UNIT_AFK_CHANGED(nil, owner)
+        Aptechka.FrameUpdateAFK(self, owner)
     end
-    Aptechka:CheckPhase(self, unit)
-    SetJob(unit, config.ReadyCheck, false)
+    Aptechka.FrameCheckPhase(self, unit)
+    FrameSetJob(self, config.ReadyCheck, false)
     if not config.disableManaBar then
         Aptechka:UNIT_DISPLAYPOWER(nil, unit)
         local ptype = select(2,UnitPowerType(owner))
-        Aptechka:UNIT_POWER_UPDATE(nil, unit, ptype)
+        Aptechka.FrameUpdatePower(self, unit, ptype)
     end
-    Aptechka:UNIT_THREAT_SITUATION_UPDATE(nil, unit)
-    Aptechka:UpdateMindControl(unit)
-    Aptechka:UpdateUnhealable(unit)
+    Aptechka.FrameUpdateThreat(self, unit)
+    Aptechka.FrameUpdateMindControl(self, unit)
     Aptechka:RAID_TARGET_UPDATE()
     if config.enableVehicleSwap and UnitHasVehicleUI(owner) then
         Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
     end
-    Aptechka:CheckRoles(self, unit)
+    Aptechka.FrameCheckRoles(self, unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
 end
 
