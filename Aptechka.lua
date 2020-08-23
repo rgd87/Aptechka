@@ -823,8 +823,8 @@ function Aptechka:RefreshAllUnitsHealth()
 end
 function Aptechka:RefreshAllUnitsColors()
     for unit, frames in pairs(Roster) do
-        Aptechka:Colorize(nil, unit)
         for frame in pairs(frames) do
+            Aptechka.FrameColorize(frame, unit)
             FrameSetJob(frame, config.UnitNameStatus, true)
             FrameSetJob(frame, config.HealthBarColor, true)
             if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
@@ -990,36 +990,33 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit, guid)
     end
 end
 
-function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
-    local rosterunit = Roster[unit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        local a,hm = UnitGetTotalAbsorbs(unit), UnitHealthMax(unit)
-        local h = UnitHealth(unit)
-        local ch, p = 0, 0
-        if hm ~= 0 then
-            p = a/hm
-            ch = h/hm
-        end
-        self.absorb:SetValue(p, ch)
-        self.absorb2:SetValue(p, ch)
+function Aptechka.FrameUpdateAbsorb(frame, unit)
+    local a,hm = UnitGetTotalAbsorbs(unit), UnitHealthMax(unit)
+    local h = UnitHealth(unit)
+    local ch, p = 0, 0
+    if hm ~= 0 then
+        p = a/hm
+        ch = h/hm
     end
+    frame.absorb:SetValue(p, ch)
+    frame.absorb2:SetValue(p, ch)
 end
-
-function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
-    local rosterunit = Roster[unit]
-    if not rosterunit then return end
-    for self in pairs(rosterunit) do
-        local a = UnitGetTotalHealAbsorbs(unit)
-        local hm = UnitHealthMax(unit)
-        local h = UnitHealth(unit)
-        local ch, p = 0, 0
-        if hm ~= 0 then
-            ch = (h/hm)
-            p = a/hm
-        end
-        self.healabsorb:SetValue(p, ch)
+function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateAbsorb)
+end
+function Aptechka.FrameUpdateHealAbsorb(frame, unit)
+    local a = UnitGetTotalHealAbsorbs(unit)
+    local hm = UnitHealthMax(unit)
+    local h = UnitHealth(unit)
+    local ch, p = 0, 0
+    if hm ~= 0 then
+        ch = (h/hm)
+        p = a/hm
     end
+    frame.healabsorb:SetValue(p, ch)
+end
+function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealAbsorb)
 end
 
 local function GetForegroundSeparation(health, healthMax, showMissing)
@@ -1090,7 +1087,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
             SetJob(unit,config.HealthDeficitStatus, false )
             state.isDead = true
             state.isGhost = isGhost
-            Aptechka:UNIT_DISPLAYPOWER(event, unit, true)
+            Aptechka.FrameUpdateDisplayPower(self, unit, true)
         elseif state.isDead then
             state.isDead = nil
             state.isGhost = nil
@@ -1099,7 +1096,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
             SetJob(unit, config.DeadStatus, false)
             SetJob(unit, config.ResPendingStatus, false)
             SetJob(unit, config.ResIncomingStatus, false)
-            Aptechka:UNIT_DISPLAYPOWER(event, unit, false)
+            Aptechka.FrameUpdateDisplayPower(self, unit, false)
         end
     end
 end
@@ -1141,12 +1138,7 @@ function Aptechka.FrameCheckPhase(frame, unit)
 end
 
 function Aptechka.UNIT_PHASE(self, event, unit)
-    local frames = Roster[unit]
-    if frames then
-        for frame in pairs(frames) do
-            Aptechka.FrameCheckPhase(frame,unit)
-        end
-    end
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameCheckPhase)
 end
 
 function Aptechka.FrameUpdateMindControl(frame, unit)
@@ -1263,7 +1255,7 @@ Aptechka.PLAYER_FLAGS_CHANGED = Aptechka.UNIT_AFK_CHANGED
 
 
 local offlinePlayerTable = {}
-function Aptechka.UpdateConnection(frame, unit)
+function Aptechka.FrameUpdateConnection(frame, unit)
     -- if self.unitOwner then unit = self.unitOwner end
     local name = UnitGUID(unit)
     if not UnitIsConnected(unit) then
@@ -1285,7 +1277,7 @@ function Aptechka.UpdateConnection(frame, unit)
     end
 end
 function Aptechka.UNIT_CONNECTION(self, event, unit)
-    Aptechka:ForEachUnitFrame(unit, Aptechka.UpdateConnection)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateConnection)
 end
 function Aptechka.FrameUpdatePower(frame, unit, ptype)
     -- ptype = ptype or self.power.powerType
@@ -1336,11 +1328,11 @@ local vehicleHack = function (self, time)
             -- Remove vehicle status
             SetJob(owner,config.InVehicleStatus,false)
             -- Update unitframe back to owner's unit health, etc.
-            Aptechka:UNIT_HEALTH("VEHICLE",owner)
+            Aptechka.FrameUpdateHealth(frame, owner, "VEHICLE")
             if self.parent.power then
-                Aptechka:UNIT_DISPLAYPOWER(nil, owner)
+                Aptechka.FrameUpdateDisplayPower(frame, owner)
                 local ptype = select(2,UnitPowerType(owner))
-                Aptechka:UNIT_POWER_UPDATE(nil,owner, ptype)
+                Aptechka.FrameUpdatePower(frame, owner, ptype)
             end
             if self.parent.absorb then
                 Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
@@ -1381,9 +1373,9 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 -- Set in vehicle status
                 SetJob(self.unit,config.InVehicleStatus,true)
                 -- Update unitframe for the new vehicle unit
-                Aptechka:UNIT_HEALTH("VEHICLE",self.unit)
-                if self.power then Aptechka:UNIT_POWER_UPDATE(nil,self.unit) end
-                if self.absorb then Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil,self.unit) end
+                Aptechka.FrameUpdateHealth(self, self.unit, "VEHICLE")
+                if self.power then Aptechka.FrameUpdatePower(self, self.unit) end
+                if self.absorb then Aptechka.FrameUpdateAbsorb(self, self.unit) end
                 Aptechka.FrameCheckPhase(self, self.unit)
                 Aptechka.ScanAuras(self.unit)
 
@@ -1808,11 +1800,11 @@ local function updateUnitButton(self, unit)
     FrameSetJob(self,config.HealthBarColor,true)
     FrameSetJob(self,config.PowerBarColor,true)
     Aptechka.ScanAuras(unit)
-    Aptechka:UNIT_HEALTH("UNIT_HEALTH", unit)
+    Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
     if config.enableAbsorbBar then
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
-    Aptechka.UpdateConnection(self, owner)
+    Aptechka.FrameUpdateConnection(self, owner)
     Aptechka:INCOMING_SUMMON_CHANGED("ONATTR", owner)
 
     if AptechkaDB.global.showAFK then
@@ -1821,7 +1813,7 @@ local function updateUnitButton(self, unit)
     Aptechka.FrameCheckPhase(self, unit)
     FrameSetJob(self, config.ReadyCheck, false)
     if not config.disableManaBar then
-        Aptechka:UNIT_DISPLAYPOWER(nil, unit)
+        Aptechka.FrameUpdateDisplayPower(self, unit)
         local ptype = select(2,UnitPowerType(owner))
         Aptechka.FrameUpdatePower(self, unit, ptype)
     end
@@ -2398,11 +2390,7 @@ local GetRealID = function(id) return type(id) == "table" and id[1] or id end
 -- AURAS
 -----------------------
 
-local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, spellName)
-    local frames = Roster[unit]
-    if not frames then return end
-
-    for frame in pairs(frames) do
+local function SetDebuffIcon(frame, unit, index, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, spellName)
         local iconFrame = frame.debuffIcons[index]
         if debuffType == false then
             iconFrame:Hide()
@@ -2419,13 +2407,12 @@ local function SetDebuffIcon(unit, index, debuffType, expirationTime, duration, 
                 iconFrame.eyeCatcher:Play()
             end
         end
-    end
 end
 
 
 local encountered = {}
 
-local function IndicatorAurasProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID )
+local function IndicatorAurasProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID )
     -- local name, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
 
     local opts = auras[spellID] or loadedAuras[spellID]
@@ -2453,15 +2440,12 @@ local function IndicatorAurasProc(unit, index, slot, filter, name, icon, count, 
 
             -- local hash = GetAuraHash(spellID, duration, expirationTime, count, caster)
 
-            SetJob(unit, opts, status, "AURA", duration, expirationTime, count, texture, spellID, caster)
+            FrameSetJob(frame, opts, status, "AURA", duration, expirationTime, count, texture, spellID, caster)
         end
     end
 end
 
-local function IndicatorAurasPostUpdate(unit)
-    local frames = Roster[unit]
-    if frames then
-        for frame in pairs(frames) do
+local function IndicatorAurasPostUpdate(frame, unit)
             for realID, opts in pairs(frame.activeAuras) do
                 if not encountered[realID] then
                     FrameSetJob(frame, opts, false)
@@ -2486,8 +2470,6 @@ local function IndicatorAurasPostUpdate(unit)
                     end
                 end
             end
-        end
-    end
 end
 
 -----------------------
@@ -2541,7 +2523,7 @@ local function GetDebuffTypeBitmask(debuffType)
     return 0
 end
 
-function Aptechka.OrderedDebuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+function Aptechka.OrderedDebuffProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
         local prio, spellType = LibAuraTypes.GetAuraInfo(spellID, "ALLY")
         if not prio then
@@ -2560,7 +2542,7 @@ function Aptechka.OrderedDebuffProc(unit, index, slot, filter, name, icon, count
     return 0
 end
 
-function Aptechka.OrderedBuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+function Aptechka.OrderedBuffProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     if isBossAura and not blacklist[spellID] then
         local prio = 60
         tinsert(debuffList, { slot or index, prio, filter })
@@ -2569,7 +2551,7 @@ function Aptechka.OrderedBuffProc(unit, index, slot, filter, name, icon, count, 
     return 0
 end
 
-function Aptechka.OrderedDebuffPostUpdate(unit)
+function Aptechka.OrderedDebuffPostUpdate(frame, unit)
     local debuffLineLength = debuffLimit
     local shown = 0
     local fill = 0
@@ -2602,21 +2584,21 @@ function Aptechka.OrderedDebuffPostUpdate(unit)
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
+            SetDebuffIcon(frame, unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
         else
             break
         end
     end
 
     for i=shown+1, debuffLineLength do
-        SetDebuffIcon(unit, i, false)
+        SetDebuffIcon(frame, unit, i, false)
     end
 end
 
 ---------------------------
 -- Simple
 ---------------------------
-function Aptechka.SimpleDebuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+function Aptechka.SimpleDebuffProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
         if isBossAura then
             tinsert(debuffList, 1, slot or index)
@@ -2626,14 +2608,14 @@ function Aptechka.SimpleDebuffProc(unit, index, slot, filter, name, icon, count,
     end
 end
 
-function Aptechka.SimpleBuffProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+function Aptechka.SimpleBuffProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     -- Uncommen when moving to Slot API
     -- if isBossAura and not blacklist[spellID] then
     --     tinsert(debuffList, 1, slot or index)
     -- end
 end
 
-function Aptechka.SimpleDebuffPostUpdate(unit)
+function Aptechka.SimpleDebuffPostUpdate(frame, unit)
     local shown = 0
     local fill = 0
     local debuffLineLength = debuffLimit
@@ -2646,21 +2628,21 @@ function Aptechka.SimpleDebuffPostUpdate(unit)
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
+            SetDebuffIcon(frame, unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
         else
             break
         end
     end
 
     for i=shown+1, debuffLineLength do
-        SetDebuffIcon(unit, i, false)
+        SetDebuffIcon(frame, unit, i, false)
     end
 end
 ---------------------------
 -- Debuff Highlight
 ---------------------------
 local highlightedDebuffsBits -- Resets to 0 at the start of every aura scan
-function Aptechka.HighlightProc(unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID)
+function Aptechka.HighlightProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID)
     if highlightedDebuffs[spellID] then
         local opts = highlightedDebuffs[spellID]
         local priority = opts[2]
@@ -2669,7 +2651,7 @@ function Aptechka.HighlightProc(unit, index, slot, filter, name, icon, count, de
     end
 end
 
-function Aptechka.HighlightPostUpdate(unit)
+function Aptechka.HighlightPostUpdate(frame, unit)
     local frames = Roster[unit]
     if frames then
         for frame in pairs(frames) do
@@ -2689,7 +2671,7 @@ local HighlightPostUpdate = Aptechka.HighlightPostUpdate
 -- Dispel Type Indicator
 ---------------------------
 local debuffTypeMask -- Resets to 0 at the start of every aura scan
-function Aptechka.DispelTypeProc(unit, index, slot, filter, name, icon, count, debuffType)
+function Aptechka.DispelTypeProc(frame, unit, index, slot, filter, name, icon, count, debuffType)
     debuffTypeMask = bit_bor( debuffTypeMask,  GetDebuffTypeBitmask(debuffType))
 end
 
@@ -2697,7 +2679,7 @@ local MagicColor = { 0.2, 0.6, 1}
 local CurseColor = { 0.6, 0, 1}
 local PoisonColor = { 0, 0.6, 0}
 local DiseaseColor = { 0.6, 0.4, 0}
-function Aptechka.DispelTypePostUpdate(unit)
+function Aptechka.DispelTypePostUpdate(frame, unit)
     local debuffTypeMaskDispellable = bit_band( debuffTypeMask, BITMASK_DISPELLABLE )
 
     local frames = Roster[unit]
@@ -2736,19 +2718,19 @@ function Aptechka.DispelTypePostUpdate(unit)
 end
 function Aptechka.DummyFunction() end
 
-local handleBuffs = function(unit, index, slot, filter, ...)
-    IndicatorAurasProc(unit, index, slot, filter, ...)
-    BuffProc(unit, index, slot, filter, ...)
+local handleBuffs = function(frame, unit, index, slot, filter, ...)
+    IndicatorAurasProc(frame, unit, index, slot, filter, ...)
+    BuffProc(frame, unit, index, slot, filter, ...)
 end
 
-local handleDebuffs = function(unit, index, slot, filter, ...)
-    IndicatorAurasProc(unit, index, slot, filter, ...)
-    DebuffProc(unit, index, slot, filter, ...)
-    HighlightProc(unit, index, slot, filter, ...)
-    DispelTypeProc(unit, index, slot, filter, ...)
+local handleDebuffs = function(frame, unit, index, slot, filter, ...)
+    IndicatorAurasProc(frame, unit, index, slot, filter, ...)
+    DebuffProc(frame, unit, index, slot, filter, ...)
+    HighlightProc(frame, unit, index, slot, filter, ...)
+    DispelTypeProc(frame, unit, index, slot, filter, ...)
 end
 
-function Aptechka.ScanAuras(unit)
+function Aptechka.FrameScanAuras(frame, unit)
     -- indicator cleanup
     table_wipe(encountered)
     debuffTypeMask = 0
@@ -2764,7 +2746,7 @@ function Aptechka.ScanAuras(unit)
     for i=1,100 do
         local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, i, filter)
         if not name then break end
-        handleBuffs(unit, i, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+        handleBuffs(frame, unit, i, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     end
 
     filter = "HARMFUL"
@@ -2774,18 +2756,22 @@ function Aptechka.ScanAuras(unit)
             -- numDebuffs = numDebuffs-1
             break
         end
-        handleDebuffs(unit, numDebuffs, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+        handleDebuffs(frame, unit, numDebuffs, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     end
 
     -- New API
-    -- ForEachAura(unit, "HELPFUL", 5, handleBuffs)
-    -- ForEachAura(unit, "HARMFUL", 5, handleDebuffs)
+    -- ForEachAura(frame, unit, "HELPFUL", 5, handleBuffs)
+    -- ForEachAura(frame, unit, "HARMFUL", 5, handleDebuffs)
 
-    IndicatorAurasPostUpdate(unit)
-    DebuffPostUpdate(unit)
-    DispelTypePostUpdate(unit)
-    HighlightPostUpdate(unit)
+    IndicatorAurasPostUpdate(frame, unit)
+    DebuffPostUpdate(frame, unit)
+    DispelTypePostUpdate(frame, unit)
+    HighlightPostUpdate(frame, unit)
 end
+function Aptechka.ScanAuras(unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameScanAuras)
+end
+
 local debugprofilestop = debugprofilestop
 function Aptechka.UNIT_AURA(self, event, unit)
     if not Roster[unit] then return end
@@ -2847,6 +2833,8 @@ function Aptechka.TestDebuffSlots()
     local shown = 0
     local fill = 0
     local unit = "player"
+    local frames = Roster[unit]
+    local frame = next(frames)
 
     local numBossAuras = math.random(3)-1
     local now = GetTime()
@@ -2867,7 +2855,7 @@ function Aptechka.TestDebuffSlots()
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
+            SetDebuffIcon(frame, unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
         else
             break
         end
@@ -2900,7 +2888,7 @@ function Aptechka.TestDebuffSlots()
     -- end
 
     for i=shown+1, debuffLineLength do
-        SetDebuffIcon(unit, i, false)
+        SetDebuffIcon(frame, unit, i, false)
     end
 end
 
