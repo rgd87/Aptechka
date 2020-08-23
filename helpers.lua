@@ -276,12 +276,12 @@ end
 local UnitAuraSlots = UnitAuraSlots
 local UnitAuraBySlot = UnitAuraBySlot
 
-local function ForEachAuraHelper(unit, index, filter, func, continuationToken, ...)
+local function ForEachAuraHelper(frame, unit, index, filter, func, continuationToken, ...)
     -- continuationToken is the first return value of UnitAuraSlots()
     local n = select('#', ...);
     for i=1, n do
         local slot = select(i, ...);
-        local result = func(unit, index, slot, filter, UnitAuraBySlot(unit, slot))
+        local result = func(frame, unit, index, slot, filter, UnitAuraBySlot(unit, slot))
 
         if result == -1 then
             -- if func returns -1 then no further slots are needed, so don't return continuationToken
@@ -293,7 +293,7 @@ local function ForEachAuraHelper(unit, index, filter, func, continuationToken, .
     return continuationToken, index;
 end
 
-function helpers.ForEachAura(unit, filter, maxCount, func)
+function helpers.ForEachAura(frame, unit, filter, maxCount, func)
     if maxCount and maxCount <= 0 then
         return;
     end
@@ -301,7 +301,7 @@ function helpers.ForEachAura(unit, filter, maxCount, func)
     local index = 1
     repeat
         -- continuationToken is the first return value of UnitAuraSltos
-        continuationToken, index = ForEachAuraHelper(unit, index, filter, func, UnitAuraSlots(unit, filter, maxCount, continuationToken));
+        continuationToken, index = ForEachAuraHelper(frame, unit, index, filter, func, UnitAuraSlots(unit, filter, maxCount, continuationToken));
     until continuationToken == nil;
 
     return index
