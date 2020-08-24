@@ -614,6 +614,9 @@ helpers.auraBlacklist = {
 }
 
 helpers.importantTargetedCasts = {
+    [324667] = true, -- Globgrog, Slime Wave
+    [325552] = true, -- Cytotoxic Slash, Domina Venomblade
+
     -- bfa spell ids borrowed from https://wago.io/BFADungeonTargetedSpells
 
     -- Operation Mechagon

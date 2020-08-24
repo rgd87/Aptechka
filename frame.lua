@@ -238,10 +238,7 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
 
 
             if self.blink:IsPlaying() then
-                self.blink:Stop()
-                if self.traceJob ~= job then
-                    self.jobs[self.traceJob] = nil
-                end
+                self.blink:Finish()
             end
             self.traceJob = job
             -- if job.noshine then
@@ -387,7 +384,7 @@ end
 -- CORNER
 -------------------------------------------------------------------------------------------
 
-local SetJob_Corner = function(self,job)
+local SetJob_Corner = function(self, job, state, contentType, ...)
     local color
     if job.foreigncolor and job.isforeign then
         color = job.foreigncolor
@@ -410,10 +407,7 @@ local SetJob_Corner = function(self,job)
         if (self.traceJob ~= job or not self.blink:IsPlaying()) or job.resetAnimation then
 
             if self.blink:IsPlaying() then
-                self.blink:Stop()
-                if self.traceJob ~= job then
-                    self.jobs[self.traceJob] = nil
-                end
+                self.blink:Finish()
             end
             self.traceJob = job
             self.blink.a2:SetFromAlpha(1)
