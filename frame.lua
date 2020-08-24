@@ -1510,6 +1510,15 @@ local SetJob_Text = function(self, job, state, contentType, ...)
         self.startTime = ...
         self.expirationTime = nil
         self:SetScript("OnUpdate", Text_OnUpdateForward) --.frame is for text3 container
+    elseif contentType == "Stagger" then
+        local stagger = state.stagger
+        if not stagger then
+            self.text:SetText("")
+            return
+        end
+        self.text:SetTextColor(helpers.PercentColor(stagger))
+        self.text:SetFormattedText("%.0f%%", stagger*100)
+        return
     elseif contentType == "UnitName" then
         self.text:SetText(state.name)
         self:SetScript("OnUpdate", nil)
@@ -1533,6 +1542,15 @@ local SetJob_StaticText = function(self, job, state, contentType, ...)
     elseif contentType == "IncomingHeal" then -- For Classic
         self.text:SetFormattedText("+%d", state.vIncomingHeal)
         self:SetScript("OnUpdate", nil)
+    elseif contentType == "Stagger" then
+        local stagger = state.stagger
+        if not stagger then
+            self.text:SetText("")
+            return
+        end
+        self.text:SetTextColor(helpers.PercentColor(stagger))
+        self.text:SetFormattedText("%.0f%%", stagger*100)
+        return
     elseif contentType == "UnitName" then
         self.text:SetText(state.name)
         self:SetScript("OnUpdate", nil)
