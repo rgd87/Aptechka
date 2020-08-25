@@ -200,7 +200,8 @@ A{ id = 204293, prototype = survivalCD } -- Spirit Link (PvP)
 
 
 A{ id = {
-    170906, 192002, 195472, 225743, 251232, 257427, 257428, 272819, 279739, 297098, 308429, 308433, -- Food & Drink
+    170906, 192002, 195472, 225743, 251232, 257427, 257428, 272819, 279739, 297098, -- Food & Drink
+    308429, 308433, 327786, 340109, -- Shadowlands Food & Drink
     167152, -- Mage Food
     430, 431, 432, 1133, 1135, 1137, 22734, -- Classic water
     34291, 43183, 43182, -- BC & WotLK water
@@ -645,6 +646,25 @@ helpers.auraBlacklist = {
 helpers.importantTargetedCasts = {
     [324667] = true, -- Globgrog, Slime Wave
     [325552] = true, -- Cytotoxic Slash, Domina Venomblade
+
+    [323137] = true, -- Ingra Maloch, Bewildering Pollen
+    [322614] = true, -- Tred'ova, Mind Link
+    [322977] = true, -- Halkias, Sinlight Visions
+
+    [320376] = true, -- Stitchflesh, Mutilate
+    [320788] = true, -- Nalthor, Frozen Binds
+
+    [319650] = true, -- Kryxis, Vicious Headbutt
+    [322554] = true, -- Executor Tarvold, Castigate
+    [325254] = true, -- Beryilla, Iron Spikes
+
+    [324608] = true, -- Oryphrion, Charged Stomp
+
+    [320069] = true, -- Challengers, Mortal Strike
+    [323515] = true, -- Gorechop, Hateful Strike
+    [320644] = true, -- Xav the Unfallen, Brutal Combo
+    [324079] = true, -- Mordretha, Reaping Scythe
+
 
     -- bfa spell ids borrowed from https://wago.io/BFADungeonTargetedSpells
 
