@@ -483,6 +483,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             header:CallMethod("initialConfigFunction", self:GetName())
     ]=]
 
+    if config.initialConfigPostHookSnippet then
+        self.initConfSnippet = self.initConfSnippet..config.initialConfigPostHookSnippet
+    end
+
     self:LayoutUpdate()
     self:UpdateDebuffScanningMethod()
     self:UpdateHighlightedDebuffsHashMap()
