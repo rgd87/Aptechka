@@ -1214,6 +1214,18 @@ function Aptechka.FrameUpdatePower(frame, unit, ptype)
         end
         local manaPercent = GetForegroundSeparation(power, powerMax, fgShowMissing)
         frame.power:SetValue(manaPercent*100)
+    elseif ptype == "RUNIC_POWER" then
+        if not Aptechka:UnitIsTank(unit) then
+            return FrameSetJob(frame, config.RunicPowerStatus, false)
+        end
+        local powerMax = UnitPowerMax(unit)
+        local power = UnitPower(unit)
+        if power > 40 then
+            local p = power/powerMax
+            FrameSetJob(frame, config.RunicPowerStatus, true, "PROGRESS", p)
+        else
+            FrameSetJob(frame, config.RunicPowerStatus, false)
+        end
     end
 end
 function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
@@ -1319,6 +1331,8 @@ Aptechka.OnRangeUpdate = function (self, time)
     if self.OnUpdateCounter < 0.3 then return end
     self.OnUpdateCounter = 0
 
+    Aptechka:UpdateStagger()
+
     if not IsInGroup() then --UnitInRange returns false when not grouped
         for unit, frames in pairs(Roster) do
             for frame in pairs(frames) do
@@ -1351,8 +1365,6 @@ Aptechka.OnRangeUpdate = function (self, time)
             end
         end
     end
-
-    Aptechka:UpdateStagger()
 end
 
 --Aggro
@@ -1424,6 +1436,13 @@ function Aptechka.FrameCheckRoles(self, unit )
 
     local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
     local isTankRoleAssigned = UnitGroupRolesAssigned(unit) == "TANK"
+    if unit == "player" then
+        local spec = GetSpecialization()
+        local specRole = GetSpecializationRole(spec)
+        if specRole == "TANK" then
+            isTankRoleAssigned = true
+        end
+    end
     local isAnyTank = isRaidMaintank or isTankRoleAssigned
 
     if isAnyTank and select(2, UnitClass(unit)) == "MONK" then
@@ -2796,31 +2815,28 @@ function Aptechka.TestDebuffSlots()
         end
     end
 
-    -- if Roster[unit] then
-    --     for frame in pairs(Roster[unit]) do
-    --         local icon = frame.castIcon
-    --         local spellID = randomIDs[math.random(#randomIDs)]
-    --         local _, _, texture = GetSpellInfo(spellID)
-    --         local startTime = now
-    --         local duration = math.random(20)+5
-    --         local endTime = startTime + duration
-    --         local count = math.random(18)
-    --         local castType = "CAST"
-    --         icon.texture:SetTexture(texture)
-    --         icon.cd:SetReverse(castType == "CAST")
 
-    --         local r,g,b = 1, 0.65, 0
+    -- local icon = frame.incomingCastIcon
+    -- local spellID = randomIDs[math.random(#randomIDs)]
+    -- local _, _, texture = GetSpellInfo(spellID)
+    -- local startTime = now
+    -- local duration = math.random(20)+5
+    -- local endTime = startTime + duration
+    -- local count = math.random(18)
+    -- local castType = "CAST"
+    -- icon.texture:SetTexture(texture)
+    -- icon.cd:SetReverse(castType == "CAST")
 
-    --         icon.cd:SetSwipeColor(r,g,b);
+    -- local r,g,b = 1, 0.65, 0
 
-    --         local duration = endTime - startTime
-    --         icon.cd:SetCooldown(startTime, duration)
-    --         icon.cd:Show()
+    -- icon.cd:SetSwipeColor(r,g,b);
 
-    --         icon.stacktext:SetText(count > 1 and count)
-    --         icon:Show()
-    --     end
-    -- end
+    -- duration = endTime - startTime
+    -- icon.cd:SetCooldown(startTime, duration)
+    -- icon.cd:Show()
+
+    -- icon.stacktext:SetText(count > 1 and count)
+    -- icon:Show()
 
     for i=shown+1, debuffLineLength do
         SetDebuffIcon(frame, unit, i, false)

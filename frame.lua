@@ -221,6 +221,14 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
         else
             self.cd:Hide()
         end
+    elseif contentType == "PROGRESS" then
+        local p = ...
+        local stime = 30000
+        local completed = p*stime
+        local total = stime
+        local start = GetTime() - completed
+        self.cd:SetReverse(false)
+        self.cd:SetCooldown(start, total)
     else
         self.cd:Hide()
     end
@@ -577,6 +585,12 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
                 self:SetScript("OnUpdate", StatusBarOnUpdate)
             end
         end
+    elseif contentType == "PROGRESS" then
+        local p = ...
+        self:SetMinMaxValues(0, 1)
+        self:SetValue(p)
+        self:SetStatusBarColor(unpack(color))
+        self:SetScript("OnUpdate", nil)
     else
         self:SetStatusBarColor(unpack(color))
         self:SetMinMaxValues(0, 1)

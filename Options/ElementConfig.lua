@@ -18,6 +18,7 @@ function ns.MakeElementConfig()
         "MouseoverStatus",
         "MainTankStatus",
         "DispelStatus",
+        "RunicPowerStatus",
     }
 
     for i, status in ipairs(configurableWidgets) do

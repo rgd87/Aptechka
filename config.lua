@@ -59,6 +59,7 @@ config.InVehicleStatus = { name = "InVehicle", assignto = "vehicle", color = {0.
 config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, resetAnimation = true, priority = 95, fade = 0.3 }
 config.DispelStatus = { name = "Dispel", assignto = "bossdebuff", scale = 0.8, priority = 20 }
 config.StaggerStatus = { name = "Stagger", assignto = "text2", priority = 20 }
+config.RunicPowerStatus = { name = "RunicPower", assignto = "mitigation", priority = 10, color = { 0, 0.82, 1 } }
 
 config.SummonPending = { name = "SUMMON_PENDING", assignto = { "text2" }, color = {1,0.7,0}, text = "PENDING", priority = 50 }
 config.SummonAccepted = { name = "SUMMON_ACCEPTED", assignto = { "text2" }, color = {0,1,0}, text = "ACCEPTED", priority = 51 }
@@ -70,7 +71,7 @@ config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mind
 
 config.DefaultWidgets = {
     raidbuff = { type = "BarArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, vertical = true, growth = "DOWN", max = 5 },
-    mitigation = { type = "Bar", width=14, height=5, point="TOPLEFT", x=pixelperfect(6), y=0, vertical = false},
+    mitigation = { type = "Bar", width=22, height=4, point="BOTTOMLEFT", x=4, y=-5, vertical = false},
     icon = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = true, edge = true },
     spell1 = { type = "Indicator", width = 9, height = 8, point = "BOTTOMRIGHT", x = 0, y = 0, },
     -- spell2 = { type = "Indicator", width = 9, height = 8, point = "TOP", x = 0, y = 0, },
