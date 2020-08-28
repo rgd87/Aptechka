@@ -121,6 +121,7 @@ local DispelTypeProc, DispelTypePostUpdate
 local enableTraceheals
 local enableAuraEvents
 local debuffLimit
+local tankUnits = {}
 local staggerUnits = {}
 -- local widgetSet
 
@@ -1204,8 +1205,7 @@ function Aptechka.UNIT_CONNECTION(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateConnection)
 end
 function Aptechka.FrameUpdatePower(frame, unit, ptype)
-    -- ptype = ptype or self.power.powerType
-    if frame.power and ptype == "MANA" then-- not frame.power.disabled then
+    if ptype == "MANA" then-- not frame.power.disabled then
         local powerMax = UnitPowerMax(unit)
         local power = UnitPower(unit)
         if powerMax == 0 then
@@ -1416,6 +1416,10 @@ function Aptechka:UpdateStagger()
     end
 end
 
+function Aptechka:UnitIsTank(unit)
+    return tankUnits[unit]
+end
+
 function Aptechka.FrameCheckRoles(self, unit )
 
     local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
@@ -1427,6 +1431,12 @@ function Aptechka.FrameCheckRoles(self, unit )
     elseif staggerUnits[unit] then
         staggerUnits[unit] = nil
         FrameSetJob(self, config.StaggerStatus, false)
+    end
+
+    if isAnyTank then
+        tankUnits[unit] = true
+    else
+        tankUnits[unit] = nil
     end
 
     if config.MainTankStatus then
