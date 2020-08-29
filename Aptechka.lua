@@ -2378,21 +2378,13 @@ local function IndicatorAurasProc(frame, unit, index, slot, filter, name, icon, 
             local status = true
             if opts.isMissing then status = false end
 
-            if opts.stackcolor then
-                opts.color = opts.stackcolor[count]
-            end
-            if opts.foreigncolor then
-                opts.isforeign = (caster ~= "player")
-            end
             local minduration = opts.extend_below
             if minduration and opts.duration and duration < minduration then
                 duration = opts.duration
             end
-            local texture = opts.texture or icon
-
             -- local hash = GetAuraHash(spellID, duration, expirationTime, count, caster)
 
-            FrameSetJob(frame, opts, status, "AURA", duration, expirationTime, count, texture, spellID, caster)
+            FrameSetJob(frame, opts, status, "AURA", duration, expirationTime, count, icon, spellID, caster)
         end
     end
 end

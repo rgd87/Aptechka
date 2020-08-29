@@ -111,14 +111,28 @@ local MakeCompositeBorder = function(frame, tex, left, right, top, bottom, drawL
     return border
 end
 
-local function GetSpellColor(job, caster)
+local function GetSpellColor(job, caster, count)
     local color
     if caster ~= "player" and job.foreigncolor then
         return unpack(job.foreigncolor)
+    elseif job.stackcolor then
+        return unpack(job.stackcolor[count])
     elseif job.color then
         return unpack(job.color)
     end
     return 1,1,1
+end
+
+local function GetSpellColorTable(job, caster, count)
+    local color
+    if caster ~= "player" and job.foreigncolor then
+        return job.foreigncolor
+    elseif job.stackcolor then
+        return job.stackcolor[count]
+    elseif job.color then
+        return job.color
+    end
+    return { 1,1,1 }
 end
 
 local function GetClassOrTextColor(job, state)
@@ -228,9 +242,6 @@ end
 
 local SetJob_Indicator = function(self, job, state, contentType, ...)
     if self.currentJob ~= self.previousJob then
-        local r,g,b,a = GetSpellColor(job)
-        self.color:SetVertexColor(r,g,b,a)
-
         if self.traceJob then
             -- Clearing previous trace job
             self.blink:Stop()
@@ -246,7 +257,9 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
     end
 
     if contentType == "AURA" then
-        local duration, expirationTime, count = ...
+        local duration, expirationTime, count, texture, spellID, caster = ...
+        self.color:SetVertexColor(GetSpellColor(job, caster, count))
+
         if job.showDuration then
             self.cd:SetReverse(not job.reverseDuration)
             self.cd:SetCooldown(expirationTime - duration, duration, 0,0)
@@ -262,6 +275,8 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
             self.cd:Hide()
         end
     elseif contentType == "PROGRESS" then
+        self.color:SetVertexColor(GetColor(job))
+
         local p = ...
         local stime = 30000
         local completed = p*stime
@@ -546,8 +561,7 @@ local StatusBarOnUpdate = function(self, time)
     local timeLeft = self.expires - GetTime()
 
     if self.pandemic and timeLeft < self.pandemic then
-        local color = self.currentJob.color
-        -- self.pandot:Show()
+        local color = self._color
         self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
         self.pandemic = nil
     end
@@ -555,15 +569,9 @@ local StatusBarOnUpdate = function(self, time)
     self:SetValue(timeLeft)
 end
 local SetJob_StatusBar = function(self, job, state, contentType, ...)
-    local color
-    if job.foreigncolor and job.isforeign then
-        color = job.foreigncolor
-    else
-        color = job.color or { 1,1,1,1 }
-    end
-
     if contentType == "AURA" then
-        local duration, expirationTime, count, texture = ...
+        local duration, expirationTime, count, texture, spellID, caster = ...
+        local color = GetSpellColorTable(job, caster, count)
 
         if job.showStacks then
             self:SetMinMaxValues(0, job.showStacks)
@@ -574,19 +582,21 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
             self.expires = expirationTime
             local pandemic = job.refreshTime
             self.pandemic = pandemic
-            self:SetMinMaxValues(0, duration)
-            local timeLeft = self.expires - GetTime()
-            if pandemic and pandemic >= timeLeft then
-                self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
-            else
-                self:SetStatusBarColor(unpack(color))
-            end
+            -- local timeLeft = self.expires - GetTime()
+
+            self:SetStatusBarColor(unpack(color))
+            self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
+
+            self._color = color
+
             if not job.showDuration or duration == 0 then
                 self:SetMinMaxValues(0, 1)
                 self:SetValue(1)
                 self:SetScript("OnUpdate", nil)
             else
-                self:SetValue(timeLeft)
+                self:SetMinMaxValues(0, duration)
+                -- self:SetValue(timeLeft)
+                StatusBarOnUpdate(self, 0)
                 self:SetScript("OnUpdate", StatusBarOnUpdate)
             end
         end
@@ -594,12 +604,20 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
         local p = ...
         self:SetMinMaxValues(0, 1)
         self:SetValue(p)
-        self:SetStatusBarColor(unpack(color))
+
+        local r,g,b = GetColor(job)
+        self:SetStatusBarColor(r,g,b)
+        self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
+
         self:SetScript("OnUpdate", nil)
     else
-        self:SetStatusBarColor(unpack(color))
+        local r,g,b = GetColor(job)
+        self:SetStatusBarColor(r,g,b)
+        self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
+
         self:SetMinMaxValues(0, 1)
         self:SetValue(1)
+
         self:SetScript("OnUpdate", nil)
     end
 
@@ -610,8 +628,6 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
             self.jump:Stop()
         end
     end
-
-    self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
 end
 local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackdrop, isVertical)
     local f = CreateFrame("StatusBar",nil,parent)
