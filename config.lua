@@ -259,6 +259,8 @@ if playerClass == "PRIEST" then
     Trace{id = 204883, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
     -- Prayer of Healing
     Trace{id = 596, type = "HEAL", assignto = "healfeedback", color = { .5, .5, 1}, fade = 0.7, priority = 96 }
+    -- Prayer of Mending
+    Trace{id = 33110, type = "HEAL", assignto = "healfeedback", color = { 1, 0.3, 0.55 }, fade = 0.5, priority = 95 }
     -- Flash Heal
     Trace{id = 2061, type = "HEAL", assignto = "healfeedback", color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
     -- Binding Heal
