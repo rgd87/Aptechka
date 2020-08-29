@@ -257,6 +257,8 @@ if playerClass == "PRIEST" then
 
     -- Circle of Healing
     Trace{id = 204883, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
+    -- Holy Word: Sanctify
+    Trace{id = 34861, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
     -- Prayer of Healing
     Trace{id = 596, type = "HEAL", assignto = "healfeedback", color = { .5, .5, 1}, fade = 0.7, priority = 96 }
     -- Prayer of Mending
