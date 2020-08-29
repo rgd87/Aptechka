@@ -111,6 +111,28 @@ local MakeCompositeBorder = function(frame, tex, left, right, top, bottom, drawL
     return border
 end
 
+local function GetSpellColor(job, caster)
+    local color
+    if caster ~= "player" and job.foreigncolor then
+        return unpack(job.foreigncolor)
+    elseif job.color then
+        return unpack(job.color)
+    end
+    return 1,1,1
+end
+
+local function GetClassOrTextColor(job, state)
+    local c = (job.classcolor and state.classColor) or job.textcolor or job.color
+    if c then return unpack(c) end
+    return 1,1,1
+end
+
+local function GetColor(job)
+    local c = job.color
+    if c then return unpack(c) end
+    return 1,1,1
+end
+
 
 local function multiplyColor(mul, r,g,b,a)
     return r*mul, g*mul, b*mul, a
@@ -205,6 +227,24 @@ end
 -------------------------------------------------------------------------------------------
 
 local SetJob_Indicator = function(self, job, state, contentType, ...)
+    if self.currentJob ~= self.previousJob then
+        local r,g,b,a = GetSpellColor(job)
+        self.color:SetVertexColor(r,g,b,a)
+
+        if self.traceJob then
+            -- Clearing previous trace job
+            self.blink:Stop()
+            self.blink:OnFinishedFunc()
+        end
+        if job.fade then
+            self.traceJob = job
+            self.blink.a2:SetFromAlpha(1)
+            self.blink.a2:SetToAlpha(0)
+            self.blink.a2:SetDuration(job.fade)
+            -- self.blink:Play() -- Play will be called later
+        end
+    end
+
     if contentType == "AURA" then
         local duration, expirationTime, count = ...
         if job.showDuration then
@@ -233,42 +273,19 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
         self.cd:Hide()
     end
 
-    local color
-    if job.foreigncolor and job.isforeign then
-        color = job.foreigncolor
-    else
-        color = job.color or { 1,1,1,1 }
-    end
-    self.color:SetVertexColor(unpack(color))
-
     if job.fade then
-        if self.traceJob ~= job or not self.blink:IsPlaying() then
-
-
-            if self.blink:IsPlaying() then
-                self.blink:Finish()
-            end
-            self.traceJob = job
-            -- if job.noshine then
-            --     self.blink.a2:SetChange(1)
-            -- else
-                self.blink.a2:SetFromAlpha(1)
-                self.blink.a2:SetToAlpha(0)
-            -- end
-            self.blink.a2:SetDuration(job.fade)
-            self.blink:Play()
-
-        end
-    else
-        if self.traceJob then
-            self.jobs[self.traceJob] = nil
-            self.blink:Stop()
-            self.traceJob = nil
-        end
+        self.blink:Stop()
+        self.blink:Play()
     end
-    -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
-        -- if not self.pulse:IsPlaying() then self.pulse:Play() end
-    -- end
+end
+
+local Indicator_BlinkOnFinishedFunc = function(ag)
+    local self = ag:GetParent()
+    Aptechka.FrameSetJob(self.parent, self.traceJob, false)
+    self.traceJob = nil
+end
+local Indicator_BlinkAnimOnFinished = function(ag)
+    return ag:OnFinishedFunc()
 end
 
 local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackdrop)
@@ -347,12 +364,8 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     ba2:SetOrder(2)
     bag.a2 = ba2
 
-    bag:SetScript("OnFinished",function(ag)
-        local self = ag:GetParent()
-        ag:Stop()
-        self:Hide()
-        return Aptechka.FrameSetJob(self.parent, self.traceJob, false)
-    end)
+    bag:SetScript("OnFinished", Indicator_BlinkAnimOnFinished)
+    bag.OnFinishedFunc = Indicator_BlinkOnFinishedFunc
     f.blink = bag
 
 
@@ -393,48 +406,37 @@ end
 -------------------------------------------------------------------------------------------
 
 local SetJob_Corner = function(self, job, state, contentType, ...)
-    local color
-    if job.foreigncolor and job.isforeign then
-        color = job.foreigncolor
-    else
-        color = job.color or { 1,1,1,1 }
-    end
-    if job.pulse then
-        -- UIFrameFlash(self, 0.15, 0.15, 1.2, true)
-        if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
-    end
-    self.color:SetVertexColor(unpack(color))
+    if self.currentJob ~= self.previousJob then
+        local r,g,b,a = GetColor(job)
+        self.color:SetVertexColor(r,g,b,a)
 
-    if job.scale then
-        self:SetScale(job.scale)
-    else
-        self:SetScale(1)
-    end
-
-    if job.fade then
-        if (self.traceJob ~= job or not self.blink:IsPlaying()) or job.resetAnimation then
-
-            if self.blink:IsPlaying() then
-                self.blink:Finish()
-            end
+        if job.scale then
+            self:SetScale(job.scale)
+        else
+            self:SetScale(1)
+        end
+        if job.pulse then
+            -- UIFrameFlash(self, 0.15, 0.15, 1.2, true)
+            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+        end
+        if self.traceJob then
+            -- Clearing previous trace job
+            self.blink:Stop()
+            self.blink:OnFinishedFunc()
+        end
+        if job.fade then
             self.traceJob = job
             self.blink.a2:SetFromAlpha(1)
             self.blink.a2:SetToAlpha(0)
             self.blink.a2:SetDuration(job.fade)
-            self.blink:Play()
-
-        end
-    else
-        if self.traceJob then
-            self.jobs[self.traceJob] = nil
-            self.blink:Stop()
-            self.traceJob = nil
+            -- self.blink:Play() -- Play will be called later
         end
     end
 
-    -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
-        -- if not self.pulse:IsPlaying() then self.pulse:Play() end
-    -- end
+    if job.fade then
+        self.blink:Stop()
+        self.blink:Play()
+    end
 end
 local Corner_PulseAnimOnFinished = function(self)
     self.pulses = self.pulses + 1
@@ -450,11 +452,13 @@ end
 local Corner_OnHide = function(self)
     self.pulse.done = false
 end
-local Corner_BlinkAnimOnFinished = function(ag)
+local Corner_BlinkOnFinishedFunc = function(ag)
     local self = ag:GetParent()
-    ag:Stop()
-    self:Hide()
-    return Aptechka.FrameSetJob(self.parent, self.traceJob, false)
+    Aptechka.FrameSetJob(self.parent, self.traceJob, false)
+    self.traceJob = nil
+end
+local Corner_BlinkAnimOnFinished = function(ag)
+    return ag:OnFinishedFunc()
 end
 local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrderMod)
     local f = CreateFrame("Frame",nil,parent)
@@ -503,6 +507,7 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrde
     bag.a2 = ba2
 
     bag:SetScript("OnFinished", Corner_BlinkAnimOnFinished)
+    bag.OnFinishedFunc = Corner_BlinkOnFinishedFunc
     f.blink = bag
 
     local pag = f:CreateAnimationGroup()

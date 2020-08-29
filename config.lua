@@ -56,7 +56,7 @@ config.UnitNameStatus = { name = "UnitName", assignto = "text1", classcolor = tr
 config.HealthBarColor = { name = "HealthBar", assignto = "health", color = {1, .3, .3}, classcolor = true, priority = 10 }
 config.PowerBarColor = { name = "PowerBar", assignto = "power", color = {.5,.5,1}, priority = 20 }
 config.InVehicleStatus = { name = "InVehicle", assignto = "vehicle", color = {0.3,1,0.3}, priority = 21 }
-config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, resetAnimation = true, priority = 95, fade = 0.3 }
+config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, priority = 95, fade = 0.3 }
 config.DispelStatus = { name = "Dispel", assignto = "bossdebuff", scale = 0.8, priority = 20 }
 config.StaggerStatus = { name = "Stagger", assignto = "text2", priority = 20 }
 config.RunicPowerStatus = { name = "RunicPower", assignto = "mitigation", priority = 10, color = { 0, 0.82, 1 } }
@@ -229,7 +229,7 @@ if playerClass == "PRIEST" then
     A{ id = 21562, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
 
     --Renew
-    A{ id = 139,   type = "HELPFUL", assignto = "bars", refreshTime = 15*0.3, priority = 50, pulse = true, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
+    A{ id = 139,   type = "HELPFUL", assignto = "bars", refreshTime = 15*0.3, priority = 50, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
     --Power Word: Shield
     A{ id = 17,    type = "HELPFUL", assignto = "bars", priority = 90, isMine = true, color = { 1, .85, 0}, showDuration = true }
     -- Weakened Soul
