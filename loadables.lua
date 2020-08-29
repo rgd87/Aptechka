@@ -28,22 +28,48 @@ AptechkaDefaultConfig.MapIDs = {
 
     [1580] = "Ny'alotha", -- Wrathion room
     [1581] = "Ny'alotha",
+    [1600] = "Mythic+ 8.3",
+
+    [1663] = "Halls of Atonement",
+    [1666] = "The Necrotic Wake",
+    [1669] = "Mists of Tirna Scithe",
+    [1674] = "Plaguefall",
+    [1675] = "Sanguine Depths",
+    [1679] = "De Other Side",
+    [1683] = "Theater of Pain",
+    [1693] = "Spires of Ascension",
+    [1735] = "Castle Nathria",
+    -- This table is also used for debuff highlight sorting by content relevance
 
     [704] = "Halls of Valor",
     [706] = "Maw of Souls",
     [731] = "Neltharion's Lair",
     [733] = "Darkheart Thicket",
     [751] = "Black Rook Hold",
-
-    -- This table is also used for debuff highlight sorting by content relevance
-    [99990] = "Mythic+ 8.3",
 }
 
 AptechkaDefaultConfig.defaultDebuffHighlights = {
 
+    ["Castle Nathria"] = {
+        [25163] = { 25163, 3, "Placeholder Disgusting Oozeling" },
+    },
+    ["Halls of Atonement"] = {
+        [322977] = { 322977, 1, "Halkias, Sinlight Visions" },
+        [325552] = { 325552, 1, "Domina Venomblade, Cryotoxic Slash" },
+    },
+    ["Theater of Pain"] = {
+        [320069] = { 320069, 1, "Challengers, Mortal Strike" },
+        [323831] = { 323831, 1, "Mordretha, Death Grasp" },
+    },
+    ["Plaguefall"] = {
+        [329110] = { 329110, 1, "Docktor Ickus, Slime Injection" },
+        [325552] = { 325552, 1, "Domina Venomblade, Cryotoxic Slash" },
+    },
+    ["Mists of Tirna Scithe"] = {
+        [322563] = { 322563, 1, "Tred'ova, Marked Prey" },
+    },
     ["Mythic+ 8.3"] = {
         [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
-        [25163] = { 25163, 3, "Disgusting Oozeling" },
     },
     ["Horrific Visions"] = {
         [306965] = { 306965, 1, "Madness: Dark Delusions Stun" },

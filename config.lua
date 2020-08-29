@@ -126,13 +126,17 @@ A{ id = 132403, prototype = activeMitigation } -- Shield of the Righteousness
 A{ id = 203819, prototype = activeMitigation } -- Demon Spikes
 A{ id = 192081, prototype = activeMitigation } -- Ironfur
 
+-- COVENANT
+A{ id = 330749, prototype = survivalCD } -- Phial of Serenity
+
 -- MONK
 A{ id = 122783, prototype = survivalCD } -- Diffuse Magic
 A{ id = 122278, prototype = survivalCD } -- Dampen Harm
-A{ id = 243435, prototype = survivalCD, priority = 91 } -- Fortifying Brew (Mistweaver)
+A{ id = 132578, prototype = survivalCD } -- Invoke Niuzao
+A{ id = 243435, prototype = survivalCD, priority = 91 } -- Fortifying Brew (Mistweaver/Windwalker)
 A{ id = 125174, prototype = survivalCD, priority = 91 } -- Touch of Karma
-A{ id = 115176, prototype = survivalCD } -- Zen Meditation
-A{ id = 116849, prototype = tankCD, priority = 88 } --Life Cocoon
+A{ id = 115176, prototype = tankCD } -- Zen Meditation
+A{ id = 116849, prototype = survivalCD, priority = 88 } --Life Cocoon
 A{ id = 120954, prototype = tankCD } --Fortifying Brew (Brewmaster)
 
 -- WARRIOR
@@ -148,6 +152,10 @@ A{ id = 212800, prototype = survivalCD } -- Blur
 A{ id = 187827, prototype = tankCD } -- Vengeance Meta
 
 -- ROGUE
+A{ id = 185311, prototype = survivalCD } -- Crimson Vial
+-- A{ id = 1784,   prototype = survivalCD } -- Stealh
+A{ id = 11327,  prototype = survivalCD } -- Vanish
+A{ id = 5277,   prototype = survivalCD } -- Evasion
 A{ id = 1966,   prototype = survivalCD } -- Feint
 A{ id = 31224,  prototype = survivalCD, priority = 91 } -- Cloak of Shadows
 A{ id = 45182,  prototype = tankCD } -- Cheating Death
@@ -177,16 +185,17 @@ A{ id = 184662, prototype = survivalCD } -- Shield of Vengeance
 A{ id = 205191, prototype = survivalCD } -- Eye for an Eye
 A{ id = 498,    prototype = survivalCD } -- Divine Protection
 A{ id = 6940,   prototype = survivalCD } -- Blessing of Sacrifice
-A{ id = 31850,  prototype = tankCD, priority = 88 } --Ardent Defender
+A{ id = 31850,  prototype = survivalCD, priority = 88 } --Ardent Defender
 A{ id = 86659,  prototype = tankCD } --Guardian of Ancient Kings 50%
-A{ id = 204150, prototype = tankCD, priority = 85 } -- Aegis of Light
+-- A{ id = 204150, prototype = tankCD, priority = 85 } -- Aegis of Light
 -- Guardian of the Forgotten Queen - Divine Shield (PvP)
 A{ id = 228050, prototype = tankCD, priority = 97 }
 
 -- DEATH KNIGHT
--- A{ id = 194679, prototype = survivalCD } -- Rune Tap
+A{ id = 194679, prototype = survivalCD } -- Rune Tap
 A{ id = 55233,  prototype = tankCD, priority = 94 } --Vampiric Blood
 A{ id = 48792,  prototype = tankCD, priority = 94 } --Icebound Fortitude 50%
+A{ id = 81256,  prototype = survivalCD } -- Dancing Rune Weapon
 
 -- MAGE
 A{ id = 113862, prototype = survivalCD } -- Arcane Greater Invisibility
@@ -202,6 +211,7 @@ A{ id = 204293, prototype = survivalCD } -- Spirit Link (PvP)
 
 A{ id = {
     170906, 192002, 195472, 225743, 251232, 257427, 257428, 272819, 279739, 297098, -- Food & Drink
+    308429, 308433, 327786, 340109, -- Shadowlands Food & Drink
     167152, -- Mage Food
     430, 431, 432, 1133, 1135, 1137, 22734, -- Classic water
     34291, 43183, 43182, -- BC & WotLK water
@@ -210,6 +220,7 @@ A{ id = {
     172786, -- WoD water
     225738, 192001, -- Legion water
     274914, -- BfA water
+    314646, -- Shadowlands water
 }, assignto = "text2", color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
 
@@ -243,8 +254,6 @@ if playerClass == "PRIEST" then
                                                                         --     [4] = { 1, .4, .4},
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
-    --Shadow Covenant
-    A{ id = 219521,type = "HARMFUL", assignto = "bars", priority = 50, color = { 0.6, 0, 1 }, showDuration = true, isMine = true}
     --Atonement
     A{ id = 194384,type = "HELPFUL", assignto = "bar4", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true}
     --Trinity Atonement
@@ -340,6 +349,8 @@ if playerClass == "PALADIN" then
     --Glimmer of Light
     A{ id = 287280,type = "HELPFUL", assignto = "bars", color = { 1, .3, .3}, showDuration = true, isMine = true}
 
+    A{ id = { 328282, 328620, 328622, 328281 },  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Blessing of Seasons
+
     --Tyr's Deliverance
     A{ id = 200654, type = "HELPFUL", assignto = "spell3", color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true }
      --Bestow Faith
@@ -362,8 +373,7 @@ if playerClass == "PALADIN" then
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Faith
 
-    A{ id = 210320,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { .4, .4, 1} } --Devotion Aura
-    A{ id = 183416,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { 1, .4, .4} } --Aura of Sacrifice
+    A{ id = 465,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { .4, .4, 1} } --Devotion Aura
 
     Trace{id = 225311, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.2}, fade = 0.4, priority = 96 } -- Light of Dawn
 
@@ -385,7 +395,7 @@ end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
 
-    A{ id = 61295,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.2 , 0.2, 1} } --Riptide
+    A{ id = 61295,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
     A{ id = 974,    type = "HELPFUL", assignto = "bar4", showStacks = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
                                                                         -- stackcolor =   {
                                                                         --     [1] = { 0,.4, 0},
@@ -399,6 +409,14 @@ if playerClass == "SHAMAN" then
                                                                         --     [9] = {.4, 1, .4},
                                                                         -- },
                                                                         --, } --Earth Shield
+
+    -- Surge of Earth
+    Trace{id = 320747, type = "HEAL", assignto = "healfeedback", color = { 0.8, 0.4, 0.1}, fade = 0.7, priority = 96 }
+    -- Downpour
+    Trace{id = 207778, type = "HEAL", assignto = "healfeedback", color = { 0.4, 0.4, 1}, fade = 0.7, priority = 96 }
+
+    Trace{id = 77472, type = "HEAL", assignto = "healfeedback", color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Wave
+    Trace{id = 8004, type = "HEAL", assignto = "healfeedback", color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Surge
 
     Trace{id = 1064, type = "HEAL", assignto = "healfeedback", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = "spell3", color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
@@ -417,6 +435,24 @@ if playerClass == "SHAMAN" then
 end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = "raidbuff", color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
+
+    -- A{ id = 327037,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Protection
+    A{ id = 327071,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Focus
+    -- A{ id = 327022,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Empowerment
+    A{ id = 325748,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Adaptive Swarm
+
+    -- Tranquility
+    --[[
+    A{ id = 157982, type = "HELPFUL", assignto = "mitigation", priority = 60, isMine = true, stackcolor =   {
+        [1] = { 1, 0, 0},
+        [2] = { 1, 0, 102/255},
+        [3] = { 1, 0, 190/255},
+        [4] = { 204/255, 0, 1},
+        [5] = { 108/255, 0, 1},
+        [6] = { 148/255, 0, 1},
+        [7] = { 148/255, 0, 1},
+    }, showStacks = 5}
+    ]]
 
     -- Cenarion Ward
     A{ id = 102351, type = "HELPFUL", assignto = "bars", priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
@@ -451,6 +487,9 @@ if playerClass == "WARRIOR" then
     A{ id = 6673,  type = "HELPFUL", assignto = "raidbuff", color = { 1, .4 , .4}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(6673) end}
 end
 if playerClass == "MAGE" then
+    -- Focus Magic
+    A{ id = 321358,  type = "HELPFUL", assignto = "bars", color = { 206/255, 4/256, 56/256 }, priority = 50, isMine = true} --Arcane Intellect
+
     A{ id = 1459,  type = "HELPFUL", assignto = "raidbuff", color = { .4 , .4, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1459) end} --Arcane Intellect
     -- A{ id = 61316, type = "HELPFUL", assignto = "spell2", color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
     -- A{ id = 54648, type = "HELPFUL", assignto = "spell2", color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
@@ -617,6 +656,25 @@ helpers.auraBlacklist = {
 helpers.importantTargetedCasts = {
     [324667] = true, -- Globgrog, Slime Wave
     [325552] = true, -- Cytotoxic Slash, Domina Venomblade
+
+    [323137] = true, -- Ingra Maloch, Bewildering Pollen
+    [322614] = true, -- Tred'ova, Mind Link
+    [322977] = true, -- Halkias, Sinlight Visions
+
+    [320376] = true, -- Stitchflesh, Mutilate
+    [320788] = true, -- Nalthor, Frozen Binds
+
+    [319650] = true, -- Kryxis, Vicious Headbutt
+    [322554] = true, -- Executor Tarvold, Castigate
+    [325254] = true, -- Beryilla, Iron Spikes
+
+    [324608] = true, -- Oryphrion, Charged Stomp
+
+    [320069] = true, -- Challengers, Mortal Strike
+    [323515] = true, -- Gorechop, Hateful Strike
+    [320644] = true, -- Xav the Unfallen, Brutal Combo
+    [324079] = true, -- Mordretha, Reaping Scythe
+
 
     -- bfa spell ids borrowed from https://wago.io/BFADungeonTargetedSpells
 

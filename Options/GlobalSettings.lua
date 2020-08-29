@@ -2,6 +2,7 @@ local addonName, ns = ...
 
 local L = Aptechka.L
 
+local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
 
 function ns.MakeGlobalSettings()
@@ -141,6 +142,7 @@ function ns.MakeGlobalSettings()
                         name = L"Use LibCLHealth",
                         desc = L"More frequent health updates based combat log",
                         type = "toggle",
+                        disabled = not isClassic,
                         width = "full",
                         order = 18,
                         get = function(info) return Aptechka.db.global.useCombatLogHealthUpdates end,
