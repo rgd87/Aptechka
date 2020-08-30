@@ -244,22 +244,30 @@ end
 -------------------------------------------------------------------------------------------
 -- Square Indicator
 -------------------------------------------------------------------------------------------
-
-local SetJob_Indicator = function(self, job, state, contentType, ...)
-    if self.currentJob ~= self.previousJob then
-        if self.traceJob then
-            -- Clearing previous trace job
-            self.blink:Stop()
-            self.blink:OnFinishedFunc()
-        end
-        if job.fade then
-            self.traceJob = job
-            self.blink.a2:SetFromAlpha(1)
-            self.blink.a2:SetToAlpha(0)
-            self.blink.a2:SetDuration(job.fade)
-            -- self.blink:Play() -- Play will be called later
-        end
+local function Indicator_StartTrace(self, job)
+    if self.traceJob and self.traceJob.priority > job.priority then
+        return
     end
+
+    self.traceJob = job
+
+    self:Show()
+
+    self.blink.a2:SetFromAlpha(1)
+    self.blink.a2:SetToAlpha(0)
+    local duration = job.fade or 0.7
+    self.blink.a2:SetDuration(duration)
+
+    local r,g,b,a = GetColor(job)
+    self.color:SetVertexColor(r,g,b,a)
+
+    if self.blink:IsPlaying() then
+        self.blink:Stop()
+    end
+    self.blink:Play()
+end
+local SetJob_Indicator = function(self, job, state, contentType, ...)
+    if self.traceJob then return end -- widget is busy with animation
 
     if contentType == "AURA" then
         local duration, expirationTime, count, texture, spellID, caster = ...
@@ -293,20 +301,13 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
     else
         self.cd:Hide()
     end
-
-    if job.fade then
-        self.blink:Stop()
-        self.blink:Play()
-    end
 end
 
-local Indicator_BlinkOnFinishedFunc = function(ag)
-    local self = ag:GetParent()
-    Aptechka.FrameSetJob(self.parent, self.traceJob, false)
-    self.traceJob = nil
-end
 local Indicator_BlinkAnimOnFinished = function(ag)
-    return ag:OnFinishedFunc()
+    local widget = ag:GetParent()
+    local frame = widget.parent
+    widget.traceJob = nil
+    Aptechka:UpdateWidget(frame, widget)
 end
 
 local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackdrop)
@@ -341,6 +342,7 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     f:SetPoint(point,frame,to,x,y)
     f.parent = parent
     f.SetJob = SetJob_Indicator
+    f.StartTrace = Indicator_StartTrace
 
     -- local pag = f:CreateAnimationGroup()
     -- local pa1 = pag:CreateAnimation("Scale")
@@ -386,7 +388,6 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     bag.a2 = ba2
 
     bag:SetScript("OnFinished", Indicator_BlinkAnimOnFinished)
-    bag.OnFinishedFunc = Indicator_BlinkOnFinishedFunc
     f.blink = bag
 
 
@@ -425,8 +426,34 @@ end
 -------------------------------------------------------------------------------------------
 -- CORNER
 -------------------------------------------------------------------------------------------
+local function Corner_StartTrace(self, job)
+    if self.traceJob and self.traceJob.priority > job.priority then
+        return
+    end
+
+    self.traceJob = job
+
+    self:Show()
+
+    self.blink.a2:SetFromAlpha(1)
+    self.blink.a2:SetToAlpha(0)
+    local duration = job.fade or 0.7
+    self.blink.a2:SetDuration(duration)
+
+    local r,g,b,a = GetColor(job)
+    self.color:SetVertexColor(r,g,b,a)
+
+    local scale = job.scale or 1
+    self:SetScale(scale)
+
+    if self.blink:IsPlaying() then
+        self.blink:Stop()
+    end
+    self.blink:Play()
+end
 
 local SetJob_Corner = function(self, job, state, contentType, ...)
+    if self.traceJob then return end -- widget is busy with animation
     if self.currentJob ~= self.previousJob then
         local r,g,b,a = GetColor(job)
         self.color:SetVertexColor(r,g,b,a)
@@ -440,25 +467,9 @@ local SetJob_Corner = function(self, job, state, contentType, ...)
             -- UIFrameFlash(self, 0.15, 0.15, 1.2, true)
             if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
         end
-        if self.traceJob then
-            -- Clearing previous trace job
-            self.blink:Stop()
-            self.blink:OnFinishedFunc()
-        end
-        if job.fade then
-            self.traceJob = job
-            self.blink.a2:SetFromAlpha(1)
-            self.blink.a2:SetToAlpha(0)
-            self.blink.a2:SetDuration(job.fade)
-            -- self.blink:Play() -- Play will be called later
-        end
-    end
-
-    if job.fade then
-        self.blink:Stop()
-        self.blink:Play()
     end
 end
+
 local Corner_PulseAnimOnFinished = function(self)
     self.pulses = self.pulses + 1
     if self.pulses > 10 then
@@ -473,14 +484,14 @@ end
 local Corner_OnHide = function(self)
     self.pulse.done = false
 end
-local Corner_BlinkOnFinishedFunc = function(ag)
-    local self = ag:GetParent()
-    Aptechka.FrameSetJob(self.parent, self.traceJob, false)
-    self.traceJob = nil
-end
+
 local Corner_BlinkAnimOnFinished = function(ag)
-    return ag:OnFinishedFunc()
+    local widget = ag:GetParent()
+    local frame = widget.parent
+    widget.traceJob = nil
+    Aptechka:UpdateWidget(frame, widget)
 end
+
 local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrderMod)
     local f = CreateFrame("Frame",nil,parent)
     f:SetWidth(w); f:SetHeight(h);
@@ -512,6 +523,7 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrde
     f:SetPoint(point,frame,to,x,y)
     f.parent = parent
     f.SetJob = SetJob_Corner
+    f.StartTrace = Corner_StartTrace
 
     local bag = f:CreateAnimationGroup()
     bag:SetLooping("NONE")
@@ -528,7 +540,6 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrde
     bag.a2 = ba2
 
     bag:SetScript("OnFinished", Corner_BlinkAnimOnFinished)
-    bag.OnFinishedFunc = Corner_BlinkOnFinishedFunc
     f.blink = bag
 
     local pag = f:CreateAnimationGroup()
@@ -856,8 +867,6 @@ end
 ]]
 
 local SetJob_Icon = function(self, job, state, contentType, ...)
-    if job.fade then self.jobs[job.name] = nil; return end
-
     if contentType == "AURA" then
         local duration, expirationTime, count, texture = ...
         if job.showDuration then
@@ -875,9 +884,6 @@ local SetJob_Icon = function(self, job, state, contentType, ...)
             self.stacktext:SetText()
         end
     end
-    -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
-        -- if not self.pulse:IsPlaying() then self.pulse:Play() end
-    -- end
 end
 
 local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)

@@ -1089,6 +1089,20 @@ function Aptechka:UpdateMindControl(unit)
     end
 end
 
+
+local function WidgetStartTrace(widget, slot, frame, opts)
+    if not widget then
+        widget = Aptechka:CreateDynamicWidget(frame, slot)
+    end
+    if widget then
+        widget:StartTrace(opts)
+    end
+end
+local function FrameStartTrace(frame, unit, opts)
+    Aptechka:ForEachWidget(frame, opts, WidgetStartTrace, frame, opts)
+end
+Aptechka.FrameStartTrace = FrameStartTrace
+
 function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
     local timestamp, eventType, hideCaster,
     srcGUID, srcName, srcFlags, srcFlags2,
@@ -1100,7 +1114,8 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
             if guidMap[dstGUID] and not opts.disabled then
                 local minamount = opts.minamount
                 if not minamount or amount > minamount then
-                    SetJob(guidMap[dstGUID],opts,true)
+                    local unit = guidMap[dstGUID]
+                    Aptechka:ForEachUnitFrame(unit, FrameStartTrace, opts)
                 end
             end
         end
@@ -1404,7 +1419,7 @@ function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
         if LastCastSentTime > GetTime() - 0.5 then
             for unit in pairs(Roster) do
                 if UnitName(unit) == LastCastTargetName then
-                    SetJob(unit, config.LOSStatus, true)
+                    Aptechka:ForEachUnitFrame(unit, FrameStartTrace, config.LOSStatus)
                     return
                 end
             end
@@ -2316,6 +2331,31 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
 
 end
 
+-- Partially duplicates the function above, used to refresh widget after trace animation override
+function Aptechka:UpdateWidget(frame, widget)
+    local state = frame.state
+    local widgetState = state.widgets[widget]
+    if not widgetState then
+        widget:Hide()
+        return
+    end
+
+    local currentJobData = widgetState[1]
+    if currentJobData then
+        widget.previousJob = widget.currentJob
+        widget.currentJob = currentJobData.job -- important that it's before SetJob
+
+        if widget ~= frame then widget:Show() end   -- taint if we show protected unitbutton frame
+        if widget.SetJob then
+            widget:SetJob(currentJobData.job, state, unpack(currentJobData))
+        end
+    else
+        if widget ~= frame then widget:Hide() end
+        widget.previousJob = widget.currentJob
+        widget.currentJob = nil
+    end
+end
+
 function Aptechka.FrameSetJob(frame, opts, enabled, ...)
     if opts and opts.assignto then
         if type(opts.assignto) == "string" then
@@ -2336,6 +2376,19 @@ function Aptechka.SetJob(unit, opts, enabled, ...)
     end
 end
 SetJob = Aptechka.SetJob
+
+function Aptechka:ForEachWidget(frame, opts, func, ...)
+    if opts and opts.assignto then
+        if type(opts.assignto) == "string" then
+            local slot = opts.assignto
+            func(frame[slot], slot, ...)
+        else
+            for _, slot in ipairs(opts.assignto) do
+                func(frame[slot], slot, ...)
+            end
+        end
+    end
+end
 
 local GetRealID = function(id) return type(id) == "table" and id[1] or id end
 -----------------------
