@@ -269,7 +269,7 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
             self.cd:SetReverse(not job.reverseDuration)
             self.cd:SetCooldown(expirationTime - duration, duration, 0,0)
             self.cd:Show()
-        elseif job.showStacks then
+        elseif job.showCount then
             local stime = 300
             local maxCount = job.maxCount or 5
             local completed = (maxCount - count) * stime
@@ -579,7 +579,7 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
         local duration, expirationTime, count, texture, spellID, caster = ...
         local color = GetSpellColorTable(job, caster, count)
 
-        if job.showStacks then
+        if job.showCount then
             local maxCount = job.maxCount or 5
             self:SetMinMaxValues(0, maxCount)
             self:SetValue(count)
@@ -1551,7 +1551,7 @@ local TextTypeHandlers = {
         local duration, expirationTime, count, texture, spellID, caster = ...
         self.text:SetTextColor(GetSpellColor(job, caster, count))
 
-        if job.showStacks then
+        if job.showCount then
             self.text:SetText(count)
             self:SetScript("OnUpdate", nil)
         elseif job.showDuration then

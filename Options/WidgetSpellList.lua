@@ -201,6 +201,9 @@ function ns.CreateCommonForm(self)
             clean(opts, default_opts, "extend_below", false)
             clean(opts, default_opts, "refreshTime", false)
             clean(opts, default_opts, "foreigncolor", false)
+            clean(opts, default_opts, "showDuration", false)
+            clean(opts, default_opts, "showCount", false)
+            clean(opts, default_opts, "maxCount", false)
             -- clean(opts, default_opts, "scale_until", false)
             -- clean(opts, default_opts, "hide_until", false)
             -- clean(opts, default_opts, "maxtimers", false)
@@ -454,25 +457,56 @@ function ns.CreateCommonForm(self)
     Form:AddChild(isMissing)
     AddTooltip(isMissing, "Show indicator if aura is missing")
 
-    local showDuration = AceGUI:Create("CheckBox")
-    showDuration:SetLabel("Show Duration")
-    showDuration:SetRelativeWidth(0.4)
-    showDuration:SetCallback("OnValueChanged", function(self, event, value)
-        self.parent.opts["showDuration"] = value
-    end)
-    Form.controls.showDuration = showDuration
-    Form:AddChild(showDuration)
-
-
-
     local isMine = AceGUI:Create("CheckBox")
     isMine:SetLabel("Casted by Player")
-    isMine:SetRelativeWidth(0.3)
+    isMine:SetRelativeWidth(0.65)
     isMine:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["isMine"] = value
     end)
     Form.controls.isMine = isMine
     Form:AddChild(isMine)
+
+    local showDuration = AceGUI:Create("CheckBox")
+    showDuration:SetLabel("Show Duration")
+    showDuration:SetRelativeWidth(0.95)
+    showDuration:SetCallback("OnValueChanged", function(self, event, value)
+        self.parent.opts["showDuration"] = value
+        if value then
+            self.parent.controls.showCount:SetValue(false)
+            self.parent.opts["showCount"] = false
+        end
+    end)
+    Form.controls.showDuration = showDuration
+    Form:AddChild(showDuration)
+
+    local showCount = AceGUI:Create("CheckBox")
+    showCount:SetLabel("Show Stacks")
+    showCount:SetRelativeWidth(0.55)
+    showCount:SetCallback("OnValueChanged", function(self, event, value)
+        self.parent.opts["showCount"] = value
+        if value then
+            self.parent.controls.showDuration:SetValue(false)
+            self.parent.opts["showDuration"] = false
+        end
+    end)
+    Form.controls.showCount = showCount
+    Form:AddChild(showCount)
+
+    local maxCount = AceGUI:Create("EditBox")
+    maxCount:SetLabel("Max Count")
+    maxCount:SetRelativeWidth(0.4)
+    maxCount:DisableButton(true)
+    maxCount:SetCallback("OnTextChanged", function(self, event, value)
+        local v = tonumber(value)
+        if v and v > 0 then
+            self.parent.opts["maxCount"] = v
+        elseif value == "" then
+            self.parent.opts["maxCount"] = false
+            self:SetText("")
+        end
+    end)
+    Form.controls.maxCount = maxCount
+    Form:AddChild(maxCount)
 
 
     local extend_below = AceGUI:Create("EditBox")
@@ -579,6 +613,8 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     controls.isMine:SetValue(opts.isMine)
     controls.isMissing:SetValue(opts.isMissing)
     controls.showDuration:SetValue(opts.showDuration)
+    controls.showCount:SetValue(opts.showCount)
+    controls.maxCount:SetText(opts.maxCount)
     controls.refreshTime:SetText(opts.refreshTime)
 
     local clonesText
@@ -645,6 +681,8 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     if category == "auras" then
         controls.name:SetDisabled(false)
         controls.showDuration:SetDisabled(false)
+        controls.showCount:SetDisabled(false)
+        controls.maxCount:SetDisabled(false)
         controls.isMine:SetDisabled(false)
         controls.extend_below:SetDisabled(false)
         controls.refreshTime:SetDisabled(false)
@@ -652,6 +690,8 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     else
         controls.name:SetDisabled(true)
         controls.showDuration:SetDisabled(true)
+        controls.showCount:SetDisabled(true)
+        controls.maxCount:SetDisabled(true)
         controls.isMine:SetDisabled(true)
         controls.extend_below:SetDisabled(true)
         controls.refreshTime:SetDisabled(true)

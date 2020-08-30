@@ -246,7 +246,7 @@ if playerClass == "PRIEST" then
                                                                             [8] = { 148/255, 0, 1},
                                                                             [9] = { 148/255, 0, 1},
                                                                             [10] = { 148/255, 0, 1},
-                                                                        }, maxCount = 5, showStacks = true}
+                                                                        }, maxCount = 5, showCount = true}
                                                                         -- stackcolor =   {
                                                                         --     [1] = { .8, 0, 0},
                                                                         --     [2] = { 1, 0, 0},
@@ -400,7 +400,7 @@ if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
 
     A{ id = 61295,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
-    A{ id = 974,    type = "HELPFUL", assignto = "bar4", showStacks = true, maxCount = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
+    A{ id = 974,    type = "HELPFUL", assignto = "bar4", showCount = true, maxCount = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
                                                                         -- stackcolor =   {
                                                                         --     [1] = { 0,.4, 0},
                                                                         --     [2] = { 0,.5, 0},
@@ -455,7 +455,7 @@ if playerClass == "DRUID" then
         [5] = { 108/255, 0, 1},
         [6] = { 148/255, 0, 1},
         [7] = { 148/255, 0, 1},
-    }, showStacks = 5}
+    }, showCount = 5}
     ]]
 
     -- Cenarion Ward
