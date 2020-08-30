@@ -382,6 +382,16 @@ if playerClass == "PALADIN" then
     A{ id = 465,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { .4, .4, 1} } --Devotion Aura
 
     Trace{id = 225311, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.2}, fade = 0.4, priority = 96 } -- Light of Dawn
+    -- Flash of Light
+    Trace{id = 19750, type = "HEAL", assignto = "healfeedback", color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
+    -- Holy Light
+    Trace{id = 82326, type = "HEAL", assignto = "healfeedback", color = { 1, 0.3, 0.55 }, fade = 0.7, priority = 95 }
+    -- Light of the Martyr
+    Trace{id = 183998, type = "HEAL", assignto = "healfeedback", color = { 1, 0.3, 0.55 }, fade = 0.7, priority = 95 }
+    -- Holy Shock
+    Trace{id = 25914, type = "HEAL", assignto = "healfeedback", color = { 1, 0.6, 0.3 }, fade = 0.7, priority = 95 }
+    -- Word of Glory
+    Trace{id = 85673, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.1 }, fade = 0.7, priority = 95 }
 
     -- Trace{id = 82327, type = "HEAL", assignto = "spell3", color = { .8, .5, 1}, fade = 0.7, priority = 96 } -- Holy Radiance
     -- Trace{id =121129, type = "HEAL", assignto = "spell3", color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
