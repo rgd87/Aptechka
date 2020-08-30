@@ -643,14 +643,24 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
         else
             self.jump:Stop()
         end
+
+        local scale = job.scale or 1
+        self:SetVScale(scale)
     end
+end
+local StatusBar_SetVScale = function(self, vscale)
+    local bh = self._baseHeight
+    local sh = bh*vscale
+    self:SetHeight(sh)
 end
 local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackdrop, isVertical)
     local f = CreateFrame("StatusBar",nil,parent)
     local w = pixelperfect(width)
     local h = pixelperfect(height)
     local border = pixelperfect(Aptechka.db.global.borderWidth)
-    f:SetWidth(w); f:SetHeight(h);
+    f:SetWidth(w);
+    f:SetHeight(h);
+    f._baseHeight = h
     if not nobackdrop then
         local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
         outline:SetVertexColor(0,0,0)
@@ -680,6 +690,7 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     f:SetPoint(point,frame,to,x,y)
     f.parent = parent
     f.SetJob = SetJob_StatusBar
+    f.SetVScale = StatusBar_SetVScale
     f:SetScript("OnUpdate", StatusBarOnUpdate)
 
     local rag = f:CreateAnimationGroup()
@@ -715,7 +726,10 @@ end
 
 function Aptechka.Widget.Bar.Reconf(parent, f, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
+    f:SetWidth(pixelperfect(opts.width))
+    local h = pixelperfect(opts.height)
+    f:SetHeight(h)
+    f._baseHeight = h
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
