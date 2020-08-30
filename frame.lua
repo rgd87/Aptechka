@@ -626,6 +626,16 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
         self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
 
         self:SetScript("OnUpdate", nil)
+    elseif contentType == "Stagger" then
+        local stagger = state.stagger
+        self:SetMinMaxValues(0, 1)
+        self:SetValue(stagger)
+
+        local r,g,b = helpers.PercentColor(stagger)
+        self:SetStatusBarColor(r,g,b)
+        self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
+
+        self:SetScript("OnUpdate", nil)
     else
         local r,g,b = GetColor(job)
         self:SetStatusBarColor(r,g,b)
