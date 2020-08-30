@@ -264,6 +264,8 @@ if playerClass == "PRIEST" then
     -- Atonement
     -- Trace{id = 81751, type = "HEAL", minamount = 1000, assignto = "healfeedback", color = { .2, 1, .2}, fade = .5, priority = 90 }
 
+    -- Penance
+    Trace{id = 47750, type = "HEAL", assignto = "healfeedback", color = { 52/255, 172/255, 114/255 }, fade = 0.7, priority = 96 }
     -- Circle of Healing
     Trace{id = 204883, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
     -- Holy Word: Sanctify
@@ -279,7 +281,7 @@ if playerClass == "PRIEST" then
     -- Trail of Light
     Trace{id = 234946, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
     -- Shadowmend
-    Trace{id = 186263, type = "HEAL", assignto = "healfeedback", color = { 0.6, 0.35, 0.8}, fade = 0.7, priority = 96 }
+    Trace{id = 186263, type = "HEAL", assignto = "healfeedback", color = { 0.8, 0.35, 0.7}, fade = 0.7, priority = 96 }
 
     -- Holy Ward (PvP)
     A{ id = 213610, type = "HELPFUL", assignto = "spell3", showDuration = true, priority = 70, color = { 1, .3, .3}, isMine = true }
