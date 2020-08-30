@@ -579,22 +579,20 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
         local duration, expirationTime, count, texture, spellID, caster = ...
         local color = GetSpellColorTable(job, caster, count)
 
+        self:SetStatusBarColor(unpack(color))
+        self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
+        self._color = color
+
         if job.showCount then
             local maxCount = job.maxCount or 5
             self:SetMinMaxValues(0, maxCount)
             self:SetValue(count)
             self:SetScript("OnUpdate", nil)
-            self:SetStatusBarColor(unpack(color))
         else
             self.expires = expirationTime
             local pandemic = job.refreshTime
             self.pandemic = pandemic
             -- local timeLeft = self.expires - GetTime()
-
-            self:SetStatusBarColor(unpack(color))
-            self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
-
-            self._color = color
 
             if not job.showDuration or duration == 0 then
                 self:SetMinMaxValues(0, 1)
