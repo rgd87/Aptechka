@@ -204,6 +204,7 @@ function ns.CreateCommonForm(self)
             clean(opts, default_opts, "showDuration", false)
             clean(opts, default_opts, "showCount", false)
             clean(opts, default_opts, "maxCount", false)
+            clean(opts, default_opts, "scale", 1)
             -- clean(opts, default_opts, "scale_until", false)
             -- clean(opts, default_opts, "hide_until", false)
             -- clean(opts, default_opts, "maxtimers", false)
@@ -426,7 +427,7 @@ function ns.CreateCommonForm(self)
     Form:AddChild(color)
 
     local foreigncolor = AceGUI:Create("ColorPicker")
-    foreigncolor:SetLabel("Other's Color")
+    foreigncolor:SetLabel("Others' Color")
     foreigncolor:SetRelativeWidth(0.23)
     foreigncolor:SetHasAlpha(false)
     foreigncolor:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
@@ -459,12 +460,29 @@ function ns.CreateCommonForm(self)
 
     local isMine = AceGUI:Create("CheckBox")
     isMine:SetLabel("Casted by Player")
-    isMine:SetRelativeWidth(0.65)
+    isMine:SetRelativeWidth(0.30)
     isMine:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["isMine"] = value
     end)
     Form.controls.isMine = isMine
     Form:AddChild(isMine)
+
+    local scale = AceGUI:Create("Slider")
+    scale:SetLabel(L"Scale")
+    scale:SetSliderValues(0.3, 2, 0.05)
+    scale:SetRelativeWidth(0.44)
+    scale:SetCallback("OnValueChanged", function(self, event, value)
+        local v = tonumber(value)
+        if v and v >= 0.3 and v <= 2 then
+            self.parent.opts["scale"] = v
+        else
+            self.parent.opts["scale"] = 1
+            self:SetText(self.parent.opts.scale or "1")
+        end
+    end)
+    Form.controls.scale = scale
+    Form:AddChild(scale)
+    AddTooltip(scale, L"Vertical Bar scale, only applicable when assigned to bars")
 
     local showDuration = AceGUI:Create("CheckBox")
     showDuration:SetLabel("Show Duration")
@@ -615,6 +633,7 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     controls.showDuration:SetValue(opts.showDuration)
     controls.showCount:SetValue(opts.showCount)
     controls.maxCount:SetText(opts.maxCount)
+    controls.scale:SetValue(opts.scale or 1)
     controls.refreshTime:SetText(opts.refreshTime)
 
     local clonesText
@@ -683,6 +702,7 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
         controls.showDuration:SetDisabled(false)
         controls.showCount:SetDisabled(false)
         controls.maxCount:SetDisabled(false)
+        -- controls.scale:SetDisabled(false)
         controls.isMine:SetDisabled(false)
         controls.extend_below:SetDisabled(false)
         controls.refreshTime:SetDisabled(false)
@@ -692,6 +712,7 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
         controls.showDuration:SetDisabled(true)
         controls.showCount:SetDisabled(true)
         controls.maxCount:SetDisabled(true)
+        -- controls.scale:SetDisabled(true)
         controls.isMine:SetDisabled(true)
         controls.extend_below:SetDisabled(true)
         controls.refreshTime:SetDisabled(true)
