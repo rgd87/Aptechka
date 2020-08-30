@@ -271,8 +271,9 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
             self.cd:Show()
         elseif job.showStacks then
             local stime = 300
-            local completed = (job.showStacks - count) * stime
-            local total = job.showStacks * stime
+            local maxCount = job.maxCount or 5
+            local completed = (maxCount - count) * stime
+            local total = maxCount * stime
             local start = GetTime() - completed
             self.cd:SetReverse(true)
             self.cd:SetCooldown(start, total)
@@ -579,7 +580,8 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
         local color = GetSpellColorTable(job, caster, count)
 
         if job.showStacks then
-            self:SetMinMaxValues(0, job.showStacks)
+            local maxCount = job.maxCount or 5
+            self:SetMinMaxValues(0, maxCount)
             self:SetValue(count)
             self:SetScript("OnUpdate", nil)
             self:SetStatusBarColor(unpack(color))
