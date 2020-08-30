@@ -241,9 +241,9 @@ function Aptechka:ForAllCustomStatuses(func, searchAllClasses)
     local categories = { "GLOBAL" }
     if searchAllClasses then
         for i=1, 15 do
-            local class = select(2,C_CreatureInfo.GetClassInfo(i))
-            if not class then break end
-            table.insert(categories, class)
+            local classData = C_CreatureInfo.GetClassInfo(i)
+            if not classData then break end
+            table.insert(categories, classData.classFile)
         end
     else
         local playerClass = select(2, UnitClass("player"))
