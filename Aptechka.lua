@@ -120,6 +120,7 @@ local DebuffProc, DebuffPostUpdate
 local DispelTypeProc, DispelTypePostUpdate
 local enableTraceheals
 local enableAuraEvents
+-- local enableLowHealthStatus
 local debuffLimit
 local tankUnits = {}
 local staggerUnits = {}
@@ -1002,6 +1003,17 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
         end
     end
 
+    --[[
+    if enableLowHealthStatus then
+        local old_perc = state.healthPercent or 1
+        local wasLow = old_perc < 0.35
+        local isLow = perc < 0.35
+        if wasLow ~= isLow then
+            FrameSetJob(self, config.LowHealthStatus, isLow)
+        end
+    end
+    ]]
+
     state.healthPercent = perc
     if gradientHealthColor then
         FrameSetJob(self, config.HealthBarColor, true)
@@ -1542,6 +1554,7 @@ do
     function Aptechka:SPELLS_CHANGED()
         Aptechka:UpdateRangeChecker()
         Aptechka:UpdateDispelBitmask()
+        -- enableLowHealthStatus = IsPlayerSpell(265259)
 
         local role = self:GetSpecRole()
         if role ~= currentRole then

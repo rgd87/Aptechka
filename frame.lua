@@ -1769,6 +1769,21 @@ local CreateFlash = function(parent)
     return f
 end
 
+-- local CreateBottomGlow = function(parent)
+--     local f = CreateFrame("Frame", nil, parent)
+
+--     local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
+--     tex:SetAllPoints(f)
+--     tex:SetTexture("Interface/AddOns/Aptechka/sideGlow2")
+--     tex:SetVertexColor(1,0,0, 0.6)
+
+--     f:SetFrameLevel(7)
+--     f:SetAllPoints()
+
+--     f:Hide()
+--     return f
+-- end
+
 local CreateMindControlIcon = function(parent)
     local f = CreateFrame("Frame", nil, parent)
 
@@ -1899,6 +1914,7 @@ local optional_widgets = {
         autocastGlow = CreateAutocastGlow,
 
         mindcontrol = CreateMindControlIcon,
+        -- sideglow = CreateBottomGlow,
         vehicle = CreateVehicleIcon,
         innerglow = CreateInnerGlow,
         flash = CreateFlash,
