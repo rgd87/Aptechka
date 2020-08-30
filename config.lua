@@ -233,7 +233,7 @@ if playerClass == "PRIEST" then
     --Power Word: Shield
     A{ id = 17,    type = "HELPFUL", assignto = "bars", priority = 90, isMine = true, color = { 1, .85, 0}, showDuration = true }
     -- Weakened Soul
-    A{ id = 6788,    type = "HELPFUL", assignto = "bars", priority = 70, color = { 0.8, 0, 0}, showDuration = true, isMine = true }
+    A{ id = 6788,    type = "HELPFUL", assignto = "bars", priority = 70, scale = 0.5, color = { 0.8, 0, 0}, showDuration = true, isMine = true }
     --Prayer of Mending
     A{ id = 41635, type = "HELPFUL", assignto = "bar4", priority = 70, isMine = true, stackcolor =   {
                                                                             [1] = { 1, 0, 0},
@@ -471,17 +471,19 @@ if playerClass == "DRUID" then
     ]]
 
     -- Cenarion Ward
-    A{ id = 102351, type = "HELPFUL", assignto = "bars", priority = 70, color = {38/255, 221/255, 163/255}, isMine = true }
+    A{ id = 102351, type = "HELPFUL", assignto = "bars", priority = 70, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
     -- Rejuvenation
-    A{ id = 774,   type = "HELPFUL", assignto = "bars", extend_below = 15, refreshTime = 4.5, priority = 90, pulse = true, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, showDuration = true, isMine = true }
+    A{ id = 774,   type = "HELPFUL", assignto = "bars", extend_below = 15, scale = 1.25, refreshTime = 4.5, priority = 90, pulse = true, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, showDuration = true, isMine = true }
     -- Germination
-    A{ id = 155777,type = "HELPFUL", assignto = "bars", extend_below = 15, refreshTime = 4.5, priority = 80, pulse = true, color = { 1, 0.4, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, showDuration = true, isMine = true }
+    A{ id = 155777,type = "HELPFUL", assignto = "bars", extend_below = 15, scale = 1, refreshTime = 4.5, priority = 80, pulse = true, color = { 1, 0.4, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, showDuration = true, isMine = true }
     -- Lifebloom
-    A{ id = 33763, type = "HELPFUL", assignto = "bar4", extend_below = 14, refreshTime = 4.5, priority = 60, showDuration = true, isMine = true, color = { 0.5, 1, 0.5}, }
+    A{ id = 33763, type = "HELPFUL", assignto = "bar4", extend_below = 14, refreshTime = 4.5, priority = 60, showDuration = true, isMine = true, color = { 0.2, 1, 0.2}, }
     -- Regrowth
-    -- A{ id = 8936, type = "HELPFUL", assignto = "spell3", isMine = true, color = { 0.2, 1, 0.2},priority = 60, showDuration = true }
+    A{ id = 8936, type = "HELPFUL", assignto = "bars", isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 60, showDuration = true }
     -- Wild Growth
-    A{ id = 48438, type = "HELPFUL", assignto = "bars", color = { 0.4, 1, 0.4}, priority = 60, showDuration = true, isMine = true }
+    A{ id = 48438, type = "HELPFUL", assignto = "bars", color = { 0, 0.9, 0.7}, priority = 60, showDuration = true, isMine = true }
+
+    Trace{id = 8936, type = "HEAL", assignto = "healfeedback", color = { 0, 0.8, 0.2 }, fade = 0.5, priority = 96 } -- Regrowth
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(8936),
