@@ -147,6 +147,11 @@ local function GetColor(job)
     return 1,1,1
 end
 
+local function GetTextColor(job)
+    local c = job.textcolor or job.color
+    if c then return unpack(c) end
+    return 1,1,1
+end
 
 local function multiplyColor(mul, r,g,b,a)
     return r*mul, g*mul, b*mul, a
@@ -1529,23 +1534,40 @@ end
     end
 
 -- TODO: Split reconf and simple value updates for all widgets
-local SetJob_Text = function(self, job, state, contentType, ...)
-    if contentType == "HealthDeficit" then
+local TextTypeHandlers = {
+    ["HealthDeficit"] = function(self, job, state, contentType, ...)
         self.text:SetFormattedText(formatMissingHealth(state.vHealthMax - state.vHealth))
         self:SetScript("OnUpdate", nil)
-    elseif contentType == "IncomingHeal" then -- For Classic
+        self.text:SetTextColor(GetClassOrTextColor(job, state))
+    end,
+    ["IncomingHeal"] = function(self, job, state, contentType, ...)  -- For Classic
         self.text:SetFormattedText("+%d", state.vIncomingHeal)
         self:SetScript("OnUpdate", nil)
-    elseif contentType == "AURA" then
-        local duration, expirationTime = ...
-        self.expirationTime = expirationTime
-        self.startTime = nil
-        self:SetScript("OnUpdate", Text_OnUpdate) --.frame is for text3 container
-    elseif contentType == "TIMER" then
+        self.text:SetTextColor(GetTextColor(job))
+    end,
+    ["AURA"] = function(self, job, state, contentType, ...)
+        local duration, expirationTime, count, texture, spellID, caster = ...
+        self.text:SetTextColor(GetSpellColor(job, caster, count))
+
+        if job.showStacks then
+            self.text:SetText(count)
+            self:SetScript("OnUpdate", nil)
+        elseif job.showDuration then
+            self.expirationTime = expirationTime
+            self.startTime = nil
+            self:SetScript("OnUpdate", Text_OnUpdate)
+        else
+            self.text:SetText(job.text or job.name)
+            self:SetScript("OnUpdate", nil)
+        end
+    end,
+    ["TIMER"] = function(self, job, state, contentType, ...)
         self.startTime = ...
         self.expirationTime = nil
-        self:SetScript("OnUpdate", Text_OnUpdateForward) --.frame is for text3 container
-    elseif contentType == "Stagger" then
+        self:SetScript("OnUpdate", Text_OnUpdateForward)
+        self.text:SetTextColor(GetTextColor(job))
+    end,
+    ["Stagger"] = function(self, job, state, contentType, ...)
         local stagger = state.stagger
         if not stagger then
             self.text:SetText("")
@@ -1553,52 +1575,34 @@ local SetJob_Text = function(self, job, state, contentType, ...)
         end
         self.text:SetTextColor(helpers.PercentColor(stagger))
         self.text:SetFormattedText("%.0f%%", stagger*100)
-        return
-    elseif contentType == "UnitName" then
+    end,
+    ["UnitName"] = function(self, job, state, contentType, ...)
         self.text:SetText(state.name)
         self:SetScript("OnUpdate", nil)
+        self.text:SetTextColor(GetClassOrTextColor(job, state))
+    end,
+}
+local SetJob_Text = function(self, job, state, contentType, ...)
+    local handler = TextTypeHandlers[contentType]
+    if handler then
+        handler(self, job, state, contentType, ...)
     elseif job.text then
         self:SetScript("OnUpdate", nil)
         self.text:SetText(job.text)
-    end
-
-    local c = (job.classcolor and state.classColor) or job.textcolor or job.color
-    if c then
-        self.text:SetTextColor(unpack(c))
-    else
-        self.text:SetTextColor(1,1,1)
+        self.text:SetTextColor(GetTextColor(job))
     end
 end
 
+local StaticTextTypeHandlers = CopyTable(TextTypeHandlers)
+StaticTextTypeHandlers.TIMER = nil
 local SetJob_StaticText = function(self, job, state, contentType, ...)
-    if contentType == "HealthDeficit" then
-        self.text:SetFormattedText(formatMissingHealth(state.vHealthMax - state.vHealth))
-        self:SetScript("OnUpdate", nil)
-    elseif contentType == "IncomingHeal" then -- For Classic
-        self.text:SetFormattedText("+%d", state.vIncomingHeal)
-        self:SetScript("OnUpdate", nil)
-    elseif contentType == "Stagger" then
-        local stagger = state.stagger
-        if not stagger then
-            self.text:SetText("")
-            return
-        end
-        self.text:SetTextColor(helpers.PercentColor(stagger))
-        self.text:SetFormattedText("%.0f%%", stagger*100)
-        return
-    elseif contentType == "UnitName" then
-        self.text:SetText(state.name)
-        self:SetScript("OnUpdate", nil)
+    local handler = StaticTextTypeHandlers[contentType]
+    if handler then
+        handler(self, job, state, contentType, ...)
     elseif job.text then
         self:SetScript("OnUpdate", nil)
         self.text:SetText(job.text)
-    end
-
-    local c = (job.classcolor and state.classColor) or job.textcolor or job.color
-    if c then
-        self.text:SetTextColor(unpack(c))
-    else
-        self.text:SetTextColor(1,1,1)
+        self.text:SetTextColor(GetTextColor(job))
     end
 end
 
