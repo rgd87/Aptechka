@@ -855,7 +855,7 @@ function Aptechka.Widget.BarArray.Reconf(parent, hdr, popts, gopts)
 end
 
 Aptechka.Widget.IconArray = {}
-Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
+Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
 function Aptechka.Widget.IconArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateArrayHeader("Icon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
@@ -955,7 +955,7 @@ local AddOutline = function(self)
     return outline
 end
 
-local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, x, y, fontName, textsize, outlineEnabled, drawEdge)
     local w = pixelperfect(width)
     local h = pixelperfect(height)
 
@@ -999,9 +999,9 @@ local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, 
     stackframe:SetAllPoints(icon)
     local stacktext = stackframe:CreateFontString(nil,"ARTWORK")
     stacktext:SetDrawLayer("ARTWORK",1)
-    local stackFont = LSM:Fetch("font",  Aptechka.db.profile.stackFontName)
-    local stackFontSize = textsize or Aptechka.db.profile.stackFontSize
-    stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
+    local font = LSM:Fetch("font", fontName)
+    local fontSize = textsize or 12
+    stacktext:SetFont(font, fontSize, "OUTLINE")
     -- stackframe:SetFrameLevel(7)
 
     stacktext:SetJustifyH"RIGHT"
@@ -1014,8 +1014,8 @@ local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, 
     return icon
 end
 
-local function CreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
-    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+local function CreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge, ...)
+    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge, ...)
 
     local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
     icd.noCooldownCount = true -- disable OmniCC for this cooldown
@@ -1051,8 +1051,8 @@ end
 --     -- if now >= self.expirationTime then self:Hide(); return end
 --     self:SetValue(self.expirationTime - now)
 -- end
-local function CreateBarIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
-    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+local function CreateBarIcon(parent, width, height, alpha, point, frame, to, x, y, ...)
+    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, ...)
 
     local icd = CreateFrame("StatusBar", nil, icon)
     icd:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
@@ -1082,10 +1082,10 @@ end
 AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 Aptechka.Widget.Icon = {}
-Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = true, edge = true }
+Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 12, outline = true, edge = true }
 function Aptechka.Widget.Icon.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
+    return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
 end
 
 function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
@@ -1097,7 +1097,15 @@ function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     f:SetAlpha(opts.alpha)
-    local font = LSM:Fetch("font",  Aptechka.db.profile.stackFontName)
+
+    local fontName = opts.font or "ClearFont"
+    local font = LSM:Fetch("font",  fontName)
+    local flags = opts.effect == "OUTLINE" and "OUTLINE"
+    if opts.effect == "SHADOW" then
+        f.stacktext:SetShadowOffset(1,-1)
+    else
+        f.stacktext:SetShadowOffset(0,0)
+    end
     f.stacktext:SetFont(font, opts.textsize, "OUTLINE")
     local drawEdge = opts.edge
 
@@ -1349,10 +1357,10 @@ local function CreateProgressIcon(parent, width, height, alpha, point, frame, to
 end
 
 Aptechka.Widget.ProgressIcon = {}
-Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = false, edge = false }
+Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 12, outline = false, edge = false }
 function Aptechka.Widget.ProgressIcon.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    return CreateProgressIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
+    return CreateProgressIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
 end
 
 Aptechka.Widget.ProgressIcon.Reconf = Aptechka.Widget.Icon.Reconf

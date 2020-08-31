@@ -3126,9 +3126,10 @@ Aptechka.Commands = {
 
                 for property in pairs(Aptechka.Widget[wtype].default) do
                     if p[property] ~= nil then
-                        local oldvalue = opts[property]
+                        local oldvalue = tostring(opts[property]) or "NONE"
                         opts[property] = p[property]
-                        print("  ", string.format("%s:     |cffff5555%s|r", property, oldvalue), "=>", string.format("|cff88ff88%s|r",opts[property]))
+                        local newvalue = tostring(opts[property])
+                        print("  ", string.format("%s:     |cffff5555%s|r", property, oldvalue), "=>", string.format("|cff88ff88%s|r",newvalue))
                     end
                 end
 
