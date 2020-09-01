@@ -240,13 +240,13 @@ function ns.CreateCommonForm(self)
         ----------
 
         if default_opts then
-            if delta.clones then Aptechka.RemoveDefaultsPreserve(delta.clones, default_opts.clones) end
-            Aptechka.RemoveDefaults(delta, default_opts)
+            if delta.clones then Aptechka.util.RemoveDefaultsPreserve(delta.clones, default_opts.clones) end
+            Aptechka.util.RemoveDefaults(delta, default_opts)
             AptechkaConfigMerged[category][spellID] = CopyTable(default_opts)
             -- if delta.disabled then
                 -- AptechkaConfigMerged[category][spellID] = nil
             -- else
-            Aptechka.MergeTable(AptechkaConfigMerged[category][spellID], delta, true)
+            Aptechka.util.MergeTable(AptechkaConfigMerged[category][spellID], delta, true)
             -- end
         else
             AptechkaConfigMerged[category][spellID] = delta
@@ -845,7 +845,7 @@ function ns.CreateWidgetSpellList(name, parent )
         else
             opts = CopyTable(AptechkaConfigCustom[class][category][spellID])
         end
-        Aptechka.SetupDefaults(opts, AptechkaDefaultConfig[category][spellID])
+        Aptechka.util.SetupDefaults(opts, AptechkaDefaultConfig[category][spellID])
 
         -- if category == "spells" then
         Frame.rpane:Clear()

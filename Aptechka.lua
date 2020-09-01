@@ -96,14 +96,13 @@ local FrameSetJob
 local DispelFilter
 
 local pixelperfect = helpers.pixelperfect
-
+Aptechka.util = helpers
 local bit_band = bit.band
 local bit_bor = bit.bor
 local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
 local pairs = pairs
 local next = next
-Aptechka.helpers = helpers
 local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
 local GetAuraHash = helpers.GetAuraHash
@@ -133,8 +132,6 @@ Aptechka.L = setmetatable({}, {
     end,
     __call = function(t,k) return t[k] end,
 })
-
-Aptechka.util = helpers
 
 local defaults = {
     global = {
@@ -216,79 +213,6 @@ local defaults = {
     },
 }
 
-local function SetupDefaults(t, defaults)
-    if not defaults then return end
-    for k,v in pairs(defaults) do
-        if type(v) == "table" then
-            if t[k] == nil then
-                t[k] = CopyTable(v)
-            elseif t[k] == false then
-                t[k] = false --pass
-            else
-                SetupDefaults(t[k], v)
-            end
-        else
-            if type(t) == "table" and t[k] == nil then t[k] = v end
-            if t[k] == "__REMOVED__" then t[k] = nil end
-        end
-    end
-end
-Aptechka.SetupDefaults = SetupDefaults
-
-local function RemoveDefaults(t, defaults)
-    if not defaults then return end
-    for k, v in pairs(defaults) do
-        if type(t[k]) == 'table' and type(v) == 'table' then
-            RemoveDefaults(t[k], v)
-            if next(t[k]) == nil then
-                t[k] = nil
-            end
-        elseif t[k] == v then
-            t[k] = nil
-        end
-    end
-    return t
-end
-Aptechka.RemoveDefaults = RemoveDefaults
-
-local function RemoveDefaultsPreserve(t, defaults)
-    if not defaults then return end
-    for k, v in pairs(defaults) do
-        if type(t[k]) == 'table' and type(v) == 'table' then
-            RemoveDefaultsPreserve(t[k], v)
-            if next(t[k]) == nil then
-                t[k] = nil
-            end
-        elseif t[k] == nil and v ~= nil then
-            t[k] = "__REMOVED__"
-        elseif t[k] == v then
-            t[k] = nil
-        end
-    end
-    return t
-end
-Aptechka.RemoveDefaultsPreserve = RemoveDefaultsPreserve
-
-local function MergeTable(t1, t2)
-    if not t2 then return false end
-    for k,v in pairs(t2) do
-        if type(v) == "table" then
-            if t1[k] == nil or type(t1[k]) ~= "table" then -- assignto can be string while t2 can be table
-                t1[k] = CopyTable(v)
-            else
-                MergeTable(t1[k], v)
-            end
-        elseif v == "__REMOVED__" then
-            t1[k] = nil
-        else
-            t1[k] = v
-        end
-    end
-    return t1
-end
-helpers.MergeTable = MergeTable
-Aptechka.MergeTable = MergeTable
-
 Aptechka:RegisterEvent("PLAYER_LOGIN")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka:UpdateRangeChecker()
@@ -358,17 +282,17 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         fixOldAuraFormat(globalConfig.auras)
         fixOldAuraFormat(globalConfig.traces)
     end
-    MergeTable(AptechkaConfigMerged, globalConfig)
+    Aptechka.util.MergeTable(AptechkaConfigMerged, globalConfig)
 
     local classConfig = AptechkaConfigCustom[class]
     if classConfig then
         fixOldAuraFormat(classConfig.auras)
         fixOldAuraFormat(classConfig.traces)
     end
-    MergeTable(AptechkaConfigMerged, classConfig)
+    Aptechka.util.MergeTable(AptechkaConfigMerged, classConfig)
 
     local widgetConfig = AptechkaConfigCustom["WIDGET"]
-    MergeTable(AptechkaConfigMerged, widgetConfig)
+    Aptechka.util.MergeTable(AptechkaConfigMerged, widgetConfig)
 
 
     -- compiling a list of spells that should activate indicator when missing

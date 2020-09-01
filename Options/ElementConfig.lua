@@ -38,7 +38,7 @@ function ns.MakeElementConfig()
                         local value = tonumber(v)
                         if value then
                             AptechkaConfigMerged[status].priority = value
-                            Aptechka.helpers.MakeTables(AptechkaConfigCustom, "WIDGET", status)
+                            Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
                             AptechkaConfigCustom.WIDGET[status].priority = value
                         end
                     end,
@@ -63,7 +63,7 @@ function ns.MakeElementConfig()
                         end
                     end,
                     set = function(info, slot, enabled)
-                        Aptechka.helpers.MakeTables(AptechkaConfigCustom, "WIDGET", status)
+                        Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
 
                         local oldvalue = AptechkaConfigCustom.WIDGET[status].assignto
                         if type(oldvalue) == "string" then
@@ -114,7 +114,7 @@ function ns.MakeElementConfig()
                     set = function(info, r,g,b)
                         local c = {r,g,b}
                         AptechkaConfigMerged[status].color = c
-                        Aptechka.helpers.MakeTables(AptechkaConfigCustom, "WIDGET", status)
+                        Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
                         AptechkaConfigCustom.WIDGET[status].color = c
                     end,
                     order = 3,
