@@ -341,6 +341,8 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
         if job.pulse then
             if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
         end
+        local scale = job.scale or 1
+        self:SetScale(scale)
     end
 
     if contentType == "AURA" then
@@ -424,22 +426,12 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
 
     local rag = f:CreateAnimationGroup()
     local r1 = rag:CreateAnimation("Rotation")
-    r1:SetDegrees(180)
+    r1:SetDegrees(360)
     r1:SetSmoothing("IN_OUT")
-    r1:SetDuration(0.5)
+    r1:SetDuration(1)
     r1:SetOrder(1)
 
-    local t1 = rag:CreateAnimation("Translation")
-    t1:SetOffset(0, 7)
-    t1:SetDuration(0.5)
-    t1:SetOrder(1)
-
-    local t2 = rag:CreateAnimation("Translation")
-    t2:SetOffset(0, -7)
-    t2:SetDuration(0.5)
-    t2:SetOrder(2)
-
-    f.jump = rag
+    f.spin = rag
 
     AddBlinkAnimation(f)
     AddPulseAnimation(f)
@@ -644,14 +636,18 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
     end
 
     if self.currentJob ~= self.previousJob then
-        if job.jump then
-            if not self.jump:IsPlaying() then self.jump:Play() end
+        if job.spin then
+            if self.spin:IsPlaying() then self.spin:Stop() end
+            self.spin:Play()
         else
-            self.jump:Stop()
+            self.spin:Stop()
         end
 
-        local scale = job.scale or 1
-        self:SetVScale(scale)
+        local vscale = job.scale or 1
+        self:SetVScale(vscale)
+
+        local hscale = job.hscale or 1
+        self:SetHScale(hscale)
     end
 end
 local StatusBar_SetVScale = function(self, vscale)
@@ -659,12 +655,18 @@ local StatusBar_SetVScale = function(self, vscale)
     local sh = bh*vscale
     self:SetHeight(sh)
 end
+local StatusBar_SetHScale = function(self, hscale)
+    local bw = self._baseWidth
+    local sw = bw*hscale
+    self:SetWidth(sw)
+end
 local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackdrop, isVertical)
     local f = CreateFrame("StatusBar",nil,parent)
     local w = pixelperfect(width)
     local h = pixelperfect(height)
     local border = pixelperfect(Aptechka.db.global.borderWidth)
     f:SetWidth(w);
+    f._baseWidth = w
     f:SetHeight(h);
     f._baseHeight = h
     if not nobackdrop then
@@ -697,26 +699,17 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     f.parent = parent
     f.SetJob = SetJob_StatusBar
     f.SetVScale = StatusBar_SetVScale
+    f.SetHScale = StatusBar_SetHScale
     f:SetScript("OnUpdate", StatusBarOnUpdate)
 
     local rag = f:CreateAnimationGroup()
     local r1 = rag:CreateAnimation("Rotation")
-    r1:SetDegrees(180)
+    r1:SetDegrees(360)
     r1:SetSmoothing("IN_OUT")
-    r1:SetDuration(0.5)
+    r1:SetDuration(1)
     r1:SetOrder(1)
 
-    local t1 = rag:CreateAnimation("Translation")
-    t1:SetOffset(0, 7)
-    t1:SetDuration(0.5)
-    t1:SetOrder(1)
-
-    local t2 = rag:CreateAnimation("Translation")
-    t2:SetOffset(0, -7)
-    t2:SetDuration(0.5)
-    t2:SetOrder(2)
-
-    f.jump = rag
+    f.spin = rag
 
     f:Hide()
     return f
@@ -732,7 +725,9 @@ end
 
 function Aptechka.Widget.Bar.Reconf(parent, f, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    f:SetWidth(pixelperfect(opts.width))
+    local w = pixelperfect(opts.width)
+    f:SetWidth(w)
+    f._baseWidth = w
     local h = pixelperfect(opts.height)
     f:SetHeight(h)
     f._baseHeight = h
@@ -809,6 +804,17 @@ local function ArrayHeader_Add(hdr)
     return widget
 end
 
+-- When SetJob on header finds no active jobs it just hides the header
+-- But .currentJob and .previousJob on the last child don't get updated
+local function ArrayHeader_OnHide(hdr)
+    for i=1, #hdr.children do
+        local widget = hdr.children[i]
+        widget.previousJob = widget.currentJob
+        widget.currentJob = nil
+        widget:Hide()
+    end
+end
+
 local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, growthDirection, maxChildren)
     local hdr = CreateFrame("Frame", nil, parent)
     hdr:SetSize(10, 10)
@@ -823,6 +829,7 @@ local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, gr
     hdr.maxChildren = maxChildren or 5
     hdr.template = barTemplate
     hdr.growthDirection = growthDirection
+    hdr:SetScript("OnHide", ArrayHeader_OnHide)
 
     hdr.Add = ArrayHeader_Add
     hdr.Arrange = ArrayHeader_Arrange
@@ -2503,8 +2510,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
     ]]
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
-    local bossdebuff = CreateCorner(self, 17, 17, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") --last arg changes orientation
+    -- local bossdebuff = CreateCorner(self, 17, 17, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") --last arg changes orientation
     -- local bossdebuff = Aptechka.Widget.Indicator.Create(self, Aptechka:GetWidgetsOptions("bossdebuff"))
+    local bossdebuff = border
 
     local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
     self.healfeedback = trcorner

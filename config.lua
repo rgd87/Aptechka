@@ -35,7 +35,7 @@ config.enableAbsorbBar = true
 
 config.TargetStatus = { name = "Target", assignto = "border", color = {0.7,0.2,0.5}, priority = 65 }
 config.MouseoverStatus = { name = "Mouseover", assignto = "border", color = {1,0.5,0.8}, priority = 66 }
-config.AggroStatus = { name = "Aggro", assignto = "raidbuff",  color = { 0.7, 0, 0},priority = 110, jump = true }
+config.AggroStatus = { name = "Aggro", assignto = "raidbuff",  color = { 0.7, 0, 0},priority = 85 }
 config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = "spell3", stackcolor = {
                                                                             ['ready'] = { 0, 1, 0},
                                                                             ['notready'] = { 1, 0, 0},
@@ -58,7 +58,7 @@ config.HealthBarColor = { name = "HealthBar", assignto = "health", color = {1, .
 config.PowerBarColor = { name = "PowerBar", assignto = "power", color = {.5,.5,1}, priority = 20 }
 config.InVehicleStatus = { name = "InVehicle", assignto = "vehicle", color = {0.3,1,0.3}, priority = 21 }
 config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, priority = 95, fade = 0.3 }
-config.DispelStatus = { name = "Dispel", assignto = "border", scale = 0.8, priority = 70 }
+config.DispelStatus = { name = "Dispel", assignto = "raidbuff", scale = 2, hscale = 2, spin = true, priority = 86 }
 config.StaggerStatus = { name = "Stagger", assignto = "text2", priority = 20 }
 config.RunicPowerStatus = { name = "RunicPower", assignto = "mitigation", priority = 10, color = { 0, 0.82, 1 } }
 
@@ -86,6 +86,7 @@ config.DefaultWidgets = {
     text3 = { type = "Text", point="TOPLEFT", x=2, y=0, font = "ClearFont", textsize = 9, effect = "NONE" },
     incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, font = "ClearFont", textsize = 12, outline = false, edge = false },
     debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = "ClearFont", textsize = 12 },
+    -- bossdebuff = { type = "Indicator", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = -0, },
 }
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 if isClassic then
@@ -378,7 +379,7 @@ if playerClass == "PALADIN" then
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Faith
 
-    A{ id = 465,  type = "HELPFUL", assignto = "raidbuff", isMine = true, color = { .4, .4, 1} } --Devotion Aura
+    A{ id = 465,  type = "HELPFUL", assignto = "raidbuff", priority = 40, isMine = true, color = { .4, .4, 1} } --Devotion Aura
 
     Trace{id = 225311, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.2}, fade = 0.4, priority = 96 } -- Light of Dawn
     -- Flash of Light
