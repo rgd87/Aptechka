@@ -611,16 +611,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         LoadAddOn('AptechkaOptions')
         Aptechka:ForAllCustomStatuses(function(opts, status, list)
             if not opts.assignto then return end
-            if type(opts.assignto) == "string" then
-                local slot = opts.assignto
+            for slot in pairs(opts.assignto) do
                 if not list[slot] then
                     Aptechka:PrintDeadAssignmentWarning(slot, opts.name or status)
-                end
-            else
-                for _, slot in ipairs(opts.assignto) do
-                    if not list[slot] then
-                        Aptechka:PrintDeadAssignmentWarning(slot, opts.name or status)
-                    end
                 end
             end
         end, false)
@@ -2267,6 +2260,7 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
     end
 
 end
+Aptechka.AssignToSlot = AssignToSlot
 
 -- Partially duplicates the function above, used to refresh widget after trace animation override
 function Aptechka:UpdateWidget(frame, widget)
@@ -2295,12 +2289,8 @@ end
 
 function Aptechka.FrameSetJob(frame, opts, enabled, ...)
     if opts and opts.assignto then
-        if type(opts.assignto) == "string" then
-            AssignToSlot(frame, opts, enabled, opts.assignto, ...)
-        else
-            for _, slot in ipairs(opts.assignto) do
-                AssignToSlot(frame, opts, enabled, slot, ...)
-            end
+        for slot in pairs(opts.assignto) do
+            AssignToSlot(frame, opts, enabled, slot, ...)
         end
     end
 end
@@ -2316,13 +2306,8 @@ SetJob = Aptechka.SetJob
 
 function Aptechka:ForEachWidget(frame, opts, func, ...)
     if opts and opts.assignto then
-        if type(opts.assignto) == "string" then
-            local slot = opts.assignto
+        for slot in pairs(opts.assignto) do
             func(frame[slot], slot, ...)
-        else
-            for _, slot in ipairs(opts.assignto) do
-                func(frame[slot], slot, ...)
-            end
         end
     end
 end

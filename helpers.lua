@@ -477,3 +477,25 @@ function Set.tostring (set)
 end
 
 helpers.set = Set.newFromArgs
+helpers.Set = Set
+
+
+function helpers.ShakeAssignments(newOpts, defaultOpts)
+    if newOpts.assignto then
+        local toRemove = {}
+        for slot, enabled in pairs(newOpts.assignto) do
+            if defaultOpts.assignto then
+                local defSlot = defaultOpts.assignto[slot]
+                if not enabled and (defSlot == false or defSlot == nil) then
+                    table.insert(toRemove, slot)
+                end
+                if enabled and defSlot == true then
+                    table.insert(toRemove, slot)
+                end
+            end
+        end
+        for _, slot in ipairs(toRemove) do
+            newOpts.assignto[slot] = nil
+        end
+    end
+end
