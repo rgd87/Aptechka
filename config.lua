@@ -58,7 +58,7 @@ config.HealthBarColor = { name = "HealthBar", assignto = "health", color = {1, .
 config.PowerBarColor = { name = "PowerBar", assignto = "power", color = {.5,.5,1}, priority = 20 }
 config.InVehicleStatus = { name = "InVehicle", assignto = "vehicle", color = {0.3,1,0.3}, priority = 21 }
 config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, priority = 95, fade = 0.3 }
-config.DispelStatus = { name = "Dispel", assignto = "border", scale = 0.8, priority = 20 }
+config.DispelStatus = { name = "Dispel", assignto = "border", scale = 0.8, priority = 70 }
 config.StaggerStatus = { name = "Stagger", assignto = "text2", priority = 20 }
 config.RunicPowerStatus = { name = "RunicPower", assignto = "mitigation", priority = 10, color = { 0, 0.82, 1 } }
 
