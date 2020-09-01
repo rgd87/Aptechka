@@ -3049,6 +3049,11 @@ Aptechka.Commands = {
                 return
             end
 
+            if wtype == "DebuffIcon" or wtype == "DebuffIconArray" then
+                print("Custom DebuffIcons aren't allowed")
+                return
+            end
+
             if wtype and Aptechka.Widget[wtype] then
                 if not Aptechka.db.global.widgetConfig[wname] then
                     Aptechka.db.global.widgetConfig[wname] = Aptechka.Widget[wtype].default
