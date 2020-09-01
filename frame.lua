@@ -241,6 +241,73 @@ local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
     --     end
     -- end
 end
+------------------------------------------------------------
+-- Animations
+------------------------------------------------------------
+
+local Pulse_AnimOnFinished = function(self)
+    self.pulses = self.pulses + 1
+    if self.pulses > 10 then
+        local ag = self:GetParent()
+        ag:Stop()
+        ag.done = true
+    end
+end
+local Pulse_AnimGroupOnPlay = function(ag)
+    ag.a2.pulses = 0
+end
+local Pulse_OnHide = function(self)
+    self.pulse.done = false
+end
+
+local function AddPulseAnimation(f)
+    local pag = f:CreateAnimationGroup()
+    pag:SetLooping("REPEAT")
+    local pa1 = pag:CreateAnimation("Alpha")
+    pa1:SetFromAlpha(1)
+    pa1:SetToAlpha(0)
+    pa1:SetDuration(0.15)
+    pa1:SetOrder(1)
+    local pa2 = pag:CreateAnimation("Alpha")
+    pa2:SetFromAlpha(0)
+    pa2:SetToAlpha(1)
+    pa2:SetDuration(0.15)
+    pa2:SetOrder(2)
+    pag.a2 = pa2
+    pa2:SetScript("OnFinished", Pulse_AnimOnFinished)
+
+    pag:SetScript("OnPlay", Pulse_AnimGroupOnPlay)
+
+    f:SetScript("OnHide", Pulse_OnHide)
+
+    f.pulse = pag
+end
+
+local BlinkAnimOnFinished = function(ag)
+    local widget = ag:GetParent()
+    local frame = widget.parent
+    widget.traceJob = nil
+    Aptechka:UpdateWidget(frame, widget)
+end
+
+local function AddBlinkAnimation(f)
+    local bag = f:CreateAnimationGroup()
+    bag:SetLooping("NONE")
+    local ba1 = bag:CreateAnimation("Alpha")
+    ba1:SetFromAlpha(0)
+    ba1:SetToAlpha(1)
+    ba1:SetDuration(0.1)
+    ba1:SetOrder(1)
+    local ba2 = bag:CreateAnimation("Alpha")
+    ba2:SetFromAlpha(1)
+    ba2:SetToAlpha(0)
+    ba2:SetDuration(0.7)
+    ba2:SetOrder(2)
+    bag.a2 = ba2
+
+    bag:SetScript("OnFinished", BlinkAnimOnFinished)
+    f.blink = bag
+end
 
 -------------------------------------------------------------------------------------------
 -- Square Indicator
@@ -269,6 +336,12 @@ local function Indicator_StartTrace(self, job)
 end
 local SetJob_Indicator = function(self, job, state, contentType, ...)
     if self.traceJob then return end -- widget is busy with animation
+
+    if self.currentJob ~= self.previousJob then
+        if job.pulse then
+            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+        end
+    end
 
     if contentType == "AURA" then
         local duration, expirationTime, count, texture, spellID, caster = ...
@@ -300,15 +373,9 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
         self.cd:SetReverse(false)
         self.cd:SetCooldown(start, total)
     else
+        self.color:SetVertexColor(GetColor(job))
         self.cd:Hide()
     end
-end
-
-local Indicator_BlinkAnimOnFinished = function(ag)
-    local widget = ag:GetParent()
-    local frame = widget.parent
-    widget.traceJob = nil
-    Aptechka:UpdateWidget(frame, widget)
 end
 
 local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackdrop)
@@ -374,23 +441,8 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
 
     f.jump = rag
 
-    local bag = f:CreateAnimationGroup()
-    bag:SetLooping("NONE")
-    local ba1 = bag:CreateAnimation("Alpha")
-    ba1:SetFromAlpha(0)
-    ba1:SetToAlpha(1)
-    ba1:SetDuration(0.1)
-    ba1:SetOrder(1)
-    local ba2 = bag:CreateAnimation("Alpha")
-    ba2:SetFromAlpha(1)
-    ba2:SetToAlpha(0)
-    ba2:SetDuration(0.7)
-    ba2:SetOrder(2)
-    bag.a2 = ba2
-
-    bag:SetScript("OnFinished", Indicator_BlinkAnimOnFinished)
-    f.blink = bag
-
+    AddBlinkAnimation(f)
+    AddPulseAnimation(f)
 
     f.SetMinMaxValues = function(self, min, max )
         self._min = min
@@ -465,32 +517,9 @@ local SetJob_Corner = function(self, job, state, contentType, ...)
             self:SetScale(1)
         end
         if job.pulse then
-            -- UIFrameFlash(self, 0.15, 0.15, 1.2, true)
             if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
         end
     end
-end
-
-local Corner_PulseAnimOnFinished = function(self)
-    self.pulses = self.pulses + 1
-    if self.pulses > 10 then
-        local ag = self:GetParent()
-        ag:Stop()
-        ag.done = true
-    end
-end
-local Corner_PulseAnimGroupOnPlay = function(ag)
-    ag.a2.pulses = 0
-end
-local Corner_OnHide = function(self)
-    self.pulse.done = false
-end
-
-local Corner_BlinkAnimOnFinished = function(ag)
-    local widget = ag:GetParent()
-    local frame = widget.parent
-    widget.traceJob = nil
-    Aptechka:UpdateWidget(frame, widget)
 end
 
 local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrderMod)
@@ -526,42 +555,8 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrde
     f.SetJob = SetJob_Corner
     f.StartTrace = Corner_StartTrace
 
-    local bag = f:CreateAnimationGroup()
-    bag:SetLooping("NONE")
-    local ba1 = bag:CreateAnimation("Alpha")
-    ba1:SetFromAlpha(0)
-    ba1:SetToAlpha(1)
-    ba1:SetDuration(0.1)
-    ba1:SetOrder(1)
-    local ba2 = bag:CreateAnimation("Alpha")
-    ba2:SetFromAlpha(1)
-    ba2:SetToAlpha(0)
-    ba2:SetDuration(0.7)
-    ba2:SetOrder(2)
-    bag.a2 = ba2
-
-    bag:SetScript("OnFinished", Corner_BlinkAnimOnFinished)
-    f.blink = bag
-
-    local pag = f:CreateAnimationGroup()
-    pag:SetLooping("REPEAT")
-    local pa1 = pag:CreateAnimation("Alpha")
-    pa1:SetFromAlpha(1)
-    pa1:SetToAlpha(0)
-    pa1:SetDuration(0.15)
-    pa1:SetOrder(1)
-    local pa2 = pag:CreateAnimation("Alpha")
-    pa2:SetFromAlpha(0)
-    pa2:SetToAlpha(1)
-    pa2:SetDuration(0.15)
-    pa2:SetOrder(2)
-    pag.a2 = pa2
-    pa2:SetScript("OnFinished", Corner_PulseAnimOnFinished)
-
-    pag:SetScript("OnPlay", Corner_PulseAnimGroupOnPlay)
-    f.pulse = pag
-
-    f:SetScript("OnHide", Corner_OnHide)
+    AddBlinkAnimation(f)
+    AddPulseAnimation(f)
 
     f:Hide()
     return f
