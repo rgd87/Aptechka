@@ -224,6 +224,25 @@ do
                         local popts = Aptechka.util.MakeTables(profile, "widgetConfig", "debuffIcons")
                         Aptechka:RealignDebuffIconsForProfile(popts, "RIGHT")
                     end
+
+                    if profile.debuffSize then
+                        local popts = Aptechka.util.MakeTables(profile, "widgetConfig", "debuffIcons")
+                        popts.width = profile.debuffSize
+                        popts.height = profile.debuffSize
+                        profile.debuffSize = nil
+                    end
+
+                    if profile.debuffLimit then
+                        local popts = Aptechka.util.MakeTables(profile, "widgetConfig", "debuffIcons")
+                        popts.max = profile.debuffLimit
+                        profile.debuffLimit = nil
+                    end
+
+                    if profile.stackFontSize then
+                        local popts = Aptechka.util.MakeTables(profile, "widgetConfig", "debuffIcons")
+                        popts.textsize = profile.stackFontSize
+                        profile.stackFontSize = nil
+                    end
                 end
             end
 
