@@ -7,6 +7,7 @@ local D = helpers.AddDebuff
 local Trace = helpers.AddTrace
 local pixelperfect= helpers.pixelperfect
 local config = AptechkaDefaultConfig
+local set = helpers.set
 
 config.raidIcons = true
 config.frameStrata = "MEDIUM"
@@ -33,42 +34,42 @@ config.enableTraceHeals = true
 config.enableVehicleSwap = true
 config.enableAbsorbBar = true
 
-config.TargetStatus = { name = "Target", assignto = "border", color = {0.7,0.2,0.5}, priority = 65 }
-config.MouseoverStatus = { name = "Mouseover", assignto = "border", color = {1,0.5,0.8}, priority = 66 }
-config.AggroStatus = { name = "Aggro", assignto = "raidbuff",  color = { 0.7, 0, 0},priority = 85 }
-config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = "spell3", stackcolor = {
+config.TargetStatus = { name = "Target", assignto = set("border"), color = {0.7,0.2,0.5}, priority = 65 }
+config.MouseoverStatus = { name = "Mouseover", assignto = set("border"), color = {1,0.5,0.8}, priority = 66 }
+config.AggroStatus = { name = "Aggro", assignto = set("raidbuff"),  color = { 0.7, 0, 0},priority = 85 }
+config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = set("spell3"), stackcolor = {
                                                                             ['ready'] = { 0, 1, 0},
                                                                             ['notready'] = { 1, 0, 0},
                                                                             ['waiting'] = { .8, .6, 0},
                                                                         }}
 
-config.LeaderStatus = { name = "Leader", priority = 59, assignto = "text3", color = {1,.8,.2}, text = "L" }
--- config.AssistStatus = { name = "Assist", priority = 59, assignto = "text3", color = {1,.8,.2}, text = "A" }
-config.VoiceChatStatus = { name = "VoiceChat", assignto = "text3", color = {0.3, 1, 0.3}, text = "S", priority = 99 }
-config.MainTankStatus = { name = "MainTank", priority = 60, assignto = "border", color = {0.6,0.6,0.6} }
-config.LowHealthStatus = { name = "LowHealth", priority = 60, assignto = "border", color = {1,0,0} }
-config.DeadStatus = { name = "DEAD", assignto = { "text2","health" }, color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
-config.GhostStatus = { name = "GHOST", assignto = { "text2","health" }, color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
-config.OfflineStatus = { name = "OFFLINE", assignto = { "text2","text3","health" }, color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
-config.AwayStatus = { name = "AFK", assignto = { "text2","text3" }, color = {.15,.15,.15}, textcolor = {1,0.8,0}, text = "AFK",  priority = 60}
--- config.IncomingHealStatus = { name = "IncomingHeal", assignto = "text2", color = { 0, 1, 0}, priority = 15 }
-config.HealthDeficitStatus = { name = "HealthDeficit", assignto = "healthtext", color = { 54/255, 201/255, 99/256 }, priority = 10 }
-config.UnitNameStatus = { name = "UnitName", assignto = "text1", classcolor = true, priority = 20 }
-config.HealthBarColor = { name = "HealthBar", assignto = "health", color = {1, .3, .3}, classcolor = true, priority = 10 }
-config.PowerBarColor = { name = "PowerBar", assignto = "power", color = {.5,.5,1}, priority = 20 }
-config.InVehicleStatus = { name = "InVehicle", assignto = "vehicle", color = {0.3,1,0.3}, priority = 21 }
-config.LOSStatus = { name = "OutOfSight", assignto = "healfeedback", scale = 1.6, color = {1,0.1,0.1}, priority = 95, fade = 0.3 }
-config.DispelStatus = { name = "Dispel", assignto = "raidbuff", scale = 2, hscale = 2, spin = true, priority = 86 }
-config.StaggerStatus = { name = "Stagger", assignto = "text2", priority = 20 }
-config.RunicPowerStatus = { name = "RunicPower", assignto = "mitigation", priority = 10, color = { 0, 0.82, 1 } }
+config.LeaderStatus = { name = "Leader", priority = 59, assignto = set("text3"), color = {1,.8,.2}, text = "L" }
+-- config.AssistStatus = { name = "Assist", priority = 59, assignto = set("text3"), color = {1,.8,.2}, text = "A" }
+config.VoiceChatStatus = { name = "VoiceChat", assignto = set("text3"), color = {0.3, 1, 0.3}, text = "S", priority = 99 }
+config.MainTankStatus = { name = "MainTank", priority = 60, assignto = set("border"), color = {0.6,0.6,0.6} }
+config.LowHealthStatus = { name = "LowHealth", priority = 60, assignto = set("border"), color = {1,0,0} }
+config.DeadStatus = { name = "DEAD", assignto = set("text2","health"), color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
+config.GhostStatus = { name = "GHOST", assignto = set("text2","health"), color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
+config.OfflineStatus = { name = "OFFLINE", assignto = set("text2","text3","health"), color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
+config.AwayStatus = { name = "AFK", assignto = set("text2","text3"), color = {.15,.15,.15}, textcolor = {1,0.8,0}, text = "AFK",  priority = 60}
+-- config.IncomingHealStatus = { name = "IncomingHeal", assignto = set("text2"), color = { 0, 1, 0}, priority = 15 }
+config.HealthDeficitStatus = { name = "HealthDeficit", assignto = set("healthtext"), color = { 54/255, 201/255, 99/256 }, priority = 10 }
+config.UnitNameStatus = { name = "UnitName", assignto = set("text1"), classcolor = true, priority = 20 }
+config.HealthBarColor = { name = "HealthBar", assignto = set("health"), color = {1, .3, .3}, classcolor = true, priority = 10 }
+config.PowerBarColor = { name = "PowerBar", assignto = set("power"), color = {.5,.5,1}, priority = 20 }
+config.InVehicleStatus = { name = "InVehicle", assignto = set("vehicle"), color = {0.3,1,0.3}, priority = 21 }
+config.LOSStatus = { name = "OutOfSight", assignto = set("healfeedback"), scale = 1.6, color = {1,0.1,0.1}, priority = 95, fade = 0.3 }
+config.DispelStatus = { name = "Dispel", assignto = set("raidbuff"), scale = 2, hscale = 2, spin = true, priority = 86 }
+config.StaggerStatus = { name = "Stagger", assignto = set("text2"), priority = 20 }
+config.RunicPowerStatus = { name = "RunicPower", assignto = set("mitigation"), priority = 10, color = { 0, 0.82, 1 } }
 
-config.SummonPending = { name = "SUMMON_PENDING", assignto = { "text2" }, color = {1,0.7,0}, text = "PENDING", priority = 50 }
-config.SummonAccepted = { name = "SUMMON_ACCEPTED", assignto = { "text2" }, color = {0,1,0}, text = "ACCEPTED", priority = 51 }
-config.SummonDeclined = { name = "SUMMON_DECLINED", assignto = { "text2" }, color = {1,0,0}, text = "DECLINED", priority = 52 }
+config.SummonPending = { name = "SUMMON_PENDING", set("text2"), color = {1,0.7,0}, text = "PENDING", priority = 50 }
+config.SummonAccepted = { name = "SUMMON_ACCEPTED", set("text2"), color = {0,1,0}, text = "ACCEPTED", priority = 51 }
+config.SummonDeclined = { name = "SUMMON_DECLINED", set("text2"), color = {1,0,0}, text = "DECLINED", priority = 52 }
 
--- config.MindControl = { name = "MIND_CONTROL", assignto = { "mindcontrol" }, color = {1,0,0}, priority = 52 }
-config.MindControlStatus = { name = "MIND_CONTROL", assignto = { "border", "mindcontrol", "innerglow" }, color = {0.5,0,1}, priority = 52 }
--- config.UnhealableStatus = { name = "UNHEALABLE", assignto = { "unhealable" }, color = {0.5,0,1}, priority = 50 }
+-- config.MindControl = { name = "MIND_CONTROL", set("mindcontrol"), color = {1,0,0}, priority = 52 }
+config.MindControlStatus = { name = "MIND_CONTROL", set("border", "mindcontrol", "innerglow"), color = {0.5,0,1}, priority = 52 }
+-- config.UnhealableStatus = { name = "UNHEALABLE", set("unhealable"), color = {0.5,0,1}, priority = 50 }
 
 config.DefaultWidgets = {
     raidbuff = { type = "BarArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, vertical = true, growth = "DOWN", max = 5 },
@@ -96,11 +97,10 @@ if isClassic then
 end
 
 config.BossDebuffs = {
-    { name = "BossDebuffLevel1", assignto = { "border", "flash" }, color = {1,0,0}, priority = 95, pulse = true, },
-    { name = "BossDebuffLevel2", assignto = { "border", "flash" }, color = {1,0,1}, priority = 95, pulse = true, },
-    { name = "BossDebuffLevel3", assignto = { "innerglow", "border", "flash" }, color = {1,0,0}, priority = 90 },
-    { name = "BossDebuffLevel4", assignto = "pixelGlow", color = {1,1,1}, priority = 95 },
-    -- { name = "BossDebuffLevel3", assignto = "autocastGlow", color = {1,1,0.3}, priority = 90 },
+    { name = "BossDebuffLevel1", assignto = set("border", "flash"), color = {1,0,0}, priority = 95, pulse = true, },
+    { name = "BossDebuffLevel2", assignto = set("border", "flash"), color = {1,0,1}, priority = 95, pulse = true, },
+    { name = "BossDebuffLevel3", assignto = set("innerglow", "border", "flash"), color = {1,0,0}, priority = 90 },
+    { name = "BossDebuffLevel4", assignto = set("pixelGlow"), color = {1,1,1}, priority = 95 },
 }
 
 -- default priority is 80
@@ -221,21 +221,21 @@ A{ id = {
     225738, 192001, -- Legion water
     274914, -- BfA water
     314646, -- Shadowlands water
-}, assignto = "text2", color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
+}, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
 
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude
-    A{ id = 21562, type = "HELPFUL", assignto = "raidbuff", color = { 1, 1, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
+    A{ id = 21562, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
 
     --Renew
-    A{ id = 139,   type = "HELPFUL", assignto = "bars", refreshTime = 15*0.3, priority = 50, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
+    A{ id = 139,   type = "HELPFUL", assignto = set("bars"), refreshTime = 15*0.3, priority = 50, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
     --Power Word: Shield
-    A{ id = 17,    type = "HELPFUL", assignto = "bars", priority = 90, isMine = true, color = { 1, .85, 0}, showDuration = true }
+    A{ id = 17,    type = "HELPFUL", assignto = set("bars"), priority = 90, isMine = true, color = { 1, .85, 0}, showDuration = true }
     -- Weakened Soul
-    A{ id = 6788,    type = "HELPFUL", assignto = "bars", priority = 70, scale = 0.5, color = { 0.8, 0, 0}, showDuration = true, isMine = true }
+    A{ id = 6788,    type = "HELPFUL", assignto = set("bars"), priority = 70, scale = 0.5, color = { 0.8, 0, 0}, showDuration = true, isMine = true }
     --Prayer of Mending
-    A{ id = 41635, type = "HELPFUL", assignto = "bar4", priority = 70, isMine = true, stackcolor =   {
+    A{ id = 41635, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, stackcolor =   {
                                                                             [1] = { 1, 0, 0},
                                                                             [2] = { 1, 0, 102/255},
                                                                             [3] = { 1, 0, 190/255},
@@ -255,36 +255,36 @@ if playerClass == "PRIEST" then
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
     --Atonement
-    A{ id = 194384,type = "HELPFUL", assignto = "bar4", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true}
+    A{ id = 194384,type = "HELPFUL", assignto = set("bar4"), extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true}
     --Trinity Atonement
-    A{ id = 214206,type = "HELPFUL", assignto = "bar4", extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true}
+    A{ id = 214206,type = "HELPFUL", assignto = set("bar4"), extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true}
     --Luminous Barrier
-    A{ id = 271466,type = "HELPFUL", assignto = "bars", priority = 70, color = { 1, .65, 0}, showDuration = true, isMine = true}
+    A{ id = 271466,type = "HELPFUL", assignto = set("bars"), priority = 70, color = { 1, .65, 0}, showDuration = true, isMine = true}
 
     -- Atonement
-    -- Trace{id = 81751, type = "HEAL", minamount = 1000, assignto = "healfeedback", color = { .2, 1, .2}, fade = .5, priority = 90 }
+    -- Trace{id = 81751, type = "HEAL", minamount = 1000, assignto = set("healfeedback"), color = { .2, 1, .2}, fade = .5, priority = 90 }
 
     -- Penance
-    Trace{id = 47750, type = "HEAL", assignto = "healfeedback", color = { 52/255, 172/255, 114/255 }, fade = 0.7, priority = 96 }
+    Trace{id = 47750, type = "HEAL", assignto = set("healfeedback"), color = { 52/255, 172/255, 114/255 }, fade = 0.7, priority = 96 }
     -- Circle of Healing
-    Trace{id = 204883, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
+    Trace{id = 204883, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
     -- Holy Word: Sanctify
-    Trace{id = 34861, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
+    Trace{id = 34861, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
     -- Prayer of Healing
-    Trace{id = 596, type = "HEAL", assignto = "healfeedback", color = { .5, .5, 1}, fade = 0.7, priority = 96 }
+    Trace{id = 596, type = "HEAL", assignto = set("healfeedback"), color = { .5, .5, 1}, fade = 0.7, priority = 96 }
     -- Prayer of Mending
-    Trace{id = 33110, type = "HEAL", assignto = "healfeedback", color = { 1, 0.3, 0.55 }, fade = 0.5, priority = 95 }
+    Trace{id = 33110, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.3, 0.55 }, fade = 0.5, priority = 95 }
     -- Flash Heal
-    Trace{id = 2061, type = "HEAL", assignto = "healfeedback", color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
+    Trace{id = 2061, type = "HEAL", assignto = set("healfeedback"), color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
     -- Binding Heal
-    Trace{id = 32546, type = "HEAL", assignto = "healfeedback", color = { 0.7, 1, 0.7}, fade = 0.7, priority = 96 }
+    Trace{id = 32546, type = "HEAL", assignto = set("healfeedback"), color = { 0.7, 1, 0.7}, fade = 0.7, priority = 96 }
     -- Trail of Light
-    Trace{id = 234946, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
+    Trace{id = 234946, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
     -- Shadowmend
-    Trace{id = 186263, type = "HEAL", assignto = "healfeedback", color = { 0.8, 0.35, 0.7}, fade = 0.7, priority = 96 }
+    Trace{id = 186263, type = "HEAL", assignto = set("healfeedback"), color = { 0.8, 0.35, 0.7}, fade = 0.7, priority = 96 }
 
     -- Holy Ward (PvP)
-    A{ id = 213610, type = "HELPFUL", assignto = "spell3", showDuration = true, priority = 70, color = { 1, .3, .3}, isMine = true }
+    A{ id = 213610, type = "HELPFUL", assignto = set("spell3"), showDuration = true, priority = 70, color = { 1, .3, .3}, isMine = true }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(17), -- Disc: PWS
@@ -302,28 +302,28 @@ end
 
 if playerClass == "MONK" then
     --Renewing Mist
-    A{ id = 119611, type = "HELPFUL", assignto = "bar4", refreshTime = 20*0.3, extend_below = 20, isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true }
+    A{ id = 119611, type = "HELPFUL", assignto = set("bar4"), refreshTime = 20*0.3, extend_below = 20, isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true }
     --Enveloping Mist
-    A{ id = 124682, type = "HELPFUL", assignto = "bars", refreshTime = 6*0.3, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 75 }
+    A{ id = 124682, type = "HELPFUL", assignto = set("bars"), refreshTime = 6*0.3, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 75 }
     --Soothing Mist
-    A{ id = 115175, type = "HELPFUL", assignto = "bars", isMine = true, showDuration = true, color = { 0, .8, 0}, priority = 80 }
+    A{ id = 115175, type = "HELPFUL", assignto = set("bars"), isMine = true, showDuration = true, color = { 0, .8, 0}, priority = 80 }
     --Statue's Soothing Mist
-    -- A{ id = 198533, type = "HELPFUL", name = "Statue Mist", assignto = "spell3", isMine = true, showDuration = false, color = { 0.4, 1, 0.4}, priority = 50 }
+    -- A{ id = 198533, type = "HELPFUL", name = "Statue Mist", assignto = set("spell3"), isMine = true, showDuration = false, color = { 0.4, 1, 0.4}, priority = 50 }
 
     --Essence Font
-    A{ id = 191840, type = "HELPFUL", assignto = "bars", priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
+    A{ id = 191840, type = "HELPFUL", assignto = set("bars"), priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
 
 
-    Trace{id = 116670, type = "HEAL", assignto = "healfeedback", color = {38/255, 221/255, 163/255}, fade = 0.7, priority = 96 } -- Vivify
-    Trace{id = 216161, type = "HEAL", assignto = "healfeedback", color = { 1, 0.3, 0.55}, fade = 0.7, priority = 96 } -- Way of the Crane
+    Trace{id = 116670, type = "HEAL", assignto = set("healfeedback"), color = {38/255, 221/255, 163/255}, fade = 0.7, priority = 96 } -- Vivify
+    Trace{id = 216161, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.3, 0.55}, fade = 0.7, priority = 96 } -- Way of the Crane
 
-    -- A{ id = 157627, type = "HELPFUL", assignto = "bar2", showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
+    -- A{ id = 157627, type = "HELPFUL", assignto = set("bar2"), showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
 
     -- Dome of Mist
-    A{ id = 205655, type = "HELPFUL", assignto = "buffIcons", showDuration = true, priority = 97 }
+    A{ id = 205655, type = "HELPFUL", assignto = set("buffIcons"), showDuration = true, priority = 97 }
 
     --Surging Mist Buff (PvP)
-    A{ id = 227344, type = "HELPFUL", assignto = "raidbuff", priority = 50, stackcolor = {
+    A{ id = 227344, type = "HELPFUL", assignto = set("raidbuff"), priority = 50, stackcolor = {
         [1] = {16/255, 110/255, 81/255},
         [2] = {38/255, 221/255, 163/255},
     }, showDuration = true, isMine = true }
@@ -342,7 +342,7 @@ if playerClass == "MONK" then
 end
 
 if playerClass == "WARLOCK" then
-    A{ id = 20707, type = "HELPFUL", assignto = "raidbuff", color = { 180/255, 0, 1 }, priority = 81 } --Soulstone Resurrection
+    A{ id = 20707, type = "HELPFUL", assignto = set("raidbuff"), color = { 180/255, 0, 1 }, priority = 81 } --Soulstone Resurrection
     config.DispelBitmasks = {
         DispelTypes("Magic"),
         DispelTypes(),
@@ -353,48 +353,48 @@ end
 if playerClass == "PALADIN" then
 
     --Glimmer of Light
-    A{ id = 287280,type = "HELPFUL", assignto = "bars", color = { 1, .3, .3}, showDuration = true, isMine = true}
+    A{ id = 287280,type = "HELPFUL", assignto = set("bars"), color = { 1, .3, .3}, showDuration = true, isMine = true}
 
-    A{ id = { 328282, 328620, 328622, 328281 },  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Blessing of Seasons
+    A{ id = { 328282, 328620, 328622, 328281 },  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Blessing of Seasons
 
     --Tyr's Deliverance
-    A{ id = 200654, type = "HELPFUL", assignto = "spell3", color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true }
+    A{ id = 200654, type = "HELPFUL", assignto = set("spell3"), color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true }
      --Bestow Faith
-    A{ id = 223306,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 1 , .9, 0} }
+    A{ id = 223306,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 1 , .9, 0} }
 
     -- Forbearance
-    A{ id = 25771, type = "HARMFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.8, 0, 0 } }
+    A{ id = 25771, type = "HARMFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.8, 0, 0 } }
 
     -- Beacon of Virtue
-    A{ id = 200025, type = "HELPFUL", assignto = "bar4", showDuration = true, isMine = true, color = { 0,.9,0 } }
-    A{ id = 53563, type = "HELPFUL", assignto = "bar4", showDuration = true,
+    A{ id = 200025, type = "HELPFUL", assignto = set("bar4"), showDuration = true, isMine = true, color = { 0,.9,0 } }
+    A{ id = 53563, type = "HELPFUL", assignto = set("bar4"), showDuration = true,
                                                                             isMine = true,
                                                                             color = { 0,.9,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Light
 
-    A{ id = 156910, type = "HELPFUL", assignto = "bar4", showDuration = true,
+    A{ id = 156910, type = "HELPFUL", assignto = set("bar4"), showDuration = true,
                                                                             isMine = true,
                                                                             color = { 1,.7,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Faith
 
-    A{ id = 465,  type = "HELPFUL", assignto = "raidbuff", priority = 40, isMine = true, color = { .4, .4, 1} } --Devotion Aura
+    A{ id = 465,  type = "HELPFUL", assignto = set("raidbuff"), priority = 40, isMine = true, color = { .4, .4, 1} } --Devotion Aura
 
-    Trace{id = 225311, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.2}, fade = 0.4, priority = 96 } -- Light of Dawn
+    Trace{id = 225311, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.2}, fade = 0.4, priority = 96 } -- Light of Dawn
     -- Flash of Light
-    Trace{id = 19750, type = "HEAL", assignto = "healfeedback", color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
+    Trace{id = 19750, type = "HEAL", assignto = set("healfeedback"), color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
     -- Holy Light
-    Trace{id = 82326, type = "HEAL", assignto = "healfeedback", color = { 1, 0.3, 0.55 }, fade = 0.7, priority = 95 }
+    Trace{id = 82326, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.3, 0.55 }, fade = 0.7, priority = 95 }
     -- Light of the Martyr
-    Trace{id = 183998, type = "HEAL", assignto = "healfeedback", color = { 1, 0.3, 0.55 }, fade = 0.7, priority = 95 }
+    Trace{id = 183998, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.3, 0.55 }, fade = 0.7, priority = 95 }
     -- Holy Shock
-    Trace{id = 25914, type = "HEAL", assignto = "healfeedback", color = { 1, 0.6, 0.3 }, fade = 0.7, priority = 95 }
+    Trace{id = 25914, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.6, 0.3 }, fade = 0.7, priority = 95 }
     -- Word of Glory
-    Trace{id = 85673, type = "HEAL", assignto = "healfeedback", color = { 1, 0.7, 0.1 }, fade = 0.7, priority = 95 }
+    Trace{id = 85673, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.1 }, fade = 0.7, priority = 95 }
 
-    -- Trace{id = 82327, type = "HEAL", assignto = "spell3", color = { .8, .5, 1}, fade = 0.7, priority = 96 } -- Holy Radiance
-    -- Trace{id =121129, type = "HEAL", assignto = "spell3", color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
+    -- Trace{id = 82327, type = "HEAL", assignto = set("spell3"), color = { .8, .5, 1}, fade = 0.7, priority = 96 } -- Holy Radiance
+    -- Trace{id =121129, type = "HEAL", assignto = set("spell3"), color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(19750), -- Flash of Light
@@ -411,8 +411,8 @@ end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
 
-    A{ id = 61295,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
-    A{ id = 974,    type = "HELPFUL", assignto = "bar4", showCount = true, maxCount = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
+    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
+    A{ id = 974,    type = "HELPFUL", assignto = set("bar4"), showCount = true, maxCount = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
                                                                         -- stackcolor =   {
                                                                         --     [1] = { 0,.4, 0},
                                                                         --     [2] = { 0,.5, 0},
@@ -427,15 +427,15 @@ if playerClass == "SHAMAN" then
                                                                         --, } --Earth Shield
 
     -- Surge of Earth
-    Trace{id = 320747, type = "HEAL", assignto = "healfeedback", color = { 0.8, 0.4, 0.1}, fade = 0.7, priority = 96 }
+    Trace{id = 320747, type = "HEAL", assignto = set("healfeedback"), color = { 0.8, 0.4, 0.1}, fade = 0.7, priority = 96 }
     -- Downpour
-    Trace{id = 207778, type = "HEAL", assignto = "healfeedback", color = { 0.4, 0.4, 1}, fade = 0.7, priority = 96 }
+    Trace{id = 207778, type = "HEAL", assignto = set("healfeedback"), color = { 0.4, 0.4, 1}, fade = 0.7, priority = 96 }
 
-    Trace{id = 77472, type = "HEAL", assignto = "healfeedback", color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Wave
-    Trace{id = 8004, type = "HEAL", assignto = "healfeedback", color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Surge
+    Trace{id = 77472, type = "HEAL", assignto = set("healfeedback"), color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Wave
+    Trace{id = 8004, type = "HEAL", assignto = set("healfeedback"), color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Surge
 
-    Trace{id = 1064, type = "HEAL", assignto = "healfeedback", color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
-    --Trace{id = 73921, type = "HEAL", assignto = "spell3", color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
+    Trace{id = 1064, type = "HEAL", assignto = set("healfeedback"), color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
+    --Trace{id = 73921, type = "HEAL", assignto = set("spell3"), color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(8004), -- Healing Surge
@@ -450,16 +450,16 @@ if playerClass == "SHAMAN" then
     }
 end
 if playerClass == "DRUID" then
-    --A{ id = 1126,  type = "HELPFUL", assignto = "raidbuff", color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
+    --A{ id = 1126,  type = "HELPFUL", assignto = set("raidbuff"), color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
 
-    -- A{ id = 327037,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Protection
-    A{ id = 327071,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Focus
-    -- A{ id = 327022,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Empowerment
-    A{ id = 325748,  type = "HELPFUL", assignto = "bars", showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Adaptive Swarm
+    -- A{ id = 327037,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Protection
+    A{ id = 327071,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Focus
+    -- A{ id = 327022,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Empowerment
+    A{ id = 325748,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Adaptive Swarm
 
     -- Tranquility
     --[[
-    A{ id = 157982, type = "HELPFUL", assignto = "mitigation", priority = 60, isMine = true, stackcolor =   {
+    A{ id = 157982, type = "HELPFUL", assignto = set("mitigation"), priority = 60, isMine = true, stackcolor =   {
         [1] = { 1, 0, 0},
         [2] = { 1, 0, 102/255},
         [3] = { 1, 0, 190/255},
@@ -471,19 +471,19 @@ if playerClass == "DRUID" then
     ]]
 
     -- Cenarion Ward
-    A{ id = 102351, type = "HELPFUL", assignto = "bars", priority = 70, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
+    A{ id = 102351, type = "HELPFUL", assignto = set("bars"), priority = 70, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
     -- Rejuvenation
-    A{ id = 774,   type = "HELPFUL", assignto = "bars", extend_below = 15, scale = 1.25, refreshTime = 4.5, priority = 90, pulse = true, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, showDuration = true, isMine = true }
+    A{ id = 774,   type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1.25, refreshTime = 4.5, priority = 90, pulse = true, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, showDuration = true, isMine = true }
     -- Germination
-    A{ id = 155777,type = "HELPFUL", assignto = "bars", extend_below = 15, scale = 1, refreshTime = 4.5, priority = 80, pulse = true, color = { 1, 0.4, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, showDuration = true, isMine = true }
+    A{ id = 155777,type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1, refreshTime = 4.5, priority = 80, pulse = true, color = { 1, 0.4, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, showDuration = true, isMine = true }
     -- Lifebloom
-    A{ id = 33763, type = "HELPFUL", assignto = "bar4", extend_below = 14, refreshTime = 4.5, priority = 60, showDuration = true, isMine = true, color = { 0.2, 1, 0.2}, }
+    A{ id = 33763, type = "HELPFUL", assignto = set("bar4"), extend_below = 14, refreshTime = 4.5, priority = 60, showDuration = true, isMine = true, color = { 0.2, 1, 0.2}, }
     -- Regrowth
-    A{ id = 8936, type = "HELPFUL", assignto = "bars", isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 60, showDuration = true }
+    A{ id = 8936, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 60, showDuration = true }
     -- Wild Growth
-    A{ id = 48438, type = "HELPFUL", assignto = "bars", color = { 0, 0.9, 0.7}, priority = 60, showDuration = true, isMine = true }
+    A{ id = 48438, type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, showDuration = true, isMine = true }
 
-    Trace{id = 8936, type = "HEAL", assignto = "healfeedback", color = { 0, 0.8, 0.2 }, fade = 0.5, priority = 96 } -- Regrowth
+    Trace{id = 8936, type = "HEAL", assignto = set("healfeedback"), color = { 0, 0.8, 0.2 }, fade = 0.5, priority = 96 } -- Regrowth
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(8936),
@@ -502,15 +502,15 @@ end
 
 if playerClass == "WARRIOR" then
     -- Battle Shout
-    A{ id = 6673,  type = "HELPFUL", assignto = "raidbuff", color = { 1, .4 , .4}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(6673) end}
+    A{ id = 6673,  type = "HELPFUL", assignto = set("raidbuff"), color = { 1, .4 , .4}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(6673) end}
 end
 if playerClass == "MAGE" then
     -- Focus Magic
-    A{ id = 321358,  type = "HELPFUL", assignto = "bars", color = { 206/255, 4/256, 56/256 }, priority = 50, isMine = true} --Arcane Intellect
+    A{ id = 321358,  type = "HELPFUL", assignto = set("bars"), color = { 206/255, 4/256, 56/256 }, priority = 50, isMine = true} --Arcane Intellect
 
-    A{ id = 1459,  type = "HELPFUL", assignto = "raidbuff", color = { .4 , .4, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1459) end} --Arcane Intellect
-    -- A{ id = 61316, type = "HELPFUL", assignto = "spell2", color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
-    -- A{ id = 54648, type = "HELPFUL", assignto = "spell2", color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
+    A{ id = 1459,  type = "HELPFUL", assignto = set("raidbuff"), color = { .4 , .4, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1459) end} --Arcane Intellect
+    -- A{ id = 61316, type = "HELPFUL", assignto = set("spell2"), color = { .4 , .4, 1}, priority = 50 } --Dalaran Intellect
+    -- A{ id = 54648, type = "HELPFUL", assignto = set("spell2"), color = { 180/255, 0, 1 }, priority = 60, isMine = true } --Focus Magic
 
     config.DispelBitmasks = {
         DispelTypes("Curse"),
