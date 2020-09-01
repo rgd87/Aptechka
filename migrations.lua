@@ -1,7 +1,7 @@
 local addonName, helpers = ...
 
 do
-    local CURRENT_DB_VERSION = 5
+    local CURRENT_DB_VERSION = 6
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -216,6 +216,18 @@ do
             end
 
             db.DB_VERSION = 5
+        end
+        if db.DB_VERSION == 5 then
+            if db.profiles then
+                for name, profile in pairs(db.profiles) do
+                    if profile.healthOrientation == "HORIZONTAL" then
+                        local popts = Aptechka.util.MakeTables(profile, "widgetConfig", "debuffIcons")
+                        Aptechka:RealignDebuffIconsForProfile(popts, "RIGHT")
+                    end
+                end
+            end
+
+            db.DB_VERSION = 6
         end
     end
 end
