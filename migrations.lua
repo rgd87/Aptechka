@@ -1,7 +1,7 @@
 local addonName, helpers = ...
 
 do
-    local CURRENT_DB_VERSION = 6
+    local CURRENT_DB_VERSION = 7
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -248,6 +248,20 @@ do
 
             db.DB_VERSION = 6
         end
+        if db.DB_VERSION == 6 then
+            Aptechka:ForAllCustomStatuses(function(opts, status, list)
+                if opts.assignto then
+                    if type(opts.assignto) == "string" then
+                        opts.assignto = { opts.assignto }
+                    end
+                    local newSet = helpers.Set.new(opts.assignto)
+                    newSet["__REMOVED__"] = nil
+                    opts.assignto = newSet
+                end
+            end, true, false)
+
+            db.DB_VERSION = 7
+        end
 
         db.DB_VERSION = CURRENT_DB_VERSION
     end
@@ -263,10 +277,11 @@ function Aptechka:ForAllCustomWidgets(func)
     end
 end
 
-function Aptechka:ForAllCustomStatuses(func, searchAllClasses)
-    local list = Aptechka.GetWidgetList()
+function Aptechka:ForAllCustomStatuses(func, searchAllClasses, passList)
+    local list
+    if passList == nil or passList == true then list = Aptechka.GetWidgetList() end
 
-    if AptechkaConfigCustom.WIDGET then
+    if AptechkaConfigCustom.WIDGET then -- .WIDGET is actually elements
         for status, opts in pairs(AptechkaConfigCustom.WIDGET) do
             func(opts, status, list)
         end
