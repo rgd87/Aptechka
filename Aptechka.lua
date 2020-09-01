@@ -3079,7 +3079,9 @@ Aptechka.Commands = {
 
                 Aptechka.db.global.widgetConfig[wname] = nil
                 for profileName, profile in pairs(Aptechka.db.profiles) do
-                    profile.widgetConfig[wname] = nil
+                    if profile.widgetConfig then
+                        profile.widgetConfig[wname] = nil
+                    end
                 end
 
                 Aptechka:ForEachFrame(function(frame)
@@ -3101,7 +3103,9 @@ Aptechka.Commands = {
             if wname and Aptechka.db.global.widgetConfig[wname] then
                 if forAll then
                     for profileName, profile in pairs(Aptechka.db.profiles) do
-                        profile.widgetConfig[wname] = nil
+                        if profile.widgetConfig then
+                            profile.widgetConfig[wname] = nil
+                        end
                     end
                     print(string.format("Removed '%s' widget settings on all profiles.", wname))
                 else
