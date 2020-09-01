@@ -611,57 +611,12 @@ function ns.MakeProfileSettings()
                         name = L"Debuffs",
                         order = 17,
                         args = {
-
-                            debuffSize = {
-                                name = L"Debuff Size",
-                                type = "range",
-                                get = function(info) return Aptechka.db.profile.debuffSize end,
-                                set = function(info, v)
-                                    Aptechka.db.profile.debuffSize = v
-                                    Aptechka:ReconfigureUnprotected()
-                                end,
-                                min = 5,
-                                max = 30,
-                                step = 0.1,
+                            message = {
+                                name = L"Debuff Icons are now available as a widget. Use /apt widget info name=debuffIcons for their settings",
+                                type = "description",
+                                fontSize = "medium",
+                                width = "full",
                                 order = 1,
-                            },
-                            stackFont = {
-                                type = "select",
-                                name = L"Font",
-                                order = 2,
-                                get = function(info) return Aptechka.db.profile.stackFontName end,
-                                set = function(info, value)
-                                    Aptechka.db.profile.stackFontName = value
-                                    Aptechka:ReconfigureUnprotected()
-                                end,
-                                values = LSM:HashTable("font"),
-                                dialogControl = "LSM30_Font",
-                            },
-                            stackFontSize = {
-                                name = L"Stack Font Size",
-                                type = "range",
-                                get = function(info) return Aptechka.db.profile.stackFontSize end,
-                                set = function(info, v)
-                                    Aptechka.db.profile.stackFontSize = v
-                                    Aptechka:ReconfigureUnprotected()
-                                end,
-                                min = 3,
-                                max = 30,
-                                step = 0.1,
-                                order = 3,
-                            },
-                            debuffLimit = {
-                                name = L"Debuff Limit",
-                                type = "range",
-                                get = function(info) return Aptechka.db.profile.debuffLimit end,
-                                set = function(info, v)
-                                    Aptechka.db.profile.debuffLimit = v
-                                    Aptechka:UpdateUnprotectedUpvalues()
-                                end,
-                                min = 1,
-                                max = 4.9,
-                                step = 0.1,
-                                order = 4,
                             },
                             debuffBossScale = {
                                 name = L"Boss Aura Scale",
