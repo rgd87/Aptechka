@@ -205,11 +205,7 @@ local defaults = {
         healthColor3 = {1,0,0},
 
         scale = 1, --> into
-        debuffSize = 13,
-        debuffLimit = 4,
         debuffBossScale = 1.3,
-        stackFontName = "ClearFont",
-        stackFontSize = 12,
         nameColorMultiplier = 1,
         fgShowMissing = true,
         fgColorMultiplier = 1,
