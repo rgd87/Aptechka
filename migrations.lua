@@ -1,3 +1,5 @@
+local addonName, helpers = ...
+
 do
     local CURRENT_DB_VERSION = 5
     function Aptechka:DoMigrations(db)
@@ -285,4 +287,18 @@ function Aptechka.PurgeDeadAssignments(searchAllClasses)
     Aptechka:ForAllCustomStatuses(cleanOpts)
 
     ReloadUI()
+end
+
+function Aptechka:RealignDebuffIconsForProfile(popts, direction)
+    if direction == "RIGHT" then
+        popts.animdir = "DOWN"
+        popts.style = "STRIP_BOTTOM"
+        popts.growth = direction
+        popts.y = 4
+    elseif direction == "UP" then
+        popts.animdir = "LEFT"
+        popts.style = "STRIP_RIGHT"
+        popts.growth = direction
+        popts.y = 0
+    end
 end

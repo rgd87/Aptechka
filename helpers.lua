@@ -157,6 +157,7 @@ function helpers.MakeTables(rootTable, ...)
         end
         t = t[key]
     end
+    return t
 end
 
 helpers.ClickMacro = function(macro)
@@ -272,6 +273,16 @@ function helpers.Reverse(p1)
     end
     return p2, dir
 end
+
+function helpers.GetVerticalAlignmentFromPoint(p1)
+    if string.find(p1,"BOTTOM") then return "BOTTOM" end
+    return "TOP"
+end
+function helpers.GetHorizontalAlignmentFromPoint(p1)
+    if string.find(p1,"RIGHT") then return "RIGHT" end
+    return "LEFT"
+end
+
 
 local UnitAuraSlots = UnitAuraSlots
 local UnitAuraBySlot = UnitAuraBySlot
