@@ -90,9 +90,9 @@ function ns.CreateNewTimerForm(self)
         end
         local opts
         if category == "auras" then
-            opts = { assignto = "spell1", showDuration = true, isMine = true, type = "HELPFUL", }
+            opts = { assignto = Aptechka.util.set("spell1"), showDuration = true, isMine = true, type = "HELPFUL", }
         elseif category == "traces" then
-            opts = { assignto = "spell1", fade = 0.7, type = "SPELL_HEAL" }
+            opts = { assignto = Aptechka.util.set("spell1"), fade = 0.7, type = "SPELL_HEAL" }
         end
         if class == "GLOBAL" then opts.global = true end
         ns:FillForm(AuraForm, class, category, nil, opts, true)
@@ -241,6 +241,11 @@ function ns.CreateCommonForm(self)
 
         if default_opts then
             if delta.clones then Aptechka.util.RemoveDefaultsPreserve(delta.clones, default_opts.clones) end
+            Aptechka.util.ShakeAssignments(delta, default_opts)
+            -- print("----")
+            -- for k,v in pairs(delta.assignto) do
+            --     print(k,v)
+            -- end
             Aptechka.util.RemoveDefaults(delta, default_opts)
             AptechkaConfigMerged[category][spellID] = CopyTable(default_opts)
             -- if delta.disabled then
@@ -371,28 +376,9 @@ function ns.CreateCommonForm(self)
     assignto:SetMultiselect(true)
     assignto:SetRelativeWidth(0.30)
     assignto:SetCallback("OnValueChanged", function(self, event, slot, enabled)
-        local oldvalue = self.parent.opts["assignto"]
-        if type(oldvalue) == "string" then
-            self.parent.opts["assignto"] = { oldvalue }
-        end
         if self.parent.opts["assignto"] == nil then self.parent.opts["assignto"] = {} end
-
         local t = self.parent.opts["assignto"]
-        local foundIndex
-        for i,s in ipairs(t) do
-            if s == slot then
-                foundIndex = i
-                break
-            end
-        end
-        if enabled then
-            if foundIndex then return end
-            table.insert(t, slot)
-        else
-            if foundIndex then
-                table.remove(t, foundIndex)
-            end
-        end
+        t[slot] = enabled
     end)
     Form.controls.assignto = assignto
     Form:AddChild(assignto)
@@ -617,14 +603,10 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     controls.disabled:SetDisabled(isEmptyForm)
 
     local widgetSelection = opts.assignto
-    if type(widgetSelection) == "string" then
-        widgetSelection = { widgetSelection }
-    end
     controls.assignto:SetList(Aptechka:GetWidgetList())
-    for i, slot in ipairs(widgetSelection) do
-        controls.assignto:SetItemValue(slot, true)
+    for slot, enabled in pairs(widgetSelection) do
+        controls.assignto:SetItemValue(slot, enabled)
     end
-    -- controls.assignto:SetValue(widgetName)
     controls.name:SetText(opts.name or "")
     controls.priority:SetText(opts.priority)
     controls.extend_below:SetText(opts.extend_below)

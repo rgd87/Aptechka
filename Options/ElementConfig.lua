@@ -54,46 +54,30 @@ function ns.MakeElementConfig()
                     values = Aptechka.GetWidgetList,
                     get = function(info, slot)
                         local wl = AptechkaConfigMerged[status].assignto
-                        if type(wl) == "string" then
-                            return wl == slot
-                        end
-
-                        for i,s in ipairs(wl) do
-                            if s == slot then return true end
-                        end
+                        return wl[slot]
                     end,
                     set = function(info, slot, enabled)
-                        Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
+                        local customOpts = Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
 
-                        local oldvalue = AptechkaConfigCustom.WIDGET[status].assignto
-                        if type(oldvalue) == "string" then
-                            AptechkaConfigCustom.WIDGET[status].assignto = { oldvalue }
-                        end
-                        if AptechkaConfigCustom.WIDGET[status].assignto == nil then AptechkaConfigCustom.WIDGET[status].assignto = {} end
+                        if customOpts.assignto == nil then customOpts.assignto = {} end
 
-                        local t = AptechkaConfigCustom.WIDGET[status].assignto
-                        local foundIndex
-                        for i,s in ipairs(t) do
-                            if s == slot then
-                                foundIndex = i
-                                break
-                            end
-                        end
-                        if enabled then
-                            if foundIndex then return end
-                            table.insert(t, slot)
-                        else
-                            if foundIndex then
-                                table.remove(t, foundIndex)
-                            end
-                        end
+                        local t = customOpts.assignto
+                        t[slot] = enabled
 
-                        AptechkaConfigMerged[status].assignto = AptechkaConfigCustom.WIDGET[status].assignto
+                        local defaultOpts = AptechkaDefaultConfig[status]
+
+                        Aptechka.util.ShakeAssignments(customOpts, defaultOpts)
+                        local newMergedSet = Aptechka.util.Set.union(customOpts.assignto, defaultOpts.assignto)
+
+                        AptechkaConfigMerged[status].assignto = newMergedSet
+
+                        local mergedOpts = AptechkaConfigMerged[status]
 
                         -- Removing that status from all frames if something was disabled
                         if not enabled then
                             Aptechka:ForEachFrame(function(frame)
-                                Aptechka.FrameSetJob(frame, AptechkaConfigMerged[status], false)
+                                Aptechka.AssignToSlot(frame, mergedOpts, false, slot)
+                                -- Aptechka.FrameSetJob(frame, AptechkaConfigMerged[status], false)
                             end)
                         end
                     end,
