@@ -3105,7 +3105,9 @@ Aptechka.Commands = {
                     end
                     print(string.format("Removed '%s' widget settings on all profiles.", wname))
                 else
-                    Aptechka.db.profile.widgetConfig[wname] = nil
+                    if Aptechka.db.profile.widgetConfig then
+                        Aptechka.db.profile.widgetConfig[wname] = nil
+                    end
                     print(string.format("Removed '%s' widget settings on '%s' profile.", wname, Aptechka.db:GetCurrentProfile()))
                 end
 
@@ -3125,9 +3127,14 @@ Aptechka.Commands = {
             end
 
             if gconfig[wname] then
-                if forProfile and not pconfig[wname] then
-                    Aptechka.db.profile.widgetConfig[wname] = { }
-                    print(string.format("Created '%s' settings for '%s' profile.", wname, Aptechka.db:GetCurrentProfile()))
+                if forProfile then
+                    if not Aptechka.db.profile.widgetConfig then
+                        Aptechka.db.profile.widgetConfig = {}
+                    end
+                    if not Aptechka.db.profile.widgetConfig[wname] then
+                        Aptechka.db.profile.widgetConfig[wname] = { }
+                        print(string.format("Created '%s' settings for '%s' profile.", wname, Aptechka.db:GetCurrentProfile()))
+                    end
                 end
 
                 local opts = Aptechka:GetWidgetsOptionsMerged(wname)
@@ -3184,7 +3191,7 @@ Aptechka.Commands = {
                     print("  ", k, "=", v)
                 end
 
-                local popts = Aptechka.db.profile.widgetConfig[wname]
+                local popts = Aptechka.db.profile.widgetConfig and Aptechka.db.profile.widgetConfig[wname]
                 if popts then
                     print("|cffffcc55===", wname, "(profile) ===|r")
                     for k,v in pairs(popts) do
@@ -3204,6 +3211,25 @@ Aptechka.Commands = {
                         Aptechka.RemoveDefaults(popts, gopts)
                     end
                 end
+            end
+        elseif cmd == "copy" then
+            local p = ParseOpts(params)
+            local wname = p.name
+            if wname and Aptechka.db.global.widgetConfig[wname] then
+                local from = p.from
+                local srcProfile = Aptechka.db.profiles[from]
+                if srcProfile then
+                    local srcpopts = srcProfile.widgetConfig and srcProfile.widgetConfig[wname]
+                    if srcpopts then
+                        Aptechka.db.profile.widgetConfig[wname] = CopyTable(srcpopts)
+                    else
+                        print(string.format("Profile %s doesn't have specific settings for %s", from, wname))
+                    end
+                else
+                    print("Profile doesn't exist:", from)
+                end
+            else
+                print("Widget doesn't exist:", wname)
             end
         elseif cmd == "list" then
             print("|cff99FF99Customizable Widgets:|r")
