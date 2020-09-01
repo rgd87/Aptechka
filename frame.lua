@@ -35,6 +35,7 @@ Aptechka.Widget = {}
 
 
 local function InheritGlobalOptions(popts, gopts)
+    assert(gopts)
     if not popts then
         return gopts
     else
@@ -778,24 +779,27 @@ local function ArrayHeader_Arrange(hdr, startIndex)
     local numChildren = #hdr.children
     local gap = pixelperfect(1)
 
+    local point, relativeTo, relativePoint, _, _ = hdr:GetPoint(1)
+    local alignH = helpers.GetHorizontalAlignmentFromPoint(point)
+    local alignV = helpers.GetVerticalAlignmentFromPoint(point)
+
     startIndex = startIndex or 1
     for i=startIndex, numChildren do
         local widget = hdr.children[i]
         widget:ClearAllPoints()
         if i == 1 then
-            local point, relativeTo, relativePoint, _, _ = hdr:GetPoint(1)
             widget:SetPoint(point, hdr, point, 0,0)
         else
             local growthDirection = hdr.growthDirection:upper()
             local prevWidget = hdr.children[i-1]
             if growthDirection == "DOWN" then
-                widget:SetPoint("TOPLEFT", prevWidget, "BOTTOMLEFT", 0, -gap)
+                widget:SetPoint("TOP"..alignH, prevWidget, "BOTTOM"..alignH, 0, -gap)
             elseif growthDirection == "LEFT" then
-                widget:SetPoint("TOPRIGHT", prevWidget, "TOPLEFT", -gap, 0)
+                widget:SetPoint(alignV.."RIGHT", prevWidget, alignV.."LEFT", -gap, 0)
             elseif growthDirection == "RIGHT" then
-                widget:SetPoint("TOPLEFT", prevWidget, "TOPRIGHT", gap, 0)
+                widget:SetPoint(alignV.."LEFT", prevWidget, alignV.."RIGHT", gap, 0)
             else
-                widget:SetPoint("BOTTOMLEFT", prevWidget, "TOPLEFT", 0, gap)
+                widget:SetPoint("BOTTOM"..alignH, prevWidget, "TOP"..alignH, 0, gap)
             end
         end
     end
@@ -803,8 +807,7 @@ end
 
 local function ArrayHeader_Add(hdr)
     -- if #hdr.children >= hdr.maxChildren then return end
-
-    local widget = Aptechka.Widget[hdr.childType].Create(hdr, hdr.template)
+    local widget = Aptechka.Widget[hdr.childType].Create(hdr, nil, hdr.template)
     table.insert(hdr.children, widget)
     hdr:Arrange(#hdr.children)
 
@@ -854,6 +857,10 @@ function Aptechka.Widget.BarArray.Reconf(parent, hdr, popts, gopts)
     hdr:Arrange()
 end
 
+----------------------------------------------------------
+-- Icon Array
+----------------------------------------------------------
+
 Aptechka.Widget.IconArray = {}
 Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
 function Aptechka.Widget.IconArray.Create(parent, popts, gopts)
@@ -863,32 +870,9 @@ end
 
 Aptechka.Widget.IconArray.Reconf = Aptechka.Widget.BarArray.Reconf
 
---[[
-local SetJob_RoundIndicator = function(self,job)
-    local color
-    if job.foreigncolor and job.isforeign then
-        color = job.foreigncolor
-    else
-        color = job.color or { 1,1,1,1 }
-    end
-    self.color:SetVertexColor(unpack(color))
-end
-local CreateRoundIndicator = function (parent,width,height,point,frame,to,x,y)
-    local ri = CreateFrame("Frame",nil, parent)
-    ri:SetFrameLevel(7)
-    ri:SetWidth(width); ri:SetHeight(height)
-    ri:SetPoint(point,frame,to,x,y)
-    local ritex = ri:CreateTexture(nil,"OVERLAY", nil, 2)
-    ritex:SetAllPoints(ri)
-    ritex:SetTexture("Interface\\AddOns\\Aptechka\\roundIndicator")
-    ri.color = ritex
-
-    ri:Hide()
-
-    ri.SetJob = SetJob_RoundIndicator
-    return ri
-end
-]]
+----------------------------------------------------------
+-- Base Icon
+----------------------------------------------------------
 
 local SetJob_Icon = function(self, job, state, contentType, ...)
     if contentType == "AURA" then
@@ -910,6 +894,7 @@ local SetJob_Icon = function(self, job, state, contentType, ...)
     end
 end
 
+--[[
 local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     local icon = CreateFrame("Frame",nil,parent)
     icon:SetWidth(w); icon:SetHeight(h)
@@ -917,7 +902,7 @@ local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     icon:SetFrameLevel(7)
 
     local shield = icon:CreateTexture(nil, "ARTWORK", nil, 2)
-    shield:SetTexture([[Interface\AchievementFrame\UI-Achievement-IconFrame]])
+    shield:SetTexture("Interface\\AchievementFrame\\UI-Achievement-IconFrame")
     shield:SetTexCoord(0,0.5625,0,0.5625)
     shield:SetWidth(h*1.8)
     shield:SetHeight(h*1.8)
@@ -947,6 +932,7 @@ local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
 
     return icon
 end
+]]
 
 local AddOutline = function(self)
     local outlineSize = pixelperfect(1)
@@ -1029,6 +1015,10 @@ local function CreateIcon(parent, width, height, alpha, point, frame, to, x, y, 
     return icon
 end
 
+----------------------------------------------------------
+-- Bar Icon
+----------------------------------------------------------
+
 local BarIcon_SetCooldown = function(self, startTime, duration)
     self:SetMinMaxValues(0, duration)
     self.expirationTime = startTime+duration
@@ -1093,7 +1083,7 @@ function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
     local w = pixelperfect(opts.width)
     local h = pixelperfect(opts.height)
 
-    f:SetSize(opts.width, opts.height)
+    f:SetSize(w, h)
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     f:SetAlpha(opts.alpha)
@@ -1128,10 +1118,21 @@ function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
     f.texture:SetTexCoord(.1+vm, .9-vm, .1+hm, .9-hm)
 end
 
+----------------------------------------------------------
+-- Debuff Icon
+----------------------------------------------------------
 
 local DebuffTypeColor = DebuffTypeColor
 local helpful_color = { r = 0, g = 1, b = 0}
-local function SetJob_DebuffIcon(self, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+
+local function DebuffIcon_SetDebuffColor(self, r,g,b)
+    self.debuffTypeTexture:SetVertexColor(r, g, b)
+    if self.outline then
+        self.outline:SetVertexColor(r,g,b)
+    end
+end
+
+local function DebuffIcon_SetJob(self, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
     if expirationTime then
         self.cd:SetReverse(true)
         self.cd:SetCooldown(expirationTime - duration, duration)
@@ -1150,7 +1151,7 @@ local function SetJob_DebuffIcon(self, debuffType, expirationTime, duration, ico
     else
         color = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
     end
-    self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 1)
+    self:SetDebuffColor(color.r, color.g, color.b)
 
     if isBossAura then
         self:SetScale(Aptechka.db.profile.debuffBossScale)
@@ -1159,122 +1160,90 @@ local function SetJob_DebuffIcon(self, debuffType, expirationTime, duration, ico
     end
 end
 
-local SetDebuffOrientation = function(self, orientation, size)
+local function DebuffIcon_SetDebuffStyle(self, opts)
     local it = self.texture
     local dtt = self.debuffTypeTexture
     local text = self.stacktext
-    -- local w = self.width
-    -- local h = self.height
-    local w = size
-    local h = size
+
+    local w = pixelperfect(opts.width)
+    local h = pixelperfect(opts.height)
     local p = pixelperfect(1)
+    local style = opts.style
+
     it:ClearAllPoints()
     dtt:ClearAllPoints()
 
-    -- local simple = false
-    -- local corner = true
-
-    -- if simple then
-    --     it:SetSize(pixelperfect(h - 2), pixelperfect(h - 2*p))
-    --     it:SetPoint("TOPLEFT", self, "TOPLEFT", p, -p)
-    --     dtt:SetSize(h, h)
-    --     dtt:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
-    -- elseif corner then
-    --     self:SetSize(h,h)
-    --     it:SetSize(h,h)
-    --     it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
-
-    --     dtt:SetTexture[[Interface\AddOns\Aptechka\corner]]
-    --     dtt:SetTexCoord(1,1,0,1,1,0,0,0)
-    --     dtt:SetSize(h*0.6, h*0.6)
-    --     dtt:SetDrawLayer("ARTWORK", 3)
-    --     dtt:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
-
-    if orientation == "VERTICAL" then
-        local dttLen = h*0.22
-        self:SetSize(h + dttLen,h)
-        it:SetSize(h,h)
+    if style  == "STRIP_RIGHT" then
+        local dttLen = w*0.22
+        self:SetSize(w + dttLen,h)
+        it:SetSize(w,h)
         it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+        dtt:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
         dtt:SetSize(dttLen,h)
         dtt:SetPoint("TOPLEFT", it, "TOPRIGHT", 0, 0)
         dtt:SetTexCoord(0,1,0,1)
+        dtt:SetDrawLayer("ARTWORK", -2)
         text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 2,-1)
-        self.eyeCatcher.t1:SetOffset(-10,0)
-        self.eyeCatcher.t2:SetOffset(10,0)
-    else
+    elseif style == "CORNER" then
+        self:SetSize(w+p*2,h+p*2)
+        if not self.outline then
+            self.outline = self:AddOutline()
+        end
+        self.outline:Show()
+        it:SetSize(w,h)
+        it:SetPoint("TOPLEFT", self, "TOPLEFT", p, -p)
+        local minLen = math.min(w,h)
+
+        dtt:SetTexture[[Interface\AddOns\Aptechka\corner]]
+        dtt:SetTexCoord(0,1,0,1)
+        dtt:SetSize(minLen*0.7, minLen*0.7)
+        dtt:SetDrawLayer("ARTWORK", 3)
+        dtt:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0,0)
+    elseif style == "STRIP_BOTTOM" then
         local dttLen = h*0.25
-        self:SetSize(h,w + dttLen)
+        self:SetSize(w,h + dttLen)
         dtt:SetSize(w, dttLen)
+        dtt:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
         dtt:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0)
         dtt:SetTexCoord(0,1,0,0,1,1,1,0)
-        it:SetSize(h,h)
+        dtt:SetDrawLayer("ARTWORK", -2)
+        it:SetSize(w,h)
         it:SetPoint("BOTTOMLEFT", dtt, "TOPLEFT", 0, 0)
         text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 3,1)
+    end
+end
+
+local function DebuffIcon_SetAnimDirection(self, direction)
+    if direction  == "LEFT" then
+        self.eyeCatcher.t1:SetOffset(-10,0)
+        self.eyeCatcher.t2:SetOffset(10,0)
+    elseif direction  == "RIGHT" then
+        self.eyeCatcher.t1:SetOffset(10,0)
+        self.eyeCatcher.t2:SetOffset(-10,0)
+    elseif direction == "DOWN" then
         self.eyeCatcher.t1:SetOffset(0,-10)
         self.eyeCatcher.t2:SetOffset(0,10)
+    elseif direction == "UP" then
+        self.eyeCatcher.t1:SetOffset(0,10)
+        self.eyeCatcher.t2:SetOffset(0,-10)
     end
 end
 
-local AlignDebuffIcons = function(icons, orientation)
-    local attachTo, attachPoint
-    if orientation == "VERTICAL" then
-        for i,icon in ipairs(icons) do
-            if i == 1 then
-                attachTo = icons.parent
-                attachPoint = "BOTTOMLEFT"
-            else
-                attachTo = icons[i-1]
-                attachPoint = "TOPLEFT"
-            end
-            icon:ClearAllPoints()
-            icon:SetPoint("BOTTOMLEFT", attachTo, attachPoint, 0,0)
-        end
-    else
-        for i,icon in ipairs(icons) do
-            if i == 1 then
-                attachTo = icons.parent.power
-                attachPoint = "TOPLEFT"
-            else
-                attachTo = icons[i-1]
-                attachPoint = "BOTTOMRIGHT"
-            end
-            icon:ClearAllPoints()
-            icon:SetPoint("BOTTOMLEFT", attachTo, attachPoint, 0,0)
-        end
-    end
-end
-
-
-local IsControlKeyDown = IsControlKeyDown
-local DebuffIcon_OnEnter = function(self)
-    if not IsControlKeyDown() then return end
-    local spellID = self.spellID
-    if not spellID then return end
-    GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
-    GameTooltip:SetSpellByID(spellID)
-    GameTooltip:Show();
-end
-local DebuffIcon_OnLeave = function(self)
-    if GameTooltip:IsOwned(self) then
-        GameTooltip:Hide();
-    end
-end
-
-local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to, x, y)
-    local icon = CreateIcon(parent, width, height, alpha, point, frame, to, x, y)
+local function CreateDebuffIcon(parent, width, height, alpha, point, frame, to, x, y, ...)
+    local icon = CreateIcon(parent, width, height, alpha, point, frame, to, x, y, ...)
+    if icon.outline then icon.outline:Hide() end
 
     local w = pixelperfect(width)
     local h = pixelperfect(height)
-
-    local icontex = icon.texture
-    icontex:SetTexCoord(.2, .8, .2, .8)
 
     local dttex = icon:CreateTexture(nil, "ARTWORK", nil, -2)
     dttex:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
     icon.debuffTypeTexture = dttex
 
-    icon.SetOrientation = SetDebuffOrientation
-    icon.SetJob = SetJob_DebuffIcon
+    icon.SetDebuffStyle = DebuffIcon_SetDebuffStyle
+    icon.SetDebuffColor = DebuffIcon_SetDebuffColor
+    icon.SetAnimDirection = DebuffIcon_SetAnimDirection
+    icon.SetJob = DebuffIcon_SetJob
 
     icon:Hide()
 
@@ -1293,10 +1262,73 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
     ag.t2 = t2
     icon.eyeCatcher = ag
 
-    icon:SetOrientation("VERTICAL", w)
-
     return icon
 end
+Aptechka.Widget.DebuffIcon = {}
+Aptechka.Widget.DebuffIcon.default = { type = "DebuffIcon", width = 13, height = 13, point = "CENTER", x = 0, y = 0, alpha = 1, style = "STRIP_RIGHT", animdir = "LEFT", font = "ClearFont", textsize = 12, edge = false }
+function Aptechka.Widget.DebuffIcon.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    local icon = CreateDebuffIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
+    icon:SetDebuffStyle(opts)
+    icon:SetAnimDirection(opts.animdir)
+    return icon
+end
+Aptechka.Widget.DebuffIcon.Reconf = function(parent, f, popts, gopts)
+    Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
+    local icon = f
+    if icon.outline then icon.outline:Hide() end
+    local opts = InheritGlobalOptions(popts, gopts)
+    icon:SetDebuffStyle(opts)
+    icon:SetAnimDirection(opts.animdir)
+end
+
+----------------------------------------------------------
+-- Debuff Icon Array
+----------------------------------------------------------
+
+local function DebuffIconArray_SetDebuffIcon(hdr, frame, unit, index, spellName, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+    -- local hdr = frame.debuffIcons
+    if index > hdr.maxChildren then return end
+    local iconFrame = hdr.children[index]
+    if not spellName then -- debuff is nil
+        if iconFrame then iconFrame:Hide() end
+    else
+        if not iconFrame then
+            iconFrame = hdr:Add()
+        end
+
+        iconFrame:SetJob(debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+        iconFrame:Show()
+
+        local refreshTimestamp = frame.auraEvents[spellID]
+        local now = GetTime()
+        if refreshTimestamp and now - refreshTimestamp < 0.1 then
+            frame.auraEvents[spellID] = nil
+
+            iconFrame.eyeCatcher:Stop()
+            iconFrame.eyeCatcher:Play()
+        end
+    end
+end
+
+local DebuffIconArray_default = CopyTable(Aptechka.Widget.DebuffIcon.default)
+DebuffIconArray_default.type = "DebuffIconArray"
+DebuffIconArray_default.growth = "UP"
+DebuffIconArray_default.max = 4
+Aptechka.Widget.DebuffIconArray = {}
+Aptechka.Widget.DebuffIconArray.default = DebuffIconArray_default
+
+function Aptechka.Widget.DebuffIconArray.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    local hdr = CreateArrayHeader("DebuffIcon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+    hdr.SetDebuffIcon = DebuffIconArray_SetDebuffIcon
+    return hdr
+end
+Aptechka.Widget.DebuffIconArray.Reconf = Aptechka.Widget.IconArray.Reconf
+
+----------------------------------------------------------
+-- Progress Icon
+----------------------------------------------------------
 
 local SetJob_ProgressIcon = function(self, job, state, contentType, ...)
     SetJob_Icon(self, job, state, contentType, ...)
@@ -2006,6 +2038,7 @@ local function Reconf(self)
         self.health.incoming:SetDrawLayer("ARTWORK", -5)
     end
 
+    --[[
     local stackFont = LSM:Fetch("font", Aptechka.db.profile.stackFontName)
     local stackFontSize = Aptechka.db.profile.stackFontSize
     for i, icon in ipairs(self.debuffIcons) do
@@ -2019,6 +2052,7 @@ local function Reconf(self)
             icon:SetScript("OnLeave", nil)
         end
     end
+    ]]
 
     if isVertical then
         self.health:SetOrientation("VERTICAL")
@@ -2060,6 +2094,7 @@ local function Reconf(self)
         hpi:ClearAllPoints()
         hpi.UpdatePosition = hpi.UpdatePositionVertical
 
+        --[[
         local debuffSize = pixelperfect(Aptechka.db.profile.debuffSize)
         for i, icon in ipairs(self.debuffIcons) do
             icon:SetOrientation("VERTICAL", debuffSize)
@@ -2067,6 +2102,7 @@ local function Reconf(self)
         self.debuffIcons:Align("VERTICAL")
 
         self.bossdebuff:SetPoint("BOTTOMLEFT", self.debuffIcons[1], "BOTTOMRIGHT",0,0)
+        ]]
     else
         self.health:SetOrientation("HORIZONTAL")
         self.power:SetOrientation("HORIZONTAL")
@@ -2107,6 +2143,7 @@ local function Reconf(self)
         hpi:ClearAllPoints()
         hpi.UpdatePosition = hpi.UpdatePositionHorizontal
 
+        --[[
         local debuffSize = pixelperfect(Aptechka.db.profile.debuffSize)
         for i, icon in ipairs(self.debuffIcons) do
             icon:SetOrientation("HORIZONTAL", debuffSize)
@@ -2114,6 +2151,7 @@ local function Reconf(self)
         self.debuffIcons:Align("HORIZONTAL")
 
         self.bossdebuff:SetPoint("BOTTOMLEFT", self.debuffIcons[1], "TOPLEFT",0,0)
+        ]]
     end
 
 end
@@ -2454,6 +2492,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
     -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
 
+
+    self.debuffIcons = Aptechka.Widget.DebuffIconArray.Create(self, Aptechka:GetWidgetsOptions("debuffIcons"))
+    --[[
     local debuffSize = Aptechka.db.profile.debuffSize
     self.debuffIcons = { parent = self }
     self.debuffIcons.Align = AlignDebuffIcons
@@ -2464,9 +2505,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
     end
 
     self.debuffIcons:Align("VERTICAL")
+    ]]
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
-    local blcorner = CreateCorner(self, 16, 16, "BOTTOMLEFT", self.debuffIcons[1], "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation
+    local blcorner = CreateCorner(self, 30, 30, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") --last arg changes orientation
 
     local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
     self.healfeedback = trcorner

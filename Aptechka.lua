@@ -134,6 +134,8 @@ Aptechka.L = setmetatable({}, {
     __call = function(t,k) return t[k] end,
 })
 
+Aptechka.util = helpers
+
 local defaults = {
     global = {
         disableBlizzardParty = true,
@@ -288,6 +290,7 @@ local function MergeTable(t1, t2)
     end
     return t1
 end
+helpers.MergeTable = MergeTable
 Aptechka.MergeTable = MergeTable
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
@@ -775,6 +778,7 @@ end
 
 function Aptechka.GetWidgetList()
     local list = Aptechka.GetWidgetListRaw()
+    list["debuffIcons"] = nil
     list["mindcontrol"] = nil
     list["unhealable"] = nil
     list["vehicle"] = nil
@@ -2562,7 +2566,8 @@ function Aptechka.OrderedBuffProc(frame, unit, index, slot, filter, name, icon, 
 end
 
 function Aptechka.OrderedDebuffPostUpdate(frame, unit)
-    local debuffLineLength = debuffLimit
+    local debuffIcons = frame.debuffIcons
+    local debuffLineLength = debuffIcons.maxChildren
     local shown = 0
     local fill = 0
 
@@ -2594,14 +2599,14 @@ function Aptechka.OrderedDebuffPostUpdate(frame, unit)
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(frame, unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
+            debuffIcons:SetDebuffIcon(frame, unit, shown, name, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
         else
             break
         end
     end
 
     for i=shown+1, debuffLineLength do
-        SetDebuffIcon(frame, unit, i, false)
+        debuffIcons:SetDebuffIcon(frame, unit, i, nil)
     end
 end
 
@@ -2867,7 +2872,7 @@ function Aptechka.TestDebuffSlots()
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(frame, unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
+            frame.debuffIcons:SetDebuffIcon(frame, unit, shown, name, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
         else
             break
         end
@@ -2897,7 +2902,7 @@ function Aptechka.TestDebuffSlots()
     -- icon:Show()
 
     for i=shown+1, debuffLineLength do
-        SetDebuffIcon(frame, unit, i, false)
+        frame.debuffIcons:SetDebuffIcon(frame, unit, i, false)
     end
 end
 
