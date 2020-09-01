@@ -1755,7 +1755,7 @@ end
 
 local SetJob_Flash = function(self,job)
     if job.color then
-        local r,g,b = unpack(job.color)
+        local r,g,b = GetColor(job)
         self.texture:SetVertexColor(r,g,b)
     end
 end
@@ -2503,7 +2503,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     ]]
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
-    local blcorner = CreateCorner(self, 30, 30, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") --last arg changes orientation
+    local bossdebuff = CreateCorner(self, 17, 17, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") --last arg changes orientation
+    -- local bossdebuff = Aptechka.Widget.Indicator.Create(self, Aptechka:GetWidgetsOptions("bossdebuff"))
 
     local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
     self.healfeedback = trcorner
@@ -2539,7 +2540,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     end
 
     self.healthColor = self.health
-    self.bossdebuff = blcorner
+    self.bossdebuff = bossdebuff
     self.incomingCastIcon = incomingCastIcon
     self.raidicon = raidicon
     self.roleicon = roleicon
