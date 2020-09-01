@@ -351,3 +351,129 @@ do
         return num
     end
 end
+
+
+local function SetupDefaults(t, defaults)
+    if not defaults then return end
+    for k,v in pairs(defaults) do
+        if type(v) == "table" then
+            if t[k] == nil then
+                t[k] = CopyTable(v)
+            elseif t[k] == false then
+                t[k] = false --pass
+            else
+                SetupDefaults(t[k], v)
+            end
+        else
+            if type(t) == "table" and t[k] == nil then t[k] = v end
+            if t[k] == "__REMOVED__" then t[k] = nil end
+        end
+    end
+end
+helpers.SetupDefaults = SetupDefaults
+
+local function RemoveDefaults(t, defaults)
+    if not defaults then return end
+    for k, v in pairs(defaults) do
+        if type(t[k]) == 'table' and type(v) == 'table' then
+            RemoveDefaults(t[k], v)
+            if next(t[k]) == nil then
+                t[k] = nil
+            end
+        elseif t[k] == v then
+            t[k] = nil
+        end
+    end
+    return t
+end
+helpers.RemoveDefaults = RemoveDefaults
+
+local function RemoveDefaultsPreserve(t, defaults)
+    if not defaults then return end
+    for k, v in pairs(defaults) do
+        if type(t[k]) == 'table' and type(v) == 'table' then
+            RemoveDefaultsPreserve(t[k], v)
+            if next(t[k]) == nil then
+                t[k] = nil
+            end
+        elseif t[k] == nil and v ~= nil then
+            t[k] = "__REMOVED__"
+        elseif t[k] == v then
+            t[k] = nil
+        end
+    end
+    return t
+end
+helpers.RemoveDefaultsPreserve = RemoveDefaultsPreserve
+
+local function MergeTable(t1, t2)
+    if not t2 then return false end
+    for k,v in pairs(t2) do
+        if type(v) == "table" then
+            if t1[k] == nil or type(t1[k]) ~= "table" then -- assignto can be string while t2 can be table
+                t1[k] = CopyTable(v)
+            else
+                MergeTable(t1[k], v)
+            end
+        elseif v == "__REMOVED__" then
+            t1[k] = nil
+        else
+            t1[k] = v
+        end
+    end
+    return t1
+end
+helpers.MergeTable = MergeTable
+
+
+local Set = {}
+local mt = { __index = Set }
+
+local updateTable = function(tbl, ...)
+    local numArgs = select("#", ...)
+    for i=1, numArgs do
+        tbl[i] = select(i, ...)
+    end
+end
+function Set.newFromArgs(...)
+    local set = setmetatable({}, mt)
+    local numArgs = select("#", ...)
+    for i=1, numArgs do
+        local k = select(i, ...)
+        set[k] = true
+    end
+    return set
+end
+
+function Set.new (t)
+    local set = setmetatable({}, mt)
+    for _, k in ipairs(t) do set[k] = true end
+    return set
+end
+
+function Set.union (a,b)
+    local res = Set.new{}
+    for k in pairs(a) do res[k] = true end
+    for k in pairs(b) do res[k] = true end
+    return res
+end
+
+function Set.intersection (a,b)
+    local res = Set.new{}
+    for k in pairs(a) do
+        res[k] = b[k]
+    end
+    return res
+end
+
+function Set.tostring (set)
+    local s = "{"
+    local sep = ""
+    for e in pairs(set) do
+        s = s .. sep .. e
+        sep = ", "
+    end
+    return s .. "}"
+end
+
+helpers.set = Set.newFromArgs
