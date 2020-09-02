@@ -109,16 +109,13 @@ local RangeCheckBySpell = helpers.RangeCheckBySpell
 
 
 
-local tankCD = { type = "HELPFUL", assignto = "icon", global = true, showDuration = true, priority = 94, color = { 1, 0.2, 1} }
-local survivalCD = { type = "HELPFUL", assignto = "buffIcons", global = true, showDuration = true, priority = 90, color = { 0.4, 1, 0.4} }
-local activeMitigation = { type = "HELPFUL", assignto = "mitigation", showDuration = true, global = true, color = {0.7, 0.7, 0.7}, priority = 80 }
-
--- A{ id = 25163, type = "HARMFUL", assignto = "bossdebuff", scale = 0.85, color = { 1,0,0 }, priority = 40, pulse = true } -- Oozeling
+local tankCD = { type = "HELPFUL", assignto = set("icon"), global = true, showDuration = true, priority = 94, color = { 1, 0.2, 1} }
+local survivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, showDuration = true, priority = 90, color = { 0.4, 1, 0.4} }
+local activeMitigation = { type = "HELPFUL", assignto = set("mitigation"), showDuration = true, global = true, color = {0.7, 0.7, 0.7}, priority = 80 }
 
 -- ESSENCES
 A{ id = 296094, prototype = tankCD } --Standstill (Artifice of Time)
 A{ id = 296230, prototype = survivalCD } --Vitality Conduit
--- A{ id = 296211, type = "HELPFUL", assignto = "bars", color = { 1, 0.7, 0}, priority = 50, showDuration = true, isMine = true }
 
 -- ACTIVE MITIGATION
 A{ id = 132404, prototype = activeMitigation } -- Shield Block
