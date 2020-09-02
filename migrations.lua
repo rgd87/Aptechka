@@ -249,7 +249,7 @@ do
             db.DB_VERSION = 6
         end
         if db.DB_VERSION == 6 then
-            Aptechka:ForAllCustomStatuses(function(opts, status, list)
+            local func = function(opts, defaultOpts)
                 if opts.assignto then
                     if type(opts.assignto) == "string" then
                         opts.assignto = { opts.assignto }
@@ -258,7 +258,36 @@ do
                     newSet["__REMOVED__"] = nil
                     opts.assignto = newSet
                 end
-            end, true, false)
+                if defaultOpts then
+                    Aptechka.util.ShakeAssignments(opts, defaultOpts)
+                end
+            end
+
+            if AptechkaConfigCustom.WIDGET then -- .WIDGET is actually elements
+                for status, opts in pairs(AptechkaConfigCustom.WIDGET) do
+                    local defaultOpts = AptechkaDefaultConfig[status]
+                    func(opts, defaultOpts)
+                end
+            end
+
+            local categories = { "GLOBAL" }
+            for i=1, 15 do
+                local classData = C_CreatureInfo.GetClassInfo(i)
+                if not classData then break end
+                table.insert(categories, classData.classFile)
+            end
+
+            local spellTypes = { "auras", "traces" }
+            for _,category in ipairs(categories) do
+                for _,spellType in ipairs(spellTypes) do
+                    if AptechkaConfigCustom[category] and AptechkaConfigCustom[category][spellType] then
+                        for spellID, opts in pairs(AptechkaConfigCustom[category][spellType]) do
+                            local defaultOpts = AptechkaDefaultConfig[category] and AptechkaDefaultConfig[category][spellType] and AptechkaDefaultConfig[category][spellType][spellID]
+                            func(opts, defaultOpts)
+                        end
+                    end
+                end
+            end
 
             db.DB_VERSION = 7
         end
@@ -277,9 +306,8 @@ function Aptechka:ForAllCustomWidgets(func)
     end
 end
 
-function Aptechka:ForAllCustomStatuses(func, searchAllClasses, passList)
-    local list
-    if passList == nil or passList == true then list = Aptechka.GetWidgetList() end
+function Aptechka:ForAllCustomStatuses(func, searchAllClasses)
+    local list = Aptechka.GetWidgetList()
 
     if AptechkaConfigCustom.WIDGET then -- .WIDGET is actually elements
         for status, opts in pairs(AptechkaConfigCustom.WIDGET) do
