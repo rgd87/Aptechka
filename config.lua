@@ -173,6 +173,7 @@ A{ id = 586,  prototype = survivalCD } -- Fade
 A{ id = 47585,  prototype = survivalCD } -- Dispersion
 A{ id = 47788, prototype = tankCD, priority = 90 } --Guardian Spirit
 A{ id = 33206, prototype = tankCD, priority = 93 } --Pain Suppression
+A{ id = 81782, prototype = survivalCD } -- Anti-Magic Zone
 
 -- PALADIN
 A{ id = 642,    prototype = tankCD, priority = 95 } -- Divine Shield
@@ -193,6 +194,7 @@ A{ id = 194679, prototype = survivalCD } -- Rune Tap
 A{ id = 55233,  prototype = tankCD, priority = 94 } --Vampiric Blood
 A{ id = 48792,  prototype = tankCD, priority = 94 } --Icebound Fortitude 50%
 A{ id = 81256,  prototype = survivalCD } -- Dancing Rune Weapon
+A{ id = 145629, prototype = survivalCD } -- Anti-Magic Zone
 
 -- MAGE
 A{ id = 113862, prototype = survivalCD } -- Arcane Greater Invisibility
