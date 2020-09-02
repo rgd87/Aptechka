@@ -248,6 +248,8 @@ do
 
             db.DB_VERSION = 6
         end
+
+        db.DB_VERSION = CURRENT_DB_VERSION
     end
 end
 
