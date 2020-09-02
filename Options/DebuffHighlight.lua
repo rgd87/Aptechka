@@ -68,7 +68,7 @@ end
 local function GenListItems()
 
     local merged = CopyTable(defaultDebuffHighlights)
-    Aptechka.MergeTable(merged, Aptechka.db.global.customDebuffHighlights)
+    Aptechka.util.MergeTable(merged, Aptechka.db.global.customDebuffHighlights)
 
     local mapIDs = AptechkaDefaultConfig.MapIDs
     local reverseMapsIDs = {}
