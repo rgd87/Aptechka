@@ -3047,6 +3047,8 @@ Aptechka.Commands = {
                     end
                 end
 
+                local gopts = gconfig[wname]
+                local popts = pconfig and pconfig[wname]
                 local opts
                 if forProfile then
                     opts = pconfig[wname]
@@ -3061,7 +3063,13 @@ Aptechka.Commands = {
                         local oldvalue = tostring(opts[property]) or "NONE"
                         opts[property] = p[property]
                         local newvalue = tostring(opts[property])
-                        print("  ", string.format("%s:     |cffff5555%s|r", property, oldvalue), "=>", string.format("|cff88ff88%s|r",newvalue))
+                        local text = string.format("%s:     |cffff5555%s|r => |cff88ff88%s|r", property, oldvalue, newvalue)
+                        if not forProfile and popts then
+                            if popts[property] ~= opts[property] then
+                                text = text.." (overriden by profile settings)"
+                            end
+                        end
+                        print("  ", text)
                     end
                 end
 
