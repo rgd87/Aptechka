@@ -97,6 +97,7 @@ local DispelFilter
 
 local pixelperfect = helpers.pixelperfect
 Aptechka.util = helpers
+Aptechka.helpers = helpers -- Used by old userconfigs
 local bit_band = bit.band
 local bit_bor = bit.bor
 local IsInGroup = IsInGroup
@@ -3061,8 +3062,13 @@ Aptechka.Commands = {
                     end
                 end
 
-                local opts = Aptechka:GetWidgetsOptionsMerged(wname)
-                local wtype = opts.type
+                local opts
+                if forProfile then
+                    opts = pconfig[wname]
+                else
+                    opts = gconfig[wname]
+                end
+                local wtype = gconfig[wname].type
                 print("|cffffcc55===", wname, forProfile and "(profile) ===|r" or "===|r")
 
                 for property in pairs(Aptechka.Widget[wtype].default) do
