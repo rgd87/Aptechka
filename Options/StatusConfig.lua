@@ -3,10 +3,10 @@ local addonName, ns = ...
 
 local L = Aptechka.L
 
-function ns.MakeElementConfig()
+function ns.MakeStatusConfig()
     local opt = {
         type = 'group',
-        name = "Aptechka "..L"Elements",
+        name = "Aptechka "..L"Status Config",
         order = 1,
         args = {
         },
@@ -108,10 +108,10 @@ function ns.MakeElementConfig()
     end
 
     local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
-    AceConfigRegistry:RegisterOptionsTable("AptechkaElementConfig", opt)
+    AceConfigRegistry:RegisterOptionsTable("AptechkaStatusConfig", opt)
 
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaElementConfig", L"Elements", "Aptechka")
+    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaStatusConfig", L"Status List", "Aptechka")
 
     return panelFrame
 end

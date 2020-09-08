@@ -705,7 +705,7 @@ end
 
 
 
-function ns.CreateWidgetSpellList(name, parent )
+function ns.CreateSpellList(name, parent )
     -- Create a container frame
     -- local Frame = AceGUI:Create("Frame")
     -- Frame:SetTitle("ns")

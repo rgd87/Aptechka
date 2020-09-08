@@ -15,9 +15,9 @@
     <Script file="ProfileSelection.lua"/>
     <Script file="WidgetForms.lua"/>
     <Script file="WidgetConfig.lua"/>
-    <Script file="ElementConfig.lua"/>
+    <Script file="StatusConfig.lua"/>
     <Script file="DebuffHighlight.lua"/>
     <Include file="SpellListItemTemplate.xml"/>
-    <Script file="WidgetSpellList.lua"/>
+    <Script file="SpellList.lua"/>
     <Script file="LoadHooks.lua"/>
 </Ui>
