@@ -92,6 +92,7 @@ function ns.InitForm()
     form.opts = {}
     form.controls = {}
     form.SetTargetWidget = function(form, name, isProfile)
+        assert(name)
         form.isProfile = isProfile
         form.widgetName = name
         local popts, gopts

@@ -116,7 +116,13 @@ local function CreateNewWidgetForm()
     create:SetText(L"Create")
     create:SetRelativeWidth(0.2)
     create:SetCallback("OnClick", function(self, event)
-
+        local wtype = self.parent.opts.widgetType
+        local wname = self.parent.opts.name
+        Aptechka:CreateNewWidget(wtype, wname)
+        local rootFrame = AptechkaOptions.widgetConfig
+        rootFrame.tree:UpdateWidgetTree()
+        rootFrame.tree:SetSelected(wname)
+        rootFrame:SelectForConfig(wname)
     end)
     form:AddChild(create)
     form.controls.create = create
@@ -135,8 +141,9 @@ local function UpdateHeader(header)
     header.delete:SetDisabled(isProtected)
     header.reset:SetDisabled(not isProtected)
 
-    local hasProfileSettings = popts and next(popts)
+    local hasProfileSettings = popts ~= nil -- and next(popts)
     header.profileClear:SetDisabled(not hasProfileSettings)
+    header.profileCheckbox:SetValue(hasProfileSettings)
 end
 
 local function SelectForConfig(frame, name)
@@ -158,12 +165,10 @@ local function SelectForConfig(frame, name)
         end
 
         -- Setting initial profile-specific flag
-        if form.isProfile == nil then
-            local hasProfileSettings = Aptechka.db.profile.widgetConfig and Aptechka.db.profile.widgetConfig[name]
-            frame.header.profileCheckbox:SetValue(hasProfileSettings)
-        end
+        local hasProfileSettings = Aptechka.db.profile.widgetConfig and Aptechka.db.profile.widgetConfig[name]
+        frame.header.profileCheckbox:SetValue(hasProfileSettings)
 
-        local isProfile = frame.header.profileCheckbox:GetValue()
+        local isProfile = hasProfileSettings
         form.Fill = widgetFormFunctions.Fill
         form:SetTargetWidget(name, isProfile)
         frame.rpane:AddChild(form)
@@ -208,7 +213,11 @@ function ns.CreateWidgetConfig(name, parent)
     delete:SetDisabled(true)
     delete:SetRelativeWidth(0.15)
     delete:SetCallback("OnClick", function(self, event)
-
+        local name = CURRENT_FORM.widgetName
+        if not name then return end
+        Aptechka:RemoveWidget(name)
+        local rootFrame = AptechkaOptions.widgetConfig
+        rootFrame.tree:UpdateWidgetTree()
     end)
     frame:AddChild(delete)
     frame.header.delete = delete
@@ -231,7 +240,12 @@ function ns.CreateWidgetConfig(name, parent)
     profileClear:SetDisabled(true)
     profileClear:SetRelativeWidth(0.2)
     profileClear:SetCallback("OnClick", function(self, event)
-
+        local name = CURRENT_FORM.widgetName
+        if not name then return end
+        Aptechka:ClearWidgetProfileSettings(name)
+        CURRENT_FORM:SetTargetWidget(name, false)
+        frame.header:Update()
+        frame.tree:UpdateWidgetTree()
     end)
     frame:AddChild(profileClear)
     frame.header.profileClear = profileClear
@@ -241,7 +255,12 @@ function ns.CreateWidgetConfig(name, parent)
     reset:SetDisabled(true)
     reset:SetRelativeWidth(0.13)
     reset:SetCallback("OnClick", function(self, event)
-
+        local name = CURRENT_FORM.widgetName
+        if not name then return end
+        Aptechka:ResetWidget(name)
+        CURRENT_FORM:SetTargetWidget(name, false)
+        frame.header:Update()
+        frame.tree:UpdateWidgetTree()
     end)
     frame:AddChild(reset)
     frame.header.reset = reset

@@ -2839,6 +2839,58 @@ end
 --         ReloadUI()
 --     end
 -- end)
+
+function Aptechka:CreateNewWidget(wtype, wname)
+    if not Aptechka.db.global.widgetConfig[wname] then
+        Aptechka.db.global.widgetConfig[wname] = Aptechka.Widget[wtype].default
+        print("Created", wtype, wname)
+    else
+        print("Widget already exists:", wname)
+    end
+end
+
+function Aptechka:ClearWidgetProfileSettings(wname)
+    if Aptechka.db.profile.widgetConfig then
+        Aptechka.db.profile.widgetConfig[wname] = nil
+    end
+end
+
+function Aptechka:ResetWidget(wname)
+    for profileName, profile in pairs(Aptechka.db.profiles) do
+        if profile.widgetConfig then
+            profile.widgetConfig[wname] = nil
+        end
+    end
+    local gopts = Aptechka.db.global.widgetConfig[wname]
+    local defaultOpts = AptechkaDefaultConfig.DefaultWidgets[wname]
+    for k,v in pairs(gopts) do
+        gopts[k] = defaultOpts[k]
+    end
+end
+
+function Aptechka:RemoveWidget(wname)
+    if config.DefaultWidgets[wname] then
+        print("Can't remove default widget")
+        return
+    end
+
+    Aptechka.db.global.widgetConfig[wname] = nil
+    for profileName, profile in pairs(Aptechka.db.profiles) do
+        if profile.widgetConfig then
+            profile.widgetConfig[wname] = nil
+        end
+    end
+
+    Aptechka:ForEachFrame(function(frame)
+        local widget = frame[wname]
+        if widget then
+            widget:SetScript("OnUpdate", nil)
+            widget:Hide()
+            frame[wname] = nil
+        end
+    end)
+end
+
 Aptechka.Commands = {
     ["unlockall"] = function()
         for _,anchor in pairs(anchors) do
@@ -2961,12 +3013,7 @@ Aptechka.Commands = {
             end
 
             if wtype and Aptechka.Widget[wtype] then
-                if not Aptechka.db.global.widgetConfig[wname] then
-                    Aptechka.db.global.widgetConfig[wname] = Aptechka.Widget[wtype].default
-                    print("Created", wtype, wname)
-                else
-                    print("Widget already exists:", wname)
-                end
+                Aptechka:CreateNewWidget(wtype, wname)
             else
                 print("Unknown widget type:", wtype)
                 print("Available types (case sensitive):")
@@ -2978,26 +3025,7 @@ Aptechka.Commands = {
             local p = ParseOpts(params)
             local wname = p.name
             if wname and Aptechka.db.global.widgetConfig[wname] then
-                if config.DefaultWidgets[wname] then
-                    print("Can't remove default widget")
-                    return
-                end
-
-                Aptechka.db.global.widgetConfig[wname] = nil
-                for profileName, profile in pairs(Aptechka.db.profiles) do
-                    if profile.widgetConfig then
-                        profile.widgetConfig[wname] = nil
-                    end
-                end
-
-                Aptechka:ForEachFrame(function(frame)
-                    local widget = frame[wname]
-                    if widget then
-                        widget:SetScript("OnUpdate", nil)
-                        widget:Hide()
-                        frame[wname] = nil
-                    end
-                end)
+                Aptechka:RemoveWidget(wname)
                 print("Removed", wname)
             else
                 print("Widget doesn't exist:", wname)
@@ -3015,9 +3043,7 @@ Aptechka.Commands = {
                     end
                     print(string.format("Removed '%s' widget settings on all profiles.", wname))
                 else
-                    if Aptechka.db.profile.widgetConfig then
-                        Aptechka.db.profile.widgetConfig[wname] = nil
-                    end
+                    Aptechka:ClearWidgetProfileSettings(wname)
                     print(string.format("Removed '%s' widget settings on '%s' profile.", wname, Aptechka.db:GetCurrentProfile()))
                 end
 
