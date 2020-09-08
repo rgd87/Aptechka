@@ -71,10 +71,65 @@ Text effect possible values: NONE, SHADOW, OUTLINE
 end
 ]==]
 
+local widgetTypes = {}
+for wtype in pairs(Aptechka.Widget) do
+    if wtype ~= "DebuffIcon" and wtype ~= "DebuffIconArray" then
+        widgetTypes[wtype] = wtype
+    end
+end
+
+local function CreateNewWidgetForm()
+    local form = AceGUI:Create("ScrollFrame")
+    form:SetFullWidth(true)
+    form:SetLayout("Flow")
+
+    form.controls = {}
+    form.opts = {
+        widgetType = "Indicator",
+        name = "MyIndicator"
+    }
+
+    local widgetType = AceGUI:Create("Dropdown")
+    widgetType:SetLabel(L"Widget Type")
+    widgetType:SetList(widgetTypes)
+    widgetType:SetValue(form.opts.widgetType)
+    widgetType:SetRelativeWidth(0.34)
+    widgetType:SetCallback("OnValueChanged", function(self, event, value)
+        self.parent.opts["widgetType"] = value
+    end)
+    form.controls.widgetType = widgetType
+    form:AddChild(widgetType)
+
+
+    local name = AceGUI:Create("EditBox")
+    name:SetLabel(L"Name")
+    name:DisableButton(true)
+    name:SetText(form.opts.name)
+    name:SetRelativeWidth(0.60)
+    name:SetCallback("OnTextChanged", function(self, event, value)
+        self.parent.opts["name"] = value
+    end)
+    form.controls.name = name
+    form:AddChild(name)
+
+    local create = AceGUI:Create("Button")
+    create:SetText(L"Create")
+    create:SetRelativeWidth(0.2)
+    create:SetCallback("OnClick", function(self, event)
+
+    end)
+    form:AddChild(create)
+    form.controls.create = create
+
+    return form
+end
+
+
 local CURRENT_FORM
+local formCache = {}
 
-
-local function UpdateHeader(header, name, isProfile)
+local function UpdateHeader(header)
+    local name = CURRENT_FORM.widgetName
     local popts, gopts = Aptechka:GetWidgetsOptions(name)
     local isProtected = AptechkaDefaultConfig.DefaultWidgets[name]
     header.delete:SetDisabled(isProtected)
@@ -84,9 +139,39 @@ local function UpdateHeader(header, name, isProfile)
     header.profileClear:SetDisabled(not hasProfileSettings)
 end
 
+local function SelectForConfig(frame, name)
+    local gwidgets = Aptechka.db.global.widgetConfig
+    local gwidget = gwidgets[name]
+    if gwidget then
 
-local formCache = {
-}
+        local wtype = gwidget.type
+
+        frame.rpane:Clear()
+        local form = formCache[wtype]
+
+        -- Pick a Create & Fill functions corresponding to widget type
+        local widgetFormFunctions = ns.WidgetForms[wtype]
+        if not form then
+            if not widgetFormFunctions then return end
+            form = widgetFormFunctions.Create()
+            formCache[wtype] = form
+        end
+
+        -- Setting initial profile-specific flag
+        if form.isProfile == nil then
+            local hasProfileSettings = Aptechka.db.profile.widgetConfig and Aptechka.db.profile.widgetConfig[name]
+            frame.header.profileCheckbox:SetValue(hasProfileSettings)
+        end
+
+        local isProfile = frame.header.profileCheckbox:GetValue()
+        form.Fill = widgetFormFunctions.Fill
+        form:SetTargetWidget(name, isProfile)
+        frame.rpane:AddChild(form)
+        CURRENT_FORM = form
+        frame.header:Update()
+    end
+end
+
 
 function ns.CreateWidgetConfig(name, parent)
 
@@ -100,11 +185,20 @@ function ns.CreateWidgetConfig(name, parent)
     frame.header = {}
     frame.header.Update = UpdateHeader
 
+    frame.SelectForConfig = SelectForConfig
+
     local new = AceGUI:Create("Button")
     new:SetText(L"New")
     new:SetRelativeWidth(0.14)
     new:SetCallback("OnClick", function(self, event)
+        local rootFrame = AptechkaOptions.widgetConfig
+        rootFrame.rpane:Clear()
+        if not formCache["_NewWidgetForm"] then
+            formCache["_NewWidgetForm"] = CreateNewWidgetForm()
+        end
+        local form = formCache["_NewWidgetForm"]
 
+        rootFrame.rpane:AddChild(form)
     end)
     frame:AddChild(new)
     frame.header.new = new
@@ -162,37 +256,7 @@ function ns.CreateWidgetConfig(name, parent)
     treegroup:SetCallback("OnGroupSelected", function(self, event, path)
         local name = path
 
-        local gwidgets = Aptechka.db.global.widgetConfig
-        local gwidget = gwidgets[name]
-        if gwidget then
-
-            local wtype = gwidget.type
-
-            frame.rpane:Clear()
-            local form = formCache[wtype]
-
-            -- Pick a Create & Fill functions corresponding to widget type
-            local widgetFormFunctions = ns.WidgetForms[wtype]
-            if not form then
-                if not widgetFormFunctions then return end
-                form = widgetFormFunctions.Create()
-                formCache[wtype] = form
-            end
-
-            -- Setting initial profile-specific flag
-            if form.isProfile == nil then
-                local hasProfileSettings = Aptechka.db.profile.widgetConfig and Aptechka.db.profile.widgetConfig[name]
-                profileCheckbox:SetValue(hasProfileSettings)
-            end
-
-            form.profileCheckbox = profileCheckbox
-            local isProfile = profileCheckbox:GetValue()
-            form.Fill = widgetFormFunctions.Fill
-            form:SetTargetWidget(name, isProfile)
-            frame.rpane:AddChild(form)
-            CURRENT_FORM = form
-            frame.header:Update(name, isProfile)
-        end
+        frame:SelectForConfig(name)
     end)
 
     frame.rpane = treegroup
