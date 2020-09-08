@@ -59,7 +59,7 @@ function ns.AddFontDropdown(form, relWidth, title, dataKey, defaultValue, onChan
     local dropdown = AceGUI:Create("LSM30_Font")
     dropdown:SetLabel(title)
     dropdown:SetRelativeWidth(relWidth)
-    dropdown:SetList()
+    dropdown:SetList() -- Internally it falls back to LibStub("LibSharedMedia-3.0"):HashTable("font")
     dropdown:SetCallback("OnValueChanged", function(self, event, value)
         if value == defaultValue then value = nil end
         self.parent.target[dataKey] = value
@@ -71,7 +71,7 @@ function ns.AddFontDropdown(form, relWidth, title, dataKey, defaultValue, onChan
     form:AddChild(dropdown)
 end
 
-function ns.AddCheckbox(form, relWidth, title, dataKey, defaultValue, values, onChangedCallback)
+function ns.AddCheckbox(form, relWidth, title, dataKey, defaultValue, onChangedCallback)
     local checkbox = AceGUI:Create("CheckBox")
     checkbox:SetLabel(title)
     checkbox:SetRelativeWidth(relWidth)
@@ -171,6 +171,22 @@ local function FillSizeSettings(form, opts, popts, gopts)
     Control_SetValue(form, "width", opts, gopts)
 end
 
+local growthDirections = {
+    UP = "UP",
+    DOWN = "DOWN",
+    LEFT = "LEFT",
+    RIGHT = "RIGHT",
+}
+
+local function CreateArraySettings(form)
+    local growth = ns.AddDropdown(form, 0.46, L"Growth Direction", "growth", "UP", growthDirections, callbackUpdateForm)
+    local max = ns.AddSlider(form, 0.46, L"Max Size", "max", 4, 0, 10, 1, callbackUpdateForm)
+end
+local function FillArraySettings(form, opts, popts, gopts)
+    Control_SetValue(form, "growth", opts, gopts)
+    Control_SetValue(form, "max", opts, gopts)
+end
+
 -- Icon
 ns.WidgetForms.Icon = {}
 function ns.WidgetForms.Icon.Create(form)
@@ -178,23 +194,148 @@ function ns.WidgetForms.Icon.Create(form)
 
     CreateSizeSettings(form)
     CreateAnchorSettings(form)
-    local alpha = ns.AddSlider(form, 0.46, L"Alpha", "alpha", 1, 0, 1, 0.05, callbackUpdateForm)
-
-    local font = ns.AddFontDropdown(form, 0.46, L"Stacks font", "font", "Clear Font", callbackUpdateForm)
-    -- local fonts = LibStub("LibSharedMedia-3.0"):HashTable("font")
-    -- local font = ns.AddDropdown(form, 0.46, L"Stacks font", "font", "ClearFont", fonts)
-
+    local font = ns.AddFontDropdown(form, 0.46, L"Stacks Font", "font", "ClearFont", callbackUpdateForm)
+    local textsize = ns.AddSlider(form, 0.46, L"Font Size", "textsize", 12, 6, 30, 1, callbackUpdateForm)
+    local alpha = ns.AddSlider(form, 0.95, L"Alpha", "alpha", 1, 0, 1, 0.05, callbackUpdateForm)
+    local outline = ns.AddCheckbox(form, 0.46, L"Outline", "outline", false, callbackUpdateForm)
+    local edge = ns.AddCheckbox(form, 0.46, L"Edge", "edge", true, callbackUpdateForm)
 
     return form
 end
 
 function ns.WidgetForms.Icon.Fill(form, name, opts, popts, gopts)
-    local controls = form.controls
     FillSizeSettings(form, opts, popts, gopts)
     FillAnchorSettings(form, opts, popts, gopts)
 
-    Control_SetValue(form, "alpha", opts, gopts)
     Control_SetValue(form, "font", opts, gopts)
+    Control_SetValue(form, "textsize", opts, gopts)
+    Control_SetValue(form, "alpha", opts, gopts)
+    Control_SetValue(form, "outline", opts, gopts)
+    Control_SetValue(form, "edge", opts, gopts)
 end
 
 -- ProgressIcon
+ns.WidgetForms.ProgressIcon = ns.WidgetForms.Icon
+
+-- IconArray
+ns.WidgetForms.IconArray = {}
+function ns.WidgetForms.IconArray.Create(form)
+    form = form or ns.WidgetForms.Icon.Create(form)
+    CreateArraySettings(form)
+    return form
+end
+
+function ns.WidgetForms.IconArray.Fill(form, name, opts, popts, gopts)
+    ns.WidgetForms.Icon.Fill(form, name, opts, popts, gopts)
+    FillArraySettings(form, opts, popts, gopts)
+end
+
+-- DebuffIcon
+
+ns.WidgetForms.DebuffIcon = {}
+
+local borderStyles = {
+    STRIP_RIGHT = "Right Strip",
+    STRIP_BOTTOM = "Bottom Strip",
+    BORDER = "Border",
+}
+function ns.WidgetForms.DebuffIcon.Create(form)
+    form = form or ns.WidgetForms.Icon.Create(form)
+    local style = ns.AddDropdown(form, 0.46, L"Border Style", "style", "STRIP_RIGHT", borderStyles, callbackUpdateForm)
+    local animdir = ns.AddDropdown(form, 0.46, L"Animation Direction", "animdir", "LEFT", growthDirections, callbackUpdateForm)
+    return form
+end
+
+function ns.WidgetForms.DebuffIcon.Fill(form, name, opts, popts, gopts)
+    ns.WidgetForms.Icon.Fill(form, name, opts, popts, gopts)
+    Control_SetValue(form, "style", opts, gopts)
+    Control_SetValue(form, "animdir", opts, gopts)
+end
+
+-- DebuffIconArray
+
+ns.WidgetForms.DebuffIconArray = {}
+function ns.WidgetForms.DebuffIconArray.Create(form)
+    form = form or ns.WidgetForms.DebuffIcon.Create(form)
+    CreateArraySettings(form)
+    return form
+end
+
+function ns.WidgetForms.DebuffIconArray.Fill(form, name, opts, popts, gopts)
+    ns.WidgetForms.DebuffIcon.Fill(form, name, opts, popts, gopts)
+    FillArraySettings(form, opts, popts, gopts)
+end
+
+
+-- Indicator
+ns.WidgetForms.Indicator = {}
+function ns.WidgetForms.Indicator.Create(form)
+    form = form or ns.InitForm()
+
+    CreateSizeSettings(form)
+    CreateAnchorSettings(form)
+
+    return form
+end
+
+function ns.WidgetForms.Indicator.Fill(form, name, opts, popts, gopts)
+    FillSizeSettings(form, opts, popts, gopts)
+    FillAnchorSettings(form, opts, popts, gopts)
+end
+
+-- Bar
+
+ns.WidgetForms.Bar = {}
+function ns.WidgetForms.Bar.Create(form)
+    form = form or ns.InitForm()
+
+    CreateSizeSettings(form)
+    CreateAnchorSettings(form)
+    local vertical = ns.AddCheckbox(form, 0.95, L"Vertical", "vertical", false, callbackUpdateForm)
+
+    return form
+end
+
+function ns.WidgetForms.Bar.Fill(form, name, opts, popts, gopts)
+    FillSizeSettings(form, opts, popts, gopts)
+    FillAnchorSettings(form, opts, popts, gopts)
+    Control_SetValue(form, "vertical", opts, gopts)
+end
+
+-- BarArray
+
+ns.WidgetForms.BarArray = {}
+function ns.WidgetForms.BarArray.Create(form)
+    form = form or ns.WidgetForms.Bar.Create(form)
+    CreateArraySettings(form)
+    return form
+end
+
+function ns.WidgetForms.BarArray.Fill(form, name, opts, popts, gopts)
+    ns.WidgetForms.Bar.Fill(form, name, opts, popts, gopts)
+    FillArraySettings(form, opts, popts, gopts)
+end
+
+
+-- Text
+
+ns.WidgetForms.Text = {}
+function ns.WidgetForms.Text.Create(form)
+    form = form or ns.InitForm()
+
+    CreateAnchorSettings(form)
+    local font = ns.AddFontDropdown(form, 0.46, L"Font", "font", "ClearFont", callbackUpdateForm)
+    local textsize = ns.AddSlider(form, 0.46, L"Font Size", "textsize", 12, 6, 30, 1, callbackUpdateForm)
+
+    return form
+end
+
+function ns.WidgetForms.Text.Fill(form, name, opts, popts, gopts)
+    FillAnchorSettings(form, opts, popts, gopts)
+    Control_SetValue(form, "font", opts, gopts)
+    Control_SetValue(form, "textsize", opts, gopts)
+end
+
+-- StaticText
+
+ns.WidgetForms.StaticText = ns.WidgetForms.Text

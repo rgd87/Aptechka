@@ -109,14 +109,8 @@ function ns.CreateWidgetConfig(name, parent)
     treegroup:SetFullHeight(true)
     treegroup:SetFullWidth(true)
     treegroup:EnableButtonTooltips(false)
-    treegroup:SetCallback("OnGroupSelected", function(self, event, group)
-        local path = {}
-        for match in string.gmatch(group, '([^\001]+)') do
-            table.insert(path, match)
-        end
-
-        local name = unpack(path)
-        print(name, group)
+    treegroup:SetCallback("OnGroupSelected", function(self, event, path)
+        local name = path
 
         local gwidgets = Aptechka.db.global.widgetConfig
         local gwidget = gwidgets[name]
