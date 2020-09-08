@@ -96,6 +96,7 @@ globals = {
     "AptechkaConfigMerged",
     "AptechkaConfigCustom",
     "Aptechka",
+    "AptechkaOptions",
     "AptechkaGUI",
     "AptechkaDB_Global",
     "AptechkaDB_Char",

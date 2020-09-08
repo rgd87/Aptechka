@@ -73,18 +73,17 @@ end
 
 local CURRENT_FORM
 
-local function MakeCheckbox(name, parent)
-    local cb = CreateFrame("CheckButton", name, parent, "UICheckButtonTemplate")
-    cb:SetWidth(25)
-    cb:SetHeight(25)
-    cb:Show()
 
-    local cblabel = cb:CreateFontString(nil, "OVERLAY")
-    cblabel:SetFontObject("GameFontHighlight")
-    cblabel:SetPoint("LEFT", cb,"RIGHT", 5,0)
-    cb.label = cblabel
-    return cb
+local function UpdateHeader(header, name, isProfile)
+    local popts, gopts = Aptechka:GetWidgetsOptions(name)
+    local isProtected = AptechkaDefaultConfig.DefaultWidgets[name]
+    header.delete:SetDisabled(isProtected)
+    header.reset:SetDisabled(not isProtected)
+
+    local hasProfileSettings = popts and next(popts)
+    header.profileClear:SetDisabled(not hasProfileSettings)
 end
+
 
 local formCache = {
 }
@@ -94,15 +93,66 @@ function ns.CreateWidgetConfig(name, parent)
     local frame = AceGUI:Create("BlizOptionsGroup")
     frame:SetName(name, parent)
     frame:SetTitle("Aptechka "..L"Widget Config")
-    frame:SetLayout("Fill")
+    -- frame:SetLayout("Fill")
+    frame:SetLayout("Flow")
 
-    local profileCheckbox = MakeCheckbox("AptWidgetProfileSpecificSwitch", frame.frame)
-    profileCheckbox:SetPoint("TOPLEFT", 220, -13)
-    profileCheckbox.label:SetText("Profile-specific")
-    profileCheckbox:SetScript("OnClick",function(self,button)
-        self.value = not self.value
-        CURRENT_FORM:SetTargetWidget(CURRENT_FORM.widgetName, self.value)
+
+    frame.header = {}
+    frame.header.Update = UpdateHeader
+
+    local new = AceGUI:Create("Button")
+    new:SetText(L"New")
+    new:SetRelativeWidth(0.14)
+    new:SetCallback("OnClick", function(self, event)
+
     end)
+    frame:AddChild(new)
+    frame.header.new = new
+
+    local delete = AceGUI:Create("Button")
+    delete:SetText(L"Delete")
+    delete:SetDisabled(true)
+    delete:SetRelativeWidth(0.15)
+    delete:SetCallback("OnClick", function(self, event)
+
+    end)
+    frame:AddChild(delete)
+    frame.header.delete = delete
+
+    local profileCheckbox = AceGUI:Create("CheckBox")
+    -- profileCheckbox:SetLabel(L"Profile-specific")
+    profileCheckbox.Update = function(self)
+        self:SetLabel(string.format("%s : %s", L"Profile-specific", Aptechka.db:GetCurrentProfile()))
+    end
+    profileCheckbox:Update()
+    profileCheckbox:SetRelativeWidth(0.37)
+    profileCheckbox:SetCallback("OnValueChanged", function(self, event, value)
+        CURRENT_FORM:SetTargetWidget(CURRENT_FORM.widgetName, value)
+    end)
+    frame.header.profileCheckbox = profileCheckbox
+    frame:AddChild(profileCheckbox)
+
+    local profileClear = AceGUI:Create("Button")
+    profileClear:SetText(L"Profile Clear")
+    profileClear:SetDisabled(true)
+    profileClear:SetRelativeWidth(0.2)
+    profileClear:SetCallback("OnClick", function(self, event)
+
+    end)
+    frame:AddChild(profileClear)
+    frame.header.profileClear = profileClear
+
+    local reset = AceGUI:Create("Button")
+    reset:SetText(L"Reset")
+    reset:SetDisabled(true)
+    reset:SetRelativeWidth(0.13)
+    reset:SetCallback("OnClick", function(self, event)
+
+    end)
+    frame:AddChild(reset)
+    frame.header.reset = reset
+
+
 
 
     local treegroup = AceGUI:Create("TreeGroup") -- "InlineGroup" is also good
@@ -132,16 +182,16 @@ function ns.CreateWidgetConfig(name, parent)
             -- Setting initial profile-specific flag
             if form.isProfile == nil then
                 local hasProfileSettings = Aptechka.db.profile.widgetConfig and Aptechka.db.profile.widgetConfig[name]
-                profileCheckbox:SetChecked(hasProfileSettings)
-                profileCheckbox.value = hasProfileSettings
+                profileCheckbox:SetValue(hasProfileSettings)
             end
 
             form.profileCheckbox = profileCheckbox
-            local isProfile = profileCheckbox:GetChecked()
+            local isProfile = profileCheckbox:GetValue()
             form.Fill = widgetFormFunctions.Fill
             form:SetTargetWidget(name, isProfile)
             frame.rpane:AddChild(form)
             CURRENT_FORM = form
+            frame.header:Update(name, isProfile)
         end
     end)
 
@@ -187,8 +237,11 @@ function ns.CreateWidgetConfig(name, parent)
         return t
     end
 
-
     local t = treegroup:UpdateWidgetTree()
+    frame:SetCallback("OnShow", function(self)
+        self.tree:UpdateWidgetTree()
+        self.header.profileCheckbox:Update()
+    end)
 
     frame:AddChild(treegroup)
 

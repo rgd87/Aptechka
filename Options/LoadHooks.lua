@@ -16,12 +16,12 @@ f.elements = ns.MakeElementConfig()
 f.highlighting = ns.MakeDebuffHighlight()
 
 ns.frame = ns.CreateWidgetSpellList(L"Spell List", "Aptechka")
-f.spell_list = ns.frame.frame
-InterfaceOptions_AddCategory(f.spell_list);
+f.spellList = ns.frame.frame
+InterfaceOptions_AddCategory(f.spellList);
 
 local wconfig = ns.CreateWidgetConfig(L"Widget Config", "Aptechka")
-f.widget_config = wconfig.frame
-InterfaceOptions_AddCategory(f.widget_config);
+f.widgetConfig = wconfig
+InterfaceOptions_AddCategory(f.widgetConfig.frame);
 
 f:Hide()
 f:SetScript("OnShow", function(self)

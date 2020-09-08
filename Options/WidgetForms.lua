@@ -133,6 +133,7 @@ local function callbackUpdateForm(form, key, value)
     local name = form.widgetName
     Aptechka:ReconfigureWidget(name)
     form:Refill();
+    AptechkaOptions.widgetConfig.header:Update()
 end
 
 
