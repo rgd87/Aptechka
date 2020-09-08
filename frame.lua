@@ -55,6 +55,14 @@ function Aptechka:GetWidgetsOptions(name)
     local popts = Aptechka.db.profile.widgetConfig and Aptechka.db.profile.widgetConfig[name]
     return popts, gopts
 end
+function Aptechka:GetWidgetsOptionsOrCreate(name)
+    local popts, gopts = self:GetWidgetsOptions(name)
+    if not popts then
+        Aptechka.util.MakeTables(Aptechka.db.profile, "widgetConfig", name)
+        popts = Aptechka.db.profile.widgetConfig[name]
+    end
+    return popts, gopts
+end
 function Aptechka:GetWidgetsOptionsMerged(name)
     return InheritGlobalOptions(Aptechka:GetWidgetsOptions(name))
 end

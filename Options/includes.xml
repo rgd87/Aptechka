@@ -13,6 +13,7 @@
     <Script file="GlobalSettings.lua"/>
     <Script file="ProfileSettings.lua"/>
     <Script file="ProfileSelection.lua"/>
+    <Script file="WidgetForms.lua"/>
     <Script file="WidgetConfig.lua"/>
     <Script file="ElementConfig.lua"/>
     <Script file="DebuffHighlight.lua"/>
