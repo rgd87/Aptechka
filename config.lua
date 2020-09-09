@@ -569,7 +569,7 @@ helpers.auraBlacklist = {
     [256200] = true, -- Heartstopper Venom, Tol'Dagor
     [271544] = true, -- Ablative Shielding, Tank Azerite trait
 
-    [45182] = true, -- Cheat Death cooldown
+    [45181] = true, -- Cheat Death cooldown
     [187464] = true, -- Shadowmend debuff
 
     -- PvP trash debuffs
@@ -615,14 +615,12 @@ helpers.auraBlacklist = {
     [273299] = true, -- 8.0 Monk Azerite Trait Sunrise Technique, Taking additional damage from Melee abilities.
 
     -- WARRIOR
-    [262115] = true, -- 8.0 Warrior Deep Wounds 6s
 
     -- DEMON HUNTER
     [1490] = true, -- 8.0 DH: Chaos Brand, Magic damage taken increased by 5%.
     [258860] = true, -- 8.0 DH: Dark Slash
 
     -- DEATH KNIGHT
-    [199720] = true, -- 8.0 DK PvP Talent, Decomposing Aura, Your body is decaying, losing 3% maximum health every 5 sec.
     [214968] = true, -- 8.0 DK PvP Talent, Necrotic Aura, Taking 8% increased magical damage.
     [214975] = true, -- 8.0 DK PvP Talent, Heartstop Aura, Cooldown recovery rate decreased by 20%.
     [51714] = true, -- 8.0 Frost DK:  Razorice, Frost damage taken from the Death Knight's abilities increased by 3%.
@@ -655,13 +653,12 @@ helpers.auraBlacklist = {
     [32390] = true, -- Aff Warlock Talent: Shadow Embrace
     [198590] = true, -- Aff Warlock: Drain Soul
     [234153] = true, -- Warlock: Drain Life
-    [265931] = true, -- Destruction Warlock: Conflagrate
 
     -- HUNTER
     -- [131894] = true, -- Hunter: A Murder of Crows
     [259277] = true, -- Survival Hunter: Bloodseeker
     -- Wildfire Bombs
-    [269747] = true, -- Wildfire Bomb
+    -- [269747] = true, -- Wildfire Bomb
     [271049] = true, -- Volatile Wildfire
     [270339] = true, -- Scorching Shrapnel
     [270332] = true, -- Scorching Pheromones

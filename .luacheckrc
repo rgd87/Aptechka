@@ -219,6 +219,7 @@ globals = {
     "C_CreatureInfo",
     "AptechkaHybridScrollMixin",
     "AptechkaHighlightHybridScrollFrame",
+    "AptechkaBlacklistHybridScrollFrame",
     "HybridScrollFrame_SetDoNotHideScrollBar",
     "HybridScrollFrame_CreateButtons",
     "HybridScrollFrame_GetButtons",

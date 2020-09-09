@@ -60,7 +60,7 @@ local config = AptechkaDefaultConfig
 Aptechka.loadedAuras = {}
 local loadedAuras = Aptechka.loadedAuras
 local customBossAuras = helpers.customBossAuras
-local default_blacklist = helpers.auraBlacklist
+local defaultBlacklist = helpers.auraBlacklist
 local blacklist
 local importantTargetedCasts = helpers.importantTargetedCasts
 local loaded = {}
@@ -243,13 +243,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
     colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
 
+    local customBlacklist = AptechkaDB.global.customBlacklist
     blacklist = setmetatable({}, {
         __index = function(t,k)
-            if AptechkaDB.global.customBlacklist[k] == nil then
-                return default_blacklist[k]
-            else
-                return AptechkaDB.global.customBlacklist[k]
-            end
+            return customBlacklist[k] or defaultBlacklist[k]
         end,
     })
 
@@ -3229,14 +3226,14 @@ Aptechka.Commands = {
             local spellID = tonumber(args)
             if spellID then
                 local val = nil
-                if default_blacklist[spellID] then val = false end -- if nil it'll fallback on __index
+                if defaultBlacklist[spellID] then val = false end -- if nil it'll fallback on __index
                 Aptechka.db.global.customBlacklist[spellID] = val
                 local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
                 print(string.format("%s (%d) removed from debuff blacklist", spellName, spellID))
             end
         else
             print("Default blacklist:")
-            for spellID in pairs(default_blacklist) do
+            for spellID in pairs(defaultBlacklist) do
                 local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
                 print(string.format("    %s (%d)", spellName, spellID))
             end

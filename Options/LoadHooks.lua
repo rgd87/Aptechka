@@ -22,7 +22,7 @@ f.spellList = ns.frame.frame
 InterfaceOptions_AddCategory(f.spellList);
 
 f.status = ns.MakeStatusConfig()
-f.blacklist = ns.MakeBlacklistHelp()
+f.blacklist = ns.MakeBlacklist()
 
 f:Hide()
 f:SetScript("OnShow", function(self)

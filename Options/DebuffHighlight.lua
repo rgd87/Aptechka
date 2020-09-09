@@ -89,35 +89,37 @@ local function GenListItems()
         return ap > bp
     end)
 
-    local orderedBlackList = {}
+    local orderedList = {}
 
     -- for category, spells in pairs(merged) do
     for i, category in ipairs(orderedCategories) do
         local spells = merged[category]
 
-        table.insert(orderedBlackList, { -19, category })
+        -- Adding a header for the category
+        table.insert(orderedList, { -19, category })
         local count = 0
         for spellId, opts in pairs(spells) do
-            table.insert(orderedBlackList, opts)
+            -- Adding all its spells
+            table.insert(orderedList, opts)
             count = count + 1
         end
-        if count == 0 then -- Remove empty headers
-            table.remove(orderedBlackList)
+        if count == 0 then -- Remove empty header (previously created), if it was empty
+            table.remove(orderedList)
         end
     end
     -- for spellId, comment in pairs(listMap) do
     --     if comment == true then comment = GetSpellInfo(spellId) end
-    --     table.insert(orderedBlackList, { spellId, comment })
+    --     table.insert(orderedList, { spellId, comment })
     -- end
 
-    return orderedBlackList;
+    return orderedList;
 end
 
 AptechkaHybridScrollMixin = {};
 
 function AptechkaHybridScrollMixin:RefreshItems()
     -- Create the item model that we'll be displaying.
-    self.items = GenListItems()
+    self.items = self:GenListItems()
 end
 
 function AptechkaHybridScrollMixin:Initialize()
@@ -404,6 +406,8 @@ function ns.MakeDebuffHighlight()
             -- end)
 
             local f = CreateFrame("Frame", "AptechkaHighlightHybridScrollFrame", panel, "AptechkaHybridScrollFrameTemplate")
+            f.GenListItems = GenListItems
+            Mixin(f, AptechkaHybridScrollMixin)
             -- f:SetWidth(623)
             f:SetWidth(603)
             f:SetHeight(450)
@@ -434,6 +438,7 @@ function ns.MakeDebuffHighlight()
     return panel
 end
 
+--[=[
 function ns.MakeBlacklistHelp()
     local opt = {
         type = 'group',
@@ -463,6 +468,7 @@ Blacklist is only accesible with console commands:
 
     return panelFrame
 end
+]=]
 
 --[[
 local BUTTON_HEIGHT = 16
