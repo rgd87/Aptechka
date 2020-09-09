@@ -343,19 +343,14 @@ end
 
 local cleanOpts = function(opts, status, list)
     if not opts.assignto then return end
-    if type(opts.assignto) == "string" then
-        local slot = opts.assignto
-        if not list[slot] then opts.assignto = { } end
-    else
-        local i = 1
-        while (i <= #opts.assignto) do
-            local slot = opts.assignto[i]
-            if not list[slot] then
-                table.remove(opts.assignto, i)
-                i = i - 1
-            end
-            i = i + 1
+    local toRemove = {}
+    for slot, enabled in pairs(opts.assignto) do
+        if not list[slot] then
+            table.insert(toRemove, slot)
         end
+    end
+    for _, slot in ipairs(toRemove) do
+        opts.assignto[slot] = nil
     end
 end
 
