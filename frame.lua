@@ -477,9 +477,9 @@ end
 
 
 -------------------------------------------------------------------------------------------
--- CORNER
+-- Texture
 -------------------------------------------------------------------------------------------
-local function Corner_StartTrace(self, job)
+local function Texture_StartTrace(self, job)
     if self.traceJob and self.traceJob.priority > job.priority then
         return
     end
@@ -505,7 +505,7 @@ local function Corner_StartTrace(self, job)
     self.blink:Play()
 end
 
-local SetJob_Corner = function(self, job, state, contentType, ...)
+local SetJob_Texture = function(self, job, state, contentType, ...)
     if self.traceJob then return end -- widget is busy with animation
     if self.currentJob ~= self.previousJob then
         local r,g,b,a = GetColor(job)
@@ -522,44 +522,79 @@ local SetJob_Corner = function(self, job, state, contentType, ...)
     end
 end
 
-local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrderMod)
+Aptechka.Widget.Texture = {}
+Aptechka.Widget.Texture.default = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 0}
+
+function Aptechka.Widget.Texture.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+
     local f = CreateFrame("Frame",nil,parent)
-    f:SetWidth(w); f:SetHeight(h);
+    f:SetWidth(pixelperfect(opts.width));
+    f:SetHeight(pixelperfect(opts.height));
 
-    zOrderMod = zOrderMod or 0
+    local zOrderMod = opts.zorder or 0
 
-    local t = f:CreateTexture(nil,"ARTWORK", nil, 0+zOrderMod )
-    t:SetTexture[[Interface\AddOns\Aptechka\corner]]
-    if orientation == "BOTTOMLEFT" then
+    local t = f:CreateTexture(nil,"ARTWORK")
+
+    t:SetDrawLayer("ARTWORK", zOrderMod)
+
+    t:SetTexture(opts.texture)
+
+    local rotation = opts.rotation
+    if rotation == 90 then -- BOTTOMLEFT
         -- (ULx,ULy,LLx,LLy,URx,URy,LRx,LRy);
-        -- 00 1
         t:SetTexCoord(1,0,1,1,0,0,0,1)
-    elseif orientation == "TOPRIGHT" then
-        t:SetTexCoord(0,1,0,0,1,1,1,0)
-    elseif orientation == "TOPLEFT" then
+    elseif rotation == 180 then -- TOPLEFT
         t:SetTexCoord(1,1,0,1,1,0,0,0)
+    elseif rotation == 270 then -- TOPRIGHT
+        t:SetTexCoord(0,1,0,0,1,1,1,0)
+    else
+        t:SetTexCoord(0,1, 0,1) -- STRAIGHT / BOTTOMRIGHT
     end
+
+
     t:SetAllPoints(f)
 
-    if point == "TOPRIGHT" then
-        t:SetTexCoord(0,1,1,0)
-    elseif point == "TOPLEFT" then
-        t:SetTexCoord(1,0,1,0)
-    elseif point == "BOTTOMLEFT" then
-        t:SetTexCoord(1,0,0,1)
-    end
-
     f.color = t
-    f:SetPoint(point,frame,to,x,y)
+
+    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     f.parent = parent
-    f.SetJob = SetJob_Corner
-    f.StartTrace = Corner_StartTrace
+    f.SetJob = SetJob_Texture
+    f.StartTrace = Texture_StartTrace
 
     AddBlinkAnimation(f)
     AddPulseAnimation(f)
 
     f:Hide()
+
     return f
+end
+function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+
+    f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
+
+    f:ClearAllPoints()
+    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+
+    local t = f.color
+
+    t:SetTexture(opts.texture)
+
+    local zOrderMod = opts.zorder or 0
+    t:SetDrawLayer("ARTWORK", zOrderMod)
+
+    local rotation = opts.rotation
+    if rotation == 90 then -- BOTTOMLEFT
+        -- (ULx,ULy,LLx,LLy,URx,URy,LRx,LRy);
+        t:SetTexCoord(1,0,1,1,0,0,0,1)
+    elseif rotation == 180 then -- TOPLEFT
+        t:SetTexCoord(1,1,0,1,1,0,0,0)
+    elseif rotation == 270 then -- TOPRIGHT
+        t:SetTexCoord(0,1,0,0,1,1,1,0)
+    else
+        t:SetTexCoord(0,1, 0,1) -- STRAIGHT / BOTTOMRIGHT
+    end
 end
 
 -------------------------------------------------------------------------------------------
@@ -2549,8 +2584,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local bossdebuff = Aptechka.Widget.Indicator.Create(self, Aptechka:GetWidgetsOptions("bossdebuff"))
     local bossdebuff = border
 
-    local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
-    self.healfeedback = trcorner
+    -- local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
+    -- self.healfeedback = trcorner
 
     local casticon_opts = Aptechka:GetWidgetsOptionsMerged("incomingCastIcon")
     local incomingCastIcon = Aptechka.Widget.ProgressIcon.Create(self, nil, casticon_opts)

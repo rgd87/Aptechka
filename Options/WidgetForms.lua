@@ -54,6 +54,20 @@ function ns.AddDropdown(form, relWidth, title, dataKey, defaultValue, values, on
     return dropdown
 end
 
+function ns.AddEditbox(form, relWidth, title, dataKey, defaultValue, onChangedCallback)
+    local dropdown = AceGUI:Create("EditBox")
+    dropdown:SetLabel(title)
+    dropdown:SetRelativeWidth(relWidth)
+    dropdown:SetCallback("OnTextChanged", function(self, event, value)
+        self.parent.target[dataKey] = value
+        onChangedCallback(self.parent, dataKey, value)
+    end)
+    form.controls[dataKey] = dropdown
+    form:AddChild(dropdown)
+    AddAsterix(dropdown)
+    return dropdown
+end
+
 function ns.AddFontDropdown(form, relWidth, title, dataKey, defaultValue, onChangedCallback)
     local dropdown = AceGUI:Create("LSM30_Font")
     dropdown:SetLabel(title)
@@ -135,21 +149,24 @@ local function callbackUpdateForm(form, key, value)
     AptechkaOptions.widgetConfig.header:Update()
 end
 
-
-local function Control_SetValue(form, key, opts, gopts, isProfile)
-    local control = form.controls[key]
-    control:SetValue(opts[key])
-    if opts == gopts then
-        control.asterix:Hide()
-    else
-        if opts[key] ~= gopts[key] then
-            control.asterix:Show()
-        else
-            opts[key] = nil
+local function MakeControlSetter(setFuncName)
+    return function(form, key, opts, gopts, isProfile)
+        local control = form.controls[key]
+        control[setFuncName](control, opts[key])
+        if opts == gopts then
             control.asterix:Hide()
+        else
+            if opts[key] ~= gopts[key] then
+                control.asterix:Show()
+            else
+                opts[key] = nil
+                control.asterix:Hide()
+            end
         end
     end
 end
+local Control_SetValue = MakeControlSetter("SetValue")
+local Control_SetText = MakeControlSetter("SetText")
 
 local function CreateAnchorSettings(form)
     local point = ns.AddDropdown(form, 0.3, L"Point", "point", "TOPLEFT", framePoints, callbackUpdateForm)
@@ -351,3 +368,35 @@ end
 -- StaticText
 
 ns.WidgetForms.StaticText = ns.WidgetForms.Text
+
+-- Texture
+
+ns.WidgetForms.Texture = {}
+
+local rotationAngles = {
+    [0] = "0°",
+    [90] = "90°",
+    [180] = "180°",
+    [270] = "270°",
+}
+
+function ns.WidgetForms.Texture.Create(form)
+    form = form or ns.InitForm()
+
+    CreateSizeSettings(form)
+    CreateAnchorSettings(form)
+    local texture = ns.AddEditbox(form, 0.95, L"Texture", "texture", "", callbackUpdateForm)
+    local rotation = ns.AddDropdown(form, 0.46, L"Rotation", "rotation", 0, rotationAngles, callbackUpdateForm)
+    local zorder = ns.AddSlider(form, 0.46, L"Z-Order", "zorder", 0, -5, 5, 1, callbackUpdateForm)
+
+    return form
+end
+
+function ns.WidgetForms.Texture.Fill(form, name, opts, popts, gopts)
+    FillSizeSettings(form, opts, popts, gopts)
+    FillAnchorSettings(form, opts, popts, gopts)
+    Control_SetText(form, "texture", opts, gopts)
+    Control_SetValue(form, "rotation", opts, gopts)
+    Control_SetValue(form, "zorder", opts, gopts)
+
+end

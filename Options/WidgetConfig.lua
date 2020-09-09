@@ -294,6 +294,7 @@ function ns.CreateWidgetConfig(name, parent)
         Indicator = "Interface\\Icons\\spell_frost_windwalkon",
         DebuffIcon = "Interface\\Icons\\spell_shadow_curseofsargeras",
         DebuffIconArray = "Interface\\Icons\\spell_shadow_curseofsargeras",
+        Texture = "Interface\\Icons\\spell_shadow_ritualofsacrifice",
     }
 
     treegroup.UpdateWidgetTree = function(self)
