@@ -2501,7 +2501,7 @@ function Aptechka.OrderedDebuffPostUpdate(frame, unit)
             isBossAura = true
         end
 
-        fill = fill + (isBossAura and AptechkaDB.profile.debuffBossScale or 1)
+        fill = fill + (isBossAura and Aptechka._BossDebuffScale or 1)
 
         if fill <= debuffLineLength then
             shown = shown + 1
@@ -2545,7 +2545,7 @@ function Aptechka.SimpleDebuffPostUpdate(frame, unit)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot) -- UnitAura(unit, indexOrSlot, "HARMFUL")
         -- local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
 
-        fill = fill + (isBossAura and AptechkaDB.profile.debuffBossScale or 1)
+        fill = fill + (isBossAura and Aptechka._BossDebuffScale or 1)
 
         if fill <= debuffLineLength then
             shown = shown + 1
@@ -2772,7 +2772,7 @@ function Aptechka.TestDebuffSlots()
         local debuffType = debuffTypes[math.random(#debuffTypes)]
         local expirationTime = now + duration
         local isBossAura = shown < numBossAuras
-        fill = fill + (isBossAura and AptechkaDB.profile.debuffBossScale or 1)
+        fill = fill + (isBossAura and Aptechka._BossDebuffScale or 1)
 
         -- print(fill, debuffLineLength, fill < debuffLineLength)
 

@@ -605,39 +605,6 @@ function ns.MakeProfileSettings()
                             },
                         }
                     },
-
-                    debuffGroup = {
-                        type = "group",
-                        name = L"Debuffs",
-                        order = 17,
-                        args = {
-                            message = {
-                                name = L"Debuff Icons are now available as a widget. Use /apt widget info name=debuffIcons for their settings",
-                                type = "description",
-                                fontSize = "medium",
-                                width = "full",
-                                order = 1,
-                            },
-                            debuffBossScale = {
-                                name = L"Boss Aura Scale",
-                                type = "range",
-                                get = function(info) return Aptechka.db.profile.debuffBossScale end,
-                                set = function(info, v)
-                                    Aptechka.db.profile.debuffBossScale = v
-                                end,
-                                min = 1,
-                                max = 1.8,
-                                step = 0.01,
-                                order = 5,
-                            },
-                            debuffTest = {
-                                name = L"Test Debuffs",
-                                type = "execute",
-                                func = function() Aptechka.TestDebuffSlots() end,
-                                order = 10,
-                            },
-                        }
-                    },
                 },
             },
         },

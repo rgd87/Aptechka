@@ -259,12 +259,23 @@ ns.WidgetForms.DebuffIconArray = {}
 function ns.WidgetForms.DebuffIconArray.Create(form)
     form = form or ns.WidgetForms.DebuffIcon.Create(form)
     CreateArraySettings(form)
+    local bigscale = ns.AddSlider(form, 0.46, L"Boss Scale", "bigscale", 1.3, 1, 2, 0.05, callbackUpdateForm)
+
+    local test = AceGUI:Create("Button")
+    test:SetText(L"Test Debuffs")
+    test:SetRelativeWidth(0.46)
+    test:SetCallback("OnClick", function(self, event)
+        Aptechka.TestDebuffSlots()
+    end)
+    form:AddChild(test)
+
     return form
 end
 
 function ns.WidgetForms.DebuffIconArray.Fill(form, name, opts, popts, gopts)
     ns.WidgetForms.DebuffIcon.Fill(form, name, opts, popts, gopts)
     FillArraySettings(form, opts, popts, gopts)
+    Control_SetValue(form, "bigscale", opts, gopts)
 end
 
 

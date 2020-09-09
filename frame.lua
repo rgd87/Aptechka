@@ -1165,7 +1165,7 @@ local function DebuffIcon_SetJob(self, debuffType, expirationTime, duration, ico
     self:SetDebuffColor(color.r, color.g, color.b)
 
     if isBossAura then
-        self:SetScale(Aptechka.db.profile.debuffBossScale)
+        self:SetScale(Aptechka._BossDebuffScale)
     else
         self:SetScale(1)
     end
@@ -1355,7 +1355,13 @@ function Aptechka.Widget.DebuffIconArray.Create(parent, popts, gopts)
     hdr.SetDebuffIcon = DebuffIconArray_SetDebuffIcon
     return hdr
 end
-Aptechka.Widget.DebuffIconArray.Reconf = Aptechka.Widget.IconArray.Reconf
+function Aptechka.Widget.DebuffIconArray.Reconf(parent, hdr, popts, gopts)
+    Aptechka.Widget.IconArray.Reconf(parent, hdr, popts, gopts)
+
+    local opts = InheritGlobalOptions(popts, gopts)
+    Aptechka._BossDebuffScale = opts.bigscale
+end
+
 
 ----------------------------------------------------------
 -- Progress Icon
