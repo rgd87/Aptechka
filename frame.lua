@@ -1137,8 +1137,9 @@ local helpful_color = { r = 0, g = 1, b = 0}
 
 local function DebuffIcon_SetDebuffColor(self, r,g,b)
     self.debuffTypeTexture:SetVertexColor(r, g, b)
-    if self.outline then
-        self.outline:SetVertexColor(r,g,b)
+
+    if self.border then
+        self:SetBackdropBorderColor(r,g,b)
     end
 end
 
@@ -1170,6 +1171,10 @@ local function DebuffIcon_SetJob(self, debuffType, expirationTime, duration, ico
     end
 end
 
+local debuff_border_backdrop = {
+    edgeFile = "Interface\\AddOns\\Aptechka\\border_3px", edgeSize = 8, tileEdge = false,
+}
+
 local function DebuffIcon_SetDebuffStyle(self, opts)
     local it = self.texture
     local dtt = self.debuffTypeTexture
@@ -1182,6 +1187,7 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
 
     it:ClearAllPoints()
     dtt:ClearAllPoints()
+    self.border = nil
 
     if style  == "STRIP_RIGHT" then
         local dttLen = w*0.22
@@ -1194,21 +1200,34 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         dtt:SetTexCoord(0,1,0,1)
         dtt:SetDrawLayer("ARTWORK", -2)
         text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 2,-1)
+        if self.SetBackdrop then self:SetBackdrop(nil) end
+        dtt:Show()
     elseif style == "CORNER" then
-        self:SetSize(w+p*2,h+p*2)
-        if not self.outline then
-            self.outline = self:AddOutline()
-        end
-        self.outline:Show()
+        self:SetSize(w,h)
         it:SetSize(w,h)
-        it:SetPoint("TOPLEFT", self, "TOPLEFT", p, -p)
+        it:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
         local minLen = math.min(w,h)
 
-        dtt:SetTexture[[Interface\AddOns\Aptechka\corner]]
+        dtt:SetTexture[[Interface\AddOns\Aptechka\corner3]]
         dtt:SetTexCoord(0,1,0,1)
         dtt:SetSize(minLen*0.7, minLen*0.7)
         dtt:SetDrawLayer("ARTWORK", 3)
         dtt:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0,0)
+        if self.SetBackdrop then self:SetBackdrop(nil) end -- this resets backdrop color, so can't call it always
+        dtt:Show()
+    elseif style == "BORDER" then
+        self:SetSize(w,h)
+        if not self.SetBackdrop then
+            -- if BackdropTemplateMixin then
+                Mixin( self, BackdropTemplateMixin)
+            -- end
+        end
+        self.border = true
+        self:SetBackdrop(debuff_border_backdrop)
+        self:SetBackdropBorderColor(1,0,0)
+        it:SetSize(w-6*p,h-6*p)
+        it:SetPoint("TOPLEFT", self, "TOPLEFT", p*3, -p*3)
+        dtt:Hide()
     elseif style == "STRIP_BOTTOM" then
         local dttLen = h*0.25
         self:SetSize(w,h + dttLen)
@@ -1220,6 +1239,8 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         it:SetSize(w,h)
         it:SetPoint("BOTTOMLEFT", dtt, "TOPLEFT", 0, 0)
         text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 3,1)
+        if self.SetBackdrop then self:SetBackdrop(nil) end
+        dtt:Show()
     end
 end
 

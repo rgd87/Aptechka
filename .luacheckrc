@@ -124,6 +124,7 @@ globals = {
     "Clique",
 
     "InitiateRolePoll",
+    "Mixin",
     "C_IncomingSummon",
     "C_VoiceChat",
     "C_Map",

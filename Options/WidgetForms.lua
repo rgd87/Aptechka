@@ -239,6 +239,7 @@ ns.WidgetForms.DebuffIcon = {}
 local borderStyles = {
     STRIP_RIGHT = "Right Strip",
     STRIP_BOTTOM = "Bottom Strip",
+    CORNER = "Corner",
     BORDER = "Border",
 }
 function ns.WidgetForms.DebuffIcon.Create(form)
