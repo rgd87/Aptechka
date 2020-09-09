@@ -45,7 +45,6 @@ function ns.AddDropdown(form, relWidth, title, dataKey, defaultValue, values, on
     dropdown:SetRelativeWidth(relWidth)
     dropdown:SetList(values)
     dropdown:SetCallback("OnValueChanged", function(self, event, value)
-        if value == defaultValue then value = nil end
         self.parent.target[dataKey] = value
         onChangedCallback(self.parent, dataKey, value)
     end)
@@ -61,7 +60,6 @@ function ns.AddFontDropdown(form, relWidth, title, dataKey, defaultValue, onChan
     dropdown:SetRelativeWidth(relWidth)
     dropdown:SetList() -- Internally it falls back to LibStub("LibSharedMedia-3.0"):HashTable("font")
     dropdown:SetCallback("OnValueChanged", function(self, event, value)
-        if value == defaultValue then value = nil end
         self.parent.target[dataKey] = value
         self:SetValue(value or defaultValue)
         onChangedCallback(self.parent, dataKey, value)
