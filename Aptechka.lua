@@ -2888,6 +2888,14 @@ function Aptechka:RemoveWidget(wname)
     end)
 end
 
+function Aptechka:OpenGUI()
+    if not IsAddOnLoaded("AptechkaOptions") then
+        LoadAddOn("AptechkaOptions")
+    end
+    InterfaceOptionsFrame_OpenToCategory("Aptechka")
+    InterfaceOptionsFrame_OpenToCategory("Aptechka")
+end
+
 Aptechka.Commands = {
     ["unlockall"] = function()
         for _,anchor in pairs(anchors) do
@@ -2902,13 +2910,8 @@ Aptechka.Commands = {
             anchor:Hide()
         end
     end,
-    ["gui"] = function(v)
-        if not IsAddOnLoaded("AptechkaOptions") then
-            LoadAddOn("AptechkaOptions")
-        end
-        InterfaceOptionsFrame_OpenToCategory("Aptechka")
-        InterfaceOptionsFrame_OpenToCategory("Aptechka")
-    end,
+    ["gui"] = Aptechka.OpenGUI,
+    ["config"] = Aptechka.OpenGUI,
     ["reset"] = function()
         anchors[1].san.point = "CENTER"
         anchors[1].san.x = 0
