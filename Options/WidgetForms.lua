@@ -379,6 +379,10 @@ local rotationAngles = {
     [180] = "180°",
     [270] = "270°",
 }
+local blendModes = {
+    ADD = "ADD",
+    BLEND = "BLEND",
+}
 
 function ns.WidgetForms.Texture.Create(form)
     form = form or ns.InitForm()
@@ -388,6 +392,7 @@ function ns.WidgetForms.Texture.Create(form)
     local texture = ns.AddEditbox(form, 0.95, L"Texture", "texture", "", callbackUpdateForm)
     local rotation = ns.AddDropdown(form, 0.46, L"Rotation", "rotation", 0, rotationAngles, callbackUpdateForm)
     local zorder = ns.AddSlider(form, 0.46, L"Z-Order", "zorder", 0, -5, 5, 1, callbackUpdateForm)
+    local blendmode = ns.AddDropdown(form, 0.46, L"Blend Mode", "blendmode", "BLEND", blendModes, callbackUpdateForm)
 
     return form
 end
@@ -398,5 +403,6 @@ function ns.WidgetForms.Texture.Fill(form, name, opts, popts, gopts)
     Control_SetText(form, "texture", opts, gopts)
     Control_SetValue(form, "rotation", opts, gopts)
     Control_SetValue(form, "zorder", opts, gopts)
+    Control_SetValue(form, "blendmode", opts, gopts)
 
 end

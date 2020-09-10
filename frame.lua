@@ -523,7 +523,7 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
 end
 
 Aptechka.Widget.Texture = {}
-Aptechka.Widget.Texture.default = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 0}
+Aptechka.Widget.Texture.default = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 0, blendmode = "BLEND" }
 
 function Aptechka.Widget.Texture.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
@@ -539,6 +539,7 @@ function Aptechka.Widget.Texture.Create(parent, popts, gopts)
     t:SetDrawLayer("ARTWORK", zOrderMod)
 
     t:SetTexture(opts.texture)
+    t:SetBlendMode(opts.blendmode)
 
     local rotation = opts.rotation
     if rotation == 90 then -- BOTTOMLEFT
@@ -580,6 +581,7 @@ function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
     local t = f.color
 
     t:SetTexture(opts.texture)
+    t:SetBlendMode(opts.blendmode)
 
     local zOrderMod = opts.zorder or 0
     t:SetDrawLayer("ARTWORK", zOrderMod)
