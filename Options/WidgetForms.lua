@@ -320,7 +320,7 @@ function ns.WidgetForms.Bar.Create(form)
 
     CreateSizeSettings(form)
     CreateAnchorSettings(form)
-    local vertical = ns.AddCheckbox(form, 0.95, L"Vertical", "vertical", false, callbackUpdateForm)
+    local vertical = ns.AddCheckbox(form, 0.95, L"Vertical Bar", "vertical", false, callbackUpdateForm)
 
     return form
 end

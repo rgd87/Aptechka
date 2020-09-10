@@ -53,7 +53,7 @@ function ns.MakeProfileSettings()
                     curProfile = {
                         name = "",
                         type = 'select',
-                        width = 1.5,
+                        width = 1.2,
                         order = 1,
                         values = function()
                             return ns.GetProfileList(Aptechka.db)
@@ -69,7 +69,7 @@ function ns.MakeProfileSettings()
                         name = L"Copy",
                         type = 'execute',
                         order = 2,
-                        width = 0.5,
+                        width = 0.6,
                         func = function(info)
                             local p = Aptechka.db:GetCurrentProfile()
                             ns.storedProfile = p
@@ -79,7 +79,7 @@ function ns.MakeProfileSettings()
                         name = L"Paste",
                         type = 'execute',
                         order = 3,
-                        width = 0.5,
+                        width = 0.6,
                         disabled = function()
                             return ns.storedProfile == nil
                         end,
@@ -95,7 +95,7 @@ function ns.MakeProfileSettings()
                         order = 4,
                         confirm = true,
                         confirmText = L"Are you sure?",
-                        width = 0.5,
+                        width = 0.6,
                         disabled = function()
                             return Aptechka.db:GetCurrentProfile() == "Default"
                         end,
@@ -400,7 +400,6 @@ function ns.MakeProfileSettings()
                         type = "select",
                         name = L"Health Texture",
                         order = 13,
-                        desc = L"Set the statusbar texture.",
                         get = function(info) return Aptechka.db.profile.healthTexture end,
                         set = function(info, value)
                             Aptechka.db.profile.healthTexture = value
@@ -414,7 +413,6 @@ function ns.MakeProfileSettings()
                         type = "select",
                         name = L"Power Texture",
                         order = 14,
-                        desc = L"Set the statusbar texture.",
                         get = function(info) return Aptechka.db.profile.powerTexture end,
                         set = function(info, value)
                             Aptechka.db.profile.powerTexture = value

@@ -6,7 +6,7 @@ local L = Aptechka.L
 function ns.MakeStatusConfig()
     local opt = {
         type = 'group',
-        name = "Aptechka "..L"Status Config",
+        name = "Aptechka "..L"Status List",
         order = 1,
         args = {
         },

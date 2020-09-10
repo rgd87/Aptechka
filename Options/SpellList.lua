@@ -279,7 +279,7 @@ function ns.CreateCommonForm(self)
     Form:AddChild(save)
 
     local delete = AceGUI:Create("Button")
-    delete:SetText("Delete")
+    delete:SetText(L"Delete")
     save:SetRelativeWidth(0.5)
     delete:SetCallback("OnClick", function(self, event)
         local p = self.parent
@@ -298,7 +298,7 @@ function ns.CreateCommonForm(self)
     Form:AddChild(delete)
 
     local spellID = AceGUI:Create("EditBox")
-    spellID:SetLabel("Spell ID")
+    spellID:SetLabel(L"Spell ID")
     spellID:SetDisabled(true)
     spellID:DisableButton(true)
     spellID:SetRelativeWidth(0.2)
@@ -312,15 +312,12 @@ function ns.CreateCommonForm(self)
         end
         if value == "" then self.parent.opts["spellID"] = nil end
     end)
-    -- spellID:SetHeight(32)
-    -- spellID.alignoffset = 30
     Form.controls.spellID = spellID
     Form:AddChild(spellID)
 
     local name = AceGUI:Create("EditBox")
-    name:SetLabel("Internal Name")
+    name:SetLabel(L"Internal Name")
     name:SetDisabled(false)
-    -- name:SetFullWidth(true)
     name:SetRelativeWidth(0.5)
     -- name:SetCallback("OnEnterPressed", function(self, event, value)
         -- self.parent.opts["name"] = value
@@ -336,11 +333,10 @@ function ns.CreateCommonForm(self)
     -- name:SetHeight(32)
     Form.controls.name = name
     Form:AddChild(name)
-    AddTooltip(name, "Custom timer label.\nLeave blank to hide.")
 
     local disabled = AceGUI:Create("CheckBox")
-    disabled:SetLabel("Disabled")
-    disabled:SetRelativeWidth(0.2)
+    disabled:SetLabel(L"Disabled")
+    disabled:SetRelativeWidth(0.24)
     disabled:SetCallback("OnValueChanged", function(self, event, value)
         if value == false then value = nil end
         self.parent.opts["disabled"] = value
@@ -352,9 +348,9 @@ function ns.CreateCommonForm(self)
 
 
     local prio = AceGUI:Create("EditBox")
-    prio:SetLabel("Priority")
+    prio:SetLabel(L"Priority")
     -- prio:SetFullWidth(true)
-    prio:SetRelativeWidth(0.15)
+    prio:SetRelativeWidth(0.2)
     prio:DisableButton(true)
     prio:SetCallback("OnTextChanged", function(self, event, value)
         local v = tonumber(value)
@@ -372,9 +368,9 @@ function ns.CreateCommonForm(self)
 
 
     local assignto = AceGUI:Create("Dropdown")
-    assignto:SetLabel("Assign to")
+    assignto:SetLabel(L"Assign to")
     assignto:SetMultiselect(true)
-    assignto:SetRelativeWidth(0.30)
+    assignto:SetRelativeWidth(0.50)
     assignto:SetCallback("OnValueChanged", function(self, event, slot, enabled)
         if self.parent.opts["assignto"] == nil then self.parent.opts["assignto"] = {} end
         local t = self.parent.opts["assignto"]
@@ -382,7 +378,6 @@ function ns.CreateCommonForm(self)
     end)
     Form.controls.assignto = assignto
     Form:AddChild(assignto)
-    AddTooltip(assignto, "Assign to indicator")
 
     -- local fixedlen = AceGUI:Create("EditBox")
     -- fixedlen:SetLabel("|cff00ff00Fixed Duration|r")
@@ -403,7 +398,7 @@ function ns.CreateCommonForm(self)
 
 
     local color = AceGUI:Create("ColorPicker")
-    color:SetLabel("Color")
+    color:SetLabel(L"Color")
     color:SetRelativeWidth(0.15)
     color:SetHasAlpha(false)
     color:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
@@ -412,16 +407,24 @@ function ns.CreateCommonForm(self)
     Form.controls.color = color
     Form:AddChild(color)
 
+    local isMine = AceGUI:Create("CheckBox")
+    isMine:SetLabel(L"Casted by Player")
+    isMine:SetRelativeWidth(0.60)
+    isMine:SetCallback("OnValueChanged", function(self, event, value)
+        self.parent.opts["isMine"] = value
+    end)
+    Form.controls.isMine = isMine
+    Form:AddChild(isMine)
+
     local foreigncolor = AceGUI:Create("ColorPicker")
-    foreigncolor:SetLabel("Others' Color")
-    foreigncolor:SetRelativeWidth(0.23)
+    foreigncolor:SetLabel(L"Others' Color")
+    foreigncolor:SetRelativeWidth(0.27)
     foreigncolor:SetHasAlpha(false)
     foreigncolor:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
         self.parent.opts["foreigncolor"] = {r,g,b}
     end)
     Form.controls.foreigncolor = foreigncolor
     Form:AddChild(foreigncolor)
-    AddTooltip(foreigncolor, "Color for applications from other players")
 
     local fcr = AceGUI:Create("Button")
     fcr:SetText("X")
@@ -432,11 +435,11 @@ function ns.CreateCommonForm(self)
     end)
     Form.controls.fcr = fcr
     Form:AddChild(fcr)
-    AddTooltip(fcr, "Remove Other's Color")
+    AddTooltip(fcr, L"Reset")
 
     local isMissing = AceGUI:Create("CheckBox")
-    isMissing:SetLabel("Show Missing")
-    isMissing:SetRelativeWidth(0.26)
+    isMissing:SetLabel(L"Show Missing")
+    isMissing:SetRelativeWidth(0.50)
     isMissing:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["isMissing"] = value
     end)
@@ -444,34 +447,8 @@ function ns.CreateCommonForm(self)
     Form:AddChild(isMissing)
     AddTooltip(isMissing, "Show indicator if aura is missing")
 
-    local isMine = AceGUI:Create("CheckBox")
-    isMine:SetLabel("Casted by Player")
-    isMine:SetRelativeWidth(0.30)
-    isMine:SetCallback("OnValueChanged", function(self, event, value)
-        self.parent.opts["isMine"] = value
-    end)
-    Form.controls.isMine = isMine
-    Form:AddChild(isMine)
-
-    local scale = AceGUI:Create("Slider")
-    scale:SetLabel(L"Scale")
-    scale:SetSliderValues(0.3, 2, 0.05)
-    scale:SetRelativeWidth(0.44)
-    scale:SetCallback("OnValueChanged", function(self, event, value)
-        local v = tonumber(value)
-        if v and v >= 0.3 and v <= 2 then
-            self.parent.opts["scale"] = v
-        else
-            self.parent.opts["scale"] = 1
-            self:SetText(self.parent.opts.scale or "1")
-        end
-    end)
-    Form.controls.scale = scale
-    Form:AddChild(scale)
-    AddTooltip(scale, L"Vertical Bar scale, only applicable when assigned to bars")
-
     local showDuration = AceGUI:Create("CheckBox")
-    showDuration:SetLabel("Show Duration")
+    showDuration:SetLabel(L"Show Duration")
     showDuration:SetRelativeWidth(0.95)
     showDuration:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["showDuration"] = value
@@ -484,7 +461,7 @@ function ns.CreateCommonForm(self)
     Form:AddChild(showDuration)
 
     local showCount = AceGUI:Create("CheckBox")
-    showCount:SetLabel("Show Stacks")
+    showCount:SetLabel(L"Show Stacks")
     showCount:SetRelativeWidth(0.55)
     showCount:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["showCount"] = value
@@ -497,7 +474,7 @@ function ns.CreateCommonForm(self)
     Form:AddChild(showCount)
 
     local maxCount = AceGUI:Create("EditBox")
-    maxCount:SetLabel("Max Count")
+    maxCount:SetLabel(L"Max Count")
     maxCount:SetRelativeWidth(0.4)
     maxCount:DisableButton(true)
     maxCount:SetCallback("OnTextChanged", function(self, event, value)
@@ -511,6 +488,23 @@ function ns.CreateCommonForm(self)
     end)
     Form.controls.maxCount = maxCount
     Form:AddChild(maxCount)
+
+    local scale = AceGUI:Create("Slider")
+    scale:SetLabel(L"Scale")
+    scale:SetSliderValues(0.3, 2, 0.05)
+    scale:SetRelativeWidth(0.95)
+    scale:SetCallback("OnValueChanged", function(self, event, value)
+        local v = tonumber(value)
+        if v and v >= 0.3 and v <= 2 then
+            self.parent.opts["scale"] = v
+        else
+            self.parent.opts["scale"] = 1
+            self:SetText(self.parent.opts.scale or "1")
+        end
+    end)
+    Form.controls.scale = scale
+    Form:AddChild(scale)
+    AddTooltip(scale, L"Scale (not always applicable)")
 
 
     local extend_below = AceGUI:Create("EditBox")
@@ -548,7 +542,7 @@ function ns.CreateCommonForm(self)
     AddTooltip(refreshTime, "Pandemic indication. Only works for bars")
 
     local clones = AceGUI:Create("EditBox")
-    clones:SetLabel("Additional Spell IDs")
+    clones:SetLabel(L"Additional Spell IDs")
     clones:SetRelativeWidth(0.9)
     clones:SetCallback("OnEnterPressed", function(self, event, value)
         local cloneList = {}

@@ -19,7 +19,7 @@ function ns.MakeGlobalSettings()
                 args = {
                     RMBClickthrough = {
                         name = L"RMB Mouselook Clickthrough"..newFeatureIcon,
-                        desc = L"Allows to turn with RMB without moving mouse away from the unitframes.\nIf using Clique, this will override its RMB binding",
+                        desc = L"Allows to turn with RMB without moving mouse away from the unitframes. With Clique this will override its RMB binding",
                         type = "toggle",
                         width = "full",
                         confirm = true,

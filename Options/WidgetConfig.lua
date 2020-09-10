@@ -182,7 +182,7 @@ function ns.CreateWidgetConfig(name, parent)
 
     local frame = AceGUI:Create("BlizOptionsGroup")
     frame:SetName(name, parent)
-    frame:SetTitle("Aptechka "..L"Widget Config")
+    frame:SetTitle("Aptechka "..L"Widgets")
     -- frame:SetLayout("Fill")
     frame:SetLayout("Flow")
 
