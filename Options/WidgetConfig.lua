@@ -135,6 +135,12 @@ local CURRENT_FORM
 local formCache = {}
 
 local function UpdateHeader(header)
+    if not CURRENT_FORM then
+        header.delete:SetDisabled(true)
+        header.profileClear:SetDisabled(true)
+        header.reset:SetDisabled(true)
+        return
+    end
     local name = CURRENT_FORM.widgetName
     local popts, gopts = Aptechka:GetWidgetsOptions(name)
     local isProtected = AptechkaDefaultConfig.DefaultWidgets[name]
@@ -219,6 +225,7 @@ function ns.CreateWidgetConfig(name, parent)
         local rootFrame = AptechkaOptions.widgetConfig
         rootFrame.tree:UpdateWidgetTree()
         rootFrame.rpane:Clear()
+        rootFrame.header:Update()
     end)
     frame:AddChild(delete)
     frame.header.delete = delete
