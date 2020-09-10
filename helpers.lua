@@ -132,7 +132,7 @@ helpers.AddTrace = function(data)
     if data.id then data.name = GetSpellInfo(data.id) or data.name end
     data.type = "SPELL_"..data.type
     if not config.traces then config.traces = {} end
-    if not data.name then print((data.id or "nil").."id or name required") return end
+    if not data.name then print(string.format("[Aptechka] %d spell id missing", data.id)) return end
     data.actualname = data.name
     data.name = data.actualname.."Trace"
     local id = data.id
