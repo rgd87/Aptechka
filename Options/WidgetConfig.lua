@@ -218,6 +218,7 @@ function ns.CreateWidgetConfig(name, parent)
         Aptechka:RemoveWidget(name)
         local rootFrame = AptechkaOptions.widgetConfig
         rootFrame.tree:UpdateWidgetTree()
+        rootFrame.rpane:Clear()
     end)
     frame:AddChild(delete)
     frame.header.delete = delete
