@@ -67,6 +67,24 @@ function Aptechka:GetWidgetsOptionsMerged(name)
     return InheritGlobalOptions(Aptechka:GetWidgetsOptions(name))
 end
 
+-- In case any new properties were added for a widget type,
+-- fill the user-created ones with missing fields
+function Aptechka:FixCustomWidgetsWithUpdatedProps()
+    local gconfig = self.db.global.widgetConfig
+    local defaultWidgets = AptechkaDefaultConfig.DefaultWidgets
+    for name, gopts in pairs(gconfig) do
+        if not defaultWidgets[name] then
+            local wtype = gopts.type
+            local defaultOpts = Aptechka.Widget[wtype].default
+            for propertyName, value in pairs(defaultOpts) do
+                if gopts[propertyName] == nil then
+                    gopts[propertyName] = defaultOpts[propertyName]
+                end
+            end
+        end
+    end
+end
+
 local MakeBorder = function(self, tex, left, right, top, bottom, level)
     local t = self:CreateTexture(nil,"BORDER",nil,level)
     t:SetTexture(tex)
