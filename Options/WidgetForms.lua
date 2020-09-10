@@ -348,6 +348,12 @@ end
 
 -- Text
 
+local textEffects = {
+    NONE = "None",
+    SHADOW = "Shadow",
+    OUTLINE = "Outline",
+}
+
 ns.WidgetForms.Text = {}
 function ns.WidgetForms.Text.Create(form)
     form = form or ns.InitForm()
@@ -355,6 +361,7 @@ function ns.WidgetForms.Text.Create(form)
     CreateAnchorSettings(form)
     local font = ns.AddFontDropdown(form, 0.46, L"Font", "font", "ClearFont", callbackUpdateForm)
     local textsize = ns.AddSlider(form, 0.46, L"Font Size", "textsize", 12, 6, 30, 1, callbackUpdateForm)
+    local effect = ns.AddDropdown(form, 0.46, L"Effect", "effect", "NONE", textEffects, callbackUpdateForm)
 
     return form
 end
@@ -363,6 +370,7 @@ function ns.WidgetForms.Text.Fill(form, name, opts, popts, gopts)
     FillAnchorSettings(form, opts, popts, gopts)
     Control_SetValue(form, "font", opts, gopts)
     Control_SetValue(form, "textsize", opts, gopts)
+    Control_SetValue(form, "effect", opts, gopts)
 end
 
 -- StaticText
