@@ -88,7 +88,7 @@ config.DefaultWidgets = {
     incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, font = "ClearFont", textsize = 12, outline = false, edge = false },
     debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = "ClearFont", textsize = 12, bigscale = 1.3 },
     -- bossdebuff = { type = "Indicator", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = -0, },
-    healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 0, blendmode = "BLEND" }
+    healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 0, alpha = 1, blendmode = "BLEND" }
 }
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 if isClassic then

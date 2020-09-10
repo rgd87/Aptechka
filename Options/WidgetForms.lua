@@ -58,7 +58,7 @@ function ns.AddEditbox(form, relWidth, title, dataKey, defaultValue, onChangedCa
     local dropdown = AceGUI:Create("EditBox")
     dropdown:SetLabel(title)
     dropdown:SetRelativeWidth(relWidth)
-    dropdown:SetCallback("OnTextChanged", function(self, event, value)
+    dropdown:SetCallback("OnEnterPressed", function(self, event, value)
         self.parent.target[dataKey] = value
         onChangedCallback(self.parent, dataKey, value)
     end)
@@ -392,6 +392,7 @@ function ns.WidgetForms.Texture.Create(form)
     local texture = ns.AddEditbox(form, 0.95, L"Texture", "texture", "", callbackUpdateForm)
     local rotation = ns.AddDropdown(form, 0.46, L"Rotation", "rotation", 0, rotationAngles, callbackUpdateForm)
     local zorder = ns.AddSlider(form, 0.46, L"Z-Order", "zorder", 0, -5, 5, 1, callbackUpdateForm)
+    local alpha = ns.AddSlider(form, 0.46, L"Alpha", "alpha", 1, 0, 1, 0.05, callbackUpdateForm)
     local blendmode = ns.AddDropdown(form, 0.46, L"Blend Mode", "blendmode", "BLEND", blendModes, callbackUpdateForm)
 
     return form
@@ -403,6 +404,7 @@ function ns.WidgetForms.Texture.Fill(form, name, opts, popts, gopts)
     Control_SetText(form, "texture", opts, gopts)
     Control_SetValue(form, "rotation", opts, gopts)
     Control_SetValue(form, "zorder", opts, gopts)
+    Control_SetValue(form, "alpha", opts, gopts)
     Control_SetValue(form, "blendmode", opts, gopts)
 
 end
