@@ -140,7 +140,7 @@ A{ id = 120954, prototype = tankCD } --Fortifying Brew (Brewmaster)
 -- WARRIOR
 A{ id = 184364, prototype = survivalCD } -- Enraged Regeneration
 A{ id = 118038, prototype = survivalCD } -- Die by the Sword
-A{ id = 12975,  prototype = activeMitigation, priority = 75 } --Last Stand
+A{ id = 12975,  prototype = survivalCD } --Last Stand
 A{ id = 871,    prototype = tankCD } --Shield Wall 40%
 A{ id = 107574, prototype = survivalCD, priority = 85 } --Avatar
 A{ id = 23920, prototype = survivalCD, priority = 85 } --Spell Reflect
