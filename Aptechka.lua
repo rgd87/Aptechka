@@ -2751,12 +2751,12 @@ function Aptechka:UpdateHighlightedDebuffsHashMap()
     end
 end
 
-function Aptechka.TestDebuffSlots()
+function Aptechka:TestDebuffSlots()
+    Aptechka:ForEachFrame(Aptechka.TestDebuffSlotsForUnit)
+end
+function Aptechka.TestDebuffSlotsForUnit(frame, unit)
     local shown = 0
     local fill = 0
-    local unit = "player"
-    local frames = Roster[unit]
-    local frame = next(frames)
     local debuffLineLength = frame.debuffIcons.maxChildren
 
     local numBossAuras = math.random(3)-1
