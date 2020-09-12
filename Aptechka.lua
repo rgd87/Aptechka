@@ -681,9 +681,7 @@ function Aptechka.GetWidgetListRaw()
             list[slot] = string.format("|cff77ff77%s|r",slot)
         end
     end
-    list["healfeedback"] = "healfeedback"
     list["border"] = "border"
-    list["bossdebuff"] = "bossdebuff"
     list["healthColor"] = "healthColor"
     return list
 end
@@ -695,8 +693,6 @@ function Aptechka.GetWidgetList()
     list["unhealable"] = nil
     list["vehicle"] = nil
     list["text1"] = nil
-    list["text2"] = nil
-    list["text3"] = nil
     list["incomingCastIcon"] = nil
     return list
 end
@@ -765,7 +761,7 @@ end
 function Aptechka:UpdateUnprotectedUpvalues()
     ignoreplayer = config.incomingHealIgnorePlayer or false
     fgShowMissing = Aptechka.db.profile.fgShowMissing
-    debuffLimit = AptechkaDB.profile.debuffLimit
+    Aptechka._BossDebuffScale = Aptechka.db.global.widgetConfig.debuffIcons.bigscale
     gradientHealthColor = Aptechka.db.profile.gradientHealthColor
     damageEffect = Aptechka.db.profile.damageEffect
     enableTraceheals = config.enableTraceHeals and next(traceheals)
