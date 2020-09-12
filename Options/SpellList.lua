@@ -231,6 +231,10 @@ function ns.CreateCommonForm(self)
 
         -- remove clones of the previous version of the spell
         local oldOriginalSpell = AptechkaConfigMerged[category][spellID]
+        -- Kill all jobs with the old settings
+        Aptechka:ForEachFrame(function(frame)
+            Aptechka.FrameSetJob(frame, oldOriginalSpell, false)
+        end)
         if oldOriginalSpell and oldOriginalSpell.clones then
             for i, additionalSpellID in ipairs(oldOriginalSpell.clones) do
                 AptechkaConfigMerged[category][additionalSpellID] = nil
@@ -265,6 +269,8 @@ function ns.CreateCommonForm(self)
                 AptechkaConfigMerged.spellClones[additionalSpellID] = true
             end
         end
+        -- Rescan all units' auras with new settings
+        Aptechka:ForEachFrame(Aptechka.FrameScanAuras)
         ----------
 
         AptechkaConfigCustom[class] = AptechkaConfigCustom[class] or {}

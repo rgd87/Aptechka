@@ -2288,8 +2288,10 @@ end
 
 function Aptechka.FrameSetJob(frame, opts, enabled, ...)
     if opts and opts.assignto then
-        for slot in pairs(opts.assignto) do
-            AssignToSlot(frame, opts, enabled, slot, ...)
+        for slot, slotEnabled in pairs(opts.assignto) do
+            if slotEnabled then
+                AssignToSlot(frame, opts, enabled, slot, ...)
+            end
         end
     end
 end
