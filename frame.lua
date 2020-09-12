@@ -1741,6 +1741,12 @@ local TextTypeHandlers = {
         self.text:SetTextColor(helpers.PercentColor(stagger))
         self.text:SetFormattedText("%.0f%%", stagger*100)
     end,
+    ["PROGRESS"] = function(self, job, state, contentType, ...)
+        local perc = ...
+        self.text:SetTextColor(helpers.PercentColor(perc))
+        -- self.text:SetTextColor(GetTextColor(job))
+        self.text:SetFormattedText("%.0f%%", perc*100)
+    end,
     ["UnitName"] = function(self, job, state, contentType, ...)
         self.text:SetText(state.name)
         self:SetScript("OnUpdate", nil)

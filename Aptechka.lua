@@ -1143,6 +1143,9 @@ end
 function Aptechka.UNIT_CONNECTION(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateConnection)
 end
+
+local Enum_RunicPower = Enum.PowerType.RunicPower
+local Enum_Alternate = Enum.PowerType.Alternate
 function Aptechka.FrameUpdatePower(frame, unit, ptype)
     if ptype == "MANA" then-- not frame.power.disabled then
         local powerMax = UnitPowerMax(unit)
@@ -1157,13 +1160,22 @@ function Aptechka.FrameUpdatePower(frame, unit, ptype)
         if not Aptechka:UnitIsTank(unit) then
             return FrameSetJob(frame, config.RunicPowerStatus, false)
         end
-        local powerMax = UnitPowerMax(unit)
-        local power = UnitPower(unit)
+        local powerMax = UnitPowerMax(unit, Enum_RunicPower)
+        local power = UnitPower(unit, Enum_RunicPower)
         if power > 40 then
             local p = power/powerMax
             FrameSetJob(frame, config.RunicPowerStatus, true, "PROGRESS", p)
         else
             FrameSetJob(frame, config.RunicPowerStatus, false)
+        end
+    elseif ptype == "ALTERNATE" then
+        local powerMax = UnitPowerMax(unit, Enum_Alternate)
+        local power = UnitPower(unit, Enum_Alternate)
+        if power > 0 then
+            local p = power/powerMax
+            FrameSetJob(frame, config.AlternatePowerStatus, true, "PROGRESS", p)
+        else
+            FrameSetJob(frame, config.AlternatePowerStatus, false)
         end
     end
 end
@@ -1718,6 +1730,7 @@ local function updateUnitButton(self, unit)
         Aptechka.FrameUpdateDisplayPower(self, unit)
         local ptype = select(2,UnitPowerType(owner))
         Aptechka.FrameUpdatePower(self, unit, ptype)
+        Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
     end
     Aptechka.FrameUpdateThreat(self, unit)
     Aptechka.FrameUpdateMindControl(self, unit)
