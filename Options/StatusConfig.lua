@@ -67,7 +67,7 @@ function ns.MakeStatusConfig()
                         local defaultOpts = AptechkaDefaultConfig[status]
 
                         Aptechka.util.ShakeAssignments(customOpts, defaultOpts)
-                        local newMergedSet = Aptechka.util.Set.union(customOpts.assignto, defaultOpts.assignto)
+                        local newMergedSet = Aptechka.util.Set.union(defaultOpts.assignto, customOpts.assignto)
 
                         AptechkaConfigMerged[status].assignto = newMergedSet
 

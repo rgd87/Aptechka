@@ -453,8 +453,8 @@ end
 
 function Set.union (a,b)
     local res = Set.new{}
-    for k in pairs(a) do res[k] = true end
-    for k in pairs(b) do res[k] = true end
+    for k in pairs(a) do res[k] = a[k] end
+    for k in pairs(b) do res[k] = b[k] end
     return res
 end
 
