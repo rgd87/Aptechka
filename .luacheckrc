@@ -228,4 +228,7 @@ globals = {
     "IsControlKeyDown",
     "BackdropTemplateMixin",
     "UnitPhaseReason",
+    "IsShiftKeyDown",
+    "GameTooltip_SetTitle",
+    "GameTooltip_AddInstructionLine",
 }

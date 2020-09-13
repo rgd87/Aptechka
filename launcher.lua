@@ -29,6 +29,10 @@ function Aptechka:CreteMinimapIcon()
                 return
             end
 
+            if button == "LeftButton" and IsControlKeyDown() then
+                return Aptechka:ToggleUnlock()
+            end
+
 
             LoadAddOn('AptechkaOptions')
             InterfaceOptionsFrame_OpenToCategory("Aptechka")
@@ -51,11 +55,12 @@ function Aptechka:CreteMinimapIcon()
 			if not tooltip or not tooltip.AddLine then return end
 
             GameTooltip_SetTitle(tooltip, addonName)
-
             GameTooltip_AddInstructionLine(tooltip, "LeftClick - Profile Settings")
             GameTooltip_AddInstructionLine(tooltip, "Shift-LeftClick - Widgets")
+            GameTooltip_AddInstructionLine(tooltip, "|cffc9e06cCtrl-LeftClick - Toggle Unlock|r")
             GameTooltip_AddInstructionLine(tooltip, "RightClick - Spell List")
             GameTooltip_AddInstructionLine(tooltip, "Shift-RightClick - Status List")
+            GameTooltip_AddInstructionLine(tooltip, "|cffe0896cMiddleClick - Hide Icon|r")
 		end
 	})
 

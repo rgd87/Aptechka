@@ -144,7 +144,7 @@ local defaults = {
         showAFK = false,
         enableMouseoverStatus = true,
         customBlacklist = {},
-        LDBData = {},
+        LDBData = {}, -- minimap icon settings
         useCombatLogHealthUpdates = false,
         disableTooltip = false,
         debuffTooltip = false,
@@ -2918,20 +2918,32 @@ function Aptechka:OpenGUI()
     InterfaceOptionsFrame_OpenToCategory("Aptechka")
 end
 
+function Aptechka:Unlock()
+    anchors[1]:Show()
+end
+
+function Aptechka:ToggleUnlock()
+    if anchors[1]:IsShown() then
+        anchors[1]:Hide()
+    else
+        anchors[1]:Show()
+    end
+end
+
+function Aptechka:Lock()
+    for _,anchor in pairs(anchors) do
+        anchor:Hide()
+    end
+end
+
 Aptechka.Commands = {
     ["unlockall"] = function()
         for _,anchor in pairs(anchors) do
             anchor:Show()
         end
     end,
-    ["unlock"] = function()
-        anchors[1]:Show()
-    end,
-    ["lock"] = function()
-        for _,anchor in pairs(anchors) do
-            anchor:Hide()
-        end
-    end,
+    ["unlock"] = Aptechka.Unlock,
+    ["lock"] = Aptechka.Lock,
     ["gui"] = Aptechka.OpenGUI,
     ["config"] = Aptechka.OpenGUI,
     ["reset"] = function()
