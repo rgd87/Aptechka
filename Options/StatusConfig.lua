@@ -104,6 +104,32 @@ function ns.MakeStatusConfig()
                     end,
                     order = 3,
                 },
+                scale = {
+                    name = L"Scale",
+                    type = "range",
+                    get = function(info) return AptechkaConfigMerged[status].scale or 1 end,
+                    set = function(info, value)
+                        AptechkaConfigMerged[status].scale = value
+                        Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
+                        AptechkaConfigCustom.WIDGET[status].scale = value
+                    end,
+                    min = 0.5,
+                    max = 3,
+                    step = 0.1,
+                    order = 4,
+                },
+                reset = {
+                    name = L"Reset",
+                    type = "execute",
+                    width = "full",
+                    func = function()
+                        if AptechkaConfigCustom.WIDGET then
+                            AptechkaConfigCustom.WIDGET[status] = nil
+                        end
+                        AptechkaConfigMerged[status] = CopyTable(AptechkaDefaultConfig[status])
+                    end,
+                    order = 16,
+                },
             },
         }
     end
