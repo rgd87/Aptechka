@@ -2075,6 +2075,10 @@ local optional_widgets = {
 }
 Aptechka.optional_widgets = optional_widgets
 
+function Aptechka:RegisterWidget(name, func)
+    optional_widgets[name] = func
+end
+
 function Aptechka:CreateDynamicWidget(frame, widgetName)
     if optional_widgets[widgetName] then
         local newWidget = optional_widgets[widgetName](frame)
@@ -2093,10 +2097,6 @@ function Aptechka:CreateDynamicWidget(frame, widgetName)
     else
         return
     end
-end
-
-function Aptechka:RegisterWidget(name, func)
-    optional_widgets[name] = func()
 end
 
 local function Reconf(self)

@@ -216,9 +216,6 @@ local defaults = {
 
 Aptechka:RegisterEvent("PLAYER_LOGIN")
 function Aptechka.PLAYER_LOGIN(self,event,arg1)
-    Aptechka:UpdateRangeChecker()
-    Aptechka:UpdateDispelBitmask()
-
     local uir2 = function(unit)
         if UnitIsDeadOrGhost(unit) or UnitIsEnemy(unit, "player") then --IsSpellInRange doesn't work with dead people
             return UnitInRange(unit)
@@ -411,7 +408,13 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self.initConfSnippet = self.initConfSnippet..config.initialConfigPostHookSnippet
     end
 
-    self:LayoutUpdate()
+
+    Aptechka:SPELLS_CHANGED() -- Does the following:
+    -- Aptechka:UpdateRangeChecker()
+    -- Aptechka:UpdateDispelBitmask()
+    -- self:LayoutUpdate()
+    -- Switches to proper profile for the role
+    -- Reconf from it won't run until initialization is finished
     self:UpdateDebuffScanningMethod()
     self:UpdateHighlightedDebuffsHashMap()
 
@@ -539,11 +542,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
     local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
     Aptechka:SetGrowth(unitGrowth, groupGrowth)
-
-    -- if config.DispelFilterAll
-    --     then DispelFilter = "HARMFUL"
-    --     else DispelFilter = "HARMFUL|RAID"
-    -- end
 
     Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
     Aptechka:Show()
@@ -1438,6 +1436,7 @@ function Aptechka.FrameCheckRoles(self, unit )
 end
 
 function Aptechka.PLAYER_REGEN_ENABLED(self,event)
+    self:LayoutUpdate()
     self:Reconfigure()
     self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 end
@@ -1470,8 +1469,13 @@ end
 
 
 function Aptechka:OnRoleChanged()
-    if not InCombatLockdown() then Aptechka:LayoutUpdate() end
-    Aptechka:Reconfigure() -- Schedules update on combat exit, that also includes layout update
+    if not InCombatLockdown() then
+        -- Will switch profile immediately if possible
+        Aptechka:LayoutUpdate()
+    else
+        -- Reconfigure in combat does nothing, but schedules LayoutUpdate and Reconf on combat exit
+        Aptechka:Reconfigure()
+    end
 end
 do
     local currentRole
@@ -1919,6 +1923,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
         Aptechka:CreateAnchor(f,group)
     end
 
+    -- Buttons will be created after Show
     f:Show()
 
     return f
