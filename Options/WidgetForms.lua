@@ -312,6 +312,20 @@ function ns.WidgetForms.Indicator.Fill(form, name, opts, popts, gopts)
     FillAnchorSettings(form, opts, popts, gopts)
 end
 
+-- IndicatorArray
+
+ns.WidgetForms.IndicatorArray = {}
+function ns.WidgetForms.IndicatorArray.Create(form)
+    form = form or ns.WidgetForms.Indicator.Create(form)
+    CreateArraySettings(form)
+    return form
+end
+
+function ns.WidgetForms.IndicatorArray.Fill(form, name, opts, popts, gopts)
+    ns.WidgetForms.Indicator.Fill(form, name, opts, popts, gopts)
+    FillArraySettings(form, opts, popts, gopts)
+end
+
 -- Bar
 
 ns.WidgetForms.Bar = {}

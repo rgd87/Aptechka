@@ -300,6 +300,7 @@ function ns.CreateWidgetConfig(name, parent)
         Text = "Interface\\Icons\\spell_holy_sealofwisdom",
         StaticText = "Interface\\Icons\\spell_magic_magearmor",
         Indicator = "Interface\\Icons\\spell_frost_windwalkon",
+        IndicatorArray = "Interface\\Icons\\spell_frost_windwalkon",
         DebuffIcon = "Interface\\Icons\\spell_shadow_curseofsargeras",
         DebuffIconArray = "Interface\\Icons\\spell_shadow_curseofsargeras",
         Texture = "Interface\\Icons\\spell_shadow_ritualofsacrifice",
