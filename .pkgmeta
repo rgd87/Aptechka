@@ -21,3 +21,5 @@ externals:
   Libs/LibAuraTypes:
     url: https://github.com/rgd87/LibAuraTypes.git
     tag: master
+  Libs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1.git
+  Libs/LibDBIcon-1.0: https://repos.wowace.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0

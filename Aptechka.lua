@@ -144,6 +144,7 @@ local defaults = {
         showAFK = false,
         enableMouseoverStatus = true,
         customBlacklist = {},
+        LDBData = {},
         useCombatLogHealthUpdates = false,
         disableTooltip = false,
         debuffTooltip = false,
@@ -601,6 +602,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         C_Timer.After(2, CheckCurrentMap)
     end)
 
+    if not self.db.global.LDBData.hide then
+        Aptechka:CreteMinimapIcon()
+    end
 
     local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
     f:SetScript('OnShow', function(self)

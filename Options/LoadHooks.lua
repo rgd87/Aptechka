@@ -15,13 +15,14 @@ f.highlighting = ns.MakeDebuffHighlight()
 
 local wconfig = ns.CreateWidgetConfig(L"Widgets"..newFeatureIcon, "Aptechka")
 f.widgetConfig = wconfig
+f.widgets = f.widgetConfig.frame
 InterfaceOptions_AddCategory(f.widgetConfig.frame);
 
 ns.frame = ns.CreateSpellList(L"Spell List", "Aptechka")
 f.spellList = ns.frame.frame
 InterfaceOptions_AddCategory(f.spellList);
 
-f.status = ns.MakeStatusConfig()
+f.statusList = ns.MakeStatusConfig()
 f.blacklist = ns.MakeBlacklist()
 
 f:Hide()
