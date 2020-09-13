@@ -2247,22 +2247,19 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
     -- short exit if disabling auras on already empty widget
     if not widget.currentJob and enabled == false then return end
 
-    local jobs = widgetState
-
     if enabled then
         contentType = contentType or opts.name
-        OrderedHashMap_Add(jobs, opts.name, opts, contentType, ...)
+        OrderedHashMap_Add(widgetState, opts.name, opts, contentType, ...)
 
         if contentType == "AURA" and opts.realID and not opts.isMissing then
             frame.activeAuras[opts.realID] = opts
         end
     else
-        OrderedHashMap_Remove(jobs, opts.name)
+        OrderedHashMap_Remove(widgetState, opts.name)
     end
 
 
-
-    local currentJobData = jobs[1]
+    local currentJobData = widgetState[1]
     if currentJobData then
         widget.previousJob = widget.currentJob
         widget.currentJob = currentJobData.job -- important that it's before SetJob
@@ -2306,7 +2303,7 @@ function Aptechka:UpdateWidget(frame, widget)
 end
 
 function Aptechka.FrameSetJob(frame, opts, enabled, ...)
-    if opts and opts.assignto then
+    if opts.assignto then
         for slot, slotEnabled in pairs(opts.assignto) do
             if slotEnabled then
                 AssignToSlot(frame, opts, enabled, slot, ...)
@@ -2596,7 +2593,7 @@ function Aptechka.HighlightPostUpdate(frame, unit)
     if frames then
         for frame in pairs(frames) do
             if frame.state.highlightedDebuffsBits ~= highlightedDebuffsBits then
-                for i=1,5 do
+                for i=1,#config.BossDebuffs do
                     FrameSetJob(frame, config.BossDebuffs[i], helpers.CheckBit(highlightedDebuffsBits, i))
                 end
                 frame.state.highlightedDebuffsBits = highlightedDebuffsBits
