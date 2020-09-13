@@ -69,19 +69,30 @@ end
 
 -- In case any new properties were added for a widget type,
 -- fill the user-created ones with missing fields
-function Aptechka:FixCustomWidgetsWithUpdatedProps()
+function Aptechka:FixWidgetsAfterUpgrade()
     local gconfig = self.db.global.widgetConfig
     local defaultWidgets = AptechkaDefaultConfig.DefaultWidgets
+    local toRemove = {}
     for name, gopts in pairs(gconfig) do
         if not defaultWidgets[name] then
             local wtype = gopts.type
-            local defaultOpts = Aptechka.Widget[wtype].default
-            for propertyName, value in pairs(defaultOpts) do
-                if gopts[propertyName] == nil then
-                    gopts[propertyName] = defaultOpts[propertyName]
+            if wtype then
+
+                local defaultOpts = Aptechka.Widget[wtype].default
+                for propertyName, value in pairs(defaultOpts) do
+                    if gopts[propertyName] == nil then
+                        gopts[propertyName] = defaultOpts[propertyName]
+                    end
                 end
+            else
+                -- if it gets here that means it's a removed default widget, not a custom one
+                table.insert(toRemove, name)
             end
         end
+    end
+
+    for i, name in ipairs(toRemove) do
+        gconfig[name] = nil
     end
 end
 
