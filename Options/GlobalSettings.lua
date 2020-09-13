@@ -17,6 +17,16 @@ function ns.MakeGlobalSettings()
                 guiInline = true,
                 order = 3,
                 args = {
+                    MinimapIcon = {
+                        name = L"Hide Minimap Icon",
+                        type = "toggle",
+                        width = "full",
+                        get = function(info) return Aptechka.db.global.LDBData.hide end,
+                        set = function(info, v)
+                            Aptechka:ToggleMinimapIcon()
+                        end,
+                        order = 1,
+                    },
                     RMBClickthrough = {
                         name = L"RMB Mouselook Clickthrough"..newFeatureIcon,
                         desc = L"Allows to turn with RMB without moving mouse away from the unitframes. With Clique this will override its RMB binding",
