@@ -1482,6 +1482,7 @@ do
     function Aptechka:SPELLS_CHANGED()
         Aptechka:UpdateRangeChecker()
         Aptechka:UpdateDispelBitmask()
+        Aptechka:ForEachUnitFrame("player", Aptechka.FrameCheckRoles)
         -- enableLowHealthStatus = IsPlayerSpell(265259)
 
         local role = self:GetSpecRole()
