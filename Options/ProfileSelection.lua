@@ -26,7 +26,6 @@ function ns.MakeProfileSelection()
                 get = function(info) return Aptechka.db.global.enableProfileSwitching end,
                 set = function(info, v)
                     Aptechka.db.global.enableProfileSwitching = not Aptechka.db.global.enableProfileSwitching
-                    Aptechka:ReconfigureProtected()
                 end,
                 order = 0.5,
             },
@@ -48,7 +47,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.HEALER.solo end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.HEALER.solo = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
                     DAMAGER_solo = {
@@ -62,7 +61,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.solo end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.DAMAGER.solo = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
 
@@ -78,7 +77,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.HEALER.party end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.HEALER.party = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
                     DAMAGER_party = {
@@ -92,7 +91,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.party end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.DAMAGER.party = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
 
@@ -108,7 +107,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.HEALER.smallRaid end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.HEALER.smallRaid = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
                     DAMAGER_smallRaid = {
@@ -122,7 +121,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.smallRaid end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.DAMAGER.smallRaid = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
 
@@ -138,7 +137,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.HEALER.mediumRaid end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.HEALER.mediumRaid = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
                     DAMAGER_mediumRaid = {
@@ -152,7 +151,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.mediumRaid end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.DAMAGER.mediumRaid = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
 
@@ -168,7 +167,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.HEALER.bigRaid end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.HEALER.bigRaid = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
                     DAMAGER_bigRaid = {
@@ -182,7 +181,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.bigRaid end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.DAMAGER.bigRaid = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
 
@@ -197,7 +196,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.HEALER.fullRaid end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.HEALER.fullRaid = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
                     DAMAGER_fullRaid = {
@@ -211,7 +210,7 @@ function ns.MakeProfileSelection()
                         get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.fullRaid end,
                         set = function(info, v)
                             Aptechka.db.global.profileSelection.DAMAGER.fullRaid = v
-                            Aptechka:Reconfigure()
+                            Aptechka:LayoutUpdate()
                         end,
                     },
                 },
