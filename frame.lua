@@ -957,6 +957,19 @@ function Aptechka.Widget.BarArray.Reconf(parent, hdr, popts, gopts)
     hdr:Arrange()
 end
 
+------------------------------------------------------------------------------------------
+-- Indicator Array
+------------------------------------------------------------------------------------------
+
+Aptechka.Widget.IndicatorArray = {}
+Aptechka.Widget.IndicatorArray.default = { type = "IndicatorArray", width = 7, height = 7, point = "TOPRIGHT", x = 0, y = 0, growth = "LEFT", max = 3 }
+function Aptechka.Widget.IndicatorArray.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    return CreateArrayHeader("Indicator", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+end
+
+Aptechka.Widget.IndicatorArray.Reconf = Aptechka.Widget.BarArray.Reconf
+
 ----------------------------------------------------------
 -- Icon Array
 ----------------------------------------------------------
