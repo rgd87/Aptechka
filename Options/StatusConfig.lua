@@ -41,6 +41,8 @@ function ns.MakeStatusConfig()
                             AptechkaConfigMerged[status].priority = value
                             Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
                             AptechkaConfigCustom.WIDGET[status].priority = value
+
+                            Aptechka:ReapplyJob(AptechkaConfigMerged[status])
                         end
                     end,
                     order = 1,
@@ -101,6 +103,8 @@ function ns.MakeStatusConfig()
                         AptechkaConfigMerged[status].color = c
                         Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
                         AptechkaConfigCustom.WIDGET[status].color = c
+
+                        Aptechka:ReapplyJob(AptechkaConfigMerged[status])
                     end,
                     order = 3,
                 },
@@ -112,6 +116,8 @@ function ns.MakeStatusConfig()
                         AptechkaConfigMerged[status].scale = value
                         Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
                         AptechkaConfigCustom.WIDGET[status].scale = value
+
+                        Aptechka:ReapplyJob(AptechkaConfigMerged[status])
                     end,
                     min = 0.5,
                     max = 3,
@@ -123,6 +129,11 @@ function ns.MakeStatusConfig()
                     type = "execute",
                     width = "full",
                     func = function()
+                        local opts = AptechkaConfigMerged[status]
+                        Aptechka:ForEachFrame(function(frame, unit)
+                            Aptechka.FrameSetJob(frame, opts, false)
+                        end)
+
                         if AptechkaConfigCustom.WIDGET then
                             AptechkaConfigCustom.WIDGET[status] = nil
                         end

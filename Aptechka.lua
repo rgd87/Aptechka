@@ -2302,6 +2302,38 @@ function Aptechka:UpdateWidget(frame, widget)
     end
 end
 
+-- Clears and reapplies a job with the same args, used in statau list for dynamic updates
+function Aptechka:ReapplyJob(opts)
+    assert(opts)
+    Aptechka:ForEachFrame(function(frame, unit)
+        local args = Aptechka:GetJobArgs(frame, opts)
+        if args then
+            Aptechka.FrameSetJob(frame, opts, false)
+            Aptechka.FrameSetJob(frame, opts, true, unpack(args))
+        end
+    end)
+end
+
+
+-- Doubles as a check whether a job is active
+function Aptechka:GetJobArgs(frame, opts)
+    if opts.assignto then
+        for slot, slotEnabled in pairs(opts.assignto) do
+            if slotEnabled then
+                local widget = frame[slot]
+                local state = frame.state
+                local widgetState = state.widgets[widget]
+                if not widgetState or not widgetState[opts.name] then
+                    return nil
+                end
+
+                local index = widgetState[opts.name]
+                return widgetState[index]
+            end
+        end
+    end
+end
+
 function Aptechka.FrameSetJob(frame, opts, enabled, ...)
     if opts.assignto then
         for slot, slotEnabled in pairs(opts.assignto) do
