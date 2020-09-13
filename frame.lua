@@ -346,9 +346,141 @@ local function AddBlinkAnimation(f)
     f.blink = bag
 end
 
+local function AddSpinAnimation(f)
+    local rag = f:CreateAnimationGroup()
+    local r1 = rag:CreateAnimation("Rotation")
+    r1:SetDegrees(360)
+    r1:SetSmoothing("IN_OUT")
+    r1:SetDuration(1)
+    r1:SetOrder(1)
+
+    f.spin = rag
+end
+
+
+----------------------------------------------------------------
+-- Array
+----------------------------------------------------------------
+
+local SetJob_Array = function(hdr, job, state, contentType, ...)
+    local widgetState = state.widgets[hdr]
+
+    for i=1,hdr.maxChildren do
+        local widget = hdr.children[i]
+        local jobData = widgetState[i]
+        if jobData then
+            if not widget then -- dynamically create missing children
+                widget = hdr:Add()
+            end
+            local job = jobData.job
+            widget.previousJob = widget.currentJob
+            widget.currentJob = job
+            widget:SetJob(job, state, unpack(jobData))
+            widget:Show()
+        elseif widget then
+            widget.previousJob = widget.currentJob
+            widget.currentJob = nil
+            widget:Hide()
+        else
+            break
+        end
+    end
+end
+
+local function ArrayHeader_Arrange(hdr, startIndex)
+    local numChildren = #hdr.children
+    local gap = pixelperfect(1)
+
+    local point, relativeTo, relativePoint, _, _ = hdr:GetPoint(1)
+    local alignH = helpers.GetHorizontalAlignmentFromPoint(point)
+    local alignV = helpers.GetVerticalAlignmentFromPoint(point)
+
+    startIndex = startIndex or 1
+    for i=startIndex, numChildren do
+        local widget = hdr.children[i]
+        widget:ClearAllPoints()
+        if i == 1 then
+            widget:SetPoint(point, hdr, point, 0,0)
+        else
+            local growthDirection = hdr.growthDirection:upper()
+            local prevWidget = hdr.children[i-1]
+            if growthDirection == "DOWN" then
+                widget:SetPoint("TOP"..alignH, prevWidget, "BOTTOM"..alignH, 0, -gap)
+            elseif growthDirection == "LEFT" then
+                widget:SetPoint(alignV.."RIGHT", prevWidget, alignV.."LEFT", -gap, 0)
+            elseif growthDirection == "RIGHT" then
+                widget:SetPoint(alignV.."LEFT", prevWidget, alignV.."RIGHT", gap, 0)
+            else
+                widget:SetPoint("BOTTOM"..alignH, prevWidget, "TOP"..alignH, 0, gap)
+            end
+        end
+    end
+end
+
+local function ArrayHeader_Add(hdr)
+    -- if #hdr.children >= hdr.maxChildren then return end
+    local widget = Aptechka.Widget[hdr.childType].Create(hdr, nil, hdr.template)
+    table.insert(hdr.children, widget)
+    hdr:Arrange(#hdr.children)
+
+    return widget
+end
+
+-- When SetJob on header finds no active jobs it just hides the header
+-- But .currentJob and .previousJob on the last child don't get updated
+local function ArrayHeader_OnHide(hdr)
+    for i=1, #hdr.children do
+        local widget = hdr.children[i]
+        widget.previousJob = widget.currentJob
+        widget.currentJob = nil
+        widget:Hide()
+    end
+end
+
+local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, growthDirection, maxChildren)
+    local hdr = CreateFrame("Frame", nil, parent)
+    hdr:SetSize(10, 10)
+    hdr:SetPoint(point, parent, point, x, y)
+
+    -- local firstChild = Aptechka.Widget.Bar.Create(hdr, barTemplate)
+    -- firstChild:ClearAllPoints()
+    -- firstChild:SetPoint(point, hdr, point, 0, 0)
+
+    hdr.childType = childType
+    hdr.children = {}
+    hdr.maxChildren = maxChildren or 5
+    hdr.template = barTemplate
+    hdr.growthDirection = growthDirection
+    hdr:SetScript("OnHide", ArrayHeader_OnHide)
+
+    hdr.Add = ArrayHeader_Add
+    hdr.Arrange = ArrayHeader_Arrange
+
+    hdr.SetJob = SetJob_Array
+
+    return hdr
+end
+
 -------------------------------------------------------------------------------------------
 -- Square Indicator
 -------------------------------------------------------------------------------------------
+
+local PixelScaleMixin = {}
+function PixelScaleMixin.SetVScale(self, vscale)
+    local bh = self._baseHeight
+    local sh = bh*vscale
+    self:SetHeight(sh)
+end
+function PixelScaleMixin.SetHScale(self, hscale)
+    local bw = self._baseWidth
+    local sw = bw*hscale
+    self:SetWidth(sw)
+end
+function PixelScaleMixin.SetUScale(self, scale)
+    self:SetHScale(scale)
+    self:SetVScale(scale)
+end
+
 local function Indicator_StartTrace(self, job)
     if self.traceJob and self.traceJob.priority > job.priority then
         return
@@ -378,8 +510,16 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
         if job.pulse then
             if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
         end
+
         local scale = job.scale or 1
-        self:SetScale(scale)
+        self:SetUScale(scale)
+
+        if job.spin then
+            if self.spin:IsPlaying() then self.spin:Stop() end
+            self.spin:Play()
+        else
+            self.spin:Stop()
+        end
     end
 
     if contentType == "AURA" then
@@ -424,6 +564,8 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     local border = pixelperfect(Aptechka.db.global.borderWidth)
 
     f:SetWidth(w); f:SetHeight(h);
+    f._baseWidth = w
+    f._baseHeight = h
     if not nobackdrop then
         local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
         outline:SetVertexColor(0,0,0)
@@ -450,6 +592,8 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     f.parent = parent
     f.SetJob = SetJob_Indicator
     f.StartTrace = Indicator_StartTrace
+    Mixin(f, PixelScaleMixin)
+
 
     -- local pag = f:CreateAnimationGroup()
     -- local pa1 = pag:CreateAnimation("Scale")
@@ -461,15 +605,7 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     -- pa2:SetDuration(0.8)
     -- pa2:SetOrder(2)
 
-    local rag = f:CreateAnimationGroup()
-    local r1 = rag:CreateAnimation("Rotation")
-    r1:SetDegrees(360)
-    r1:SetSmoothing("IN_OUT")
-    r1:SetDuration(1)
-    r1:SetOrder(1)
-
-    f.spin = rag
-
+    AddSpinAnimation(f)
     AddBlinkAnimation(f)
     AddPulseAnimation(f)
 
@@ -499,11 +635,14 @@ function Aptechka.Widget.Indicator.Create(parent, popts, gopts)
 end
 function Aptechka.Widget.Indicator.Reconf(parent, f, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
+    local w = pixelperfect(opts.width)
+    local h = pixelperfect(opts.height)
+    f:SetSize(w, h)
+    f._baseWidth = w
+    f._baseHeight = h
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
 end
-
 
 -------------------------------------------------------------------------------------------
 -- Texture
@@ -727,16 +866,8 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
         self:SetHScale(hscale)
     end
 end
-local StatusBar_SetVScale = function(self, vscale)
-    local bh = self._baseHeight
-    local sh = bh*vscale
-    self:SetHeight(sh)
-end
-local StatusBar_SetHScale = function(self, hscale)
-    local bw = self._baseWidth
-    local sw = bw*hscale
-    self:SetWidth(sw)
-end
+
+
 local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackdrop, isVertical)
     local f = CreateFrame("StatusBar",nil,parent)
     local w = pixelperfect(width)
@@ -775,18 +906,10 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     f:SetPoint(point,frame,to,x,y)
     f.parent = parent
     f.SetJob = SetJob_StatusBar
-    f.SetVScale = StatusBar_SetVScale
-    f.SetHScale = StatusBar_SetHScale
+    Mixin(f, PixelScaleMixin)
     f:SetScript("OnUpdate", StatusBarOnUpdate)
 
-    local rag = f:CreateAnimationGroup()
-    local r1 = rag:CreateAnimation("Rotation")
-    r1:SetDegrees(360)
-    r1:SetSmoothing("IN_OUT")
-    r1:SetDuration(1)
-    r1:SetOrder(1)
-
-    f.spin = rag
+    AddSpinAnimation(f)
 
     f:Hide()
     return f
@@ -813,108 +936,6 @@ function Aptechka.Widget.Bar.Reconf(parent, f, popts, gopts)
     f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
 end
 
-----------------------------------------------------------------
--- Array
-----------------------------------------------------------------
-
-local SetJob_Array = function(hdr, job, state, contentType, ...)
-    local widgetState = state.widgets[hdr]
-
-    for i=1,hdr.maxChildren do
-        local widget = hdr.children[i]
-        local jobData = widgetState[i]
-        if jobData then
-            if not widget then -- dynamically create missing children
-                widget = hdr:Add()
-            end
-            local job = jobData.job
-            widget.previousJob = widget.currentJob
-            widget.currentJob = job
-            widget:SetJob(job, state, unpack(jobData))
-            widget:Show()
-        elseif widget then
-            widget.previousJob = widget.currentJob
-            widget.currentJob = nil
-            widget:Hide()
-        else
-            break
-        end
-    end
-end
-
-local function ArrayHeader_Arrange(hdr, startIndex)
-    local numChildren = #hdr.children
-    local gap = pixelperfect(1)
-
-    local point, relativeTo, relativePoint, _, _ = hdr:GetPoint(1)
-    local alignH = helpers.GetHorizontalAlignmentFromPoint(point)
-    local alignV = helpers.GetVerticalAlignmentFromPoint(point)
-
-    startIndex = startIndex or 1
-    for i=startIndex, numChildren do
-        local widget = hdr.children[i]
-        widget:ClearAllPoints()
-        if i == 1 then
-            widget:SetPoint(point, hdr, point, 0,0)
-        else
-            local growthDirection = hdr.growthDirection:upper()
-            local prevWidget = hdr.children[i-1]
-            if growthDirection == "DOWN" then
-                widget:SetPoint("TOP"..alignH, prevWidget, "BOTTOM"..alignH, 0, -gap)
-            elseif growthDirection == "LEFT" then
-                widget:SetPoint(alignV.."RIGHT", prevWidget, alignV.."LEFT", -gap, 0)
-            elseif growthDirection == "RIGHT" then
-                widget:SetPoint(alignV.."LEFT", prevWidget, alignV.."RIGHT", gap, 0)
-            else
-                widget:SetPoint("BOTTOM"..alignH, prevWidget, "TOP"..alignH, 0, gap)
-            end
-        end
-    end
-end
-
-local function ArrayHeader_Add(hdr)
-    -- if #hdr.children >= hdr.maxChildren then return end
-    local widget = Aptechka.Widget[hdr.childType].Create(hdr, nil, hdr.template)
-    table.insert(hdr.children, widget)
-    hdr:Arrange(#hdr.children)
-
-    return widget
-end
-
--- When SetJob on header finds no active jobs it just hides the header
--- But .currentJob and .previousJob on the last child don't get updated
-local function ArrayHeader_OnHide(hdr)
-    for i=1, #hdr.children do
-        local widget = hdr.children[i]
-        widget.previousJob = widget.currentJob
-        widget.currentJob = nil
-        widget:Hide()
-    end
-end
-
-local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, growthDirection, maxChildren)
-    local hdr = CreateFrame("Frame", nil, parent)
-    hdr:SetSize(10, 10)
-    hdr:SetPoint(point, parent, point, x, y)
-
-    -- local firstChild = Aptechka.Widget.Bar.Create(hdr, barTemplate)
-    -- firstChild:ClearAllPoints()
-    -- firstChild:SetPoint(point, hdr, point, 0, 0)
-
-    hdr.childType = childType
-    hdr.children = {}
-    hdr.maxChildren = maxChildren or 5
-    hdr.template = barTemplate
-    hdr.growthDirection = growthDirection
-    hdr:SetScript("OnHide", ArrayHeader_OnHide)
-
-    hdr.Add = ArrayHeader_Add
-    hdr.Arrange = ArrayHeader_Arrange
-
-    hdr.SetJob = SetJob_Array
-
-    return hdr
-end
 
 Aptechka.Widget.BarArray = {}
 Aptechka.Widget.BarArray.default = { type = "BarArray", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 }
