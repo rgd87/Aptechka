@@ -1,7 +1,7 @@
 local addonName, helpers = ...
 
 do
-    local CURRENT_DB_VERSION = 7
+    local CURRENT_DB_VERSION = 8
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -290,6 +290,21 @@ do
             end
 
             db.DB_VERSION = 7
+        end
+        if db.DB_VERSION == 7 then
+            -- Just in case there's a leftover from some older versions, remove type from all the profile settings for widgets.
+            -- Widget's .type field should always be from the global table via metatable
+            if db.profiles then
+                for name, profile in pairs(db.profiles) do
+                    if profile.widgetConfig then
+                        for name, popts in pairs(profile.widgetConfig) do
+                            popts.type = nil
+                        end
+                    end
+                end
+            end
+
+            db.DB_VERSION = 8
         end
 
         db.DB_VERSION = CURRENT_DB_VERSION
