@@ -294,8 +294,17 @@ function ns.CreateCommonForm(self)
         local spellID = p.id
         -- local opts = p.opts
 
+        local oldOriginalSpell = AptechkaConfigMerged[category][spellID]
+        -- Kill all jobs with the old settings
+        Aptechka:ForEachFrame(function(frame)
+            Aptechka.FrameSetJob(frame, oldOriginalSpell, false)
+        end)
+
         AptechkaConfigCustom[class][category][spellID] = nil
         AptechkaConfigMerged[category][spellID] = AptechkaDefaultConfig[category][spellID]
+
+        -- Rescan all units' auras with new settings
+        Aptechka:ForEachFrame(Aptechka.FrameScanAuras)
 
         ns.frame.tree:UpdateSpellTree()
         ns.frame.tree:SelectByPath(class, category, spellID)
