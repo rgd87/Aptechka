@@ -107,6 +107,17 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 10.1,
                     },
+                    translitCyrillic = {
+                        name = L"Transliterate Russian Names"..newFeatureIcon,
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.translitCyrillic end,
+                        set = function(info, v)
+                            Aptechka.db.global.translitCyrillic = not Aptechka.db.global.translitCyrillic
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        order = 10.2,
+                    },
                     -- disableBlizzardRaid = {
                     --     name = "Disable Blizzard Raid Frames (not recommended)",
                     --     width = "full",

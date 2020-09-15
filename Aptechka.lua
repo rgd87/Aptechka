@@ -124,7 +124,7 @@ local enableAuraEvents
 local debuffLimit
 local tankUnits = {}
 local staggerUnits = {}
--- local widgetSet
+local LibTranslit = LibStub("LibTranslit-1.0")
 
 Aptechka.L = setmetatable({}, {
     __index = function(t, k)
@@ -142,6 +142,7 @@ local defaults = {
         enableNickTag = false,
         sortUnitsByRole = true,
         showAFK = false,
+        translitCyrillic = false,
         enableMouseoverStatus = true,
         customBlacklist = {},
         LDBData = {}, -- minimap icon settings
@@ -663,6 +664,9 @@ end
 
 function Aptechka:UpdateName(frame)
     local name = frame.state.nameFull
+    if Aptechka.db.global.translitCyrillic then
+        name = LibTranslit:Transliterate(name)
+    end
     if NickTag and self.db.global.enableNickTag then
         local nickname = NickTag:GetNickname(name, nil, true) -- name, default, silent
         if nickname then name = nickname end
