@@ -40,6 +40,10 @@ if isClassic then
     GetSpecialization = function() return 1 end
     GetSpecializationInfo = function() return "DAMAGER" end
     HasIncomingSummon = dummyNil
+elseif not isShadowlands then
+    UnitPhaseReason = function(unit)
+        return not UnitInPhase(unit) or UnitIsWarModePhased(unit)
+    end
 end
 
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })

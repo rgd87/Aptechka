@@ -189,6 +189,7 @@ globals = {
     "UnitInRange",
     "UnitName",
     "GetRealmName",
+    "IsTestBuild",
     "UnitThreatSituation",
     "UnitGroupRolesAssigned",
     "UnitIsPlayer",

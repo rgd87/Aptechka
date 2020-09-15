@@ -98,7 +98,13 @@ helpers.AddAura = function (data, todefault)
     end
 
     if data.id and not data.name then data.name = GetSpellInfo(data.id) end
-    if data.name == nil then print (string.format("[Aptechka] %d spell id missing", data.id)) return end
+
+    if not data.name then
+        if IsTestBuild() then
+            print(string.format("[Aptechka] %d spell id missing", data.id))
+        end
+        return
+    end
     -- if data.isMine then data.type = data.type.."|PLAYER" end
 
     if data.prototype then -- metatables break because of config merging for gui
@@ -132,7 +138,12 @@ helpers.AddTrace = function(data)
     if data.id then data.name = GetSpellInfo(data.id) or data.name end
     data.type = "SPELL_"..data.type
     if not config.traces then config.traces = {} end
-    if not data.name then print(string.format("[Aptechka] %d spell id missing", data.id)) return end
+    if not data.name then
+        if IsTestBuild() then
+            print(string.format("[Aptechka] %d spell id missing", data.id))
+        end
+        return
+    end
     data.actualname = data.name
     data.name = data.actualname.."Trace"
     local id = data.id
