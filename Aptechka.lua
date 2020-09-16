@@ -79,6 +79,7 @@ local RosterUpdateOccured
 local LastCastSentTime = 0
 local LastCastTargetName
 local highlightedDebuffs = {}
+local GetNumGroupMembers = GetNumGroupMembers
 
 local AptechkaString = "|cffff7777Aptechka: |r"
 local GetTime = GetTime
@@ -958,8 +959,6 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
             Aptechka.FrameScanAuras(self, unit)
             SetJob(unit, config.GhostStatus, false)
             SetJob(unit, config.DeadStatus, false)
-            SetJob(unit, config.ResPendingStatus, false)
-            SetJob(unit, config.ResIncomingStatus, false)
             Aptechka.FrameUpdateDisplayPower(self, unit, false)
         end
     end
@@ -2805,6 +2804,36 @@ function Aptechka:UpdateHighlightedDebuffsHashMap()
             end
         end
     end
+end
+
+
+function Aptechka:TestProfileSwaps()
+    local numMembers = math.random(40)
+    local fakeRole = math.random(2) == 2 and "HEALER" or "DAMAGER"
+    local origGetSpecRole = self.GetSpecRole
+    self.GetSpecRole = function()
+        return fakeRole
+    end
+
+    print("Group size:", numMembers, "Role:", fakeRole)
+    GetNumGroupMembers = function()
+        return numMembers
+    end
+    IsInGroup = function()
+        return true
+    end
+    if numMembers > 5 then
+        IsInRaid = function()
+            return true
+        end
+    end
+
+    Aptechka:LayoutUpdate()
+
+    GetNumGroupMembers = _G.GetNumGroupMembers
+    IsInGroup = _G.IsInGroup
+    IsInRaid = _G.IsInRaid
+    self.GetSpecRole = origGetSpecRole
 end
 
 function Aptechka:TestDebuffSlots()
