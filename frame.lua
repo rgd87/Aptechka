@@ -35,6 +35,7 @@ Aptechka.Widget = {}
 
 
 local function InheritGlobalOptions(popts, gopts)
+    assert(gopts)
     if not popts then
         return gopts
     else
@@ -54,8 +55,45 @@ function Aptechka:GetWidgetsOptions(name)
     local popts = Aptechka.db.profile.widgetConfig and Aptechka.db.profile.widgetConfig[name]
     return popts, gopts
 end
+function Aptechka:GetWidgetsOptionsOrCreate(name)
+    local popts, gopts = self:GetWidgetsOptions(name)
+    if not popts then
+        Aptechka.util.MakeTables(Aptechka.db.profile, "widgetConfig", name)
+        popts = Aptechka.db.profile.widgetConfig[name]
+    end
+    return popts, gopts
+end
 function Aptechka:GetWidgetsOptionsMerged(name)
     return InheritGlobalOptions(Aptechka:GetWidgetsOptions(name))
+end
+
+-- In case any new properties were added for a widget type,
+-- fill the user-created ones with missing fields
+function Aptechka:FixWidgetsAfterUpgrade()
+    local gconfig = self.db.global.widgetConfig
+    local defaultWidgets = AptechkaDefaultConfig.DefaultWidgets
+    local toRemove = {}
+    for name, gopts in pairs(gconfig) do
+        if not defaultWidgets[name] then
+            local wtype = gopts.type
+            if wtype then
+
+                local defaultOpts = Aptechka.Widget[wtype].default
+                for propertyName, value in pairs(defaultOpts) do
+                    if gopts[propertyName] == nil then
+                        gopts[propertyName] = defaultOpts[propertyName]
+                    end
+                end
+            else
+                -- if it gets here that means it's a removed default widget, not a custom one
+                table.insert(toRemove, name)
+            end
+        end
+    end
+
+    for i, name in ipairs(toRemove) do
+        gconfig[name] = nil
+    end
 end
 
 local MakeBorder = function(self, tex, left, right, top, bottom, level)
@@ -111,6 +149,47 @@ local MakeCompositeBorder = function(frame, tex, left, right, top, bottom, drawL
     return border
 end
 
+local function GetSpellColor(job, caster, count)
+    local color
+    if caster ~= "player" and job.foreigncolor then
+        return unpack(job.foreigncolor)
+    elseif job.stackcolor then
+        return unpack(job.stackcolor[count])
+    elseif job.color then
+        return unpack(job.color)
+    end
+    return 1,1,1
+end
+
+local function GetSpellColorTable(job, caster, count)
+    local color
+    if caster ~= "player" and job.foreigncolor then
+        return job.foreigncolor
+    elseif job.stackcolor then
+        return job.stackcolor[count]
+    elseif job.color then
+        return job.color
+    end
+    return { 1,1,1 }
+end
+
+local function GetClassOrTextColor(job, state)
+    local c = (job.classcolor and state.classColor) or job.textcolor or job.color
+    if c then return unpack(c) end
+    return 1,1,1
+end
+
+local function GetColor(job)
+    local c = job.color
+    if c then return unpack(c) end
+    return 1,1,1
+end
+
+local function GetTextColor(job)
+    local c = job.textcolor or job.color
+    if c then return unpack(c) end
+    return 1,1,1
+end
 
 local function multiplyColor(mul, r,g,b,a)
     return r*mul, g*mul, b*mul, a
@@ -199,242 +278,11 @@ local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
     --     end
     -- end
 end
+------------------------------------------------------------
+-- Animations
+------------------------------------------------------------
 
--------------------------------------------------------------------------------------------
--- Square Indicator
--------------------------------------------------------------------------------------------
-
-local SetJob_Indicator = function(self, job, state, contentType, ...)
-    if contentType == "AURA" then
-        local duration, expirationTime, count = ...
-        if job.showDuration then
-            self.cd:SetReverse(not job.reverseDuration)
-            self.cd:SetCooldown(expirationTime - duration, duration, 0,0)
-            self.cd:Show()
-        elseif job.showStacks then
-            local stime = 300
-            local completed = (job.showStacks - count) * stime
-            local total = job.showStacks * stime
-            local start = GetTime() - completed
-            self.cd:SetReverse(true)
-            self.cd:SetCooldown(start, total)
-        else
-            self.cd:Hide()
-        end
-    else
-        self.cd:Hide()
-    end
-
-    local color
-    if job.foreigncolor and job.isforeign then
-        color = job.foreigncolor
-    else
-        color = job.color or { 1,1,1,1 }
-    end
-    self.color:SetVertexColor(unpack(color))
-
-    if job.fade then
-        if self.traceJob ~= job or not self.blink:IsPlaying() then
-
-
-            if self.blink:IsPlaying() then
-                self.blink:Stop()
-                if self.traceJob ~= job then
-                    self.jobs[self.traceJob] = nil
-                end
-            end
-            self.traceJob = job
-            -- if job.noshine then
-            --     self.blink.a2:SetChange(1)
-            -- else
-                self.blink.a2:SetFromAlpha(1)
-                self.blink.a2:SetToAlpha(0)
-            -- end
-            self.blink.a2:SetDuration(job.fade)
-            self.blink:Play()
-
-        end
-    else
-        if self.traceJob then
-            self.jobs[self.traceJob] = nil
-            self.blink:Stop()
-            self.traceJob = nil
-        end
-    end
-    -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
-        -- if not self.pulse:IsPlaying() then self.pulse:Play() end
-    -- end
-end
-
-local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackdrop)
-    local f = CreateFrame("Frame",nil,parent)
-    local w = pixelperfect(width)
-    local h = pixelperfect(height)
-    local border = pixelperfect(Aptechka.db.global.borderWidth)
-
-    f:SetWidth(w); f:SetHeight(h);
-    if not nobackdrop then
-        local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
-        outline:SetVertexColor(0,0,0)
-    end
-    f:SetFrameLevel(6)
-    local t = f:CreateTexture(nil,"ARTWORK")
-    t:SetTexture[[Interface\BUTTONS\WHITE8X8]]
-    t:SetAllPoints(f)
-    f.color = t
-    local icd = CreateFrame("Cooldown",nil,f, "CooldownFrameTemplate")
-    icd.noCooldownCount = true -- disable OmniCC for this cooldown
-
-        icd:SetEdgeTexture("Interface\\Cooldown\\edge");
-        icd:SetSwipeColor(0, 0, 0);
-        icd:SetDrawEdge(false);
-        -- icd:SetDrawSwipe(true);
-        icd:SetHideCountdownNumbers(true);
-
-
-    icd:SetReverse(true)
-    icd:SetAllPoints(f)
-    f.cd = icd
-    f:SetPoint(point,frame,to,x,y)
-    f.parent = parent
-    f.SetJob = SetJob_Indicator
-
-    -- local pag = f:CreateAnimationGroup()
-    -- local pa1 = pag:CreateAnimation("Scale")
-    -- pa1:SetScale(2,2)
-    -- pa1:SetDuration(0.2)
-    -- pa1:SetOrder(1)
-    -- local pa2 = pag:CreateAnimation("Scale")
-    -- pa2:SetScale(0.5,0.5)
-    -- pa2:SetDuration(0.8)
-    -- pa2:SetOrder(2)
-
-    local rag = f:CreateAnimationGroup()
-    local r1 = rag:CreateAnimation("Rotation")
-    r1:SetDegrees(180)
-    r1:SetSmoothing("IN_OUT")
-    r1:SetDuration(0.5)
-    r1:SetOrder(1)
-
-    local t1 = rag:CreateAnimation("Translation")
-    t1:SetOffset(0, 7)
-    t1:SetDuration(0.5)
-    t1:SetOrder(1)
-
-    local t2 = rag:CreateAnimation("Translation")
-    t2:SetOffset(0, -7)
-    t2:SetDuration(0.5)
-    t2:SetOrder(2)
-
-    f.jump = rag
-
-    local bag = f:CreateAnimationGroup()
-    bag:SetLooping("NONE")
-    local ba1 = bag:CreateAnimation("Alpha")
-    ba1:SetFromAlpha(0)
-    ba1:SetToAlpha(1)
-    ba1:SetDuration(0.1)
-    ba1:SetOrder(1)
-    local ba2 = bag:CreateAnimation("Alpha")
-    ba2:SetFromAlpha(1)
-    ba2:SetToAlpha(0)
-    ba2:SetDuration(0.7)
-    ba2:SetOrder(2)
-    bag.a2 = ba2
-
-    bag:SetScript("OnFinished",function(ag)
-        local self = ag:GetParent()
-        ag:Stop()
-        self:Hide()
-        return Aptechka.FrameSetJob(self.parent, self.traceJob, false)
-    end)
-    f.blink = bag
-
-
-    f.SetMinMaxValues = function(self, min, max )
-        self._min = min
-        self._max = max
-    end
-    f:SetMinMaxValues(0,1)
-    f.SetValue = function(self, val)
-        local duration = 259200 -- 3 days
-        local progress = (val - self._min) / (self._max - self._min)
-        local start = GetTime() - duration * progress
-        self.cd:SetCooldown(start, duration,0,0)
-    end
-
-    f:Hide()
-    return f
-end
-AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
-
-Aptechka.Widget.Indicator = {}
-Aptechka.Widget.Indicator.default = { type = "Indicator", width = 7, height = 7, point = "TOPRIGHT", x = 0, y = 0, }
-
-function Aptechka.Widget.Indicator.Create(parent, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-    return CreateIndicator(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y)
-end
-function Aptechka.Widget.Indicator.Reconf(parent, f, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-    f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
-    f:ClearAllPoints()
-    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
-end
-
-
--------------------------------------------------------------------------------------------
--- CORNER
--------------------------------------------------------------------------------------------
-
-local SetJob_Corner = function(self,job)
-    local color
-    if job.foreigncolor and job.isforeign then
-        color = job.foreigncolor
-    else
-        color = job.color or { 1,1,1,1 }
-    end
-    if job.pulse then
-        -- UIFrameFlash(self, 0.15, 0.15, 1.2, true)
-        if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
-    end
-    self.color:SetVertexColor(unpack(color))
-
-    if job.scale then
-        self:SetScale(job.scale)
-    else
-        self:SetScale(1)
-    end
-
-    if job.fade then
-        if (self.traceJob ~= job or not self.blink:IsPlaying()) or job.resetAnimation then
-
-            if self.blink:IsPlaying() then
-                self.blink:Stop()
-                if self.traceJob ~= job then
-                    self.jobs[self.traceJob] = nil
-                end
-            end
-            self.traceJob = job
-            self.blink.a2:SetFromAlpha(1)
-            self.blink.a2:SetToAlpha(0)
-            self.blink.a2:SetDuration(job.fade)
-            self.blink:Play()
-
-        end
-    else
-        if self.traceJob then
-            self.jobs[self.traceJob] = nil
-            self.blink:Stop()
-            self.traceJob = nil
-        end
-    end
-
-    -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
-        -- if not self.pulse:IsPlaying() then self.pulse:Play() end
-    -- end
-end
-local Corner_PulseAnimOnFinished = function(self)
+local Pulse_AnimOnFinished = function(self)
     self.pulses = self.pulses + 1
     if self.pulses > 10 then
         local ag = self:GetParent()
@@ -442,67 +290,14 @@ local Corner_PulseAnimOnFinished = function(self)
         ag.done = true
     end
 end
-local Corner_PulseAnimGroupOnPlay = function(ag)
+local Pulse_AnimGroupOnPlay = function(ag)
     ag.a2.pulses = 0
 end
-local Corner_OnHide = function(self)
+local Pulse_OnHide = function(self)
     self.pulse.done = false
 end
-local Corner_BlinkAnimOnFinished = function(ag)
-    local self = ag:GetParent()
-    ag:Stop()
-    self:Hide()
-    return Aptechka.FrameSetJob(self.parent, self.traceJob, false)
-end
-local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrderMod)
-    local f = CreateFrame("Frame",nil,parent)
-    f:SetWidth(w); f:SetHeight(h);
 
-    zOrderMod = zOrderMod or 0
-
-    local t = f:CreateTexture(nil,"ARTWORK", nil, 0+zOrderMod )
-    t:SetTexture[[Interface\AddOns\Aptechka\corner]]
-    if orientation == "BOTTOMLEFT" then
-        -- (ULx,ULy,LLx,LLy,URx,URy,LRx,LRy);
-        -- 00 1
-        t:SetTexCoord(1,0,1,1,0,0,0,1)
-    elseif orientation == "TOPRIGHT" then
-        t:SetTexCoord(0,1,0,0,1,1,1,0)
-    elseif orientation == "TOPLEFT" then
-        t:SetTexCoord(1,1,0,1,1,0,0,0)
-    end
-    t:SetAllPoints(f)
-
-    if point == "TOPRIGHT" then
-        t:SetTexCoord(0,1,1,0)
-    elseif point == "TOPLEFT" then
-        t:SetTexCoord(1,0,1,0)
-    elseif point == "BOTTOMLEFT" then
-        t:SetTexCoord(1,0,0,1)
-    end
-
-    f.color = t
-    f:SetPoint(point,frame,to,x,y)
-    f.parent = parent
-    f.SetJob = SetJob_Corner
-
-    local bag = f:CreateAnimationGroup()
-    bag:SetLooping("NONE")
-    local ba1 = bag:CreateAnimation("Alpha")
-    ba1:SetFromAlpha(0)
-    ba1:SetToAlpha(1)
-    ba1:SetDuration(0.1)
-    ba1:SetOrder(1)
-    local ba2 = bag:CreateAnimation("Alpha")
-    ba2:SetFromAlpha(1)
-    ba2:SetToAlpha(0)
-    ba2:SetDuration(0.7)
-    ba2:SetOrder(2)
-    bag.a2 = ba2
-
-    bag:SetScript("OnFinished", Corner_BlinkAnimOnFinished)
-    f.blink = bag
-
+local function AddPulseAnimation(f)
     local pag = f:CreateAnimationGroup()
     pag:SetLooping("REPEAT")
     local pa1 = pag:CreateAnimation("Alpha")
@@ -516,165 +311,52 @@ local CreateCorner = function (parent,w,h,point,frame,to,x,y, orientation, zOrde
     pa2:SetDuration(0.15)
     pa2:SetOrder(2)
     pag.a2 = pa2
-    pa2:SetScript("OnFinished", Corner_PulseAnimOnFinished)
+    pa2:SetScript("OnFinished", Pulse_AnimOnFinished)
 
-    pag:SetScript("OnPlay", Corner_PulseAnimGroupOnPlay)
+    pag:SetScript("OnPlay", Pulse_AnimGroupOnPlay)
+
+    f:SetScript("OnHide", Pulse_OnHide)
+
     f.pulse = pag
-
-    f:SetScript("OnHide", Corner_OnHide)
-
-    f:Hide()
-    return f
 end
 
--------------------------------------------------------------------------------------------
--- StatusBar
--------------------------------------------------------------------------------------------
-
-local StatusBarOnUpdate = function(self, time)
-    self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
-    if self.OnUpdateCounter < 0.05 then return end
-    self.OnUpdateCounter = 0
-
-    local timeLeft = self.expires - GetTime()
-
-    if self.pandemic and timeLeft < self.pandemic then
-        local color = self.currentJob.color
-        -- self.pandot:Show()
-        self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
-        self.pandemic = nil
-    end
-
-    self:SetValue(timeLeft)
+local BlinkAnimOnFinished = function(ag)
+    local widget = ag:GetParent()
+    local frame = widget.parent
+    widget.traceJob = nil
+    Aptechka:UpdateWidget(frame, widget)
 end
-local SetJob_StatusBar = function(self, job, state, contentType, ...)
-    local color
-    if job.foreigncolor and job.isforeign then
-        color = job.foreigncolor
-    else
-        color = job.color or { 1,1,1,1 }
-    end
 
-    if contentType == "AURA" then
-        local duration, expirationTime, count, texture = ...
+local function AddBlinkAnimation(f)
+    local bag = f:CreateAnimationGroup()
+    bag:SetLooping("NONE")
+    local ba1 = bag:CreateAnimation("Alpha")
+    ba1:SetFromAlpha(0)
+    ba1:SetToAlpha(1)
+    ba1:SetDuration(0.1)
+    ba1:SetOrder(1)
+    local ba2 = bag:CreateAnimation("Alpha")
+    ba2:SetFromAlpha(1)
+    ba2:SetToAlpha(0)
+    ba2:SetDuration(0.7)
+    ba2:SetOrder(2)
+    bag.a2 = ba2
 
-        if job.showStacks then
-            self:SetMinMaxValues(0, job.showStacks)
-            self:SetValue(count)
-            self:SetScript("OnUpdate", nil)
-            self:SetStatusBarColor(unpack(color))
-        else
-            self.expires = expirationTime
-            local pandemic = job.refreshTime
-            self.pandemic = pandemic
-            self:SetMinMaxValues(0, duration)
-            local timeLeft = self.expires - GetTime()
-            if pandemic and pandemic >= timeLeft then
-                self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
-            else
-                self:SetStatusBarColor(unpack(color))
-            end
-            if not job.showDuration or duration == 0 then
-                self:SetMinMaxValues(0, 1)
-                self:SetValue(1)
-                self:SetScript("OnUpdate", nil)
-            else
-                self:SetValue(timeLeft)
-                self:SetScript("OnUpdate", StatusBarOnUpdate)
-            end
-        end
-    else
-        self:SetStatusBarColor(unpack(color))
-        self:SetMinMaxValues(0, 1)
-        self:SetValue(1)
-        self:SetScript("OnUpdate", nil)
-    end
-
-    if self.currentJob ~= self.previousJob then
-        if job.jump then
-            if not self.jump:IsPlaying() then self.jump:Play() end
-        else
-            self.jump:Stop()
-        end
-    end
-
-    self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
+    bag:SetScript("OnFinished", BlinkAnimOnFinished)
+    f.blink = bag
 end
-local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackdrop, isVertical)
-    local f = CreateFrame("StatusBar",nil,parent)
-    local w = pixelperfect(width)
-    local h = pixelperfect(height)
-    local border = pixelperfect(Aptechka.db.global.borderWidth)
-    f:SetWidth(w); f:SetHeight(h);
-    if not nobackdrop then
-        local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
-        outline:SetVertexColor(0,0,0)
-    end
-    f:SetFrameLevel(7)
 
-    if isVertical then
-        f:SetOrientation("VERTICAL")
-    end
-
-    f:SetStatusBarTexture[[Interface\BUTTONS\WHITE8X8]]
-    -- f:SetMinMaxValues(0,100)
-    -- f:SetStatusBarColor(1,1,1)
-
-    local bg = f:CreateTexture(nil,"ARTWORK",nil,-2)
-    bg:SetTexture[[Interface\BUTTONS\WHITE8X8]]
-    bg:SetAllPoints(f)
-    f.bg = bg
-
-    -- local pandot = f:CreateTexture(nil, "ARTWORK", nil, -1)
-    -- pandot:SetTexture[[Interface\BUTTONS\WHITE8X8]]
-    -- pandot:SetWidth(pixelperfect(3))
-    -- pandot:SetHeight(pixelperfect(3))
-    -- pandot:SetPoint("CENTER", f, "RIGHT", -pixelperfect(4), 0)
-    -- f.pandot = pandot
-
-    f:SetPoint(point,frame,to,x,y)
-    f.parent = parent
-    f.SetJob = SetJob_StatusBar
-    f:SetScript("OnUpdate", StatusBarOnUpdate)
-
+local function AddSpinAnimation(f)
     local rag = f:CreateAnimationGroup()
     local r1 = rag:CreateAnimation("Rotation")
-    r1:SetDegrees(180)
+    r1:SetDegrees(360)
     r1:SetSmoothing("IN_OUT")
-    r1:SetDuration(0.5)
+    r1:SetDuration(1)
     r1:SetOrder(1)
 
-    local t1 = rag:CreateAnimation("Translation")
-    t1:SetOffset(0, 7)
-    t1:SetDuration(0.5)
-    t1:SetOrder(1)
-
-    local t2 = rag:CreateAnimation("Translation")
-    t2:SetOffset(0, -7)
-    t2:SetDuration(0.5)
-    t2:SetOrder(2)
-
-    f.jump = rag
-
-    f:Hide()
-    return f
-end
-AptechkaDefaultConfig.GridSkin_CreateStatusBar = CreateStatusBar
-
-Aptechka.Widget.Bar = {}
-Aptechka.Widget.Bar.default = { type = "Bar", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false }
-function Aptechka.Widget.Bar.Create(parent, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-    return CreateStatusBar(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y, nil, opts.vertical)
+    f.spin = rag
 end
 
-function Aptechka.Widget.Bar.Reconf(parent, f, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-    f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
-    f:ClearAllPoints()
-    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
-    f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
-end
 
 ----------------------------------------------------------------
 -- Array
@@ -709,24 +391,27 @@ local function ArrayHeader_Arrange(hdr, startIndex)
     local numChildren = #hdr.children
     local gap = pixelperfect(1)
 
+    local point, relativeTo, relativePoint, _, _ = hdr:GetPoint(1)
+    local alignH = helpers.GetHorizontalAlignmentFromPoint(point)
+    local alignV = helpers.GetVerticalAlignmentFromPoint(point)
+
     startIndex = startIndex or 1
     for i=startIndex, numChildren do
         local widget = hdr.children[i]
         widget:ClearAllPoints()
         if i == 1 then
-            local point, relativeTo, relativePoint, _, _ = hdr:GetPoint(1)
             widget:SetPoint(point, hdr, point, 0,0)
         else
             local growthDirection = hdr.growthDirection:upper()
             local prevWidget = hdr.children[i-1]
             if growthDirection == "DOWN" then
-                widget:SetPoint("TOPLEFT", prevWidget, "BOTTOMLEFT", 0, -gap)
+                widget:SetPoint("TOP"..alignH, prevWidget, "BOTTOM"..alignH, 0, -gap)
             elseif growthDirection == "LEFT" then
-                widget:SetPoint("TOPRIGHT", prevWidget, "TOPLEFT", -gap, 0)
+                widget:SetPoint(alignV.."RIGHT", prevWidget, alignV.."LEFT", -gap, 0)
             elseif growthDirection == "RIGHT" then
-                widget:SetPoint("TOPLEFT", prevWidget, "TOPRIGHT", gap, 0)
+                widget:SetPoint(alignV.."LEFT", prevWidget, alignV.."RIGHT", gap, 0)
             else
-                widget:SetPoint("BOTTOMLEFT", prevWidget, "TOPLEFT", 0, gap)
+                widget:SetPoint("BOTTOM"..alignH, prevWidget, "TOP"..alignH, 0, gap)
             end
         end
     end
@@ -734,12 +419,22 @@ end
 
 local function ArrayHeader_Add(hdr)
     -- if #hdr.children >= hdr.maxChildren then return end
-
-    local widget = Aptechka.Widget[hdr.childType].Create(hdr, hdr.template)
+    local widget = Aptechka.Widget[hdr.childType].Create(hdr, nil, hdr.template)
     table.insert(hdr.children, widget)
     hdr:Arrange(#hdr.children)
 
     return widget
+end
+
+-- When SetJob on header finds no active jobs it just hides the header
+-- But .currentJob and .previousJob on the last child don't get updated
+local function ArrayHeader_OnHide(hdr)
+    for i=1, #hdr.children do
+        local widget = hdr.children[i]
+        widget.previousJob = widget.currentJob
+        widget.currentJob = nil
+        widget:Hide()
+    end
 end
 
 local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, growthDirection, maxChildren)
@@ -756,6 +451,7 @@ local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, gr
     hdr.maxChildren = maxChildren or 5
     hdr.template = barTemplate
     hdr.growthDirection = growthDirection
+    hdr:SetScript("OnHide", ArrayHeader_OnHide)
 
     hdr.Add = ArrayHeader_Add
     hdr.Arrange = ArrayHeader_Arrange
@@ -764,6 +460,482 @@ local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, gr
 
     return hdr
 end
+
+-------------------------------------------------------------------------------------------
+-- Square Indicator
+-------------------------------------------------------------------------------------------
+
+local PixelScaleMixin = {}
+function PixelScaleMixin.SetVScale(self, vscale)
+    local bh = self._baseHeight
+    local sh = bh*vscale
+    self:SetHeight(sh)
+end
+function PixelScaleMixin.SetHScale(self, hscale)
+    local bw = self._baseWidth
+    local sw = bw*hscale
+    self:SetWidth(sw)
+end
+function PixelScaleMixin.SetUScale(self, scale)
+    self:SetHScale(scale)
+    self:SetVScale(scale)
+end
+
+local function Indicator_StartTrace(self, job)
+    if self.traceJob and self.traceJob.priority > job.priority then
+        return
+    end
+
+    self.traceJob = job
+
+    self:Show()
+
+    self.blink.a2:SetFromAlpha(1)
+    self.blink.a2:SetToAlpha(0)
+    local duration = job.fade or 0.7
+    self.blink.a2:SetDuration(duration)
+
+    local r,g,b,a = GetColor(job)
+    self.color:SetVertexColor(r,g,b,a)
+
+    if self.blink:IsPlaying() then
+        self.blink:Stop()
+    end
+    self.blink:Play()
+end
+local SetJob_Indicator = function(self, job, state, contentType, ...)
+    if self.traceJob then return end -- widget is busy with animation
+
+    if self.currentJob ~= self.previousJob then
+        if job.pulse then
+            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+        end
+
+        local scale = job.scale or 1
+        self:SetUScale(scale)
+
+        if job.spin then
+            if self.spin:IsPlaying() then self.spin:Stop() end
+            self.spin:Play()
+        else
+            self.spin:Stop()
+        end
+    end
+
+    if contentType == "AURA" then
+        local duration, expirationTime, count, texture, spellID, caster = ...
+        self.color:SetVertexColor(GetSpellColor(job, caster, count))
+
+        if job.showDuration then
+            self.cd:SetReverse(not job.reverseDuration)
+            self.cd:SetCooldown(expirationTime - duration, duration, 0,0)
+            self.cd:Show()
+        elseif job.showCount then
+            local stime = 300
+            local maxCount = job.maxCount or 5
+            local completed = (maxCount - count) * stime
+            local total = maxCount * stime
+            local start = GetTime() - completed
+            self.cd:SetReverse(true)
+            self.cd:SetCooldown(start, total)
+        else
+            self.cd:Hide()
+        end
+    elseif contentType == "PROGRESS" then
+        self.color:SetVertexColor(GetColor(job))
+
+        local p = ...
+        local stime = 30000
+        local completed = p*stime
+        local total = stime
+        local start = GetTime() - completed
+        self.cd:SetReverse(false)
+        self.cd:SetCooldown(start, total)
+    else
+        self.color:SetVertexColor(GetColor(job))
+        self.cd:Hide()
+    end
+end
+
+local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackdrop)
+    local f = CreateFrame("Frame",nil,parent)
+    local w = pixelperfect(width)
+    local h = pixelperfect(height)
+    local border = pixelperfect(Aptechka.db.global.borderWidth)
+
+    f:SetWidth(w); f:SetHeight(h);
+    f._baseWidth = w
+    f._baseHeight = h
+    if not nobackdrop then
+        local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
+        outline:SetVertexColor(0,0,0)
+    end
+    f:SetFrameLevel(6)
+    local t = f:CreateTexture(nil,"ARTWORK")
+    t:SetTexture[[Interface\BUTTONS\WHITE8X8]]
+    t:SetAllPoints(f)
+    f.color = t
+    local icd = CreateFrame("Cooldown",nil,f, "CooldownFrameTemplate")
+    icd.noCooldownCount = true -- disable OmniCC for this cooldown
+
+        icd:SetEdgeTexture("Interface\\Cooldown\\edge");
+        icd:SetSwipeColor(0, 0, 0);
+        icd:SetDrawEdge(false);
+        -- icd:SetDrawSwipe(true);
+        icd:SetHideCountdownNumbers(true);
+
+
+    icd:SetReverse(true)
+    icd:SetAllPoints(f)
+    f.cd = icd
+    f:SetPoint(point,frame,to,x,y)
+    f.parent = parent
+    f.SetJob = SetJob_Indicator
+    f.StartTrace = Indicator_StartTrace
+    Mixin(f, PixelScaleMixin)
+
+
+    -- local pag = f:CreateAnimationGroup()
+    -- local pa1 = pag:CreateAnimation("Scale")
+    -- pa1:SetScale(2,2)
+    -- pa1:SetDuration(0.2)
+    -- pa1:SetOrder(1)
+    -- local pa2 = pag:CreateAnimation("Scale")
+    -- pa2:SetScale(0.5,0.5)
+    -- pa2:SetDuration(0.8)
+    -- pa2:SetOrder(2)
+
+    AddSpinAnimation(f)
+    AddBlinkAnimation(f)
+    AddPulseAnimation(f)
+
+    f.SetMinMaxValues = function(self, min, max )
+        self._min = min
+        self._max = max
+    end
+    f:SetMinMaxValues(0,1)
+    f.SetValue = function(self, val)
+        local duration = 259200 -- 3 days
+        local progress = (val - self._min) / (self._max - self._min)
+        local start = GetTime() - duration * progress
+        self.cd:SetCooldown(start, duration,0,0)
+    end
+
+    f:Hide()
+    return f
+end
+AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
+
+Aptechka.Widget.Indicator = {}
+Aptechka.Widget.Indicator.default = { type = "Indicator", width = 7, height = 7, point = "TOPRIGHT", x = 0, y = 0, }
+
+function Aptechka.Widget.Indicator.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    return CreateIndicator(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y)
+end
+function Aptechka.Widget.Indicator.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    local w = pixelperfect(opts.width)
+    local h = pixelperfect(opts.height)
+    f:SetSize(w, h)
+    f._baseWidth = w
+    f._baseHeight = h
+    f:ClearAllPoints()
+    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+end
+
+-------------------------------------------------------------------------------------------
+-- Texture
+-------------------------------------------------------------------------------------------
+local function Texture_StartTrace(self, job)
+    if self.traceJob and self.traceJob.priority > job.priority then
+        return
+    end
+
+    self.traceJob = job
+
+    self:Show()
+
+    self.blink.a2:SetFromAlpha(1)
+    self.blink.a2:SetToAlpha(0)
+    local duration = job.fade or 0.7
+    self.blink.a2:SetDuration(duration)
+
+    local r,g,b,a = GetColor(job)
+    self.color:SetVertexColor(r,g,b,a)
+
+    local scale = job.scale or 1
+    self:SetScale(scale)
+
+    if self.blink:IsPlaying() then
+        self.blink:Stop()
+    end
+    self.blink:Play()
+end
+
+local SetJob_Texture = function(self, job, state, contentType, ...)
+    if self.traceJob then return end -- widget is busy with animation
+    if self.currentJob ~= self.previousJob then
+        local r,g,b,a = GetColor(job)
+        self.color:SetVertexColor(r,g,b,a)
+
+        if job.scale then
+            self:SetScale(job.scale)
+        else
+            self:SetScale(1)
+        end
+        if job.pulse then
+            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+        end
+    end
+end
+
+Aptechka.Widget.Texture = {}
+Aptechka.Widget.Texture.default = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 0, alpha = 1, blendmode = "BLEND" }
+
+function Aptechka.Widget.Texture.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+
+    local f = CreateFrame("Frame",nil,parent)
+    f:SetWidth(pixelperfect(opts.width));
+    f:SetHeight(pixelperfect(opts.height));
+
+    local zOrderMod = opts.zorder or 0
+
+    local t = f:CreateTexture(nil,"ARTWORK")
+
+    t:SetDrawLayer("ARTWORK", zOrderMod)
+
+    t:SetTexture(opts.texture)
+
+    t:SetBlendMode(opts.blendmode)
+    t:SetAlpha(opts.alpha)
+
+    local rotation = opts.rotation
+    if rotation == 90 then -- BOTTOMLEFT
+        -- (ULx,ULy,LLx,LLy,URx,URy,LRx,LRy);
+        t:SetTexCoord(1,0,1,1,0,0,0,1)
+    elseif rotation == 180 then -- TOPLEFT
+        t:SetTexCoord(1,1,0,1,1,0,0,0)
+    elseif rotation == 270 then -- TOPRIGHT
+        t:SetTexCoord(0,1,0,0,1,1,1,0)
+    else
+        t:SetTexCoord(0,1, 0,1) -- STRAIGHT / BOTTOMRIGHT
+    end
+
+
+    t:SetAllPoints(f)
+
+    f.color = t
+
+    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+    f.parent = parent
+    f.SetJob = SetJob_Texture
+    f.StartTrace = Texture_StartTrace
+
+    AddBlinkAnimation(f)
+    AddPulseAnimation(f)
+
+    f:Hide()
+
+    return f
+end
+function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+
+    f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
+
+    f:ClearAllPoints()
+    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+
+    local t = f.color
+
+    t:SetTexture(opts.texture)
+    t:SetBlendMode(opts.blendmode)
+    t:SetAlpha(opts.alpha)
+
+    local zOrderMod = opts.zorder or 0
+    t:SetDrawLayer("ARTWORK", zOrderMod)
+
+    local rotation = opts.rotation
+    if rotation == 90 then -- BOTTOMLEFT
+        -- (ULx,ULy,LLx,LLy,URx,URy,LRx,LRy);
+        t:SetTexCoord(1,0,1,1,0,0,0,1)
+    elseif rotation == 180 then -- TOPLEFT
+        t:SetTexCoord(1,1,0,1,1,0,0,0)
+    elseif rotation == 270 then -- TOPRIGHT
+        t:SetTexCoord(0,1,0,0,1,1,1,0)
+    else
+        t:SetTexCoord(0,1, 0,1) -- STRAIGHT / BOTTOMRIGHT
+    end
+end
+
+-------------------------------------------------------------------------------------------
+-- StatusBar
+-------------------------------------------------------------------------------------------
+
+local StatusBarOnUpdate = function(self, time)
+    self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
+    if self.OnUpdateCounter < 0.05 then return end
+    self.OnUpdateCounter = 0
+
+    local timeLeft = self.expires - GetTime()
+
+    if self.pandemic and timeLeft < self.pandemic then
+        local color = self._color
+        self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
+        self.pandemic = nil
+    end
+
+    self:SetValue(timeLeft)
+end
+local SetJob_StatusBar = function(self, job, state, contentType, ...)
+    if contentType == "AURA" then
+        local duration, expirationTime, count, texture, spellID, caster = ...
+        local color = GetSpellColorTable(job, caster, count)
+
+        self:SetStatusBarColor(unpack(color))
+        self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
+        self._color = color
+
+        if job.showCount then
+            local maxCount = job.maxCount or 5
+            self:SetMinMaxValues(0, maxCount)
+            self:SetValue(count)
+            self:SetScript("OnUpdate", nil)
+        else
+            self.expires = expirationTime
+            local pandemic = job.refreshTime
+            self.pandemic = pandemic
+            -- local timeLeft = self.expires - GetTime()
+
+            if not job.showDuration or duration == 0 then
+                self:SetMinMaxValues(0, 1)
+                self:SetValue(1)
+                self:SetScript("OnUpdate", nil)
+            else
+                self:SetMinMaxValues(0, duration)
+                -- self:SetValue(timeLeft)
+                StatusBarOnUpdate(self, 0)
+                self:SetScript("OnUpdate", StatusBarOnUpdate)
+            end
+        end
+    elseif contentType == "PROGRESS" then
+        local p = ...
+        self:SetMinMaxValues(0, 1)
+        self:SetValue(p)
+
+        local r,g,b = GetColor(job)
+        self:SetStatusBarColor(r,g,b)
+        self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
+
+        self:SetScript("OnUpdate", nil)
+    elseif contentType == "Stagger" then
+        local stagger = state.stagger
+        self:SetMinMaxValues(0, 1)
+        self:SetValue(stagger)
+
+        local r,g,b = helpers.PercentColor(stagger)
+        self:SetStatusBarColor(r,g,b)
+        self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
+
+        self:SetScript("OnUpdate", nil)
+    else
+        local r,g,b = GetColor(job)
+        self:SetStatusBarColor(r,g,b)
+        self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
+
+        self:SetMinMaxValues(0, 1)
+        self:SetValue(1)
+
+        self:SetScript("OnUpdate", nil)
+    end
+
+    if self.currentJob ~= self.previousJob then
+        if job.spin then
+            if self.spin:IsPlaying() then self.spin:Stop() end
+            self.spin:Play()
+        else
+            self.spin:Stop()
+        end
+
+        local vscale = job.scale or 1
+        self:SetVScale(vscale)
+
+        local hscale = job.hscale or 1
+        self:SetHScale(hscale)
+    end
+end
+
+
+local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackdrop, isVertical)
+    local f = CreateFrame("StatusBar",nil,parent)
+    local w = pixelperfect(width)
+    local h = pixelperfect(height)
+    local border = pixelperfect(Aptechka.db.global.borderWidth)
+    f:SetWidth(w);
+    f._baseWidth = w
+    f:SetHeight(h);
+    f._baseHeight = h
+    if not nobackdrop then
+        local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
+        outline:SetVertexColor(0,0,0)
+    end
+    f:SetFrameLevel(7)
+
+    if isVertical then
+        f:SetOrientation("VERTICAL")
+    end
+
+    f:SetStatusBarTexture[[Interface\BUTTONS\WHITE8X8]]
+    -- f:SetMinMaxValues(0,100)
+    -- f:SetStatusBarColor(1,1,1)
+
+    local bg = f:CreateTexture(nil,"ARTWORK",nil,-2)
+    bg:SetTexture[[Interface\BUTTONS\WHITE8X8]]
+    bg:SetAllPoints(f)
+    f.bg = bg
+
+    -- local pandot = f:CreateTexture(nil, "ARTWORK", nil, -1)
+    -- pandot:SetTexture[[Interface\BUTTONS\WHITE8X8]]
+    -- pandot:SetWidth(pixelperfect(3))
+    -- pandot:SetHeight(pixelperfect(3))
+    -- pandot:SetPoint("CENTER", f, "RIGHT", -pixelperfect(4), 0)
+    -- f.pandot = pandot
+
+    f:SetPoint(point,frame,to,x,y)
+    f.parent = parent
+    f.SetJob = SetJob_StatusBar
+    Mixin(f, PixelScaleMixin)
+    f:SetScript("OnUpdate", StatusBarOnUpdate)
+
+    AddSpinAnimation(f)
+
+    f:Hide()
+    return f
+end
+AptechkaDefaultConfig.GridSkin_CreateStatusBar = CreateStatusBar
+
+Aptechka.Widget.Bar = {}
+Aptechka.Widget.Bar.default = { type = "Bar", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false }
+function Aptechka.Widget.Bar.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    return CreateStatusBar(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y, nil, opts.vertical)
+end
+
+function Aptechka.Widget.Bar.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    local w = pixelperfect(opts.width)
+    f:SetWidth(w)
+    f._baseWidth = w
+    local h = pixelperfect(opts.height)
+    f:SetHeight(h)
+    f._baseHeight = h
+    f:ClearAllPoints()
+    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+    f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
+end
+
 
 Aptechka.Widget.BarArray = {}
 Aptechka.Widget.BarArray.default = { type = "BarArray", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 }
@@ -785,8 +957,25 @@ function Aptechka.Widget.BarArray.Reconf(parent, hdr, popts, gopts)
     hdr:Arrange()
 end
 
+------------------------------------------------------------------------------------------
+-- Indicator Array
+------------------------------------------------------------------------------------------
+
+Aptechka.Widget.IndicatorArray = {}
+Aptechka.Widget.IndicatorArray.default = { type = "IndicatorArray", width = 7, height = 7, point = "TOPRIGHT", x = 0, y = 0, growth = "LEFT", max = 3 }
+function Aptechka.Widget.IndicatorArray.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    return CreateArrayHeader("Indicator", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+end
+
+Aptechka.Widget.IndicatorArray.Reconf = Aptechka.Widget.BarArray.Reconf
+
+----------------------------------------------------------
+-- Icon Array
+----------------------------------------------------------
+
 Aptechka.Widget.IconArray = {}
-Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
+Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
 function Aptechka.Widget.IconArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateArrayHeader("Icon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
@@ -794,36 +983,11 @@ end
 
 Aptechka.Widget.IconArray.Reconf = Aptechka.Widget.BarArray.Reconf
 
---[[
-local SetJob_RoundIndicator = function(self,job)
-    local color
-    if job.foreigncolor and job.isforeign then
-        color = job.foreigncolor
-    else
-        color = job.color or { 1,1,1,1 }
-    end
-    self.color:SetVertexColor(unpack(color))
-end
-local CreateRoundIndicator = function (parent,width,height,point,frame,to,x,y)
-    local ri = CreateFrame("Frame",nil, parent)
-    ri:SetFrameLevel(7)
-    ri:SetWidth(width); ri:SetHeight(height)
-    ri:SetPoint(point,frame,to,x,y)
-    local ritex = ri:CreateTexture(nil,"OVERLAY", nil, 2)
-    ritex:SetAllPoints(ri)
-    ritex:SetTexture("Interface\\AddOns\\Aptechka\\roundIndicator")
-    ri.color = ritex
-
-    ri:Hide()
-
-    ri.SetJob = SetJob_RoundIndicator
-    return ri
-end
-]]
+----------------------------------------------------------
+-- Base Icon
+----------------------------------------------------------
 
 local SetJob_Icon = function(self, job, state, contentType, ...)
-    if job.fade then self.jobs[job.name] = nil; return end
-
     if contentType == "AURA" then
         local duration, expirationTime, count, texture = ...
         if job.showDuration then
@@ -841,11 +1005,9 @@ local SetJob_Icon = function(self, job, state, contentType, ...)
             self.stacktext:SetText()
         end
     end
-    -- if job.pulse and (not self.currentJob or job.priority > self.currentJob.priority) then
-        -- if not self.pulse:IsPlaying() then self.pulse:Play() end
-    -- end
 end
 
+--[[
 local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     local icon = CreateFrame("Frame",nil,parent)
     icon:SetWidth(w); icon:SetHeight(h)
@@ -853,7 +1015,7 @@ local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     icon:SetFrameLevel(7)
 
     local shield = icon:CreateTexture(nil, "ARTWORK", nil, 2)
-    shield:SetTexture([[Interface\AchievementFrame\UI-Achievement-IconFrame]])
+    shield:SetTexture("Interface\\AchievementFrame\\UI-Achievement-IconFrame")
     shield:SetTexCoord(0,0.5625,0,0.5625)
     shield:SetWidth(h*1.8)
     shield:SetHeight(h*1.8)
@@ -883,6 +1045,7 @@ local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
 
     return icon
 end
+]]
 
 local AddOutline = function(self)
     local outlineSize = pixelperfect(1)
@@ -891,7 +1054,7 @@ local AddOutline = function(self)
     return outline
 end
 
-local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, x, y, fontName, textsize, outlineEnabled, drawEdge)
     local w = pixelperfect(width)
     local h = pixelperfect(height)
 
@@ -935,9 +1098,9 @@ local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, 
     stackframe:SetAllPoints(icon)
     local stacktext = stackframe:CreateFontString(nil,"ARTWORK")
     stacktext:SetDrawLayer("ARTWORK",1)
-    local stackFont = LSM:Fetch("font",  Aptechka.db.profile.stackFontName)
-    local stackFontSize = textsize or Aptechka.db.profile.stackFontSize
-    stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
+    local font = LSM:Fetch("font", fontName)
+    local fontSize = textsize or 12
+    stacktext:SetFont(font, fontSize, "OUTLINE")
     -- stackframe:SetFrameLevel(7)
 
     stacktext:SetJustifyH"RIGHT"
@@ -950,8 +1113,8 @@ local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, 
     return icon
 end
 
-local function CreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
-    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+local function CreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge, ...)
+    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge, ...)
 
     local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
     icd.noCooldownCount = true -- disable OmniCC for this cooldown
@@ -964,6 +1127,10 @@ local function CreateIcon(parent, width, height, alpha, point, frame, to, x, y, 
 
     return icon
 end
+
+----------------------------------------------------------
+-- Bar Icon
+----------------------------------------------------------
 
 local BarIcon_SetCooldown = function(self, startTime, duration)
     self:SetMinMaxValues(0, duration)
@@ -987,8 +1154,8 @@ end
 --     -- if now >= self.expirationTime then self:Hide(); return end
 --     self:SetValue(self.expirationTime - now)
 -- end
-local function CreateBarIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
-    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge)
+local function CreateBarIcon(parent, width, height, alpha, point, frame, to, x, y, ...)
+    local icon = BaseCreateIcon(parent, width, height, alpha, point, frame, to, x, y, ...)
 
     local icd = CreateFrame("StatusBar", nil, icon)
     icd:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
@@ -1018,10 +1185,10 @@ end
 AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 Aptechka.Widget.Icon = {}
-Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = true, edge = true }
+Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 12, outline = true, edge = true }
 function Aptechka.Widget.Icon.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
+    return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
 end
 
 function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
@@ -1029,11 +1196,19 @@ function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
     local w = pixelperfect(opts.width)
     local h = pixelperfect(opts.height)
 
-    f:SetSize(opts.width, opts.height)
+    f:SetSize(w, h)
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     f:SetAlpha(opts.alpha)
-    local font = LSM:Fetch("font",  Aptechka.db.profile.stackFontName)
+
+    local fontName = opts.font or "ClearFont"
+    local font = LSM:Fetch("font",  fontName)
+    local flags = opts.effect == "OUTLINE" and "OUTLINE"
+    if opts.effect == "SHADOW" then
+        f.stacktext:SetShadowOffset(1,-1)
+    else
+        f.stacktext:SetShadowOffset(0,0)
+    end
     f.stacktext:SetFont(font, opts.textsize, "OUTLINE")
     local drawEdge = opts.edge
 
@@ -1056,10 +1231,22 @@ function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
     f.texture:SetTexCoord(.1+vm, .9-vm, .1+hm, .9-hm)
 end
 
+----------------------------------------------------------
+-- Debuff Icon
+----------------------------------------------------------
 
 local DebuffTypeColor = DebuffTypeColor
 local helpful_color = { r = 0, g = 1, b = 0}
-local function SetJob_DebuffIcon(self, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+
+local function DebuffIcon_SetDebuffColor(self, r,g,b)
+    self.debuffTypeTexture:SetVertexColor(r, g, b)
+
+    if self.border then
+        self:SetBackdropBorderColor(r,g,b)
+    end
+end
+
+local function DebuffIcon_SetJob(self, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
     if expirationTime then
         self.cd:SetReverse(true)
         self.cd:SetCooldown(expirationTime - duration, duration)
@@ -1078,131 +1265,119 @@ local function SetJob_DebuffIcon(self, debuffType, expirationTime, duration, ico
     else
         color = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
     end
-    self.debuffTypeTexture:SetVertexColor(color.r, color.g, color.b, 1)
+    self:SetDebuffColor(color.r, color.g, color.b)
 
     if isBossAura then
-        self:SetScale(Aptechka.db.profile.debuffBossScale)
+        self:SetScale(Aptechka._BossDebuffScale)
     else
         self:SetScale(1)
     end
 end
 
-local SetDebuffOrientation = function(self, orientation, size)
+local debuff_border_backdrop = {
+    edgeFile = "Interface\\AddOns\\Aptechka\\border_3px", edgeSize = 8, tileEdge = false,
+}
+
+local function DebuffIcon_SetDebuffStyle(self, opts)
     local it = self.texture
     local dtt = self.debuffTypeTexture
     local text = self.stacktext
-    -- local w = self.width
-    -- local h = self.height
-    local w = size
-    local h = size
+
+    local w = pixelperfect(opts.width)
+    local h = pixelperfect(opts.height)
     local p = pixelperfect(1)
+    local style = opts.style
+
     it:ClearAllPoints()
     dtt:ClearAllPoints()
+    self.border = nil
 
-    -- local simple = false
-    -- local corner = true
-
-    -- if simple then
-    --     it:SetSize(pixelperfect(h - 2), pixelperfect(h - 2*p))
-    --     it:SetPoint("TOPLEFT", self, "TOPLEFT", p, -p)
-    --     dtt:SetSize(h, h)
-    --     dtt:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
-    -- elseif corner then
-    --     self:SetSize(h,h)
-    --     it:SetSize(h,h)
-    --     it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
-
-    --     dtt:SetTexture[[Interface\AddOns\Aptechka\corner]]
-    --     dtt:SetTexCoord(1,1,0,1,1,0,0,0)
-    --     dtt:SetSize(h*0.6, h*0.6)
-    --     dtt:SetDrawLayer("ARTWORK", 3)
-    --     dtt:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
-
-    if orientation == "VERTICAL" then
-        local dttLen = h*0.22
-        self:SetSize(h + dttLen,h)
-        it:SetSize(h,h)
+    if style  == "STRIP_RIGHT" then
+        local dttLen = w*0.22
+        self:SetSize(w + dttLen,h)
+        it:SetSize(w,h)
         it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+        dtt:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
         dtt:SetSize(dttLen,h)
         dtt:SetPoint("TOPLEFT", it, "TOPRIGHT", 0, 0)
         dtt:SetTexCoord(0,1,0,1)
+        dtt:SetDrawLayer("ARTWORK", -2)
         text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 2,-1)
-        self.eyeCatcher.t1:SetOffset(-10,0)
-        self.eyeCatcher.t2:SetOffset(10,0)
-    else
+        if self.SetBackdrop then self:SetBackdrop(nil) end
+        dtt:Show()
+    elseif style == "CORNER" then
+        self:SetSize(w,h)
+        it:SetSize(w,h)
+        it:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
+        local minLen = math.min(w,h)
+
+        dtt:SetTexture[[Interface\AddOns\Aptechka\corner3]]
+        dtt:SetTexCoord(0,1,0,1)
+        dtt:SetSize(minLen*0.7, minLen*0.7)
+        dtt:SetDrawLayer("ARTWORK", 3)
+        dtt:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0,0)
+        if self.SetBackdrop then self:SetBackdrop(nil) end -- this resets backdrop color, so can't call it always
+        dtt:Show()
+    elseif style == "BORDER" then
+        self:SetSize(w,h)
+        if not self.SetBackdrop then
+            -- if BackdropTemplateMixin then
+                Mixin( self, BackdropTemplateMixin)
+            -- end
+        end
+        self.border = true
+        self:SetBackdrop(debuff_border_backdrop)
+        self:SetBackdropBorderColor(1,0,0)
+        it:SetSize(w-6*p,h-6*p)
+        it:SetPoint("TOPLEFT", self, "TOPLEFT", p*3, -p*3)
+        dtt:Hide()
+    elseif style == "STRIP_BOTTOM" then
         local dttLen = h*0.25
-        self:SetSize(h,w + dttLen)
+        self:SetSize(w,h + dttLen)
         dtt:SetSize(w, dttLen)
+        dtt:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
         dtt:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0)
         dtt:SetTexCoord(0,1,0,0,1,1,1,0)
-        it:SetSize(h,h)
+        dtt:SetDrawLayer("ARTWORK", -2)
+        it:SetSize(w,h)
         it:SetPoint("BOTTOMLEFT", dtt, "TOPLEFT", 0, 0)
         text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 3,1)
+        if self.SetBackdrop then self:SetBackdrop(nil) end
+        dtt:Show()
+    end
+end
+
+local function DebuffIcon_SetAnimDirection(self, direction)
+    if direction  == "LEFT" then
+        self.eyeCatcher.t1:SetOffset(-10,0)
+        self.eyeCatcher.t2:SetOffset(10,0)
+    elseif direction  == "RIGHT" then
+        self.eyeCatcher.t1:SetOffset(10,0)
+        self.eyeCatcher.t2:SetOffset(-10,0)
+    elseif direction == "DOWN" then
         self.eyeCatcher.t1:SetOffset(0,-10)
         self.eyeCatcher.t2:SetOffset(0,10)
+    elseif direction == "UP" then
+        self.eyeCatcher.t1:SetOffset(0,10)
+        self.eyeCatcher.t2:SetOffset(0,-10)
     end
 end
 
-local AlignDebuffIcons = function(icons, orientation)
-    local attachTo, attachPoint
-    if orientation == "VERTICAL" then
-        for i,icon in ipairs(icons) do
-            if i == 1 then
-                attachTo = icons.parent
-                attachPoint = "BOTTOMLEFT"
-            else
-                attachTo = icons[i-1]
-                attachPoint = "TOPLEFT"
-            end
-            icon:ClearAllPoints()
-            icon:SetPoint("BOTTOMLEFT", attachTo, attachPoint, 0,0)
-        end
-    else
-        for i,icon in ipairs(icons) do
-            if i == 1 then
-                attachTo = icons.parent.power
-                attachPoint = "TOPLEFT"
-            else
-                attachTo = icons[i-1]
-                attachPoint = "BOTTOMRIGHT"
-            end
-            icon:ClearAllPoints()
-            icon:SetPoint("BOTTOMLEFT", attachTo, attachPoint, 0,0)
-        end
-    end
-end
-
-
-local IsControlKeyDown = IsControlKeyDown
-local DebuffIcon_OnEnter = function(self)
-    if not IsControlKeyDown() then return end
-    local spellID = self.spellID
-    if not spellID then return end
-    GameTooltip:SetOwner(self, "ANCHOR_TOPRIGHT")
-    GameTooltip:SetSpellByID(spellID)
-    GameTooltip:Show();
-end
-local DebuffIcon_OnLeave = function(self)
-    if GameTooltip:IsOwned(self) then
-        GameTooltip:Hide();
-    end
-end
-
-local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to, x, y)
-    local icon = CreateIcon(parent, width, height, alpha, point, frame, to, x, y)
+local function CreateDebuffIcon(parent, width, height, alpha, point, frame, to, x, y, ...)
+    local icon = CreateIcon(parent, width, height, alpha, point, frame, to, x, y, ...)
+    if icon.outline then icon.outline:Hide() end
 
     local w = pixelperfect(width)
     local h = pixelperfect(height)
-
-    local icontex = icon.texture
-    icontex:SetTexCoord(.2, .8, .2, .8)
 
     local dttex = icon:CreateTexture(nil, "ARTWORK", nil, -2)
     dttex:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
     icon.debuffTypeTexture = dttex
 
-    icon.SetOrientation = SetDebuffOrientation
-    icon.SetJob = SetJob_DebuffIcon
+    icon.SetDebuffStyle = DebuffIcon_SetDebuffStyle
+    icon.SetDebuffColor = DebuffIcon_SetDebuffColor
+    icon.SetAnimDirection = DebuffIcon_SetAnimDirection
+    icon.SetJob = DebuffIcon_SetJob
 
     icon:Hide()
 
@@ -1221,10 +1396,79 @@ local CreateDebuffIcon = function(parent, width, height, alpha, point, frame, to
     ag.t2 = t2
     icon.eyeCatcher = ag
 
-    icon:SetOrientation("VERTICAL", w)
-
     return icon
 end
+Aptechka.Widget.DebuffIcon = {}
+Aptechka.Widget.DebuffIcon.default = { type = "DebuffIcon", width = 13, height = 13, point = "CENTER", x = 0, y = 0, alpha = 1, style = "STRIP_RIGHT", animdir = "LEFT", font = "ClearFont", textsize = 12, edge = false }
+function Aptechka.Widget.DebuffIcon.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    local icon = CreateDebuffIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
+    icon:SetDebuffStyle(opts)
+    icon:SetAnimDirection(opts.animdir)
+    return icon
+end
+Aptechka.Widget.DebuffIcon.Reconf = function(parent, f, popts, gopts)
+    Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
+    local icon = f
+    if icon.outline then icon.outline:Hide() end
+    local opts = InheritGlobalOptions(popts, gopts)
+    icon:SetDebuffStyle(opts)
+    icon:SetAnimDirection(opts.animdir)
+end
+
+----------------------------------------------------------
+-- Debuff Icon Array
+----------------------------------------------------------
+
+local function DebuffIconArray_SetDebuffIcon(hdr, frame, unit, index, spellName, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+    -- local hdr = frame.debuffIcons
+    if index > hdr.maxChildren then return end
+    local iconFrame = hdr.children[index]
+    if not spellName then -- debuff is nil
+        if iconFrame then iconFrame:Hide() end
+    else
+        if not iconFrame then
+            iconFrame = hdr:Add()
+        end
+
+        iconFrame:SetJob(debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+        iconFrame:Show()
+
+        local refreshTimestamp = frame.auraEvents[spellID]
+        local now = GetTime()
+        if refreshTimestamp and now - refreshTimestamp < 0.1 then
+            frame.auraEvents[spellID] = nil
+
+            iconFrame.eyeCatcher:Stop()
+            iconFrame.eyeCatcher:Play()
+        end
+    end
+end
+
+local DebuffIconArray_default = CopyTable(Aptechka.Widget.DebuffIcon.default)
+DebuffIconArray_default.type = "DebuffIconArray"
+DebuffIconArray_default.growth = "UP"
+DebuffIconArray_default.max = 4
+Aptechka.Widget.DebuffIconArray = {}
+Aptechka.Widget.DebuffIconArray.default = DebuffIconArray_default
+
+function Aptechka.Widget.DebuffIconArray.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    local hdr = CreateArrayHeader("DebuffIcon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+    hdr.SetDebuffIcon = DebuffIconArray_SetDebuffIcon
+    return hdr
+end
+function Aptechka.Widget.DebuffIconArray.Reconf(parent, hdr, popts, gopts)
+    Aptechka.Widget.IconArray.Reconf(parent, hdr, popts, gopts)
+
+    local opts = InheritGlobalOptions(popts, gopts)
+    Aptechka._BossDebuffScale = opts.bigscale
+end
+
+
+----------------------------------------------------------
+-- Progress Icon
+----------------------------------------------------------
 
 local SetJob_ProgressIcon = function(self, job, state, contentType, ...)
     SetJob_Icon(self, job, state, contentType, ...)
@@ -1285,10 +1529,10 @@ local function CreateProgressIcon(parent, width, height, alpha, point, frame, to
 end
 
 Aptechka.Widget.ProgressIcon = {}
-Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, textsize = 12, outline = false, edge = false }
+Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 12, outline = false, edge = false }
 function Aptechka.Widget.ProgressIcon.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    return CreateProgressIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.textsize, opts.outline, opts.edge)
+    return CreateProgressIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
 end
 
 Aptechka.Widget.ProgressIcon.Reconf = Aptechka.Widget.Icon.Reconf
@@ -1500,58 +1744,81 @@ end
     end
 
 -- TODO: Split reconf and simple value updates for all widgets
-local SetJob_Text = function(self, job, state, contentType, ...)
-    if contentType == "HealthDeficit" then
+local TextTypeHandlers = {
+    ["HealthDeficit"] = function(self, job, state, contentType, ...)
         self.text:SetFormattedText(formatMissingHealth(state.vHealthMax - state.vHealth))
         self:SetScript("OnUpdate", nil)
-    elseif contentType == "IncomingHeal" then -- For Classic
+        self.text:SetTextColor(GetClassOrTextColor(job, state))
+    end,
+    ["IncomingHeal"] = function(self, job, state, contentType, ...)  -- For Classic
         self.text:SetFormattedText("+%d", state.vIncomingHeal)
         self:SetScript("OnUpdate", nil)
-    elseif contentType == "AURA" then
-        local duration, expirationTime = ...
-        self.expirationTime = expirationTime
-        self.startTime = nil
-        self:SetScript("OnUpdate", Text_OnUpdate) --.frame is for text3 container
-    elseif contentType == "TIMER" then
+        self.text:SetTextColor(GetTextColor(job))
+    end,
+    ["AURA"] = function(self, job, state, contentType, ...)
+        local duration, expirationTime, count, texture, spellID, caster = ...
+        self.text:SetTextColor(GetSpellColor(job, caster, count))
+
+        if job.showCount then
+            self.text:SetText(count)
+            self:SetScript("OnUpdate", nil)
+        elseif job.showDuration then
+            self.expirationTime = expirationTime
+            self.startTime = nil
+            self:SetScript("OnUpdate", Text_OnUpdate)
+        else
+            self.text:SetText(job.text or job.name)
+            self:SetScript("OnUpdate", nil)
+        end
+    end,
+    ["TIMER"] = function(self, job, state, contentType, ...)
         self.startTime = ...
         self.expirationTime = nil
-        self:SetScript("OnUpdate", Text_OnUpdateForward) --.frame is for text3 container
-    elseif contentType == "UnitName" then
+        self:SetScript("OnUpdate", Text_OnUpdateForward)
+        self.text:SetTextColor(GetTextColor(job))
+    end,
+    ["Stagger"] = function(self, job, state, contentType, ...)
+        local stagger = state.stagger
+        if not stagger then
+            self.text:SetText("")
+            return
+        end
+        self.text:SetTextColor(helpers.PercentColor(stagger))
+        self.text:SetFormattedText("%.0f%%", stagger*100)
+    end,
+    ["PROGRESS"] = function(self, job, state, contentType, ...)
+        local perc = ...
+        self.text:SetTextColor(helpers.PercentColor(perc))
+        -- self.text:SetTextColor(GetTextColor(job))
+        self.text:SetFormattedText("%.0f%%", perc*100)
+    end,
+    ["UnitName"] = function(self, job, state, contentType, ...)
         self.text:SetText(state.name)
         self:SetScript("OnUpdate", nil)
+        self.text:SetTextColor(GetClassOrTextColor(job, state))
+    end,
+}
+local SetJob_Text = function(self, job, state, contentType, ...)
+    local handler = TextTypeHandlers[contentType]
+    if handler then
+        handler(self, job, state, contentType, ...)
     elseif job.text then
         self:SetScript("OnUpdate", nil)
         self.text:SetText(job.text)
-    end
-
-    local c = (job.classcolor and state.classColor) or job.textcolor or job.color
-    if c then
-        self.text:SetTextColor(unpack(c))
-    else
-        self.text:SetTextColor(1,1,1)
+        self.text:SetTextColor(GetTextColor(job))
     end
 end
 
+local StaticTextTypeHandlers = CopyTable(TextTypeHandlers)
+StaticTextTypeHandlers.TIMER = nil
 local SetJob_StaticText = function(self, job, state, contentType, ...)
-    if contentType == "HealthDeficit" then
-        self.text:SetFormattedText(formatMissingHealth(state.vHealthMax - state.vHealth))
-        self:SetScript("OnUpdate", nil)
-    elseif contentType == "IncomingHeal" then -- For Classic
-        self.text:SetFormattedText("+%d", state.vIncomingHeal)
-        self:SetScript("OnUpdate", nil)
-    elseif contentType == "UnitName" then
-        self.text:SetText(state.name)
-        self:SetScript("OnUpdate", nil)
+    local handler = StaticTextTypeHandlers[contentType]
+    if handler then
+        handler(self, job, state, contentType, ...)
     elseif job.text then
         self:SetScript("OnUpdate", nil)
         self.text:SetText(job.text)
-    end
-
-    local c = (job.classcolor and state.classColor) or job.textcolor or job.color
-    if c then
-        self.text:SetTextColor(unpack(c))
-    else
-        self.text:SetTextColor(1,1,1)
+        self.text:SetTextColor(GetTextColor(job))
     end
 end
 
@@ -1639,7 +1906,7 @@ end
 
 local SetJob_Flash = function(self,job)
     if job.color then
-        local r,g,b = unpack(job.color)
+        local r,g,b = GetColor(job)
         self.texture:SetVertexColor(r,g,b)
     end
 end
@@ -1697,6 +1964,21 @@ local CreateFlash = function(parent)
     f:Hide()
     return f
 end
+
+-- local CreateBottomGlow = function(parent)
+--     local f = CreateFrame("Frame", nil, parent)
+
+--     local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
+--     tex:SetAllPoints(f)
+--     tex:SetTexture("Interface/AddOns/Aptechka/sideGlow2")
+--     tex:SetVertexColor(1,0,0, 0.6)
+
+--     f:SetFrameLevel(7)
+--     f:SetAllPoints()
+
+--     f:Hide()
+--     return f
+-- end
 
 local CreateMindControlIcon = function(parent)
     local f = CreateFrame("Frame", nil, parent)
@@ -1828,6 +2110,7 @@ local optional_widgets = {
         autocastGlow = CreateAutocastGlow,
 
         mindcontrol = CreateMindControlIcon,
+        -- sideglow = CreateBottomGlow,
         vehicle = CreateVehicleIcon,
         innerglow = CreateInnerGlow,
         flash = CreateFlash,
@@ -1836,6 +2119,10 @@ local optional_widgets = {
         -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,
 }
 Aptechka.optional_widgets = optional_widgets
+
+function Aptechka:RegisterWidget(name, func)
+    optional_widgets[name] = func
+end
 
 function Aptechka:CreateDynamicWidget(frame, widgetName)
     if optional_widgets[widgetName] then
@@ -1855,10 +2142,6 @@ function Aptechka:CreateDynamicWidget(frame, widgetName)
     else
         return
     end
-end
-
-function Aptechka:RegisterWidget(name, func)
-    optional_widgets[name] = func()
 end
 
 local function Reconf(self)
@@ -1901,6 +2184,7 @@ local function Reconf(self)
         self.health.incoming:SetDrawLayer("ARTWORK", -5)
     end
 
+    --[[
     local stackFont = LSM:Fetch("font", Aptechka.db.profile.stackFontName)
     local stackFontSize = Aptechka.db.profile.stackFontSize
     for i, icon in ipairs(self.debuffIcons) do
@@ -1914,6 +2198,7 @@ local function Reconf(self)
             icon:SetScript("OnLeave", nil)
         end
     end
+    ]]
 
     if isVertical then
         self.health:SetOrientation("VERTICAL")
@@ -1955,6 +2240,7 @@ local function Reconf(self)
         hpi:ClearAllPoints()
         hpi.UpdatePosition = hpi.UpdatePositionVertical
 
+        --[[
         local debuffSize = pixelperfect(Aptechka.db.profile.debuffSize)
         for i, icon in ipairs(self.debuffIcons) do
             icon:SetOrientation("VERTICAL", debuffSize)
@@ -1962,6 +2248,7 @@ local function Reconf(self)
         self.debuffIcons:Align("VERTICAL")
 
         self.bossdebuff:SetPoint("BOTTOMLEFT", self.debuffIcons[1], "BOTTOMRIGHT",0,0)
+        ]]
     else
         self.health:SetOrientation("HORIZONTAL")
         self.power:SetOrientation("HORIZONTAL")
@@ -2002,6 +2289,7 @@ local function Reconf(self)
         hpi:ClearAllPoints()
         hpi.UpdatePosition = hpi.UpdatePositionHorizontal
 
+        --[[
         local debuffSize = pixelperfect(Aptechka.db.profile.debuffSize)
         for i, icon in ipairs(self.debuffIcons) do
             icon:SetOrientation("HORIZONTAL", debuffSize)
@@ -2009,6 +2297,7 @@ local function Reconf(self)
         self.debuffIcons:Align("HORIZONTAL")
 
         self.bossdebuff:SetPoint("BOTTOMLEFT", self.debuffIcons[1], "TOPLEFT",0,0)
+        ]]
     end
 
 end
@@ -2348,6 +2637,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
     -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
 
+
+    self.debuffIcons = Aptechka.Widget.DebuffIconArray.Create(self, Aptechka:GetWidgetsOptions("debuffIcons"))
+    --[[
     local debuffSize = Aptechka.db.profile.debuffSize
     self.debuffIcons = { parent = self }
     self.debuffIcons.Align = AlignDebuffIcons
@@ -2358,12 +2650,15 @@ AptechkaDefaultConfig.GridSkin = function(self)
     end
 
     self.debuffIcons:Align("VERTICAL")
+    ]]
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
-    local blcorner = CreateCorner(self, 16, 16, "BOTTOMLEFT", self.debuffIcons[1], "BOTTOMRIGHT",0,0, "BOTTOMLEFT") --last arg changes orientation
+    -- local bossdebuff = CreateCorner(self, 17, 17, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") --last arg changes orientation
+    -- local bossdebuff = Aptechka.Widget.Indicator.Create(self, Aptechka:GetWidgetsOptions("bossdebuff"))
+    local bossdebuff = border
 
-    local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
-    self.healfeedback = trcorner
+    -- local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
+    -- self.healfeedback = trcorner
 
     local casticon_opts = Aptechka:GetWidgetsOptionsMerged("incomingCastIcon")
     local incomingCastIcon = Aptechka.Widget.ProgressIcon.Create(self, nil, casticon_opts)
@@ -2396,7 +2691,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     end
 
     self.healthColor = self.health
-    self.bossdebuff = blcorner
+    self.bossdebuff = bossdebuff
     self.incomingCastIcon = incomingCastIcon
     self.raidicon = raidicon
     self.roleicon = roleicon

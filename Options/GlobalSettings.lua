@@ -2,6 +2,7 @@ local addonName, ns = ...
 
 local L = Aptechka.L
 
+local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
 
 function ns.MakeGlobalSettings()
@@ -16,9 +17,19 @@ function ns.MakeGlobalSettings()
                 guiInline = true,
                 order = 3,
                 args = {
+                    MinimapIcon = {
+                        name = L"Hide Minimap Icon",
+                        type = "toggle",
+                        width = "full",
+                        get = function(info) return Aptechka.db.global.LDBData.hide end,
+                        set = function(info, v)
+                            Aptechka:ToggleMinimapIcon()
+                        end,
+                        order = 1,
+                    },
                     RMBClickthrough = {
                         name = L"RMB Mouselook Clickthrough"..newFeatureIcon,
-                        desc = L"Allows to turn with RMB without moving mouse away from the unitframes.\nIf using Clique, this will override its RMB binding",
+                        desc = L"Allows to turn with RMB without moving mouse away from the unitframes. With Clique this will override its RMB binding",
                         type = "toggle",
                         width = "full",
                         confirm = true,
@@ -96,6 +107,17 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 10.1,
                     },
+                    translitCyrillic = {
+                        name = L"Transliterate Russian Names"..newFeatureIcon,
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.translitCyrillic end,
+                        set = function(info, v)
+                            Aptechka.db.global.translitCyrillic = not Aptechka.db.global.translitCyrillic
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        order = 10.2,
+                    },
                     -- disableBlizzardRaid = {
                     --     name = "Disable Blizzard Raid Frames (not recommended)",
                     --     width = "full",
@@ -154,6 +176,7 @@ function ns.MakeGlobalSettings()
                         name = L"Use LibCLHealth",
                         desc = L"More frequent health updates based combat log",
                         type = "toggle",
+                        disabled = not isClassic,
                         width = "full",
                         order = 18,
                         get = function(info) return Aptechka.db.global.useCombatLogHealthUpdates end,

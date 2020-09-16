@@ -68,7 +68,7 @@ end
 local function GenListItems()
 
     local merged = CopyTable(defaultDebuffHighlights)
-    Aptechka.MergeTable(merged, Aptechka.db.global.customDebuffHighlights)
+    Aptechka.util.MergeTable(merged, Aptechka.db.global.customDebuffHighlights)
 
     local mapIDs = AptechkaDefaultConfig.MapIDs
     local reverseMapsIDs = {}
@@ -89,35 +89,33 @@ local function GenListItems()
         return ap > bp
     end)
 
-    local orderedBlackList = {}
+    local orderedList = {}
 
     -- for category, spells in pairs(merged) do
     for i, category in ipairs(orderedCategories) do
         local spells = merged[category]
 
-        table.insert(orderedBlackList, { -19, category })
+        -- Adding a header for the category
+        table.insert(orderedList, { -19, category })
         local count = 0
         for spellId, opts in pairs(spells) do
-            table.insert(orderedBlackList, opts)
+            -- Adding all its spells
+            table.insert(orderedList, opts)
             count = count + 1
         end
-        if count == 0 then -- Remove empty headers
-            table.remove(orderedBlackList)
+        if count == 0 then -- Remove empty header (previously created), if it was empty
+            table.remove(orderedList)
         end
     end
-    -- for spellId, comment in pairs(listMap) do
-    --     if comment == true then comment = GetSpellInfo(spellId) end
-    --     table.insert(orderedBlackList, { spellId, comment })
-    -- end
 
-    return orderedBlackList;
+    return orderedList;
 end
 
 AptechkaHybridScrollMixin = {};
 
 function AptechkaHybridScrollMixin:RefreshItems()
     -- Create the item model that we'll be displaying.
-    self.items = GenListItems()
+    self.items = self:GenListItems()
 end
 
 function AptechkaHybridScrollMixin:Initialize()
@@ -404,6 +402,8 @@ function ns.MakeDebuffHighlight()
             -- end)
 
             local f = CreateFrame("Frame", "AptechkaHighlightHybridScrollFrame", panel, "AptechkaHybridScrollFrameTemplate")
+            f.GenListItems = GenListItems
+            Mixin(f, AptechkaHybridScrollMixin)
             -- f:SetWidth(623)
             f:SetWidth(603)
             f:SetHeight(450)
@@ -433,137 +433,3 @@ function ns.MakeDebuffHighlight()
 
     return panel
 end
-
-function ns.MakeBlacklistHelp()
-    local opt = {
-        type = 'group',
-        name = "Debuff Blacklist",
-        order = 1,
-        args = {
-            msg = {
-                name = [[
-Blacklist is only accesible with console commands:
-
-/apt blacklist show
-/apt blacklist add <spellID>
-/apt blacklist del <spellID>
-]],
-                type = "description",
-                fontSize = "medium",
-                width = "full",
-                order = 1,
-            },
-        },
-    }
-    local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
-    AceConfigRegistry:RegisterOptionsTable("AptechkaHelp", opt)
-
-    local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaHelp", L"Blacklist", "Aptechka")
-
-    return panelFrame
-end
-
---[[
-local BUTTON_HEIGHT = 16
-
-local function MakeFrameList(parent)
-    local prev
-    parent.frameList = {}
-    for i=1,20 do
-        local f = CreateFrame("Frame", nil, parent)
-        f:SetSize(540, BUTTON_HEIGHT)
-
-        if prev then
-            f:SetPoint("TOPLEFT", prev, "BOTTOMLEFT",0,0)
-        else
-            f:SetPoint("TOPLEFT", parent, "TOPLEFT",0,0)
-        end
-        prev = f
-
-        local bg = f:CreateTexture(nil, "BACKGROUND")
-        bg:SetAllPoints(f)
-        bg:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-        if math.fmod(i,2) == 0 then
-            bg:SetVertexColor(0,0,0,0.1)
-        else
-            bg:SetVertexColor(1,1,1,0.1)
-        end
-
-        local icon = f:CreateTexture(nil, "ARTWORK")
-        icon:SetTexture(135882)
-        icon:SetSize(BUTTON_HEIGHT-2, BUTTON_HEIGHT-2)
-        icon:SetPoint("TOPLEFT",1,-1)
-        f.icon = icon
-
-        local label = f:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-        label:SetPoint("TOPLEFT", f, "TOPLEFT", BUTTON_HEIGHT+10, 0)
-        label:SetText("ASS")
-        f.label = label
-
-        parent.frameList[i] = f
-    end
-end
-
-function ns.MakeBlacklistHelp()
-    local panel = CreateFrame("Frame", nil, InterfaceOptionsFrame)
-    panel.name = "Blacklist"
-    panel.parent = "Aptechka"
-    InterfaceOptions_AddCategory(panel);
-    panel:Hide() -- hide initially, otherwise OnShow won't fire on the first activation
-    panel:SetScript("OnShow", function(self)
-        if not self.isCreated then
-            print("Creating blacklist")
-
-            local f = CreateFrame("ScrollFrame", "APTFAUXSCROLL", panel, "FauxScrollFrameTemplate")
-            f:SetSize(575, 320)
-            f:SetPoint("TOPLEFT", panel, "TOPLEFT", 15,-50)
-
-            MakeFrameList(f)
-
-            local ScrollFrame_Update = function(frame)
-
-                if not frame.orderedBlackList then
-                    frame.orderedBlackList = {}
-                    for spellId, comment in pairs(Aptechka.default_blacklist) do
-                        if comment == true then comment = "" end
-                        table.insert(frame.orderedBlackList, { spellId, comment })
-                    end
-                end
-
-
-                FauxScrollFrame_Update(frame, #frame.orderedBlackList, 20, BUTTON_HEIGHT);
-                -- 50 is max entries, 20 is number of lines, 16 is pixel height of each line
-                print("We're at "..FauxScrollFrame_GetOffset(frame));
-
-
-
-                local offset = FauxScrollFrame_GetOffset(frame)
-                for i=1,20 do
-                    local j = i+offset
-                    if frame.orderedBlackList[j] then
-                        local spellId, comment = unpack(frame.orderedBlackList[j])
-                        local spellName, _, tex = GetSpellInfo(spellId)
-                        frame.frameList[i].icon:SetTexture(tex)
-                        frame.frameList[i].label:SetText(spellName..comment)
-                    else
-                        frame.frameList[i]:Hide()
-                    end
-                end
-
-
-            end
-            ScrollFrame_Update(f)
-
-            f:SetScript("OnVerticalScroll", function(self, offset)
-                FauxScrollFrame_OnVerticalScroll(self, offset, BUTTON_HEIGHT, ScrollFrame_Update);
-            end)
-
-
-            self.isCreated = true
-        end
-    end)
-
-    return panel
-end
-]]

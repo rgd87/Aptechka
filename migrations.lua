@@ -1,5 +1,7 @@
+local addonName, helpers = ...
+
 do
-    local CURRENT_DB_VERSION = 5
+    local CURRENT_DB_VERSION = 8
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -215,6 +217,97 @@ do
 
             db.DB_VERSION = 5
         end
+        if db.DB_VERSION == 5 then
+            if db.profiles then
+                for name, profile in pairs(db.profiles) do
+                    if profile.healthOrientation == "HORIZONTAL" then
+                        local popts = Aptechka.util.MakeTables(profile, "widgetConfig", "debuffIcons")
+                        Aptechka:RealignDebuffIconsForProfile(popts, "RIGHT")
+                    end
+
+                    if profile.debuffSize then
+                        local popts = Aptechka.util.MakeTables(profile, "widgetConfig", "debuffIcons")
+                        popts.width = profile.debuffSize
+                        popts.height = profile.debuffSize
+                        profile.debuffSize = nil
+                    end
+
+                    if profile.debuffLimit then
+                        local popts = Aptechka.util.MakeTables(profile, "widgetConfig", "debuffIcons")
+                        popts.max = profile.debuffLimit
+                        profile.debuffLimit = nil
+                    end
+
+                    if profile.stackFontSize then
+                        local popts = Aptechka.util.MakeTables(profile, "widgetConfig", "debuffIcons")
+                        popts.textsize = profile.stackFontSize
+                        profile.stackFontSize = nil
+                    end
+                end
+            end
+
+            db.DB_VERSION = 6
+        end
+        if db.DB_VERSION == 6 then
+            local func = function(opts, defaultOpts)
+                if opts.assignto then
+                    if type(opts.assignto) == "string" then
+                        opts.assignto = { opts.assignto }
+                    end
+                    local newSet = helpers.Set.new(opts.assignto)
+                    newSet["__REMOVED__"] = nil
+                    opts.assignto = newSet
+                end
+                if defaultOpts then
+                    Aptechka.util.ShakeAssignments(opts, defaultOpts)
+                end
+            end
+
+            if AptechkaConfigCustom.WIDGET then -- .WIDGET is actually elements
+                for status, opts in pairs(AptechkaConfigCustom.WIDGET) do
+                    local defaultOpts = AptechkaDefaultConfig[status]
+                    func(opts, defaultOpts)
+                end
+            end
+
+            local categories = { "GLOBAL" }
+            for i=1, 15 do
+                local classData = C_CreatureInfo.GetClassInfo(i)
+                if not classData then break end
+                table.insert(categories, classData.classFile)
+            end
+
+            local spellTypes = { "auras", "traces" }
+            for _,category in ipairs(categories) do
+                for _,spellType in ipairs(spellTypes) do
+                    if AptechkaConfigCustom[category] and AptechkaConfigCustom[category][spellType] then
+                        for spellID, opts in pairs(AptechkaConfigCustom[category][spellType]) do
+                            local defaultOpts = AptechkaDefaultConfig[category] and AptechkaDefaultConfig[category][spellType] and AptechkaDefaultConfig[category][spellType][spellID]
+                            func(opts, defaultOpts)
+                        end
+                    end
+                end
+            end
+
+            db.DB_VERSION = 7
+        end
+        if db.DB_VERSION == 7 then
+            -- Just in case there's a leftover from some older versions, remove type from all the profile settings for widgets.
+            -- Widget's .type field should always be from the global table via metatable
+            if db.profiles then
+                for name, profile in pairs(db.profiles) do
+                    if profile.widgetConfig then
+                        for name, popts in pairs(profile.widgetConfig) do
+                            popts.type = nil
+                        end
+                    end
+                end
+            end
+
+            db.DB_VERSION = 8
+        end
+
+        db.DB_VERSION = CURRENT_DB_VERSION
     end
 end
 
@@ -231,7 +324,7 @@ end
 function Aptechka:ForAllCustomStatuses(func, searchAllClasses)
     local list = Aptechka.GetWidgetList()
 
-    if AptechkaConfigCustom.WIDGET then
+    if AptechkaConfigCustom.WIDGET then -- .WIDGET is actually elements
         for status, opts in pairs(AptechkaConfigCustom.WIDGET) do
             func(opts, status, list)
         end
@@ -241,9 +334,9 @@ function Aptechka:ForAllCustomStatuses(func, searchAllClasses)
     local categories = { "GLOBAL" }
     if searchAllClasses then
         for i=1, 15 do
-            local class = select(2,C_CreatureInfo.GetClassInfo(i))
-            if not class then break end
-            table.insert(categories, class)
+            local classData = C_CreatureInfo.GetClassInfo(i)
+            if not classData then break end
+            table.insert(categories, classData.classFile)
         end
     else
         local playerClass = select(2, UnitClass("player"))
@@ -265,19 +358,14 @@ end
 
 local cleanOpts = function(opts, status, list)
     if not opts.assignto then return end
-    if type(opts.assignto) == "string" then
-        local slot = opts.assignto
-        if not list[slot] then opts.assignto = { } end
-    else
-        local i = 1
-        while (i <= #opts.assignto) do
-            local slot = opts.assignto[i]
-            if not list[slot] then
-                table.remove(opts.assignto, i)
-                i = i - 1
-            end
-            i = i + 1
+    local toRemove = {}
+    for slot, enabled in pairs(opts.assignto) do
+        if not list[slot] then
+            table.insert(toRemove, slot)
         end
+    end
+    for _, slot in ipairs(toRemove) do
+        opts.assignto[slot] = nil
     end
 end
 
@@ -285,4 +373,18 @@ function Aptechka.PurgeDeadAssignments(searchAllClasses)
     Aptechka:ForAllCustomStatuses(cleanOpts)
 
     ReloadUI()
+end
+
+function Aptechka:RealignDebuffIconsForProfile(popts, direction)
+    if direction == "RIGHT" then
+        popts.animdir = "DOWN"
+        popts.style = "STRIP_BOTTOM"
+        popts.growth = direction
+        popts.y = 4
+    elseif direction == "UP" then
+        popts.animdir = "LEFT"
+        popts.style = "STRIP_RIGHT"
+        popts.growth = direction
+        popts.y = 0
+    end
 end

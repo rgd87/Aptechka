@@ -110,7 +110,7 @@
         </Scripts>
     </Frame>
 
-    <Frame name="AptechkaHybridScrollFrameTemplate" virtual="true" mixin="AptechkaHybridScrollMixin">
+    <Frame name="AptechkaHybridScrollFrameTemplate" virtual="true">
         <Size x="600" y="480"/>
         <Anchors>
             <Anchor point="CENTER" x="0" y="0"/>

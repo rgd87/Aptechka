@@ -96,6 +96,7 @@ globals = {
     "AptechkaConfigMerged",
     "AptechkaConfigCustom",
     "Aptechka",
+    "AptechkaOptions",
     "AptechkaGUI",
     "AptechkaDB_Global",
     "AptechkaDB_Char",
@@ -123,6 +124,7 @@ globals = {
     "Clique",
 
     "InitiateRolePoll",
+    "Mixin",
     "C_IncomingSummon",
     "C_VoiceChat",
     "C_Map",
@@ -217,6 +219,7 @@ globals = {
     "C_CreatureInfo",
     "AptechkaHybridScrollMixin",
     "AptechkaHighlightHybridScrollFrame",
+    "AptechkaBlacklistHybridScrollFrame",
     "HybridScrollFrame_SetDoNotHideScrollBar",
     "HybridScrollFrame_CreateButtons",
     "HybridScrollFrame_GetButtons",
@@ -224,4 +227,8 @@ globals = {
     "HybridScrollFrame_Update",
     "IsControlKeyDown",
     "BackdropTemplateMixin",
+    "UnitPhaseReason",
+    "IsShiftKeyDown",
+    "GameTooltip_SetTitle",
+    "GameTooltip_AddInstructionLine",
 }

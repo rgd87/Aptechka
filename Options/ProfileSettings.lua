@@ -53,7 +53,7 @@ function ns.MakeProfileSettings()
                     curProfile = {
                         name = "",
                         type = 'select',
-                        width = 1.5,
+                        width = 1.2,
                         order = 1,
                         values = function()
                             return ns.GetProfileList(Aptechka.db)
@@ -69,7 +69,7 @@ function ns.MakeProfileSettings()
                         name = L"Copy",
                         type = 'execute',
                         order = 2,
-                        width = 0.5,
+                        width = 0.6,
                         func = function(info)
                             local p = Aptechka.db:GetCurrentProfile()
                             ns.storedProfile = p
@@ -79,7 +79,7 @@ function ns.MakeProfileSettings()
                         name = L"Paste",
                         type = 'execute',
                         order = 3,
-                        width = 0.5,
+                        width = 0.6,
                         disabled = function()
                             return ns.storedProfile == nil
                         end,
@@ -95,7 +95,7 @@ function ns.MakeProfileSettings()
                         order = 4,
                         confirm = true,
                         confirmText = L"Are you sure?",
-                        width = 0.5,
+                        width = 0.6,
                         disabled = function()
                             return Aptechka.db:GetCurrentProfile() == "Default"
                         end,
@@ -385,6 +385,14 @@ function ns.MakeProfileSettings()
                         set = function( info, v )
                             Aptechka.db.profile.healthOrientation = v
                             Aptechka:ReconfigureUnprotected()
+
+                            local popts = Aptechka.util.MakeTables(Aptechka.db.profile, "widgetConfig", "debuffIcons")
+                            if v == "HORIZONTAL" then
+                                Aptechka:RealignDebuffIconsForProfile(popts,"RIGHT")
+                            else
+                                Aptechka:RealignDebuffIconsForProfile(popts,"UP")
+                            end
+                            Aptechka:ReconfigureWidget("debuffIcons")
                         end,
                     },
 
@@ -392,7 +400,6 @@ function ns.MakeProfileSettings()
                         type = "select",
                         name = L"Health Texture",
                         order = 13,
-                        desc = L"Set the statusbar texture.",
                         get = function(info) return Aptechka.db.profile.healthTexture end,
                         set = function(info, value)
                             Aptechka.db.profile.healthTexture = value
@@ -406,7 +413,6 @@ function ns.MakeProfileSettings()
                         type = "select",
                         name = L"Power Texture",
                         order = 14,
-                        desc = L"Set the statusbar texture.",
                         get = function(info) return Aptechka.db.profile.powerTexture end,
                         set = function(info, value)
                             Aptechka.db.profile.powerTexture = value
@@ -594,84 +600,6 @@ function ns.MakeProfileSettings()
                                 max = 1,
                                 step = 0.05,
                                 order = 3,
-                            },
-                        }
-                    },
-
-                    debuffGroup = {
-                        type = "group",
-                        name = L"Debuffs",
-                        order = 17,
-                        args = {
-
-                            debuffSize = {
-                                name = L"Debuff Size",
-                                type = "range",
-                                get = function(info) return Aptechka.db.profile.debuffSize end,
-                                set = function(info, v)
-                                    Aptechka.db.profile.debuffSize = v
-                                    Aptechka:ReconfigureUnprotected()
-                                end,
-                                min = 5,
-                                max = 30,
-                                step = 0.1,
-                                order = 1,
-                            },
-                            stackFont = {
-                                type = "select",
-                                name = L"Font",
-                                order = 2,
-                                get = function(info) return Aptechka.db.profile.stackFontName end,
-                                set = function(info, value)
-                                    Aptechka.db.profile.stackFontName = value
-                                    Aptechka:ReconfigureUnprotected()
-                                end,
-                                values = LSM:HashTable("font"),
-                                dialogControl = "LSM30_Font",
-                            },
-                            stackFontSize = {
-                                name = L"Stack Font Size",
-                                type = "range",
-                                get = function(info) return Aptechka.db.profile.stackFontSize end,
-                                set = function(info, v)
-                                    Aptechka.db.profile.stackFontSize = v
-                                    Aptechka:ReconfigureUnprotected()
-                                end,
-                                min = 3,
-                                max = 30,
-                                step = 0.1,
-                                order = 3,
-                            },
-                            debuffLimit = {
-                                name = L"Debuff Limit",
-                                type = "range",
-                                get = function(info) return Aptechka.db.profile.debuffLimit end,
-                                set = function(info, v)
-                                    Aptechka.db.profile.debuffLimit = v
-                                    Aptechka:UpdateUnprotectedUpvalues()
-                                end,
-                                min = 1,
-                                max = 4.9,
-                                step = 0.1,
-                                order = 4,
-                            },
-                            debuffBossScale = {
-                                name = L"Boss Aura Scale",
-                                type = "range",
-                                get = function(info) return Aptechka.db.profile.debuffBossScale end,
-                                set = function(info, v)
-                                    Aptechka.db.profile.debuffBossScale = v
-                                end,
-                                min = 1,
-                                max = 1.8,
-                                step = 0.01,
-                                order = 5,
-                            },
-                            debuffTest = {
-                                name = L"Test Debuffs",
-                                type = "execute",
-                                func = function() Aptechka.TestDebuffSlots() end,
-                                order = 10,
                             },
                         }
                     },

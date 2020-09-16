@@ -13,10 +13,12 @@
     <Script file="GlobalSettings.lua"/>
     <Script file="ProfileSettings.lua"/>
     <Script file="ProfileSelection.lua"/>
+    <Script file="WidgetForms.lua"/>
     <Script file="WidgetConfig.lua"/>
-    <Script file="ElementConfig.lua"/>
-    <Script file="DebuffHighlight.lua"/>
+    <Script file="StatusConfig.lua"/>
     <Include file="SpellListItemTemplate.xml"/>
-    <Script file="WidgetSpellList.lua"/>
+    <Script file="DebuffHighlight.lua"/>
+    <Script file="Blacklist.lua"/>
+    <Script file="SpellList.lua"/>
     <Script file="LoadHooks.lua"/>
 </Ui>

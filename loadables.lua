@@ -36,15 +36,24 @@ AptechkaDefaultConfig.MapIDs = {
 
     [1580] = "Ny'alotha", -- Wrathion room
     [1581] = "Ny'alotha",
+    [1600] = "Mythic+ 8.3",
+
+    [1663] = "Halls of Atonement",
+    [1666] = "The Necrotic Wake",
+    [1669] = "Mists of Tirna Scithe",
+    [1674] = "Plaguefall",
+    [1675] = "Sanguine Depths",
+    [1679] = "De Other Side",
+    [1683] = "Theater of Pain",
+    [1693] = "Spires of Ascension",
+    [1735] = "Castle Nathria",
+    -- This table is also used for debuff highlight sorting by content relevance
 
     [704] = "Halls of Valor",
     [706] = "Maw of Souls",
     [731] = "Neltharion's Lair",
     [733] = "Darkheart Thicket",
     [751] = "Black Rook Hold",
-
-    -- This table is also used for debuff highlight sorting by content relevance
-    [99990] = "Mythic+ 8.3",
 }
 
 AptechkaDefaultConfig.defaultDebuffHighlights = {

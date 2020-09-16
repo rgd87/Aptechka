@@ -6,18 +6,24 @@ local f = CreateFrame('Frame', "AptechkaOptions", InterfaceOptionsFrame)
 f.name = "Aptechka"
 InterfaceOptions_AddCategory(f);
 
+local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
 
 f.globals = ns.MakeGlobalSettings()
 f.profile = ns.MakeProfileSettings()
 f.profileSelection = ns.MakeProfileSelection()
-f.blacklist = ns.MakeBlacklistHelp()
-f.widgets = ns.MakeWidgetConfig()
-f.elements = ns.MakeElementConfig()
 f.highlighting = ns.MakeDebuffHighlight()
 
-ns.frame = ns.CreateWidgetSpellList(L"Spell List", "Aptechka")
-f.spell_list = ns.frame.frame
-InterfaceOptions_AddCategory(f.spell_list);
+local wconfig = ns.CreateWidgetConfig(L"Widgets"..newFeatureIcon, "Aptechka")
+f.widgetConfig = wconfig
+f.widgets = f.widgetConfig.frame
+InterfaceOptions_AddCategory(f.widgetConfig.frame);
+
+ns.frame = ns.CreateSpellList(L"Spell List", "Aptechka")
+f.spellList = ns.frame.frame
+InterfaceOptions_AddCategory(f.spellList);
+
+f.statusList = ns.MakeStatusConfig()
+f.blacklist = ns.MakeBlacklist()
 
 f:Hide()
 f:SetScript("OnShow", function(self)
