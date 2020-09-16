@@ -2338,7 +2338,7 @@ function Aptechka:GetJobArgs(frame, opts)
 end
 
 function Aptechka.FrameSetJob(frame, opts, enabled, ...)
-    if opts.assignto then
+    if opts and opts.assignto then
         for slot, slotEnabled in pairs(opts.assignto) do
             if slotEnabled then
                 AssignToSlot(frame, opts, enabled, slot, ...)
