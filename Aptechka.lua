@@ -1474,13 +1474,6 @@ function Aptechka.FrameCheckRoles(self, unit )
 
     local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
     local isTankRoleAssigned = UnitGroupRolesAssigned(unit) == "TANK"
-    if unit == "player" then
-        local spec = GetSpecialization()
-        local specRole = GetSpecializationRole(spec)
-        if specRole == "TANK" then
-            isTankRoleAssigned = true
-        end
-    end
     local isAnyTank = isRaidMaintank or isTankRoleAssigned
 
     if isAnyTank and select(2, UnitClass(unit)) == "MONK" then
