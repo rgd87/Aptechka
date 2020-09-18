@@ -452,11 +452,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka:UpdateAggroConfig()
 
-    if config.ReadyCheck then
-        self:RegisterEvent("READY_CHECK")
-        self:RegisterEvent("READY_CHECK_CONFIRM")
-        self:RegisterEvent("READY_CHECK_FINISHED")
-    end
+    self:RegisterEvent("READY_CHECK")
+    self:RegisterEvent("READY_CHECK_CONFIRM")
+    self:RegisterEvent("READY_CHECK_FINISHED")
+
     if config.TargetStatus then
         self.previousTarget = "player"
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
@@ -1613,25 +1612,34 @@ function Aptechka.PLAYER_TARGET_CHANGED(self, event)
 end
 
 -- Readycheck
-function Aptechka.READY_CHECK(self, event)
-    for unit in pairs(Roster) do
-        self:READY_CHECK_CONFIRM(event, unit)
+function Aptechka.FrameReadyCheckConfirm(frame, unit)
+    local status = GetReadyCheckStatus(unit)
+    local opts
+    if status == 'ready' then
+        FrameSetJob(frame, config.RCWaiting, false)
+        FrameSetJob(frame, config.RCReady, true)
+    elseif status == 'notready' then
+        FrameSetJob(frame, config.RCWaiting, false)
+        FrameSetJob(frame, config.RCNotReady, true)
+    elseif status == 'waiting' then
+        FrameSetJob(frame, config.RCWaiting, true)
+    else
+        return Aptechka.FrameReadyCheckFinished(frame, unit)
     end
 end
-function Aptechka.READY_CHECK_CONFIRM(self, event, unit)
-    local rci = config.ReadyCheck
-    if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
-        local status = GetReadyCheckStatus(unit)
-        if not status or not rci.stackcolor[status] then return end
-        rci.color = rci.stackcolor[status]
-        SetJob(unit, rci, true)
-    end
+function Aptechka.FrameReadyCheckFinished(frame, unit)
+    FrameSetJob(frame, config.RCReady, false)
+    FrameSetJob(frame, config.RCNotReady, false)
+    FrameSetJob(frame, config.RCWaiting, false)
 end
-function Aptechka.READY_CHECK_FINISHED(self, event)
-    for unit in pairs(Roster) do
-        SetJob(unit, config.ReadyCheck, false)
-    end
+function Aptechka:READY_CHECK(event)
+    Aptechka:ForEachFrame(Aptechka.FrameReadyCheckConfirm)
+end
+function Aptechka:READY_CHECK_CONFIRM(event, unit)
+    Aptechka:ForEachUnitFrame(Aptechka.FrameReadyCheckConfirm)
+end
+function Aptechka:READY_CHECK_FINISHED(event)
+    Aptechka:ForEachFrame(Aptechka.FrameReadyCheckFinished)
 end
 
 --applying UnitButton color
@@ -1737,7 +1745,7 @@ local function updateUnitButton(self, unit)
         Aptechka.FrameUpdateAFK(self, owner)
     end
     Aptechka.FrameCheckPhase(self, unit)
-    FrameSetJob(self, config.ReadyCheck, false)
+    Aptechka.FrameReadyCheckConfirm(self, unit)
     if not config.disableManaBar then
         Aptechka.FrameUpdateDisplayPower(self, unit)
         local ptype = select(2,UnitPowerType(owner))
@@ -2233,6 +2241,7 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
     local state = frame.state
 
     if not widget then
+        if not enabled then return end
         widget = Aptechka:CreateDynamicWidget(frame, slot)
         if not widget then
             Aptechka:PrintDeadAssignmentWarning(slot, opts.name)
