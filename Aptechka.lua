@@ -2408,8 +2408,8 @@ local function IndicatorAurasProc(frame, unit, index, slot, filter, name, icon, 
             if opts.isMissing then status = false end
 
             local minduration = opts.extend_below
-            if minduration and opts.duration and duration < minduration then
-                duration = opts.duration
+            if minduration and duration < minduration then
+                duration = minduration
             end
             -- local hash = GetAuraHash(spellID, duration, expirationTime, count, caster)
 
