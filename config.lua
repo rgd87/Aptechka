@@ -37,11 +37,11 @@ config.enableAbsorbBar = true
 config.TargetStatus = { name = "Target", assignto = set("border"), color = {0.7,0.2,0.5}, priority = 65 }
 config.MouseoverStatus = { name = "Mouseover", assignto = set("border"), color = {1,0.5,0.8}, priority = 66 }
 config.AggroStatus = { name = "Aggro", assignto = set("raidbuff"),  color = { 0.7, 0, 0},priority = 85 }
-config.ReadyCheck = { name = "Readycheck", priority = 90, assignto = set("spell3"), stackcolor = {
-                                                                            ['ready'] = { 0, 1, 0},
-                                                                            ['notready'] = { 1, 0, 0},
-                                                                            ['waiting'] = { .8, .6, 0},
-                                                                        }}
+config.RCReady = { name = "RCReady", priority = 90, assignto = set("statusIcon"), color = { 0, 1, 0}, tex = READY_CHECK_READY_TEXTURE }
+config.RCNotReady = { name = "RCNotReady", priority = 91, assignto = set("statusIcon"), color = { 1, 0, 0}, tex = READY_CHECK_NOT_READY_TEXTURE }
+config.RCWaiting = { name = "RCWaiting", priority = 89, assignto = set("statusIcon"), color = { 0.8, 0.6, 0}, tex = READY_CHECK_WAITING_TEXTURE }
+config.IncResStatus = { name = "IncRes", priority = 86, assignto = set("statusIcon"), color = { 1, 1, 1}, tex = "Interface\\RaidFrame\\Raid-Icon-Rez" }
+config.PhasedStatus = { name = "Phased", priority = 84, assignto = set("statusIcon"), color = { 0.3, 0.3, 0.45}, tex = "Interface\\TargetingFrame\\UI-PhasingIcon", texCoord = {0.15625, 0.84375, 0.15625, 0.84375} }
 
 config.LeaderStatus = { name = "Leader", priority = 59, assignto = set("text3"), color = {1,.8,.2}, text = "L" }
 -- config.AssistStatus = { name = "Assist", priority = 59, assignto = set("text3"), color = {1,.8,.2}, text = "A" }
@@ -89,6 +89,7 @@ config.DefaultWidgets = {
     incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, font = "ClearFont", textsize = 12, outline = false, edge = false },
     debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = "ClearFont", textsize = 12, bigscale = 1.3 },
     -- bossdebuff = { type = "Indicator", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = -0, },
+    statusIcon = { type = "Texture", width = 20, height = 20, point = "CENTER", x = 0, y = 14, texture = nil, rotation = 0, zorder = 1, alpha = 1, blendmode = "BLEND" },
     healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 0, alpha = 1, blendmode = "BLEND" }
 }
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC

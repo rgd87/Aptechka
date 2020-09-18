@@ -662,7 +662,7 @@ local function Texture_StartTrace(self, job)
     self.blink.a2:SetDuration(duration)
 
     local r,g,b,a = GetColor(job)
-    self.color:SetVertexColor(r,g,b,a)
+    self.texture:SetVertexColor(r,g,b,a)
 
     local scale = job.scale or 1
     self:SetScale(scale)
@@ -676,8 +676,25 @@ end
 local SetJob_Texture = function(self, job, state, contentType, ...)
     if self.traceJob then return end -- widget is busy with animation
     if self.currentJob ~= self.previousJob then
-        local r,g,b,a = GetColor(job)
-        self.color:SetVertexColor(r,g,b,a)
+        local t = self.texture
+
+        if job.tex then
+            t.usingCustomTexture = true
+            t:SetTexture(job.tex)
+            local texCoord = job.texCoord
+            if texCoord then
+                t:SetTexCoord(unpack(texCoord))
+            else
+                t:SetTexCoord(0,1, 0,1)
+            end
+            t:SetVertexColor(1,1,1,1)
+        else
+            local r,g,b,a = GetColor(job)
+            if t.usingCustomTexture then
+                t:SetTexture(self._defaultTexture)
+            end
+            t:SetVertexColor(r,g,b,a)
+        end
 
         if job.scale then
             self:SetScale(job.scale)
@@ -707,6 +724,7 @@ function Aptechka.Widget.Texture.Create(parent, popts, gopts)
     t:SetDrawLayer("ARTWORK", zOrderMod)
 
     t:SetTexture(opts.texture)
+    f._defaultTexture = opts.texture
 
     t:SetBlendMode(opts.blendmode)
     t:SetAlpha(opts.alpha)
@@ -726,7 +744,7 @@ function Aptechka.Widget.Texture.Create(parent, popts, gopts)
 
     t:SetAllPoints(f)
 
-    f.color = t
+    f.texture = t
 
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     f.parent = parent
@@ -748,9 +766,11 @@ function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
     f:ClearAllPoints()
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
 
-    local t = f.color
+    local t = f.texture
 
     t:SetTexture(opts.texture)
+    f._defaultTexture = opts.texture
+
     t:SetBlendMode(opts.blendmode)
     t:SetAlpha(opts.alpha)
 

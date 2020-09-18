@@ -439,10 +439,13 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.UNIT_FLAGS = self.UNIT_FACTION
 
     self:RegisterEvent("UNIT_PHASE")
+    --[[
+    -- default ui only checks updates alt power on these events
     self:RegisterEvent("PARTY_MEMBER_ENABLE")
     self:RegisterEvent("PARTY_MEMBER_DISABLE")
     self.PARTY_MEMBER_ENABLE = self.UNIT_PHASE
     self.PARTY_MEMBER_DISABLE = self.UNIT_PHASE
+    ]]
 
     self:RegisterEvent("INCOMING_SUMMON_CHANGED")
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -456,11 +459,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka:UpdateAggroConfig()
 
-    if config.ReadyCheck then
-        self:RegisterEvent("READY_CHECK")
-        self:RegisterEvent("READY_CHECK_CONFIRM")
-        self:RegisterEvent("READY_CHECK_FINISHED")
-    end
+    self:RegisterEvent("READY_CHECK")
+    self:RegisterEvent("READY_CHECK_CONFIRM")
+    self:RegisterEvent("READY_CHECK_FINISHED")
+
     if config.TargetStatus then
         self.previousTarget = "player"
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
@@ -475,7 +477,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
-    self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
 
     NickTag = LibStub("NickTag-1.0", true)
     if NickTag then
@@ -699,6 +700,7 @@ end
 
 function Aptechka.GetWidgetList()
     local list = Aptechka.GetWidgetListRaw()
+    list["statusIcon"] = nil
     list["debuffIcons"] = nil
     list["mindcontrol"] = nil
     list["unhealable"] = nil
@@ -972,12 +974,14 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
     -- print("UNIT_HEALTH", timeUsed1 - beginTime1)
 end
 
+function Aptechka.FrameUpdateIncomingRes(frame, unit)
+    FrameSetJob(frame, config.IncResStatus, UnitHasIncomingResurrection(unit))
+end
+function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateIncomingRes)
+end
 
 function Aptechka.FrameCheckPhase(frame, unit)
-    if UnitHasIncomingResurrection(unit) then
-        frame.centericon.texture:SetTexture("Interface\\RaidFrame\\Raid-Icon-Rez");
-        frame.centericon.texture:SetTexCoord(0,1,0,1);
-        frame.centericon:Show()
     --[[
     elseif HasIncomingSummon(unit) then
         local status = C_IncomingSummon.IncomingSummonStatus(unit);
@@ -991,13 +995,8 @@ function Aptechka.FrameCheckPhase(frame, unit)
         frame.centericon.texture:SetTexCoord(0,1,0,1);
         frame.centericon:Show()
     ]]
-    elseif UnitIsPlayer(unit) and UnitPhaseReason(unit) and not frame.state.isInVehicle then
-        frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
-        frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
-        frame.centericon:Show()
-    else
-        frame.centericon:Hide()
-    end
+    local isPhased = UnitIsPlayer(unit) and UnitPhaseReason(unit) and not frame.state.isInVehicle
+    FrameSetJob(frame, config.PhasedStatus, isPhased)
 end
 
 function Aptechka.UNIT_PHASE(self, event, unit)
@@ -1273,6 +1272,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 if self.power then Aptechka.FrameUpdatePower(self, self.unit) end
                 if self.absorb then Aptechka.FrameUpdateAbsorb(self, self.unit) end
                 Aptechka.FrameCheckPhase(self, self.unit)
+                Aptechka.FrameUpdateIncomingRes(self, self.unit)
                 Aptechka.FrameScanAuras(self, self.unit)
 
                 Aptechka.FrameUpdateMindControl(self, self.unit) -- pet unit will be marked as 'charmed'
@@ -1586,15 +1586,6 @@ function Aptechka:ForEachUnitFrame(unit, func, ...)
     end
 end
 
-
--- function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
-    -- if not Roster[unit] then return end
-    -- for self in pairs(Roster[unit]) do
-        -- SetJob(unit, config.ResurrectStatus, UnitHasIncomingResurrection(unit))
-    -- end
--- end
-
-
 function Aptechka:UpdateTargetStatusConfig()
     if not self.db.global.enableTargetStatus then
         Aptechka:ForEachFrame(function(self) SetJob(self, config.TargetStatus, false) end)
@@ -1617,25 +1608,34 @@ function Aptechka.PLAYER_TARGET_CHANGED(self, event)
 end
 
 -- Readycheck
-function Aptechka.READY_CHECK(self, event)
-    for unit in pairs(Roster) do
-        self:READY_CHECK_CONFIRM(event, unit)
+function Aptechka.FrameReadyCheckConfirm(frame, unit)
+    local status = GetReadyCheckStatus(unit)
+    local opts
+    if status == 'ready' then
+        FrameSetJob(frame, config.RCWaiting, false)
+        FrameSetJob(frame, config.RCReady, true)
+    elseif status == 'notready' then
+        FrameSetJob(frame, config.RCWaiting, false)
+        FrameSetJob(frame, config.RCNotReady, true)
+    elseif status == 'waiting' then
+        FrameSetJob(frame, config.RCWaiting, true)
+    else
+        return Aptechka.FrameReadyCheckFinished(frame, unit)
     end
 end
-function Aptechka.READY_CHECK_CONFIRM(self, event, unit)
-    local rci = config.ReadyCheck
-    if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
-        local status = GetReadyCheckStatus(unit)
-        if not status or not rci.stackcolor[status] then return end
-        rci.color = rci.stackcolor[status]
-        SetJob(unit, rci, true)
-    end
+function Aptechka.FrameReadyCheckFinished(frame, unit)
+    FrameSetJob(frame, config.RCReady, false)
+    FrameSetJob(frame, config.RCNotReady, false)
+    FrameSetJob(frame, config.RCWaiting, false)
 end
-function Aptechka.READY_CHECK_FINISHED(self, event)
-    for unit in pairs(Roster) do
-        SetJob(unit, config.ReadyCheck, false)
-    end
+function Aptechka:READY_CHECK(event)
+    Aptechka:ForEachFrame(Aptechka.FrameReadyCheckConfirm)
+end
+function Aptechka:READY_CHECK_CONFIRM(event, unit)
+    Aptechka:ForEachUnitFrame(Aptechka.FrameReadyCheckConfirm)
+end
+function Aptechka:READY_CHECK_FINISHED(event)
+    Aptechka:ForEachFrame(Aptechka.FrameReadyCheckFinished)
 end
 
 --applying UnitButton color
@@ -1741,7 +1741,8 @@ local function updateUnitButton(self, unit)
         Aptechka.FrameUpdateAFK(self, owner)
     end
     Aptechka.FrameCheckPhase(self, unit)
-    FrameSetJob(self, config.ReadyCheck, false)
+    Aptechka.FrameUpdateIncomingRes(self, unit)
+    Aptechka.FrameReadyCheckConfirm(self, unit)
     if not config.disableManaBar then
         Aptechka.FrameUpdateDisplayPower(self, unit)
         local ptype = select(2,UnitPowerType(owner))
@@ -2237,6 +2238,7 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
     local state = frame.state
 
     if not widget then
+        if not enabled then return end
         widget = Aptechka:CreateDynamicWidget(frame, slot)
         if not widget then
             Aptechka:PrintDeadAssignmentWarning(slot, opts.name)
@@ -2342,7 +2344,7 @@ function Aptechka:GetJobArgs(frame, opts)
 end
 
 function Aptechka.FrameSetJob(frame, opts, enabled, ...)
-    if opts.assignto then
+    if opts and opts.assignto then
         for slot, slotEnabled in pairs(opts.assignto) do
             if slotEnabled then
                 AssignToSlot(frame, opts, enabled, slot, ...)
