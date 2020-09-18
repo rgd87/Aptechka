@@ -1302,6 +1302,7 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
     local it = self.texture
     local dtt = self.debuffTypeTexture
     local text = self.stacktext
+    local cd = self.cd
 
     local w = pixelperfect(opts.width)
     local h = pixelperfect(opts.height)
@@ -1317,6 +1318,7 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         self:SetSize(w + dttLen,h)
         it:SetSize(w,h)
         it:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+        cd:SetAllPoints(it)
         dtt:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
         dtt:SetSize(dttLen,h)
         dtt:SetPoint("TOPLEFT", it, "TOPRIGHT", 0, 0)
@@ -1329,6 +1331,7 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         self:SetSize(w,h)
         it:SetSize(w,h)
         it:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
+        cd:SetAllPoints(it)
         local minLen = math.min(w,h)
 
         dtt:SetTexture[[Interface\AddOns\Aptechka\corner3]]
@@ -1350,6 +1353,7 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         self:SetBackdropBorderColor(1,0,0)
         it:SetSize(w-6*p,h-6*p)
         it:SetPoint("TOPLEFT", self, "TOPLEFT", p*3, -p*3)
+        cd:SetAllPoints(self)
         dtt:Hide()
     elseif style == "STRIP_BOTTOM" then
         local dttLen = h*0.25
@@ -1361,6 +1365,7 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         dtt:SetDrawLayer("ARTWORK", -2)
         it:SetSize(w,h)
         it:SetPoint("BOTTOMLEFT", dtt, "TOPLEFT", 0, 0)
+        cd:SetAllPoints(it)
         text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 3,1)
         if self.SetBackdrop then self:SetBackdrop(nil) end
         dtt:Show()
