@@ -435,10 +435,13 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.UNIT_FLAGS = self.UNIT_FACTION
 
     self:RegisterEvent("UNIT_PHASE")
+    --[[
+    -- default ui only checks updates alt power on these events
     self:RegisterEvent("PARTY_MEMBER_ENABLE")
     self:RegisterEvent("PARTY_MEMBER_DISABLE")
     self.PARTY_MEMBER_ENABLE = self.UNIT_PHASE
     self.PARTY_MEMBER_DISABLE = self.UNIT_PHASE
+    ]]
 
     self:RegisterEvent("INCOMING_SUMMON_CHANGED")
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -470,7 +473,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
-    self.INCOMING_RESURRECT_CHANGED = self.UNIT_PHASE
 
     NickTag = LibStub("NickTag-1.0", true)
     if NickTag then
@@ -967,12 +969,14 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
     -- print("UNIT_HEALTH", timeUsed1 - beginTime1)
 end
 
+function Aptechka.FrameUpdateIncomingRes(frame, unit)
+    FrameSetJob(frame, config.IncResStatus, UnitHasIncomingResurrection(unit))
+end
+function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateIncomingRes)
+end
 
 function Aptechka.FrameCheckPhase(frame, unit)
-    if UnitHasIncomingResurrection(unit) then
-        frame.centericon.texture:SetTexture("Interface\\RaidFrame\\Raid-Icon-Rez");
-        frame.centericon.texture:SetTexCoord(0,1,0,1);
-        frame.centericon:Show()
     --[[
     elseif HasIncomingSummon(unit) then
         local status = C_IncomingSummon.IncomingSummonStatus(unit);
@@ -986,13 +990,8 @@ function Aptechka.FrameCheckPhase(frame, unit)
         frame.centericon.texture:SetTexCoord(0,1,0,1);
         frame.centericon:Show()
     ]]
-    elseif UnitIsPlayer(unit) and UnitPhaseReason(unit) and not frame.state.isInVehicle then
-        frame.centericon.texture:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon");
-        frame.centericon.texture:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375);
-        frame.centericon:Show()
-    else
-        frame.centericon:Hide()
-    end
+    local isPhased = UnitIsPlayer(unit) and UnitPhaseReason(unit) and not frame.state.isInVehicle
+    FrameSetJob(frame, config.PhasedStatus, isPhased)
 end
 
 function Aptechka.UNIT_PHASE(self, event, unit)
@@ -1268,6 +1267,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
                 if self.power then Aptechka.FrameUpdatePower(self, self.unit) end
                 if self.absorb then Aptechka.FrameUpdateAbsorb(self, self.unit) end
                 Aptechka.FrameCheckPhase(self, self.unit)
+                Aptechka.FrameUpdateIncomingRes(self, self.unit)
                 Aptechka.FrameScanAuras(self, self.unit)
 
                 Aptechka.FrameUpdateMindControl(self, self.unit) -- pet unit will be marked as 'charmed'
@@ -1581,15 +1581,6 @@ function Aptechka:ForEachUnitFrame(unit, func, ...)
     end
 end
 
-
--- function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
-    -- if not Roster[unit] then return end
-    -- for self in pairs(Roster[unit]) do
-        -- SetJob(unit, config.ResurrectStatus, UnitHasIncomingResurrection(unit))
-    -- end
--- end
-
-
 function Aptechka:UpdateTargetStatusConfig()
     if not self.db.global.enableTargetStatus then
         Aptechka:ForEachFrame(function(self) SetJob(self, config.TargetStatus, false) end)
@@ -1745,6 +1736,7 @@ local function updateUnitButton(self, unit)
         Aptechka.FrameUpdateAFK(self, owner)
     end
     Aptechka.FrameCheckPhase(self, unit)
+    Aptechka.FrameUpdateIncomingRes(self, unit)
     Aptechka.FrameReadyCheckConfirm(self, unit)
     if not config.disableManaBar then
         Aptechka.FrameUpdateDisplayPower(self, unit)
