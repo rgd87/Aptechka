@@ -676,17 +676,24 @@ end
 local SetJob_Texture = function(self, job, state, contentType, ...)
     if self.traceJob then return end -- widget is busy with animation
     if self.currentJob ~= self.previousJob then
-        local r,g,b,a = GetColor(job)
-        self.texture:SetVertexColor(r,g,b,a)
-
         local t = self.texture
-        local tex = job.tex or self._defaultTexture
-        t:SetTexture(tex)
-        local texCoords = job.texCoords
-        if texCoords then
-            t:SetTexCoord(unpack(texCoords))
+
+        if job.tex then
+            t.usingCustomTexture = true
+            t:SetTexture(job.tex)
+            local texCoord = job.texCoord
+            if texCoord then
+                t:SetTexCoord(unpack(texCoord))
+            else
+                t:SetTexCoord(0,1, 0,1)
+            end
+            t:SetVertexColor(1,1,1,1)
         else
-            t:SetTexCoord(0,1, 0,1)
+            local r,g,b,a = GetColor(job)
+            if t.usingCustomTexture then
+                t:SetTexture(self._defaultTexture)
+            end
+            t:SetVertexColor(r,g,b,a)
         end
 
         if job.scale then
