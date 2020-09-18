@@ -770,7 +770,6 @@ end
 function Aptechka:UpdateUnprotectedUpvalues()
     ignoreplayer = config.incomingHealIgnorePlayer or false
     fgShowMissing = Aptechka.db.profile.fgShowMissing
-    Aptechka._BossDebuffScale = Aptechka.db.global.widgetConfig.debuffIcons.bigscale
     gradientHealthColor = Aptechka.db.profile.gradientHealthColor
     damageEffect = Aptechka.db.profile.damageEffect
     enableTraceheals = config.enableTraceHeals and next(traceheals)

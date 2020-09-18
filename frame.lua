@@ -1476,6 +1476,7 @@ function Aptechka.Widget.DebuffIconArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     local hdr = CreateArrayHeader("DebuffIcon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
     hdr.SetDebuffIcon = DebuffIconArray_SetDebuffIcon
+    Aptechka._BossDebuffScale = gopts.bigscale
     return hdr
 end
 function Aptechka.Widget.DebuffIconArray.Reconf(parent, hdr, popts, gopts)
