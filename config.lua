@@ -48,9 +48,9 @@ config.LeaderStatus = { name = "Leader", priority = 59, assignto = set("text3"),
 config.VoiceChatStatus = { name = "VoiceChat", assignto = set("text3"), color = {0.3, 1, 0.3}, text = "S", priority = 99 }
 config.MainTankStatus = { name = "MainTank", priority = 60, assignto = set("border"), color = {0.6,0.6,0.6} }
 config.LowHealthStatus = { name = "LowHealth", priority = 60, assignto = set("border"), color = {1,0,0} }
-config.DeadStatus = { name = "DEAD", assignto = set("text2","health"), color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
-config.GhostStatus = { name = "GHOST", assignto = set("text2","health"), color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
-config.OfflineStatus = { name = "OFFLINE", assignto = set("text2","text3","health"), color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
+config.DeadStatus = { name = "Dead", assignto = set("text2","health"), color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
+config.GhostStatus = { name = "Ghost", assignto = set("text2","health"), color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
+config.OfflineStatus = { name = "Offline", assignto = set("text2","text3","health"), color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.AwayStatus = { name = "AFK", assignto = set("text2","text3"), color = {.15,.15,.15}, textcolor = {1,0.8,0}, text = "AFK",  priority = 60}
 -- config.IncomingHealStatus = { name = "IncomingHeal", assignto = set("text2"), color = { 0, 1, 0}, priority = 15 }
 config.HealthDeficitStatus = { name = "HealthDeficit", assignto = set("healthtext"), color = { 54/255, 201/255, 99/256 }, priority = 10 }
@@ -62,11 +62,11 @@ config.LOSStatus = { name = "OutOfSight", assignto = set("healfeedback"), scale 
 config.DispelStatus = { name = "Dispel", assignto = set("raidbuff"), scale = 2, hscale = 2, spin = true, priority = 86 }
 config.StaggerStatus = { name = "Stagger", assignto = set("text2"), priority = 20 }
 config.RunicPowerStatus = { name = "RunicPower", assignto = set("mitigation"), priority = 10, color = { 0, 0.82, 1 } }
-config.AlternatePowerStatus = { name = "AlternatePower", assignto = set("text3"), priority = 65, color = { 1, 0.4, 0.4 } }
+config.AltPowerStatus = { name = "AltPower", assignto = set("text3"), priority = 65, color = { 1, 0.4, 0.4 } }
 
-config.SummonPending = { name = "SUMMON_PENDING", set("text2"), color = {1,0.7,0}, text = "PENDING", priority = 50 }
-config.SummonAccepted = { name = "SUMMON_ACCEPTED", set("text2"), color = {0,1,0}, text = "ACCEPTED", priority = 51 }
-config.SummonDeclined = { name = "SUMMON_DECLINED", set("text2"), color = {1,0,0}, text = "DECLINED", priority = 52 }
+config.SummonPending = { name = "SummonPending", set("text2"), color = {1,0.7,0}, text = "PENDING", priority = 50 }
+config.SummonAccepted = { name = "SummonAccepted", set("text2"), color = {0,1,0}, text = "ACCEPTED", priority = 51 }
+config.SummonDeclined = { name = "SummonDeclined", set("text2"), color = {1,0,0}, text = "DECLINED", priority = 52 }
 
 -- config.MindControl = { name = "MIND_CONTROL", set("mindcontrol"), color = {1,0,0}, priority = 52 }
 config.MindControlStatus = { name = "MIND_CONTROL", set("border", "mindcontrol", "innerglow"), color = {0.5,0,1}, priority = 52 }

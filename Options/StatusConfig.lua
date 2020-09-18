@@ -19,7 +19,7 @@ function ns.MakeStatusConfig()
         "MainTankStatus",
         "DispelStatus",
         "RunicPowerStatus",
-        "AlternatePowerStatus",
+        "AltPowerStatus",
     }
 
     for i, status in ipairs(configurableWidgets) do

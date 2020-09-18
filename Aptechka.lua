@@ -1735,7 +1735,7 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
     Aptechka.FrameUpdateConnection(self, owner)
-    Aptechka:INCOMING_SUMMON_CHANGED("ONATTR", owner)
+    Aptechka.FrameUpdateIncomingSummon(self, owner)
 
     if AptechkaDB.global.showAFK then
         Aptechka.FrameUpdateAFK(self, owner)
@@ -2412,8 +2412,8 @@ local function IndicatorAurasProc(frame, unit, index, slot, filter, name, icon, 
             if opts.isMissing then status = false end
 
             local minduration = opts.extend_below
-            if minduration and opts.duration and duration < minduration then
-                duration = opts.duration
+            if minduration and duration < minduration then
+                duration = minduration
             end
             -- local hash = GetAuraHash(spellID, duration, expirationTime, count, caster)
 
