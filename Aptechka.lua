@@ -1731,7 +1731,7 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     end
     Aptechka.FrameUpdateConnection(self, owner)
-    Aptechka:INCOMING_SUMMON_CHANGED("ONATTR", owner)
+    Aptechka.FrameUpdateIncomingSummon(self, owner)
 
     if AptechkaDB.global.showAFK then
         Aptechka.FrameUpdateAFK(self, owner)
