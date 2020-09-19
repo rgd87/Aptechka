@@ -944,25 +944,25 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     end
     FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
 
-    if event then
-        if UnitIsDeadOrGhost(unit) then
-            FrameSetJob(self, config.AggroStatus, false)
-            local isGhost = UnitIsGhost(unit)
-            local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
-            FrameSetJob(self, deadorghost, true)
-            FrameSetJob(self,config.HealthDeficitStatus, false )
-            state.isDead = true
-            state.isGhost = isGhost
-            Aptechka.FrameUpdateDisplayPower(self, unit, true)
-        elseif state.isDead then
-            state.isDead = nil
-            state.isGhost = nil
-            Aptechka.FrameScanAuras(self, unit)
-            FrameSetJob(self, config.GhostStatus, false)
-            FrameSetJob(self, config.DeadStatus, false)
-            Aptechka.FrameUpdateDisplayPower(self, unit, false)
-        end
+    local isDead = UnitIsDeadOrGhost(unit)
+    if isDead then
+        FrameSetJob(self, config.AggroStatus, false)
+        local isGhost = UnitIsGhost(unit)
+        local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
+        FrameSetJob(self, deadorghost, true)
+        FrameSetJob(self,config.HealthDeficitStatus, false )
+        state.isDead = true
+        state.isGhost = isGhost
+        Aptechka.FrameUpdateDisplayPower(self, unit, true)
+    elseif state.wasDead ~= isDead then
+        state.isDead = nil
+        state.isGhost = nil
+        Aptechka.FrameScanAuras(self, unit)
+        FrameSetJob(self, config.GhostStatus, false)
+        FrameSetJob(self, config.DeadStatus, false)
+        Aptechka.FrameUpdateDisplayPower(self, unit, false)
     end
+    state.wasDead = isDead
 end
 function Aptechka.UNIT_HEALTH(self, event, unit)
     -- local beginTime1 = debugprofilestop();
@@ -1705,7 +1705,7 @@ local function updateUnitButton(self, unit)
         end
     end
 
-    if self.OnUnitChanged then self:OnUnitChanged(owner) end
+    -- Header hidden the frame and unit is nil
     if not unit then return end
 
     local name, realm = UnitName(owner)
@@ -1729,6 +1729,7 @@ local function updateUnitButton(self, unit)
     FrameSetJob(self,config.HealthBarColor,true)
     FrameSetJob(self,config.PowerBarColor,true)
     Aptechka.FrameScanAuras(self, unit)
+    state.wasDead = nil
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
     if config.enableAbsorbBar then
         Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
