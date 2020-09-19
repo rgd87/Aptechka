@@ -1743,6 +1743,7 @@ local function updateUnitButton(self, unit)
         Aptechka.FrameUpdateDisplayPower(self, unit)
         local ptype = select(2,UnitPowerType(owner))
         Aptechka.FrameUpdatePower(self, unit, ptype)
+        Aptechka.FrameUpdatePower(self, unit, "RUNIC_POWER")
         Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
     end
     Aptechka.FrameUpdateThreat(self, unit)
