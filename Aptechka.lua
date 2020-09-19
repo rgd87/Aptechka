@@ -637,9 +637,7 @@ end
 
 function Aptechka:PostSpellListUpdate()
     self:UpdateMissingAuraList()
-    for unit, frames in pairs(Roster) do
-        self:UNIT_AURA(nil, unit)
-    end
+    Aptechka:ForEachFrame(Aptechka.FrameScanAuras)
 end
 
 function Aptechka:UpdateMissingAuraList()
@@ -723,15 +721,14 @@ function Aptechka:RefreshAllUnitsHealth()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateHealth)
     Aptechka:ForEachFrame(Aptechka.FrameUpdatePower)
 end
+function Aptechka.FrameUpdateUnitColor(frame, unit)
+    Aptechka.FrameColorize(frame, unit)
+    FrameSetJob(frame, config.UnitNameStatus, true)
+    FrameSetJob(frame, config.HealthBarColor, true)
+    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
+end
 function Aptechka:RefreshAllUnitsColors()
-    for unit, frames in pairs(Roster) do
-        for frame in pairs(frames) do
-            Aptechka.FrameColorize(frame, unit)
-            FrameSetJob(frame, config.UnitNameStatus, true)
-            FrameSetJob(frame, config.HealthBarColor, true)
-            if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
-        end
-    end
+    Aptechka:ForEachFrame(Aptechka.FrameUpdateUnitColor)
 end
 
 function Aptechka:ReconfigureAllWidgets()
@@ -1273,6 +1270,16 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
 end
 
 
+local function FrameUpdateRangeAlpha(frame, unit)
+    if AptechkaUnitInRange(unit) then
+        frame:SetAlpha(1)
+    else
+        frame:SetAlpha(0.45)
+    end
+end
+local function FrameResetRangeAlpha(frame, unit)
+    frame:SetAlpha(1)
+end
 --Range check
 Aptechka.OnRangeUpdate = function (self, time)
     self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
@@ -1282,11 +1289,7 @@ Aptechka.OnRangeUpdate = function (self, time)
     Aptechka:UpdateStagger()
 
     if not IsInGroup() then --UnitInRange returns false when not grouped
-        for unit, frames in pairs(Roster) do
-            for frame in pairs(frames) do
-                frame:SetAlpha(1)
-            end
-        end
+        Aptechka:ForEachFrame(FrameResetRangeAlpha)
         return
     end
 
@@ -1304,15 +1307,7 @@ Aptechka.OnRangeUpdate = function (self, time)
         end
     end
 
-    for unit, frames in pairs(Roster) do
-        for frame in pairs(frames) do
-            if AptechkaUnitInRange(unit) then
-                frame:SetAlpha(1)
-            else
-                frame:SetAlpha(0.45)
-            end
-        end
-    end
+    Aptechka:ForEachFrame(FrameUpdateRangeAlpha)
 end
 
 --Aggro
@@ -1752,12 +1747,8 @@ end
 local delayedUpdateTimer = C_Timer.NewTicker(5, function()
     if has_unknowns then
         has_unknowns = false
-        for unit, frames in pairs(Roster) do
-            for frame in pairs(frames) do
-                -- updateUnitButton may change has_unknowns back to true
-                updateUnitButton(frame, unit)
-            end
-        end
+        -- updateUnitButton may change has_unknowns back to true
+        Aptechka:ForEachFrame(updateUnitButton)
     end
 end)
 
@@ -2344,11 +2335,12 @@ function Aptechka.FrameSetJob(frame, opts, enabled, ...)
 end
 FrameSetJob = Aptechka.FrameSetJob
 
+
+local FSJProxy = function(frame, unit, ...)
+    FrameSetJob(frame, ...)
+end
 function Aptechka.SetJob(unit, opts, enabled, ...)
-    if not Roster[unit] then return end
-    for frame in pairs(Roster[unit]) do
-        FrameSetJob(frame, opts, enabled, ...)
-    end
+    Aptechka:ForEachUnitFrame(unit, FSJProxy, opts, enabled, ...)
 end
 SetJob = Aptechka.SetJob
 
