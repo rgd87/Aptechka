@@ -1008,12 +1008,7 @@ function Aptechka.FrameUpdateMindControl(frame, unit)
     FrameSetJob(frame, config.MindControlStatus, isMindControlled)
 end
 function Aptechka:UpdateMindControl(unit)
-    local frames = Roster[unit]
-    if frames then
-        for frame in pairs(frames) do
-            Aptechka.FrameUpdateMindControl(frame, unit)
-        end
-    end
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateMindControl)
 end
 
 
@@ -1029,6 +1024,10 @@ local function FrameStartTrace(frame, unit, opts)
     Aptechka:ForEachWidget(frame, opts, WidgetStartTrace, frame, opts)
 end
 Aptechka.FrameStartTrace = FrameStartTrace
+
+local function FrameBumpAuraEvent(frame, unit, spellID)
+    frame.auraEvents[spellID] = GetTime()
+end
 
 function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
     local timestamp, eventType, hideCaster,
@@ -1053,13 +1052,7 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
             eventType == "SPELL_AURA_APPLIED_DOSE"
         then
             local unit = guidMap[dstGUID]
-
-            local frames = Roster[unit]
-            if not frames then return end
-
-            for frame in pairs(frames) do
-                frame.auraEvents[spellID] = GetTime()
-            end
+            Aptechka:ForEachUnitFrame(unit, FrameBumpAuraEvent, spellID)
         end
     end
 end
@@ -2627,16 +2620,11 @@ function Aptechka.HighlightProc(frame, unit, index, slot, filter, name, icon, co
 end
 
 function Aptechka.HighlightPostUpdate(frame, unit)
-    local frames = Roster[unit]
-    if frames then
-        for frame in pairs(frames) do
-            if frame.state.highlightedDebuffsBits ~= highlightedDebuffsBits then
-                for i=1,#config.BossDebuffs do
-                    FrameSetJob(frame, config.BossDebuffs[i], helpers.CheckBit(highlightedDebuffsBits, i))
-                end
-                frame.state.highlightedDebuffsBits = highlightedDebuffsBits
-            end
+    if frame.state.highlightedDebuffsBits ~= highlightedDebuffsBits then
+        for i=1,#config.BossDebuffs do
+            FrameSetJob(frame, config.BossDebuffs[i], helpers.CheckBit(highlightedDebuffsBits, i))
         end
+        frame.state.highlightedDebuffsBits = highlightedDebuffsBits
     end
 end
 local HighlightProc = Aptechka.HighlightProc
@@ -2657,38 +2645,33 @@ local DiseaseColor = { 0.6, 0.4, 0}
 function Aptechka.DispelTypePostUpdate(frame, unit)
     local debuffTypeMaskDispellable = bit_band( debuffTypeMask, BITMASK_DISPELLABLE )
 
-    local frames = Roster[unit]
-    if frames then
-        for frame in pairs(frames) do
-            if frame.debuffTypeMask ~= debuffTypeMaskDispellable then
+    if frame.debuffTypeMask ~= debuffTypeMaskDispellable then
 
-                local color
-                -- local debuffType
-                if bit_band(debuffTypeMaskDispellable, BITMASK_MAGIC) > 0 then
-                    color = MagicColor
-                    -- debuffType = 1
-                elseif bit_band(debuffTypeMaskDispellable, BITMASK_POISON) > 0 then
-                    color = PoisonColor
-                    -- debuffType = 2
-                elseif bit_band(debuffTypeMaskDispellable, BITMASK_DISEASE) > 0 then
-                    color = DiseaseColor
-                    -- debuffType = 3
-                elseif bit_band(debuffTypeMaskDispellable, BITMASK_CURSE) > 0 then
-                    color = CurseColor
-                    -- debuffType = 4
-                end
-
-                if color then
-                    config.DispelStatus.color = color
-                    -- config.DispelStatus.debuffType = debuffType
-                    FrameSetJob(frame, config.DispelStatus, true) --, debuffType)
-                else
-                    FrameSetJob(frame, config.DispelStatus, false)
-                end
-
-                frame.debuffTypeMask = debuffTypeMaskDispellable
-            end
+        local color
+        -- local debuffType
+        if bit_band(debuffTypeMaskDispellable, BITMASK_MAGIC) > 0 then
+            color = MagicColor
+            -- debuffType = 1
+        elseif bit_band(debuffTypeMaskDispellable, BITMASK_POISON) > 0 then
+            color = PoisonColor
+            -- debuffType = 2
+        elseif bit_band(debuffTypeMaskDispellable, BITMASK_DISEASE) > 0 then
+            color = DiseaseColor
+            -- debuffType = 3
+        elseif bit_band(debuffTypeMaskDispellable, BITMASK_CURSE) > 0 then
+            color = CurseColor
+            -- debuffType = 4
         end
+
+        if color then
+            config.DispelStatus.color = color
+            -- config.DispelStatus.debuffType = debuffType
+            FrameSetJob(frame, config.DispelStatus, true) --, debuffType)
+        else
+            FrameSetJob(frame, config.DispelStatus, false)
+        end
+
+        frame.debuffTypeMask = debuffTypeMaskDispellable
     end
 end
 function Aptechka.DummyFunction() end
@@ -3413,60 +3396,63 @@ function Aptechka:UpdateCastsConfig()
         end
     end
 end
-function Aptechka.SPELLCAST_UPDATE(event, GUID)
-    local unit = guidMap[GUID]
-    if unit and Roster[unit] then
-        for frame in pairs(Roster[unit]) do
-            local minSrcGUID
-            local minTime
-            local totalCasts = 0
-            for i, castInfo in ipairs(LibTargetedCasts:GetUnitIncomingCastsTable(unit)) do
-                local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = unpack(castInfo)
 
-                local isImportant = importantTargetedCasts[spellID]
-                if not blacklist[spellID] then
-                    totalCasts = totalCasts + 1
-                    if castType == "CHANNEL" then endTime = endTime - 5 end -- prioritizing channels
-                    if isImportant then endTime = endTime - 100 end
+function Aptechka.FrameUpdateIncomingCast(frame, unit)
+    local minSrcGUID
+    local minTime
+    local totalCasts = 0
+    for i, castInfo in ipairs(LibTargetedCasts:GetUnitIncomingCastsTable(unit)) do
+        local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = unpack(castInfo)
 
-                    if not minTime or endTime < minTime then
-                        minSrcGUID = srcGUID
-                        minTime = endTime
-                        -- print(i)
-                    end
-                end
-            end
+        local isImportant = importantTargetedCasts[spellID]
+        if not blacklist[spellID] then
+            totalCasts = totalCasts + 1
+            if castType == "CHANNEL" then endTime = endTime - 5 end -- prioritizing channels
+            if isImportant then endTime = endTime - 100 end
 
-            local icon = frame.incomingCastIcon
-            if minSrcGUID then
-                local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
-
-                icon.texture:SetTexture(texture)
-                icon.cd:SetReverse(castType == "CAST")
-
-                local r,g,b
-                -- if notInterruptible then
-                --     r,g,b = 0.7, 0.7, 0.7
-                -- else
-                if castType == "CHANNEL" then
-                    r,g,b = 0.8, 1, 0.3
-                else
-                    r,g,b = 1, 0.65, 0
-                end
-
-                icon.cd:SetSwipeColor(r,g,b);
-
-                local duration = endTime - startTime
-                icon.cd:SetCooldown(startTime, duration)
-                icon.cd:Show()
-
-                icon.stacktext:SetText(totalCasts > 1 and totalCasts)
-
-                icon:Show()
-            else
-                icon:Hide()
+            if not minTime or endTime < minTime then
+                minSrcGUID = srcGUID
+                minTime = endTime
+                -- print(i)
             end
         end
+    end
+
+    local icon = frame.incomingCastIcon
+    if minSrcGUID then
+        local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
+
+        icon.texture:SetTexture(texture)
+        icon.cd:SetReverse(castType == "CAST")
+
+        local r,g,b
+        -- if notInterruptible then
+        --     r,g,b = 0.7, 0.7, 0.7
+        -- else
+        if castType == "CHANNEL" then
+            r,g,b = 0.8, 1, 0.3
+        else
+            r,g,b = 1, 0.65, 0
+        end
+
+        icon.cd:SetSwipeColor(r,g,b);
+
+        local duration = endTime - startTime
+        icon.cd:SetCooldown(startTime, duration)
+        icon.cd:Show()
+
+        icon.stacktext:SetText(totalCasts > 1 and totalCasts)
+
+        icon:Show()
+    else
+        icon:Hide()
+    end
+end
+
+function Aptechka.SPELLCAST_UPDATE(event, GUID)
+    local unit = guidMap[GUID]
+    if unit then
+        Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateIncomingCast)
     end
 end
 
