@@ -1188,32 +1188,29 @@ local vehicleHack = function (self, time)
     local frame = self.parent
     local owner = frame.unitOwner
     if not ( UnitHasVehicleUI(owner) or UnitInVehicle(owner) or UnitUsingVehicle(owner) ) then
-        if Roster[self.parent.unit] then
+        if Roster[frame.unit] then
             -- Restore owner unit in the roster, delete vehicle unit
-            Roster[owner] = Roster[self.parent.unit]
-            Roster[self.parent.unit] = nil
-            self.parent.unit = owner
-            self.parent.unitOwner = nil
-            self.parent.guid = UnitGUID(owner)
-            self.parent.state.isInVehicle = nil
-
-            -- print(string.format("L1>>Unit: %-s",original_unit))
-            -- print(string.format("D4>[%s]>Dumping- Roster",NAME))
+            Roster[owner] = Roster[frame.unit]
+            Roster[frame.unit] = nil
+            frame.unit = owner
+            frame.unitOwner = nil
+            frame.guid = UnitGUID(owner)
+            frame.state.isInVehicle = nil
 
             -- Remove vehicle status
-            SetJob(owner,config.InVehicleStatus,false)
+            SetJob(owner, config.InVehicleStatus,false)
             -- Update unitframe back to owner's unit health, etc.
             Aptechka.FrameUpdateHealth(frame, owner, "VEHICLE")
-            if self.parent.power then
+            if frame.power then
                 Aptechka.FrameUpdateDisplayPower(frame, owner)
                 local ptype = select(2,UnitPowerType(owner))
                 Aptechka.FrameUpdatePower(frame, owner, ptype)
+                Aptechka.FrameUpdatePower(frame, owner, "ALTERNATE")
             end
-            if self.parent.absorb then
+            if frame.absorb then
                 Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
             end
             Aptechka.FrameScanAuras(frame, owner)
-
             Aptechka.FrameUpdateMindControl(frame, owner)
 
             -- Stop periodic checks
@@ -1221,47 +1218,48 @@ local vehicleHack = function (self, time)
         end
     end
 end
-function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
-    if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
-        local state = self.state
-        if not state.isInVehicle then
-            local vehicleUnit = SecureButton_GetModifiedUnit(self)
-            -- local vehicleOwner = SecureButton_GetUnit(self)
-            if unit ~= vehicleUnit then
-                state.isInVehicle = true
-                self.unitOwner = unit --original unit
-                self.unit = vehicleUnit
 
-                self.guid = UnitGUID(vehicleUnit)
-                if self.guid then guidMap[self.guid] = vehicleUnit end
+function Aptechka.FrameOnEnteredVehicle(frame, unit)
+    local state = frame.state
+    if not state.isInVehicle then
+        local vehicleUnit = SecureButton_GetModifiedUnit(frame)
+        -- local vehicleOwner = SecureButton_GetUnit(frame)
+        if unit ~= vehicleUnit then
+            state.isInVehicle = true
+            frame.unitOwner = unit --original unit
+            frame.unit = vehicleUnit
 
-                -- Delete owner unit from Roster and add point vehicle unit to this button instead
-                Roster[self.unit] = Roster[self.unitOwner]
-                Roster[self.unitOwner] = nil
+            frame.guid = UnitGUID(vehicleUnit)
+            if frame.guid then guidMap[frame.guid] = vehicleUnit end
 
-                -- A small frame is crated to start 1s periodic OnUpdate checks when unit has left the vehicle
-                if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame", nil, self); self.vehicleFrame.parent = self end
-                self.vehicleFrame.OnUpdateCounter = -1.5
-                self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
+            -- Delete owner unit from Roster and add point vehicle unit to this button instead
+            Roster[frame.unit] = Roster[frame.unitOwner]
+            Roster[frame.unitOwner] = nil
 
-                -- Set in vehicle status
-                SetJob(self.unit,config.InVehicleStatus,true)
-                -- Update unitframe for the new vehicle unit
-                Aptechka.FrameUpdateHealth(self, self.unit, "VEHICLE")
-                if self.power then Aptechka.FrameUpdatePower(self, self.unit) end
-                if self.absorb then Aptechka.FrameUpdateAbsorb(self, self.unit) end
-                Aptechka.FrameCheckPhase(self, self.unit)
-                Aptechka.FrameUpdateIncomingRes(self, self.unit)
-                Aptechka.FrameScanAuras(self, self.unit)
+            -- A small frame is crated to start 1s periodic OnUpdate checks when unit has left the vehicle
+            if not frame.vehicleFrame then frame.vehicleFrame = CreateFrame("Frame", nil, frame); frame.vehicleFrame.parent = frame end
+            frame.vehicleFrame.OnUpdateCounter = -1.5
+            frame.vehicleFrame:SetScript("OnUpdate",vehicleHack)
 
-                Aptechka.FrameUpdateMindControl(self, self.unit) -- pet unit will be marked as 'charmed'
+            -- Set in vehicle status
+            SetJob(frame.unit, config.InVehicleStatus,true)
+            -- Update unitframe for the new vehicle unit
+            Aptechka.FrameUpdateHealth(frame, frame.unit, "VEHICLE")
+            if frame.power then Aptechka.FrameUpdatePower(frame, frame.unit) end
+            if frame.absorb then Aptechka.FrameUpdateAbsorb(frame, frame.unit) end
+            Aptechka.FrameCheckPhase(frame, frame.unit)
+            Aptechka.FrameUpdateIncomingRes(frame, frame.unit)
+            Aptechka.FrameScanAuras(frame, frame.unit)
 
-                -- Except class color, it's still tied to owner
-                Aptechka.FrameColorize(self, self.unitOwner)
-            end
+            Aptechka.FrameUpdateMindControl(frame, frame.unit) -- pet unit will be marked as 'charmed'
+
+            -- Except class color, it's still tied to owner
+            Aptechka.FrameColorize(frame, frame.unitOwner)
         end
     end
+end
+function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameOnEnteredVehicle)
 end
 
 
