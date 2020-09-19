@@ -774,7 +774,6 @@ end
 function Aptechka:UpdateUnprotectedUpvalues()
     ignoreplayer = config.incomingHealIgnorePlayer or false
     fgShowMissing = Aptechka.db.profile.fgShowMissing
-    Aptechka._BossDebuffScale = Aptechka.db.global.widgetConfig.debuffIcons.bigscale
     gradientHealthColor = Aptechka.db.profile.gradientHealthColor
     damageEffect = Aptechka.db.profile.damageEffect
     enableTraceheals = config.enableTraceHeals and next(traceheals)
@@ -947,11 +946,11 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
 
     if event then
         if UnitIsDeadOrGhost(unit) then
-            SetJob(unit, config.AggroStatus, false)
+            FrameSetJob(self, config.AggroStatus, false)
             local isGhost = UnitIsGhost(unit)
             local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
-            SetJob(unit, deadorghost, true)
-            SetJob(unit,config.HealthDeficitStatus, false )
+            FrameSetJob(self, deadorghost, true)
+            FrameSetJob(self,config.HealthDeficitStatus, false )
             state.isDead = true
             state.isGhost = isGhost
             Aptechka.FrameUpdateDisplayPower(self, unit, true)
@@ -959,8 +958,8 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
             state.isDead = nil
             state.isGhost = nil
             Aptechka.FrameScanAuras(self, unit)
-            SetJob(unit, config.GhostStatus, false)
-            SetJob(unit, config.DeadStatus, false)
+            FrameSetJob(self, config.GhostStatus, false)
+            FrameSetJob(self, config.DeadStatus, false)
             Aptechka.FrameUpdateDisplayPower(self, unit, false)
         end
     end
