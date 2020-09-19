@@ -635,11 +635,6 @@ function Aptechka:ToggleCompactRaidFrames()
     ReloadUI()
 end
 
-function Aptechka:PostSpellListUpdate()
-    self:UpdateMissingAuraList()
-    Aptechka:ForEachFrame(Aptechka.FrameScanAuras)
-end
-
 function Aptechka:UpdateMissingAuraList()
     table_wipe(missingFlagSpells)
     for spellID, opts in pairs(auras) do
