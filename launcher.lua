@@ -20,7 +20,7 @@ function Aptechka:CreteMinimapIcon()
 		type = 'launcher',
 
         icon = 135966, -- spell_holy_sealofsacrifice
-        iconCoords = { 0.12, 0.82, 0.15, 0.85 },
+        iconCoords = { 0.125, 0.825, 0.11, 0.81 },
 
         OnClick = function(_, button)
             if button == "MiddleButton" then
