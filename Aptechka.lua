@@ -392,6 +392,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:SetFrameStrata("LOW")
             self:SetFrameLevel(3)
 
+            -- local isPetUnit = header:GetAttribute("isPetHeader")
             self:SetAttribute("toggleForVehicle", true)
             self:SetAttribute("allowVehicleTarget", false)
 
@@ -531,6 +532,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
     if config.enableVehicleSwap then
         self:RegisterEvent("UNIT_ENTERED_VEHICLE")
+        self:RegisterEvent("UNIT_EXITED_VEHICLE")
     end
 
     skinAnchorsName = "GridSkin"
@@ -1219,50 +1221,6 @@ local vehicleHack = function (self, time)
     end
 end
 
-function Aptechka.FrameOnEnteredVehicle(frame, unit)
-    local state = frame.state
-    if not state.isInVehicle then
-        local vehicleUnit = SecureButton_GetModifiedUnit(frame)
-        -- local vehicleOwner = SecureButton_GetUnit(frame)
-        if unit ~= vehicleUnit then
-            state.isInVehicle = true
-            frame.unitOwner = unit --original unit
-            frame.unit = vehicleUnit
-
-            frame.guid = UnitGUID(vehicleUnit)
-            if frame.guid then guidMap[frame.guid] = vehicleUnit end
-
-            -- Delete owner unit from Roster and add point vehicle unit to this button instead
-            Roster[frame.unit] = Roster[frame.unitOwner]
-            Roster[frame.unitOwner] = nil
-
-            -- A small frame is crated to start 1s periodic OnUpdate checks when unit has left the vehicle
-            if not frame.vehicleFrame then frame.vehicleFrame = CreateFrame("Frame", nil, frame); frame.vehicleFrame.parent = frame end
-            frame.vehicleFrame.OnUpdateCounter = -1.5
-            frame.vehicleFrame:SetScript("OnUpdate",vehicleHack)
-
-            -- Set in vehicle status
-            SetJob(frame.unit, config.InVehicleStatus,true)
-            -- Update unitframe for the new vehicle unit
-            Aptechka.FrameUpdateHealth(frame, frame.unit, "VEHICLE")
-            if frame.power then Aptechka.FrameUpdatePower(frame, frame.unit) end
-            if frame.absorb then Aptechka.FrameUpdateAbsorb(frame, frame.unit) end
-            Aptechka.FrameCheckPhase(frame, frame.unit)
-            Aptechka.FrameUpdateIncomingRes(frame, frame.unit)
-            Aptechka.FrameScanAuras(frame, frame.unit)
-
-            Aptechka.FrameUpdateMindControl(frame, frame.unit) -- pet unit will be marked as 'charmed'
-
-            -- Except class color, it's still tied to owner
-            Aptechka.FrameColorize(frame, frame.unitOwner)
-        end
-    end
-end
-function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
-    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameOnEnteredVehicle)
-end
-
-
 local function FrameUpdateRangeAlpha(frame, unit)
     if AptechkaUnitInRange(unit) then
         frame:SetAlpha(1)
@@ -1654,25 +1612,41 @@ end
 local has_unknowns = true
 local UNKNOWNOBJECT = UNKNOWNOBJECT
 
-local function updateUnitButton(self, unit)
-    local owner = unit
+local function updateUnitButton(self, unit, flag)
+    -- local owner = unit
     local state = self.state
 
-    if state.isInVehicle and unit and unit == self.unitOwner then
-        unit = self.unit
-        owner = self.unitOwner
-        --if for some reason game will decide to update unit whose frame is mapped to vehicleunit in roster
-    elseif state.isInVehicle and unit then
-        owner = self.unitOwner
+    local modunit = SecureButton_GetModifiedUnit(self)
+    local owner = SecureButton_GetUnit(self)
+
+    -- The problem here is that pet unit button also gets remapped
+    -- Doing Roster[player] = NugRaid9UnitButton1
+    -- And it happens before UNIT_ENTERED_VEHICLE, so when even happens it can't find a proper button
+    -- It's possible to not enable toggleForVehicle on pets, but then you'd have 1 unit and two frames that try to be it
+    -- Which isn't possible without nested roster
+    if flag ~= "FORCE" then
+        unit = modunit
     else
-        if self.vehicleFrame then
-            self.vehicleFrame:SetScript("OnUpdate",nil)
-            self.vehicleFrame = nil
-            state.isInVehicle = nil
-            FrameSetJob(self,config.InVehicleStatus,false)
-            -- print ("Killing orphan vehicle frame")
-        end
+        print("forcing")
     end
+
+    print(self:GetName(), unit, modunit, owner)
+
+    -- if state.isInVehicle and unit and unit == self.unitOwner then
+    --     unit = self.unit
+    --     owner = self.unitOwner
+    --     --if for some reason game will decide to update unit whose frame is mapped to vehicleunit in roster
+    -- elseif state.isInVehicle and unit then
+    --     owner = self.unitOwner
+    -- else
+    --     if self.vehicleFrame then
+    --         self.vehicleFrame:SetScript("OnUpdate",nil)
+    --         self.vehicleFrame = nil
+    --         state.isInVehicle = nil
+    --         FrameSetJob(self,config.InVehicleStatus,false)
+    --         -- print ("Killing orphan vehicle frame")
+    --     end
+    -- end
 
     -- Removing frames that no longer associated with this unit from Roster
     for roster_unit, frames in pairs(Roster) do
@@ -1730,9 +1704,9 @@ local function updateUnitButton(self, unit)
     Aptechka.FrameUpdateThreat(self, unit)
     Aptechka.FrameUpdateMindControl(self, unit)
     Aptechka:RAID_TARGET_UPDATE()
-    if config.enableVehicleSwap and UnitHasVehicleUI(owner) then
-        Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
-    end
+    -- if config.enableVehicleSwap and not flag ~= "FORCE" and UnitHasVehicleUI(owner) then
+    --     Aptechka.FrameOnEnteredVehicle(self, unit)
+    -- end
     Aptechka.FrameCheckRoles(self, unit)
     if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
 end
@@ -1752,7 +1726,46 @@ local OnAttributeChanged = function(self, attrname, unit)
     end
 end
 
+-- When vehicle overrides the unitbutton, group header doesn't react to that at all.
+-- Altough pet group header does, but that's different
+-- So these functions manually reconfigure player's frame to pet unit and back
+function Aptechka.FrameOnEnteredVehicle(frame, unit)
+    local modunit = SecureButton_GetModifiedUnit(frame)
+    local owner = SecureButton_GetUnit(frame)
 
+    -- At the time of entering it's player - pet - player
+    print("ENTERED", unit, modunit, owner, frame:GetName())
+
+    FrameSetJob(frame, config.InVehicleStatus,true)
+    updateUnitButton(frame, modunit, "FORCE")
+end
+function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameOnEnteredVehicle)
+end
+
+function Aptechka.FrameOnExitedVehicle(frame, unit)
+    local modunit = SecureButton_GetModifiedUnit(frame)
+    local owner = SecureButton_GetUnit(frame)
+
+    -- At the time of entering it's player - player - player
+    print("EXITED", unit, modunit, owner, frame:GetName())
+
+    FrameSetJob(frame, config.InVehicleStatus, false)
+    updateUnitButton(frame, owner, "FORCE")
+end
+
+function Aptechka.UNIT_EXITED_VEHICLE(self, event, unit)
+    -- Find the remapped player frame
+    -- And remap it back to owner
+    for rosterUnit, frames in pairs(Roster) do
+        for frame in pairs(frames) do
+            local frameOwner = SecureButton_GetUnit(frame)
+            if frameOwner == unit then
+                Aptechka.FrameOnExitedVehicle(frame, frameOwner)
+            end
+        end
+    end
+end
 
 local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         local p1, p2
@@ -1841,6 +1854,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
         end
     else
         f.isPetGroup = true
+        f:SetAttribute("isPetHeader", true)
         f:SetAttribute("maxColumns", 1 )
         f:SetAttribute("unitsPerColumn", 5)
         --f:SetAttribute("startingIndex", 5*((group - config.maxgroups)-1))
