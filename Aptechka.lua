@@ -392,7 +392,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:SetFrameStrata("LOW")
             self:SetFrameLevel(3)
 
-            self:SetAttribute("toggleForVehicle", true)
+            local isPetFrame = header:GetAttribute("isPetHeader")
+            self:SetAttribute("toggleForVehicle", not isPetFrame)
             self:SetAttribute("allowVehicleTarget", false)
 
             self:SetAttribute("*type1","target")
@@ -1658,21 +1659,33 @@ local function updateUnitButton(self, unit)
     local owner = unit
     local state = self.state
 
-    if state.isInVehicle and unit and unit == self.unitOwner then
+
+    -- Why Roster is nested:
+    -- Basically because of vehicles. There'll be a moment
+    -- when 2 different frames will be assigned to a single 'pet' unit
+
+    -- These checks protect the frame from remapping back from vehicle swap
+    -- by a random group header update
+    if state.isInVehicle and unit and unit == self.unitOwner then -- GH update for owner unit
         unit = self.unit
         owner = self.unitOwner
-        --if for some reason game will decide to update unit whose frame is mapped to vehicleunit in roster
-    elseif state.isInVehicle and unit then
+    elseif state.isInVehicle and unit then -- GH update is for the pet(vehicle) unit
         owner = self.unitOwner
-    else
+    else -- update to nil or an unrelated new unit
         if self.vehicleFrame then
             self.vehicleFrame:SetScript("OnUpdate",nil)
-            self.vehicleFrame = nil
             state.isInVehicle = nil
             FrameSetJob(self,config.InVehicleStatus,false)
             -- print ("Killing orphan vehicle frame")
         end
     end
+
+    -- Each group header updates sequentially after GUILD_ROSTER_UPDATE, from 1 to 8
+    -- Units tho can be in any order due to sorting and raid groups
+    -- When something about unit order changes, it could happen that first new frame was associated with a unit
+    -- But then the old frame is either hidden or updated with another unit
+    -- And if was hidden, you can't just Roster[oldframe.unit] = nil,
+    -- because this unit could already be using a different frame
 
     -- Removing frames that no longer associated with this unit from Roster
     for roster_unit, frames in pairs(Roster) do
@@ -1843,6 +1856,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
         f.isPetGroup = true
         f:SetAttribute("maxColumns", 1 )
         f:SetAttribute("unitsPerColumn", 5)
+        f:SetAttribute("isPetHeader", true)
         --f:SetAttribute("startingIndex", 5*((group - config.maxgroups)-1))
     end
     --our group header doesn't really inherits SecureHandlerBaseTemplate
