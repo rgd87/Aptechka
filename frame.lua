@@ -32,7 +32,11 @@ local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 Aptechka.Widget = {}
 
-
+local dummy = function() end
+function Aptechka:WrapAsWidget(frame)
+    if not frame.SetJob then frame.SetJob = dummy end
+    -- if not frame. then frame.SetJob = dummy end
+end
 
 local function InheritGlobalOptions(popts, gopts)
     assert(gopts)

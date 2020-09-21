@@ -268,6 +268,20 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local categories = {"auras", "traces"}
     if not AptechkaConfigCustom[class] then AptechkaConfigCustom[class] = {} end
 
+    local function fixRemovedDefaultSpells(customConfig, defaultConfig)
+        if not (customConfig and defaultConfig) then return end
+        local toRemove = {}
+        for spellID, opts in pairs(customConfig) do
+            local dopts = defaultConfig[spellID]
+            if not dopts and not opts.name then
+                table.insert(toRemove, spellID)
+            end
+        end
+        for _, spellID in ipairs(toRemove) do
+            customConfig[spellID] = nil
+        end
+    end
+
     local fixOldAuraFormat = function(customConfigPart)
         if not customConfigPart then return end
         for id, opts in pairs(customConfigPart) do
@@ -281,6 +295,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if globalConfig then
         fixOldAuraFormat(globalConfig.auras)
         fixOldAuraFormat(globalConfig.traces)
+        fixRemovedDefaultSpells(globalConfig.auras, config.auras)
+        fixRemovedDefaultSpells(globalConfig.traces, config.traces)
     end
     Aptechka.util.MergeTable(AptechkaConfigMerged, globalConfig)
 
@@ -288,6 +304,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if classConfig then
         fixOldAuraFormat(classConfig.auras)
         fixOldAuraFormat(classConfig.traces)
+        fixRemovedDefaultSpells(classConfig.auras, config.auras)
+        fixRemovedDefaultSpells(classConfig.traces, config.traces)
     end
     Aptechka.util.MergeTable(AptechkaConfigMerged, classConfig)
 
