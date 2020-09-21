@@ -259,6 +259,7 @@ function ns.CreateCommonForm(self)
             -- end
         else
             AptechkaConfigMerged[category][spellID] = delta
+            delta.isAdded = true
         end
 
         -- fill up spell clones of the new version
@@ -689,7 +690,7 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
 
 
     if category == "auras" then
-        controls.name:SetDisabled(false)
+        controls.name:SetDisabled(true)
         controls.showDuration:SetDisabled(false)
         controls.showCount:SetDisabled(false)
         controls.maxCount:SetDisabled(false)

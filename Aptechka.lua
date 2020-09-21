@@ -275,6 +275,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             local dopts = defaultConfig[spellID]
             if not dopts and not opts.name then
                 table.insert(toRemove, spellID)
+            elseif opts.name then -- then it's a is probably an added spell
+                opts.isAdded = true -- making sure it's marked as added
             end
         end
         for _, spellID in ipairs(toRemove) do
