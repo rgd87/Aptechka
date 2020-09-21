@@ -612,7 +612,7 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     controls.disabled:SetValue(opts.disabled)
     controls.disabled:SetDisabled(isEmptyForm)
 
-    local widgetSelection = opts.assignto
+    local widgetSelection = opts.assignto or {}
     controls.assignto:SetList(Aptechka:GetWidgetList())
     for slot, enabled in pairs(widgetSelection) do
         controls.assignto:SetItemValue(slot, enabled)
