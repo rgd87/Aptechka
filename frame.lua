@@ -2117,8 +2117,14 @@ local border_backdrop = {
 }
 local SetJob_Border = function(self,job)
     if job.color then
-        local r,g,b = unpack(job.color)
+        local r,g,b = GetColor(job)
         self:SetBackdropBorderColor(r,g,b,0.5)
+    end
+
+    if self.currentJob ~= self.previousJob then
+        if job.pulse then
+            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+        end
     end
 end
 
@@ -2604,6 +2610,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
     border:SetBackdrop(border_backdrop)
     border:SetBackdropBorderColor(1, 1, 1, 0.5)
+    AddPulseAnimation(border)
     border.SetJob = SetJob_Border
     border:Hide()
 

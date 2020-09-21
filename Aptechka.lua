@@ -25,10 +25,11 @@ local HasIncomingSummon = C_IncomingSummon and C_IncomingSummon.HasIncomingSummo
 local COMBATLOG_OBJECT_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
 local COMBATLOG_OBJECT_AFFILIATION_UPTORAID = COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE
 
+local dummyNil = function() return nil end
 if isClassic then
     local dummyFalse = function() return false end
     local dummy0 = function() return 0 end
-    local dummyNil = function() return nil end
+
     UnitHasVehicleUI = dummyFalse
     UnitInVehicle = dummyFalse
     UnitUsingVehicle = dummyFalse
@@ -153,6 +154,7 @@ local defaults = {
         LDBData = {}, -- minimap icon settings
         useCombatLogHealthUpdates = false,
         disableTooltip = false,
+        disableAbsorbBar = false,
         debuffTooltip = false,
         useDebuffOrdering = true, -- On always?
         customDebuffHighlights = {},
@@ -506,10 +508,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
     end
 
-    if config.enableAbsorbBar then
-        self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
-        self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
-    end
+    self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+    self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
 
     self:UpdateCastsConfig()
 
@@ -838,6 +838,26 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     -- end
 end
 
+local AbsorbBarDisable = function(f)
+    if not f.absorb._SetValue then
+        f.absorb._SetValue = f.absorb.SetValue
+    end
+    f.absorb.SetValue = dummyNil
+    f.absorb:Hide()
+end
+local AbsorbBarEnable = function(f)
+    if f.absorb._SetValue then
+        f.absorb.SetValue = f.absorb._SetValue
+    end
+end
+function Aptechka:UpdateAbsorbBarConfig()
+    if Aptechka.db.global.disableAbsorbBar then
+        self:ForEachFrame(AbsorbBarDisable)
+    else
+        self:ForEachFrame(AbsorbBarEnable)
+        self:ForEachFrame(Aptechka.FrameUpdateAbsorb)
+    end
+end
 function Aptechka.FrameUpdateAbsorb(frame, unit)
     local a,hm = UnitGetTotalAbsorbs(unit), UnitHealthMax(unit)
     local h = UnitHealth(unit)
@@ -1725,9 +1745,7 @@ local function updateUnitButton(self, unit)
     Aptechka.FrameScanAuras(self, unit)
     state.wasDead = nil
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
-    if config.enableAbsorbBar then
-        Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
-    end
+    Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     Aptechka.FrameUpdateConnection(self, owner)
     Aptechka.FrameUpdateIncomingSummon(self, owner)
 
@@ -2130,7 +2148,9 @@ function Aptechka.SetupFrame(header, frameName)
     f.auraEvents = {}
 
     config.GridSkin(f)
-
+    if Aptechka.db.global.disableAbsorbBar then
+        AbsorbBarDisable(f)
+    end
     f:ReconfigureUnitFrame()
     if Aptechka.PostFrameCreate then
         Aptechka.PostFrameCreate(f)
