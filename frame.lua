@@ -2898,3 +2898,116 @@ do
         return f
     end
 end
+
+
+
+
+local reverse = helpers.Reverse
+local function FakeHeader_Arrange(hdr)
+    local db = Aptechka.db.profile
+    local w = pixelperfect(db.width)
+    local h = pixelperfect(db.height)
+    local unitGrowth = db.unitGrowth
+    local unitGap = db.unitGap
+
+    local scale = Aptechka.db.profile.scale or 1
+    hdr:SetScale(scale)
+
+    local xOffset
+    local yOffset
+
+    local reversedUnitGrowth, unitDirection = reverse(unitGrowth)
+    if unitDirection == "HORIZONTAL" then
+        local tw = w*5+unitGap*4
+        hdr:SetSize(tw, h)
+    else
+        local th = h*5+unitGap*4
+        hdr:SetSize(w, th)
+    end
+
+    if unitGrowth == "RIGHT" then xOffset = unitGap; yOffset = 0;
+    elseif unitGrowth == "LEFT" then xOffset = -unitGap; yOffset = 0;
+    elseif unitGrowth == "TOP" then xOffset = 0; yOffset = unitGap;
+    elseif unitGrowth == "BOTTOM" then xOffset = 0; yOffset = -unitGap;
+    end
+
+    local prev = nil
+    for i=1,5 do
+        local f = hdr.children[i]
+        f:ClearAllPoints()
+        f:SetSize(w,h)
+        if not prev then
+            f:SetPoint(reversedUnitGrowth, hdr, reversedUnitGrowth, 0, 0)
+        else
+            f:SetPoint(reversedUnitGrowth, prev, unitGrowth, xOffset, yOffset)
+        end
+        prev = f
+    end
+end
+
+function Aptechka:CreateFakeGroupHeader()
+    local frame = CreateFrame("Frame", nil, UIParent)
+    frame:SetFrameStrata("BACKGROUND")
+    frame.children = {}
+    for i=1,5 do
+        local t = frame:CreateTexture(nil, "BACKGROUND", -5)
+        t:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+        t:SetVertexColor(0,0,0)
+        t:SetAlpha(0.5)
+        -- t:SetAllPoints(frame)
+        frame.children[i] = t
+    end
+    frame.Arrange = FakeHeader_Arrange
+    frame.SetAttribute = function() end
+    frame:Arrange()
+
+    return frame
+end
+
+function Aptechka:CreateFakeGroupHeaders()
+    if Aptechka.testGroupHeaders then return end
+    Aptechka.testGroupHeaders = {}
+    for i=1,8 do
+        Aptechka.testGroupHeaders[i] = self:CreateFakeGroupHeader()
+    end
+end
+
+function Aptechka:EnableTestMode()
+    if not self.testGroupHeaders then
+        self:CreateFakeGroupHeaders()
+        self:ReconfigureTestHeaders()
+    end
+    self.testGroupHeaders.enabled = true
+    for i=1,8 do
+        self.testGroupHeaders[i]:Show()
+    end
+end
+function Aptechka:DisableTestMode()
+    if not self.testGroupHeaders then return end
+    self.testGroupHeaders.enabled = false
+    for i=1,8 do
+        self.testGroupHeaders[i]:Hide()
+    end
+end
+
+function Aptechka:ToggleTestMode()
+    if self.testGroupHeaders and self.testGroupHeaders.enabled then
+        self:DisableTestMode()
+    else
+        self:EnableTestMode()
+    end
+end
+
+function Aptechka:ReconfigureTestHeaders()
+    if not Aptechka.testGroupHeaders then return end
+
+    for i=1,8 do
+        Aptechka.testGroupHeaders[i]:Arrange()
+    end
+
+    local db = Aptechka.db.profile
+    local groupGrowth = db.groupGrowth
+    local unitGrowth = db.unitGrowth
+
+    Aptechka:SetGrowth(Aptechka.testGroupHeaders, unitGrowth, groupGrowth)
+end

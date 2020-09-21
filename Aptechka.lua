@@ -566,7 +566,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.unlocked then anchors[1]:Show() end
     local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
     local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
-    Aptechka:SetGrowth(unitGrowth, groupGrowth)
+    Aptechka:SetGrowth(group_headers, unitGrowth, groupGrowth)
 
     Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
     Aptechka:Show()
@@ -793,6 +793,7 @@ function Aptechka:ReconfigureProtected()
 
     self:RepositionAnchor()
     self:UpdatePetGroupConfig()
+    self:ReconfigureTestHeaders()
 
     local width = pixelperfect(AptechkaDB.profile.width or config.width)
     local height = pixelperfect(AptechkaDB.profile.height or config.height)
@@ -821,7 +822,7 @@ function Aptechka:ReconfigureProtected()
 
     local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
     local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
-    Aptechka:SetGrowth(unitGrowth, groupGrowth)
+    Aptechka:SetGrowth(group_headers, unitGrowth, groupGrowth)
 end
 
 local function GetIncomingHealsCustom(unit, excludePlayer)
@@ -1830,6 +1831,7 @@ local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         end
         return p1, prv_group, p2, xgap, ygap
 end
+Aptechka.arrangeHeaders = arrangeHeaders
 local AptechkaHeader_Disable = function(hdr)
     hdr:SetAttribute("showRaid", false)
     hdr:SetAttribute("showParty", false)
@@ -1969,7 +1971,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
 end
 
 do -- this function supposed to be called from layout switchers
-    function Aptechka:SetGrowth(unitGrowth, groupGrowth)
+    function Aptechka:SetGrowth(headers, unitGrowth, groupGrowth)
 
         local anchorpoint = self:SetAnchorpoint(unitGrowth, groupGrowth)
 
@@ -1984,7 +1986,7 @@ do -- this function supposed to be called from layout switchers
 
         local maxGroupsInRow = self.db.profile.groupsInRow
 
-        local numGroups = #group_headers
+        local numGroups = #headers
 
         local groupIndex = 1
         local prevRowIndex = 1
@@ -2000,7 +2002,7 @@ do -- this function supposed to be called from layout switchers
 
         while groupIndex <= numGroups do
 
-            local hdr = group_headers[groupIndex]
+            local hdr = headers[groupIndex]
 
             for _,button in ipairs{ hdr:GetChildren() } do -- group header doesn't clear points when attribute value changes
                 button:ClearAllPoints()
@@ -2014,14 +2016,14 @@ do -- this function supposed to be called from layout switchers
             if groupIndex == 1 then
                 hdr:SetPoint(anchorpoint, anchors[groupIndex], reverse(anchorpoint),0,0)
             elseif petgroup then
-                hdr:SetPoint(arrangeHeaders(group_headers[1], nil, unitGrowth, reverse(groupGrowth)))
+                hdr:SetPoint(arrangeHeaders(headers[1], nil, unitGrowth, reverse(groupGrowth)))
             else
                 if groupIndex >= prevRowIndex + maxGroupsInRow then
-                    local prevRowHeader = group_headers[prevRowIndex]
+                    local prevRowHeader = headers[prevRowIndex]
                     hdr:SetPoint(arrangeHeaders(prevRowHeader, nil, unitGrowth, groupGrowth))
                     prevRowIndex = groupIndex
                 else
-                    local prevHeader = group_headers[groupIndex-1]
+                    local prevHeader = headers[groupIndex-1]
                     hdr:SetPoint(arrangeHeaders(prevHeader, nil, groupGrowth, groupRowGrowth))
                 end
             end
@@ -3022,6 +3024,7 @@ function Aptechka:Lock()
     for _,anchor in pairs(anchors) do
         anchor:Hide()
     end
+    Aptechka:DisableTestMode()
 end
 
 Aptechka.Commands = {
