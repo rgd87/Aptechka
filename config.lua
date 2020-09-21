@@ -262,10 +262,8 @@ if playerClass == "PRIEST" then
                                                                         --     [4] = { 1, .4, .4},
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
-    --Atonement
-    A{ id = 194384,type = "HELPFUL", assignto = set("bar4"), extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true}
-    --Trinity Atonement
-    A{ id = 214206,type = "HELPFUL", assignto = set("bar4"), extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true}
+    --Atonement, Trinity Atonement
+    A{ id = { 194384, 214206 },type = "HELPFUL", assignto = set("bar4"), extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true}
     --Luminous Barrier
     A{ id = 271466,type = "HELPFUL", assignto = set("bars"), priority = 70, color = { 1, .65, 0}, showDuration = true, isMine = true}
 
