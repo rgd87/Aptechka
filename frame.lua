@@ -2646,17 +2646,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     raidicon:SetAlpha(0.3)
 
 
-    local centericon = CreateFrame("Frame",nil,self)
-    centericon:SetWidth(20); centericon:SetHeight(20)
-    centericon:SetPoint("CENTER",hp,"CENTER",0,14)
-    centericon:SetFrameLevel(7)
-    centericon:Hide()
-    local centericontex = centericon:CreateTexture(nil,"OVERLAY")
-    centericontex:SetAllPoints(centericon)
-    centericon.texture = centericontex
-    centericon:SetAlpha(1)
-
-
     local roleicon = CreateFrame("Frame",nil,self)
     roleicon:SetWidth(13); roleicon:SetHeight(13)
     -- roleicon:SetPoint("BOTTOMLEFT",hp,"CENTER",-20,-23)
@@ -2746,7 +2735,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.healabsorb = healAbsorb
     self.absorb = absorb
     self.absorb2 = absorb2
-    self.centericon = centericon
 
     self.OnMouseEnterFunc = OnMouseEnterFunc
     self.OnMouseLeaveFunc = OnMouseLeaveFunc
