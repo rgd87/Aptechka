@@ -272,6 +272,22 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local categories = {"auras", "traces"}
     if not AptechkaConfigCustom[class] then AptechkaConfigCustom[class] = {} end
 
+    local function fixRemovedDefaultSpells(customConfig, defaultConfig)
+        if not (customConfig and defaultConfig) then return end
+        local toRemove = {}
+        for spellID, opts in pairs(customConfig) do
+            local dopts = defaultConfig[spellID]
+            if not dopts and not opts.name then
+                table.insert(toRemove, spellID)
+            elseif opts.name then -- then it's a is probably an added spell
+                opts.isAdded = true -- making sure it's marked as added
+            end
+        end
+        for _, spellID in ipairs(toRemove) do
+            customConfig[spellID] = nil
+        end
+    end
+
     local fixOldAuraFormat = function(customConfigPart)
         if not customConfigPart then return end
         for id, opts in pairs(customConfigPart) do
@@ -285,6 +301,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if globalConfig then
         fixOldAuraFormat(globalConfig.auras)
         fixOldAuraFormat(globalConfig.traces)
+        fixRemovedDefaultSpells(globalConfig.auras, config.auras)
+        fixRemovedDefaultSpells(globalConfig.traces, config.traces)
     end
     Aptechka.util.MergeTable(AptechkaConfigMerged, globalConfig)
 
@@ -292,6 +310,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if classConfig then
         fixOldAuraFormat(classConfig.auras)
         fixOldAuraFormat(classConfig.traces)
+        fixRemovedDefaultSpells(classConfig.auras, config.auras)
+        fixRemovedDefaultSpells(classConfig.traces, config.traces)
     end
     Aptechka.util.MergeTable(AptechkaConfigMerged, classConfig)
 
@@ -550,7 +570,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.unlocked then anchors[1]:Show() end
     local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
     local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
-    Aptechka:SetGrowth(unitGrowth, groupGrowth)
+    Aptechka:SetGrowth(group_headers, unitGrowth, groupGrowth)
 
     Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
     Aptechka:Show()
@@ -777,6 +797,7 @@ function Aptechka:ReconfigureProtected()
 
     self:RepositionAnchor()
     self:UpdatePetGroupConfig()
+    self:ReconfigureTestHeaders()
 
     local width = pixelperfect(AptechkaDB.profile.width or config.width)
     local height = pixelperfect(AptechkaDB.profile.height or config.height)
@@ -805,7 +826,7 @@ function Aptechka:ReconfigureProtected()
 
     local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
     local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
-    Aptechka:SetGrowth(unitGrowth, groupGrowth)
+    Aptechka:SetGrowth(group_headers, unitGrowth, groupGrowth)
 end
 
 local function GetIncomingHealsCustom(unit, excludePlayer)
@@ -1814,6 +1835,7 @@ local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         end
         return p1, prv_group, p2, xgap, ygap
 end
+Aptechka.arrangeHeaders = arrangeHeaders
 local AptechkaHeader_Disable = function(hdr)
     hdr:SetAttribute("showRaid", false)
     hdr:SetAttribute("showParty", false)
@@ -1953,7 +1975,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
 end
 
 do -- this function supposed to be called from layout switchers
-    function Aptechka:SetGrowth(unitGrowth, groupGrowth)
+    function Aptechka:SetGrowth(headers, unitGrowth, groupGrowth)
 
         local anchorpoint = self:SetAnchorpoint(unitGrowth, groupGrowth)
 
@@ -1968,7 +1990,7 @@ do -- this function supposed to be called from layout switchers
 
         local maxGroupsInRow = self.db.profile.groupsInRow
 
-        local numGroups = #group_headers
+        local numGroups = #headers
 
         local groupIndex = 1
         local prevRowIndex = 1
@@ -1984,7 +2006,7 @@ do -- this function supposed to be called from layout switchers
 
         while groupIndex <= numGroups do
 
-            local hdr = group_headers[groupIndex]
+            local hdr = headers[groupIndex]
 
             for _,button in ipairs{ hdr:GetChildren() } do -- group header doesn't clear points when attribute value changes
                 button:ClearAllPoints()
@@ -1998,14 +2020,14 @@ do -- this function supposed to be called from layout switchers
             if groupIndex == 1 then
                 hdr:SetPoint(anchorpoint, anchors[groupIndex], reverse(anchorpoint),0,0)
             elseif petgroup then
-                hdr:SetPoint(arrangeHeaders(group_headers[1], nil, unitGrowth, reverse(groupGrowth)))
+                hdr:SetPoint(arrangeHeaders(headers[1], nil, unitGrowth, reverse(groupGrowth)))
             else
                 if groupIndex >= prevRowIndex + maxGroupsInRow then
-                    local prevRowHeader = group_headers[prevRowIndex]
+                    local prevRowHeader = headers[prevRowIndex]
                     hdr:SetPoint(arrangeHeaders(prevRowHeader, nil, unitGrowth, groupGrowth))
                     prevRowIndex = groupIndex
                 else
-                    local prevHeader = group_headers[groupIndex-1]
+                    local prevHeader = headers[groupIndex-1]
                     hdr:SetPoint(arrangeHeaders(prevHeader, nil, groupGrowth, groupRowGrowth))
                 end
             end
@@ -2268,15 +2290,18 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
     -- short exit if disabling auras on already empty widget
     if not widget.currentJob and enabled == false then return end
 
+    local jobName = opts.name
+    if not jobName then return end
+
     if enabled then
-        contentType = contentType or opts.name
-        OrderedHashMap_Add(widgetState, opts.name, opts, contentType, ...)
+        contentType = contentType or jobName
+        OrderedHashMap_Add(widgetState, jobName, opts, contentType, ...)
 
         if contentType == "AURA" and opts.realID and not opts.isMissing then
             frame.activeAuras[opts.realID] = opts
         end
     else
-        OrderedHashMap_Remove(widgetState, opts.name)
+        OrderedHashMap_Remove(widgetState, jobName)
     end
 
 
@@ -2286,9 +2311,7 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
         widget.currentJob = currentJobData.job -- important that it's before SetJob
 
         if widget ~= frame then widget:Show() end   -- taint if we show protected unitbutton frame
-        if widget.SetJob then
-            widget:SetJob(currentJobData.job, state, unpack(currentJobData))
-        end
+        widget:SetJob(currentJobData.job, state, unpack(currentJobData))
     else
         if widget ~= frame then widget:Hide() end
         widget.previousJob = widget.currentJob
@@ -3005,6 +3028,7 @@ function Aptechka:Lock()
     for _,anchor in pairs(anchors) do
         anchor:Hide()
     end
+    Aptechka:DisableTestMode()
 end
 
 Aptechka.Commands = {

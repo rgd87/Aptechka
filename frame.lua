@@ -32,8 +32,6 @@ local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 Aptechka.Widget = {}
 
-
-
 local function InheritGlobalOptions(popts, gopts)
     assert(gopts)
     if not popts then
@@ -2137,24 +2135,40 @@ local OnMouseLeaveFunc = function(self)
 end
 
 
+
+
+local dummy = function() end
+local function WrapAsWidget(func, customSetJob, customStartTrace)
+    return function(...)
+        local frame = func(...)
+        if customSetJob then
+            frame.SetJob = customSetJob
+        end
+        if customStartTrace then
+            frame.StartTrace = customStartTrace
+        end
+        if not frame.SetJob then frame.SetJob = dummy end
+        if not frame.StartTrace then frame.StartTrace = dummy end
+        return frame
+    end
+end
+
 local optional_widgets = {
-        pixelGlow = CreatePixelGlow,
-        autocastGlow = CreateAutocastGlow,
-
-        mindcontrol = CreateMindControlIcon,
-        -- sideglow = CreateBottomGlow,
-        vehicle = CreateVehicleIcon,
-        innerglow = CreateInnerGlow,
-        flash = CreateFlash,
-
-        -- dispel = CreateDebuffTypeIndicator,
-        -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,
+    -- dispel = CreateDebuffTypeIndicator,
+    -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,
 }
 Aptechka.optional_widgets = optional_widgets
 
-function Aptechka:RegisterWidget(name, func)
-    optional_widgets[name] = func
+function Aptechka:RegisterWidget(name, func, customSetJob, customStartTrace)
+    optional_widgets[name] = WrapAsWidget(func, customSetJob, customStartTrace)
 end
+
+Aptechka:RegisterWidget("pixelGlow", CreatePixelGlow)
+Aptechka:RegisterWidget("autocastGlow", CreateAutocastGlow)
+Aptechka:RegisterWidget("mindcontrol", CreateMindControlIcon)
+Aptechka:RegisterWidget("vehicle", CreateVehicleIcon)
+Aptechka:RegisterWidget("innerglow", CreateInnerGlow)
+Aptechka:RegisterWidget("flash", CreateFlash)
 
 function Aptechka:CreateDynamicWidget(frame, widgetName)
     if optional_widgets[widgetName] then
@@ -2632,17 +2646,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     raidicon:SetAlpha(0.3)
 
 
-    local centericon = CreateFrame("Frame",nil,self)
-    centericon:SetWidth(20); centericon:SetHeight(20)
-    centericon:SetPoint("CENTER",hp,"CENTER",0,14)
-    centericon:SetFrameLevel(7)
-    centericon:Hide()
-    local centericontex = centericon:CreateTexture(nil,"OVERLAY")
-    centericontex:SetAllPoints(centericon)
-    centericon.texture = centericontex
-    centericon:SetAlpha(1)
-
-
     local roleicon = CreateFrame("Frame",nil,self)
     roleicon:SetWidth(13); roleicon:SetHeight(13)
     -- roleicon:SetPoint("BOTTOMLEFT",hp,"CENTER",-20,-23)
@@ -2732,7 +2735,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.healabsorb = healAbsorb
     self.absorb = absorb
     self.absorb2 = absorb2
-    self.centericon = centericon
 
     self.OnMouseEnterFunc = OnMouseEnterFunc
     self.OnMouseLeaveFunc = OnMouseLeaveFunc
@@ -2895,4 +2897,117 @@ do
 
         return f
     end
+end
+
+
+
+
+local reverse = helpers.Reverse
+local function FakeHeader_Arrange(hdr)
+    local db = Aptechka.db.profile
+    local w = pixelperfect(db.width)
+    local h = pixelperfect(db.height)
+    local unitGrowth = db.unitGrowth
+    local unitGap = db.unitGap
+
+    local scale = Aptechka.db.profile.scale or 1
+    hdr:SetScale(scale)
+
+    local xOffset
+    local yOffset
+
+    local reversedUnitGrowth, unitDirection = reverse(unitGrowth)
+    if unitDirection == "HORIZONTAL" then
+        local tw = w*5+unitGap*4
+        hdr:SetSize(tw, h)
+    else
+        local th = h*5+unitGap*4
+        hdr:SetSize(w, th)
+    end
+
+    if unitGrowth == "RIGHT" then xOffset = unitGap; yOffset = 0;
+    elseif unitGrowth == "LEFT" then xOffset = -unitGap; yOffset = 0;
+    elseif unitGrowth == "TOP" then xOffset = 0; yOffset = unitGap;
+    elseif unitGrowth == "BOTTOM" then xOffset = 0; yOffset = -unitGap;
+    end
+
+    local prev = nil
+    for i=1,5 do
+        local f = hdr.children[i]
+        f:ClearAllPoints()
+        f:SetSize(w,h)
+        if not prev then
+            f:SetPoint(reversedUnitGrowth, hdr, reversedUnitGrowth, 0, 0)
+        else
+            f:SetPoint(reversedUnitGrowth, prev, unitGrowth, xOffset, yOffset)
+        end
+        prev = f
+    end
+end
+
+function Aptechka:CreateFakeGroupHeader()
+    local frame = CreateFrame("Frame", nil, UIParent)
+    frame:SetFrameStrata("BACKGROUND")
+    frame.children = {}
+    for i=1,5 do
+        local t = frame:CreateTexture(nil, "BACKGROUND", -5)
+        t:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+        t:SetVertexColor(0,0,0)
+        t:SetAlpha(0.5)
+        -- t:SetAllPoints(frame)
+        frame.children[i] = t
+    end
+    frame.Arrange = FakeHeader_Arrange
+    frame.SetAttribute = function() end
+    frame:Arrange()
+
+    return frame
+end
+
+function Aptechka:CreateFakeGroupHeaders()
+    if Aptechka.testGroupHeaders then return end
+    Aptechka.testGroupHeaders = {}
+    for i=1,8 do
+        Aptechka.testGroupHeaders[i] = self:CreateFakeGroupHeader()
+    end
+end
+
+function Aptechka:EnableTestMode()
+    if not self.testGroupHeaders then
+        self:CreateFakeGroupHeaders()
+        self:ReconfigureTestHeaders()
+    end
+    self.testGroupHeaders.enabled = true
+    for i=1,8 do
+        self.testGroupHeaders[i]:Show()
+    end
+end
+function Aptechka:DisableTestMode()
+    if not self.testGroupHeaders then return end
+    self.testGroupHeaders.enabled = false
+    for i=1,8 do
+        self.testGroupHeaders[i]:Hide()
+    end
+end
+
+function Aptechka:ToggleTestMode()
+    if self.testGroupHeaders and self.testGroupHeaders.enabled then
+        self:DisableTestMode()
+    else
+        self:EnableTestMode()
+    end
+end
+
+function Aptechka:ReconfigureTestHeaders()
+    if not Aptechka.testGroupHeaders then return end
+
+    for i=1,8 do
+        Aptechka.testGroupHeaders[i]:Arrange()
+    end
+
+    local db = Aptechka.db.profile
+    local groupGrowth = db.groupGrowth
+    local unitGrowth = db.unitGrowth
+
+    Aptechka:SetGrowth(Aptechka.testGroupHeaders, unitGrowth, groupGrowth)
 end

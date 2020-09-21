@@ -259,6 +259,7 @@ function ns.CreateCommonForm(self)
             -- end
         else
             AptechkaConfigMerged[category][spellID] = delta
+            delta.isAdded = true
         end
 
         -- fill up spell clones of the new version
@@ -611,7 +612,7 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     controls.disabled:SetValue(opts.disabled)
     controls.disabled:SetDisabled(isEmptyForm)
 
-    local widgetSelection = opts.assignto
+    local widgetSelection = opts.assignto or {}
     controls.assignto:SetList(Aptechka:GetWidgetList())
     for slot, enabled in pairs(widgetSelection) do
         controls.assignto:SetItemValue(slot, enabled)
@@ -689,7 +690,7 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
 
 
     if category == "auras" then
-        controls.name:SetDisabled(false)
+        controls.name:SetDisabled(true)
         controls.showDuration:SetDisabled(false)
         controls.showCount:SetDisabled(false)
         controls.maxCount:SetDisabled(false)
