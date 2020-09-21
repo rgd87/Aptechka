@@ -305,7 +305,7 @@ end
 
 if playerClass == "MONK" then
     --Renewing Mist
-    -- A{ id = 119611, type = "HELPFUL", assignto = set("bar4"), refreshTime = 20*0.3, extend_below = 20, isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true }
+    A{ id = 119611, type = "HELPFUL", assignto = set("bar4"), refreshTime = 20*0.3, extend_below = 20, isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true }
     --Enveloping Mist
     A{ id = 124682, type = "HELPFUL", assignto = set("bars"), refreshTime = 6*0.3, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 75 }
     --Soothing Mist
