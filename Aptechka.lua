@@ -3014,9 +3014,9 @@ end
 
 function Aptechka:ToggleUnlock()
     if anchors[1]:IsShown() then
-        anchors[1]:Hide()
+        Aptechka:Lock()
     else
-        anchors[1]:Show()
+        Aptechka:Unlock()
     end
 end
 
