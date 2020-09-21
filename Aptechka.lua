@@ -2282,15 +2282,18 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
     -- short exit if disabling auras on already empty widget
     if not widget.currentJob and enabled == false then return end
 
+    local jobName = opts.name
+    if not jobName then return end
+
     if enabled then
-        contentType = contentType or opts.name
-        OrderedHashMap_Add(widgetState, opts.name, opts, contentType, ...)
+        contentType = contentType or jobName
+        OrderedHashMap_Add(widgetState, jobName, opts, contentType, ...)
 
         if contentType == "AURA" and opts.realID and not opts.isMissing then
             frame.activeAuras[opts.realID] = opts
         end
     else
-        OrderedHashMap_Remove(widgetState, opts.name)
+        OrderedHashMap_Remove(widgetState, jobName)
     end
 
 
