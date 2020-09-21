@@ -32,12 +32,6 @@ local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 Aptechka.Widget = {}
 
-local dummy = function() end
-function Aptechka:WrapAsWidget(frame)
-    if not frame.SetJob then frame.SetJob = dummy end
-    -- if not frame. then frame.SetJob = dummy end
-end
-
 local function InheritGlobalOptions(popts, gopts)
     assert(gopts)
     if not popts then
@@ -2141,24 +2135,40 @@ local OnMouseLeaveFunc = function(self)
 end
 
 
+
+
+local dummy = function() end
+local function WrapAsWidget(func, customSetJob, customStartTrace)
+    return function(...)
+        local frame = func(...)
+        if customSetJob then
+            frame.SetJob = customSetJob
+        end
+        if customStartTrace then
+            frame.StartTrace = customStartTrace
+        end
+        if not frame.SetJob then frame.SetJob = dummy end
+        if not frame.StartTrace then frame.StartTrace = dummy end
+        return frame
+    end
+end
+
 local optional_widgets = {
-        pixelGlow = CreatePixelGlow,
-        autocastGlow = CreateAutocastGlow,
-
-        mindcontrol = CreateMindControlIcon,
-        -- sideglow = CreateBottomGlow,
-        vehicle = CreateVehicleIcon,
-        innerglow = CreateInnerGlow,
-        flash = CreateFlash,
-
-        -- dispel = CreateDebuffTypeIndicator,
-        -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,
+    -- dispel = CreateDebuffTypeIndicator,
+    -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,
 }
 Aptechka.optional_widgets = optional_widgets
 
-function Aptechka:RegisterWidget(name, func)
-    optional_widgets[name] = func
+function Aptechka:RegisterWidget(name, func, customSetJob, customStartTrace)
+    optional_widgets[name] = WrapAsWidget(func, customSetJob, customStartTrace)
 end
+
+Aptechka:RegisterWidget("pixelGlow", CreatePixelGlow)
+Aptechka:RegisterWidget("autocastGlow", CreateAutocastGlow)
+Aptechka:RegisterWidget("mindcontrol", CreateMindControlIcon)
+Aptechka:RegisterWidget("vehicle", CreateVehicleIcon)
+Aptechka:RegisterWidget("innerglow", CreateInnerGlow)
+Aptechka:RegisterWidget("flash", CreateFlash)
 
 function Aptechka:CreateDynamicWidget(frame, widgetName)
     if optional_widgets[widgetName] then

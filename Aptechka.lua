@@ -2300,9 +2300,7 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
         widget.currentJob = currentJobData.job -- important that it's before SetJob
 
         if widget ~= frame then widget:Show() end   -- taint if we show protected unitbutton frame
-        if widget.SetJob then
-            widget:SetJob(currentJobData.job, state, unpack(currentJobData))
-        end
+        widget:SetJob(currentJobData.job, state, unpack(currentJobData))
     else
         if widget ~= frame then widget:Hide() end
         widget.previousJob = widget.currentJob
