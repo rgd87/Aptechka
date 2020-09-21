@@ -149,7 +149,7 @@ A{ id = 23920, prototype = survivalCD, priority = 85 } --Spell Reflect
 
 -- DEMON HUNTER
 A{ id = 212800, prototype = survivalCD } -- Blur
-A{ id = 187827, prototype = tankCD } -- Vengeance Meta
+A{ id = 187827, prototype = survivalCD } -- Vengeance Meta
 
 -- ROGUE
 A{ id = 185311, prototype = survivalCD } -- Crimson Vial

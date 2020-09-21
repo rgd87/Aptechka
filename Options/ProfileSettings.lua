@@ -421,23 +421,6 @@ function ns.MakeProfileSettings()
                         values = LSM:HashTable("statusbar"),
                         dialogControl = "LSM30_Statusbar",
                     },
-                    nameFont = {
-                        type = "select",
-                        name = L"Name Font",
-                        order = 14.1,
-                        get = function(info)
-                            local opts = Aptechka:GetWidgetsOptionsMerged("text1")
-                            return opts.font
-                        end,
-                        set = function(info, value)
-                            Aptechka.db.profile.widgetConfig = Aptechka.db.profile.widgetConfig or {}
-                            Aptechka.db.profile.widgetConfig.text1 = Aptechka.db.profile.widgetConfig.text1 or {}
-                            Aptechka.db.profile.widgetConfig.text1.font = value
-                            Aptechka:ReconfigureAllWidgets()
-                        end,
-                        values = LSM:HashTable("font"),
-                        dialogControl = "LSM30_Font",
-                    },
                     nameLength = {
                         name = L"Name Length",
                         type = "range",

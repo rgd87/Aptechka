@@ -270,6 +270,7 @@ function ns.CreateCommonForm(self)
             end
         end
         -- Rescan all units' auras with new settings
+        Aptechka:UpdateMissingAuraList()
         Aptechka:ForEachFrame(Aptechka.FrameScanAuras)
         ----------
 
@@ -280,7 +281,6 @@ function ns.CreateCommonForm(self)
 
         ns.frame.tree:UpdateSpellTree()
         ns.frame.tree:SelectByPath(class, category, spellID)
-        Aptechka:PostSpellListUpdate()
     end)
     Form:AddChild(save)
 

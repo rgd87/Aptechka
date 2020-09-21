@@ -396,7 +396,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:SetFrameStrata("LOW")
             self:SetFrameLevel(3)
 
-            self:SetAttribute("toggleForVehicle", true)
+            local isPetFrame = header:GetAttribute("isPetHeader")
+            self:SetAttribute("toggleForVehicle", not isPetFrame)
             self:SetAttribute("allowVehicleTarget", false)
 
             self:SetAttribute("*type1","target")
@@ -639,13 +640,6 @@ function Aptechka:ToggleCompactRaidFrames()
     ReloadUI()
 end
 
-function Aptechka:PostSpellListUpdate()
-    self:UpdateMissingAuraList()
-    for unit, frames in pairs(Roster) do
-        self:UNIT_AURA(nil, unit)
-    end
-end
-
 function Aptechka:UpdateMissingAuraList()
     table_wipe(missingFlagSpells)
     for spellID, opts in pairs(auras) do
@@ -727,15 +721,14 @@ function Aptechka:RefreshAllUnitsHealth()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateHealth)
     Aptechka:ForEachFrame(Aptechka.FrameUpdatePower)
 end
+function Aptechka.FrameUpdateUnitColor(frame, unit)
+    Aptechka.FrameColorize(frame, unit)
+    FrameSetJob(frame, config.UnitNameStatus, true)
+    FrameSetJob(frame, config.HealthBarColor, true)
+    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
+end
 function Aptechka:RefreshAllUnitsColors()
-    for unit, frames in pairs(Roster) do
-        for frame in pairs(frames) do
-            Aptechka.FrameColorize(frame, unit)
-            FrameSetJob(frame, config.UnitNameStatus, true)
-            FrameSetJob(frame, config.HealthBarColor, true)
-            if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
-        end
-    end
+    Aptechka:ForEachFrame(Aptechka.FrameUpdateUnitColor)
 end
 
 function Aptechka:ReconfigureAllWidgets()
@@ -1012,12 +1005,7 @@ function Aptechka.FrameUpdateMindControl(frame, unit)
     FrameSetJob(frame, config.MindControlStatus, isMindControlled)
 end
 function Aptechka:UpdateMindControl(unit)
-    local frames = Roster[unit]
-    if frames then
-        for frame in pairs(frames) do
-            Aptechka.FrameUpdateMindControl(frame, unit)
-        end
-    end
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateMindControl)
 end
 
 
@@ -1033,6 +1021,10 @@ local function FrameStartTrace(frame, unit, opts)
     Aptechka:ForEachWidget(frame, opts, WidgetStartTrace, frame, opts)
 end
 Aptechka.FrameStartTrace = FrameStartTrace
+
+local function FrameBumpAuraEvent(frame, unit, spellID)
+    frame.auraEvents[spellID] = GetTime()
+end
 
 function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
     local timestamp, eventType, hideCaster,
@@ -1057,13 +1049,7 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
             eventType == "SPELL_AURA_APPLIED_DOSE"
         then
             local unit = guidMap[dstGUID]
-
-            local frames = Roster[unit]
-            if not frames then return end
-
-            for frame in pairs(frames) do
-                frame.auraEvents[spellID] = GetTime()
-            end
+            Aptechka:ForEachUnitFrame(unit, FrameBumpAuraEvent, spellID)
         end
     end
 end
@@ -1207,32 +1193,29 @@ local vehicleHack = function (self, time)
     local frame = self.parent
     local owner = frame.unitOwner
     if not ( UnitHasVehicleUI(owner) or UnitInVehicle(owner) or UnitUsingVehicle(owner) ) then
-        if Roster[self.parent.unit] then
+        if Roster[frame.unit] then
             -- Restore owner unit in the roster, delete vehicle unit
-            Roster[owner] = Roster[self.parent.unit]
-            Roster[self.parent.unit] = nil
-            self.parent.unit = owner
-            self.parent.unitOwner = nil
-            self.parent.guid = UnitGUID(owner)
-            self.parent.state.isInVehicle = nil
-
-            -- print(string.format("L1>>Unit: %-s",original_unit))
-            -- print(string.format("D4>[%s]>Dumping- Roster",NAME))
+            Roster[owner] = Roster[frame.unit]
+            Roster[frame.unit] = nil
+            frame.unit = owner
+            frame.unitOwner = nil
+            frame.guid = UnitGUID(owner)
+            frame.state.isInVehicle = nil
 
             -- Remove vehicle status
-            SetJob(owner,config.InVehicleStatus,false)
+            SetJob(owner, config.InVehicleStatus,false)
             -- Update unitframe back to owner's unit health, etc.
             Aptechka.FrameUpdateHealth(frame, owner, "VEHICLE")
-            if self.parent.power then
+            if frame.power then
                 Aptechka.FrameUpdateDisplayPower(frame, owner)
                 local ptype = select(2,UnitPowerType(owner))
                 Aptechka.FrameUpdatePower(frame, owner, ptype)
+                Aptechka.FrameUpdatePower(frame, owner, "ALTERNATE")
             end
-            if self.parent.absorb then
+            if frame.absorb then
                 Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
             end
             Aptechka.FrameScanAuras(frame, owner)
-
             Aptechka.FrameUpdateMindControl(frame, owner)
 
             -- Stop periodic checks
@@ -1240,50 +1223,61 @@ local vehicleHack = function (self, time)
         end
     end
 end
-function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
-    if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
-        local state = self.state
-        if not state.isInVehicle then
-            local vehicleUnit = SecureButton_GetModifiedUnit(self)
-            -- local vehicleOwner = SecureButton_GetUnit(self)
-            if unit ~= vehicleUnit then
-                state.isInVehicle = true
-                self.unitOwner = unit --original unit
-                self.unit = vehicleUnit
 
-                self.guid = UnitGUID(vehicleUnit)
-                if self.guid then guidMap[self.guid] = vehicleUnit end
+function Aptechka.FrameOnEnteredVehicle(frame, unit)
+    local state = frame.state
+    if not state.isInVehicle then
+        local vehicleUnit = SecureButton_GetModifiedUnit(frame)
+        -- local vehicleOwner = SecureButton_GetUnit(frame)
+        if unit ~= vehicleUnit then
+            state.isInVehicle = true
+            frame.unitOwner = unit --original unit
+            frame.unit = vehicleUnit
 
-                -- Delete owner unit from Roster and add point vehicle unit to this button instead
-                Roster[self.unit] = Roster[self.unitOwner]
-                Roster[self.unitOwner] = nil
+            frame.guid = UnitGUID(vehicleUnit)
+            if frame.guid then guidMap[frame.guid] = vehicleUnit end
 
-                -- A small frame is crated to start 1s periodic OnUpdate checks when unit has left the vehicle
-                if not self.vehicleFrame then self.vehicleFrame = CreateFrame("Frame", nil, self); self.vehicleFrame.parent = self end
-                self.vehicleFrame.OnUpdateCounter = -1.5
-                self.vehicleFrame:SetScript("OnUpdate",vehicleHack)
+            -- Delete owner unit from Roster and add point vehicle unit to this button instead
+            Roster[frame.unit] = Roster[frame.unitOwner]
+            Roster[frame.unitOwner] = nil
 
-                -- Set in vehicle status
-                SetJob(self.unit,config.InVehicleStatus,true)
-                -- Update unitframe for the new vehicle unit
-                Aptechka.FrameUpdateHealth(self, self.unit, "VEHICLE")
-                if self.power then Aptechka.FrameUpdatePower(self, self.unit) end
-                if self.absorb then Aptechka.FrameUpdateAbsorb(self, self.unit) end
-                Aptechka.FrameCheckPhase(self, self.unit)
-                Aptechka.FrameUpdateIncomingRes(self, self.unit)
-                Aptechka.FrameScanAuras(self, self.unit)
+            -- A small frame is crated to start 1s periodic OnUpdate checks when unit has left the vehicle
+            if not frame.vehicleFrame then frame.vehicleFrame = CreateFrame("Frame", nil, frame); frame.vehicleFrame.parent = frame end
+            frame.vehicleFrame.OnUpdateCounter = -1.5
+            frame.vehicleFrame:SetScript("OnUpdate",vehicleHack)
 
-                Aptechka.FrameUpdateMindControl(self, self.unit) -- pet unit will be marked as 'charmed'
+            -- Set in vehicle status
+            SetJob(frame.unit, config.InVehicleStatus,true)
+            -- Update unitframe for the new vehicle unit
+            Aptechka.FrameUpdateHealth(frame, frame.unit, "VEHICLE")
+            if frame.power then Aptechka.FrameUpdatePower(frame, frame.unit) end
+            if frame.absorb then Aptechka.FrameUpdateAbsorb(frame, frame.unit) end
+            Aptechka.FrameCheckPhase(frame, frame.unit)
+            Aptechka.FrameUpdateIncomingRes(frame, frame.unit)
+            Aptechka.FrameScanAuras(frame, frame.unit)
 
-                -- Except class color, it's still tied to owner
-                Aptechka.FrameColorize(self, self.unitOwner)
-            end
+            Aptechka.FrameUpdateMindControl(frame, frame.unit) -- pet unit will be marked as 'charmed'
+
+            -- Except class color, it's still tied to owner
+            Aptechka.FrameColorize(frame, frame.unitOwner)
         end
     end
 end
+function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameOnEnteredVehicle)
+end
 
 
+local function FrameUpdateRangeAlpha(frame, unit)
+    if AptechkaUnitInRange(unit) then
+        frame:SetAlpha(1)
+    else
+        frame:SetAlpha(0.45)
+    end
+end
+local function FrameResetRangeAlpha(frame, unit)
+    frame:SetAlpha(1)
+end
 --Range check
 Aptechka.OnRangeUpdate = function (self, time)
     self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
@@ -1293,11 +1287,7 @@ Aptechka.OnRangeUpdate = function (self, time)
     Aptechka:UpdateStagger()
 
     if not IsInGroup() then --UnitInRange returns false when not grouped
-        for unit, frames in pairs(Roster) do
-            for frame in pairs(frames) do
-                frame:SetAlpha(1)
-            end
-        end
+        Aptechka:ForEachFrame(FrameResetRangeAlpha)
         return
     end
 
@@ -1315,15 +1305,7 @@ Aptechka.OnRangeUpdate = function (self, time)
         end
     end
 
-    for unit, frames in pairs(Roster) do
-        for frame in pairs(frames) do
-            if AptechkaUnitInRange(unit) then
-                frame:SetAlpha(1)
-            else
-                frame:SetAlpha(0.45)
-            end
-        end
-    end
+    Aptechka:ForEachFrame(FrameUpdateRangeAlpha)
 end
 
 --Aggro
@@ -1681,21 +1663,33 @@ local function updateUnitButton(self, unit)
     local owner = unit
     local state = self.state
 
-    if state.isInVehicle and unit and unit == self.unitOwner then
+
+    -- Why Roster is nested:
+    -- Basically because of vehicles. There'll be a moment
+    -- when 2 different frames will be assigned to a single 'pet' unit
+
+    -- These checks protect the frame from remapping back from vehicle swap
+    -- by a random group header update
+    if state.isInVehicle and unit and unit == self.unitOwner then -- GH update for owner unit
         unit = self.unit
         owner = self.unitOwner
-        --if for some reason game will decide to update unit whose frame is mapped to vehicleunit in roster
-    elseif state.isInVehicle and unit then
+    elseif state.isInVehicle and unit then -- GH update is for the pet(vehicle) unit
         owner = self.unitOwner
-    else
+    else -- update to nil or an unrelated new unit
         if self.vehicleFrame then
             self.vehicleFrame:SetScript("OnUpdate",nil)
-            self.vehicleFrame = nil
             state.isInVehicle = nil
             FrameSetJob(self,config.InVehicleStatus,false)
             -- print ("Killing orphan vehicle frame")
         end
     end
+
+    -- Each group header updates sequentially after GUILD_ROSTER_UPDATE, from 1 to 8
+    -- Units tho can be in any order due to sorting and raid groups
+    -- When something about unit order changes, it could happen that first new frame was associated with a unit
+    -- But then the old frame is either hidden or updated with another unit
+    -- And if was hidden, you can't just Roster[oldframe.unit] = nil,
+    -- because this unit could already be using a different frame
 
     -- Removing frames that no longer associated with this unit from Roster
     for roster_unit, frames in pairs(Roster) do
@@ -1747,6 +1741,7 @@ local function updateUnitButton(self, unit)
         Aptechka.FrameUpdateDisplayPower(self, unit)
         local ptype = select(2,UnitPowerType(owner))
         Aptechka.FrameUpdatePower(self, unit, ptype)
+        Aptechka.FrameUpdatePower(self, unit, "RUNIC_POWER")
         Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
     end
     Aptechka.FrameUpdateThreat(self, unit)
@@ -1762,12 +1757,8 @@ end
 local delayedUpdateTimer = C_Timer.NewTicker(5, function()
     if has_unknowns then
         has_unknowns = false
-        for unit, frames in pairs(Roster) do
-            for frame in pairs(frames) do
-                -- updateUnitButton may change has_unknowns back to true
-                updateUnitButton(frame, unit)
-            end
-        end
+        -- updateUnitButton may change has_unknowns back to true
+        Aptechka:ForEachFrame(updateUnitButton)
     end
 end)
 
@@ -1869,6 +1860,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
         f.isPetGroup = true
         f:SetAttribute("maxColumns", 1 )
         f:SetAttribute("unitsPerColumn", 5)
+        f:SetAttribute("isPetHeader", true)
         --f:SetAttribute("startingIndex", 5*((group - config.maxgroups)-1))
     end
     --our group header doesn't really inherits SecureHandlerBaseTemplate
@@ -2354,11 +2346,12 @@ function Aptechka.FrameSetJob(frame, opts, enabled, ...)
 end
 FrameSetJob = Aptechka.FrameSetJob
 
+
+local FSJProxy = function(frame, unit, ...)
+    FrameSetJob(frame, ...)
+end
 function Aptechka.SetJob(unit, opts, enabled, ...)
-    if not Roster[unit] then return end
-    for frame in pairs(Roster[unit]) do
-        FrameSetJob(frame, opts, enabled, ...)
-    end
+    Aptechka:ForEachUnitFrame(unit, FSJProxy, opts, enabled, ...)
 end
 SetJob = Aptechka.SetJob
 
@@ -2630,16 +2623,11 @@ function Aptechka.HighlightProc(frame, unit, index, slot, filter, name, icon, co
 end
 
 function Aptechka.HighlightPostUpdate(frame, unit)
-    local frames = Roster[unit]
-    if frames then
-        for frame in pairs(frames) do
-            if frame.state.highlightedDebuffsBits ~= highlightedDebuffsBits then
-                for i=1,#config.BossDebuffs do
-                    FrameSetJob(frame, config.BossDebuffs[i], helpers.CheckBit(highlightedDebuffsBits, i))
-                end
-                frame.state.highlightedDebuffsBits = highlightedDebuffsBits
-            end
+    if frame.state.highlightedDebuffsBits ~= highlightedDebuffsBits then
+        for i=1,#config.BossDebuffs do
+            FrameSetJob(frame, config.BossDebuffs[i], helpers.CheckBit(highlightedDebuffsBits, i))
         end
+        frame.state.highlightedDebuffsBits = highlightedDebuffsBits
     end
 end
 local HighlightProc = Aptechka.HighlightProc
@@ -2660,38 +2648,33 @@ local DiseaseColor = { 0.6, 0.4, 0}
 function Aptechka.DispelTypePostUpdate(frame, unit)
     local debuffTypeMaskDispellable = bit_band( debuffTypeMask, BITMASK_DISPELLABLE )
 
-    local frames = Roster[unit]
-    if frames then
-        for frame in pairs(frames) do
-            if frame.debuffTypeMask ~= debuffTypeMaskDispellable then
+    if frame.debuffTypeMask ~= debuffTypeMaskDispellable then
 
-                local color
-                -- local debuffType
-                if bit_band(debuffTypeMaskDispellable, BITMASK_MAGIC) > 0 then
-                    color = MagicColor
-                    -- debuffType = 1
-                elseif bit_band(debuffTypeMaskDispellable, BITMASK_POISON) > 0 then
-                    color = PoisonColor
-                    -- debuffType = 2
-                elseif bit_band(debuffTypeMaskDispellable, BITMASK_DISEASE) > 0 then
-                    color = DiseaseColor
-                    -- debuffType = 3
-                elseif bit_band(debuffTypeMaskDispellable, BITMASK_CURSE) > 0 then
-                    color = CurseColor
-                    -- debuffType = 4
-                end
-
-                if color then
-                    config.DispelStatus.color = color
-                    -- config.DispelStatus.debuffType = debuffType
-                    FrameSetJob(frame, config.DispelStatus, true) --, debuffType)
-                else
-                    FrameSetJob(frame, config.DispelStatus, false)
-                end
-
-                frame.debuffTypeMask = debuffTypeMaskDispellable
-            end
+        local color
+        -- local debuffType
+        if bit_band(debuffTypeMaskDispellable, BITMASK_MAGIC) > 0 then
+            color = MagicColor
+            -- debuffType = 1
+        elseif bit_band(debuffTypeMaskDispellable, BITMASK_POISON) > 0 then
+            color = PoisonColor
+            -- debuffType = 2
+        elseif bit_band(debuffTypeMaskDispellable, BITMASK_DISEASE) > 0 then
+            color = DiseaseColor
+            -- debuffType = 3
+        elseif bit_band(debuffTypeMaskDispellable, BITMASK_CURSE) > 0 then
+            color = CurseColor
+            -- debuffType = 4
         end
+
+        if color then
+            config.DispelStatus.color = color
+            -- config.DispelStatus.debuffType = debuffType
+            FrameSetJob(frame, config.DispelStatus, true) --, debuffType)
+        else
+            FrameSetJob(frame, config.DispelStatus, false)
+        end
+
+        frame.debuffTypeMask = debuffTypeMaskDispellable
     end
 end
 function Aptechka.DummyFunction() end
@@ -3416,60 +3399,63 @@ function Aptechka:UpdateCastsConfig()
         end
     end
 end
-function Aptechka.SPELLCAST_UPDATE(event, GUID)
-    local unit = guidMap[GUID]
-    if unit and Roster[unit] then
-        for frame in pairs(Roster[unit]) do
-            local minSrcGUID
-            local minTime
-            local totalCasts = 0
-            for i, castInfo in ipairs(LibTargetedCasts:GetUnitIncomingCastsTable(unit)) do
-                local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = unpack(castInfo)
 
-                local isImportant = importantTargetedCasts[spellID]
-                if not blacklist[spellID] then
-                    totalCasts = totalCasts + 1
-                    if castType == "CHANNEL" then endTime = endTime - 5 end -- prioritizing channels
-                    if isImportant then endTime = endTime - 100 end
+function Aptechka.FrameUpdateIncomingCast(frame, unit)
+    local minSrcGUID
+    local minTime
+    local totalCasts = 0
+    for i, castInfo in ipairs(LibTargetedCasts:GetUnitIncomingCastsTable(unit)) do
+        local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = unpack(castInfo)
 
-                    if not minTime or endTime < minTime then
-                        minSrcGUID = srcGUID
-                        minTime = endTime
-                        -- print(i)
-                    end
-                end
-            end
+        local isImportant = importantTargetedCasts[spellID]
+        if not blacklist[spellID] then
+            totalCasts = totalCasts + 1
+            if castType == "CHANNEL" then endTime = endTime - 5 end -- prioritizing channels
+            if isImportant then endTime = endTime - 100 end
 
-            local icon = frame.incomingCastIcon
-            if minSrcGUID then
-                local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
-
-                icon.texture:SetTexture(texture)
-                icon.cd:SetReverse(castType == "CAST")
-
-                local r,g,b
-                -- if notInterruptible then
-                --     r,g,b = 0.7, 0.7, 0.7
-                -- else
-                if castType == "CHANNEL" then
-                    r,g,b = 0.8, 1, 0.3
-                else
-                    r,g,b = 1, 0.65, 0
-                end
-
-                icon.cd:SetSwipeColor(r,g,b);
-
-                local duration = endTime - startTime
-                icon.cd:SetCooldown(startTime, duration)
-                icon.cd:Show()
-
-                icon.stacktext:SetText(totalCasts > 1 and totalCasts)
-
-                icon:Show()
-            else
-                icon:Hide()
+            if not minTime or endTime < minTime then
+                minSrcGUID = srcGUID
+                minTime = endTime
+                -- print(i)
             end
         end
+    end
+
+    local icon = frame.incomingCastIcon
+    if minSrcGUID then
+        local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
+
+        icon.texture:SetTexture(texture)
+        icon.cd:SetReverse(castType == "CAST")
+
+        local r,g,b
+        -- if notInterruptible then
+        --     r,g,b = 0.7, 0.7, 0.7
+        -- else
+        if castType == "CHANNEL" then
+            r,g,b = 0.8, 1, 0.3
+        else
+            r,g,b = 1, 0.65, 0
+        end
+
+        icon.cd:SetSwipeColor(r,g,b);
+
+        local duration = endTime - startTime
+        icon.cd:SetCooldown(startTime, duration)
+        icon.cd:Show()
+
+        icon.stacktext:SetText(totalCasts > 1 and totalCasts)
+
+        icon:Show()
+    else
+        icon:Hide()
+    end
+end
+
+function Aptechka.SPELLCAST_UPDATE(event, GUID)
+    local unit = guidMap[GUID]
+    if unit then
+        Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateIncomingCast)
     end
 end
 
