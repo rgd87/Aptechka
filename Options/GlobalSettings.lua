@@ -140,6 +140,18 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 10.8,
                     },
+                    disableAbsorbBar = {
+                        name = L"Disable Absorb Side Bar",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.disableAbsorbBar end,
+                        set = function(info, v)
+                            Aptechka.db.global.disableAbsorbBar = not Aptechka.db.global.disableAbsorbBar
+                            Aptechka:UpdateAbsorbBarConfig()
+                            -- Aptechka:PrintReloadUIWarning()
+                        end,
+                        order = 10.9,
+                    },
                     showAFK = {
                         name = L"Show AFK",
                         width = "full",
