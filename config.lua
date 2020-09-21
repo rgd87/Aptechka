@@ -150,6 +150,7 @@ A{ id = 23920, prototype = survivalCD, priority = 85 } --Spell Reflect
 -- DEMON HUNTER
 A{ id = 212800, prototype = survivalCD } -- Blur
 A{ id = 187827, prototype = survivalCD } -- Vengeance Meta
+A{ id = 209426, prototype = survivalCD } -- Darkness
 
 -- ROGUE
 A{ id = 185311, prototype = survivalCD } -- Crimson Vial
@@ -176,7 +177,11 @@ A{ id = 586,  prototype = survivalCD } -- Fade
 A{ id = 47585,  prototype = survivalCD } -- Dispersion
 A{ id = 47788, prototype = tankCD, priority = 90 } --Guardian Spirit
 A{ id = 33206, prototype = tankCD, priority = 93 } --Pain Suppression
-A{ id = 81782, prototype = survivalCD } -- Anti-Magic Zone
+A{ id = 81782, prototype = survivalCD } -- Power Word: Barrier
+-----
+A{ id = 213610, prototype = survivalCD } -- Holy Ward (PVP)
+A{ id = 213602, prototype = tankCD } -- Greater Fade
+A{ id = 329543, prototype = tankCD } -- Divine Ascension
 
 -- PALADIN
 A{ id = 642,    prototype = tankCD, priority = 95 } -- Divine Shield
@@ -205,6 +210,7 @@ A{ id = 45438,  prototype = tankCD } -- Ice Block
 
 -- HUNTER
 A{ id = 186265, prototype = survivalCD } -- Aspect of the Turtle
+-- A{ id = 53480, prototype = survivalCD } -- Roar of Sacrifice (PVP)
 
 -- SHAMAN
 A{ id = 108271, prototype = survivalCD } -- Astral Shift
@@ -284,9 +290,6 @@ if playerClass == "PRIEST" then
     Trace{id = 234946, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
     -- Shadowmend
     Trace{id = 186263, type = "HEAL", assignto = set("healfeedback"), color = { 0.8, 0.35, 0.7}, fade = 0.7, priority = 96 }
-
-    -- Holy Ward (PvP)
-    A{ id = 213610, type = "HELPFUL", assignto = set("spell3"), showDuration = true, priority = 70, color = { 1, .3, .3}, isMine = true }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(17), -- Disc: PWS
