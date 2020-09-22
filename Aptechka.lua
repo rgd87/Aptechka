@@ -1650,7 +1650,7 @@ function Aptechka:READY_CHECK(event)
     Aptechka:ForEachFrame(Aptechka.FrameReadyCheckConfirm)
 end
 function Aptechka:READY_CHECK_CONFIRM(event, unit)
-    Aptechka:ForEachUnitFrame(Aptechka.FrameReadyCheckConfirm)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameReadyCheckConfirm)
 end
 function Aptechka:READY_CHECK_FINISHED(event)
     Aptechka:ForEachFrame(Aptechka.FrameReadyCheckFinished)
