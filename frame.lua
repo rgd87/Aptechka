@@ -542,7 +542,7 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
     elseif contentType == "PROGRESS" then
         self.color:SetVertexColor(GetColor(job))
 
-        local p = ...
+        local cur, max, p = ...
         local stime = 30000
         local completed = p*stime
         local total = stime
@@ -839,7 +839,7 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
             end
         end
     elseif contentType == "PROGRESS" then
-        local p = ...
+        local cur, max, p = ...
         self:SetMinMaxValues(0, 1)
         self:SetValue(p)
 
@@ -1771,12 +1771,10 @@ end
 local TextTypeHandlers = {
     ["HealthDeficit"] = function(self, job, state, contentType, ...)
         self.text:SetFormattedText(formatMissingHealth(state.vHealthMax - state.vHealth))
-        self:SetScript("OnUpdate", nil)
         self.text:SetTextColor(GetClassOrTextColor(job, state))
     end,
     ["IncomingHeal"] = function(self, job, state, contentType, ...)  -- For Classic
         self.text:SetFormattedText("+%d", state.vIncomingHeal)
-        self:SetScript("OnUpdate", nil)
         self.text:SetTextColor(GetTextColor(job))
     end,
     ["AURA"] = function(self, job, state, contentType, ...)
@@ -1785,14 +1783,12 @@ local TextTypeHandlers = {
 
         if job.showCount then
             self.text:SetText(count)
-            self:SetScript("OnUpdate", nil)
         elseif job.showDuration then
             self.expirationTime = expirationTime
             self.startTime = nil
             self:SetScript("OnUpdate", Text_OnUpdate)
         else
             self.text:SetText(job.text or job.name)
-            self:SetScript("OnUpdate", nil)
         end
     end,
     ["TIMER"] = function(self, job, state, contentType, ...)
@@ -1811,36 +1807,48 @@ local TextTypeHandlers = {
         self.text:SetFormattedText("%.0f%%", stagger*100)
     end,
     ["PROGRESS"] = function(self, job, state, contentType, ...)
-        local perc = ...
-        self.text:SetTextColor(helpers.PercentColor(perc))
-        -- self.text:SetTextColor(GetTextColor(job))
-        self.text:SetFormattedText("%.0f%%", perc*100)
+        local cur, max, perc = ...
+        if job.formatAs == "PERCENTAGE" then
+            self.text:SetTextColor(helpers.PercentColor(perc))
+            self.text:SetFormattedText("%.0f%%", perc*100)
+        else
+            self.text:SetTextColor(GetTextColor(job))
+            self.text:SetText(cur)
+        end
     end,
     ["UnitName"] = function(self, job, state, contentType, ...)
         self.text:SetText(state.name)
-        self:SetScript("OnUpdate", nil)
         self.text:SetTextColor(GetClassOrTextColor(job, state))
     end,
 }
 local SetJob_Text = function(self, job, state, contentType, ...)
+    if self.currentJob ~= self.previousJob then
+        self:SetScript("OnUpdate", nil)
+    end
     local handler = TextTypeHandlers[contentType]
     if handler then
         handler(self, job, state, contentType, ...)
     elseif job.text then
-        self:SetScript("OnUpdate", nil)
         self.text:SetText(job.text)
         self.text:SetTextColor(GetTextColor(job))
     end
 end
 
 local StaticTextTypeHandlers = CopyTable(TextTypeHandlers)
-StaticTextTypeHandlers.TIMER = nil
+StaticTextTypeHandlers["TIMER"] = nil
+StaticTextTypeHandlers["AURA"] = function(self, job, state, contentType, ...)
+    local duration, expirationTime, count, texture, spellID, caster = ...
+    self.text:SetTextColor(GetSpellColor(job, caster, count))
+    self.text:SetText(job.text or job.name)
+end
 local SetJob_StaticText = function(self, job, state, contentType, ...)
+    if self.currentJob ~= self.previousJob then
+        self:SetScript("OnUpdate", nil)
+    end
     local handler = StaticTextTypeHandlers[contentType]
     if handler then
         handler(self, job, state, contentType, ...)
     elseif job.text then
-        self:SetScript("OnUpdate", nil)
         self.text:SetText(job.text)
         self.text:SetTextColor(GetTextColor(job))
     end

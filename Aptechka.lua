@@ -1194,7 +1194,7 @@ function Aptechka.FrameUpdatePower(frame, unit, ptype)
         local power = UnitPower(unit, Enum_RunicPower)
         if power > 40 then
             local p = power/powerMax
-            FrameSetJob(frame, config.RunicPowerStatus, true, "PROGRESS", p)
+            FrameSetJob(frame, config.RunicPowerStatus, true, "PROGRESS", power, powerMax, p)
         else
             FrameSetJob(frame, config.RunicPowerStatus, false)
         end
@@ -1203,7 +1203,7 @@ function Aptechka.FrameUpdatePower(frame, unit, ptype)
         local power = UnitPower(unit, Enum_Alternate)
         if power > 0 then
             local p = power/powerMax
-            FrameSetJob(frame, config.AlternatePowerStatus, true, "PROGRESS", p)
+            FrameSetJob(frame, config.AlternatePowerStatus, true, "PROGRESS", power, powerMax, p)
         else
             FrameSetJob(frame, config.AlternatePowerStatus, false)
         end
