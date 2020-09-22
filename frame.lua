@@ -2141,6 +2141,7 @@ local dummy = function() end
 local function WrapAsWidget(func, customSetJob, customStartTrace)
     return function(...)
         local frame = func(...)
+        if not frame then return end
         if customSetJob then
             frame.SetJob = customSetJob
         end

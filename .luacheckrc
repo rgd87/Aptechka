@@ -206,6 +206,7 @@ globals = {
     "UnitGUID",
     "oUF",
     "C_NamePlate",
+    "GetAddOnMetadata",
     "UnitClass",
     "UnitIsTapDenied",
     "UnitReaction",

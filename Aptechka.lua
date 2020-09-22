@@ -1654,7 +1654,7 @@ function Aptechka:READY_CHECK(event)
     Aptechka:ForEachFrame(Aptechka.FrameReadyCheckConfirm)
 end
 function Aptechka:READY_CHECK_CONFIRM(event, unit)
-    Aptechka:ForEachUnitFrame(Aptechka.FrameReadyCheckConfirm)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameReadyCheckConfirm)
 end
 function Aptechka:READY_CHECK_FINISHED(event)
     Aptechka:ForEachFrame(Aptechka.FrameReadyCheckFinished)
@@ -2381,6 +2381,7 @@ end
 function Aptechka.FrameSetJob(frame, opts, enabled, ...)
     if opts and opts.assignto then
         for slot, slotEnabled in pairs(opts.assignto) do
+            print(slot, slotEnabled)
             if slotEnabled then
                 AssignToSlot(frame, opts, enabled, slot, ...)
             end
@@ -3018,9 +3019,9 @@ end
 
 function Aptechka:ToggleUnlock()
     if anchors[1]:IsShown() then
-        anchors[1]:Hide()
+        Aptechka:Lock()
     else
-        anchors[1]:Show()
+        Aptechka:Unlock()
     end
 end
 

@@ -64,13 +64,13 @@ config.StaggerStatus = { name = "Stagger", assignto = set("text2"), priority = 2
 config.RunicPowerStatus = { name = "RunicPower", assignto = set("mitigation"), priority = 10, color = { 0, 0.82, 1 } }
 config.AltPowerStatus = { name = "AltPower", assignto = set("text3"), priority = 65, color = { 1, 0.4, 0.4 } }
 
-config.SummonPending = { name = "SummonPending", set("text2"), color = {1,0.7,0}, text = "PENDING", priority = 50 }
-config.SummonAccepted = { name = "SummonAccepted", set("text2"), color = {0,1,0}, text = "ACCEPTED", priority = 51 }
-config.SummonDeclined = { name = "SummonDeclined", set("text2"), color = {1,0,0}, text = "DECLINED", priority = 52 }
+config.SummonPending = { name = "SummonPending", assignto = set("text2"), color = {1,0.7,0}, text = "PENDING", priority = 50 }
+config.SummonAccepted = { name = "SummonAccepted", assignto = set("text2"), color = {0,1,0}, text = "ACCEPTED", priority = 51 }
+config.SummonDeclined = { name = "SummonDeclined", assignto = set("text2"), color = {1,0,0}, text = "DECLINED", priority = 52 }
 
--- config.MindControl = { name = "MIND_CONTROL", set("mindcontrol"), color = {1,0,0}, priority = 52 }
-config.MindControlStatus = { name = "MIND_CONTROL", set("border", "mindcontrol", "innerglow"), color = {0.5,0,1}, priority = 52 }
--- config.UnhealableStatus = { name = "UNHEALABLE", set("unhealable"), color = {0.5,0,1}, priority = 50 }
+-- config.MindControl = { name = "MIND_CONTROL", assignto = set("mindcontrol"), color = {1,0,0}, priority = 52 }
+config.MindControlStatus = { name = "MIND_CONTROL", assignto = set("border", "mindcontrol", "innerglow"), color = {0.5,0,1}, priority = 52 }
+-- config.UnhealableStatus = { name = "UNHEALABLE", assignto = set("unhealable"), color = {0.5,0,1}, priority = 50 }
 
 config.DefaultWidgets = {
     raidbuff = { type = "IndicatorArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, growth = "DOWN", max = 5 },
