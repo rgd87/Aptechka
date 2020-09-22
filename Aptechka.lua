@@ -2377,6 +2377,7 @@ end
 function Aptechka.FrameSetJob(frame, opts, enabled, ...)
     if opts and opts.assignto then
         for slot, slotEnabled in pairs(opts.assignto) do
+            print(slot, slotEnabled)
             if slotEnabled then
                 AssignToSlot(frame, opts, enabled, slot, ...)
             end
