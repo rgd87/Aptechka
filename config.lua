@@ -314,7 +314,7 @@ if playerClass == "MONK" then
     -- A{ id = 198533, type = "HELPFUL", name = "Statue Mist", assignto = set("spell3"), isMine = true, showDuration = false, color = { 0.4, 1, 0.4}, priority = 50 }
 
     --Essence Font
-    A{ id = 191840, type = "HELPFUL", assignto = set("bars"), priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
+    A{ id = { 191840, 344006 }, type = "HELPFUL", assignto = set("bars"), priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
 
 
     Trace{id = 116670, type = "HEAL", assignto = set("healfeedback"), color = {38/255, 221/255, 163/255}, fade = 0.7, priority = 96 } -- Vivify
