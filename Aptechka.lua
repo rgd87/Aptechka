@@ -2654,7 +2654,8 @@ end
 function Aptechka.SimpleDebuffPostUpdate(frame, unit)
     local shown = 0
     local fill = 0
-    local debuffLineLength = debuffLimit
+    local debuffIcons = frame.debuffIcons
+    local debuffLineLength = debuffIcons.maxChildren
 
     for i, indexOrSlot in ipairs(debuffList) do
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot) -- UnitAura(unit, indexOrSlot, "HARMFUL")
@@ -2664,14 +2665,14 @@ function Aptechka.SimpleDebuffPostUpdate(frame, unit)
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            SetDebuffIcon(frame, unit, shown, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
+            debuffIcons:SetDebuffIcon(frame, unit, shown, name, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
         else
             break
         end
     end
 
     for i=shown+1, debuffLineLength do
-        SetDebuffIcon(frame, unit, i, false)
+        debuffIcons:SetDebuffIcon(frame, unit, i, nil)
     end
 end
 ---------------------------
