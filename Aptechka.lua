@@ -846,7 +846,7 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
         -- if config.IncomingHealStatus then
         --     if showHeal then
         --         self.vIncomingHeal = heal
-        --         SetJob(unit, config.IncomingHealStatus, true)
+        --         SetJob(unit, config.IncomingHealStatus, true, nil, heal)
         --     else
         --         self.vIncomingHeal = 0
         --         SetJob(unit, config.IncomingHealStatus, false)
@@ -972,7 +972,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     if gradientHealthColor then
         FrameSetJob(self, config.HealthBarColor, true, "HealthBar", h)
     end
-    FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
+    FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05), nil, h, hm )
 
     local isDead = UnitIsDeadOrGhost(unit)
     if isDead then

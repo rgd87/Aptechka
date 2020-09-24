@@ -203,16 +203,15 @@ end
 local contentNormalizers = {}
 function contentNormalizers.HealthDeficit(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
-    cur = state.vHealth
-    max = state.vHealthMax
+    cur, max = ...
     text = string.format(formatMissingHealth(max - cur))
     r,g,b = GetClassOrTextColor(job, state)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
 function contentNormalizers.IncomingHeal(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
-    cur = state.vIncomingHeal
-    text = string.format("+%d", state.vIncomingHeal)
+    cur = ...
+    text = string.format("+%d", cur)
     r,g,b = GetTextColor(job)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
@@ -221,9 +220,11 @@ function contentNormalizers.AURA(job, state, contentType, ...)
     local duration, expirationTime, count1, icon1, spellID, caster = ...
 
     count = count1
+    text = job.text or job.name
     if job.showCount then
         cur = count
         max = job.maxCount or 5
+        text = count
     end
     if job.showDuration and duration ~= 0 then
         cur = duration
@@ -231,7 +232,6 @@ function contentNormalizers.AURA(job, state, contentType, ...)
         timerType = "TIMER"
     end
     icon = icon1
-    text = job.text or job.name
     r,g,b = GetSpellColor(job, caster, count)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end

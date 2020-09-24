@@ -62,7 +62,7 @@ config.InVehicleStatus = { name = "InVehicle", assignto = set("vehicle"), color 
 config.LOSStatus = { name = "OutOfSight", assignto = set("healfeedback"), scale = 1.6, color = {1,0.1,0.1}, priority = 95, fade = 0.3 }
 config.DispelStatus = { name = "Dispel", assignto = set("raidbuff"), scale = 2, hscale = 2, spin = true, priority = 86 }
 config.StaggerStatus = { name = "Stagger", assignto = set("text2"), priority = 20 }
-config.RunicPowerStatus = { name = "RunicPower", assignto = set("mitigation"), priority = 10, color = { 0, 0.82, 1 } }
+config.RunicPowerStatus = { name = "RunicPower", assignto = set("mitigation"), priority = 10, color = { 0, 0.82, 1 }, icon = 237517 }
 config.AltPowerStatus = { name = "AltPower", assignto = set("text3"), priority = 65, color = { 1, 0.4, 0.4 }, formatAs = "PERCENTAGE" }
 
 config.SummonPending = { name = "SummonPending", assignto = set("text2"), color = {1,0.7,0}, text = "PENDING", priority = 50 }
