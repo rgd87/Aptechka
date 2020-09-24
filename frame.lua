@@ -240,6 +240,7 @@ function contentNormalizers.TIMER(job, state, contentType, ...)
     timerType = "FORWARD"
     local startTime = ...
     cur = startTime
+    text = job.text or job.name
     r,g,b = GetTextColor(job)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
