@@ -2262,7 +2262,9 @@ local function OrderedHashMap_Remove(t, dataID)
             local id = t[i].job.name
             t[id] = i
         end
+        return true
     end
+    return false
 end
 
 local lastDeadAssignmentError = 0
@@ -2305,6 +2307,7 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
         contentType = contentType or jobName
         local isChanged = OrderedHashMap_Add(widgetState, jobName, opts, contentType, ...)
         if not isChanged then
+            -- print("|cff55ff55Quitting|r", frame:GetName(), jobName, contentType, ...)
             -- If job was already assigned and it's args are the same as the new ones
             return
         end
@@ -2313,7 +2316,11 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
             frame.activeAuras[opts.realID] = opts
         end
     else
-        OrderedHashMap_Remove(widgetState, jobName)
+        local isChanged = OrderedHashMap_Remove(widgetState, jobName)
+        if not isChanged then
+            -- print("|cffff5555Quitting|r", frame:GetName(), jobName, contentType, ...)
+            return
+        end
     end
 
 
