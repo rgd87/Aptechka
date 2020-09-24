@@ -739,8 +739,8 @@ function Aptechka:RefreshAllUnitsHealth()
 end
 function Aptechka.FrameUpdateUnitColor(frame, unit)
     Aptechka.FrameColorize(frame, unit)
-    FrameSetJob(frame, config.UnitNameStatus, true)
-    FrameSetJob(frame, config.HealthBarColor, true)
+    FrameSetJob(frame, config.UnitNameStatus, true, nil, GetTime())
+    FrameSetJob(frame, config.HealthBarColor, true, nil, GetTime())
     if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
 end
 function Aptechka:RefreshAllUnitsColors()
@@ -970,7 +970,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
 
     state.healthPercent = perc
     if gradientHealthColor then
-        FrameSetJob(self, config.HealthBarColor, true)
+        FrameSetJob(self, config.HealthBarColor, true, "HealthBar", h)
     end
     FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
 
@@ -1758,8 +1758,9 @@ local function updateUnitButton(self, unit)
     self.state.nameFull = name
     Aptechka:UpdateName(self)
 
-    FrameSetJob(self,config.HealthBarColor,true)
-    FrameSetJob(self,config.PowerBarColor,true)
+    -- HealthBar color update needs some unique value to force update
+    FrameSetJob(self,config.HealthBarColor,true, nil, GetTime())
+    FrameSetJob(self,config.PowerBarColor,true, nil, GetTime())
     Aptechka.FrameScanAuras(self, unit)
     state.wasDead = nil
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
