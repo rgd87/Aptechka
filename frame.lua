@@ -218,12 +218,18 @@ function contentNormalizers.IncomingHeal(job, state, contentType, ...)
 end
 function contentNormalizers.AURA(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
-    timerType = "TIMER"
     local duration, expirationTime, count1, icon1, spellID, caster = ...
 
-    cur = duration
-    max = expirationTime
     count = count1
+    if job.showCount then
+        cur = count
+        max = job.maxCount or 5
+    end
+    if job.showDuration and duration ~= 0 then
+        cur = duration
+        max = expirationTime
+        timerType = "TIMER"
+    end
     icon = icon1
     text = job.text or job.name
     r,g,b = GetSpellColor(job, caster, count)
@@ -273,11 +279,17 @@ function contentNormalizers.TEXTURE(job, state, contentType, ...)
     r,g,b = 1,1,1
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
-local EJ_TextureIndex = {
+local DT_TextureCoords = {
     Magic = { 0.90234375, 0.97265625, 0.109375, 0.390625 },
     Curse = { 0.02734375, 0.09765625, 0.609375, 0.890625 },
     Poison = { 0.15234375, 0.22265625, 0.609375, 0.890625 },
     Disease = { 0.27734375, 0.34765625, 0.609375, 0.890625 },
+}
+local DT_Icons = {
+    Magic = 135834,
+    Curse = 136130,
+    Poison = 132108,
+    Disease = 132100,
 }
 function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
@@ -286,7 +298,8 @@ function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     r,g,b = unpack(color)
     text = debuffType
     texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
-    texCoords = EJ_TextureIndex[debuffType]
+    icon = DT_Icons[debuffType]
+    texCoords = DT_TextureCoords[debuffType]
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
 function contentNormalizers.Default(job, state, contentType, ...)
@@ -625,37 +638,21 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
         end
     end
 
-    if contentType == "AURA" then
-        local duration, expirationTime, count, texture, spellID, caster = ...
-        self.color:SetVertexColor(GetSpellColor(job, caster, count))
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
-        if job.showDuration then
-            self.cd:SetReverse(not job.reverseDuration)
-            self.cd:SetCooldown(expirationTime - duration, duration, 0,0)
-            self.cd:Show()
-        elseif job.showCount then
-            local stime = 300
-            local maxCount = job.maxCount or 5
-            local completed = (maxCount - count) * stime
-            local total = maxCount * stime
-            local start = GetTime() - completed
-            self.cd:SetReverse(true)
-            self.cd:SetCooldown(start, total)
-        else
-            self.cd:Hide()
-        end
-    elseif contentType == "PROGRESS" then
-        self.color:SetVertexColor(GetColor(job))
-
-        local cur, max, p = ...
-        local stime = 30000
-        local completed = p*stime
-        local total = stime
+    self.color:SetVertexColor(r,g,b)
+    if timerType == "TIMER" then
+        local duration, expirationTime = cur, max
+        self.cd:SetReverse(not job.reverseDuration)
+        self.cd:SetCooldown(expirationTime - duration, duration, 0,0)
+    elseif max and cur then
+        local stime = 300
+        local completed = (max - cur) * stime
+        local total = max * stime
         local start = GetTime() - completed
-        self.cd:SetReverse(false)
+        self.cd:SetReverse(true)
         self.cd:SetCooldown(start, total)
     else
-        self.color:SetVertexColor(GetColor(job))
         self.cd:Hide()
     end
 end
@@ -796,7 +793,7 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
     if self.traceJob then return end -- widget is busy with animation
     local t = self.texture
 
-    local timerType, cur, max, count, texture, text, r,g,b, scale, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
     if not texture then
         t:SetVertexColor(r,g,b)
@@ -926,64 +923,28 @@ local StatusBarOnUpdate = function(self, time)
     self:SetValue(timeLeft)
 end
 local SetJob_StatusBar = function(self, job, state, contentType, ...)
-    if contentType == "AURA" then
-        local duration, expirationTime, count, texture, spellID, caster = ...
-        local color = GetSpellColorTable(job, caster, count)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
-        self:SetStatusBarColor(unpack(color))
-        self.bg:SetVertexColor(color[1]*0.25, color[2]*0.25, color[3]*0.25)
-        self._color = color
+    self:SetStatusBarColor(r,g,b)
+    self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
+    self._color = { r,g,b }
 
-        if job.showCount then
-            local maxCount = job.maxCount or 5
-            self:SetMinMaxValues(0, maxCount)
-            self:SetValue(count)
-            self:SetScript("OnUpdate", nil)
-        else
-            self.expires = expirationTime
-            local pandemic = job.refreshTime
-            self.pandemic = pandemic
-            -- local timeLeft = self.expires - GetTime()
-
-            if not job.showDuration or duration == 0 then
-                self:SetMinMaxValues(0, 1)
-                self:SetValue(1)
-                self:SetScript("OnUpdate", nil)
-            else
-                self:SetMinMaxValues(0, duration)
-                -- self:SetValue(timeLeft)
-                StatusBarOnUpdate(self, 0)
-                self:SetScript("OnUpdate", StatusBarOnUpdate)
-            end
-        end
-    elseif contentType == "PROGRESS" then
-        local cur, max, p = ...
-        self:SetMinMaxValues(0, 1)
-        self:SetValue(p)
-
-        local r,g,b = GetColor(job)
-        self:SetStatusBarColor(r,g,b)
-        self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
-
-        self:SetScript("OnUpdate", nil)
-    elseif contentType == "Stagger" then
-        local stagger = state.stagger
-        self:SetMinMaxValues(0, 1)
-        self:SetValue(stagger)
-
-        local r,g,b = helpers.PercentColor(stagger)
-        self:SetStatusBarColor(r,g,b)
-        self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
-
+    if timerType == "TIMER" then
+        local duration, expirationTime = cur, max
+        self.expires = expirationTime
+        local pandemic = job.refreshTime
+        self.pandemic = pandemic
+        self:SetMinMaxValues(0, duration)
+        -- self:SetValue(timeLeft)
+        StatusBarOnUpdate(self, 0)
+        self:SetScript("OnUpdate", StatusBarOnUpdate)
+    elseif max and cur then
+        self:SetMinMaxValues(0, max)
+        self:SetValue(cur)
         self:SetScript("OnUpdate", nil)
     else
-        local r,g,b = GetColor(job)
-        self:SetStatusBarColor(r,g,b)
-        self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
-
         self:SetMinMaxValues(0, 1)
         self:SetValue(1)
-
         self:SetScript("OnUpdate", nil)
     end
 
