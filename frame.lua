@@ -190,6 +190,120 @@ local function GetTextColor(job)
     return 1,1,1
 end
 
+local function formatMissingHealth(mh)
+    if mh < 1000 then
+        return "-%d", mh
+    elseif mh < 10000 then
+        return "-%.1fk", mh / 1000
+    else
+        return "-%.0fk", mh / 1000
+    end
+end
+
+local contentNormalizers = {}
+function contentNormalizers.HealthDeficit(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    cur = state.vHealth
+    max = state.vHealthMax
+    text = string.format(formatMissingHealth(max - cur))
+    r,g,b = GetClassOrTextColor(job, state)
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.IncomingHeal(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    cur = state.vIncomingHeal
+    text = string.format("+%d", state.vIncomingHeal)
+    r,g,b = GetTextColor(job)
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.AURA(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    timerType = "TIMER"
+    local duration, expirationTime, count1, icon1, spellID, caster = ...
+
+    cur = duration
+    max = expirationTime
+    count = count1
+    icon = icon1
+    text = job.text or job.name
+    r,g,b = GetSpellColor(job, caster, count)
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.TIMER(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    timerType = "FORWARD"
+    local startTime = ...
+    cur = startTime
+    r,g,b = GetTextColor(job)
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.Stagger(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local stagger = state.stagger
+
+    text = stagger and string.format("%.0f%%", stagger*100) or ""
+
+    r,g,b = helpers.PercentColor(stagger)
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.PROGRESS(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local c, m, perc = ...
+    cur = c
+    max = m
+    if job.formatAs == "PERCENTAGE" then
+        r,g,b = helpers.PercentColor(perc)
+        text = string.format("%.0f%%", perc*100)
+    else
+        r,g,b = GetTextColor(job)
+        text = cur
+    end
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.UnitName(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    text = state.name
+    r,g,b = GetClassOrTextColor(job, state)
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.TEXTURE(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    texture, texCoords = ...
+    text = job.name
+    r,g,b = 1,1,1
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+local EJ_TextureIndex = {
+    Magic = { 0.90234375, 0.97265625, 0.109375, 0.390625 },
+    Curse = { 0.02734375, 0.09765625, 0.609375, 0.890625 },
+    Poison = { 0.15234375, 0.22265625, 0.609375, 0.890625 },
+    Disease = { 0.27734375, 0.34765625, 0.609375, 0.890625 },
+}
+function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local debuffType = ...
+    local color = helpers.DebuffTypeColors[debuffType]
+    r,g,b = unpack(color)
+    text = debuffType
+    texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
+    texCoords = EJ_TextureIndex[debuffType]
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.Default(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    text = job.text or job.name
+    r,g,b = GetColor(job)
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+
+
+local function NormalizeContent(job, state, contentType, ...)
+    local handler = contentNormalizers[contentType] or contentNormalizers["Default"]
+    return handler(job, state, contentType, ...)
+end
+
+
+
 local function multiplyColor(mul, r,g,b,a)
     return r*mul, g*mul, b*mul, a
 end
@@ -199,16 +313,6 @@ local HealthBarSetColorFG = function(self, r,g,b,a, mul)
 end
 local HealthBarSetColorBG = function(self, r,g,b,a, mul)
     self:SetVertexColor(r*mul, g*mul, b*mul, a)
-end
-
-local formatMissingHealth = function(mh)
-    if mh < 1000 then
-        return "-%d", mh
-    elseif mh < 10000 then
-        return "-%.1fk", mh / 1000
-    else
-        return "-%.0fk", mh / 1000
-    end
 end
 
 local SetJob_HealthBar = function(self, job, state, contentType)
@@ -672,77 +776,50 @@ local function Texture_StartTrace(self, job)
     self.blink:Play()
 end
 
-local EJ_TextureIndex = {
-    Magic = 7,
-    Curse = 8,
-    Poison = 9,
-    Disease = 10,
-}
-local function EncounterJournal_SetFlagIcon(texture, index)
-	local iconSize = 32;
-	local columns = 256/iconSize;
-	local rows = 64/iconSize;
-	local l = mod(index, columns) / columns;
-	local r = l + (1/columns);
-	local t = floor(index/columns) / rows;
-    local b = t + (1/rows);
 
-    local crop = 7
-    local ch = crop/256;
-    local cv = crop/64;
-	texture:SetTexCoord(l+ch,r-ch,t+cv,b-cv);
-end
+-- function EncounterJournal_SetFlagIcon(texture, index)
+-- 	local iconSize = 32;
+-- 	local columns = 256/iconSize;
+-- 	local rows = 64/iconSize;
+-- 	local l = mod(index, columns) / columns;
+-- 	local r = l + (1/columns);
+-- 	local t = floor(index/columns) / rows;
+--     local b = t + (1/rows);
+
+--     local crop = 7
+--     local ch = crop/256;
+--     local cv = crop/64;
+--     print(l+ch,r-ch,t+cv,b-cv);
+-- 	-- texture:SetTexCoord(l+ch,r-ch,t+cv,b-cv);
+-- end
 local SetJob_Texture = function(self, job, state, contentType, ...)
     if self.traceJob then return end -- widget is busy with animation
     local t = self.texture
-    if self.currentJob ~= self.previousJob then
 
-        if contentType == "TEXTURE" then
-            local tex, coords = ...
-            t.usingCustomTexture = true
-            t:SetTexture(tex)
-            local texCoord = coords
-            if texCoord then
-                t:SetTexCoord(unpack(texCoord))
-            else
-                t:SetTexCoord(0,1, 0,1)
-            end
-            t:SetVertexColor(1,1,1,1)
-        elseif job.tex then
-            t.usingCustomTexture = true
-            t:SetTexture(job.tex)
-            local texCoord = job.texCoord
-            if texCoord then
-                t:SetTexCoord(unpack(texCoord))
-            else
-                t:SetTexCoord(0,1, 0,1)
-            end
-            t:SetVertexColor(1,1,1,1)
-        else
-            local r,g,b,a = GetColor(job)
-            if t.usingCustomTexture then
-                t:SetTexture(self._defaultTexture)
-            end
-            t:SetVertexColor(r,g,b,a)
-        end
+    local timerType, cur, max, count, texture, text, r,g,b, scale, texCoords = NormalizeContent(job, state, contentType, ...)
 
-        if job.scale then
-            self:SetScale(job.scale)
-        else
-            self:SetScale(1)
-        end
-        if job.pulse then
-            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
-        end
+    if not texture then
+        t:SetVertexColor(r,g,b)
+    else
+        t:SetVertexColor(1,1,1)
     end
 
-    if contentType == "DISPELTYPE" then
-        local debuffType = ...
-        t.usingCustomTexture = true
-        local tex = "Interface\\EncounterJournal\\UI-EJ-Icons"
-        t:SetTexture(tex)
-        EncounterJournal_SetFlagIcon(t, EJ_TextureIndex[debuffType])
-        t:SetVertexColor(1,1,1,1)
+    local tex = texture or self._defaultTexture
+    t:SetTexture(tex)
+    if texCoords then
+        t:SetTexCoord(unpack(texCoords))
+    else
+        t:SetTexCoord(0,1, 0,1)
+    end
+
+    if job.scale then
+        self:SetScale(job.scale)
+    else
+        self:SetScale(1)
+    end
+
+    if job.pulse then
+        if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
     end
 end
 
