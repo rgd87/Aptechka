@@ -1968,7 +1968,7 @@ end
 
 local SetJob_Flash = function(self, job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
-    self:SetVertexColor(r,g,b)
+    self.texture:SetVertexColor(r,g,b)
 end
 local CreateFlash = function(parent)
     local f = CreateFrame("Frame", nil, parent.health)
