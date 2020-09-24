@@ -1004,12 +1004,14 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
 end
 
 function Aptechka.FrameUpdateIncomingRes(frame, unit)
-    FrameSetJob(frame, config.IncResStatus, UnitHasIncomingResurrection(unit))
+    FrameSetJob(frame, config.IncResStatus, UnitHasIncomingResurrection(unit), "TEXTURE", "Interface\\RaidFrame\\Raid-Icon-Rez")
 end
 function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateIncomingRes)
 end
 
+do
+local phaseIconCoords = {0.15625, 0.84375, 0.15625, 0.84375}
 function Aptechka.FrameCheckPhase(frame, unit)
     --[[
     elseif HasIncomingSummon(unit) then
@@ -1025,7 +1027,8 @@ function Aptechka.FrameCheckPhase(frame, unit)
         frame.centericon:Show()
     ]]
     local isPhased = UnitIsPlayer(unit) and UnitPhaseReason(unit) and not frame.state.isInVehicle
-    FrameSetJob(frame, config.PhasedStatus, isPhased)
+    FrameSetJob(frame, config.PhasedStatus, isPhased, "TEXTURE", "Interface\\TargetingFrame\\UI-PhasingIcon", phaseIconCoords)
+end
 end
 
 function Aptechka.UNIT_PHASE(self, event, unit)
@@ -1632,12 +1635,12 @@ function Aptechka.FrameReadyCheckConfirm(frame, unit)
     local opts
     if status == 'ready' then
         FrameSetJob(frame, config.RCWaiting, false)
-        FrameSetJob(frame, config.RCReady, true)
+        FrameSetJob(frame, config.RCReady, true, "TEXTURE", READY_CHECK_READY_TEXTURE)
     elseif status == 'notready' then
         FrameSetJob(frame, config.RCWaiting, false)
-        FrameSetJob(frame, config.RCNotReady, true)
+        FrameSetJob(frame, config.RCNotReady, true, "TEXTURE", READY_CHECK_NOT_READY_TEXTURE)
     elseif status == 'waiting' then
-        FrameSetJob(frame, config.RCWaiting, true)
+        FrameSetJob(frame, config.RCWaiting, true, "TEXTURE", READY_CHECK_WAITING_TEXTURE)
     else
         return Aptechka.FrameReadyCheckFinished(frame, unit)
     end

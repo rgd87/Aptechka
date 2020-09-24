@@ -37,11 +37,11 @@ config.enableAbsorbBar = true
 config.TargetStatus = { name = "Target", assignto = set("border"), color = {0.7,0.2,0.5}, priority = 65 }
 config.MouseoverStatus = { name = "Mouseover", assignto = set("border"), color = {1,0.5,0.8}, priority = 66 }
 config.AggroStatus = { name = "Aggro", assignto = set("raidbuff"),  color = { 0.7, 0, 0},priority = 85 }
-config.RCReady = { name = "RCReady", priority = 90, assignto = set("statusIcon"), color = { 0, 1, 0}, tex = READY_CHECK_READY_TEXTURE }
-config.RCNotReady = { name = "RCNotReady", priority = 91, assignto = set("statusIcon"), color = { 1, 0, 0}, tex = READY_CHECK_NOT_READY_TEXTURE }
-config.RCWaiting = { name = "RCWaiting", priority = 89, assignto = set("statusIcon"), color = { 0.8, 0.6, 0}, tex = READY_CHECK_WAITING_TEXTURE }
-config.IncResStatus = { name = "IncRes", priority = 86, assignto = set("statusIcon"), color = { 1, 1, 1}, tex = "Interface\\RaidFrame\\Raid-Icon-Rez" }
-config.PhasedStatus = { name = "Phased", priority = 84, assignto = set("statusIcon"), color = { 0.3, 0.3, 0.45}, tex = "Interface\\TargetingFrame\\UI-PhasingIcon", texCoord = {0.15625, 0.84375, 0.15625, 0.84375} }
+config.RCReady = { name = "RCReady", priority = 90, assignto = set("statusIcon"), color = { 0, 1, 0}, text = "READY" }
+config.RCNotReady = { name = "RCNotReady", priority = 91, assignto = set("statusIcon"), color = { 1, 0, 0}, text = "NOT READY" }
+config.RCWaiting = { name = "RCWaiting", priority = 89, assignto = set("statusIcon"), color = { 0.8, 0.6, 0}, text = "WAITING" }
+config.IncResStatus = { name = "IncRes", priority = 86, assignto = set("statusIcon"), color = { 1, 1, 1} }
+config.PhasedStatus = { name = "Phased", priority = 84, assignto = set("statusIcon"), color = { 0.3, 0.3, 0.45} }
 config.RoleStatus = { name = "RoleIcon", assignto = set("roleIcon"), priority = 65, color = { 1, 1, 1 } }
 
 config.LeaderStatus = { name = "Leader", priority = 59, assignto = set("text3"), color = {1,.8,.2}, text = "L" }
