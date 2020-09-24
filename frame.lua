@@ -2122,27 +2122,6 @@ local CreateAutocastGlow = function(parent)
 
     return f
 end
---[[
-local dispelTypeTextures = {
-    "Interface\\RaidFrame\\Raid-Icon-DebuffMagic",
-    "Interface\\RaidFrame\\Raid-Icon-DebuffPoison",
-    "Interface\\RaidFrame\\Raid-Icon-DebuffDisease",
-    "Interface\\RaidFrame\\Raid-Icon-DebuffCurse",
-}
-local SetJob_Dispel = function(self, job, debuffType)
-    self:SetTexture(dispelTypeTextures[debuffType])
-end
-local CreateDebuffTypeIndicator = function(parent)
-    local tex = parent.health:CreateTexture(nil, "ARTWORK", nil, -2)
-    -- local debuffType = "Disease"
-    -- tex:SetTexture("Interface\\RaidFrame\\Raid-Icon-Debuff"..debuffType)
-    tex.SetJob = SetJob_Dispel
-    tex:SetSize(22, 22)
-    tex:SetPoint("CENTER", parent.bossdebuff, "CENTER", 3, -1)
-    tex:Hide()
-    return tex
-end
-]]
 
 
 local border_backdrop = {
@@ -2190,8 +2169,6 @@ local function WrapAsWidget(func, customSetJob, customStartTrace)
 end
 
 local optional_widgets = {
-    -- dispel = CreateDebuffTypeIndicator,
-    -- dispel = function(self) return CreateCorner(self, 16, 16, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") end,
 }
 Aptechka.optional_widgets = optional_widgets
 
@@ -2248,9 +2225,6 @@ local function Reconf(self)
         -- So i'm using custom status bar for health and power
         self.health:SetFillStyle("STANDARD")
         self.power:SetFillStyle("STANDARD")
-
-        -- self.health.SetColor = HealthBarSetColorInverted
-        -- self.power.SetColor = HealthBarSetColorInverted
         self.health.absorb2:SetVertexColor(0.7,0.7,1, 0.65)
         self.health.incoming:SetVertexColor(0.3, 1,0.4, 0.4)
         self.health.absorb2:SetDrawLayer("ARTWORK", -7)
@@ -2258,29 +2232,11 @@ local function Reconf(self)
     else
         self.health:SetFillStyle("REVERSE")
         self.power:SetFillStyle("REVERSE")
-        -- self.health.SetColor = HealthBarSetColor
-        -- self.power.SetColor = HealthBarSetColor
         self.health.absorb2:SetVertexColor(0,0,0, 0.65)
         self.health.incoming:SetVertexColor(0,0,0, 0.4)
         self.health.absorb2:SetDrawLayer("ARTWORK", -5)
         self.health.incoming:SetDrawLayer("ARTWORK", -5)
     end
-
-    --[[
-    local stackFont = LSM:Fetch("font", Aptechka.db.profile.stackFontName)
-    local stackFontSize = Aptechka.db.profile.stackFontSize
-    for i, icon in ipairs(self.debuffIcons) do
-        icon.stacktext:SetFont(stackFont, stackFontSize, "OUTLINE")
-        if Aptechka.db.global.debuffTooltip then
-            icon:SetScript("OnEnter", DebuffIcon_OnEnter)
-            icon:SetScript("OnLeave", DebuffIcon_OnLeave)
-            icon:SetMouseClickEnabled(false)
-        else
-            icon:SetScript("OnEnter", nil)
-            icon:SetScript("OnLeave", nil)
-        end
-    end
-    ]]
 
     if isVertical then
         self.health:SetOrientation("VERTICAL")
@@ -2321,16 +2277,6 @@ local function Reconf(self)
         local hpi = self.health.incoming
         hpi:ClearAllPoints()
         hpi.UpdatePosition = hpi.UpdatePositionVertical
-
-        --[[
-        local debuffSize = pixelperfect(Aptechka.db.profile.debuffSize)
-        for i, icon in ipairs(self.debuffIcons) do
-            icon:SetOrientation("VERTICAL", debuffSize)
-        end
-        self.debuffIcons:Align("VERTICAL")
-
-        self.bossdebuff:SetPoint("BOTTOMLEFT", self.debuffIcons[1], "BOTTOMRIGHT",0,0)
-        ]]
     else
         self.health:SetOrientation("HORIZONTAL")
         self.power:SetOrientation("HORIZONTAL")
@@ -2370,16 +2316,6 @@ local function Reconf(self)
         local hpi = self.health.incoming
         hpi:ClearAllPoints()
         hpi.UpdatePosition = hpi.UpdatePositionHorizontal
-
-        --[[
-        local debuffSize = pixelperfect(Aptechka.db.profile.debuffSize)
-        for i, icon in ipairs(self.debuffIcons) do
-            icon:SetOrientation("HORIZONTAL", debuffSize)
-        end
-        self.debuffIcons:Align("HORIZONTAL")
-
-        self.bossdebuff:SetPoint("BOTTOMLEFT", self.debuffIcons[1], "TOPLEFT",0,0)
-        ]]
     end
 
 end
@@ -2551,70 +2487,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hpMask:SetVertexColor(0,0,0)
     hpMask:SetPoint("CENTER",0,0)
 
-    --[[
-    hplost = hp:CreateTexture(nil, "ARTWORK", nil, -4)
-    hplost:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-    hplost:SetVertexColor(0.8, 0, 0)
-    hp.lost = hplost
-
-    hp._SetValue = hp.SetValue
-    hp.SetValue = function(self, v)
-        local max = 100
-        local vp = v/max
-        local hl = self.lost
-        local offset = vp*hl.maxheight
-        hl:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, offset)
-        hl:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, offset)
-        -- self.lost:SmoothFade(v)
-        hl:SetNewHealthTarget(vp)
-        self:_SetValue(v)
-    end
-
-    hplost:SetPoint("BOTTOMLEFT", hp, "BOTTOMLEFT", 0, 0)
-    hplost:SetPoint("BOTTOMRIGHT", hp, "BOTTOMRIGHT", 0, 0)
-
-    hplost.currentvalue = 0
-    hplost.endvalue = 0
-
-    hplost.UpdateDiff = function(self)
-        local diff = self.currentvalue - self.endvalue
-        if diff > 0 then
-            self:SetHeight((diff)*self.maxheight)
-            self:SetAlpha(1)
-        else
-            self:SetHeight(1)
-            self:SetAlpha(0)
-        end
-    end
-
-    hp:SetScript("OnUpdate", function(self, time)
-        self._elapsed = (self._elapsed or 0) + time
-        if self._elapsed < 0.025 then return end
-        self._elapsed = 0
-
-
-        local hl = self.lost
-        local diff = hl.currentvalue - hl.endvalue
-        if diff > 0 then
-            local d = (diff > 0.1) and diff/15 or 0.006
-            hl.currentvalue = hl.currentvalue - d
-            -- self:SetValue(self.currentvalue)
-            hl:UpdateDiff()
-        end
-    end)
-
-    hplost.SetNewHealthTarget = function(self, vp)
-        if vp >= self.currentvalue then
-            self.currentvalue = vp
-            self.endvalue = vp
-            -- self:SetValue(vp)
-            self:UpdateDiff()
-        else
-            self.endvalue = vp
-        end
-    end
-    ]]
-
     ------------------------
     -- Mouseover highlight
     ------------------------
@@ -2681,14 +2553,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     raidicon.texture = raidicontex
     raidicon:SetAlpha(0.3)
 
-
-    -- local topind = CreateIndicator(self,9,9,"TOP",self,"TOP",0,0)
-    -- local tr = CreateIndicator(self,9,9,"TOPRIGHT",self,"TOPRIGHT",0,0)
-    -- local br = CreateIndicator(self,9,9,"BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
-    -- local btm = CreateIndicator(self,7,7,"BOTTOM",self,"BOTTOM",0,0)
-    -- local left = CreateIndicator(self,7,7,"LEFT",self,"LEFT",0,0)
-    -- local tl = CreateIndicator(self,5,5,"TOPLEFT",self,"TOPLEFT",0,0)
-
     local text3_opts = Aptechka:GetWidgetsOptionsMerged("text3")
     local text3 = Aptechka.Widget.Text.Create(self, nil, text3_opts)
 
@@ -2699,26 +2563,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
 
     self.debuffIcons = Aptechka.Widget.DebuffIconArray.Create(self, Aptechka:GetWidgetsOptions("debuffIcons"))
-    --[[
-    local debuffSize = Aptechka.db.profile.debuffSize
-    self.debuffIcons = { parent = self }
-    self.debuffIcons.Align = AlignDebuffIcons
-
-    for i=1, 4 do
-        local dicon = CreateDebuffIcon(self, debuffSize, debuffSize, 1, "BOTTOMLEFT", self, "BOTTOMLEFT", 0,0)
-        table.insert(self.debuffIcons, dicon)
-    end
-
-    self.debuffIcons:Align("VERTICAL")
-    ]]
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     -- local bossdebuff = CreateCorner(self, 17, 17, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") --last arg changes orientation
     -- local bossdebuff = Aptechka.Widget.Indicator.Create(self, Aptechka:GetWidgetsOptions("bossdebuff"))
     local bossdebuff = border
-
-    -- local trcorner = CreateCorner(self, 16, 30, "TOPRIGHT", self, "TOPRIGHT",0,0, "TOPRIGHT")
-    -- self.healfeedback = trcorner
 
     local casticon_opts = Aptechka:GetWidgetsOptionsMerged("incomingCastIcon")
     local incomingCastIcon = Aptechka.Widget.ProgressIcon.Create(self, nil, casticon_opts)
@@ -2734,27 +2583,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.border = border
 
-
-    for id, spell in pairs(config.auras) do
-        if type(spell.assignto) == "string" then
-            local widget = spell.assignto
-            if not self[widget] and optional_widgets[widget] then
-                self[widget] = optional_widgets[widget](self, optional_widgets)
-            end
-        else
-            for _,widget in ipairs(spell.assignto) do
-                if not self[widget] and optional_widgets[widget] then
-                    self[widget] = optional_widgets[widget](self, optional_widgets)
-                end
-            end
-        end
-    end
-
     self.healthColor = self.health
     self.bossdebuff = bossdebuff
     self.incomingCastIcon = incomingCastIcon
     self.raidicon = raidicon
-    self.roleicon = roleicon
     self.healabsorb = healAbsorb
     self.absorb = absorb
     self.absorb2 = absorb2
