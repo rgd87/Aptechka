@@ -1085,22 +1085,31 @@ Aptechka.Widget.IconArray.Reconf = Aptechka.Widget.BarArray.Reconf
 ----------------------------------------------------------
 
 local SetJob_Icon = function(self, job, state, contentType, ...)
-    if contentType == "AURA" then
-        local duration, expirationTime, count, texture = ...
-        if job.showDuration then
-            self.cd:SetReverse(not job.reverseDuration)
-            self.cd:SetCooldown(expirationTime - duration, duration)
-            self.cd:Show()
-        else
-            self.cd:Hide()
-        end
-        self.texture:SetTexture(texture)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
-        if count and count > 1 then
-            self.stacktext:SetText(count)
-        else
-            self.stacktext:SetText()
-        end
+    if timerType == "TIMER" then
+        local duration, expirationTime = cur, max
+        self.cd:SetReverse(not job.reverseDuration)
+        self.cd:SetCooldown(expirationTime - duration, duration)
+        self.cd:Show()
+    else
+        self.cd:Hide()
+    end
+
+    self.texture:SetTexture(icon or 136190)
+    -- if icon then
+    --     self.texture:SetTexture(icon)
+    --     self.texture:SetVertexColor(1,1,1)
+    -- else
+    --     self.texture:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+    --     self.texture:SetVertexColor(r,g,b)
+    -- end
+
+
+    if count and count > 1 then
+        self.stacktext:SetText(count)
+    else
+        self.stacktext:SetText()
     end
 end
 
@@ -1578,11 +1587,9 @@ local SetJob_ProgressIcon = function(self, job, state, contentType, ...)
 
     self.cd:SetReverse(job.reverseDuration)
 
-    local r,g,b
-    local job_color = job.color
-    if job_color then
-        r,g,b = unpack(job_color)
-    else
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+
+    if not b then
         r,g,b = 0.75, 1, 0.2
     end
     self.cd:SetSwipeColor(r,g,b)
@@ -1846,91 +1853,37 @@ end
         end
     end
 
--- TODO: Split reconf and simple value updates for all widgets
-local TextTypeHandlers = {
-    ["HealthDeficit"] = function(self, job, state, contentType, ...)
-        self.text:SetFormattedText(formatMissingHealth(state.vHealthMax - state.vHealth))
-        self.text:SetTextColor(GetClassOrTextColor(job, state))
-    end,
-    ["IncomingHeal"] = function(self, job, state, contentType, ...)  -- For Classic
-        self.text:SetFormattedText("+%d", state.vIncomingHeal)
-        self.text:SetTextColor(GetTextColor(job))
-    end,
-    ["AURA"] = function(self, job, state, contentType, ...)
-        local duration, expirationTime, count, texture, spellID, caster = ...
-        self.text:SetTextColor(GetSpellColor(job, caster, count))
-
-        if job.showCount then
-            self.text:SetText(count)
-        elseif job.showDuration then
-            self.expirationTime = expirationTime
-            self.startTime = nil
-            self:SetScript("OnUpdate", Text_OnUpdate)
-        else
-            self.text:SetText(job.text or job.name)
-        end
-    end,
-    ["TIMER"] = function(self, job, state, contentType, ...)
-        self.startTime = ...
-        self.expirationTime = nil
-        self:SetScript("OnUpdate", Text_OnUpdateForward)
-        self.text:SetTextColor(GetTextColor(job))
-    end,
-    ["Stagger"] = function(self, job, state, contentType, ...)
-        local stagger = state.stagger
-        if not stagger then
-            self.text:SetText("")
-            return
-        end
-        self.text:SetTextColor(helpers.PercentColor(stagger))
-        self.text:SetFormattedText("%.0f%%", stagger*100)
-    end,
-    ["PROGRESS"] = function(self, job, state, contentType, ...)
-        local cur, max, perc = ...
-        if job.formatAs == "PERCENTAGE" then
-            self.text:SetTextColor(helpers.PercentColor(perc))
-            self.text:SetFormattedText("%.0f%%", perc*100)
-        else
-            self.text:SetTextColor(GetTextColor(job))
-            self.text:SetText(cur)
-        end
-    end,
-    ["UnitName"] = function(self, job, state, contentType, ...)
-        self.text:SetText(state.name)
-        self.text:SetTextColor(GetClassOrTextColor(job, state))
-    end,
-}
 local SetJob_Text = function(self, job, state, contentType, ...)
     if self.currentJob ~= self.previousJob then
         self:SetScript("OnUpdate", nil)
     end
-    local handler = TextTypeHandlers[contentType]
-    if handler then
-        handler(self, job, state, contentType, ...)
-    elseif job.text then
-        self.text:SetText(job.text)
-        self.text:SetTextColor(GetTextColor(job))
+
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+
+    self.text:SetTextColor(r,g,b)
+    self.text:SetText(text)
+
+    if timerType == "TIMER" then
+        local duration, expirationTime = cur, max
+        self.expirationTime = expirationTime
+        self.startTime = nil
+        self:SetScript("OnUpdate", Text_OnUpdate)
+    elseif timerType == "FORWARD" then
+        self.startTime = cur
+        self.expirationTime = nil
+        self:SetScript("OnUpdate", Text_OnUpdateForward)
     end
 end
 
-local StaticTextTypeHandlers = CopyTable(TextTypeHandlers)
-StaticTextTypeHandlers["TIMER"] = nil
-StaticTextTypeHandlers["AURA"] = function(self, job, state, contentType, ...)
-    local duration, expirationTime, count, texture, spellID, caster = ...
-    self.text:SetTextColor(GetSpellColor(job, caster, count))
-    self.text:SetText(job.text or job.name)
-end
 local SetJob_StaticText = function(self, job, state, contentType, ...)
     if self.currentJob ~= self.previousJob then
         self:SetScript("OnUpdate", nil)
     end
-    local handler = StaticTextTypeHandlers[contentType]
-    if handler then
-        handler(self, job, state, contentType, ...)
-    elseif job.text then
-        self.text:SetText(job.text)
-        self.text:SetTextColor(GetTextColor(job))
-    end
+
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+
+    self.text:SetTextColor(r,g,b)
+    self.text:SetText(text)
 end
 
 local CreateTextTimer = function(parent, point, frame, to, x, y, hjustify, fontsize, font, flags)
@@ -1997,11 +1950,9 @@ local CreateUnhealableOverlay = function(parent)
 end
 
 
-local SetJob_InnerGlow = function(self,job)
-    if job.color then
-        local r,g,b = unpack(job.color)
-        self:SetVertexColor(r,g,b)
-    end
+local SetJob_InnerGlow = function(self, job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    self:SetVertexColor(r,g,b)
 end
 local CreateInnerGlow = function(parent)
     local tex = parent.health:CreateTexture(nil, "ARTWORK", nil, -4)
@@ -2015,11 +1966,9 @@ local CreateInnerGlow = function(parent)
     return tex
 end
 
-local SetJob_Flash = function(self,job)
-    if job.color then
-        local r,g,b = GetColor(job)
-        self.texture:SetVertexColor(r,g,b)
-    end
+local SetJob_Flash = function(self, job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    self:SetVertexColor(r,g,b)
 end
 local CreateFlash = function(parent)
     local f = CreateFrame("Frame", nil, parent.health)
@@ -2130,7 +2079,7 @@ local CreateVehicleIcon = function(parent)
 end
 
 local LibCustomGlow = LibStub("LibCustomGlow-1.0")
-local SetJob_PixelGlow = function(self, job)
+local SetJob_PixelGlow = function(self, job, state, contentType, ...)
     local color = job.color or {1,1,1,1}
     local thickness = pixelperfect(2)
     local offset = pixelperfect(4)
@@ -2200,11 +2149,10 @@ local border_backdrop = {
     edgeFile = "Interface\\Addons\\Aptechka\\border", tileEdge = true, edgeSize = 14,
     insets = {left = -2, right = -2, top = -2, bottom = -2},
 }
-local SetJob_Border = function(self,job)
-    if job.color then
-        local r,g,b = GetColor(job)
-        self:SetBackdropBorderColor(r,g,b,0.5)
-    end
+local SetJob_Border = function(self, job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+
+    self:SetBackdropBorderColor(r,g,b, 0.5)
 
     if self.currentJob ~= self.previousJob then
         if job.pulse then
