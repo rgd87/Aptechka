@@ -676,7 +676,18 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
     if self.currentJob ~= self.previousJob then
         local t = self.texture
 
-        if job.tex then
+        if contentType == "TEXTURE" then
+            local tex, coords = ...
+            t.usingCustomTexture = true
+            t:SetTexture(tex)
+            local texCoord = coords
+            if texCoord then
+                t:SetTexCoord(unpack(texCoord))
+            else
+                t:SetTexCoord(0,1, 0,1)
+            end
+            t:SetVertexColor(1,1,1,1)
+        elseif job.tex then
             t.usingCustomTexture = true
             t:SetTexture(job.tex)
             local texCoord = job.texCoord
@@ -2653,19 +2664,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     raidicontex:SetAllPoints(raidicon)
     raidicon.texture = raidicontex
     raidicon:SetAlpha(0.3)
-
-
-    local roleicon = CreateFrame("Frame",nil,self)
-    roleicon:SetWidth(13); roleicon:SetHeight(13)
-    -- roleicon:SetPoint("BOTTOMLEFT",hp,"CENTER",-20,-23)
-    -- roleicon:SetPoint("TOPLEFT",hp,"TOPLEFT",1,-8)
-    roleicon:SetPoint("BOTTOMLEFT",hp,"BOTTOMLEFT",-8, -8)
-    local roleicontex = roleicon:CreateTexture(nil,"OVERLAY")
-    roleicontex:SetAllPoints(roleicon)
-    roleicontex:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES"); --("Interface\\AddOns\\Aptechka\\roles")
-    roleicontex:SetTexCoord(GetTexCoordsForRoleSmallCircle("TANK"));--(0.25, 0.5, 0,1)
-    -- roleicontex:SetVertexColor(0,0,0,0.2)
-    roleicon.texture = roleicontex
 
 
     -- local topind = CreateIndicator(self,9,9,"TOP",self,"TOP",0,0)

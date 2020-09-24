@@ -1410,6 +1410,10 @@ function Aptechka:UnitIsTank(unit)
     return tankUnits[unit]
 end
 
+local roleCoords = {
+    TANK = { 0, 19/64, 22/64, 41/64 },
+    HEALER = { 20/64, 39/64, 1/64, 20/64 },
+}
 function Aptechka.FrameCheckRoles(self, unit )
 
     local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
@@ -1450,16 +1454,13 @@ function Aptechka.FrameCheckRoles(self, unit )
             FrameSetJob(self, config.AssistStatus, isAssistant)
         end
 
-        local icon = self.roleicon.texture
-        if icon then
-            if UnitGroupRolesAssigned(unit) == "HEALER" then
-                -- GetTexCoordsForRoleSmallCircle("HEALER") -- Classic doesn't have this function
-                icon:SetTexCoord(20/64, 39/64, 1/64, 20/64); icon:Show()
-            elseif isTankRoleAssigned then
-                icon:SetTexCoord(0, 19/64, 22/64, 41/64); icon:Show()
-            else
-                icon:Hide()
-            end
+        local isHealerRoleAssigned = UnitGroupRolesAssigned(unit) == "HEALER"
+
+        if isHealerRoleAssigned or isTankRoleAssigned then
+            local role = isHealerRoleAssigned and "HEALER" or "TANK"
+            FrameSetJob(self, config.RoleStatus, true, "TEXTURE", "Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES", roleCoords[role])
+        else
+            FrameSetJob(self, config.RoleStatus, false)
         end
     end
 end
