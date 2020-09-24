@@ -54,6 +54,13 @@ helpers.GetGradientColor3 = function(c1, c2, c3, v)
     end
 end
 
+
+helpers.DebuffTypeColors = {
+    Magic = { 0.2, 0.6, 1},
+    Curse = { 0.6, 0, 1},
+    Poison = { 0, 0.6, 0},
+    Disease = { 0.6, 0.4, 0},
+}
 helpers.BITMASK_DISEASE = 0xF000
 helpers.BITMASK_POISON = 0x0F00
 helpers.BITMASK_CURSE = 0x00F0

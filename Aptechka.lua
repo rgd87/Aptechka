@@ -743,8 +743,8 @@ function Aptechka:RefreshAllUnitsHealth()
 end
 function Aptechka.FrameUpdateUnitColor(frame, unit)
     Aptechka.FrameColorize(frame, unit)
-    FrameSetJob(frame, config.UnitNameStatus, true)
-    FrameSetJob(frame, config.HealthBarColor, true)
+    FrameSetJob(frame, config.UnitNameStatus, true, nil, GetTime())
+    FrameSetJob(frame, config.HealthBarColor, true, nil, GetTime())
     if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
 end
 function Aptechka:RefreshAllUnitsColors()
@@ -850,7 +850,7 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
         -- if config.IncomingHealStatus then
         --     if showHeal then
         --         self.vIncomingHeal = heal
-        --         SetJob(unit, config.IncomingHealStatus, true)
+        --         SetJob(unit, config.IncomingHealStatus, true, nil, heal)
         --     else
         --         self.vIncomingHeal = 0
         --         SetJob(unit, config.IncomingHealStatus, false)
@@ -974,9 +974,9 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
 
     state.healthPercent = perc
     if gradientHealthColor then
-        FrameSetJob(self, config.HealthBarColor, true)
+        FrameSetJob(self, config.HealthBarColor, true, "HealthBar", h)
     end
-    FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05) )
+    FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05), nil, h, hm )
 
     local isDead = UnitIsDeadOrGhost(unit)
     if isDead then
@@ -1008,12 +1008,14 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
 end
 
 function Aptechka.FrameUpdateIncomingRes(frame, unit)
-    FrameSetJob(frame, config.IncResStatus, UnitHasIncomingResurrection(unit))
+    FrameSetJob(frame, config.IncResStatus, UnitHasIncomingResurrection(unit), "TEXTURE", "Interface\\RaidFrame\\Raid-Icon-Rez")
 end
 function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateIncomingRes)
 end
 
+do
+local phaseIconCoords = {0.15625, 0.84375, 0.15625, 0.84375}
 function Aptechka.FrameCheckPhase(frame, unit)
     --[[
     elseif HasIncomingSummon(unit) then
@@ -1029,7 +1031,8 @@ function Aptechka.FrameCheckPhase(frame, unit)
         frame.centericon:Show()
     ]]
     local isPhased = UnitIsPlayer(unit) and UnitPhaseReason(unit) and not frame.state.isInVehicle
-    FrameSetJob(frame, config.PhasedStatus, isPhased)
+    FrameSetJob(frame, config.PhasedStatus, isPhased, "TEXTURE", "Interface\\TargetingFrame\\UI-PhasingIcon", phaseIconCoords)
+end
 end
 
 function Aptechka.UNIT_PHASE(self, event, unit)
@@ -1198,7 +1201,7 @@ function Aptechka.FrameUpdatePower(frame, unit, ptype)
         local power = UnitPower(unit, Enum_RunicPower)
         if power > 40 then
             local p = power/powerMax
-            FrameSetJob(frame, config.RunicPowerStatus, true, "PROGRESS", p)
+            FrameSetJob(frame, config.RunicPowerStatus, true, "PROGRESS", power, powerMax, p)
         else
             FrameSetJob(frame, config.RunicPowerStatus, false)
         end
@@ -1207,7 +1210,7 @@ function Aptechka.FrameUpdatePower(frame, unit, ptype)
         local power = UnitPower(unit, Enum_Alternate)
         if power > 0 then
             local p = power/powerMax
-            FrameSetJob(frame, config.AlternatePowerStatus, true, "PROGRESS", p)
+            FrameSetJob(frame, config.AlternatePowerStatus, true, "PROGRESS", power, powerMax, p)
         else
             FrameSetJob(frame, config.AlternatePowerStatus, false)
         end
@@ -1414,6 +1417,10 @@ function Aptechka:UnitIsTank(unit)
     return tankUnits[unit]
 end
 
+local roleCoords = {
+    TANK = { 0, 19/64, 22/64, 41/64 },
+    HEALER = { 20/64, 39/64, 1/64, 20/64 },
+}
 function Aptechka.FrameCheckRoles(self, unit )
 
     local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
@@ -1454,16 +1461,13 @@ function Aptechka.FrameCheckRoles(self, unit )
             FrameSetJob(self, config.AssistStatus, isAssistant)
         end
 
-        local icon = self.roleicon.texture
-        if icon then
-            if UnitGroupRolesAssigned(unit) == "HEALER" then
-                -- GetTexCoordsForRoleSmallCircle("HEALER") -- Classic doesn't have this function
-                icon:SetTexCoord(20/64, 39/64, 1/64, 20/64); icon:Show()
-            elseif isTankRoleAssigned then
-                icon:SetTexCoord(0, 19/64, 22/64, 41/64); icon:Show()
-            else
-                icon:Hide()
-            end
+        local isHealerRoleAssigned = UnitGroupRolesAssigned(unit) == "HEALER"
+
+        if isHealerRoleAssigned or isTankRoleAssigned then
+            local role = isHealerRoleAssigned and "HEALER" or "TANK"
+            FrameSetJob(self, config.RoleStatus, true, "TEXTURE", "Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES", roleCoords[role])
+        else
+            FrameSetJob(self, config.RoleStatus, false)
         end
     end
 end
@@ -1635,12 +1639,12 @@ function Aptechka.FrameReadyCheckConfirm(frame, unit)
     local opts
     if status == 'ready' then
         FrameSetJob(frame, config.RCWaiting, false)
-        FrameSetJob(frame, config.RCReady, true)
+        FrameSetJob(frame, config.RCReady, true, "TEXTURE", READY_CHECK_READY_TEXTURE)
     elseif status == 'notready' then
         FrameSetJob(frame, config.RCWaiting, false)
-        FrameSetJob(frame, config.RCNotReady, true)
+        FrameSetJob(frame, config.RCNotReady, true, "TEXTURE", READY_CHECK_NOT_READY_TEXTURE)
     elseif status == 'waiting' then
-        FrameSetJob(frame, config.RCWaiting, true)
+        FrameSetJob(frame, config.RCWaiting, true, "TEXTURE", READY_CHECK_WAITING_TEXTURE)
     else
         return Aptechka.FrameReadyCheckFinished(frame, unit)
     end
@@ -1761,8 +1765,9 @@ local function updateUnitButton(self, unit)
     self.state.nameFull = name
     Aptechka:UpdateName(self)
 
-    FrameSetJob(self,config.HealthBarColor,true)
-    FrameSetJob(self,config.PowerBarColor,true)
+    -- HealthBar color update needs some unique value to force update
+    FrameSetJob(self,config.HealthBarColor,true, nil, GetTime())
+    FrameSetJob(self,config.PowerBarColor,true, nil, GetTime())
     Aptechka.FrameScanAuras(self, unit)
     state.wasDead = nil
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
@@ -2202,9 +2207,15 @@ end
 
 local updateTable = function(tbl, ...)
     local numArgs = select("#", ...)
+    local isChanged = false
     for i=1, numArgs do
-        tbl[i] = select(i, ...)
+        local newVal = select(i, ...)
+        if tbl[i] ~= newVal then
+            tbl[i] = newVal
+            isChanged = true
+        end
     end
+    return isChanged
 end
 
 local jobSortFunc = function(a,b)
@@ -2223,7 +2234,10 @@ end
 local function OrderedHashMap_Add(t, dataID, job, ...)
     local existingIndex = t[dataID]
     if existingIndex then
-        updateTable(t[existingIndex], ...)
+        local isChanged = updateTable(t[existingIndex], ...)
+        if not isChanged then
+            return false
+        end
         -- print(dataID, "table update")
     else
         local newData = { ... }
@@ -2242,6 +2256,7 @@ local function OrderedHashMap_Add(t, dataID, job, ...)
             t[id] = i
         end
     end
+    return true
 end
 
 local function OrderedHashMap_Remove(t, dataID)
@@ -2254,7 +2269,9 @@ local function OrderedHashMap_Remove(t, dataID)
             local id = t[i].job.name
             t[id] = i
         end
+        return true
     end
+    return false
 end
 
 local lastDeadAssignmentError = 0
@@ -2295,13 +2312,22 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
 
     if enabled then
         contentType = contentType or jobName
-        OrderedHashMap_Add(widgetState, jobName, opts, contentType, ...)
+        local isChanged = OrderedHashMap_Add(widgetState, jobName, opts, contentType, ...)
+        if not isChanged then
+            -- print("|cff55ff55Quitting|r", frame:GetName(), jobName, contentType, ...)
+            -- If job was already assigned and it's args are the same as the new ones
+            return
+        end
 
         if contentType == "AURA" and opts.realID and not opts.isMissing then
             frame.activeAuras[opts.realID] = opts
         end
     else
-        OrderedHashMap_Remove(widgetState, jobName)
+        local isChanged = OrderedHashMap_Remove(widgetState, jobName)
+        if not isChanged then
+            -- print("|cffff5555Quitting|r", frame:GetName(), jobName, contentType, ...)
+            return
+        end
     end
 
 
@@ -2684,35 +2710,27 @@ function Aptechka.DispelTypeProc(frame, unit, index, slot, filter, name, icon, c
     debuffTypeMask = bit_bor( debuffTypeMask,  GetDebuffTypeBitmask(debuffType))
 end
 
-local MagicColor = { 0.2, 0.6, 1}
-local CurseColor = { 0.6, 0, 1}
-local PoisonColor = { 0, 0.6, 0}
-local DiseaseColor = { 0.6, 0.4, 0}
 function Aptechka.DispelTypePostUpdate(frame, unit)
     local debuffTypeMaskDispellable = bit_band( debuffTypeMask, BITMASK_DISPELLABLE )
 
     if frame.debuffTypeMask ~= debuffTypeMaskDispellable then
 
-        local color
-        -- local debuffType
+        local debuffType
         if bit_band(debuffTypeMaskDispellable, BITMASK_MAGIC) > 0 then
-            color = MagicColor
-            -- debuffType = 1
+            debuffType = "Magic"
         elseif bit_band(debuffTypeMaskDispellable, BITMASK_POISON) > 0 then
-            color = PoisonColor
-            -- debuffType = 2
+            debuffType = "Poison"
         elseif bit_band(debuffTypeMaskDispellable, BITMASK_DISEASE) > 0 then
-            color = DiseaseColor
-            -- debuffType = 3
+            debuffType = "Disease"
         elseif bit_band(debuffTypeMaskDispellable, BITMASK_CURSE) > 0 then
-            color = CurseColor
-            -- debuffType = 4
+            debuffType = "Curse"
         end
+
+        local color = helpers.DebuffTypeColors[debuffType]
 
         if color then
             config.DispelStatus.color = color
-            -- config.DispelStatus.debuffType = debuffType
-            FrameSetJob(frame, config.DispelStatus, true) --, debuffType)
+            FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", debuffType) --, debuffType)
         else
             FrameSetJob(frame, config.DispelStatus, false)
         end

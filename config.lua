@@ -37,11 +37,12 @@ config.enableAbsorbBar = true
 config.TargetStatus = { name = "Target", assignto = set("border"), color = {0.7,0.2,0.5}, priority = 65 }
 config.MouseoverStatus = { name = "Mouseover", assignto = set("border"), color = {1,0.5,0.8}, priority = 66 }
 config.AggroStatus = { name = "Aggro", assignto = set("raidbuff"),  color = { 0.7, 0, 0},priority = 85 }
-config.RCReady = { name = "RCReady", priority = 90, assignto = set("statusIcon"), color = { 0, 1, 0}, tex = READY_CHECK_READY_TEXTURE }
-config.RCNotReady = { name = "RCNotReady", priority = 91, assignto = set("statusIcon"), color = { 1, 0, 0}, tex = READY_CHECK_NOT_READY_TEXTURE }
-config.RCWaiting = { name = "RCWaiting", priority = 89, assignto = set("statusIcon"), color = { 0.8, 0.6, 0}, tex = READY_CHECK_WAITING_TEXTURE }
-config.IncResStatus = { name = "IncRes", priority = 86, assignto = set("statusIcon"), color = { 1, 1, 1}, tex = "Interface\\RaidFrame\\Raid-Icon-Rez" }
-config.PhasedStatus = { name = "Phased", priority = 84, assignto = set("statusIcon"), color = { 0.3, 0.3, 0.45}, tex = "Interface\\TargetingFrame\\UI-PhasingIcon", texCoord = {0.15625, 0.84375, 0.15625, 0.84375} }
+config.RCReady = { name = "RCReady", priority = 90, assignto = set("statusIcon"), color = { 0, 1, 0}, text = "READY" }
+config.RCNotReady = { name = "RCNotReady", priority = 91, assignto = set("statusIcon"), color = { 1, 0, 0}, text = "NOT READY" }
+config.RCWaiting = { name = "RCWaiting", priority = 89, assignto = set("statusIcon"), color = { 0.8, 0.6, 0}, text = "WAITING" }
+config.IncResStatus = { name = "IncRes", priority = 86, assignto = set("statusIcon"), color = { 1, 1, 1} }
+config.PhasedStatus = { name = "Phased", priority = 84, assignto = set("statusIcon"), color = { 0.3, 0.3, 0.45} }
+config.RoleStatus = { name = "RoleIcon", assignto = set("roleIcon"), priority = 65, color = { 1, 1, 1 } }
 
 config.LeaderStatus = { name = "Leader", priority = 59, assignto = set("text3"), color = {1,.8,.2}, text = "L" }
 -- config.AssistStatus = { name = "Assist", priority = 59, assignto = set("text3"), color = {1,.8,.2}, text = "A" }
@@ -53,7 +54,7 @@ config.GhostStatus = { name = "Ghost", assignto = set("text2","health"), color =
 config.OfflineStatus = { name = "Offline", assignto = set("text2","text3","health"), color = {.15,.15,.15}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.AwayStatus = { name = "AFK", assignto = set("text2","text3"), color = {.15,.15,.15}, textcolor = {1,0.8,0}, text = "AFK",  priority = 15}
 -- config.IncomingHealStatus = { name = "IncomingHeal", assignto = set("text2"), color = { 0, 1, 0}, priority = 15 }
-config.HealthDeficitStatus = { name = "HealthDeficit", assignto = set("healthtext"), color = { 54/255, 201/255, 99/256 }, priority = 10 }
+config.HealthDeficitStatus = { name = "HealthDeficit", assignto = set("text2"), color = { 54/255, 201/255, 99/256 }, priority = 10 }
 config.UnitNameStatus = { name = "UnitName", assignto = set("text1"), classcolor = true, priority = 20 }
 config.HealthBarColor = { name = "HealthBar", assignto = set("health"), color = {1, .3, .3}, classcolor = true, priority = 10 }
 config.PowerBarColor = { name = "PowerBar", assignto = set("power"), color = {.5,.5,1}, priority = 20 }
@@ -61,8 +62,8 @@ config.InVehicleStatus = { name = "InVehicle", assignto = set("vehicle"), color 
 config.LOSStatus = { name = "OutOfSight", assignto = set("healfeedback"), scale = 1.6, color = {1,0.1,0.1}, priority = 95, fade = 0.3 }
 config.DispelStatus = { name = "Dispel", assignto = set("raidbuff"), scale = 2, hscale = 2, spin = true, priority = 86 }
 config.StaggerStatus = { name = "Stagger", assignto = set("text2"), priority = 20 }
-config.RunicPowerStatus = { name = "RunicPower", assignto = set("mitigation"), priority = 10, color = { 0, 0.82, 1 } }
-config.AltPowerStatus = { name = "AltPower", assignto = set("text3"), priority = 65, color = { 1, 0.4, 0.4 } }
+config.RunicPowerStatus = { name = "RunicPower", assignto = set("mitigation"), priority = 10, color = { 0, 0.82, 1 }, icon = 237517 }
+config.AltPowerStatus = { name = "AltPower", assignto = set("text3"), priority = 65, color = { 1, 0.4, 0.4 }, formatAs = "PERCENTAGE" }
 
 config.SummonPending = { name = "SummonPending", assignto = set("text2"), color = {1,0.7,0}, text = "PENDING", priority = 50 }
 config.SummonAccepted = { name = "SummonAccepted", assignto = set("text2"), color = {0,1,0}, text = "ACCEPTED", priority = 51 }
@@ -90,7 +91,8 @@ config.DefaultWidgets = {
     debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = "ClearFont", textsize = 12, bigscale = 1.3 },
     -- bossdebuff = { type = "Indicator", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = -0, },
     statusIcon = { type = "Texture", width = 20, height = 20, point = "CENTER", x = 0, y = 14, texture = nil, rotation = 0, zorder = 1, alpha = 1, blendmode = "BLEND" },
-    healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 0, alpha = 1, blendmode = "BLEND" }
+    roleIcon = { type = "Texture", width = 13, height = 13, point = "BOTTOMLEFT", x = -8, y = -8, texture = nil, rotation = 0, zorder = 1, alpha = 1, blendmode = "BLEND" },
+    healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 0, alpha = 1, blendmode = "BLEND" },
 }
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 if isClassic then
@@ -316,7 +318,7 @@ if playerClass == "MONK" then
     -- A{ id = 198533, type = "HELPFUL", name = "Statue Mist", assignto = set("spell3"), isMine = true, showDuration = false, color = { 0.4, 1, 0.4}, priority = 50 }
 
     --Essence Font
-    A{ id = 191840, type = "HELPFUL", assignto = set("bars"), priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
+    A{ id = { 191840, 344006 }, type = "HELPFUL", assignto = set("bars"), priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
 
 
     Trace{id = 116670, type = "HEAL", assignto = set("healfeedback"), color = {38/255, 221/255, 163/255}, fade = 0.7, priority = 96 } -- Vivify

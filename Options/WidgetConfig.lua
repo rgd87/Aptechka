@@ -138,9 +138,11 @@ local function UpdateHeader(header)
     if not CURRENT_FORM then
         header.delete:SetDisabled(true)
         header.profileClear:SetDisabled(true)
+        header.profileCheckbox:SetDisabled(true)
         header.reset:SetDisabled(true)
         return
     end
+    header.profileCheckbox:SetDisabled(false)
     local name = CURRENT_FORM.widgetName
     local popts, gopts = Aptechka:GetWidgetsOptions(name)
     local isProtected = AptechkaDefaultConfig.DefaultWidgets[name]
@@ -204,6 +206,7 @@ function ns.CreateWidgetConfig(name, parent)
     new:SetCallback("OnClick", function(self, event)
         local rootFrame = AptechkaOptions.widgetConfig
         rootFrame.rpane:Clear()
+        rootFrame.header:Update()
         if not formCache["_NewWidgetForm"] then
             formCache["_NewWidgetForm"] = CreateNewWidgetForm()
         end
@@ -336,6 +339,7 @@ function ns.CreateWidgetConfig(name, parent)
     frame:SetCallback("OnShow", function(self)
         self.tree:UpdateWidgetTree()
         self.header.profileCheckbox:Update()
+        self.header:Update()
     end)
 
     frame:AddChild(treegroup)
