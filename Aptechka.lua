@@ -2199,9 +2199,15 @@ end
 
 local updateTable = function(tbl, ...)
     local numArgs = select("#", ...)
+    local isChanged = false
     for i=1, numArgs do
-        tbl[i] = select(i, ...)
+        local newVal = select(i, ...)
+        if tbl[i] ~= newVal then
+            tbl[i] = newVal
+            isChanged = true
+        end
     end
+    return isChanged
 end
 
 local jobSortFunc = function(a,b)
@@ -2220,7 +2226,10 @@ end
 local function OrderedHashMap_Add(t, dataID, job, ...)
     local existingIndex = t[dataID]
     if existingIndex then
-        updateTable(t[existingIndex], ...)
+        local isChanged = updateTable(t[existingIndex], ...)
+        if not isChanged then
+            return false
+        end
         -- print(dataID, "table update")
     else
         local newData = { ... }
@@ -2239,6 +2248,7 @@ local function OrderedHashMap_Add(t, dataID, job, ...)
             t[id] = i
         end
     end
+    return true
 end
 
 local function OrderedHashMap_Remove(t, dataID)
@@ -2292,7 +2302,11 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
 
     if enabled then
         contentType = contentType or jobName
-        OrderedHashMap_Add(widgetState, jobName, opts, contentType, ...)
+        local isChanged = OrderedHashMap_Add(widgetState, jobName, opts, contentType, ...)
+        if not isChanged then
+            -- If job was already assigned and it's args are the same as the new ones
+            return
+        end
 
         if contentType == "AURA" and opts.realID and not opts.isMissing then
             frame.activeAuras[opts.realID] = opts
