@@ -2681,35 +2681,27 @@ function Aptechka.DispelTypeProc(frame, unit, index, slot, filter, name, icon, c
     debuffTypeMask = bit_bor( debuffTypeMask,  GetDebuffTypeBitmask(debuffType))
 end
 
-local MagicColor = { 0.2, 0.6, 1}
-local CurseColor = { 0.6, 0, 1}
-local PoisonColor = { 0, 0.6, 0}
-local DiseaseColor = { 0.6, 0.4, 0}
 function Aptechka.DispelTypePostUpdate(frame, unit)
     local debuffTypeMaskDispellable = bit_band( debuffTypeMask, BITMASK_DISPELLABLE )
 
     if frame.debuffTypeMask ~= debuffTypeMaskDispellable then
 
-        local color
-        -- local debuffType
+        local debuffType
         if bit_band(debuffTypeMaskDispellable, BITMASK_MAGIC) > 0 then
-            color = MagicColor
-            -- debuffType = 1
+            debuffType = "Magic"
         elseif bit_band(debuffTypeMaskDispellable, BITMASK_POISON) > 0 then
-            color = PoisonColor
-            -- debuffType = 2
+            debuffType = "Poison"
         elseif bit_band(debuffTypeMaskDispellable, BITMASK_DISEASE) > 0 then
-            color = DiseaseColor
-            -- debuffType = 3
+            debuffType = "Disease"
         elseif bit_band(debuffTypeMaskDispellable, BITMASK_CURSE) > 0 then
-            color = CurseColor
-            -- debuffType = 4
+            debuffType = "Curse"
         end
+
+        local color = helpers.DebuffTypeColors[debuffType]
 
         if color then
             config.DispelStatus.color = color
-            -- config.DispelStatus.debuffType = debuffType
-            FrameSetJob(frame, config.DispelStatus, true) --, debuffType)
+            FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", debuffType) --, debuffType)
         else
             FrameSetJob(frame, config.DispelStatus, false)
         end

@@ -55,6 +55,7 @@ function Aptechka:GetWidgetsOptions(name)
 end
 function Aptechka:GetWidgetsOptionsOrCreate(name)
     local popts, gopts = self:GetWidgetsOptions(name)
+    if not gopts then return nil end
     if not popts then
         Aptechka.util.MakeTables(Aptechka.db.profile, "widgetConfig", name)
         popts = Aptechka.db.profile.widgetConfig[name]
@@ -671,10 +672,30 @@ local function Texture_StartTrace(self, job)
     self.blink:Play()
 end
 
+local EJ_TextureIndex = {
+    Magic = 7,
+    Curse = 8,
+    Poison = 9,
+    Disease = 10,
+}
+local function EncounterJournal_SetFlagIcon(texture, index)
+	local iconSize = 32;
+	local columns = 256/iconSize;
+	local rows = 64/iconSize;
+	local l = mod(index, columns) / columns;
+	local r = l + (1/columns);
+	local t = floor(index/columns) / rows;
+    local b = t + (1/rows);
+
+    local crop = 7
+    local ch = crop/256;
+    local cv = crop/64;
+	texture:SetTexCoord(l+ch,r-ch,t+cv,b-cv);
+end
 local SetJob_Texture = function(self, job, state, contentType, ...)
     if self.traceJob then return end -- widget is busy with animation
+    local t = self.texture
     if self.currentJob ~= self.previousJob then
-        local t = self.texture
 
         if contentType == "TEXTURE" then
             local tex, coords = ...
@@ -713,6 +734,15 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
         if job.pulse then
             if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
         end
+    end
+
+    if contentType == "DISPELTYPE" then
+        local debuffType = ...
+        t.usingCustomTexture = true
+        local tex = "Interface\\EncounterJournal\\UI-EJ-Icons"
+        t:SetTexture(tex)
+        EncounterJournal_SetFlagIcon(t, EJ_TextureIndex[debuffType])
+        t:SetVertexColor(1,1,1,1)
     end
 end
 
