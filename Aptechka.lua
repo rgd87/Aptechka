@@ -711,6 +711,7 @@ end
 function Aptechka.GetWidgetList()
     local list = Aptechka.GetWidgetListRaw()
     list["statusIcon"] = nil
+    list["roleIcon"] = nil
     list["debuffIcons"] = nil
     list["mindcontrol"] = nil
     list["unhealable"] = nil
@@ -2723,9 +2724,8 @@ function Aptechka.DispelTypePostUpdate(frame, unit)
             debuffType = "Curse"
         end
 
-        local color = helpers.DebuffTypeColors[debuffType]
-
-        if color then
+        if debuffType then
+            local color = helpers.DebuffTypeColors[debuffType]
             config.DispelStatus.color = color
             FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", debuffType) --, debuffType)
         else
