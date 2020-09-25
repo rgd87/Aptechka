@@ -651,7 +651,7 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     -- controls.singleTarget:SetValue(opts.singleTarget)
     -- controls.multiTarget:SetValue(opts.multiTarget)
 
-    controls.color:SetColor(fillAlpha(opts.color or {0.8, 0.1, 0.7} ))
+    controls.color:SetColor(fillAlpha(opts.color or {1,1,1,1} ))
     controls.foreigncolor:SetColor(fillAlpha(opts.foreigncolor or {1,1,1,0} ))
 
     -- controls.color2:SetColor(fillAlpha(opts.color2 or {1,1,1,0} ))
