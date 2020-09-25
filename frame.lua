@@ -303,6 +303,25 @@ function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     texCoords = DT_TextureCoords[debuffType]
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
+local RaidTargetCoords = {
+    { 0, 0.25, 0, 0.25, },
+    { 0.25, 0.5, 0, 0.25 },
+    { 0.5, 0.75, 0, 0.25 },
+    { 0.75, 1, 0, 0.25 },
+    { 0, 0.25, 0.25, 0.5 },
+    { 0.25, 0.5, 0.25, 0.5 },
+    { 0.5, 0.75, 0.25, 0.5 },
+    { 0.75, 1, 0.25, 0.5 },
+}
+function contentNormalizers.RAIDTARGET(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local raidTargetIndex = ...
+    r,g,b = 1,1,1
+    text = job.name
+    texture = "Interface\\TargetingFrame\\UI-RaidTargetingIcons"
+    texCoords = RaidTargetCoords[raidTargetIndex]
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
 function contentNormalizers.Default(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     text = job.text or job.name
@@ -775,6 +794,17 @@ local function Texture_StartTrace(self, job)
 end
 
 
+-- function PrintSetRaidTargetIconTexture (texture, raidTargetIconIndex)
+-- 	raidTargetIconIndex = raidTargetIconIndex - 1;
+-- 	local left, right, top, bottom;
+-- 	local coordIncrement = RAID_TARGET_ICON_DIMENSION / RAID_TARGET_TEXTURE_DIMENSION;
+-- 	left = mod(raidTargetIconIndex , RAID_TARGET_TEXTURE_COLUMNS) * coordIncrement;
+-- 	right = left + coordIncrement;
+-- 	top = floor(raidTargetIconIndex / RAID_TARGET_TEXTURE_ROWS) * coordIncrement;
+-- 	bottom = top + coordIncrement;
+--     -- texture:SetTexCoord(left, right, top, bottom);
+--     print(left, right, top, bottom)
+-- end
 -- function EncounterJournal_SetFlagIcon(texture, index)
 -- 	local iconSize = 32;
 -- 	local columns = 256/iconSize;

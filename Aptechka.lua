@@ -711,6 +711,7 @@ end
 function Aptechka.GetWidgetList()
     local list = Aptechka.GetWidgetListRaw()
     list["statusIcon"] = nil
+    list["raidTargetIcon"] = nil
     list["roleIcon"] = nil
     list["debuffIcons"] = nil
     list["mindcontrol"] = nil
@@ -1578,14 +1579,10 @@ end
 
 function Aptechka.FrameUpdateRaidTarget(frame, unit)
     local index = GetRaidTargetIndex(unit)
-    local icon = frame.raidicon
-    if icon then
-        if index then
-            SetRaidTargetIconTexture(icon.texture, index)
-            icon:Show()
-        else
-            icon:Hide()
-        end
+    if index then
+        FrameSetJob(frame, config.RaidTargetStatus, true, "RAIDTARGET", index)
+    else
+        FrameSetJob(frame, config.RaidTargetStatus, false)
     end
 end
 function Aptechka.RAID_TARGET_UPDATE(self, event)
