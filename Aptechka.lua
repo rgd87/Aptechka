@@ -780,9 +780,7 @@ function Aptechka:ReconfigureUnprotected()
         for _, f in ipairs({ header:GetChildren() }) do
             self:UpdateName(f)
             f:ReconfigureUnitFrame()
-            if Aptechka.PostFrameUpdate then
-                Aptechka.PostFrameUpdate(f)
-            end
+            Aptechka:RunFrameHook("PostFrameUpdate", f)
         end
     end
 end
@@ -2117,6 +2115,17 @@ local onleave = function(self)
     self:SetScript("OnUpdate", nil)
 end
 
+function Aptechka:RunFrameHook(hookName, frame)
+    if Aptechka[hookName] then
+        local ok, err = pcall(Aptechka[hookName], frame)
+        if not ok then
+            print("|cffff7777Aptechka Userconfig Error:|r")
+            print(err)
+            Aptechka[hookName] = nil
+        end
+    end
+end
+
 function Aptechka.SetupFrame(header, frameName)
     local f = _G[frameName]
 
@@ -2177,12 +2186,8 @@ function Aptechka.SetupFrame(header, frameName)
         AbsorbBarDisable(f)
     end
     f:ReconfigureUnitFrame()
-    if Aptechka.PostFrameCreate then
-        Aptechka.PostFrameCreate(f)
-    end
-    if Aptechka.PostFrameUpdate then
-        Aptechka.PostFrameUpdate(f)
-    end
+    Aptechka:RunFrameHook("PostFrameCreate", f)
+    Aptechka:RunFrameHook("PostFrameUpdate", f)
 
     f.self = f
     f.HideFunc = f.HideFunc or Aptechka.DummyFunction
