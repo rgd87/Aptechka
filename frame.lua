@@ -796,19 +796,21 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
 
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
-    if not texture then
-        t:SetVertexColor(r,g,b)
+    local left,right,top,bottom = 0,1,0,1
+    local tex
+    if texture and not self.disableOverrides then
+        t:SetTexture(texture)
+        r,g,b = 1,1,1
+        if texCoords then
+            t:SetTexCoord(unpack(texCoords))
+        else
+            t:SetTexCoord(0,1,0,1)
+        end
     else
-        t:SetVertexColor(1,1,1)
+        t:SetTexture(self._defaultTexture)
+        t:RotateCoords(t.rotation)
     end
-
-    local tex = texture or self._defaultTexture
-    t:SetTexture(tex)
-    if texCoords then
-        t:SetTexCoord(unpack(texCoords))
-    else
-        t:SetTexCoord(0,1, 0,1)
-    end
+    t:SetVertexColor(r,g,b)
 
     if job.scale then
         self:SetScale(job.scale)
@@ -822,8 +824,20 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
 end
 
 Aptechka.Widget.Texture = {}
-Aptechka.Widget.Texture.default = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 0, alpha = 1, blendmode = "BLEND" }
+Aptechka.Widget.Texture.default = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 0, alpha = 1, blendmode = "BLEND", disableOverrides = false }
 
+local function Texture_RotateCoords(t, rotation)
+    if rotation == 90 then -- BOTTOMLEFT
+        -- (ULx,ULy,LLx,LLy,URx,URy,LRx,LRy);
+        t:SetTexCoord(1,0,1,1,0,0,0,1)
+    elseif rotation == 180 then -- TOPLEFT
+        t:SetTexCoord(1,1,0,1,1,0,0,0)
+    elseif rotation == 270 then -- TOPRIGHT
+        t:SetTexCoord(0,1,0,0,1,1,1,0)
+    else
+        t:SetTexCoord(0,1, 0,1) -- STRAIGHT / BOTTOMRIGHT
+    end
+end
 function Aptechka.Widget.Texture.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
 
@@ -839,22 +853,16 @@ function Aptechka.Widget.Texture.Create(parent, popts, gopts)
 
     t:SetTexture(opts.texture)
     f._defaultTexture = opts.texture
+    f.disableOverrides = opts.disableOverrides
 
     t:SetBlendMode(opts.blendmode)
     t:SetAlpha(opts.alpha)
 
-    local rotation = opts.rotation
-    if rotation == 90 then -- BOTTOMLEFT
-        -- (ULx,ULy,LLx,LLy,URx,URy,LRx,LRy);
-        t:SetTexCoord(1,0,1,1,0,0,0,1)
-    elseif rotation == 180 then -- TOPLEFT
-        t:SetTexCoord(1,1,0,1,1,0,0,0)
-    elseif rotation == 270 then -- TOPRIGHT
-        t:SetTexCoord(0,1,0,0,1,1,1,0)
-    else
-        t:SetTexCoord(0,1, 0,1) -- STRAIGHT / BOTTOMRIGHT
-    end
+    t.RotateCoords = Texture_RotateCoords
 
+    local rotation = opts.rotation
+    t.rotation = rotation
+    t:RotateCoords(rotation)
 
     t:SetAllPoints(f)
 
@@ -884,6 +892,7 @@ function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
 
     t:SetTexture(opts.texture)
     f._defaultTexture = opts.texture
+    f.disableOverrides = opts.disableOverrides
 
     t:SetBlendMode(opts.blendmode)
     t:SetAlpha(opts.alpha)
@@ -892,16 +901,8 @@ function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
     t:SetDrawLayer("ARTWORK", zOrderMod)
 
     local rotation = opts.rotation
-    if rotation == 90 then -- BOTTOMLEFT
-        -- (ULx,ULy,LLx,LLy,URx,URy,LRx,LRy);
-        t:SetTexCoord(1,0,1,1,0,0,0,1)
-    elseif rotation == 180 then -- TOPLEFT
-        t:SetTexCoord(1,1,0,1,1,0,0,0)
-    elseif rotation == 270 then -- TOPRIGHT
-        t:SetTexCoord(0,1,0,0,1,1,1,0)
-    else
-        t:SetTexCoord(0,1, 0,1) -- STRAIGHT / BOTTOMRIGHT
-    end
+    t.rotation = rotation
+    t:RotateCoords(rotation)
 end
 
 -------------------------------------------------------------------------------------------
