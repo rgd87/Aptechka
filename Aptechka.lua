@@ -1421,6 +1421,7 @@ function Aptechka.FrameCheckRoles(self, unit )
 
     local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
     local isTankRoleAssigned = UnitGroupRolesAssigned(unit) == "TANK"
+    --[[
     if unit == "player" then
         local spec = GetSpecialization()
         local specRole = GetSpecializationRole(spec)
@@ -1428,6 +1429,7 @@ function Aptechka.FrameCheckRoles(self, unit )
             isTankRoleAssigned = true
         end
     end
+    ]]
     local isAnyTank = isRaidMaintank or isTankRoleAssigned
 
     if isAnyTank and select(2, UnitClass(unit)) == "MONK" then
@@ -1457,10 +1459,7 @@ function Aptechka.FrameCheckRoles(self, unit )
             FrameSetJob(self, config.AssistStatus, isAssistant)
         end
 
-        local isHealerRoleAssigned = UnitGroupRolesAssigned(unit) == "HEALER"
-
-        if isHealerRoleAssigned or isTankRoleAssigned then
-            local role = isHealerRoleAssigned and "HEALER" or "TANK"
+        if role == "HEALER" or role == "TANK" then
             FrameSetJob(self, config.RoleStatus, true, "TEXTURE", "Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES", roleCoords[role])
         else
             FrameSetJob(self, config.RoleStatus, false)
