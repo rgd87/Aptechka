@@ -826,9 +826,9 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
 
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
-    local left,right,top,bottom = 0,1,0,1
     local tex
     if texture and not self.disableOverrides then
+        t.usingCustomTexture = true
         t:SetTexture(texture)
         r,g,b = 1,1,1
         if texCoords then
@@ -837,19 +837,22 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
             t:SetTexCoord(0,1,0,1)
         end
     else
+        t.usingCustomTexture = nil
         t:SetTexture(self._defaultTexture)
         t:RotateCoords(t.rotation)
     end
     t:SetVertexColor(r,g,b)
 
-    if job.scale then
-        self:SetScale(job.scale)
-    else
-        self:SetScale(1)
-    end
+    if self.currentJob ~= self.previousJob then
+        if job.scale then
+            self:SetScale(job.scale)
+        else
+            self:SetScale(1)
+        end
 
-    if job.pulse then
-        if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+        if job.pulse then
+            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+        end
     end
 end
 
@@ -920,7 +923,13 @@ function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
 
     local t = f.texture
 
-    t:SetTexture(opts.texture)
+    -- This can overwrite custom texture a widget is currently using
+    if not t.usingCustomTexture then
+        t:SetTexture(opts.texture)
+        local rotation = opts.rotation
+        t.rotation = rotation
+        t:RotateCoords(rotation)
+    end
     f._defaultTexture = opts.texture
     f.disableOverrides = opts.disableOverrides
 
@@ -929,10 +938,6 @@ function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
 
     local zOrderMod = opts.zorder or 0
     t:SetDrawLayer("ARTWORK", zOrderMod)
-
-    local rotation = opts.rotation
-    t.rotation = rotation
-    t:RotateCoords(rotation)
 end
 
 -------------------------------------------------------------------------------------------
