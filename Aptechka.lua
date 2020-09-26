@@ -692,7 +692,7 @@ function Aptechka:UpdateName(frame)
         if nickname then name = nickname end
     end
     frame.state.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
-    FrameSetJob(frame, config.UnitNameStatus, true)
+    FrameSetJob(frame, config.UnitNameStatus, true, nil, frame.state.name)
 end
 
 function Aptechka.GetWidgetListRaw()

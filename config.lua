@@ -316,6 +316,10 @@ if playerClass == "MONK" then
     A{ id = 124682, type = "HELPFUL", assignto = set("bars"), refreshTime = 6*0.3, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 75 }
     --Soothing Mist
     A{ id = 115175, type = "HELPFUL", assignto = set("bars"), isMine = true, showDuration = true, color = { 0, .8, 0}, priority = 80 }
+    --Tear of Morning
+    A{ id = 337993, type = "HELPFUL", assignto = set("bars"), isMine = true, showDuration = true, color = { 0.4, 1, 0.8}, scale = 0.5, priority = 80 }
+    --Bonedust Brew
+    A{ id = 325216, type = "HELPFUL", assignto = set("bars"), isMine = true, showDuration = true, color = { 0.3, 0.35, 0.5}, scale = 0.5, priority = 80 }
     --Statue's Soothing Mist
     -- A{ id = 198533, type = "HELPFUL", name = "Statue Mist", assignto = set("spell3"), isMine = true, showDuration = false, color = { 0.4, 1, 0.4}, priority = 50 }
 
