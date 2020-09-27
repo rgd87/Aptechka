@@ -1897,6 +1897,10 @@ local SetJob_Text = function(self, job, state, contentType, ...)
 
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
+    if job.textcolor then
+        r,g,b = unpack(job.textcolor)
+    end
+
     self.text:SetTextColor(r,g,b)
     self.text:SetText(text)
 
@@ -1913,11 +1917,11 @@ local SetJob_Text = function(self, job, state, contentType, ...)
 end
 
 local SetJob_StaticText = function(self, job, state, contentType, ...)
-    if self.currentJob ~= self.previousJob then
-        self:SetScript("OnUpdate", nil)
-    end
-
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+
+    if job.textcolor then
+        r,g,b = unpack(job.textcolor)
+    end
 
     self.text:SetTextColor(r,g,b)
     self.text:SetText(text)

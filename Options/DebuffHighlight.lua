@@ -391,7 +391,9 @@ function ns.MakeDebuffHighlight()
             -- form:SetWidth(400)
             -- form:SetHeight(200)
             form:SetPoint("TOPLEFT", panel, "TOPLEFT", 12, -10)
-            form:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", -10, -200)
+            form:SetWidth(600)
+            form:SetHeight(190)
+            form.frame:Show()
             form:PerformLayout() -- That's AceGUI Layout
 
             -- local helpButton = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")

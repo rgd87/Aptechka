@@ -194,6 +194,21 @@ function ns.CreateWidgetConfig(name, parent)
     -- frame:SetLayout("Fill")
     frame:SetLayout("Flow")
 
+    local helpButton = CreateFrame("Button", nil, frame.frame, "UIPanelButtonTemplate")
+    helpButton:SetSize(60, 25)
+    helpButton:SetPoint("TOPRIGHT", 0,0)
+    helpButton:GetFontString():SetText("Help")
+    helpButton:SetScript("OnClick", function()
+        print("text1 - name text")
+        print("text2 - missing health text")
+        print("text3 - used to display group leader and timers")
+        print("debuffIcons - special widget for debuffs and only that")
+        print("roleIcon - assigned role icon")
+        print("icon - big center icon")
+        print("buffIcons - survival cooldowns row")
+        print("statusIcon - used to display Res, RC, Phase icons")
+    end)
+
 
     frame.header = {}
     frame.header.Update = UpdateHeader
