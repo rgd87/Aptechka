@@ -257,6 +257,7 @@ function ns.MakeBlacklist()
             -- form:SetHeight(200)
             form:SetPoint("TOPLEFT", panel, "TOPLEFT", 12, -10)
             form:SetPoint("BOTTOMRIGHT", panel, "TOPRIGHT", -10, -200)
+            form.frame:Show()
             form:PerformLayout() -- That's AceGUI Layout
 
             -- local helpButton = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
