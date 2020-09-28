@@ -1,7 +1,7 @@
 local addonName, helpers = ...
 
 do
-    local CURRENT_DB_VERSION = 8
+    local CURRENT_DB_VERSION = 9
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -270,12 +270,7 @@ do
                 end
             end
 
-            local categories = { "GLOBAL" }
-            for i=1, 15 do
-                local classData = C_CreatureInfo.GetClassInfo(i)
-                if not classData then break end
-                table.insert(categories, classData.classFile)
-            end
+            local categories = helpers:GetAllSpellCategories()
 
             local spellTypes = { "auras", "traces" }
             for _,category in ipairs(categories) do
@@ -307,8 +302,54 @@ do
             db.DB_VERSION = 8
         end
 
+        if db.DB_VERSION == 8 then
+            local categories = helpers:GetAllSpellCategories()
+
+            local spellTypes = { "auras", "traces" }
+            for _,category in ipairs(categories) do
+                for _,spellType in ipairs(spellTypes) do
+                    if AptechkaConfigCustom[category] and AptechkaConfigCustom[category][spellType] then
+                        for spellID, opts in pairs(AptechkaConfigCustom[category][spellType]) do
+                            if opts.clones then
+                                local oldClones = opts.clones
+                                local newClones = {}
+                                local startIndex = 1
+                                if oldClones[startIndex] == nil then startIndex = 2 end
+                                for i=startIndex,40 do
+                                    local SID = oldClones[i]
+                                    if SID == nil then break end
+                                    if SID ~= "__REMOVED__" then
+                                        newClones[SID] = true
+                                    end
+                                end
+                                opts.clones = newClones
+                            end
+                        end
+                    end
+                end
+            end
+
+            db.DB_VERSION = 9
+        end
+
         db.DB_VERSION = CURRENT_DB_VERSION
     end
+end
+
+function helpers:GetAllSpellCategories()
+    local categories = { "GLOBAL" }
+    for i=1, 15 do
+        local classData = C_CreatureInfo.GetClassInfo(i)
+        if not classData then break end
+        table.insert(categories, classData.classFile)
+    end
+    return categories
+end
+function helpers:GetCurrentClassCategories()
+    local categories = { "GLOBAL" }
+    local playerClass = select(2, UnitClass("player"))
+    table.insert(categories, playerClass)
+    return categories
 end
 
 function Aptechka:ForAllCustomWidgets(func)
@@ -331,16 +372,11 @@ function Aptechka:ForAllCustomStatuses(func, searchAllClasses)
     end
 
     searchAllClasses = searchAllClasses == nil and true
-    local categories = { "GLOBAL" }
+    local categories
     if searchAllClasses then
-        for i=1, 15 do
-            local classData = C_CreatureInfo.GetClassInfo(i)
-            if not classData then break end
-            table.insert(categories, classData.classFile)
-        end
+        categories = helpers:GetAllSpellCategories()
     else
-        local playerClass = select(2, UnitClass("player"))
-        table.insert(categories, playerClass)
+        categories = helpers:GetCurrentClassCategories()
     end
 
     local spellTypes = { "auras", "traces" }
