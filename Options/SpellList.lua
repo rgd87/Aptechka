@@ -229,14 +229,14 @@ function ns.CreateCommonForm(self)
 
         delta.id = spellID -- very important
 
-        -- remove clones of the previous version of the spell
         local oldOriginalSpell = AptechkaConfigMerged[category][spellID]
         -- Kill all jobs with the old settings
         Aptechka:ForEachFrame(function(frame)
             Aptechka.FrameSetJob(frame, oldOriginalSpell, false)
         end)
+        -- remove clones of the previous version of the spell
         if oldOriginalSpell and oldOriginalSpell.clones then
-            for i, additionalSpellID in ipairs(oldOriginalSpell.clones) do
+            for additionalSpellID in pairs(oldOriginalSpell.clones) do
                 AptechkaConfigMerged[category][additionalSpellID] = nil
                 AptechkaConfigMerged.spellClones[additionalSpellID] = nil
             end
@@ -244,7 +244,7 @@ function ns.CreateCommonForm(self)
         ----------
 
         if default_opts then
-            if delta.clones then Aptechka.util.RemoveDefaultsPreserve(delta.clones, default_opts.clones) end
+            if delta.clones then delta.clones = Aptechka.util.Set.diff(default_opts.clones, delta.clones) end
             Aptechka.util.ShakeAssignments(delta, default_opts)
             -- print("----")
             -- for k,v in pairs(delta.assignto) do
@@ -265,9 +265,11 @@ function ns.CreateCommonForm(self)
         -- fill up spell clones of the new version
         local originalSpell = AptechkaConfigMerged[category][spellID]
         if originalSpell.clones then
-            for i, additionalSpellID in ipairs(originalSpell.clones) do
+            for additionalSpellID, enabled in pairs(originalSpell.clones) do
+                if enabled then
                 AptechkaConfigMerged[category][additionalSpellID] = originalSpell
                 AptechkaConfigMerged.spellClones[additionalSpellID] = true
+                end
             end
         end
         -- Rescan all units' auras with new settings
@@ -561,12 +563,15 @@ function ns.CreateCommonForm(self)
     clones:SetLabel(L"Additional Spell IDs")
     clones:SetRelativeWidth(0.9)
     clones:SetCallback("OnEnterPressed", function(self, event, value)
-        local cloneList = {}
+        local cloneTable = {}
         for spellID in string.gmatch(value, "%d+") do
-            table.insert(cloneList, tonumber(spellID))
+            local k = tonumber(spellID)
+            if k then
+                cloneTable[k] = true
+            end
         end
-        if next(cloneList) then
-            self.parent.opts["clones"] = cloneList
+        if next(cloneTable) then
+            self.parent.opts["clones"] = cloneTable
         else
             self.parent.opts["clones"] = false
             self:SetText("")
@@ -630,7 +635,14 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
 
     local clonesText
     if opts.clones then
-        clonesText = table.concat(opts.clones, ", ")
+        local cloneList = {}
+        for k, enabled in pairs(opts.clones) do
+            if enabled then
+                table.insert(cloneList, k)
+            end
+        end
+        table.sort(cloneList)
+        clonesText = table.concat(cloneList, ", ")
     end
     controls.clones:SetText(clonesText)
 

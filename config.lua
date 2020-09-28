@@ -225,7 +225,7 @@ A{ id = {
     170906, 192002, 195472, 225743, 251232, 257427, 257428, 272819, 279739, 297098, -- Food & Drink
     308429, 308433, 327786, 340109, -- Shadowlands Food & Drink
     167152, -- Mage Food
-    430, 431, 432, 1133, 1135, 1137, 22734, -- Classic water
+    430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
     34291, 43183, 43182, -- BC & WotLK water
     80166, 80167, 105232, 118358, -- Cata water
     104262, 104269, -- MoP water
@@ -447,7 +447,7 @@ if playerClass == "SHAMAN" then
     Trace{id = 77472, type = "HEAL", assignto = set("healfeedback"), color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Wave
     Trace{id = 8004, type = "HEAL", assignto = set("healfeedback"), color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Surge
 
-    Trace{id = 1064, type = "HEAL", assignto = set("healfeedback"), color = { 1, 1, 0}, fade = 0.7, priority = 96 } -- Chain Heal
+    Trace{id = 1064, type = "HEAL", assignto = set("healfeedback"), color = { 0.9, 0.7, 0.1}, fade = 0.7, priority = 96 } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = set("spell3"), color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
 
     config.UnitInRangeFunctions = {

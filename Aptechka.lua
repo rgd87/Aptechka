@@ -331,9 +331,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         table_wipe(tempTable)
         for spellID, opts in pairs(config[category]) do
             if not cloneIDs[spellID] and opts.clones then
-                for i, additionalSpellID in ipairs(opts.clones) do
-                    tempTable[additionalSpellID] = opts
-                    cloneIDs[additionalSpellID] = true
+                for additionalSpellID, enabled in pairs(opts.clones) do
+                    if enabled then
+                        tempTable[additionalSpellID] = opts
+                        cloneIDs[additionalSpellID] = true
+                    end
                 end
             end
         end
@@ -345,9 +347,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     for spellID, originalSpell in pairs(traceheals) do
         if not cloneIDs[spellID] and originalSpell.clones then
-            for i, additionalSpellID in ipairs(originalSpell.clones) do
-                traceheals[additionalSpellID] = originalSpell
-                cloneIDs[additionalSpellID] = true
+            for additionalSpellID, enabled in pairs(originalSpell.clones) do
+                if enabled then
+                    traceheals[additionalSpellID] = originalSpell
+                    cloneIDs[additionalSpellID] = true
+                end
             end
         end
     end
