@@ -12,7 +12,6 @@ local IsPlayerSpell = IsPlayerSpell
 local set = helpers.set
 
 local color1 = { 0.9, 0, 0 }
-local bossDebuff = { type = "HARMFUL", assignto = set("bossdebuff"), color = color1, priority = 40, pulse = true }
 local tankCD = { type = "HELPFUL", assignto = set("icon"), global = true, showDuration = true, priority = 94}
 local survivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, showDuration = true, priority = 90 }
 
@@ -50,11 +49,11 @@ A{ id = { 1856, 1857 }, prototype = tankCD } -- Vanish
 A{ id = { 6229, 11739, 11740, 28610 },  prototype = survivalCD } -- Shadow Ward
 
 -- Healing Reduction
-A{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, prototype = bossDebuff, global = true, } --Mortal Strike
+-- A{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, prototype = bossDebuff, global = true, } --Mortal Strike
 
 -- Battleground
-A{ id = 23333, type = "HELPFUL", assignto = set("bossdebuff"), color = {1,0,0}, priority = 95, global = true, } --Warsong Flag
-A{ id = 23335, type = "HELPFUL", assignto = set("bossdebuff"), color = {0,0,1}, priority = 95, global = true, } --Silverwing Flag
+A{ id = 23333, type = "HELPFUL", assignto = set("raidbuff"), scale = 1.7, color = {1,0,0}, priority = 95, global = true, } --Warsong Flag
+A{ id = 23335, type = "HELPFUL", assignto = set("raidbuff"), scale = 1.7, color = {0,0,1}, priority = 95, global = true, } --Silverwing Flag
 
 -- Soulstone Resurrection
 A{ id = { 20707, 20762, 20763, 20764, 20765 }, type = "HELPFUL", global = true, assignto = set("raidbuff"), color = { 0.6, 0, 1 }, priority = 20 }
