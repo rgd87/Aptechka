@@ -685,7 +685,14 @@ helpers.importantTargetedCasts = {
 
     [323137] = true, -- Ingra Maloch, Bewildering Pollen
     [322614] = true, -- Tred'ova, Mind Link
+    [337255] = true, -- Tred'ova, Parasitic Domination
     [322977] = true, -- Halkias, Sinlight Visions
+    [321891] = true, -- Mistcaller Vulpin, Freeze Tag Fixation
+    --trash
+    [324776] = true, -- Mistveil Shaper, Bramblethorn Coat
+    [324987] = true, -- Mistveil Stalker, Mistveil Bite (leap)
+    -- [325223] = true, -- Mistveil Stinger, Anima Injection
+    [325418] = true, -- Spinemaw Acidgullet, Volatile Acid
 
     [320376] = true, -- Stitchflesh, Mutilate
     [320788] = true, -- Nalthor, Frozen Binds
