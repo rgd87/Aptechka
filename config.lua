@@ -482,7 +482,7 @@ if playerClass == "DRUID" then
     ]]
 
     -- Cenarion Ward
-    A{ id = 102351, type = "HELPFUL", assignto = set("bars"), priority = 70, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
+    A{ id = 102351, type = "HELPFUL", assignto = set("bars"), priority = 55, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
     -- Rejuvenation
     A{ id = 774,   type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1.25, refreshTime = 4.5, priority = 90, pulse = true, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, showDuration = true, isMine = true }
     -- Germination
@@ -490,7 +490,7 @@ if playerClass == "DRUID" then
     -- Lifebloom
     A{ id = 33763, type = "HELPFUL", assignto = set("bar4"), extend_below = 14, refreshTime = 4.5, priority = 60, showDuration = true, isMine = true, color = { 0.2, 1, 0.2}, }
     -- Regrowth
-    A{ id = 8936, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 60, showDuration = true }
+    A{ id = 8936, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 50, showDuration = true }
     -- Wild Growth
     A{ id = 48438, type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, showDuration = true, isMine = true }
 
