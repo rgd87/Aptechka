@@ -74,6 +74,9 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         [321891] = { 321891, 1, "Mistcaller Vulpin, Freeze Tag Fixation" },
         -- 325224 -- Mistveil Stinger, Anima Injection, If Anima Injection expires, Anima Detonation is triggered.
     },
+    ["De Other Side"] = {
+        [332605] = { 332605, 1, "Atal'ai Hoodoo Hexxer, Hex" },
+    },
     ["Mythic+ 8.3"] = {
         [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
     },

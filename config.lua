@@ -680,33 +680,51 @@ helpers.auraBlacklist = {
 }
 
 helpers.importantTargetedCasts = {
+    -- Plaguefall
     [324667] = true, -- Globgrog, Slime Wave
     [325552] = true, -- Cytotoxic Slash, Domina Venomblade
 
-    [323137] = true, -- Ingra Maloch, Bewildering Pollen
+    -- Mists of Tirna Scithe
+    [323137] = true, -- Droman Oulfarran, Bewildering Pollen
     [322614] = true, -- Tred'ova, Mind Link
     [337255] = true, -- Tred'ova, Parasitic Domination
     [322977] = true, -- Halkias, Sinlight Visions
     [321891] = true, -- Mistcaller Vulpin, Freeze Tag Fixation
     --trash
+    -- [321968] = true, -- Tirnenn Villager, Bewildering Pollen
     [324776] = true, -- Mistveil Shaper, Bramblethorn Coat
     [324987] = true, -- Mistveil Stalker, Mistveil Bite (leap)
     -- [325223] = true, -- Mistveil Stinger, Anima Injection
     [325418] = true, -- Spinemaw Acidgullet, Volatile Acid
 
+    -- Necrotic Wake
     [320376] = true, -- Stitchflesh, Mutilate
     [320788] = true, -- Nalthor, Frozen Binds
 
+    -- Sanguine Depths
     [319650] = true, -- Kryxis, Vicious Headbutt
     [322554] = true, -- Executor Tarvold, Castigate
     [325254] = true, -- Beryilla, Iron Spikes
 
+    -- Spires of Ascension
     [324608] = true, -- Oryphrion, Charged Stomp
 
+    -- Theather of pain
     [320069] = true, -- Challengers, Mortal Strike
     [323515] = true, -- Gorechop, Hateful Strike
     [320644] = true, -- Xav the Unfallen, Brutal Combo
     [324079] = true, -- Mordretha, Reaping Scythe
+
+    -- De other side
+    [322736] = true, -- Hakkar the Soulflayer, Piercing Barb
+    [320144] = true, -- Millificent Manastorm, Buzz-Saw
+    [334051] = true, -- Death Speaker, Erupting Darkness, Cone
+    [333787] = true, -- Enraged Spirit, Rage, [Targeted?]
+    [332605] = true, -- Atal'ai Hoodoo Hexxer, Hex
+    [331846] = true, -- ARF-ARF, W-00F
+    -- [331548] = true, -- ARF-ARF, Metallic Jaws
+    -- [321764] = true, -- Bark Armor, DR
+
 
 
     -- bfa spell ids borrowed from https://wago.io/BFADungeonTargetedSpells
