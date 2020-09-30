@@ -76,6 +76,7 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
     },
     ["De Other Side"] = {
         [332605] = { 332605, 1, "Atal'ai Hoodoo Hexxer, Hex" },
+        [334505] = { 334505, 1, "Shimmerdust Sleep" },
     },
     ["Mythic+ 8.3"] = {
         [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },

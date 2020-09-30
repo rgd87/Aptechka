@@ -222,9 +222,6 @@ A{ id = 204293, prototype = survivalCD } -- Spirit Link (PvP)
 
 
 A{ id = {
-    170906, 192002, 195472, 225743, 251232, 257427, 257428, 272819, 279739, 297098, -- Food & Drink
-    308429, 308433, 327786, 340109, -- Shadowlands Food & Drink
-    167152, -- Mage Food
     430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
     34291, 43183, 43182, -- BC & WotLK water
     80166, 80167, 105232, 118358, -- Cata water
@@ -233,6 +230,9 @@ A{ id = {
     225738, 192001, -- Legion water
     274914, -- BfA water
     314646, -- Shadowlands water
+    167152, -- Mage Food
+    170906, 192002, 195472, 225743, 251232, 257427, 257428, 272819, 279739, 297098, -- Food & Drink
+    308429, 308433, 327786, 340109, -- Shadowlands Food & Drink
 }, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
 
