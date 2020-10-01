@@ -55,6 +55,13 @@ helpers.GetGradientColor3 = function(c1, c2, c3, v)
     end
 end
 
+
+helpers.DebuffTypeColors = {
+    Magic = { 0.2, 0.6, 1},
+    Curse = { 0.6, 0, 1},
+    Poison = { 0, 0.6, 0},
+    Disease = { 0.6, 0.4, 0},
+}
 helpers.BITMASK_DISEASE = 0xF000
 helpers.BITMASK_POISON = 0x0F00
 helpers.BITMASK_CURSE = 0x00F0
@@ -94,8 +101,15 @@ end
 helpers.AddAura = function (data, todefault)
     if type(data.id) == "table" then
         local clones = data.id
-        data.id = table.remove(clones, 1) -- extract first spell id from the last as original
-        data.clones = clones
+        data.id = clones[1] -- extract first spell id from the last as original
+        -- apparently table.remove replaces 1 index with nil, without shifting the array part
+        local t = {}
+        for i=2,100 do
+            local spellID = clones[i]
+            if not spellID then break end
+            t[spellID] = true
+        end
+        data.clones = t
     end
 
     if data.id and not data.name then data.name = GetSpellInfo(data.id) end
@@ -132,8 +146,15 @@ helpers.AddTrace = function(data)
 
     if type(data.id) == "table" then
         local clones = data.id
-        data.id = table.remove(clones, 1) -- extract first spell id from the last as original
-        data.clones = clones
+        data.id = clones[1] -- extract first spell id from the last as original
+        -- apparently table.remove replaces 1 index with nil, without shifting the array part
+        local t = {}
+        for i=2,100 do
+            local spellID = clones[i]
+            if not spellID then break end
+            t[spellID] = true
+        end
+        data.clones = t
     end
 
     if data.id then data.name = GetSpellInfo(data.id) or data.name end
@@ -457,6 +478,22 @@ function Set.new (t)
     local set = setmetatable({}, mt)
     for _, k in ipairs(t) do set[k] = true end
     return set
+end
+
+-- updated set here is b
+function Set.diff(a,b)
+    local res = Set.new{}
+    for k in pairs(b) do
+        if a[k] == nil then
+            res[k] = true
+        end
+    end
+    for k in pairs(a) do
+        if b[k] == nil then
+            res[k] = false
+        end
+    end
+    return res
 end
 
 function Set.union (a,b)

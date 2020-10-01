@@ -132,6 +132,7 @@ function ns.MakeGlobalSettings()
                     -- },
                     disableTooltip = {
                         name = L"Disable Tooltips",
+                        width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.global.disableTooltip end,
                         set = function(info, v)
@@ -139,8 +140,21 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 10.8,
                     },
+                    disableAbsorbBar = {
+                        name = L"Disable Absorb Side Bar",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.disableAbsorbBar end,
+                        set = function(info, v)
+                            Aptechka.db.global.disableAbsorbBar = not Aptechka.db.global.disableAbsorbBar
+                            Aptechka:UpdateAbsorbBarConfig()
+                            -- Aptechka:PrintReloadUIWarning()
+                        end,
+                        order = 10.9,
+                    },
                     showAFK = {
                         name = L"Show AFK",
+                        width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.global.showAFK end,
                         set = function(info, v)
@@ -151,6 +165,8 @@ function ns.MakeGlobalSettings()
                     },
                     useDebuffOrdering = {
                         name = L"Use Debuff Ordering",
+                        desc = L"Orders CC and dispellable debuffs to be first in the list".."\n"..L"Shows spell locks as debuffs",
+                        width = "full",
                         type = "toggle",
                         order = 11.2,
                         get = function(info) return Aptechka.db.global.useDebuffOrdering end,
@@ -179,7 +195,7 @@ function ns.MakeGlobalSettings()
                         disabled = not isClassic,
                         width = "full",
                         order = 18,
-                        get = function(info) return Aptechka.db.global.useCombatLogHealthUpdates end,
+                        get = function(info) return isClassic and Aptechka.db.global.useCombatLogHealthUpdates end,
                         set = function(info, v)
                             Aptechka.db.global.useCombatLogHealthUpdates = not Aptechka.db.global.useCombatLogHealthUpdates
                             Aptechka:PrintReloadUIWarning()

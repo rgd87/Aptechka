@@ -138,9 +138,11 @@ local function UpdateHeader(header)
     if not CURRENT_FORM then
         header.delete:SetDisabled(true)
         header.profileClear:SetDisabled(true)
+        header.profileCheckbox:SetDisabled(true)
         header.reset:SetDisabled(true)
         return
     end
+    header.profileCheckbox:SetDisabled(false)
     local name = CURRENT_FORM.widgetName
     local popts, gopts = Aptechka:GetWidgetsOptions(name)
     local isProtected = AptechkaDefaultConfig.DefaultWidgets[name]
@@ -192,6 +194,21 @@ function ns.CreateWidgetConfig(name, parent)
     -- frame:SetLayout("Fill")
     frame:SetLayout("Flow")
 
+    local helpButton = CreateFrame("Button", nil, frame.frame, "UIPanelButtonTemplate")
+    helpButton:SetSize(60, 25)
+    helpButton:SetPoint("TOPRIGHT", 0,0)
+    helpButton:GetFontString():SetText("Help")
+    helpButton:SetScript("OnClick", function()
+        print("text1 - name text")
+        print("text2 - missing health text")
+        print("text3 - used to display group leader and timers")
+        print("debuffIcons - special widget for debuffs and only that")
+        print("roleIcon - assigned role icon")
+        print("icon - big center icon")
+        print("buffIcons - survival cooldowns row")
+        print("statusIcon - used to display Res, RC, Phase icons")
+    end)
+
 
     frame.header = {}
     frame.header.Update = UpdateHeader
@@ -204,6 +221,7 @@ function ns.CreateWidgetConfig(name, parent)
     new:SetCallback("OnClick", function(self, event)
         local rootFrame = AptechkaOptions.widgetConfig
         rootFrame.rpane:Clear()
+        rootFrame.header:Update()
         if not formCache["_NewWidgetForm"] then
             formCache["_NewWidgetForm"] = CreateNewWidgetForm()
         end
@@ -336,6 +354,13 @@ function ns.CreateWidgetConfig(name, parent)
     frame:SetCallback("OnShow", function(self)
         self.tree:UpdateWidgetTree()
         self.header.profileCheckbox:Update()
+        self.header:Update()
+        if CURRENT_FORM then
+            local oldFormWidgetName = CURRENT_FORM.widgetName
+            if oldFormWidgetName then
+                self:SelectForConfig(oldFormWidgetName)
+            end
+        end
     end)
 
     frame:AddChild(treegroup)

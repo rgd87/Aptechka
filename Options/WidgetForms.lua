@@ -416,6 +416,7 @@ function ns.WidgetForms.Texture.Create(form)
     local zorder = ns.AddSlider(form, 0.46, L"Z-Order", "zorder", 0, -5, 5, 1, callbackUpdateForm)
     local alpha = ns.AddSlider(form, 0.46, L"Alpha", "alpha", 1, 0, 1, 0.05, callbackUpdateForm)
     local blendmode = ns.AddDropdown(form, 0.46, L"Blend Mode", "blendmode", "BLEND", blendModes, callbackUpdateForm)
+    local disableOverrides = ns.AddCheckbox(form, 0.95, L"Disable Texture Overrides", "disableOverrides", false, callbackUpdateForm)
 
     return form
 end
@@ -428,5 +429,5 @@ function ns.WidgetForms.Texture.Fill(form, name, opts, popts, gopts)
     Control_SetValue(form, "zorder", opts, gopts)
     Control_SetValue(form, "alpha", opts, gopts)
     Control_SetValue(form, "blendmode", opts, gopts)
-
+    Control_SetValue(form, "disableOverrides", opts, gopts)
 end

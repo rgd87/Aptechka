@@ -20,7 +20,7 @@ function Aptechka:CreteMinimapIcon()
 		type = 'launcher',
 
         icon = 135966, -- spell_holy_sealofsacrifice
-        iconCoords = { 0.12, 0.82, 0.15, 0.85 },
+        iconCoords = { 0.125, 0.825, 0.11, 0.81 },
 
         OnClick = function(_, button)
             if button == "MiddleButton" then
@@ -54,13 +54,13 @@ function Aptechka:CreteMinimapIcon()
 		OnTooltipShow = function(tooltip)
 			if not tooltip or not tooltip.AddLine then return end
 
-            GameTooltip_SetTitle(tooltip, addonName)
-            GameTooltip_AddInstructionLine(tooltip, "LeftClick - Profile Settings")
-            GameTooltip_AddInstructionLine(tooltip, "Shift-LeftClick - Widgets")
-            GameTooltip_AddInstructionLine(tooltip, "|cffc9e06cCtrl-LeftClick - Toggle Unlock|r")
-            GameTooltip_AddInstructionLine(tooltip, "RightClick - Spell List")
-            GameTooltip_AddInstructionLine(tooltip, "Shift-RightClick - Status List")
-            GameTooltip_AddInstructionLine(tooltip, "|cffe0896cMiddleClick - Hide Icon|r")
+            GameTooltip_SetTitle(tooltip, string.format("%s    %s",addonName, GetAddOnMetadata(addonName, "version")))
+            GameTooltip_AddInstructionLine(tooltip, string.format("LeftClick - %s", L"Profile Settings"))
+            GameTooltip_AddInstructionLine(tooltip, string.format("Shift-LeftClick - %s", L"Widgets"))
+            GameTooltip_AddInstructionLine(tooltip, string.format("|cffc9e06cCtrl-LeftClick - %s|r", L"Unlock"))
+            GameTooltip_AddInstructionLine(tooltip, string.format("RightClick - %s", L"Spell List"))
+            GameTooltip_AddInstructionLine(tooltip, string.format("Shift-RightClick - %s", L"Status List"))
+            GameTooltip_AddInstructionLine(tooltip, string.format("|cffe0896cMiddleClick - %s|r", L"Hide Icon"))
 		end
 	})
 
