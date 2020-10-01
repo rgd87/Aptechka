@@ -562,8 +562,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
     end
 
-    self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
-    self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
 
     self:UpdateCastsConfig()
 
@@ -890,8 +888,13 @@ do
                     if not visited[opts] then
                         local lastRankID
                         local clones = opts.clones
-                        if clones then
-                            lastRankID = clones[#clones]
+                        if clones and next(clones)then
+                            lastRankID = spellID
+                            for sid in pairs(clones) do
+                                if lastRankID < sid then
+                                    lastRankID = sid
+                                end
+                            end
                         else
                             lastRankID = spellID
                         end
