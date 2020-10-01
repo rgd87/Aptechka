@@ -237,6 +237,8 @@ if playerClass == "PRIEST" then
     -- Power Word: Fortitude
     A{ id = 21562, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
 
+    --Shadow Covenant
+    A{ id = 219521,type = "HARMFUL", assignto = "bars", priority = 50, color = { 0.6, 0, 1 }, showDuration = true, isMine = true}
     --Renew
     A{ id = 139,   type = "HELPFUL", assignto = set("bars"), refreshTime = 15*0.3, priority = 50, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
     --Power Word: Shield
@@ -387,7 +389,7 @@ if playerClass == "PALADIN" then
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Faith
 
-    A{ id = 465,  type = "HELPFUL", assignto = set("raidbuff"), priority = 40, isMine = true, color = { .4, .4, 1} } --Devotion Aura
+    A{ id = 210320,  type = "HELPFUL", assignto = set("raidbuff"), priority = 40, isMine = true, color = { .4, .4, 1} } --Devotion Aura
 
     Trace{id = 225311, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.2}, fade = 0.4, priority = 96 } -- Light of Dawn
     -- Flash of Light
