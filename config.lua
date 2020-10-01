@@ -222,9 +222,6 @@ A{ id = 204293, prototype = survivalCD } -- Spirit Link (PvP)
 
 
 A{ id = {
-    170906, 192002, 195472, 225743, 251232, 257427, 257428, 272819, 279739, 297098, -- Food & Drink
-    308429, 308433, 327786, 340109, -- Shadowlands Food & Drink
-    167152, -- Mage Food
     430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
     34291, 43183, 43182, -- BC & WotLK water
     80166, 80167, 105232, 118358, -- Cata water
@@ -233,6 +230,9 @@ A{ id = {
     225738, 192001, -- Legion water
     274914, -- BfA water
     314646, -- Shadowlands water
+    167152, -- Mage Food
+    170906, 192002, 195472, 225743, 251232, 257427, 257428, 272819, 279739, 297098, -- Food & Drink
+    308429, 308433, 327786, 340109, -- Shadowlands Food & Drink
 }, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
 
@@ -484,7 +484,7 @@ if playerClass == "DRUID" then
     ]]
 
     -- Cenarion Ward
-    A{ id = 102351, type = "HELPFUL", assignto = set("bars"), priority = 70, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
+    A{ id = 102351, type = "HELPFUL", assignto = set("bars"), priority = 55, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
     -- Rejuvenation
     A{ id = 774,   type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1.25, refreshTime = 4.5, priority = 90, pulse = true, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, showDuration = true, isMine = true }
     -- Germination
@@ -492,7 +492,7 @@ if playerClass == "DRUID" then
     -- Lifebloom
     A{ id = 33763, type = "HELPFUL", assignto = set("bar4"), extend_below = 14, refreshTime = 4.5, priority = 60, showDuration = true, isMine = true, color = { 0.2, 1, 0.2}, }
     -- Regrowth
-    A{ id = 8936, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 60, showDuration = true }
+    A{ id = 8936, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 50, showDuration = true }
     -- Wild Growth
     A{ id = 48438, type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, showDuration = true, isMine = true }
 
@@ -682,26 +682,51 @@ helpers.auraBlacklist = {
 }
 
 helpers.importantTargetedCasts = {
+    -- Plaguefall
     [324667] = true, -- Globgrog, Slime Wave
     [325552] = true, -- Cytotoxic Slash, Domina Venomblade
 
-    [323137] = true, -- Ingra Maloch, Bewildering Pollen
+    -- Mists of Tirna Scithe
+    [323137] = true, -- Droman Oulfarran, Bewildering Pollen
     [322614] = true, -- Tred'ova, Mind Link
+    [337255] = true, -- Tred'ova, Parasitic Domination
     [322977] = true, -- Halkias, Sinlight Visions
+    [321891] = true, -- Mistcaller Vulpin, Freeze Tag Fixation
+    --trash
+    -- [321968] = true, -- Tirnenn Villager, Bewildering Pollen
+    [324776] = true, -- Mistveil Shaper, Bramblethorn Coat
+    [324987] = true, -- Mistveil Stalker, Mistveil Bite (leap)
+    -- [325223] = true, -- Mistveil Stinger, Anima Injection
+    [325418] = true, -- Spinemaw Acidgullet, Volatile Acid
 
+    -- Necrotic Wake
     [320376] = true, -- Stitchflesh, Mutilate
     [320788] = true, -- Nalthor, Frozen Binds
 
+    -- Sanguine Depths
     [319650] = true, -- Kryxis, Vicious Headbutt
     [322554] = true, -- Executor Tarvold, Castigate
     [325254] = true, -- Beryilla, Iron Spikes
 
+    -- Spires of Ascension
     [324608] = true, -- Oryphrion, Charged Stomp
 
+    -- Theather of pain
     [320069] = true, -- Challengers, Mortal Strike
     [323515] = true, -- Gorechop, Hateful Strike
     [320644] = true, -- Xav the Unfallen, Brutal Combo
     [324079] = true, -- Mordretha, Reaping Scythe
+
+    -- De other side
+    [322736] = true, -- Hakkar the Soulflayer, Piercing Barb
+    [320144] = true, -- Millificent Manastorm, Buzz-Saw
+    [334051] = true, -- Death Speaker, Erupting Darkness, Cone
+    [333787] = true, -- Enraged Spirit, Rage, [Targeted?]
+    [332605] = true, -- Atal'ai Hoodoo Hexxer, Hex
+    [331846] = true, -- ARF-ARF, W-00F
+    -- [331548] = true, -- ARF-ARF, Metallic Jaws
+    -- [321764] = true, -- Bark Armor, DR
+
 
 
     -- bfa spell ids borrowed from https://wago.io/BFADungeonTargetedSpells

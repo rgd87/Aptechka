@@ -355,6 +355,12 @@ function ns.CreateWidgetConfig(name, parent)
         self.tree:UpdateWidgetTree()
         self.header.profileCheckbox:Update()
         self.header:Update()
+        if CURRENT_FORM then
+            local oldFormWidgetName = CURRENT_FORM.widgetName
+            if oldFormWidgetName then
+                self:SelectForConfig(oldFormWidgetName)
+            end
+        end
     end)
 
     frame:AddChild(treegroup)
