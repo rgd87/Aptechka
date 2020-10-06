@@ -20,12 +20,16 @@ function ns.MakeStatusConfig()
         "DispelStatus",
         "RunicPowerStatus",
         "AltPowerStatus",
+        "DebuffAlert1",
+        "DebuffAlert2",
+        "DebuffAlert3",
+        "DebuffAlert4",
     }
 
     for i, status in ipairs(configurableWidgets) do
         opt.args[status] = {
             type = "group",
-            name = status,
+            name = AptechkaDefaultConfig[status].name,
             order = i,
             args = {
                 priority = {

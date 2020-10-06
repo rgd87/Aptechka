@@ -69,6 +69,10 @@ config.AltPowerStatus = { name = "AltPower", assignto = set("text3"), priority =
 config.SummonPending = { name = "SummonPending", assignto = set("text2"), color = {1,0.7,0}, text = "PENDING", priority = 50 }
 config.SummonAccepted = { name = "SummonAccepted", assignto = set("text2"), color = {0,1,0}, text = "ACCEPTED", priority = 51 }
 config.SummonDeclined = { name = "SummonDeclined", assignto = set("text2"), color = {1,0,0}, text = "DECLINED", priority = 52 }
+config.DebuffAlert1 = { name = "DebuffAlert1", assignto = set("border", "flash"), color = {1,0,0}, priority = 95, pulse = true, }
+config.DebuffAlert2 = { name = "DebuffAlert2", assignto = set("border", "flash"), color = {1,0,1}, priority = 95, pulse = true, }
+config.DebuffAlert3 = { name = "DebuffAlert3", assignto = set("innerglow", "border", "flash"), color = {1,0,0}, priority = 90 }
+config.DebuffAlert4 = { name = "DebuffAlert4", assignto = set("pixelGlow"), color = {1,1,1}, priority = 95 }
 
 -- config.MindControl = { name = "MIND_CONTROL", assignto = set("mindcontrol"), color = {1,0,0}, priority = 52 }
 config.MindControlStatus = { name = "MIND_CONTROL", assignto = set("border", "mindcontrol", "innerglow"), color = {0.5,0,1}, priority = 52 }
@@ -102,13 +106,6 @@ if isClassic then
     config.DefaultWidgets.totemCluster2 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(12), y = 0 }
     config.DefaultWidgets.totemCluster3 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(19), y = 0 }
 end
-
-config.BossDebuffs = {
-    { name = "BossDebuffLevel1", assignto = set("border", "flash"), color = {1,0,0}, priority = 95, pulse = true, },
-    { name = "BossDebuffLevel2", assignto = set("border", "flash"), color = {1,0,1}, priority = 95, pulse = true, },
-    { name = "BossDebuffLevel3", assignto = set("innerglow", "border", "flash"), color = {1,0,0}, priority = 90 },
-    { name = "BossDebuffLevel4", assignto = set("pixelGlow"), color = {1,1,1}, priority = 95 },
-}
 
 -- default priority is 80
 
