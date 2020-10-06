@@ -57,8 +57,11 @@ AptechkaDefaultConfig.MapIDs = {
 }
 
 AptechkaDefaultConfig.defaultDebuffHighlights = {
+    ["Naxxramas"] = {
+        [27808] = { 27808, 3, "Kel'Thuzad, Frost Blast" },
+        [28622] = { 28622, 1, "Maexxna, Web Wrap" },
+    },
     ["Molten Core"] = {
-        [19716] = { 19716, 2, "Gehennas' Curse" },
         [20475] = { 20475, 4, "Living Bomb" },
     },
     ["Blackwing Lair"] = {
