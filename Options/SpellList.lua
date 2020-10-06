@@ -186,16 +186,6 @@ function ns.CreateCommonForm(self)
 
         local default_opts = AptechkaDefaultConfig[category][spellID]
         if default_opts then
-            -- clean(opts, default_opts, "ghost", false)
-            -- clean(opts, default_opts, "singleTarget", false)
-            -- clean(opts, default_opts, "multiTarget", false)
-            -- clean(opts, default_opts, "scale", 1)
-            -- clean(opts, default_opts, "shine", false)
-            -- clean(opts, default_opts, "shinerefresh", false)
-            -- clean(opts, default_opts, "nameplates", false)
-            -- clean(opts, default_opts, "group", "default")
-            -- clean(opts, default_opts, "affiliation", COMBATLOG_OBJECT_AFFILIATION_MINE)
-            -- clean(opts, default_opts, "fixedlen", false)
             clean(opts, default_opts, "name", false)
             clean(opts, default_opts, "priority", false)
             clean(opts, default_opts, "extend_below", false)
@@ -204,17 +194,9 @@ function ns.CreateCommonForm(self)
             clean(opts, default_opts, "showDuration", false)
             clean(opts, default_opts, "showCount", false)
             clean(opts, default_opts, "maxCount", false)
+            clean(opts, default_opts, "showText", false)
+            clean(opts, default_opts, "text", false)
             clean(opts, default_opts, "scale", 1)
-            -- clean(opts, default_opts, "scale_until", false)
-            -- clean(opts, default_opts, "hide_until", false)
-            -- clean(opts, default_opts, "maxtimers", false)
-            -- clean(opts, default_opts, "color2", false)
-            -- clean(opts, default_opts, "arrow", false)
-            -- clean(opts, default_opts, "overlay", false)
-            -- clean(opts, default_opts, "tick", false)
-            -- clean(opts, default_opts, "recast_mark", false)
-            -- clean(opts, default_opts, "effect", "NONE")
-            -- clean(opts, default_opts, "ghosteffect", "NONE")
             clean(opts, default_opts, "clones", false)
         end
 
@@ -459,7 +441,7 @@ function ns.CreateCommonForm(self)
 
     local isMissing = AceGUI:Create("CheckBox")
     isMissing:SetLabel(L"Show Missing")
-    isMissing:SetRelativeWidth(0.50)
+    isMissing:SetRelativeWidth(0.95)
     isMissing:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["isMissing"] = value
     end)
@@ -469,25 +451,63 @@ function ns.CreateCommonForm(self)
 
     local showDuration = AceGUI:Create("CheckBox")
     showDuration:SetLabel(L"Show Duration")
-    showDuration:SetRelativeWidth(0.95)
+    showDuration:SetRelativeWidth(0.45)
     showDuration:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["showDuration"] = value
         if value then
             self.parent.controls.showCount:SetValue(false)
             self.parent.opts["showCount"] = false
+            self.parent.controls.showText:SetValue(false)
+            self.parent.opts["showText"] = false
         end
     end)
     Form.controls.showDuration = showDuration
     Form:AddChild(showDuration)
 
+    local extend_below = AceGUI:Create("EditBox")
+    extend_below:SetLabel("Extend Below")
+    extend_below:SetRelativeWidth(0.25)
+    extend_below:DisableButton(true)
+    extend_below:SetCallback("OnTextChanged", function(self, event, value)
+        local v = tonumber(value)
+        if v and v > 0 then
+            self.parent.opts["extend_below"] = v
+        elseif value == "" then
+            self.parent.opts["extend_below"] = false
+            self:SetText("")
+        end
+    end)
+    Form.controls.extend_below = extend_below
+    Form:AddChild(extend_below)
+    AddTooltip(extend_below, "Do not refresh duration if it's below X")
+
+    local refreshTime = AceGUI:Create("EditBox")
+    refreshTime:SetLabel("Refresh Time")
+    refreshTime:SetRelativeWidth(0.25)
+    refreshTime:DisableButton(true)
+    refreshTime:SetCallback("OnTextChanged", function(self, event, value)
+        local v = tonumber(value)
+        if v and v > 0 then
+            self.parent.opts["refreshTime"] = v
+        elseif value == "" then
+            self.parent.opts["refreshTime"] = false
+            self:SetText("")
+        end
+    end)
+    Form.controls.refreshTime = refreshTime
+    Form:AddChild(refreshTime)
+    AddTooltip(refreshTime, "Pandemic indication. Only works for bars")
+
     local showCount = AceGUI:Create("CheckBox")
     showCount:SetLabel(L"Show Stacks")
-    showCount:SetRelativeWidth(0.55)
+    showCount:SetRelativeWidth(0.45)
     showCount:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["showCount"] = value
         if value then
             self.parent.controls.showDuration:SetValue(false)
             self.parent.opts["showDuration"] = false
+            self.parent.controls.showText:SetValue(false)
+            self.parent.opts["showText"] = false
         end
     end)
     Form.controls.showCount = showCount
@@ -495,7 +515,7 @@ function ns.CreateCommonForm(self)
 
     local maxCount = AceGUI:Create("EditBox")
     maxCount:SetLabel(L"Max Count")
-    maxCount:SetRelativeWidth(0.4)
+    maxCount:SetRelativeWidth(0.5)
     maxCount:DisableButton(true)
     maxCount:SetCallback("OnTextChanged", function(self, event, value)
         local v = tonumber(value)
@@ -508,6 +528,35 @@ function ns.CreateCommonForm(self)
     end)
     Form.controls.maxCount = maxCount
     Form:AddChild(maxCount)
+
+    local showText = AceGUI:Create("CheckBox")
+    showText:SetLabel(L"Show Text")
+    showText:SetRelativeWidth(0.45)
+    showText:SetCallback("OnValueChanged", function(self, event, value)
+        self.parent.opts["showText"] = value
+        if value then
+            self.parent.controls.showDuration:SetValue(false)
+            self.parent.opts["showDuration"] = false
+            self.parent.controls.showCount:SetValue(false)
+            self.parent.opts["showCount"] = false
+        end
+    end)
+    Form.controls.showText = showText
+    Form:AddChild(showText)
+
+    local text = AceGUI:Create("EditBox")
+    text:SetLabel(L"Text")
+    text:SetRelativeWidth(0.5)
+    text:DisableButton(true)
+    text:SetCallback("OnTextChanged", function(self, event, value)
+        self.parent.opts["text"] = value
+        if value == "" then
+            self.parent.opts["text"] = false
+            self:SetText("")
+        end
+    end)
+    Form.controls.text = text
+    Form:AddChild(text)
 
     local scale = AceGUI:Create("Slider")
     scale:SetLabel(L"Scale")
@@ -526,40 +575,6 @@ function ns.CreateCommonForm(self)
     Form:AddChild(scale)
     AddTooltip(scale, L"Scale (not always applicable)")
 
-
-    local extend_below = AceGUI:Create("EditBox")
-    extend_below:SetLabel("Extend Below")
-    extend_below:SetRelativeWidth(0.19)
-    extend_below:DisableButton(true)
-    extend_below:SetCallback("OnTextChanged", function(self, event, value)
-        local v = tonumber(value)
-        if v and v > 0 then
-            self.parent.opts["extend_below"] = v
-        elseif value == "" then
-            self.parent.opts["extend_below"] = false
-            self:SetText("")
-        end
-    end)
-    Form.controls.extend_below = extend_below
-    Form:AddChild(extend_below)
-    AddTooltip(extend_below, "Do not refresh duration if it's below X")
-
-    local refreshTime = AceGUI:Create("EditBox")
-    refreshTime:SetLabel("Refresh Time")
-    refreshTime:SetRelativeWidth(0.19)
-    refreshTime:DisableButton(true)
-    refreshTime:SetCallback("OnTextChanged", function(self, event, value)
-        local v = tonumber(value)
-        if v and v > 0 then
-            self.parent.opts["refreshTime"] = v
-        elseif value == "" then
-            self.parent.opts["refreshTime"] = false
-            self:SetText("")
-        end
-    end)
-    Form.controls.refreshTime = refreshTime
-    Form:AddChild(refreshTime)
-    AddTooltip(refreshTime, "Pandemic indication. Only works for bars")
 
     local clones = AceGUI:Create("EditBox")
     clones:SetLabel(L"Additional Spell IDs")
@@ -632,6 +647,8 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     controls.showDuration:SetValue(opts.showDuration)
     controls.showCount:SetValue(opts.showCount)
     controls.maxCount:SetText(opts.maxCount)
+    controls.showText:SetValue(opts.showText)
+    controls.text:SetText(opts.text)
     controls.scale:SetValue(opts.scale or 1)
     controls.refreshTime:SetText(opts.refreshTime)
 

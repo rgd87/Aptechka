@@ -929,20 +929,10 @@ end
 function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit, guid)
     self:UNIT_HEALTH(event, unit)
 
-    local heal = HealComm:GetHealAmount(guid, HealComm.AptechkaHealType, GetTime()+incomingHealTimeframe)
-    local showHeal = (heal and heal > threshold)
-
-    if not Roster[unit] then return end
-    for self in pairs(Roster[unit]) do
-        if config.IncomingHealStatus then
-            if showHeal then
-                self.state.vIncomingHeal = heal
-                SetJob(unit, config.IncomingHealStatus, true)
-            else
-                self.state.vIncomingHeal = 0
-                SetJob(unit, config.IncomingHealStatus, false)
-            end
-        end
+    if isClassic then
+        local heal = GetIncomingHealsCustom(unit, false)
+        local showHeal = (heal and heal > threshold)
+        SetJob(unit, config.IncomingHealStatus, showHeal, nil, heal)
     end
 end
 
@@ -2795,9 +2785,10 @@ end
 
 function Aptechka.HighlightPostUpdate(frame, unit)
     if frame.state.highlightedDebuffsBits ~= highlightedDebuffsBits then
-        for i=1,#config.BossDebuffs do
-            FrameSetJob(frame, config.BossDebuffs[i], helpers.CheckBit(highlightedDebuffsBits, i))
-        end
+        FrameSetJob(frame, config.DebuffAlert1, helpers.CheckBit(highlightedDebuffsBits, 1))
+        FrameSetJob(frame, config.DebuffAlert2, helpers.CheckBit(highlightedDebuffsBits, 2))
+        FrameSetJob(frame, config.DebuffAlert3, helpers.CheckBit(highlightedDebuffsBits, 3))
+        FrameSetJob(frame, config.DebuffAlert4, helpers.CheckBit(highlightedDebuffsBits, 4))
         frame.state.highlightedDebuffsBits = highlightedDebuffsBits
     end
 end
