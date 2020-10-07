@@ -741,7 +741,9 @@ function Aptechka:Reconfigure()
 end
 function Aptechka:RefreshAllUnitsHealth()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateHealth)
-    Aptechka:ForEachFrame(Aptechka.FrameUpdatePower)
+    Aptechka:ForEachFrame(function(frame, unit)
+        Aptechka.FrameUpdatePower(frame, unit, "MANA")
+    end)
 end
 function Aptechka.FrameUpdateUnitColor(frame, unit)
     Aptechka.FrameColorize(frame, unit)
