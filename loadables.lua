@@ -78,7 +78,9 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         -- [322563] = { 322563, 1, "Tred'ova, Marked Prey" },
         [337253] = { 337253, 1, "Tred'ova, Parasitic Domination MC" },
         [322557] = { 322557, 1, "Drust Soulcleaver, Soul Split" },
-        [321968] = { 321968, 1, "Tirnenn Villager, Bewildering Pollen" },
+        [321968] = { 321968, 2, "Tirnenn Villager, Bewildering Pollen" },
+        [322486] = { 322486, 1, "Tirnenn Villager, Overgrowth" },
+        [322487] = { 322487, 3, "Tirnenn Villager, Overgrowth Stun" },
         [323137] = { 321968, 1, "Droman Oulfarran, Bewildering Pollen" },
         [321891] = { 321891, 1, "Mistcaller Vulpin, Freeze Tag Fixation" },
         -- 325224 -- Mistveil Stinger, Anima Injection, If Anima Injection expires, Anima Detonation is triggered.
