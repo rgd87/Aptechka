@@ -773,7 +773,9 @@ function Aptechka:Reconfigure()
 end
 function Aptechka:RefreshAllUnitsHealth()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateHealth)
-    Aptechka:ForEachFrame(Aptechka.FrameUpdatePower)
+    Aptechka:ForEachFrame(function(frame, unit)
+        Aptechka.FrameUpdatePower(frame, unit, "MANA")
+    end)
 end
 function Aptechka.FrameUpdateUnitColor(frame, unit)
     Aptechka.FrameColorize(frame, unit)
@@ -1997,6 +1999,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     local scale = AptechkaDB.profile.scale or config.scale
     f:SetAttribute("frameWidth", width)
     f:SetAttribute("frameHeight", height)
+    f:SetScale(scale)
 
     f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange,_onstate-vehicleui')
     f:SetAttribute('_initialAttribute-_onenter', [[
