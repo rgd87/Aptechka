@@ -1911,6 +1911,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     local scale = AptechkaDB.profile.scale or config.scale
     f:SetAttribute("frameWidth", width)
     f:SetAttribute("frameHeight", height)
+    f:SetScale(scale)
 
     f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange,_onstate-vehicleui')
     f:SetAttribute('_initialAttribute-_onenter', [[
