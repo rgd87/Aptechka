@@ -11,6 +11,7 @@
     <Script file="..\Locales\deDE.lua"/>
     <Script file="..\Locales\koKR.lua"/>
 
+    <Script file="ConfSnippets.lua"/>
     <Script file="GlobalSettings.lua"/>
     <Script file="ProfileSettings.lua"/>
     <Script file="ProfileSelection.lua"/>
