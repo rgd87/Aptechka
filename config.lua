@@ -695,8 +695,24 @@ helpers.importantTargetedCasts = {
     [325418] = true, -- Spinemaw Acidgullet, Volatile Acid
 
     -- Necrotic Wake
+    -- [321894] = true, -- Nalthor the Rimebinder, Dark Exile
+    [320596] = true, -- Blightbone, Heaving Retch
+    -- [320614] = true, -- Blightbone, Carrion Worm, Blood Gorge
+    [320655] = true, -- Blightbone, Crunch, tank damage
     [320376] = true, -- Stitchflesh, Mutilate
     [320788] = true, -- Nalthor, Frozen Binds
+    [334748] = true, -- Corpse Harvester, Drain Fluids
+    -- [321807] = true, -- Boneflay, Zolramus Bonecarver
+    -- [320462] = true, -- Necrotic Bolt, Zolramus Sorcerer
+    [327399] = true, -- Nar'zudah, Shared Agony
+    [324394] = true, -- Skeletal Monstrosity, Shatter, tank damage
+    [328667] = true, -- Frostbolt Volley, Brittlebone/Reanimated Mage
+    -- [338353] = true, -- Corpse Collector, Goresplatter
+    [338357] = true, -- Kyrian Stitchwerk, Tenderize, tank damage
+    -- [323496] = true, -- Flesh Crafter, Throw Cleaver 4s
+    -- [327130] = true, -- Flesh Crafter, Repair Flesh
+    [338606] = true, -- Separation Assistant, Morbid Fixation
+    [333477] = true, -- Goregrind, Gut Slice, Targeted Cone aoe
 
     -- Sanguine Depths
     [319650] = true, -- Kryxis, Vicious Headbutt

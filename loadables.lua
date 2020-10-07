@@ -61,6 +61,15 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         [320069] = { 320069, 1, "Challengers, Mortal Strike" },
         [323831] = { 323831, 1, "Mordretha, Death Grasp" },
     },
+    ["The Necrotic Wake"] = {
+        -- 320596/heaving-retch -- Blightbone dot
+        -- 320462 -- Necrotic bolt debuff, blacklist?
+        -- [323198] = { 323198, 1, "Nalthor, Dark Exile" },
+        [334748] = { 334748, 1, "Corpse Harvester, Drain Fluids" },
+        [338606] = { 338606, 1, "Separation Assistant, Morbid Fixation" },
+        [343556] = { 343556, 1, "Surgeon Stitchflesh, Morbid Fixation" },
+
+    },
     ["Plaguefall"] = {
         [329110] = { 329110, 1, "Docktor Ickus, Slime Injection" },
         [325552] = { 325552, 1, "Domina Venomblade, Cryotoxic Slash" },
