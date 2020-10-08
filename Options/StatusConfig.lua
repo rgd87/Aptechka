@@ -3,6 +3,8 @@ local addonName, ns = ...
 
 local L = Aptechka.L
 
+local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+
 function ns.MakeStatusConfig()
     local opt = {
         type = 'group',
@@ -18,6 +20,7 @@ function ns.MakeStatusConfig()
         "MouseoverStatus",
         "MainTankStatus",
         "DispelStatus",
+        "HealthTextStatus",
         "RunicPowerStatus",
         "AltPowerStatus",
         "DebuffAlert1",
@@ -25,6 +28,9 @@ function ns.MakeStatusConfig()
         "DebuffAlert3",
         "DebuffAlert4",
     }
+    if isClassic then
+        table.insert(configurableWidgets, "IncomingHealStatus")
+    end
 
     for i, status in ipairs(configurableWidgets) do
         opt.args[status] = {

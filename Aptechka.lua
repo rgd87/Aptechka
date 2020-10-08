@@ -969,7 +969,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     if gradientHealthColor then
         FrameSetJob(self, config.HealthBarColor, true, "HealthBar", h)
     end
-    FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05), nil, h, hm )
+    FrameSetJob(self, config.HealthTextStatus, ((hm-h) > hm*0.05), nil, h, hm )
 
     local isDead = UnitIsDeadOrGhost(unit)
     if isDead then
@@ -977,7 +977,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
         local isGhost = UnitIsGhost(unit)
         local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
         FrameSetJob(self, deadorghost, true)
-        FrameSetJob(self,config.HealthDeficitStatus, false )
+        FrameSetJob(self,config.HealthTextStatus, false )
         state.isDead = true
         state.isGhost = isGhost
         Aptechka.FrameUpdateDisplayPower(self, unit, true)

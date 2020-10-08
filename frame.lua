@@ -201,7 +201,7 @@ local function formatMissingHealth(mh)
 end
 
 local contentNormalizers = {}
-function contentNormalizers.HealthDeficit(job, state, contentType, ...)
+function contentNormalizers.HealthText(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     cur, max = ...
     text = string.format(formatMissingHealth(max - cur))
