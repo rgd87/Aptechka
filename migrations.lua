@@ -1,7 +1,7 @@
 local addonName, helpers = ...
 
 do
-    local CURRENT_DB_VERSION = 9
+    local CURRENT_DB_VERSION = 10
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -332,6 +332,31 @@ do
             db.DB_VERSION = 9
         end
 
+        if db.DB_VERSION == 9 then
+            local function SwapFont(opts, widgetName, profileName)
+                if opts.font and opts.font == "ClearFont" then
+                    opts.font = "AlegreyaSans-Medium"
+                end
+            end
+            local func = SwapFont
+            if db and db.global and db.global.widgetConfig then
+                for wname, opts in pairs(db.global.widgetConfig) do
+                    func(opts, wname, "global")
+                end
+            end
+            if db.profiles then
+                for profileName, profile in pairs(db.profiles) do
+                    if profile.widgetConfig then
+                        for wname, opts in pairs(profile.widgetConfig) do
+                            func(opts, wname, profileName)
+                        end
+                    end
+                end
+            end
+
+            db.DB_VERSION = 10
+        end
+
         db.DB_VERSION = CURRENT_DB_VERSION
     end
 end
@@ -353,6 +378,19 @@ function helpers:GetCurrentClassCategories()
 end
 
 function Aptechka:ForAllCustomWidgets(func)
+    for profileName, profile in pairs(self.db.profiles) do
+        if profile.widgetConfig then
+            for wname, opts in pairs(profile.widgetConfig) do
+                func(opts, wname, profileName)
+            end
+        end
+    end
+end
+
+function Aptechka:ForAllWidgets(func)
+    for wname, opts in pairs(self.db.global.widgetConfig) do
+        func(opts, wname, "global")
+    end
     for profileName, profile in pairs(self.db.profiles) do
         if profile.widgetConfig then
             for wname, opts in pairs(profile.widgetConfig) do

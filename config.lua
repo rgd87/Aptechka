@@ -15,7 +15,7 @@ config.maxgroups = 8
 config.petcolor = {1,.5,.5}
 --A maximum of 5 pets can be displayed.
 
-config.defaultFont = "ClearFont"
+config.defaultFont = "AlegreyaSans-Medium"
 do
     local locale = GetLocale()
     if locale == "zhTW" or locale == "zhCN" or locale == "koKR" then
@@ -81,19 +81,19 @@ config.MindControlStatus = { name = "MIND_CONTROL", assignto = set("border", "mi
 config.DefaultWidgets = {
     raidbuff = { type = "IndicatorArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, growth = "DOWN", max = 5 },
     mitigation = { type = "Bar", width=22, height=4, point="BOTTOMLEFT", x=4, y=-5, vertical = false},
-    icon = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 12, outline = true, edge = true },
+    icon = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = true, edge = true },
     spell1 = { type = "Indicator", width = 9, height = 8, point = "BOTTOMRIGHT", x = 0, y = 0, },
     -- spell2 = { type = "Indicator", width = 9, height = 8, point = "TOP", x = 0, y = 0, },
     spell3 = { type = "Indicator", width = 9, height = 8, point = "TOPRIGHT", x = 0, y = 0, },
     bar4 = { type = "Bar", width=21, height=5, point="TOPRIGHT", x=0, y=2, vertical = false},
-    buffIcons = { type = "IconArray", width = 12, height = 18, point = "TOPRIGHT", x = 5, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, font = "ClearFont", textsize = 12 },
+    buffIcons = { type = "IconArray", width = 12, height = 18, point = "TOPRIGHT", x = 5, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, font = config.defaultFont, textsize = 12 },
     bars = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 },
     vbar1 = { type = "Bar", width=4, height=20, point="TOPRIGHT", x=-9, y=2, vertical = true},
     text1 = { type = "StaticText", point="CENTER", x=0, y=0, font = config.defaultFont, textsize = 12, effect = "SHADOW" },
-    text2 = { type = "StaticText", point="CENTER", x=0, y=-10, font = "ClearFont", textsize = 10, effect = "NONE" },
-    text3 = { type = "Text", point="TOPLEFT", x=2, y=0, font = "ClearFont", textsize = 9, effect = "NONE" },
-    incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, font = "ClearFont", textsize = 12, outline = false, edge = false },
-    debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = "ClearFont", textsize = 12, bigscale = 1.3 },
+    text2 = { type = "StaticText", point="CENTER", x=0, y=-10, font = config.defaultFont, textsize = 10, effect = "NONE" },
+    text3 = { type = "Text", point="TOPLEFT", x=2, y=0, font = config.defaultFont, textsize = 9, effect = "NONE" },
+    incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false },
+    debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = config.defaultFont, textsize = 12, bigscale = 1.3 },
     -- bossdebuff = { type = "Indicator", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = -0, },
     statusIcon = { type = "Texture", width = 20, height = 20, point = "CENTER", x = 0, y = 14, texture = nil, rotation = 0, zorder = 1, alpha = 1, blendmode = "BLEND", disableOverrides = false },
     roleIcon = { type = "Texture", width = 13, height = 13, point = "BOTTOMLEFT", x = -8, y = -8, texture = nil, rotation = 0, zorder = 1, alpha = 1, blendmode = "BLEND", disableOverrides = false },

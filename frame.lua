@@ -1,12 +1,14 @@
 local _, helpers = ...
 local Aptechka = Aptechka
 
+local config = AptechkaDefaultConfig
+
 local pixelperfect = helpers.pixelperfect
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
 LSM:Register("statusbar", "Gradient", [[Interface\AddOns\Aptechka\gradient.tga]])
-LSM:Register("font", "ClearFont", [[Interface\AddOns\Aptechka\ClearFont.ttf]], GetLocale() ~= "enUS" and 15)
+LSM:Register("font", "AlegreyaSans-Medium", [[Interface\AddOns\Aptechka\AlegreyaSans-Medium.ttf]],  GetLocale() ~= "enUS" and 15)
 
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
@@ -1109,7 +1111,7 @@ Aptechka.Widget.IndicatorArray.Reconf = Aptechka.Widget.BarArray.Reconf
 ----------------------------------------------------------
 
 Aptechka.Widget.IconArray = {}
-Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
+Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
 function Aptechka.Widget.IconArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateArrayHeader("Icon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
@@ -1328,7 +1330,7 @@ end
 AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 Aptechka.Widget.Icon = {}
-Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 12, outline = true, edge = true }
+Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = true, edge = true }
 function Aptechka.Widget.Icon.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
@@ -1344,7 +1346,7 @@ function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     f:SetAlpha(opts.alpha)
 
-    local fontName = opts.font or "ClearFont"
+    local fontName = opts.font or config.defaultFont
     local font = LSM:Fetch("font",  fontName)
     local flags = opts.effect == "OUTLINE" and "OUTLINE"
     if opts.effect == "SHADOW" then
@@ -1547,7 +1549,7 @@ local function CreateDebuffIcon(parent, width, height, alpha, point, frame, to, 
     return icon
 end
 Aptechka.Widget.DebuffIcon = {}
-Aptechka.Widget.DebuffIcon.default = { type = "DebuffIcon", width = 13, height = 13, point = "CENTER", x = 0, y = 0, alpha = 1, style = "STRIP_RIGHT", animdir = "LEFT", font = "ClearFont", textsize = 12, edge = false }
+Aptechka.Widget.DebuffIcon.default = { type = "DebuffIcon", width = 13, height = 13, point = "CENTER", x = 0, y = 0, alpha = 1, style = "STRIP_RIGHT", animdir = "LEFT", font = config.defaultFont, textsize = 12, edge = false }
 function Aptechka.Widget.DebuffIcon.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     local icon = CreateDebuffIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
@@ -1676,7 +1678,7 @@ local function CreateProgressIcon(parent, width, height, alpha, point, frame, to
 end
 
 Aptechka.Widget.ProgressIcon = {}
-Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 12, outline = false, edge = false }
+Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false }
 function Aptechka.Widget.ProgressIcon.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateProgressIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
@@ -1940,10 +1942,10 @@ end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
 Aptechka.Widget.Text = {}
-Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] font = "ClearFont", textsize = 13, effect = "NONE" }
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] font = config.defaultFont, textsize = 13, effect = "NONE" }
 function Aptechka.Widget.Text.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", "ClearFont")
+    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", config.defaultFont)
     local flags = opts.effect == "OUTLINE" and "OUTLINE"
     local text = CreateTextTimer(parent, opts.point, parent, opts.point, opts.x, opts.y, opts.justify, opts.textsize, font, flags)
     if opts.effect == "SHADOW" then
@@ -1962,7 +1964,7 @@ function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
     f.text:ClearAllPoints()
     f.text:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     -- f.text:SetJustifyH(opts.justify:upper())
-    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", "ClearFont")
+    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", config.defaultFont)
     local flags = opts.effect == "OUTLINE" and "OUTLINE"
     if opts.effect == "SHADOW" then
         f.text:SetShadowOffset(1,-1)

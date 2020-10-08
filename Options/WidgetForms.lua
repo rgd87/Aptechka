@@ -211,7 +211,7 @@ function ns.WidgetForms.Icon.Create(form)
 
     CreateSizeSettings(form)
     CreateAnchorSettings(form)
-    local font = ns.AddFontDropdown(form, 0.46, L"Stacks Font", "font", "ClearFont", callbackUpdateForm)
+    local font = ns.AddFontDropdown(form, 0.46, L"Stacks Font", "font", AptechkaDefaultConfig.defaultFont, callbackUpdateForm)
     local textsize = ns.AddSlider(form, 0.46, L"Font Size", "textsize", 12, 6, 30, 1, callbackUpdateForm)
     local alpha = ns.AddSlider(form, 0.95, L"Alpha", "alpha", 1, 0, 1, 0.05, callbackUpdateForm)
     local outline = ns.AddCheckbox(form, 0.46, L"Outline", "outline", false, callbackUpdateForm)
@@ -373,7 +373,7 @@ function ns.WidgetForms.Text.Create(form)
     form = form or ns.InitForm()
 
     CreateAnchorSettings(form)
-    local font = ns.AddFontDropdown(form, 0.46, L"Font", "font", "ClearFont", callbackUpdateForm)
+    local font = ns.AddFontDropdown(form, 0.46, L"Font", "font", AptechkaDefaultConfig, callbackUpdateForm)
     local textsize = ns.AddSlider(form, 0.46, L"Font Size", "textsize", 12, 6, 30, 1, callbackUpdateForm)
     local effect = ns.AddDropdown(form, 0.46, L"Effect", "effect", "NONE", textEffects, callbackUpdateForm)
 
