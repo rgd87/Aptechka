@@ -7,6 +7,14 @@ local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIco
 
 local AceGUI = LibStub("AceGUI-3.0")
 
+local color_scheme = {[0] = "|r"}
+color_scheme[IndentationLib.tokens.TOKEN_SPECIAL] = "|c00c999c0"
+color_scheme[IndentationLib.tokens.TOKEN_KEYWORD] = "|c007d70b4"
+color_scheme[IndentationLib.tokens.TOKEN_COMMENT_SHORT] = "|c0065614E"
+color_scheme[IndentationLib.tokens.TOKEN_COMMENT_LONG] = "|c0065614E"
+color_scheme[IndentationLib.tokens.TOKEN_NUMBER] = "|c00af8af2"
+color_scheme[IndentationLib.tokens.TOKEN_STRING] = "|c00bf7e52"
+
 local initialized = false
 local function CreateSnippetsWindow()
     local window = AceGUI:Create("Window")
@@ -23,11 +31,11 @@ local function CreateSnippetsWindow()
     -- if (fontPath) then
         -- editor.editBox:SetFont(fontPath, 12)
     -- end
-    editor.editBox:SetFont("Interface\\AddOns\\Inconsolata-SemiBold.ttf", 12)
+    editor.editBox:SetFont("Interface\\AddOns\\InconsolataSemiExpanded-Medium.ttf", 12)
     window:AddChild(editor)
 
     if IndentationLib then
-        IndentationLib.enable(editor.editBox, nil, 4)
+        IndentationLib.enable(editor.editBox, color_scheme, 4)
     end
 end
 
