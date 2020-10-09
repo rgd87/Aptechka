@@ -58,6 +58,7 @@ function Aptechka:SaveHighlightInfo(spellId, category, priority, comment)
     if defaultExists and IsSpellDataEqual(defaultOpts, newOpts) then
         self:DeleteHighlightInfo(spellId, true, true)
     else
+        category = category or "Custom"
         customDebuffHighlights[category] = customDebuffHighlights[category] or {}
         customDebuffHighlights[category][spellId] = newOpts
     end
@@ -226,7 +227,7 @@ function AptechkaHybridScrollMixin:RefreshLayout()
                 icon:SetPoint("LEFT", 15, 0)
                 icon:SetTexture(tex);
                 text:SetText(spellName)
-                comment:SetText(prio.."   "..commentText)
+                comment:SetText(prio.."   "..(commentText or ""))
                 text:SetPoint("LEFT", icon, "RIGHT", 8, 0)
             end
             button.isHeader = isHeader
