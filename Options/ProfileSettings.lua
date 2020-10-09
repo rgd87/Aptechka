@@ -253,7 +253,17 @@ function ns.MakeProfileSettings()
                             Aptechka.db.profile.auraUpdateEffect = not Aptechka.db.profile.auraUpdateEffect
                             Aptechka:UpdateUnprotectedUpvalues()
                         end,
-                        order = 16,
+                        order = 17,
+                    },
+                    floatingIcon = {
+                        name = L"Buff Gain Floating Icons"..newFeatureIcon,
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.profile.showFloatingIcons end,
+                        set = function(info, v)
+                            Aptechka.db.profile.showFloatingIcons = not Aptechka.db.profile.showFloatingIcons
+                            Aptechka:UpdateUnprotectedUpvalues()
+                        end,
+                        order = 18,
                     },
                 }
             },

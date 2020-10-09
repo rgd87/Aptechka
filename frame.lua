@@ -1731,6 +1731,129 @@ end
 Aptechka.Widget.ProgressIcon.Reconf = Aptechka.Widget.Icon.Reconf
 
 ----------------
+-- Floating Icon
+----------------
+
+local function FloatingIcon_SetJob(self, job, state, contentType, ...)
+    -- SetJob_Icon(self, job, state, contentType, ...)
+
+    -- self.cd:SetReverse(job.reverseDuration)
+
+    -- local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+
+    -- if not b then
+    --     r,g,b = 0.75, 1, 0.2
+    -- end
+    -- self.cd:SetSwipeColor(r,g,b)
+end
+
+local function FloatingIcon_CreationFunc(pool)
+    local frame = pool.parent
+    local icon = frame:CreateTexture(nil, pool.layer, pool.textureTemplate, pool.subLayer);
+    icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
+    local ag = icon:CreateAnimationGroup()
+    local t1 = ag:CreateAnimation("Translation")
+    t1:SetOffset(100,70)
+    t1:SetDuration(2)
+    t1:SetSmoothing("OUT")
+    t1:SetOrder(2)
+
+    local a2 = ag:CreateAnimation("Alpha")
+    a2:SetFromAlpha(1)
+    a2:SetToAlpha(0)
+    a2:SetSmoothing("OUT")
+    a2:SetDuration(0.5)
+    a2:SetStartDelay(1.5)
+    a2:SetOrder(2)
+
+    ag:SetScript("OnFinished", function(self)
+        local icon = self:GetParent()
+        icon:Hide()
+        pool:Release(icon)
+    end)
+
+    ag.translationAnim = t1
+    ag.alphaAnim = a2
+    icon.ag = ag
+
+    return icon
+end
+
+local FloatingIcon_ResetterFunc = function(pool, icon)
+    local frame = pool.parent
+    local opts = frame.opts
+
+    icon:SetHeight(25)
+    icon:SetWidth(25)
+
+    local angleRange = opts.spreadArc
+    local angleMod = math.random(0,angleRange)- (angleRange/2)
+    local baseAngle = opts.angle
+    local angle = baseAngle + angleMod
+    local range = opts.range
+    local translateX = math.sin(math.rad(angle))*range
+    local translateY = math.cos(math.rad(angle))*range
+
+    icon:SetSize(opts.width, opts.height)
+    icon.ag.translationAnim:SetOffset(translateX, translateY)
+    icon.ag.translationAnim:SetDuration(opts.animDuration)
+    icon.ag.alphaAnim:SetStartDelay(opts.animDuration * 2/3)
+    icon.ag.alphaAnim:SetDuration(opts.animDuration * 1/3)
+
+    icon:SetPoint("CENTER", 0,0)
+end
+
+local function FloatingIcon_ConfigureIcon(icon, opts)
+
+end
+
+-- function TestFloatingIcon()
+--     NugRaid1UnitButton1.floatingIcon:StartTrace(nil, 17)
+-- end
+local function FloatingIcon_StartTrace(self, job, spellID)
+    local icon = self.iconPool:Acquire()
+
+    local tex = GetSpellTexture(spellID)
+    icon:SetTexture(tex)
+
+    icon:SetAlpha(1)
+    icon:Show()
+    icon.ag:Play()
+end
+
+Aptechka.Widget.FloatingIcon = {}
+Aptechka.Widget.FloatingIcon.default = { type = "FloatingIcon", width = 20, height = 20, point = "TOPLEFT", x = 15, y = -5, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false, angle = 60, range = 45, spreadArc = 30, duration = 2 }
+function Aptechka.Widget.FloatingIcon.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+
+    local f = CreateFrame("Frame", nil, parent)
+    f:SetSize(10, 10)
+    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+
+    local iconPool = CreateTexturePool(f, "ARTWORK", 2)
+    f.iconPool = iconPool
+    f.opts = opts
+    iconPool.creationFunc = FloatingIcon_CreationFunc
+    iconPool.resetterFunc = FloatingIcon_ResetterFunc
+
+    -- local marker = f:CreateTexture(nil, "ARTWORK")
+    -- marker:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+    -- marker:SetAllPoints()
+
+
+    f.SetJob = FloatingIcon_SetJob
+    f.StartTrace = FloatingIcon_StartTrace
+    -- f:Hide()
+
+    return f
+end
+function Aptechka.Widget.FloatingIcon.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    f.opts = opts
+end
+
+----------------
 -- HEAL ABSORB
 ----------------
 local HealAbsorbUpdatePositionVertical = function(self, p, health, parent)
@@ -2653,7 +2776,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local bar2 = CreateStatusBar(self, 21, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)
     -- local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
     -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
-
 
     self.debuffIcons = Aptechka.Widget.DebuffIconArray.Create(self, Aptechka:GetWidgetsOptions("debuffIcons"))
 

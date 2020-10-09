@@ -73,9 +73,10 @@ end
 
 local widgetTypes = {}
 for wtype in pairs(Aptechka.Widget) do
-    if wtype ~= "DebuffIcon" and wtype ~= "DebuffIconArray" then
-        widgetTypes[wtype] = wtype
-    end
+    widgetTypes[wtype] = wtype
+    widgetTypes["DebuffIcon"] = nil
+    widgetTypes["DebuffIconArray"] = nil
+    widgetTypes["FloatingIcon"] = nil
 end
 
 local function CreateNewWidgetForm()
@@ -322,6 +323,7 @@ function ns.CreateWidgetConfig(name, parent)
         DebuffIcon = "Interface\\Icons\\spell_shadow_curseofsargeras",
         DebuffIconArray = "Interface\\Icons\\spell_shadow_curseofsargeras",
         Texture = "Interface\\Icons\\spell_shadow_ritualofsacrifice",
+        FloatingIcon = 135992,
     }
 
     treegroup.UpdateWidgetTree = function(self)

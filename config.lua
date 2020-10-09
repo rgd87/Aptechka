@@ -94,7 +94,7 @@ config.DefaultWidgets = {
     text3 = { type = "Text", point="TOPLEFT", x=2, y=0, font = config.defaultFont, textsize = 9, effect = "NONE" },
     incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false },
     debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = config.defaultFont, textsize = 12, bigscale = 1.3 },
-    -- bossdebuff = { type = "Indicator", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = -0, },
+    floatingIcon = { type = "FloatingIcon", width = 16, height = 16, point = "TOPLEFT", x = 15, y = -5, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false, angle = 60, range = 45, spreadArc = 30, animDuration = 2 },
     statusIcon = { type = "Texture", width = 20, height = 20, point = "CENTER", x = 0, y = 14, texture = nil, rotation = 0, zorder = 6-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
     roleIcon = { type = "Texture", width = 13, height = 13, point = "BOTTOMLEFT", x = -8, y = -8, texture = nil, rotation = 0, zorder = 6-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
     raidTargetIcon = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = -10, y = 10, texture = nil, rotation = 0, zorder = 16-DEFAULT_TEXLEVEL, alpha = 0.3, blendmode = "BLEND", disableOverrides = false },
@@ -134,7 +134,7 @@ A{ id = 203819, prototype = activeMitigation } -- Demon Spikes
 A{ id = 192081, prototype = activeMitigation } -- Ironfur
 
 -- COVENANT
-A{ id = 330749, prototype = survivalCD } -- Phial of Serenity
+A{ id = 330749, prototype = survivalCD } -- Phial of Serenity (Patience, overtime soulbind trait from pelagos)
 
 -- MONK
 A{ id = 122783, prototype = survivalCD } -- Diffuse Magic
@@ -145,6 +145,7 @@ A{ id = 125174, prototype = survivalCD, priority = 91 } -- Touch of Karma
 A{ id = 115176, prototype = tankCD } -- Zen Meditation
 A{ id = 116849, prototype = survivalCD, priority = 88 } --Life Cocoon
 A{ id = 120954, prototype = tankCD } --Fortifying Brew (Brewmaster)
+-- Spell( 209584 ,{ name = "Zen Focus Tea", color = colors.LBLUE, shine = true, group = "buffs", duration = 5 })
 
 -- WARRIOR
 A{ id = 184364, prototype = survivalCD } -- Enraged Regeneration
@@ -177,6 +178,7 @@ A{ id = 132413, prototype = survivalCD } -- Shadow Bulwark
 A{ id = 22812,  prototype = survivalCD } -- Barkskin
 A{ id = 102342, prototype = tankCD, priority = 93 } --Ironbark
 A{ id = 61336,  prototype = tankCD } --Survival Instincts 50% (Feral & Guardian)
+A{ id = 236696,  prototype = survivalCD } -- Thorns
 
 -- PRIEST
 A{ id = 19236,  prototype = survivalCD } -- Desperate Prayer
@@ -187,6 +189,7 @@ A{ id = 33206, prototype = tankCD, priority = 93 } --Pain Suppression
 A{ id = 81782, prototype = survivalCD } -- Power Word: Barrier
 -----
 A{ id = 213610, prototype = survivalCD } -- Holy Ward (PVP)
+A{ id = 289655, prototype = survivalCD } -- Holy Word: Concentration
 A{ id = 213602, prototype = tankCD } -- Greater Fade
 A{ id = 329543, prototype = tankCD } -- Divine Ascension
 
@@ -215,6 +218,7 @@ A{ id = 48707, prototype = survivalCD } -- Anti-Magic Shell
 -- MAGE
 A{ id = 113862, prototype = survivalCD } -- Arcane Greater Invisibility
 A{ id = 45438,  prototype = tankCD } -- Ice Block
+A{ id = 110909,  prototype = survivalCD } -- Alter Time
 
 -- HUNTER
 A{ id = 186265, prototype = survivalCD } -- Aspect of the Turtle
@@ -223,6 +227,7 @@ A{ id = 186265, prototype = survivalCD } -- Aspect of the Turtle
 -- SHAMAN
 A{ id = 108271, prototype = survivalCD } -- Astral Shift
 A{ id = 204293, prototype = survivalCD } -- Spirit Link (PvP)
+-- A{ id = 210918, prototype = survivalCD } -- Ethereal Form
 
 
 A{ id = {
@@ -426,7 +431,7 @@ end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
 
-    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
+    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), showDuration = true, scale = 1.25, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
     A{ id = 974,    type = "HELPFUL", assignto = set("bar4"), showCount = true, maxCount = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
                                                                         -- stackcolor =   {
                                                                         --     [1] = { 0,.4, 0},
@@ -981,3 +986,168 @@ helpers.customBossAuras = {
         [236236] = true, -- Disarm
 }
 ]]
+do
+local AURA = { events = set("SPELL_AURA_APPLIED", "SPELL_AURA_REFRESH"), target = "DST", scale = 1 }
+local CAST = { events = set("SPELL_CAST_SUCCESS"), target = "SRC", scale = 1 }
+local HEAL = { events = set("SPELL_HEAL"), target = "DST", scale = 1 }
+helpers.buffGainWhitelist = {
+    [6262]   = HEAL, -- Healthstone
+    [323436] = HEAL, -- Phial of Serenity 20%
+    --[[DUP]] [330749] = HEAL, -- Phial of Patience 55% (HoT)
+    [307192] = HEAL, -- Spiritual Healing Potion (SL)
+    [301308] = HEAL, -- Abyssal Healing Potion (BFA)
+
+    -- Shadowlands Potions
+    [344314] = AURA, -- Potion of Psychopomp's Speed
+    [307195] = AURA, -- Potion of Invisibility
+    [307164] = AURA, -- Potion of Spectral Strength
+    [307159] = AURA, -- Potion of Spectral Agility
+    [307162] = AURA, -- Potion of Spectral Intellect
+    [307494] = AURA, -- Potion of Empowered Exorcisms
+    [307495] = AURA, -- Potion of Phantom Fire
+    [307496] = AURA, -- Potion of Divine Awakening
+
+    -- BFA Potions
+    --[[DUP]] [298225] = AURA, -- Potion of Empowered Proximity
+    --[[DUP]] [300714] = AURA, -- Potion of Unbridled Fury
+    --[[DUP]] [298317] = AURA, -- Potion of Focused Resolve
+    --[[DUP]] [298154] = AURA, -- Superior Battle Potion of Strength
+    --[[DUP]] [298152] = AURA, -- Superior Battle Potion of Intellect
+    --[[DUP]] [298146] = AURA, -- Superior Battle Potion of Intellect
+
+    -- WARLOCK
+    [221703] = CAST, -- Casting Circle
+    [113860] = AURA, -- Dark Soul: Misery
+    [113858] = AURA, -- Dark Soul: Instability
+    [1122] = CAST, -- Summon Infernal
+    [265187] = CAST, -- Summon Demonic Tyrant
+
+    --[[DUP]] [212295] = AURA, -- Nether Ward
+    --[[DUP]] [104773] = AURA, -- Unending Resolve
+
+    -- PRIEST
+    [325013] = AURA, -- Boon of the Ascended
+    [232707] = AURA, -- Ray of Hope
+    [322105] = AURA, -- Shadow Covenant
+    [109964] = AURA, -- Spirit Shell
+    [47536] = AURA, -- Rapture
+    [200183] = AURA, -- Apotheosis
+    [10060] = AURA, -- Power Infusion
+    [194249] = AURA, -- Voidform
+    [319952] = AURA, -- Surrender to Madness
+    [118594] = HEAL, -- Void Shift
+    --[[DUP]] [289655] = AURA, -- Holy Word: Concentration
+    --[[DUP]] [213610] = AURA, -- Holy Ward (PVP)
+
+    -- ROGUE
+    --[[DUP]] [1966] = AURA, -- Feint
+    [2983] = AURA, -- Sprint
+    --[[DUP]] [5277] = AURA, -- Evasion
+    --[[DUP]] [31224] = AURA, -- Cloak of Shadows
+    --[[DUP]] [185311] = AURA, -- Crimson Vial
+    -- VendettaPlayer buff
+    [289467] = AURA, -- Vendetta
+    [13750] = AURA, -- Adrenaline Rush
+    [185422] = AURA, -- Shadow Dance
+    [121471] = AURA, -- Shadow Blades
+
+    -- WARRIOR
+    [236320] = CAST, -- War Banner
+    --[[DUP]] [23920] = AURA, -- Spell Reflect
+    [262228] = AURA, -- Deadly Calm
+    --[[DUP]] [184364] = AURA, -- Enraged Regeneration
+    --[[DUP]] [107574] = AURA, -- Avatar
+    [1719] = AURA, -- Recklessness
+    [118038] = AURA, -- Die by the Sword
+    --[[DUP]] [871] = AURA, -- Shield Wall
+
+    -- MONK
+    [326860] = AURA, -- Fallen Order
+    [247483] = AURA, -- Tigereye Brew
+    --[[DUP]] [209584] = AURA, -- Zen Focus Tea
+    --[[DUP]] [120954] = AURA, -- Fortifying Brew
+    -- monk summons
+    [123904] = CAST, -- Xuen
+    --[[DUP]] [132578] = CAST, -- Niuzao
+    [322118] = CAST, -- Yu'lon
+
+    --[[DUP]] [116849] = AURA, -- Life Cocoon
+    [137639] = AURA, -- Storm, Earth and Fire
+    [197908] = AURA, -- Mana Tea
+    --[[DUP]] [122783] = AURA, -- Diffuse Magic
+    --[[DUP]] [122278] = AURA, -- Dampen Harm
+    [152173] = AURA, -- Serenity
+
+    -- DEATHKNIGHT
+    [152279] = AURA, -- Breath of Sindragosa
+    [207256] = AURA, -- Pillar of Frost
+    [207289] = AURA, -- Unholy Frenzy
+    --[[DUP]] [194679] = AURA, -- Rune Tap
+    [49998] = CAST, -- Death Strike
+    --[[DUP]] [55233] = AURA, -- Vampiric Blood
+    --[[DUP]] [48792] = AURA, -- Icebound Fortitude
+    [48707] = AURA, -- Anti-Magic Shell
+    [51271] = AURA, -- Pillar of Frost
+    [81256] = AURA, -- Dancing Rune Weapon
+
+    -- MAGE
+    [324220] = AURA, -- Deathborne (Necrolord)
+    --[[DUP]] [110909] = AURA, -- Alter Time
+    [12042] = AURA, -- Arcane Power
+    [55342] = AURA, -- Mirror Image
+    [12472] = AURA, -- Icy Veins
+
+    -- PALADIN
+    --[[DUP]] [205191] = AURA, -- Eye for an Eye
+    --[[DUP]] [184662] = AURA, -- Shield of Vengeance
+    [231895] = AURA, -- Crusade
+    [31884] = AURA, -- Avenging Wrath
+    [216331] = AURA, -- Avenging Crusader
+    --[[DUP]] [498] = AURA, -- Divine Protection
+    --[[DUP]] [642] = AURA, -- Divine Shield
+    --[[DUP]] [31850] = AURA, -- Ardent Defender
+    --[[DUP]] [86659] = AURA, -- Guardian
+    --[[DUP]] [1022] = AURA, -- Blessing of Protection
+    --[[DUP]] [204018] = AURA, -- Blessing of Spellwarding
+    [1044] = AURA, -- Blessing of Freedom
+    [105809] = AURA, -- Holy Avenger
+
+    -- DRUID
+    [323546] = AURA, -- Ravenous Frenzy
+    --[[DUP]] [236696] = AURA, -- Thorns
+    [22842] = AURA, -- Frenzied Regeneration
+    [106951] = AURA, -- Berserk
+    [117679] = AURA, -- Incarnation: Tree of Life
+    [102558] = AURA, -- Incarnation: Son of Ursoc
+    [102560] = AURA, -- Incarnation: Chosen of Elune
+    [102543] = AURA, -- Incarnation: King of the Jungle
+    [194223] = AURA, -- Celestial Alignment
+    [197721] = AURA, -- Flourish
+    --[[DUP]] [1850] = AURA, -- Dash
+    --[[DUP]] [252216] = AURA, -- Tiger Dash
+    --[[DUP]] [61336] = AURA, -- Survival Instincts
+    --[[DUP]] [102342] = AURA, -- Ironbark
+
+    -- DEMONHUNTER
+    --[[DUP]] [187827] = AURA, -- Metamorphosis Veng
+    [162264] = AURA, -- Metamorphosis Havoc
+    [206803] = AURA, -- Rain from Above
+    --[[DUP]] [212800] = AURA, -- Blur
+    --[[DUP]] [196718] = CAST, -- Darkness
+
+    -- HUNTER
+    [266779] = AURA, -- Coordinated Assault
+    [19574] = AURA, -- Bestial Wrath
+    [288613] = AURA, -- Trueshot
+    --[[DUP]] [186265] = AURA, -- Aspect of the Turtle
+
+    -- SHAMAN
+    --[[DUP]] [108271] = AURA, -- Astral Shift
+    [58875] = AURA, -- Spirit Walk
+    [51533] = CAST, -- Feral Spirit
+    [210918] = AURA, -- Ethereal Form
+    [204336] = CAST, -- Grounding Totem
+    [98008] = CAST, -- Spirit Link Totem
+    [108280] = CAST, -- Healing Tide Totem
+}
+end

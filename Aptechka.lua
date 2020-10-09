@@ -62,6 +62,7 @@ Aptechka.loadedAuras = {}
 local loadedAuras = Aptechka.loadedAuras
 local customBossAuras = helpers.customBossAuras
 local defaultBlacklist = helpers.auraBlacklist
+local buffGainWhitelist = helpers.buffGainWhitelist or {}
 local blacklist
 local importantTargetedCasts = helpers.importantTargetedCasts
 local loaded = {}
@@ -122,6 +123,7 @@ local DebuffProc, DebuffPostUpdate
 local DispelTypeProc, DispelTypePostUpdate
 local enableTraceheals
 local enableAuraEvents
+local enableFloatingIcon
 -- local enableLowHealthStatus
 local debuffLimit
 local tankUnits = {}
@@ -197,6 +199,7 @@ local defaults = {
         petGroup = false,
         showRaidIcons = true,
         showDispels = true,
+        showFloatingIcons = false,
         healthTexture = "Gradient",
         powerTexture = "Gradient",
         damageEffect = true,
@@ -792,6 +795,7 @@ function Aptechka:UpdateUnprotectedUpvalues()
     damageEffect = Aptechka.db.profile.damageEffect
     enableTraceheals = config.enableTraceHeals and next(traceheals)
     enableAuraEvents = Aptechka.db.profile.auraUpdateEffect
+    enableFloatingIcon = Aptechka.db.profile.showFloatingIcons
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
@@ -1056,12 +1060,22 @@ local function WidgetStartTrace(widget, slot, frame, opts)
     end
 end
 local function FrameStartTrace(frame, unit, opts)
-    Aptechka:ForEachWidget(frame, opts, WidgetStartTrace, frame, opts)
+    Aptechka:ForEachFrameOptsWidget(frame, opts, WidgetStartTrace, frame, opts)
 end
 Aptechka.FrameStartTrace = FrameStartTrace
 
 local function FrameBumpAuraEvent(frame, unit, spellID)
     frame.auraEvents[spellID] = GetTime()
+end
+
+local function FrameLaunchFloatingIcon(frame, unit, spellID)
+    local widget = frame.floatingIcon
+    if not widget then
+        widget = Aptechka:CreateDynamicWidget(frame, "floatingIcon")
+    end
+    if widget then
+        widget:StartTrace(nil, spellID)
+    end
 end
 
 function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
@@ -1088,6 +1102,16 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
         then
             local unit = guidMap[dstGUID]
             Aptechka:ForEachUnitFrame(unit, FrameBumpAuraEvent, spellID)
+        end
+    end
+    if enableFloatingIcon and buffGainWhitelist[spellID] then
+        local spell = buffGainWhitelist[spellID]
+        if spell.events[eventType] then
+            local GUID = spell.target == "SRC" and srcGUID or dstGUID
+            local unit = guidMap[GUID]
+            if unit then
+                Aptechka:ForEachUnitFrame(unit, FrameLaunchFloatingIcon, spellID)
+            end
         end
     end
 end
@@ -2445,7 +2469,7 @@ function Aptechka.SetJob(unit, opts, enabled, ...)
 end
 SetJob = Aptechka.SetJob
 
-function Aptechka:ForEachWidget(frame, opts, func, ...)
+function Aptechka:ForEachFrameOptsWidget(frame, opts, func, ...)
     if opts and opts.assignto then
         for slot in pairs(opts.assignto) do
             func(frame[slot], slot, ...)
