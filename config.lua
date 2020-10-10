@@ -61,7 +61,7 @@ config.HealthBarColor = { name = "HealthBar", assignto = set("health"), color = 
 config.PowerBarColor = { name = "PowerBar", assignto = set("power"), color = {.5,.5,1}, priority = 20 }
 config.InVehicleStatus = { name = "InVehicle", assignto = set("vehicle"), color = {0.3,1,0.3}, priority = 21 }
 config.LOSStatus = { name = "OutOfSight", assignto = set("healfeedback"), scale = 1.6, color = {1,0.1,0.1}, priority = 95, fade = 0.3 }
-config.DispelStatus = { name = "Dispel", assignto = set("debuffHighlight"), scale = 1, spin = true, priority = 86 }
+config.DispelStatus = { name = "Dispel", assignto = set("debuffHighlight"), scale = 1, pulse = 2, spin = true, priority = 86 }
 config.StaggerStatus = { name = "Stagger", assignto = set("text2"), priority = 20 }
 config.RunicPowerStatus = { name = "RunicPower", assignto = set("mitigation"), priority = 10, color = { 0, 0.82, 1 }, icon = 237517 }
 config.AltPowerStatus = { name = "AltPower", assignto = set("text3"), priority = 65, color = { 1, 0.4, 0.4 }, formatAs = "PERCENTAGE" }
@@ -69,8 +69,8 @@ config.AltPowerStatus = { name = "AltPower", assignto = set("text3"), priority =
 config.SummonPending = { name = "SummonPending", assignto = set("text2"), color = {1,0.7,0}, text = "PENDING", priority = 50 }
 config.SummonAccepted = { name = "SummonAccepted", assignto = set("text2"), color = {0,1,0}, text = "ACCEPTED", priority = 51 }
 config.SummonDeclined = { name = "SummonDeclined", assignto = set("text2"), color = {1,0,0}, text = "DECLINED", priority = 52 }
-config.DebuffAlert1 = { name = "DebuffAlert1", assignto = set("debuffHighlight", "flash"), color = {1,0,0}, priority = 95, pulse = true, }
-config.DebuffAlert2 = { name = "DebuffAlert2", assignto = set("debuffHighlight", "flash"), color = {1,0,1}, priority = 95, pulse = true, }
+config.DebuffAlert1 = { name = "DebuffAlert1", assignto = set("debuffHighlight", "flash"), color = {1,0,0}, priority = 95, pulse = 10, }
+config.DebuffAlert2 = { name = "DebuffAlert2", assignto = set("debuffHighlight", "flash"), color = {1,0,1}, priority = 95, pulse = 10, }
 config.DebuffAlert3 = { name = "DebuffAlert3", assignto = set("innerglow", "border", "flash"), color = {1,0,0}, priority = 90 }
 config.DebuffAlert4 = { name = "DebuffAlert4", assignto = set("pixelGlow"), color = {1,1,1}, priority = 95 }
 

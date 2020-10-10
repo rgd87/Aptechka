@@ -439,8 +439,8 @@ end
 
 local Pulse_AnimOnFinished = function(self)
     self.pulses = self.pulses + 1
-    if self.pulses > 10 then
-        local ag = self:GetParent()
+    local ag = self:GetParent()
+    if self.pulses > ag.maxpulses then
         ag:Stop()
         ag.done = true
     end
@@ -451,10 +451,18 @@ end
 local Pulse_OnHide = function(self)
     self.pulse.done = false
 end
+local function Pulse_PlayAnim(self, job)
+    if not self.pulse.done and not self.pulse:IsPlaying() then
+        if job.pulse == true then job.pulse = 10 end
+        self.pulse.maxpulses = job.pulse
+        self.pulse:Play()
+    end
+end
 
 local function AddPulseAnimation(f)
     local pag = f:CreateAnimationGroup()
     pag:SetLooping("REPEAT")
+    pag.maxpulses = 10
     local pa1 = pag:CreateAnimation("Alpha")
     pa1:SetFromAlpha(1)
     pa1:SetToAlpha(0)
@@ -663,7 +671,7 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
 
     if self.currentJob ~= self.previousJob then
         if job.pulse then
-            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+            Pulse_PlayAnim(self, job)
         end
 
         local scale = job.scale or 1
@@ -870,7 +878,7 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
         end
 
         if job.pulse then
-            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+            Pulse_PlayAnim(self, job)
         end
     end
 end
@@ -2198,7 +2206,7 @@ local SetJob_Border = function(self, job, state, contentType, ...)
 
     if self.currentJob ~= self.previousJob then
         if job.pulse then
-            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+            Pulse_PlayAnim(self, job)
         end
     end
 end
