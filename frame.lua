@@ -896,13 +896,12 @@ function Aptechka.Widget.Texture.Create(parent, popts, gopts)
     f:SetWidth(pixelperfect(opts.width));
     f:SetHeight(pixelperfect(opts.height));
 
-    f:SetFrameLevel(FRAMELEVEL.TEXTURE)
-
     local zOrderMod = opts.zorder or 0
+    f:SetFrameLevel(math.max(FRAMELEVEL.TEXTURE+zOrderMod, 0))
 
     local t = f:CreateTexture(nil,"ARTWORK")
 
-    t:SetDrawLayer("ARTWORK", zOrderMod)
+    -- t:SetDrawLayer("ARTWORK", 0)
 
     t:SetTexture(opts.texture)
     f._defaultTexture = opts.texture
@@ -957,7 +956,8 @@ function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
     t:SetAlpha(opts.alpha)
 
     local zOrderMod = opts.zorder or 0
-    t:SetDrawLayer("ARTWORK", zOrderMod)
+    f:SetFrameLevel(math.max(FRAMELEVEL.TEXTURE+zOrderMod, 0))
+    -- t:SetDrawLayer("ARTWORK", 0)
 end
 
 -------------------------------------------------------------------------------------------
