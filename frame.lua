@@ -313,12 +313,18 @@ local DT_Icons = {
 }
 function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
-    local debuffType = ...
+    local debuffType, duration, expirationTime, count1, icon1, spellID, caster = ...
     local color = helpers.DebuffTypeColors[debuffType]
+
+    cur = duration
+    max = expirationTime
+    timerType = "TIMER"
+    count = count1
+
     r,g,b = unpack(color)
     text = debuffType
     texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
-    icon = DT_Icons[debuffType]
+    icon = icon1 -- DT_Icons[debuffType]
     texCoords = DT_TextureCoords[debuffType]
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end

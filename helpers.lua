@@ -61,10 +61,10 @@ helpers.DebuffTypeColors = {
     Poison = { 0, 0.6, 0},
     Disease = { 0.6, 0.4, 0},
 }
-helpers.BITMASK_DISEASE = 0xF000
-helpers.BITMASK_POISON = 0x0F00
-helpers.BITMASK_CURSE = 0x00F0
-helpers.BITMASK_MAGIC = 0x000F
+helpers.BITMASK_DISEASE = 0x000F
+helpers.BITMASK_POISON = 0x00F0
+helpers.BITMASK_CURSE = 0x0F00
+helpers.BITMASK_MAGIC = 0xF000
 function helpers.DispelTypes(...)
     local numArgs = select("#", ...)
     local BITMASK_DISPELLABLE = 0

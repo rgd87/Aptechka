@@ -2704,8 +2704,15 @@ local HighlightPostUpdate = Aptechka.HighlightPostUpdate
 -- Dispel Type Indicator
 ---------------------------
 local debuffTypeMask -- Resets to 0 at the start of every aura scan
+local maxDispelType = 0
+local maxIndexOrSlot
 function Aptechka.DispelTypeProc(frame, unit, index, slot, filter, name, icon, count, debuffType)
-    debuffTypeMask = bit_bor( debuffTypeMask,  GetDebuffTypeBitmask(debuffType))
+    local DTconst = GetDebuffTypeBitmask(debuffType)
+    debuffTypeMask = bit_bor( debuffTypeMask, DTconst)
+    if DTconst >= maxDispelType then
+        maxDispelType = DTconst
+        maxIndexOrSlot = slot or index
+    end
 end
 
 function Aptechka.DispelTypePostUpdate(frame, unit)
@@ -2727,7 +2734,14 @@ function Aptechka.DispelTypePostUpdate(frame, unit)
         if debuffType then
             local color = helpers.DebuffTypeColors[debuffType]
             config.DispelStatus.color = color
-            FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", debuffType) --, debuffType)
+            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID
+            local indexOrSlot = maxIndexOrSlot
+            if isClassic then
+                name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, indexOrSlot, "HARMFUL")
+            else
+                name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID = UnitAuraBySlot(unit, indexOrSlot)
+            end
+            FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", debuffType, duration, expirationTime, count, icon, spellID, caster)
         else
             FrameSetJob(frame, config.DispelStatus, false)
         end
@@ -2753,6 +2767,7 @@ function Aptechka.FrameScanAuras(frame, unit)
     -- indicator cleanup
     table_wipe(encountered)
     debuffTypeMask = 0
+    maxDispelType = 0
     highlightedDebuffsBits = 0
     -- debuffs cleanup
     table_wipe(debuffList)
