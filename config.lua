@@ -61,7 +61,7 @@ config.HealthBarColor = { name = "HealthBar", assignto = set("health"), color = 
 config.PowerBarColor = { name = "PowerBar", assignto = set("power"), color = {.5,.5,1}, priority = 20 }
 config.InVehicleStatus = { name = "InVehicle", assignto = set("vehicle"), color = {0.3,1,0.3}, priority = 21 }
 config.LOSStatus = { name = "OutOfSight", assignto = set("healfeedback"), scale = 1.6, color = {1,0.1,0.1}, priority = 95, fade = 0.3 }
-config.DispelStatus = { name = "Dispel", assignto = set("raidbuff"), scale = 2, hscale = 2, spin = true, priority = 86 }
+config.DispelStatus = { name = "Dispel", assignto = set("debuffHighlight"), scale = 1, spin = true, priority = 86 }
 config.StaggerStatus = { name = "Stagger", assignto = set("text2"), priority = 20 }
 config.RunicPowerStatus = { name = "RunicPower", assignto = set("mitigation"), priority = 10, color = { 0, 0.82, 1 }, icon = 237517 }
 config.AltPowerStatus = { name = "AltPower", assignto = set("text3"), priority = 65, color = { 1, 0.4, 0.4 }, formatAs = "PERCENTAGE" }
@@ -69,8 +69,8 @@ config.AltPowerStatus = { name = "AltPower", assignto = set("text3"), priority =
 config.SummonPending = { name = "SummonPending", assignto = set("text2"), color = {1,0.7,0}, text = "PENDING", priority = 50 }
 config.SummonAccepted = { name = "SummonAccepted", assignto = set("text2"), color = {0,1,0}, text = "ACCEPTED", priority = 51 }
 config.SummonDeclined = { name = "SummonDeclined", assignto = set("text2"), color = {1,0,0}, text = "DECLINED", priority = 52 }
-config.DebuffAlert1 = { name = "DebuffAlert1", assignto = set("border", "flash"), color = {1,0,0}, priority = 95, pulse = true, }
-config.DebuffAlert2 = { name = "DebuffAlert2", assignto = set("border", "flash"), color = {1,0,1}, priority = 95, pulse = true, }
+config.DebuffAlert1 = { name = "DebuffAlert1", assignto = set("debuffHighlight", "flash"), color = {1,0,0}, priority = 95, pulse = true, }
+config.DebuffAlert2 = { name = "DebuffAlert2", assignto = set("debuffHighlight", "flash"), color = {1,0,1}, priority = 95, pulse = true, }
 config.DebuffAlert3 = { name = "DebuffAlert3", assignto = set("innerglow", "border", "flash"), color = {1,0,0}, priority = 90 }
 config.DebuffAlert4 = { name = "DebuffAlert4", assignto = set("pixelGlow"), color = {1,1,1}, priority = 95 }
 
@@ -100,6 +100,7 @@ config.DefaultWidgets = {
     roleIcon = { type = "Texture", width = 13, height = 13, point = "BOTTOMLEFT", x = -8, y = -8, texture = nil, rotation = 0, zorder = 3-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
     raidTargetIcon = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = -10, y = 10, texture = nil, rotation = 0, zorder = 13-DEFAULT_TEXLEVEL, alpha = 0.3, blendmode = "BLEND", disableOverrides = false },
     healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 4-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
+    debuffHighlight = { type = "Texture", width = 16, height = 22, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 10-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
 }
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 if isClassic then

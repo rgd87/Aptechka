@@ -46,6 +46,7 @@ local FRAMELEVEL = {
     TEXTURE = 10,
     OVERLAY = 12, -- Mind Control, Vehicle
     PROGRESSICON = 14,
+    FLASH = 16,
 }
 
 Aptechka.Widget = {}
@@ -1660,7 +1661,6 @@ local function CreateProgressIcon(parent, width, height, alpha, point, frame, to
     frameborder:SetVertexColor(0,0,0,1)
     frameborder:SetDrawLayer("ARTWORK", 2)
 
-    icon:SetFrameStrata("MEDIUM")
     icon:SetFrameLevel(FRAMELEVEL.PROGRESSICON)
 
     local cdf = icon.cd
@@ -2034,7 +2034,8 @@ local SetJob_Flash = function(self, job, state, contentType, ...)
 end
 local CreateFlash = function(parent)
     local f = CreateFrame("Frame", nil, parent.health)
-    local tex = f:CreateTexture(nil, "OVERLAY", nil, -4)
+    f:SetFrameLevel(FRAMELEVEL.FLASH)
+    local tex = f:CreateTexture(nil, "ARTWORK", nil, 5)
     tex:SetAtlas("QuestLegendary")
     -- tex:SetTexture([[Interface\SpellActivationOverlay\IconAlert]])
     -- tex:SetTexCoord(0, 78/128, 0, 69/256)
