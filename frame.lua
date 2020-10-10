@@ -12,7 +12,9 @@ LSM:Register("font", "AlegreyaSans-Medium", [[Interface\AddOns\Aptechka\Alegreya
 
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
+
 --[[
+DRAW LAYERS
 2 shield icon border
 0 shield icon texture
 0 normal icon texture
@@ -31,6 +33,20 @@ local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 -8 powerbar bg
 -8 healthbar bg
 ]]
+local FRAMELEVEL = {
+    BASEFRAME = 0,
+    HEALTH = 1,
+    POWER = 1,
+    BORDER = 2,
+    BAR = 5,
+    INDICATOR = 5,
+    DEBUFFICON = 7,
+    ICON = 8,
+    TEXT = 3,
+    TEXTURE = 10,
+    OVERLAY = 11, -- Mind Control, Vehicle
+    PROGRESSICON = 13,
+}
 
 Aptechka.Widget = {}
 
@@ -692,7 +708,7 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
         local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
         outline:SetVertexColor(0,0,0)
     end
-    f:SetFrameLevel(6)
+    f:SetFrameLevel(FRAMELEVEL.INDICATOR)
     local t = f:CreateTexture(nil,"ARTWORK")
     t:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     t:SetAllPoints(f)
@@ -880,6 +896,8 @@ function Aptechka.Widget.Texture.Create(parent, popts, gopts)
     f:SetWidth(pixelperfect(opts.width));
     f:SetHeight(pixelperfect(opts.height));
 
+    f:SetFrameLevel(FRAMELEVEL.TEXTURE)
+
     local zOrderMod = opts.zorder or 0
 
     local t = f:CreateTexture(nil,"ARTWORK")
@@ -1017,7 +1035,7 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
         local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
         outline:SetVertexColor(0,0,0)
     end
-    f:SetFrameLevel(7)
+    f:SetFrameLevel(FRAMELEVEL.BAR)
 
     if isVertical then
         f:SetOrientation("VERTICAL")
@@ -1207,7 +1225,7 @@ local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, 
     icon:SetWidth(w); icon:SetHeight(h)
     icon:SetPoint(point,frame,to,x,y)
     local icontex = icon:CreateTexture(nil,"ARTWORK")
-    icon:SetFrameLevel(6)
+    icon:SetFrameLevel(FRAMELEVEL.ICON)
     icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
     icontex:SetPoint("BOTTOMRIGHT",icon, "BOTTOMRIGHT",0,0)
     -- icontex:SetWidth(h);
@@ -1528,6 +1546,7 @@ local function CreateDebuffIcon(parent, width, height, alpha, point, frame, to, 
     icon.SetDebuffColor = DebuffIcon_SetDebuffColor
     icon.SetAnimDirection = DebuffIcon_SetAnimDirection
     icon.SetJob = DebuffIcon_SetJob
+    icon:SetFrameLevel(FRAMELEVEL.DEBUFFICON)
 
     icon:Hide()
 
@@ -1642,7 +1661,7 @@ local function CreateProgressIcon(parent, width, height, alpha, point, frame, to
     frameborder:SetDrawLayer("ARTWORK", 2)
 
     icon:SetFrameStrata("MEDIUM")
-    -- icon:SetFrameLevel(7)
+    icon:SetFrameLevel(FRAMELEVEL.PROGRESSICON)
 
     local cdf = icon.cd
     cdf.noCooldownCount = true -- disable OmniCC for this cooldown
@@ -1663,7 +1682,6 @@ local function CreateProgressIcon(parent, width, height, alpha, point, frame, to
 
     local iconSubFrame = CreateFrame("Frame", nil, icon)
     iconSubFrame:SetAllPoints(icon)
-    iconSubFrame:SetFrameLevel(8)
     local icontex = icon.texture
     icontex:SetParent(iconSubFrame)
     icontex:SetDrawLayer("ARTWORK", 5)
@@ -1932,6 +1950,7 @@ end
 local CreateTextTimer = function(parent, point, frame, to, x, y, hjustify, fontsize, font, flags)
     local f = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
     local text = f:CreateFontString(nil, "ARTWORK")
+    f:SetFrameLevel(FRAMELEVEL.TEXT)
     f.text = text
     text:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
     -- text:SetJustifyH("LEFT")
@@ -2095,7 +2114,7 @@ local CreateMindControlIcon = function(parent)
     local height = parent:GetHeight()
     local width = parent:GetWidth()
     local len = math.min(height, width)
-    f:SetFrameLevel(7)
+    f:SetFrameLevel(FRAMELEVEL.OVERLAY)
     f:SetSize(len, len)
     f:SetPoint("TOPLEFT",parent,"TOPLEFT",0,0)
 
@@ -2113,7 +2132,7 @@ local CreateVehicleIcon = function(parent)
     local height = parent:GetHeight()
     local width = parent:GetWidth()
     local len = math.min(height, width) / 1.8
-    f:SetFrameLevel(7)
+    f:SetFrameLevel(FRAMELEVEL.OVERLAY)
     f:SetSize(len, len)
     f:SetPoint("TOPLEFT",parent,"TOPLEFT",0,0)
 
@@ -2366,6 +2385,7 @@ end
 AptechkaDefaultConfig.GridSkin = function(self)
     Aptechka = _G.Aptechka
 
+    self:SetFrameLevel(FRAMELEVEL.BASEFRAME)
     local db = Aptechka.db.profile
 
     local config = AptechkaDefaultConfig
@@ -2393,6 +2413,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     -- local powerbar = CreateFrame("StatusBar", nil, self)
     local powerbar = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
+    powerbar:SetFrameLevel(FRAMELEVEL.POWER)
     powerbar:SetWidth(4)
     powerbar:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
     powerbar:SetHeight(db.height)
@@ -2414,6 +2435,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     -- local hp = CreateFrame("StatusBar", nil, self)
     local hp = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
+    hp:SetFrameLevel(FRAMELEVEL.HEALTH)
     --hp:SetAllPoints(self)
     hp:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
     hp:SetPoint("TOPRIGHT",powerbar,"TOPRIGHT",0,0)
@@ -2571,6 +2593,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local p4 = outlineSize + pixelperfect(2)
     local border = CreateFrame("Frame", nil, self, BackdropTemplateMixin and "BackdropTemplate" or nil)
+    border:SetFrameLevel(FRAMELEVEL.BORDER)
     border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
     border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
     border:SetBackdrop(border_backdrop)
