@@ -44,8 +44,8 @@ local FRAMELEVEL = {
     ICON = 8,
     TEXT = 3,
     TEXTURE = 10,
-    OVERLAY = 11, -- Mind Control, Vehicle
-    PROGRESSICON = 13,
+    OVERLAY = 12, -- Mind Control, Vehicle
+    PROGRESSICON = 14,
 }
 
 Aptechka.Widget = {}
