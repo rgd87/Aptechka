@@ -55,10 +55,10 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
     },
     ["Halls of Atonement"] = {
         [322977] = { 322977, 1, "Halkias, Sinlight Visions" },
-        [325552] = { 325552, 1, "Domina Venomblade, Cryotoxic Slash" },
+        -- [325552] = { 325552, 1, "Domina Venomblade, Cryotoxic Slash" },
     },
     ["Theater of Pain"] = {
-        [320069] = { 320069, 1, "Challengers, Mortal Strike" },
+        -- [320069] = { 320069, 1, "Challengers, Mortal Strike" },
         [323831] = { 323831, 1, "Mordretha, Death Grasp" },
     },
     ["The Necrotic Wake"] = {

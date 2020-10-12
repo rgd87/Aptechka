@@ -206,6 +206,7 @@ A{ id = 55233,  prototype = tankCD, priority = 94 } --Vampiric Blood
 A{ id = 48792,  prototype = tankCD, priority = 94 } --Icebound Fortitude 50%
 A{ id = 81256,  prototype = survivalCD } -- Dancing Rune Weapon
 A{ id = 145629, prototype = survivalCD } -- Anti-Magic Zone
+A{ id = 48707, prototype = survivalCD } -- Anti-Magic Shell
 
 -- MAGE
 A{ id = 113862, prototype = survivalCD } -- Arcane Greater Invisibility
