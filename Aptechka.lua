@@ -2708,10 +2708,10 @@ end
 
 function Aptechka.HighlightPostUpdate(frame, unit)
     if frame.state.highlightedDebuffsBits ~= highlightedDebuffsBits then
-        FrameSetJob(frame, config.DebuffAlert1, helpers.CheckBit(highlightedDebuffsBits, 1))
-        FrameSetJob(frame, config.DebuffAlert2, helpers.CheckBit(highlightedDebuffsBits, 2))
-        FrameSetJob(frame, config.DebuffAlert3, helpers.CheckBit(highlightedDebuffsBits, 3))
-        FrameSetJob(frame, config.DebuffAlert4, helpers.CheckBit(highlightedDebuffsBits, 4))
+        FrameSetJob(frame, config.DebuffAlert1, helpers.CheckBit(highlightedDebuffsBits, 1), "DEBUFF_HIGHLIGHT")
+        FrameSetJob(frame, config.DebuffAlert2, helpers.CheckBit(highlightedDebuffsBits, 2), "DEBUFF_HIGHLIGHT")
+        FrameSetJob(frame, config.DebuffAlert3, helpers.CheckBit(highlightedDebuffsBits, 3), "DEBUFF_HIGHLIGHT")
+        FrameSetJob(frame, config.DebuffAlert4, helpers.CheckBit(highlightedDebuffsBits, 4), "DEBUFF_HIGHLIGHT")
         frame.state.highlightedDebuffsBits = highlightedDebuffsBits
     end
 end

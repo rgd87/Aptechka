@@ -304,6 +304,7 @@ local DT_TextureCoords = {
     Curse = { 0.02734375, 0.09765625, 0.609375, 0.890625 },
     Poison = { 0.15234375, 0.22265625, 0.609375, 0.890625 },
     Disease = { 0.27734375, 0.34765625, 0.609375, 0.890625 },
+    DANGER = { 0.52734375, 0.59765625, 0.109375, 0.390625 },
 }
 local DT_Icons = {
     Magic = 135834,
@@ -311,6 +312,15 @@ local DT_Icons = {
     Poison = 132108,
     Disease = 132100,
 }
+function contentNormalizers.DEBUFF_HIGHLIGHT(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    r,g,b = GetColor(job)
+    text = "!!!"
+    texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
+    icon = 132094
+    texCoords = DT_TextureCoords.DANGER
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
 function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     local debuffType, duration, expirationTime, count1, icon1, spellID, caster = ...
