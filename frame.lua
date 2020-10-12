@@ -1177,6 +1177,8 @@ local SetJob_Icon = function(self, job, state, contentType, ...)
     --     self.texture:SetVertexColor(r,g,b)
     -- end
 
+    -- local scale = job.scale or 1
+    -- self:SetScale(scale)
 
     if count and count > 1 then
         self.stacktext:SetText(count)

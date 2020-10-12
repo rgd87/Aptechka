@@ -782,7 +782,7 @@ function Aptechka:ReconfigureUnprotected()
         for _, f in ipairs({ header:GetChildren() }) do
             self:UpdateName(f)
             f:ReconfigureUnitFrame()
-            Aptechka:RunFrameHook("PostFrameUpdate", f)
+            Aptechka:SafeCall("PostFrameUpdate", f)
         end
     end
 end
@@ -1554,8 +1554,20 @@ function Aptechka.LayoutUpdate(self)
     local spec = GetSpecialization()
     local role = self:GetSpecRole()
     local groupType = self:GetCurrentGroupType()
+    if groupType == "solo" then numMembers = 1 end
 
     local newProfileName = self.db.global.profileSelection[role][groupType]
+    if Aptechka.ProfileLogicFunc then
+        local _, class = UnitClass("player")
+        local customProfileSelection = Aptechka:SafeCall("ProfileLogicFunc", newProfileName, role, class, groupType, numMembers)
+        if customProfileSelection then
+            if self.db.profiles[customProfileSelection] then
+                newProfileName = customProfileSelection
+            else
+                Aptechka:Print(string.format("Profile '%s' doesn't exist", customProfileSelection))
+            end
+        end
+    end
 
     self.db:SetProfile(newProfileName)
 end
@@ -2108,13 +2120,19 @@ local onleave = function(self)
     self:SetScript("OnUpdate", nil)
 end
 
-function Aptechka:RunFrameHook(hookName, frame)
-    if Aptechka[hookName] then
-        local ok, err = pcall(Aptechka[hookName], frame)
-        if not ok then
-            print("|cffff7777Aptechka Userconfig Error:|r")
-            print(err)
-            Aptechka[hookName] = nil
+do
+    local errorhandler = function(err)
+        print("|cffff7777Aptechka Userconfig Error:|r")
+        print(err)
+    end
+    function Aptechka:SafeCall(func, ...)
+        if Aptechka[func] then
+            local ok, ret = xpcall(Aptechka[func], errorhandler, ...)
+            if ok then
+                return ret
+            else
+                Aptechka[func] = nil
+            end
         end
     end
 end
@@ -2179,8 +2197,8 @@ function Aptechka.SetupFrame(header, frameName)
         AbsorbBarDisable(f)
     end
     f:ReconfigureUnitFrame()
-    Aptechka:RunFrameHook("PostFrameCreate", f)
-    Aptechka:RunFrameHook("PostFrameUpdate", f)
+    Aptechka:SafeCall("PostFrameCreate", f)
+    Aptechka:SafeCall("PostFrameUpdate", f)
 
     f.self = f
     f.HideFunc = f.HideFunc or Aptechka.DummyFunction
