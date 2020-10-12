@@ -20,6 +20,7 @@ function ns.MakeStatusConfig()
         "MouseoverStatus",
         "MainTankStatus",
         "DispelStatus",
+        "LOSStatus",
         "HealthTextStatus",
         "RunicPowerStatus",
         "AltPowerStatus",
