@@ -848,7 +848,7 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     if isClassic then
         local heal = GetIncomingHealsCustom(unit, false)
         local showHeal = (heal and heal > threshold)
-        SetJob(unit, config.IncomingHealStatus, showHeal, nil, heal)
+        SetJob(unit, config.IncomingHealStatus, showHeal, "INCOMING_HEAL", heal)
     end
 end
 
