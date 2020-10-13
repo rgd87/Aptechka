@@ -1,16 +1,20 @@
 local _, helpers = ...
 local Aptechka = Aptechka
 
+local config = AptechkaDefaultConfig
+
 local pixelperfect = helpers.pixelperfect
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
 LSM:Register("statusbar", "Gradient", [[Interface\AddOns\Aptechka\gradient.tga]])
-LSM:Register("font", "ClearFont", [[Interface\AddOns\Aptechka\ClearFont.ttf]], GetLocale() ~= "enUS" and 15)
+LSM:Register("font", "AlegreyaSans-Medium", [[Interface\AddOns\Aptechka\AlegreyaSans-Medium.ttf]],  GetLocale() ~= "enUS" and 15)
 
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
+
 --[[
+DRAW LAYERS
 2 shield icon border
 0 shield icon texture
 0 normal icon texture
@@ -29,6 +33,21 @@ local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 -8 powerbar bg
 -8 healthbar bg
 ]]
+local FRAMELEVEL = {
+    BASEFRAME = 0,
+    HEALTH = 1,
+    POWER = 1,
+    BORDER = 2,
+    BAR = 5,
+    INDICATOR = 5,
+    DEBUFFICON = 7,
+    ICON = 8,
+    TEXT = 3,
+    TEXTURE = 10,
+    OVERLAY = 12, -- Mind Control, Vehicle
+    PROGRESSICON = 14,
+    FLASH = 16,
+}
 
 Aptechka.Widget = {}
 
@@ -201,7 +220,7 @@ local function formatMissingHealth(mh)
 end
 
 local contentNormalizers = {}
-function contentNormalizers.HealthDeficit(job, state, contentType, ...)
+function contentNormalizers.HealthText(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     cur, max = ...
     text = string.format(formatMissingHealth(max - cur))
@@ -285,6 +304,7 @@ local DT_TextureCoords = {
     Curse = { 0.02734375, 0.09765625, 0.609375, 0.890625 },
     Poison = { 0.15234375, 0.22265625, 0.609375, 0.890625 },
     Disease = { 0.27734375, 0.34765625, 0.609375, 0.890625 },
+    DANGER = { 0.52734375, 0.59765625, 0.109375, 0.390625 },
 }
 local DT_Icons = {
     Magic = 135834,
@@ -292,14 +312,29 @@ local DT_Icons = {
     Poison = 132108,
     Disease = 132100,
 }
+function contentNormalizers.DEBUFF_HIGHLIGHT(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    r,g,b = GetColor(job)
+    text = "!!!"
+    texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
+    icon = 132094
+    texCoords = DT_TextureCoords.DANGER
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
 function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
-    local debuffType = ...
+    local debuffType, duration, expirationTime, count1, icon1, spellID, caster = ...
     local color = helpers.DebuffTypeColors[debuffType]
+
+    cur = duration
+    max = expirationTime
+    timerType = "TIMER"
+    count = count1
+
     r,g,b = unpack(color)
     text = debuffType
     texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
-    icon = DT_Icons[debuffType]
+    icon = icon1 -- DT_Icons[debuffType]
     texCoords = DT_TextureCoords[debuffType]
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
@@ -420,8 +455,8 @@ end
 
 local Pulse_AnimOnFinished = function(self)
     self.pulses = self.pulses + 1
-    if self.pulses > 10 then
-        local ag = self:GetParent()
+    local ag = self:GetParent()
+    if self.pulses > ag.maxpulses then
         ag:Stop()
         ag.done = true
     end
@@ -432,10 +467,18 @@ end
 local Pulse_OnHide = function(self)
     self.pulse.done = false
 end
+local function Pulse_PlayAnim(self, job)
+    if not self.pulse.done and not self.pulse:IsPlaying() then
+        if job.pulse == true then job.pulse = 10 end
+        self.pulse.maxpulses = job.pulse
+        self.pulse:Play()
+    end
+end
 
 local function AddPulseAnimation(f)
     local pag = f:CreateAnimationGroup()
     pag:SetLooping("REPEAT")
+    pag.maxpulses = 10
     local pa1 = pag:CreateAnimation("Alpha")
     pa1:SetFromAlpha(1)
     pa1:SetToAlpha(0)
@@ -644,7 +687,7 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
 
     if self.currentJob ~= self.previousJob then
         if job.pulse then
-            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+            Pulse_PlayAnim(self, job)
         end
 
         local scale = job.scale or 1
@@ -690,7 +733,7 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
         local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
         outline:SetVertexColor(0,0,0)
     end
-    f:SetFrameLevel(6)
+    f:SetFrameLevel(FRAMELEVEL.INDICATOR)
     local t = f:CreateTexture(nil,"ARTWORK")
     t:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     t:SetAllPoints(f)
@@ -851,7 +894,7 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
         end
 
         if job.pulse then
-            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+            Pulse_PlayAnim(self, job)
         end
     end
 end
@@ -879,10 +922,11 @@ function Aptechka.Widget.Texture.Create(parent, popts, gopts)
     f:SetHeight(pixelperfect(opts.height));
 
     local zOrderMod = opts.zorder or 0
+    f:SetFrameLevel(math.max(FRAMELEVEL.TEXTURE+zOrderMod, 0))
 
     local t = f:CreateTexture(nil,"ARTWORK")
 
-    t:SetDrawLayer("ARTWORK", zOrderMod)
+    -- t:SetDrawLayer("ARTWORK", 0)
 
     t:SetTexture(opts.texture)
     f._defaultTexture = opts.texture
@@ -937,7 +981,8 @@ function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
     t:SetAlpha(opts.alpha)
 
     local zOrderMod = opts.zorder or 0
-    t:SetDrawLayer("ARTWORK", zOrderMod)
+    f:SetFrameLevel(math.max(FRAMELEVEL.TEXTURE+zOrderMod, 0))
+    -- t:SetDrawLayer("ARTWORK", 0)
 end
 
 -------------------------------------------------------------------------------------------
@@ -1015,7 +1060,7 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
         local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
         outline:SetVertexColor(0,0,0)
     end
-    f:SetFrameLevel(7)
+    f:SetFrameLevel(FRAMELEVEL.BAR)
 
     if isVertical then
         f:SetOrientation("VERTICAL")
@@ -1109,7 +1154,7 @@ Aptechka.Widget.IndicatorArray.Reconf = Aptechka.Widget.BarArray.Reconf
 ----------------------------------------------------------
 
 Aptechka.Widget.IconArray = {}
-Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
+Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
 function Aptechka.Widget.IconArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateArrayHeader("Icon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
@@ -1142,6 +1187,8 @@ local SetJob_Icon = function(self, job, state, contentType, ...)
     --     self.texture:SetVertexColor(r,g,b)
     -- end
 
+    -- local scale = job.scale or 1
+    -- self:SetScale(scale)
 
     if count and count > 1 then
         self.stacktext:SetText(count)
@@ -1205,7 +1252,7 @@ local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, 
     icon:SetWidth(w); icon:SetHeight(h)
     icon:SetPoint(point,frame,to,x,y)
     local icontex = icon:CreateTexture(nil,"ARTWORK")
-    icon:SetFrameLevel(6)
+    icon:SetFrameLevel(FRAMELEVEL.ICON)
     icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
     icontex:SetPoint("BOTTOMRIGHT",icon, "BOTTOMRIGHT",0,0)
     -- icontex:SetWidth(h);
@@ -1328,7 +1375,7 @@ end
 AptechkaDefaultConfig.GridSkin_CreateIcon = CreateIcon
 
 Aptechka.Widget.Icon = {}
-Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 12, outline = true, edge = true }
+Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = true, edge = true }
 function Aptechka.Widget.Icon.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
@@ -1344,7 +1391,7 @@ function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     f:SetAlpha(opts.alpha)
 
-    local fontName = opts.font or "ClearFont"
+    local fontName = opts.font or config.defaultFont
     local font = LSM:Fetch("font",  fontName)
     local flags = opts.effect == "OUTLINE" and "OUTLINE"
     if opts.effect == "SHADOW" then
@@ -1526,6 +1573,7 @@ local function CreateDebuffIcon(parent, width, height, alpha, point, frame, to, 
     icon.SetDebuffColor = DebuffIcon_SetDebuffColor
     icon.SetAnimDirection = DebuffIcon_SetAnimDirection
     icon.SetJob = DebuffIcon_SetJob
+    icon:SetFrameLevel(FRAMELEVEL.DEBUFFICON)
 
     icon:Hide()
 
@@ -1547,7 +1595,7 @@ local function CreateDebuffIcon(parent, width, height, alpha, point, frame, to, 
     return icon
 end
 Aptechka.Widget.DebuffIcon = {}
-Aptechka.Widget.DebuffIcon.default = { type = "DebuffIcon", width = 13, height = 13, point = "CENTER", x = 0, y = 0, alpha = 1, style = "STRIP_RIGHT", animdir = "LEFT", font = "ClearFont", textsize = 12, edge = false }
+Aptechka.Widget.DebuffIcon.default = { type = "DebuffIcon", width = 13, height = 13, point = "CENTER", x = 0, y = 0, alpha = 1, style = "STRIP_RIGHT", animdir = "LEFT", font = config.defaultFont, textsize = 12, edge = false }
 function Aptechka.Widget.DebuffIcon.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     local icon = CreateDebuffIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
@@ -1639,8 +1687,7 @@ local function CreateProgressIcon(parent, width, height, alpha, point, frame, to
     frameborder:SetVertexColor(0,0,0,1)
     frameborder:SetDrawLayer("ARTWORK", 2)
 
-    icon:SetFrameStrata("MEDIUM")
-    -- icon:SetFrameLevel(7)
+    icon:SetFrameLevel(FRAMELEVEL.PROGRESSICON)
 
     local cdf = icon.cd
     cdf.noCooldownCount = true -- disable OmniCC for this cooldown
@@ -1661,7 +1708,6 @@ local function CreateProgressIcon(parent, width, height, alpha, point, frame, to
 
     local iconSubFrame = CreateFrame("Frame", nil, icon)
     iconSubFrame:SetAllPoints(icon)
-    iconSubFrame:SetFrameLevel(8)
     local icontex = icon.texture
     icontex:SetParent(iconSubFrame)
     icontex:SetDrawLayer("ARTWORK", 5)
@@ -1676,7 +1722,7 @@ local function CreateProgressIcon(parent, width, height, alpha, point, frame, to
 end
 
 Aptechka.Widget.ProgressIcon = {}
-Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = "ClearFont", textsize = 12, outline = false, edge = false }
+Aptechka.Widget.ProgressIcon.default = { type = "ProgressIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false }
 function Aptechka.Widget.ProgressIcon.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateProgressIcon(parent, opts.width, opts.height, opts.alpha, opts.point, parent, opts.point, opts.x, opts.y, opts.font, opts.textsize, opts.outline, opts.edge)
@@ -1930,6 +1976,7 @@ end
 local CreateTextTimer = function(parent, point, frame, to, x, y, hjustify, fontsize, font, flags)
     local f = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
     local text = f:CreateFontString(nil, "ARTWORK")
+    f:SetFrameLevel(FRAMELEVEL.TEXT)
     f.text = text
     text:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
     -- text:SetJustifyH("LEFT")
@@ -1940,10 +1987,10 @@ end
 AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
 
 Aptechka.Widget.Text = {}
-Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] font = "ClearFont", textsize = 13, effect = "NONE" }
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] font = config.defaultFont, textsize = 13, effect = "NONE" }
 function Aptechka.Widget.Text.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", "ClearFont")
+    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", config.defaultFont)
     local flags = opts.effect == "OUTLINE" and "OUTLINE"
     local text = CreateTextTimer(parent, opts.point, parent, opts.point, opts.x, opts.y, opts.justify, opts.textsize, font, flags)
     if opts.effect == "SHADOW" then
@@ -1962,7 +2009,7 @@ function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
     f.text:ClearAllPoints()
     f.text:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     -- f.text:SetJustifyH(opts.justify:upper())
-    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", "ClearFont")
+    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", config.defaultFont)
     local flags = opts.effect == "OUTLINE" and "OUTLINE"
     if opts.effect == "SHADOW" then
         f.text:SetShadowOffset(1,-1)
@@ -2013,7 +2060,8 @@ local SetJob_Flash = function(self, job, state, contentType, ...)
 end
 local CreateFlash = function(parent)
     local f = CreateFrame("Frame", nil, parent.health)
-    local tex = f:CreateTexture(nil, "OVERLAY", nil, -4)
+    f:SetFrameLevel(FRAMELEVEL.FLASH)
+    local tex = f:CreateTexture(nil, "ARTWORK", nil, 5)
     tex:SetAtlas("QuestLegendary")
     -- tex:SetTexture([[Interface\SpellActivationOverlay\IconAlert]])
     -- tex:SetTexCoord(0, 78/128, 0, 69/256)
@@ -2093,7 +2141,7 @@ local CreateMindControlIcon = function(parent)
     local height = parent:GetHeight()
     local width = parent:GetWidth()
     local len = math.min(height, width)
-    f:SetFrameLevel(7)
+    f:SetFrameLevel(FRAMELEVEL.OVERLAY)
     f:SetSize(len, len)
     f:SetPoint("TOPLEFT",parent,"TOPLEFT",0,0)
 
@@ -2111,7 +2159,7 @@ local CreateVehicleIcon = function(parent)
     local height = parent:GetHeight()
     local width = parent:GetWidth()
     local len = math.min(height, width) / 1.8
-    f:SetFrameLevel(7)
+    f:SetFrameLevel(FRAMELEVEL.OVERLAY)
     f:SetSize(len, len)
     f:SetPoint("TOPLEFT",parent,"TOPLEFT",0,0)
 
@@ -2176,7 +2224,7 @@ local SetJob_Border = function(self, job, state, contentType, ...)
 
     if self.currentJob ~= self.previousJob then
         if job.pulse then
-            if not self.pulse.done and not self.pulse:IsPlaying() then self.pulse:Play() end
+            Pulse_PlayAnim(self, job)
         end
     end
 end
@@ -2364,6 +2412,7 @@ end
 AptechkaDefaultConfig.GridSkin = function(self)
     Aptechka = _G.Aptechka
 
+    self:SetFrameLevel(FRAMELEVEL.BASEFRAME)
     local db = Aptechka.db.profile
 
     local config = AptechkaDefaultConfig
@@ -2391,6 +2440,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     -- local powerbar = CreateFrame("StatusBar", nil, self)
     local powerbar = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
+    powerbar:SetFrameLevel(FRAMELEVEL.POWER)
     powerbar:SetWidth(4)
     powerbar:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
     powerbar:SetHeight(db.height)
@@ -2412,6 +2462,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     -- local hp = CreateFrame("StatusBar", nil, self)
     local hp = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
+    hp:SetFrameLevel(FRAMELEVEL.HEALTH)
     --hp:SetAllPoints(self)
     hp:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
     hp:SetPoint("TOPRIGHT",powerbar,"TOPRIGHT",0,0)
@@ -2569,6 +2620,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local p4 = outlineSize + pixelperfect(2)
     local border = CreateFrame("Frame", nil, self, BackdropTemplateMixin and "BackdropTemplate" or nil)
+    border:SetFrameLevel(FRAMELEVEL.BORDER)
     border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
     border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
     border:SetBackdrop(border_backdrop)

@@ -814,7 +814,7 @@ function Aptechka:ReconfigureUnprotected()
         for _, f in ipairs({ header:GetChildren() }) do
             self:UpdateName(f)
             f:ReconfigureUnitFrame()
-            Aptechka:RunFrameHook("PostFrameUpdate", f)
+            Aptechka:SafeCall("PostFrameUpdate", f)
         end
     end
 end
@@ -1055,7 +1055,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     if gradientHealthColor then
         FrameSetJob(self, config.HealthBarColor, true, "HealthBar", h)
     end
-    FrameSetJob(self, config.HealthDeficitStatus, ((hm-h) > hm*0.05), nil, h, hm )
+    FrameSetJob(self, config.HealthTextStatus, ((hm-h) > hm*0.05), nil, h, hm )
 
     local isDead = UnitIsDeadOrGhost(unit)
     if isDead then
@@ -1063,7 +1063,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
         local isGhost = UnitIsGhost(unit)
         local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
         FrameSetJob(self, deadorghost, true)
-        FrameSetJob(self,config.HealthDeficitStatus, false )
+        FrameSetJob(self,config.HealthTextStatus, false )
         state.isDead = true
         state.isGhost = isGhost
         Aptechka.FrameUpdateDisplayPower(self, unit, true)
@@ -1642,8 +1642,20 @@ function Aptechka.LayoutUpdate(self)
     local spec = GetSpecialization()
     local role = self:GetSpecRole()
     local groupType = self:GetCurrentGroupType()
+    if groupType == "solo" then numMembers = 1 end
 
     local newProfileName = self.db.global.profileSelection[role][groupType]
+    if Aptechka.ProfileLogicFunc then
+        local _, class = UnitClass("player")
+        local customProfileSelection = Aptechka:SafeCall("ProfileLogicFunc", newProfileName, role, class, groupType, numMembers)
+        if customProfileSelection then
+            if self.db.profiles[customProfileSelection] then
+                newProfileName = customProfileSelection
+            else
+                Aptechka:Print(string.format("Profile '%s' doesn't exist", customProfileSelection))
+            end
+        end
+    end
 
     self.db:SetProfile(newProfileName)
 end
@@ -2195,13 +2207,19 @@ local onleave = function(self)
     self:SetScript("OnUpdate", nil)
 end
 
-function Aptechka:RunFrameHook(hookName, frame)
-    if Aptechka[hookName] then
-        local ok, err = pcall(Aptechka[hookName], frame)
-        if not ok then
-            print("|cffff7777Aptechka Userconfig Error:|r")
-            print(err)
-            Aptechka[hookName] = nil
+do
+    local errorhandler = function(err)
+        print("|cffff7777Aptechka Userconfig Error:|r")
+        print(err)
+    end
+    function Aptechka:SafeCall(func, ...)
+        if Aptechka[func] then
+            local ok, ret = xpcall(Aptechka[func], errorhandler, ...)
+            if ok then
+                return ret
+            else
+                Aptechka[func] = nil
+            end
         end
     end
 end
@@ -2277,8 +2295,8 @@ function Aptechka.SetupFrame(header, frameName)
         AbsorbBarDisable(f)
     end
     f:ReconfigureUnitFrame()
-    Aptechka:RunFrameHook("PostFrameCreate", f)
-    Aptechka:RunFrameHook("PostFrameUpdate", f)
+    Aptechka:SafeCall("PostFrameCreate", f)
+    Aptechka:SafeCall("PostFrameUpdate", f)
 
     f.self = f
     f.HideFunc = f.HideFunc or Aptechka.DummyFunction
@@ -2788,10 +2806,10 @@ end
 
 function Aptechka.HighlightPostUpdate(frame, unit)
     if frame.state.highlightedDebuffsBits ~= highlightedDebuffsBits then
-        FrameSetJob(frame, config.DebuffAlert1, helpers.CheckBit(highlightedDebuffsBits, 1))
-        FrameSetJob(frame, config.DebuffAlert2, helpers.CheckBit(highlightedDebuffsBits, 2))
-        FrameSetJob(frame, config.DebuffAlert3, helpers.CheckBit(highlightedDebuffsBits, 3))
-        FrameSetJob(frame, config.DebuffAlert4, helpers.CheckBit(highlightedDebuffsBits, 4))
+        FrameSetJob(frame, config.DebuffAlert1, helpers.CheckBit(highlightedDebuffsBits, 1), "DEBUFF_HIGHLIGHT")
+        FrameSetJob(frame, config.DebuffAlert2, helpers.CheckBit(highlightedDebuffsBits, 2), "DEBUFF_HIGHLIGHT")
+        FrameSetJob(frame, config.DebuffAlert3, helpers.CheckBit(highlightedDebuffsBits, 3), "DEBUFF_HIGHLIGHT")
+        FrameSetJob(frame, config.DebuffAlert4, helpers.CheckBit(highlightedDebuffsBits, 4), "DEBUFF_HIGHLIGHT")
         frame.state.highlightedDebuffsBits = highlightedDebuffsBits
     end
 end
@@ -2802,8 +2820,15 @@ local HighlightPostUpdate = Aptechka.HighlightPostUpdate
 -- Dispel Type Indicator
 ---------------------------
 local debuffTypeMask -- Resets to 0 at the start of every aura scan
+local maxDispelType = 0
+local maxIndexOrSlot
 function Aptechka.DispelTypeProc(frame, unit, index, slot, filter, name, icon, count, debuffType)
-    debuffTypeMask = bit_bor( debuffTypeMask,  GetDebuffTypeBitmask(debuffType))
+    local DTconst = GetDebuffTypeBitmask(debuffType)
+    debuffTypeMask = bit_bor( debuffTypeMask, DTconst)
+    if DTconst >= maxDispelType then
+        maxDispelType = DTconst
+        maxIndexOrSlot = slot or index
+    end
 end
 
 function Aptechka.DispelTypePostUpdate(frame, unit)
@@ -2825,7 +2850,14 @@ function Aptechka.DispelTypePostUpdate(frame, unit)
         if debuffType then
             local color = helpers.DebuffTypeColors[debuffType]
             config.DispelStatus.color = color
-            FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", debuffType) --, debuffType)
+            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID
+            local indexOrSlot = maxIndexOrSlot
+            if isClassic then
+                name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, indexOrSlot, "HARMFUL")
+            else
+                name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID = UnitAuraBySlot(unit, indexOrSlot)
+            end
+            FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", debuffType, duration, expirationTime, count, icon, spellID, caster)
         else
             FrameSetJob(frame, config.DispelStatus, false)
         end
@@ -2851,6 +2883,7 @@ function Aptechka.FrameScanAuras(frame, unit)
     -- indicator cleanup
     table_wipe(encountered)
     debuffTypeMask = 0
+    maxDispelType = 0
     highlightedDebuffsBits = 0
     -- debuffs cleanup
     table_wipe(debuffList)
