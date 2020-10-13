@@ -227,7 +227,7 @@ function contentNormalizers.HealthText(job, state, contentType, ...)
     r,g,b = GetClassOrTextColor(job, state)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
-function contentNormalizers.IncomingHeal(job, state, contentType, ...)
+function contentNormalizers.INCOMING_HEAL(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     cur = ...
     text = string.format("+%d", cur)
