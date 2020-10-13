@@ -9,7 +9,6 @@ local pixelperfect= helpers.pixelperfect
 local config = AptechkaDefaultConfig
 local set = helpers.set
 
-config.raidIcons = true
 config.frameStrata = "MEDIUM"
 config.maxgroups = 8
 config.petcolor = {1,.5,.5}
@@ -118,6 +117,11 @@ local RangeCheckBySpell = helpers.RangeCheckBySpell
 local tankCD = { type = "HELPFUL", assignto = set("icon"), global = true, showDuration = true, priority = 94, color = { 1, 0.2, 1} }
 local survivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, showDuration = true, priority = 90, color = { 0.4, 1, 0.4} }
 local activeMitigation = { type = "HELPFUL", assignto = set("mitigation"), showDuration = true, global = true, color = {0.7, 0.7, 0.7}, priority = 80 }
+config.Templates = {
+    tankCD = tankCD,
+    survivalCD = survivalCD,
+    activeMitigation = activeMitigation,
+}
 
 -- ESSENCES
 A{ id = 296094, prototype = tankCD } --Standstill (Artifice of Time)

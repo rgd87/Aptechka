@@ -84,7 +84,7 @@ function helpers.DispelTypes(...)
 end
 
 local protomt = { __index = function(t,k) return t.prototype[k] end }
-helpers.AddLoadableAura = function (data, todefault)
+function helpers.AddLoadableAura(data, todefault)
     if data.id then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
 
@@ -97,7 +97,7 @@ helpers.AddLoadableAura = function (data, todefault)
     if not Aptechka.loadedAuras then Aptechka.loadedAuras = {} end
     Aptechka.loadedAuras[data.id] = data
 end
-helpers.AddAura = function (data, todefault)
+function helpers.AddAura(data, todefault)
     if type(data.id) == "table" then
         local clones = data.id
         data.id = clones[1] -- extract first spell id from the last as original
@@ -113,7 +113,6 @@ helpers.AddAura = function (data, todefault)
 
     if data.id and not data.name then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (string.format("[Aptechka] %d spell id missing", data.id)) return end
-    -- if data.isMine then data.type = data.type.."|PLAYER" end
 
     if data.prototype then -- metatables break because of config merging for gui
         -- setmetatable(data, { __index = function(t,k) return t.prototype[k] end })
@@ -128,13 +127,18 @@ helpers.AddAura = function (data, todefault)
     if not data.type then data.type = "HELPFUL" end
 
     if not config.auras then config.auras = {} end
-    -- if not config.auras[data.type] then config.auras[data.type] = {} end
     config.auras[data.id] = data
 end
-helpers.AddAuraToDefault = function(data)
+function helpers.AddAuraToDefault(data)
     helpers.AddAura(data,true)
 end
-helpers.AddTrace = function(data)
+
+
+function helpers.ModStatus(name, opts)
+
+end
+
+function helpers.AddTrace(data)
     if not config.enableTraceHeals then return end
 
     if type(data.id) == "table" then
@@ -161,7 +165,7 @@ helpers.AddTrace = function(data)
     config.traces[id] = data
 end
 
-helpers.AddDebuff = function (index, data)
+function helpers.AddDebuff(index, data)
     if not config.DebuffDisplay then config.DebuffDisplay = {} end
 
     config.DebuffDisplay[index] = data
@@ -279,20 +283,24 @@ function helpers.DisableBlizzParty(self)
     end
 end
 
+local MIRROR_POINTS = {
+	["TOPLEFT"] = "BOTTOMRIGHT",
+	["LEFT"] = "RIGHT",
+	["BOTTOMLEFT"] = "TOPRIGHT",
+	["TOPRIGHT"] = "BOTTOMLEFT",
+	["RIGHT"] = "LEFT",
+	["BOTTOMRIGHT"] = "TOPLEFT",
+	["CENTER"] = "CENTER",
+	["TOP"] = "BOTTOM",
+	["BOTTOM"] = "TOP",
+};
 function helpers.Reverse(p1)
-    local p2 = ""
-    local dir
-    if string.find(p1,"CENTER") then return "CENTER" end
-    if string.find(p1,"TOP") then p2 = p2.."BOTTOM" end
-    if string.find(p1,"BOTTOM") then p2 = p2.."TOP" end
-    if string.find(p1,"LEFT") then p2 = p2.."RIGHT" end
-    if string.find(p1,"RIGHT") then p2 = p2.."LEFT" end
+    local p2 = MIRROR_POINTS[p1]
     if p2 == "RIGHT" or p2 == "LEFT" then
-        dir = "HORIZONTAL"
+        return p2, "HORIZONTAL"
     elseif p2 == "TOP" or p2 == "BOTTOM" then
-        dir = "VERTICAL"
+        return p2, "VERTICAL"
     end
-    return p2, dir
 end
 
 function helpers.GetVerticalAlignmentFromPoint(p1)
@@ -409,23 +417,6 @@ local function RemoveDefaults(t, defaults)
 end
 helpers.RemoveDefaults = RemoveDefaults
 
-local function RemoveDefaultsPreserve(t, defaults)
-    if not defaults then return end
-    for k, v in pairs(defaults) do
-        if type(t[k]) == 'table' and type(v) == 'table' then
-            RemoveDefaultsPreserve(t[k], v)
-            if next(t[k]) == nil then
-                t[k] = nil
-            end
-        elseif t[k] == nil and v ~= nil then
-            t[k] = "__REMOVED__"
-        elseif t[k] == v then
-            t[k] = nil
-        end
-    end
-    return t
-end
-helpers.RemoveDefaultsPreserve = RemoveDefaultsPreserve
 
 local function MergeTable(t1, t2)
     if not t2 then return false end
