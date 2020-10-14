@@ -629,6 +629,7 @@ helpers.auraBlacklist = {
     [113746] = true, -- 8.0 Monk: Mystic Touch, Physical damage taken increased by 5%.
     [228287] = true, -- 8.0 WW Monk: Mark of the Crane, Increases the damage of the Monk's Spinning Crane Kick by 10%.
     [273299] = true, -- 8.0 Monk Azerite Trait Sunrise Technique, Taking additional damage from Melee abilities.
+    [337341] = true, -- 9.0 WW Monk: Skyreach Exhaustion, Keerer's Skyreach artifact CD
 
     -- WARRIOR
 
