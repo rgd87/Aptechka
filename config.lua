@@ -299,7 +299,7 @@ if playerClass == "PRIEST" then
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(17), -- Disc: PWS
-        RangeCheckBySpell(139),-- Holy: Renew
+        RangeCheckBySpell(17), -- Holy: PWS
         RangeCheckBySpell(17), -- Shadow: PWS
     }
 
@@ -454,7 +454,7 @@ if playerClass == "SHAMAN" then
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(8004), -- Healing Surge
-        RangeCheckBySpell(188070), -- Enh Healing Surge
+        RangeCheckBySpell(8004), -- Enh Healing Surge
         RangeCheckBySpell(8004),
     }
 
