@@ -68,8 +68,8 @@ config.AltPowerStatus = { name = "AltPower", assignto = set("text3"), priority =
 config.SummonPending = { name = "SummonPending", assignto = set("text2"), color = {1,0.7,0}, text = "PENDING", priority = 50 }
 config.SummonAccepted = { name = "SummonAccepted", assignto = set("text2"), color = {0,1,0}, text = "ACCEPTED", priority = 51 }
 config.SummonDeclined = { name = "SummonDeclined", assignto = set("text2"), color = {1,0,0}, text = "DECLINED", priority = 52 }
-config.DebuffAlert1 = { name = "DebuffAlert1", assignto = set("debuffHighlight", "flash"), color = {1,0,0}, priority = 95, pulse = 10, }
-config.DebuffAlert2 = { name = "DebuffAlert2", assignto = set("debuffHighlight", "flash"), color = {1,0,1}, priority = 95, pulse = 10, }
+config.DebuffAlert1 = { name = "DebuffAlert1", assignto = set("debuffHighlight", "flash"), color = {1,0,0}, priority = 95, scale = 1.15, pulse = 10, }
+config.DebuffAlert2 = { name = "DebuffAlert2", assignto = set("debuffHighlight", "flash"), color = {1,0,1}, priority = 95, scale = 1.15, pulse = 10, }
 config.DebuffAlert3 = { name = "DebuffAlert3", assignto = set("innerglow", "border", "flash"), color = {1,0,0}, priority = 90 }
 config.DebuffAlert4 = { name = "DebuffAlert4", assignto = set("pixelGlow"), color = {1,1,1}, priority = 95 }
 
@@ -99,7 +99,7 @@ config.DefaultWidgets = {
     roleIcon = { type = "Texture", width = 13, height = 13, point = "BOTTOMLEFT", x = -8, y = -8, texture = nil, rotation = 0, zorder = 3-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
     raidTargetIcon = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = -10, y = 10, texture = nil, rotation = 0, zorder = 13-DEFAULT_TEXLEVEL, alpha = 0.3, blendmode = "BLEND", disableOverrides = false },
     healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 4-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
-    debuffHighlight = { type = "Texture", width = 16, height = 22, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 10-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
+    debuffHighlight = { type = "Texture", width = 12, height = 15, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 10-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
 }
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 if isClassic then
