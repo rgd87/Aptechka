@@ -34,19 +34,19 @@ DRAW LAYERS
 -8 healthbar bg
 ]]
 local FRAMELEVEL = {
-    BASEFRAME = 0,
-    HEALTH = 1,
-    POWER = 1,
-    BORDER = 2,
-    BAR = 5,
-    INDICATOR = 5,
-    DEBUFFICON = 7,
-    ICON = 8,
-    TEXT = 3,
-    TEXTURE = 10,
-    OVERLAY = 12, -- Mind Control, Vehicle
-    PROGRESSICON = 14,
-    FLASH = 16,
+    -- BASEFRAME = 3,
+    HEALTH = 4,
+    POWER = 4,
+    BORDER = 5,
+    BAR = 8,
+    INDICATOR = 8,
+    DEBUFFICON = 10,
+    ICON = 11,
+    TEXT = 6,
+    TEXTURE = 13,
+    OVERLAY = 15, -- Mind Control, Vehicle
+    PROGRESSICON = 17,
+    FLASH = 19,
 }
 
 Aptechka.Widget = {}
@@ -2412,7 +2412,7 @@ end
 AptechkaDefaultConfig.GridSkin = function(self)
     Aptechka = _G.Aptechka
 
-    self:SetFrameLevel(FRAMELEVEL.BASEFRAME)
+    -- self:SetFrameLevel(FRAMELEVEL.BASEFRAME) -- Can't do this in combat
     local db = Aptechka.db.profile
 
     local config = AptechkaDefaultConfig

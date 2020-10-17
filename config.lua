@@ -77,7 +77,7 @@ config.DebuffAlert4 = { name = "DebuffAlert4", assignto = set("pixelGlow"), colo
 config.MindControlStatus = { name = "MIND_CONTROL", assignto = set("border", "mindcontrol", "innerglow"), color = {0.5,0,1}, priority = 52 }
 -- config.UnhealableStatus = { name = "UNHEALABLE", assignto = set("unhealable"), color = {0.5,0,1}, priority = 50 }
 
-local DEFAULT_TEXLEVEL = 10
+local DEFAULT_TEXLEVEL = 13
 config.DefaultWidgets = {
     raidbuff = { type = "IndicatorArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, growth = "DOWN", max = 5 },
     mitigation = { type = "Bar", width=22, height=4, point="BOTTOMLEFT", x=4, y=-5, vertical = false},
@@ -95,11 +95,11 @@ config.DefaultWidgets = {
     incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false },
     debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = config.defaultFont, textsize = 12, bigscale = 1.3 },
     -- bossdebuff = { type = "Indicator", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = -0, },
-    statusIcon = { type = "Texture", width = 20, height = 20, point = "CENTER", x = 0, y = 14, texture = nil, rotation = 0, zorder = 3-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
-    roleIcon = { type = "Texture", width = 13, height = 13, point = "BOTTOMLEFT", x = -8, y = -8, texture = nil, rotation = 0, zorder = 3-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
-    raidTargetIcon = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = -10, y = 10, texture = nil, rotation = 0, zorder = 13-DEFAULT_TEXLEVEL, alpha = 0.3, blendmode = "BLEND", disableOverrides = false },
-    healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 4-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
-    debuffHighlight = { type = "Texture", width = 12, height = 15, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 10-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
+    statusIcon = { type = "Texture", width = 20, height = 20, point = "CENTER", x = 0, y = 14, texture = nil, rotation = 0, zorder = 6-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
+    roleIcon = { type = "Texture", width = 13, height = 13, point = "BOTTOMLEFT", x = -8, y = -8, texture = nil, rotation = 0, zorder = 6-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
+    raidTargetIcon = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = -10, y = 10, texture = nil, rotation = 0, zorder = 16-DEFAULT_TEXLEVEL, alpha = 0.3, blendmode = "BLEND", disableOverrides = false },
+    healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 7-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
+    debuffHighlight = { type = "Texture", width = 12, height = 15, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 13-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
 }
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 if isClassic then
