@@ -459,7 +459,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self:RegisterEvent("UNIT_FACTION")
     self:RegisterEvent("UNIT_FLAGS")
-    self.UNIT_FLAGS = self.UNIT_FACTION
 
     self:RegisterEvent("UNIT_PHASE")
     --[[
@@ -971,6 +970,8 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     end
     FrameSetJob(self, config.HealthTextStatus, ((hm-h) > hm*0.05), nil, h, hm )
 
+    if not event then return end -- no death checks on CLH
+
     local isDead = UnitIsDeadOrGhost(unit)
     if isDead then
         FrameSetJob(self, config.AggroStatus, false)
@@ -1093,6 +1094,12 @@ end
 
 function Aptechka.UNIT_FACTION(self, event, unit)
     self:UpdateMindControl(unit)
+end
+
+function Aptechka.UNIT_FLAGS(self, event, unit)
+    self:UpdateMindControl(unit)
+    -- Not sure if UNIT_FLAGS fires on death changes
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealth, event)
 end
 
 local purgeOldAuraEvents = function(frame)
