@@ -3533,45 +3533,25 @@ function Aptechka.FrameUpdateIncomingCast(frame, unit)
         local isImportant = importantTargetedCasts[spellID]
         if not blacklist[spellID] then
             totalCasts = totalCasts + 1
+            -- endTime here is used only for the purpose of finding the most important cast with least remaining time
+            -- in the form of caster's srcGUID
             if castType == "CHANNEL" then endTime = endTime - 5 end -- prioritizing channels
             if isImportant then endTime = endTime - 100 end
 
             if not minTime or endTime < minTime then
                 minSrcGUID = srcGUID
                 minTime = endTime
-                -- print(i)
             end
         end
     end
 
     local icon = frame.incomingCastIcon
     if minSrcGUID then
-        local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
-
-        icon.texture:SetTexture(texture)
-        icon.cd:SetReverse(castType == "CAST")
-
-        local r,g,b
-        -- if notInterruptible then
-        --     r,g,b = 0.7, 0.7, 0.7
-        -- else
-        if castType == "CHANNEL" then
-            r,g,b = 0.8, 1, 0.3
-        else
-            r,g,b = 1, 0.65, 0
-        end
-
-        icon.cd:SetSwipeColor(r,g,b);
-
-        local duration = endTime - startTime
-        icon.cd:SetCooldown(startTime, duration)
-        icon.cd:Show()
-
-        icon.stacktext:SetText(totalCasts > 1 and totalCasts)
-
-        icon:Show()
+        local srcGUID, dstGUID, castType, name, text, icon, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
+        local duration = endTime-startTime
+        FrameSetJob(frame, config.IncomingCastStatus, true, "CAST", castType, name, duration, endTime, totalCasts, icon, spellID)
     else
-        icon:Hide()
+        FrameSetJob(frame, config.IncomingCastStatus, false)
     end
 end
 

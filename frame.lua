@@ -338,6 +338,27 @@ function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     texCoords = DT_TextureCoords[debuffType]
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
+function contentNormalizers.CAST(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed
+
+    local castType, name, duration, expirationTime, count1, icon1, spellID = ...
+
+    cur = duration
+    max = expirationTime
+    timerType = "TIMER"
+    count = count1
+
+    if castType == "CHANNEL" then
+        r,g,b = 0.8, 1, 0.3
+        isReversed = true
+    else
+        r,g,b = 1, 0.65, 0
+    end
+    text = name
+    icon = icon1
+
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
 local RaidTargetCoords = {
     { 0, 0.25, 0, 0.25, },
     { 0.25, 0.5, 0, 0.25 },
@@ -701,12 +722,12 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
         end
     end
 
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
     self.color:SetVertexColor(r,g,b)
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
-        self.cd:SetReverse(not job.reverseDuration)
+        self.cd:SetReverse(not isReversed)
         self.cd:SetCooldown(expirationTime - duration, duration, 0,0)
     elseif max and cur then
         local stime = 300
@@ -994,18 +1015,21 @@ local StatusBarOnUpdate = function(self, time)
     if self.OnUpdateCounter < 0.05 then return end
     self.OnUpdateCounter = 0
 
-    local timeLeft = self.expires - GetTime()
+    local timeLeft = self.endTime - GetTime()
 
     if self.pandemic and timeLeft < self.pandemic then
         local color = self._color
         self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
         self.pandemic = nil
     end
+    if self.isReversed then
+        timeLeft = self.startTime + timeLeft
+    end
 
     self:SetValue(timeLeft)
 end
 local SetJob_StatusBar = function(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
     self:SetStatusBarColor(r,g,b)
     self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
@@ -1013,7 +1037,9 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
 
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
-        self.expires = expirationTime
+        self.endTime = expirationTime
+        self.startTime = expirationTime - duration
+        self.isReversed = isReversed
         local pandemic = job.refreshTime
         self.pandemic = pandemic
         self:SetMinMaxValues(0, duration)
@@ -1167,11 +1193,11 @@ Aptechka.Widget.IconArray.Reconf = Aptechka.Widget.BarArray.Reconf
 ----------------------------------------------------------
 
 local SetJob_Icon = function(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
-        self.cd:SetReverse(not job.reverseDuration)
+        self.cd:SetReverse(not isReversed)
         self.cd:SetCooldown(expirationTime - duration, duration)
         self.cd:Show()
     else
@@ -1670,9 +1696,9 @@ end
 local SetJob_ProgressIcon = function(self, job, state, contentType, ...)
     SetJob_Icon(self, job, state, contentType, ...)
 
-    self.cd:SetReverse(job.reverseDuration)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    self.cd:SetReverse(isReversed)
 
     if not b then
         r,g,b = 0.75, 1, 0.2
@@ -2784,9 +2810,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local bossdebuff = Aptechka.Widget.Indicator.Create(self, Aptechka:GetWidgetsOptions("bossdebuff"))
     local bossdebuff = border
 
-    local casticon_opts = Aptechka:GetWidgetsOptionsMerged("incomingCastIcon")
-    local incomingCastIcon = Aptechka.Widget.ProgressIcon.Create(self, nil, casticon_opts)
-
     -- local roundIndicator = CreateRoundIndicator(self, 13, 13, "BOTTOMLEFT", self, "BOTTOMLEFT",-8, -8)
 
     self.health = hp
@@ -2800,7 +2823,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.healthColor = self.health
     self.bossdebuff = bossdebuff
-    self.incomingCastIcon = incomingCastIcon
     self.raidicon = raidicon
     self.healabsorb = healAbsorb
     self.absorb = absorb
