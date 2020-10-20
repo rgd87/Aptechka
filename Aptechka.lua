@@ -317,6 +317,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local widgetConfig = AptechkaConfigCustom["WIDGET"]
     Aptechka.util.MergeTable(AptechkaConfigMerged, widgetConfig)
 
+    -- Template application
+    helpers.UnwrapConfigTemplates(AptechkaConfigMerged.traces)
+    helpers.UnwrapConfigTemplates(AptechkaConfigMerged.auras)
+
     Aptechka:FixWidgetsAfterUpgrade()
 
     -- compiling a list of spells that should activate indicator when missing

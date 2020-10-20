@@ -184,7 +184,9 @@ function ns.CreateCommonForm(self)
             end
         end
 
-        local default_opts = AptechkaDefaultConfig[category][spellID]
+        local default_opts_wrapped = AptechkaDefaultConfig[category][spellID]
+        local default_opts = CopyTable(default_opts_wrapped)
+        Aptechka.util.UnwrapTemplate(default_opts) -- Merges and removes 'prototype' property
         if default_opts then
             clean(opts, default_opts, "name", false)
             clean(opts, default_opts, "priority", false)
@@ -226,26 +228,23 @@ function ns.CreateCommonForm(self)
         ----------
 
         if default_opts then
+            -- Uhh, all 3 of these are doing almost the same thing?
             if delta.clones then delta.clones = Aptechka.util.Set.diff(default_opts.clones, delta.clones) end
             Aptechka.util.ShakeAssignments(delta, default_opts)
-            -- print("----")
-            -- for k,v in pairs(delta.assignto) do
-            --     print(k,v)
-            -- end
             Aptechka.util.RemoveDefaults(delta, default_opts)
-            AptechkaConfigMerged[category][spellID] = CopyTable(default_opts)
-            -- if delta.disabled then
-                -- AptechkaConfigMerged[category][spellID] = nil
-            -- else
-            Aptechka.util.MergeTable(AptechkaConfigMerged[category][spellID], delta, true)
-            -- end
+
+            -- Generating actual working table
+            local finalOpts = CopyTable(default_opts_wrapped) -- Copy of original default table with prototype
+            Aptechka.util.MergeTable(finalOpts, delta)
+            Aptechka.util.UnwrapTemplate(finalOpts)
+            AptechkaConfigMerged[category][spellID] = finalOpts
         else
             AptechkaConfigMerged[category][spellID] = delta
             delta.isAdded = true
         end
 
-        -- fill up spell clones of the new version
         local originalSpell = AptechkaConfigMerged[category][spellID]
+        -- fill up spell clones of the new version
         if originalSpell.clones then
             for additionalSpellID, enabled in pairs(originalSpell.clones) do
                 if enabled then
@@ -287,6 +286,7 @@ function ns.CreateCommonForm(self)
 
         AptechkaConfigCustom[class][category][spellID] = nil
         AptechkaConfigMerged[category][spellID] = AptechkaDefaultConfig[category][spellID]
+        Aptechka.util.UnwrapTemplate(AptechkaConfigMerged[category][spellID])
 
         -- Rescan all units' auras with new settings
         Aptechka:ForEachFrame(Aptechka.FrameScanAuras)
@@ -860,13 +860,16 @@ function ns.CreateSpellList(name, parent )
         end
 
         spellID = tonumber(spellID)
-        local opts
-        if not AptechkaConfigCustom[class] or not AptechkaConfigCustom[class][category] or not AptechkaConfigCustom[class][category][spellID] then
-            opts = {}
-        else
-            opts = CopyTable(AptechkaConfigCustom[class][category][spellID])
+        local defaultOpts = AptechkaDefaultConfig[category][spellID]
+        local opts = defaultOpts and CopyTable(defaultOpts) or {}
+
+        if AptechkaConfigCustom[class] and AptechkaConfigCustom[class][category] and AptechkaConfigCustom[class][category][spellID] then
+            local customOpts = AptechkaConfigCustom[class][category][spellID]
+            -- Merging custom properties on top of default table
+            Aptechka.util.MergeTable(opts, customOpts)
         end
-        Aptechka.util.SetupDefaults(opts, AptechkaDefaultConfig[category][spellID])
+
+        Aptechka.util.UnwrapTemplate(opts)
 
         -- if category == "spells" then
         Frame.rpane:Clear()
