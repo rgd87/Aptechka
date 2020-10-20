@@ -113,121 +113,118 @@ end
 local RangeCheckBySpell = helpers.RangeCheckBySpell
 
 
-
-local tankCD = { type = "HELPFUL", assignto = set("icon"), global = true, showDuration = true, priority = 94, color = { 1, 0.2, 1} }
-local survivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, showDuration = true, priority = 90, color = { 0.4, 1, 0.4} }
-local activeMitigation = { type = "HELPFUL", assignto = set("mitigation"), showDuration = true, global = true, color = {0.7, 0.7, 0.7}, priority = 80 }
 config.Templates = {
-    tankCD = tankCD,
-    survivalCD = survivalCD,
-    activeMitigation = activeMitigation,
+    TankCD = { type = "HELPFUL", assignto = set("icon"), global = true, showDuration = true, priority = 94, color = { 1, 0.2, 1} },
+    SurvivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, showDuration = true, priority = 90, color = { 0.4, 1, 0.4} },
+    ActiveMitigation = { type = "HELPFUL", assignto = set("mitigation"), showDuration = true, global = true, color = {0.7, 0.7, 0.7}, priority = 80 },
+    HealTrace = { type = "SPELL_HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 },
 }
 
 -- ESSENCES
-A{ id = 296094, prototype = tankCD } --Standstill (Artifice of Time)
-A{ id = 296230, prototype = survivalCD } --Vitality Conduit
+A{ id = 296094, template = "TankCD" } --Standstill (Artifice of Time)
+A{ id = 296230, template = "SurvivalCD" } --Vitality Conduit
 
 -- ACTIVE MITIGATION
-A{ id = 132404, prototype = activeMitigation } -- Shield Block
-A{ id = 132403, prototype = activeMitigation } -- Shield of the Righteousness
-A{ id = 203819, prototype = activeMitigation } -- Demon Spikes
-A{ id = 192081, prototype = activeMitigation } -- Ironfur
+A{ id = 132404, template = "ActiveMitigation" } -- Shield Block
+A{ id = 132403, template = "ActiveMitigation" } -- Shield of the Righteousness
+A{ id = 203819, template = "ActiveMitigation" } -- Demon Spikes
+A{ id = 192081, template = "ActiveMitigation" } -- Ironfur
 
 -- COVENANT
-A{ id = 330749, prototype = survivalCD } -- Phial of Serenity (Patience, overtime soulbind trait from pelagos)
+A{ id = 330749, template = "SurvivalCD" } -- Phial of Serenity (Patience, overtime soulbind trait from pelagos)
 
 -- MONK
-A{ id = 122783, prototype = survivalCD } -- Diffuse Magic
-A{ id = 122278, prototype = survivalCD } -- Dampen Harm
-A{ id = 132578, prototype = survivalCD } -- Invoke Niuzao
-A{ id = 243435, prototype = survivalCD, priority = 91 } -- Fortifying Brew (Mistweaver/Windwalker)
-A{ id = 125174, prototype = survivalCD, priority = 91 } -- Touch of Karma
-A{ id = 115176, prototype = tankCD } -- Zen Meditation
-A{ id = 116849, prototype = survivalCD, priority = 88 } --Life Cocoon
-A{ id = 120954, prototype = tankCD } --Fortifying Brew (Brewmaster)
+A{ id = 122783, template = "SurvivalCD" } -- Diffuse Magic
+A{ id = 122278, template = "SurvivalCD" } -- Dampen Harm
+A{ id = 132578, template = "SurvivalCD" } -- Invoke Niuzao
+A{ id = 243435, template = "SurvivalCD", priority = 91 } -- Fortifying Brew (Mistweaver/Windwalker)
+A{ id = 125174, template = "SurvivalCD", priority = 91 } -- Touch of Karma
+A{ id = 115176, template = "TankCD" } -- Zen Meditation
+A{ id = 116849, template = "SurvivalCD", priority = 88 } --Life Cocoon
+A{ id = 120954, template = "TankCD" } --Fortifying Brew (Brewmaster)
 -- Spell( 209584 ,{ name = "Zen Focus Tea", color = colors.LBLUE, shine = true, group = "buffs", duration = 5 })
 
 -- WARRIOR
-A{ id = 184364, prototype = survivalCD } -- Enraged Regeneration
-A{ id = 118038, prototype = survivalCD } -- Die by the Sword
-A{ id = 12975,  prototype = survivalCD } --Last Stand
-A{ id = 871,    prototype = tankCD } --Shield Wall 40%
-A{ id = 107574, prototype = survivalCD, priority = 85 } --Avatar
-A{ id = 23920, prototype = survivalCD, priority = 85 } --Spell Reflect
+A{ id = 184364, template = "SurvivalCD" } -- Enraged Regeneration
+A{ id = 118038, template = "SurvivalCD" } -- Die by the Sword
+A{ id = 12975,  template = "SurvivalCD" } --Last Stand
+A{ id = 871,    template = "TankCD" } --Shield Wall 40%
+A{ id = 107574, template = "SurvivalCD", priority = 85 } --Avatar
+A{ id = 23920, template = "SurvivalCD", priority = 85 } --Spell Reflect
 
 -- DEMON HUNTER
-A{ id = 212800, prototype = survivalCD } -- Blur
-A{ id = 187827, prototype = survivalCD } -- Vengeance Meta
-A{ id = 209426, prototype = survivalCD } -- Darkness
+A{ id = 212800, template = "SurvivalCD" } -- Blur
+A{ id = 187827, template = "SurvivalCD" } -- Vengeance Meta
+A{ id = 209426, template = "SurvivalCD" } -- Darkness
 
 -- ROGUE
-A{ id = 185311, prototype = survivalCD } -- Crimson Vial
--- A{ id = 1784,   prototype = survivalCD } -- Stealh
-A{ id = 11327,  prototype = survivalCD } -- Vanish
-A{ id = 5277,   prototype = survivalCD } -- Evasion
-A{ id = 1966,   prototype = survivalCD } -- Feint
-A{ id = 31224,  prototype = survivalCD, priority = 91 } -- Cloak of Shadows
-A{ id = 45182,  prototype = tankCD } -- Cheating Death
+A{ id = 185311, template = "SurvivalCD" } -- Crimson Vial
+-- A{ id = 1784,   template = "SurvivalCD" } -- Stealh
+A{ id = 11327,  template = "SurvivalCD" } -- Vanish
+A{ id = 5277,   template = "SurvivalCD" } -- Evasion
+A{ id = 1966,   template = "SurvivalCD" } -- Feint
+A{ id = 31224,  template = "SurvivalCD", priority = 91 } -- Cloak of Shadows
+A{ id = 45182,  template = "TankCD" } -- Cheating Death
 
 -- WARLOCK
-A{ id = 104773, prototype = survivalCD } -- Unending Resolve
-A{ id = 132413, prototype = survivalCD } -- Shadow Bulwark
+A{ id = 104773, template = "SurvivalCD" } -- Unending Resolve
+A{ id = 132413, template = "SurvivalCD" } -- Shadow Bulwark
 
 -- DRUID
 -- local druidColor = { RAID_CLASS_COLORS.DRUID:GetRGB() }
-A{ id = 22812,  prototype = survivalCD } -- Barkskin
-A{ id = 102342, prototype = tankCD, priority = 93 } --Ironbark
-A{ id = 61336,  prototype = tankCD } --Survival Instincts 50% (Feral & Guardian)
-A{ id = 236696,  prototype = survivalCD } -- Thorns
+A{ id = 22812,  template = "SurvivalCD" } -- Barkskin
+A{ id = 102342, template = "TankCD", priority = 93 } --Ironbark
+A{ id = 61336,  template = "TankCD" } --Survival Instincts 50% (Feral & Guardian)
+A{ id = 236696,  template = "SurvivalCD" } -- Thorns
 
 -- PRIEST
-A{ id = 19236,  prototype = survivalCD } -- Desperate Prayer
-A{ id = 586,  prototype = survivalCD } -- Fade
-A{ id = 47585,  prototype = survivalCD } -- Dispersion
-A{ id = 47788, prototype = tankCD, priority = 90 } --Guardian Spirit
-A{ id = 33206, prototype = tankCD, priority = 93 } --Pain Suppression
-A{ id = 81782, prototype = survivalCD } -- Power Word: Barrier
+A{ id = 19236,  template = "SurvivalCD" } -- Desperate Prayer
+A{ id = 586,  template = "SurvivalCD" } -- Fade
+A{ id = 47585,  template = "SurvivalCD" } -- Dispersion
+A{ id = 47788, template = "TankCD", priority = 90 } --Guardian Spirit
+A{ id = 33206, template = "TankCD", priority = 93 } --Pain Suppression
+A{ id = 81782, template = "SurvivalCD" } -- Power Word: Barrier
 -----
-A{ id = 213610, prototype = survivalCD } -- Holy Ward (PVP)
-A{ id = 289655, prototype = survivalCD } -- Holy Word: Concentration
-A{ id = 213602, prototype = tankCD } -- Greater Fade
-A{ id = 329543, prototype = tankCD } -- Divine Ascension
+A{ id = 213610, template = "SurvivalCD" } -- Holy Ward (PVP)
+A{ id = 289655, template = "SurvivalCD" } -- Holy Word: Concentration
+A{ id = 213602, template = "TankCD" } -- Greater Fade
+A{ id = 329543, template = "TankCD" } -- Divine Ascension
 
 -- PALADIN
-A{ id = 642,    prototype = tankCD, priority = 95 } -- Divine Shield
-A{ id = 1022,   prototype = survivalCD } -- Blessing of Protection
-A{ id = 204018, prototype = survivalCD } -- Blessing of Spellwarding
-A{ id = 184662, prototype = survivalCD } -- Shield of Vengeance
-A{ id = 205191, prototype = survivalCD } -- Eye for an Eye
-A{ id = 498,    prototype = survivalCD } -- Divine Protection
-A{ id = 6940,   prototype = survivalCD } -- Blessing of Sacrifice
-A{ id = 31850,  prototype = survivalCD, priority = 88 } --Ardent Defender
-A{ id = 86659,  prototype = tankCD } --Guardian of Ancient Kings 50%
--- A{ id = 204150, prototype = tankCD, priority = 85 } -- Aegis of Light
+A{ id = 642,    template = "TankCD", priority = 95 } -- Divine Shield
+A{ id = 1022,   template = "SurvivalCD" } -- Blessing of Protection
+A{ id = 204018, template = "SurvivalCD" } -- Blessing of Spellwarding
+A{ id = 184662, template = "SurvivalCD" } -- Shield of Vengeance
+A{ id = 205191, template = "SurvivalCD" } -- Eye for an Eye
+A{ id = 498,    template = "SurvivalCD" } -- Divine Protection
+A{ id = 6940,   template = "SurvivalCD" } -- Blessing of Sacrifice
+A{ id = 31850,  template = "SurvivalCD", priority = 88 } --Ardent Defender
+A{ id = 86659,  template = "TankCD" } --Guardian of Ancient Kings 50%
+-- A{ id = 204150, template = "TankCD", priority = 85 } -- Aegis of Light
 -- Guardian of the Forgotten Queen - Divine Shield (PvP)
-A{ id = 228050, prototype = tankCD, priority = 97 }
+A{ id = 228050, template = "TankCD", priority = 97 }
 
 -- DEATH KNIGHT
-A{ id = 194679, prototype = survivalCD } -- Rune Tap
-A{ id = 55233,  prototype = tankCD, priority = 94 } --Vampiric Blood
-A{ id = 48792,  prototype = tankCD, priority = 94 } --Icebound Fortitude 50%
-A{ id = 81256,  prototype = survivalCD } -- Dancing Rune Weapon
-A{ id = 145629, prototype = survivalCD } -- Anti-Magic Zone
-A{ id = 48707, prototype = survivalCD } -- Anti-Magic Shell
+A{ id = 194679, template = "SurvivalCD" } -- Rune Tap
+A{ id = 55233,  template = "TankCD", priority = 94 } --Vampiric Blood
+A{ id = 48792,  template = "TankCD", priority = 94 } --Icebound Fortitude 50%
+A{ id = 81256,  template = "SurvivalCD" } -- Dancing Rune Weapon
+A{ id = 145629, template = "SurvivalCD" } -- Anti-Magic Zone
+A{ id = 48707, template = "SurvivalCD" } -- Anti-Magic Shell
 
 -- MAGE
-A{ id = 113862, prototype = survivalCD } -- Arcane Greater Invisibility
-A{ id = 45438,  prototype = tankCD } -- Ice Block
-A{ id = 110909,  prototype = survivalCD } -- Alter Time
+A{ id = 113862, template = "SurvivalCD" } -- Arcane Greater Invisibility
+A{ id = 45438,  template = "TankCD" } -- Ice Block
+A{ id = 110909,  template = "SurvivalCD" } -- Alter Time
 
 -- HUNTER
-A{ id = 186265, prototype = survivalCD } -- Aspect of the Turtle
--- A{ id = 53480, prototype = survivalCD } -- Roar of Sacrifice (PVP)
+A{ id = 186265, template = "SurvivalCD" } -- Aspect of the Turtle
+-- A{ id = 53480, template = "SurvivalCD" } -- Roar of Sacrifice (PVP)
 
 -- SHAMAN
-A{ id = 108271, prototype = survivalCD } -- Astral Shift
-A{ id = 204293, prototype = survivalCD } -- Spirit Link (PvP)
--- A{ id = 210918, prototype = survivalCD } -- Ethereal Form
+A{ id = 108271, template = "SurvivalCD" } -- Astral Shift
+A{ id = 204293, template = "SurvivalCD" } -- Spirit Link (PvP)
+-- A{ id = 210918, template = "SurvivalCD" } -- Ethereal Form
 
 
 A{ id = {
@@ -280,27 +277,24 @@ if playerClass == "PRIEST" then
     --Luminous Barrier
     A{ id = 271466,type = "HELPFUL", assignto = set("bars"), priority = 70, color = { 1, .65, 0}, showDuration = true, isMine = true}
 
-    -- Atonement
-    -- Trace{id = 81751, type = "HEAL", minamount = 1000, assignto = set("healfeedback"), color = { .2, 1, .2}, fade = .5, priority = 90 }
-
     -- Penance
-    Trace{id = 47750, type = "HEAL", assignto = set("healfeedback"), color = { 52/255, 172/255, 114/255 }, fade = 0.7, priority = 96 }
+    Trace{id = 47750, template = "HealTrace", color = { 52/255, 172/255, 114/255 } }
     -- Circle of Healing
-    Trace{id = 204883, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
+    Trace{id = 204883, template = "HealTrace", color = { 1, 0.7, 0.35} }
     -- Holy Word: Sanctify
-    Trace{id = 34861, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
+    Trace{id = 34861, template = "HealTrace", color = { 1, 0.7, 0.35} }
     -- Prayer of Healing
-    Trace{id = 596, type = "HEAL", assignto = set("healfeedback"), color = { .5, .5, 1}, fade = 0.7, priority = 96 }
+    Trace{id = 596, template = "HealTrace", color = { .5, .5, 1} }
     -- Prayer of Mending
-    Trace{id = 33110, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.3, 0.55 }, fade = 0.5, priority = 95 }
+    Trace{id = 33110, template = "HealTrace", color = { 1, 0.3, 0.55 }, fade = 0.5, priority = 95 }
     -- Flash Heal
-    Trace{id = 2061, type = "HEAL", assignto = set("healfeedback"), color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
+    Trace{id = 2061, template = "HealTrace", color = { 0.6, 1, 0.6} }
     -- Binding Heal
-    Trace{id = 32546, type = "HEAL", assignto = set("healfeedback"), color = { 0.7, 1, 0.7}, fade = 0.7, priority = 96 }
+    Trace{id = 32546, template = "HealTrace", color = { 0.7, 1, 0.7} }
     -- Trail of Light
-    Trace{id = 234946, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 }
+    Trace{id = 234946, template = "HealTrace", color = { 1, 0.7, 0.35} }
     -- Shadowmend
-    Trace{id = 186263, type = "HEAL", assignto = set("healfeedback"), color = { 0.8, 0.35, 0.7}, fade = 0.7, priority = 96 }
+    Trace{id = 186263, template = "HealTrace", color = { 0.8, 0.35, 0.7} }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(17), -- Disc: PWS
@@ -334,8 +328,8 @@ if playerClass == "MONK" then
     A{ id = { 191840, 344006 }, type = "HELPFUL", assignto = set("bars"), priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
 
 
-    Trace{id = 116670, type = "HEAL", assignto = set("healfeedback"), color = {38/255, 221/255, 163/255}, fade = 0.7, priority = 96 } -- Vivify
-    Trace{id = 343819, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.3, 0.55}, fade = 0.7, priority = 96 } -- Gust of Mists
+    Trace{id = 116670, template = "HealTrace", color = {38/255, 221/255, 163/255} } -- Vivify
+    Trace{id = 343819, template = "HealTrace", color = { 1, 0.3, 0.55} } -- Gust of Mists
 
     -- A{ id = 157627, type = "HELPFUL", assignto = set("bar2"), showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
 
@@ -401,20 +395,17 @@ if playerClass == "PALADIN" then
 
     A{ id = 465,  type = "HELPFUL", assignto = set("raidbuff"), priority = 40, isMine = true, color = { .4, .4, 1} } --Devotion Aura
 
-    Trace{id = 225311, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.2}, fade = 0.4, priority = 96 } -- Light of Dawn
+    Trace{id = 225311, template = "HealTrace", color = { 1, 0.7, 0.2} } -- Light of Dawn
     -- Flash of Light
-    Trace{id = 19750, type = "HEAL", assignto = set("healfeedback"), color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
+    Trace{id = 19750, template = "HealTrace", color = { 0.6, 1, 0.6} }
     -- Holy Light
-    Trace{id = 82326, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.3, 0.55 }, fade = 0.7, priority = 95 }
+    Trace{id = 82326, template = "HealTrace", color = { 1, 0.3, 0.55 } }
     -- Light of the Martyr
-    Trace{id = 183998, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.3, 0.55 }, fade = 0.7, priority = 95 }
+    Trace{id = 183998, template = "HealTrace", color = { 1, 0.3, 0.55 } }
     -- Holy Shock
-    Trace{id = 25914, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.6, 0.3 }, fade = 0.7, priority = 95 }
+    Trace{id = 25914, template = "HealTrace", color = { 1, 0.6, 0.3 } }
     -- Word of Glory
-    Trace{id = 85673, type = "HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.1 }, fade = 0.7, priority = 95 }
-
-    -- Trace{id = 82327, type = "HEAL", assignto = set("spell3"), color = { .8, .5, 1}, fade = 0.7, priority = 96 } -- Holy Radiance
-    -- Trace{id =121129, type = "HEAL", assignto = set("spell3"), color = { 1, .5, 0}, fade = 0.7, priority = 96 } -- Daybreak
+    Trace{id = 85673, template = "HealTrace", color = { 1, 0.7, 0.1 } }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(19750), -- Flash of Light
@@ -447,14 +438,14 @@ if playerClass == "SHAMAN" then
                                                                         --, } --Earth Shield
 
     -- Surge of Earth
-    Trace{id = 320747, type = "HEAL", assignto = set("healfeedback"), color = { 0.8, 0.4, 0.1}, fade = 0.7, priority = 96 }
+    Trace{id = 320747, template = "HealTrace", color = { 0.8, 0.4, 0.1} }
     -- Downpour
-    Trace{id = 207778, type = "HEAL", assignto = set("healfeedback"), color = { 0.4, 0.4, 1}, fade = 0.7, priority = 96 }
+    Trace{id = 207778, template = "HealTrace", color = { 0.4, 0.4, 1} }
 
-    Trace{id = 77472, type = "HEAL", assignto = set("healfeedback"), color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Wave
-    Trace{id = 8004, type = "HEAL", assignto = set("healfeedback"), color = { 0.5, 1, 0.4 }, fade = 0.7, priority = 96 } -- Healing Surge
+    Trace{id = 77472, template = "HealTrace", color = { 0.5, 1, 0.4 } } -- Healing Wave
+    Trace{id = 8004, template = "HealTrace", color = { 0.5, 1, 0.4 } } -- Healing Surge
 
-    Trace{id = 1064, type = "HEAL", assignto = set("healfeedback"), color = { 0.9, 0.7, 0.1}, fade = 0.7, priority = 96 } -- Chain Heal
+    Trace{id = 1064, template = "HealTrace", color = { 0.9, 0.7, 0.1} } -- Chain Heal
     --Trace{id = 73921, type = "HEAL", assignto = set("spell3"), color = { 0.6, 0.6, 1}, fade = 0.4, priority = 95 } -- Healing Rain
 
     config.UnitInRangeFunctions = {
@@ -503,7 +494,7 @@ if playerClass == "DRUID" then
     -- Wild Growth
     A{ id = 48438, type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, showDuration = true, isMine = true }
 
-    Trace{id = 8936, type = "HEAL", assignto = set("healfeedback"), color = { 0, 0.8, 0.2 }, fade = 0.5, priority = 96 } -- Regrowth
+    Trace{id = 8936, template = "HealTrace", color = { 0, 0.8, 0.2 } } -- Regrowth
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(8936),
