@@ -62,6 +62,7 @@ Aptechka.loadedAuras = {}
 local loadedAuras = Aptechka.loadedAuras
 local customBossAuras = helpers.customBossAuras
 local defaultBlacklist = helpers.auraBlacklist
+local buffGainWhitelist = helpers.buffGainWhitelist or {}
 local blacklist
 local importantTargetedCasts = helpers.importantTargetedCasts
 local loaded = {}
@@ -127,6 +128,7 @@ local DebuffProc, DebuffPostUpdate
 local DispelTypeProc, DispelTypePostUpdate
 local enableTraceheals
 local enableAuraEvents
+local enableFloatingIcon
 -- local enableLowHealthStatus
 local debuffLimit
 local tankUnits = {}
@@ -203,6 +205,7 @@ local defaults = {
         petGroup = false,
         showRaidIcons = true,
         showDispels = true,
+        showFloatingIcons = false,
         healthTexture = "Gradient",
         powerTexture = "Gradient",
         damageEffect = true,
@@ -489,7 +492,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self:RegisterEvent("UNIT_FACTION")
     self:RegisterEvent("UNIT_FLAGS")
-    self.UNIT_FLAGS = self.UNIT_FACTION
 
     self:RegisterEvent("UNIT_PHASE")
     --[[
@@ -825,6 +827,7 @@ function Aptechka:UpdateUnprotectedUpvalues()
     damageEffect = Aptechka.db.profile.damageEffect
     enableTraceheals = config.enableTraceHeals and next(traceheals)
     enableAuraEvents = Aptechka.db.profile.auraUpdateEffect
+    enableFloatingIcon = Aptechka.db.profile.showFloatingIcons
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
@@ -1057,6 +1060,8 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     end
     FrameSetJob(self, config.HealthTextStatus, ((hm-h) > hm*0.05), nil, h, hm )
 
+    if not event then return end -- no death checks on CLH
+
     local isDead = UnitIsDeadOrGhost(unit)
     if isDead then
         FrameSetJob(self, config.AggroStatus, false)
@@ -1141,12 +1146,22 @@ local function WidgetStartTrace(widget, slot, frame, opts)
     end
 end
 local function FrameStartTrace(frame, unit, opts)
-    Aptechka:ForEachWidget(frame, opts, WidgetStartTrace, frame, opts)
+    Aptechka:ForEachFrameOptsWidget(frame, opts, WidgetStartTrace, frame, opts)
 end
 Aptechka.FrameStartTrace = FrameStartTrace
 
 local function FrameBumpAuraEvent(frame, unit, spellID)
     frame.auraEvents[spellID] = GetTime()
+end
+
+local function FrameLaunchFloatingIcon(frame, unit, spellID)
+    local widget = frame.floatingIcon
+    if not widget then
+        widget = Aptechka:CreateDynamicWidget(frame, "floatingIcon")
+    end
+    if widget then
+        widget:StartTrace(nil, spellID)
+    end
 end
 
 function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
@@ -1178,10 +1193,26 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
             Aptechka:ForEachUnitFrame(unit, FrameBumpAuraEvent, spellName)
         end
     end
+    if enableFloatingIcon and buffGainWhitelist[spellID] then
+        local spell = buffGainWhitelist[spellID]
+        if spell.events[eventType] then
+            local GUID = spell.target == "SRC" and srcGUID or dstGUID
+            local unit = guidMap[GUID]
+            if unit then
+                Aptechka:ForEachUnitFrame(unit, FrameLaunchFloatingIcon, spellID)
+            end
+        end
+    end
 end
 
 function Aptechka.UNIT_FACTION(self, event, unit)
     self:UpdateMindControl(unit)
+end
+
+function Aptechka.UNIT_FLAGS(self, event, unit)
+    self:UpdateMindControl(unit)
+    -- Not sure if UNIT_FLAGS fires on death changes
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealth, event)
 end
 
 local purgeOldAuraEvents = function(frame)
@@ -1266,8 +1297,8 @@ local Enum_RunicPower = Enum.PowerType.RunicPower
 local Enum_Alternate = Enum.PowerType.Alternate
 function Aptechka.FrameUpdatePower(frame, unit, ptype)
     if ptype == "MANA" then-- not frame.power.disabled then
-        local powerMax = UnitPowerMax(unit)
-        local power = UnitPower(unit)
+        local powerMax = UnitPowerMax(unit, 0)
+        local power = UnitPower(unit, 0)
         if powerMax == 0 then
             power = 1
             powerMax = 1
@@ -2536,7 +2567,7 @@ function Aptechka.SetJob(unit, opts, enabled, ...)
 end
 SetJob = Aptechka.SetJob
 
-function Aptechka:ForEachWidget(frame, opts, func, ...)
+function Aptechka:ForEachFrameOptsWidget(frame, opts, func, ...)
     if opts and opts.assignto then
         for slot in pairs(opts.assignto) do
             func(frame[slot], slot, ...)
@@ -3608,45 +3639,25 @@ function Aptechka.FrameUpdateIncomingCast(frame, unit)
         local isImportant = importantTargetedCasts[spellID]
         if not blacklist[spellID] then
             totalCasts = totalCasts + 1
+            -- endTime here is used only for the purpose of finding the most important cast with least remaining time
+            -- in the form of caster's srcGUID
             if castType == "CHANNEL" then endTime = endTime - 5 end -- prioritizing channels
             if isImportant then endTime = endTime - 100 end
 
             if not minTime or endTime < minTime then
                 minSrcGUID = srcGUID
                 minTime = endTime
-                -- print(i)
             end
         end
     end
 
     local icon = frame.incomingCastIcon
     if minSrcGUID then
-        local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
-
-        icon.texture:SetTexture(texture)
-        icon.cd:SetReverse(castType == "CAST")
-
-        local r,g,b
-        -- if notInterruptible then
-        --     r,g,b = 0.7, 0.7, 0.7
-        -- else
-        if castType == "CHANNEL" then
-            r,g,b = 0.8, 1, 0.3
-        else
-            r,g,b = 1, 0.65, 0
-        end
-
-        icon.cd:SetSwipeColor(r,g,b);
-
-        local duration = endTime - startTime
-        icon.cd:SetCooldown(startTime, duration)
-        icon.cd:Show()
-
-        icon.stacktext:SetText(totalCasts > 1 and totalCasts)
-
-        icon:Show()
+        local srcGUID, dstGUID, castType, name, text, icon, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
+        local duration = endTime-startTime
+        FrameSetJob(frame, config.IncomingCastStatus, true, "CAST", castType, name, duration, endTime, totalCasts, icon, spellID)
     else
-        icon:Hide()
+        FrameSetJob(frame, config.IncomingCastStatus, false)
     end
 end
 

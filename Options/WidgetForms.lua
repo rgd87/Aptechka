@@ -431,3 +431,27 @@ function ns.WidgetForms.Texture.Fill(form, name, opts, popts, gopts)
     Control_SetValue(form, "blendmode", opts, gopts)
     Control_SetValue(form, "disableOverrides", opts, gopts)
 end
+
+ns.WidgetForms.FloatingIcon = {}
+
+function ns.WidgetForms.FloatingIcon.Create(form)
+    form = form or ns.InitForm()
+
+    CreateSizeSettings(form)
+    CreateAnchorSettings(form)
+    local angle = ns.AddSlider(form, 0.46, L"Angle", "angle", 0, 0, 360, 1, callbackUpdateForm)
+    local spreadArc = ns.AddSlider(form, 0.46, L"Spread Arc", "spreadArc", 30, 0, 120, 1, callbackUpdateForm)
+    local range = ns.AddSlider(form, 0.46, L"Range", "range", 45, 0, 200, 1, callbackUpdateForm)
+    local animDuration = ns.AddSlider(form, 0.46, L"Anim Length", "animDuration", 1.5, 0, 10, 0.1, callbackUpdateForm)
+
+    return form
+end
+
+function ns.WidgetForms.FloatingIcon.Fill(form, name, opts, popts, gopts)
+    FillSizeSettings(form, opts, popts, gopts)
+    FillAnchorSettings(form, opts, popts, gopts)
+    Control_SetValue(form, "angle", opts, gopts)
+    Control_SetValue(form, "spreadArc", opts, gopts)
+    Control_SetValue(form, "range", opts, gopts)
+    Control_SetValue(form, "animDuration", opts, gopts)
+end

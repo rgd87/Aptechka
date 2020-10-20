@@ -387,6 +387,7 @@ function Aptechka:ForAllCustomWidgets(func)
     end
 end
 
+--[[
 function Aptechka:ForAllWidgets(func)
     for wname, opts in pairs(self.db.global.widgetConfig) do
         func(opts, wname, "global")
@@ -399,6 +400,7 @@ function Aptechka:ForAllWidgets(func)
         end
     end
 end
+]]
 
 function Aptechka:ForAllCustomStatuses(func, searchAllClasses)
     local list = Aptechka.GetWidgetList()

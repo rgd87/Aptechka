@@ -472,13 +472,15 @@ end
 -- updated set here is b
 function Set.diff(a,b)
     local res = Set.new{}
+    if a == nil then return CopyTable(b) end
+    if b == nil then return res end
     for k in pairs(b) do
-        if a[k] == nil then
+        if not a[k] then
             res[k] = true
         end
     end
     for k in pairs(a) do
-        if b[k] == nil then
+        if not b[k] then
             res[k] = false
         end
     end

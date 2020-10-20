@@ -34,19 +34,19 @@ DRAW LAYERS
 -8 healthbar bg
 ]]
 local FRAMELEVEL = {
-    BASEFRAME = 0,
-    HEALTH = 1,
-    POWER = 1,
-    BORDER = 2,
-    BAR = 5,
-    INDICATOR = 5,
-    DEBUFFICON = 7,
-    ICON = 8,
-    TEXT = 3,
-    TEXTURE = 10,
-    OVERLAY = 12, -- Mind Control, Vehicle
-    PROGRESSICON = 14,
-    FLASH = 16,
+    -- BASEFRAME = 3,
+    HEALTH = 4,
+    POWER = 4,
+    BORDER = 5,
+    BAR = 8,
+    INDICATOR = 8,
+    DEBUFFICON = 10,
+    ICON = 11,
+    TEXT = 6,
+    TEXTURE = 13,
+    OVERLAY = 15, -- Mind Control, Vehicle
+    PROGRESSICON = 17,
+    FLASH = 19,
 }
 
 Aptechka.Widget = {}
@@ -336,6 +336,27 @@ function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
     icon = icon1 -- DT_Icons[debuffType]
     texCoords = DT_TextureCoords[debuffType]
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.CAST(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed
+
+    local castType, name, duration, expirationTime, count1, icon1, spellID = ...
+
+    cur = duration
+    max = expirationTime
+    timerType = "TIMER"
+    count = count1
+
+    if castType == "CHANNEL" then
+        r,g,b = 0.8, 1, 0.3
+        isReversed = true
+    else
+        r,g,b = 1, 0.65, 0
+    end
+    text = name
+    icon = icon1
+
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
 local RaidTargetCoords = {
@@ -701,12 +722,12 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
         end
     end
 
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
     self.color:SetVertexColor(r,g,b)
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
-        self.cd:SetReverse(not job.reverseDuration)
+        self.cd:SetReverse(not isReversed)
         self.cd:SetCooldown(expirationTime - duration, duration, 0,0)
     elseif max and cur then
         local stime = 300
@@ -994,18 +1015,21 @@ local StatusBarOnUpdate = function(self, time)
     if self.OnUpdateCounter < 0.05 then return end
     self.OnUpdateCounter = 0
 
-    local timeLeft = self.expires - GetTime()
+    local timeLeft = self.endTime - GetTime()
 
     if self.pandemic and timeLeft < self.pandemic then
         local color = self._color
         self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
         self.pandemic = nil
     end
+    if self.isReversed then
+        timeLeft = self.startTime + timeLeft
+    end
 
     self:SetValue(timeLeft)
 end
 local SetJob_StatusBar = function(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
     self:SetStatusBarColor(r,g,b)
     self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
@@ -1013,7 +1037,9 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
 
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
-        self.expires = expirationTime
+        self.endTime = expirationTime
+        self.startTime = expirationTime - duration
+        self.isReversed = isReversed
         local pandemic = job.refreshTime
         self.pandemic = pandemic
         self:SetMinMaxValues(0, duration)
@@ -1167,11 +1193,11 @@ Aptechka.Widget.IconArray.Reconf = Aptechka.Widget.BarArray.Reconf
 ----------------------------------------------------------
 
 local SetJob_Icon = function(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
-        self.cd:SetReverse(not job.reverseDuration)
+        self.cd:SetReverse(not isReversed)
         self.cd:SetCooldown(expirationTime - duration, duration)
         self.cd:Show()
     else
@@ -1670,9 +1696,9 @@ end
 local SetJob_ProgressIcon = function(self, job, state, contentType, ...)
     SetJob_Icon(self, job, state, contentType, ...)
 
-    self.cd:SetReverse(job.reverseDuration)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    self.cd:SetReverse(isReversed)
 
     if not b then
         r,g,b = 0.75, 1, 0.2
@@ -1729,6 +1755,129 @@ function Aptechka.Widget.ProgressIcon.Create(parent, popts, gopts)
 end
 
 Aptechka.Widget.ProgressIcon.Reconf = Aptechka.Widget.Icon.Reconf
+
+----------------
+-- Floating Icon
+----------------
+
+local function FloatingIcon_SetJob(self, job, state, contentType, ...)
+    -- SetJob_Icon(self, job, state, contentType, ...)
+
+    -- self.cd:SetReverse(job.reverseDuration)
+
+    -- local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+
+    -- if not b then
+    --     r,g,b = 0.75, 1, 0.2
+    -- end
+    -- self.cd:SetSwipeColor(r,g,b)
+end
+
+local function FloatingIcon_CreationFunc(pool)
+    local frame = pool.parent
+    local icon = frame:CreateTexture(nil, pool.layer, pool.textureTemplate, pool.subLayer);
+    icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+
+    local ag = icon:CreateAnimationGroup()
+    local t1 = ag:CreateAnimation("Translation")
+    t1:SetOffset(100,70)
+    t1:SetDuration(2)
+    t1:SetSmoothing("OUT")
+    t1:SetOrder(2)
+
+    local a2 = ag:CreateAnimation("Alpha")
+    a2:SetFromAlpha(1)
+    a2:SetToAlpha(0)
+    a2:SetSmoothing("OUT")
+    a2:SetDuration(0.5)
+    a2:SetStartDelay(1.5)
+    a2:SetOrder(2)
+
+    ag:SetScript("OnFinished", function(self)
+        local icon = self:GetParent()
+        icon:Hide()
+        pool:Release(icon)
+    end)
+
+    ag.translationAnim = t1
+    ag.alphaAnim = a2
+    icon.ag = ag
+
+    return icon
+end
+
+local FloatingIcon_ResetterFunc = function(pool, icon)
+    local frame = pool.parent
+    local opts = frame.opts
+
+    icon:SetHeight(25)
+    icon:SetWidth(25)
+
+    local angleRange = opts.spreadArc
+    local angleMod = math.random(0,angleRange)- (angleRange/2)
+    local baseAngle = opts.angle
+    local angle = baseAngle + angleMod
+    local range = opts.range
+    local translateX = math.sin(math.rad(angle))*range
+    local translateY = math.cos(math.rad(angle))*range
+
+    icon:SetSize(opts.width, opts.height)
+    icon.ag.translationAnim:SetOffset(translateX, translateY)
+    icon.ag.translationAnim:SetDuration(opts.animDuration)
+    icon.ag.alphaAnim:SetStartDelay(opts.animDuration * 2/3)
+    icon.ag.alphaAnim:SetDuration(opts.animDuration * 1/3)
+
+    icon:SetPoint("CENTER", 0,0)
+end
+
+local function FloatingIcon_ConfigureIcon(icon, opts)
+
+end
+
+-- function TestFloatingIcon()
+--     NugRaid1UnitButton1.floatingIcon:StartTrace(nil, 17)
+-- end
+local function FloatingIcon_StartTrace(self, job, spellID)
+    local icon = self.iconPool:Acquire()
+
+    local tex = GetSpellTexture(spellID)
+    icon:SetTexture(tex)
+
+    icon:SetAlpha(1)
+    icon:Show()
+    icon.ag:Play()
+end
+
+Aptechka.Widget.FloatingIcon = {}
+Aptechka.Widget.FloatingIcon.default = { type = "FloatingIcon", width = 20, height = 20, point = "TOPLEFT", x = 15, y = -5, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false, angle = 60, range = 45, spreadArc = 30, duration = 2 }
+function Aptechka.Widget.FloatingIcon.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+
+    local f = CreateFrame("Frame", nil, parent)
+    f:SetSize(10, 10)
+    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+
+    local iconPool = CreateTexturePool(f, "ARTWORK", 2)
+    f.iconPool = iconPool
+    f.opts = opts
+    iconPool.creationFunc = FloatingIcon_CreationFunc
+    iconPool.resetterFunc = FloatingIcon_ResetterFunc
+
+    -- local marker = f:CreateTexture(nil, "ARTWORK")
+    -- marker:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+    -- marker:SetAllPoints()
+
+
+    f.SetJob = FloatingIcon_SetJob
+    f.StartTrace = FloatingIcon_StartTrace
+    -- f:Hide()
+
+    return f
+end
+function Aptechka.Widget.FloatingIcon.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    f.opts = opts
+end
 
 ----------------
 -- HEAL ABSORB
@@ -2412,7 +2561,7 @@ end
 AptechkaDefaultConfig.GridSkin = function(self)
     Aptechka = _G.Aptechka
 
-    self:SetFrameLevel(FRAMELEVEL.BASEFRAME)
+    -- self:SetFrameLevel(FRAMELEVEL.BASEFRAME) -- Can't do this in combat
     local db = Aptechka.db.profile
 
     local config = AptechkaDefaultConfig
@@ -2654,16 +2803,12 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
     -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
 
-
     self.debuffIcons = Aptechka.Widget.DebuffIconArray.Create(self, Aptechka:GetWidgetsOptions("debuffIcons"))
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     -- local bossdebuff = CreateCorner(self, 17, 17, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") --last arg changes orientation
     -- local bossdebuff = Aptechka.Widget.Indicator.Create(self, Aptechka:GetWidgetsOptions("bossdebuff"))
     local bossdebuff = border
-
-    local casticon_opts = Aptechka:GetWidgetsOptionsMerged("incomingCastIcon")
-    local incomingCastIcon = Aptechka.Widget.ProgressIcon.Create(self, nil, casticon_opts)
 
     -- local roundIndicator = CreateRoundIndicator(self, 13, 13, "BOTTOMLEFT", self, "BOTTOMLEFT",-8, -8)
 
@@ -2678,7 +2823,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.healthColor = self.health
     self.bossdebuff = bossdebuff
-    self.incomingCastIcon = incomingCastIcon
     self.raidicon = raidicon
     self.healabsorb = healAbsorb
     self.absorb = absorb
