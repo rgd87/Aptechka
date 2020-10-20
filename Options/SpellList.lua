@@ -10,6 +10,13 @@ local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIco
 
 local AceGUI = LibStub("AceGUI-3.0")
 
+local FORM_CACHE = {}
+local formConstructors = {
+    auras = {},
+    traces = {},
+    templates = {},
+}
+
 local sortfunc = function(a,b)
     if a.order == b.order then
         return a.value < b.value
@@ -25,6 +32,21 @@ local MakeValuesForKeys = function(t)
     end
     return t1
 end
+
+local ReverseLookup = function(self, effect)
+    if not effect then return end
+    for k,v in pairs(self) do
+        if v == effect then
+            return k
+        end
+    end
+end
+local fillAlpha = function(rgb)
+    local r,g,b,a = unpack(rgb)
+    a = a or 1
+    return r,g,b,a
+end
+
 
 function ns.GenerateCategoryTree(self, isGlobal, category)
     local _,class = UnitClass("player")
@@ -71,6 +93,16 @@ local CooldownForm
 local NewTimerForm
 
 
+local function GetFormForCategory(category)
+    local form = FORM_CACHE[category]
+    if not form then
+        FORM_CACHE[category] = formConstructors[category].Create()
+        form = FORM_CACHE[category]
+    end
+    return form
+end
+
+
 function ns.CreateNewTimerForm(self)
     local Form = AceGUI:Create("InlineGroup")
     Form:SetFullWidth(true)
@@ -85,9 +117,9 @@ function ns.CreateNewTimerForm(self)
         local class = self.class
 
         Frame.rpane:Clear()
-        if not AuraForm then
-            AuraForm = ns:CreateAuraForm()
-        end
+
+        local form = GetFormForCategory(category)
+
         local opts
         if category == "auras" then
             opts = { assignto = Aptechka.util.set("spell1"), showDuration = true, isMine = true, type = "HELPFUL", }
@@ -95,8 +127,8 @@ function ns.CreateNewTimerForm(self)
             opts = { assignto = Aptechka.util.set("spell1"), fade = 0.7, type = "SPELL_HEAL" }
         end
         if class == "GLOBAL" then opts.global = true end
-        ns:FillForm(AuraForm, class, category, nil, opts, true)
-        Frame.rpane:AddChild(AuraForm)
+        form:Fill(class, category, nil, opts, true)
+        Frame.rpane:AddChild(form)
     end
 
     local newaura = AceGUI:Create("Button")
@@ -140,19 +172,9 @@ local clean = function(delta, default_opts, property, emptyValue)
     if delta[property] == emptyValue and default_opts[property] == nil then delta[property] = nil end
 end
 
-function ns.CreateCommonForm(self)
-    local Form = AceGUI:Create("ScrollFrame")
-    Form:SetFullWidth(true)
-    -- Form:SetHeight(0)
-    Form:SetLayout("Flow")
-    Form.opts = {}
-    Form.controls = {}
-
-
-
-
+local function form_save(form)
     local save = AceGUI:Create("Button")
-    save:SetText("Save")
+    save:SetText(L"Save")
     save:SetRelativeWidth(0.5)
     save:SetCallback("OnClick", function(self, event)
         local p = self.parent
@@ -266,11 +288,13 @@ function ns.CreateCommonForm(self)
         ns.frame.tree:UpdateSpellTree()
         ns.frame.tree:SelectByPath(class, category, spellID)
     end)
-    Form:AddChild(save)
+    form:AddChild(save)
+end
 
+local function form_delete(form)
     local delete = AceGUI:Create("Button")
     delete:SetText(L"Delete")
-    save:SetRelativeWidth(0.5)
+    delete:SetRelativeWidth(0.5)
     delete:SetCallback("OnClick", function(self, event)
         local p = self.parent
         local class = p.class
@@ -286,7 +310,6 @@ function ns.CreateCommonForm(self)
 
         AptechkaConfigCustom[class][category][spellID] = nil
         AptechkaConfigMerged[category][spellID] = AptechkaDefaultConfig[category][spellID]
-        Aptechka.util.UnwrapTemplate(AptechkaConfigMerged[category][spellID])
 
         -- Rescan all units' auras with new settings
         Aptechka:ForEachFrame(Aptechka.FrameScanAuras)
@@ -294,9 +317,12 @@ function ns.CreateCommonForm(self)
         ns.frame.tree:UpdateSpellTree()
         ns.frame.tree:SelectByPath(class, category, spellID)
     end)
-    Form.controls.delete = delete
-    Form:AddChild(delete)
+    form.controls.delete = delete
+    form:AddChild(delete)
+    return delete
+end
 
+local function form_spellID(form)
     local spellID = AceGUI:Create("EditBox")
     spellID:SetLabel(L"Spell ID")
     spellID:SetDisabled(true)
@@ -312,9 +338,12 @@ function ns.CreateCommonForm(self)
         end
         if value == "" then self.parent.opts["spellID"] = nil end
     end)
-    Form.controls.spellID = spellID
-    Form:AddChild(spellID)
+    form.controls.spellID = spellID
+    form:AddChild(spellID)
+    return spellID
+end
 
+local function form_name(form)
     local name = AceGUI:Create("EditBox")
     name:SetLabel(L"Internal Name")
     name:SetDisabled(false)
@@ -331,9 +360,12 @@ function ns.CreateCommonForm(self)
         end
     end)
     -- name:SetHeight(32)
-    Form.controls.name = name
-    Form:AddChild(name)
+    form.controls.name = name
+    form:AddChild(name)
+    return name
+end
 
+local function form_disabled(form)
     local disabled = AceGUI:Create("CheckBox")
     disabled:SetLabel(L"Disabled")
     disabled:SetRelativeWidth(0.24)
@@ -343,13 +375,14 @@ function ns.CreateCommonForm(self)
     end)
     -- disabled.alignoffset = 10
     -- disabled:SetHeight(36)
-    Form.controls.disabled = disabled
-    Form:AddChild(disabled)
+    form.controls.disabled = disabled
+    form:AddChild(disabled)
+    return disabled
+end
 
-
+local function form_prio(form)
     local prio = AceGUI:Create("EditBox")
     prio:SetLabel(L"Priority")
-    -- prio:SetFullWidth(true)
     prio:SetRelativeWidth(0.2)
     prio:DisableButton(true)
     prio:SetCallback("OnTextChanged", function(self, event, value)
@@ -361,12 +394,13 @@ function ns.CreateCommonForm(self)
             self:SetText("")
         end
     end)
-    -- prio:SetHeight(32)
-    Form.controls.priority = prio
-    Form:AddChild(prio)
+    form.controls.priority = prio
+    form:AddChild(prio)
     AddTooltip(prio, "Positive or negative numeric value.\nDefault priority is 80.")
+    return prio
+end
 
-
+local function form_assignto(form)
     local assignto = AceGUI:Create("Dropdown")
     assignto:SetLabel(L"Assign to")
     assignto:SetMultiselect(true)
@@ -376,27 +410,12 @@ function ns.CreateCommonForm(self)
         local t = self.parent.opts["assignto"]
         t[slot] = enabled
     end)
-    Form.controls.assignto = assignto
-    Form:AddChild(assignto)
+    form.controls.assignto = assignto
+    form:AddChild(assignto)
+    return assignto
+end
 
-    -- local fixedlen = AceGUI:Create("EditBox")
-    -- fixedlen:SetLabel("|cff00ff00Fixed Duration|r")
-    -- fixedlen:SetRelativeWidth(0.2)
- --    fixedlen:DisableButton(true)
-    -- fixedlen:SetCallback("OnTextChanged", function(self, event, value)
-    --  local v = tonumber(value)
-    --  if v and v > 0 then
-    --      self.parent.opts["fixedlen"] = v
-    --  elseif value == "" then
-    --      self.parent.opts["fixedlen"] = false
-    --      self:SetText("")
-    --  end
-    -- end)
-    -- Form.controls.fixedlen = fixedlen
-    -- Form:AddChild(fixedlen)
- --    AddTooltip(fixedlen, "Set static timer max duration to align timer decay speed with other timers")
-
-
+local function form_color(form)
     local color = AceGUI:Create("ColorPicker")
     color:SetLabel(L"Color")
     color:SetRelativeWidth(0.15)
@@ -404,8 +423,149 @@ function ns.CreateCommonForm(self)
     color:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
         self.parent.opts["color"] = {r,g,b}
     end)
-    Form.controls.color = color
-    Form:AddChild(color)
+    form.controls.color = color
+    form:AddChild(color)
+    return color
+end
+
+
+local function form_clones(form)
+    local clones = AceGUI:Create("EditBox")
+    clones:SetLabel(L"Additional Spell IDs")
+    clones:SetRelativeWidth(0.9)
+    clones:SetCallback("OnEnterPressed", function(self, event, value)
+        local cloneTable = {}
+        for spellID in string.gmatch(value, "%d+") do
+            local k = tonumber(spellID)
+            if k then
+                cloneTable[k] = true
+            end
+        end
+        if next(cloneTable) then
+            self.parent.opts["clones"] = cloneTable
+        else
+            self.parent.opts["clones"] = false
+            self:SetText("")
+        end
+    end)
+    form.controls.clones = clones
+    form:AddChild(clones)
+    AddTooltip(clones, "Spell ID list of clones / spell ranks" )
+    return clones
+end
+
+local function form_scale(form)
+    local scale = AceGUI:Create("Slider")
+    scale:SetLabel(L"Scale")
+    scale:SetSliderValues(0.3, 2, 0.05)
+    scale:SetRelativeWidth(0.95)
+    scale:SetCallback("OnValueChanged", function(self, event, value)
+        local v = tonumber(value)
+        if v and v >= 0.3 and v <= 2 then
+            self.parent.opts["scale"] = v
+        else
+            self.parent.opts["scale"] = 1
+            self:SetText(self.parent.opts.scale or "1")
+        end
+    end)
+    form.controls.scale = scale
+    form:AddChild(scale)
+    AddTooltip(scale, L"Scale (not always applicable)")
+    return scale
+end
+
+local function InitForm()
+    local Form = AceGUI:Create("ScrollFrame")
+    Form:SetFullWidth(true)
+    -- Form:SetHeight(0)
+    Form:SetLayout("Flow")
+    Form.opts = {}
+    Form.controls = {}
+    return Form
+end
+
+local function AuraForm_Fill(Form, class, category, id, opts, isEmptyForm)
+    Form.opts = opts
+    Form.class = class
+    Form.category = category
+    Form.id = id
+    local controls = Form.controls
+
+    controls.spellID:SetText(id or "")
+    controls.spellID:SetDisabled(not isEmptyForm)
+    controls.disabled:SetValue(opts.disabled)
+    controls.disabled:SetDisabled(isEmptyForm)
+
+    local widgetSelection = opts.assignto or {}
+    controls.assignto:SetList(Aptechka:GetWidgetList())
+    for slot, enabled in pairs(widgetSelection) do
+        controls.assignto:SetItemValue(slot, enabled)
+    end
+    controls.name:SetText(opts.name or "")
+    controls.priority:SetText(opts.priority)
+    controls.extend_below:SetText(opts.extend_below)
+    controls.isMine:SetValue(opts.isMine)
+    controls.isMissing:SetValue(opts.isMissing)
+    controls.showDuration:SetValue(opts.showDuration)
+    controls.showCount:SetValue(opts.showCount)
+    controls.maxCount:SetText(opts.maxCount)
+    controls.showText:SetValue(opts.showText)
+    controls.text:SetText(opts.text)
+    controls.scale:SetValue(opts.scale or 1)
+    controls.refreshTime:SetText(opts.refreshTime)
+
+    local clonesText
+    if opts.clones then
+        local cloneList = {}
+        for k, enabled in pairs(opts.clones) do
+            if enabled then
+                table.insert(cloneList, k)
+            end
+        end
+        table.sort(cloneList)
+        clonesText = table.concat(cloneList, ", ")
+    end
+    controls.clones:SetText(clonesText)
+
+    controls.color:SetColor(fillAlpha(opts.color or {1,1,1,1} ))
+    controls.foreigncolor:SetColor(fillAlpha(opts.foreigncolor or {1,1,1,0} ))
+
+
+    if id and not AptechkaDefaultConfig[category][id] then
+        controls.delete:SetDisabled(false)
+        controls.delete:SetText("Delete")
+    elseif AptechkaConfigCustom[class] and  AptechkaConfigCustom[class][category] and AptechkaConfigCustom[class][category][id] then
+        controls.delete:SetDisabled(false)
+        controls.delete:SetText("Restore")
+    else
+        controls.delete:SetDisabled(true)
+        controls.delete:SetText("Restore")
+    end
+
+    controls.name:SetDisabled(true)
+    controls.showDuration:SetDisabled(false)
+    controls.showCount:SetDisabled(false)
+    controls.maxCount:SetDisabled(false)
+    -- controls.scale:SetDisabled(false)
+    controls.isMine:SetDisabled(false)
+    controls.extend_below:SetDisabled(false)
+    controls.refreshTime:SetDisabled(false)
+    controls.isMissing:SetDisabled(false)
+end
+
+local function AuraForm_Create(self)
+    local Form = InitForm()
+
+    Form.Fill = AuraForm_Fill
+
+    form_save(Form)
+    form_delete(Form)
+    form_spellID(Form)
+    form_name(Form)
+    form_disabled(Form)
+    form_prio(Form)
+    form_assignto(Form)
+    form_color(Form)
 
     local isMine = AceGUI:Create("CheckBox")
     isMine:SetLabel(L"Casted by Player")
@@ -556,76 +716,22 @@ function ns.CreateCommonForm(self)
     Form.controls.text = text
     Form:AddChild(text)
 
-    local scale = AceGUI:Create("Slider")
-    scale:SetLabel(L"Scale")
-    scale:SetSliderValues(0.3, 2, 0.05)
-    scale:SetRelativeWidth(0.95)
-    scale:SetCallback("OnValueChanged", function(self, event, value)
-        local v = tonumber(value)
-        if v and v >= 0.3 and v <= 2 then
-            self.parent.opts["scale"] = v
-        else
-            self.parent.opts["scale"] = 1
-            self:SetText(self.parent.opts.scale or "1")
-        end
-    end)
-    Form.controls.scale = scale
-    Form:AddChild(scale)
-    AddTooltip(scale, L"Scale (not always applicable)")
+    form_scale(Form)
+    form_clones(Form)
 
-
-    local clones = AceGUI:Create("EditBox")
-    clones:SetLabel(L"Additional Spell IDs")
-    clones:SetRelativeWidth(0.9)
-    clones:SetCallback("OnEnterPressed", function(self, event, value)
-        local cloneTable = {}
-        for spellID in string.gmatch(value, "%d+") do
-            local k = tonumber(spellID)
-            if k then
-                cloneTable[k] = true
-            end
-        end
-        if next(cloneTable) then
-            self.parent.opts["clones"] = cloneTable
-        else
-            self.parent.opts["clones"] = false
-            self:SetText("")
-        end
-    end)
-    Form.controls.clones = clones
-    Form:AddChild(clones)
-    AddTooltip(clones, "Spell ID list of clones / spell ranks" )
-
-    -- Frame:AddChild(Form)
-    -- Frame.top = Form
     return Form
 end
 
-function ns.CreateAuraForm(self)
-    local topgroup = ns:CreateCommonForm()
 
-    return topgroup
-end
 
-local ReverseLookup = function(self, effect)
-    if not effect then return end
-    for k,v in pairs(self) do
-        if v == effect then
-            return k
-        end
-    end
-end
-local fillAlpha = function(rgb)
-    local r,g,b,a = unpack(rgb)
-    a = a or 1
-    return r,g,b,a
-end
 
-function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
+
+local function TraceForm_Fill(Form, class, category, id, opts, isEmptyForm)
     Form.opts = opts
     Form.class = class
     Form.category = category
     Form.id = id
+
     local controls = Form.controls
     controls.spellID:SetText(id or "")
     controls.spellID:SetDisabled(not isEmptyForm)
@@ -639,16 +745,7 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     end
     controls.name:SetText(opts.name or "")
     controls.priority:SetText(opts.priority)
-    controls.extend_below:SetText(opts.extend_below)
-    controls.isMine:SetValue(opts.isMine)
-    controls.isMissing:SetValue(opts.isMissing)
-    controls.showDuration:SetValue(opts.showDuration)
-    controls.showCount:SetValue(opts.showCount)
-    controls.maxCount:SetText(opts.maxCount)
-    controls.showText:SetValue(opts.showText)
-    controls.text:SetText(opts.text)
     controls.scale:SetValue(opts.scale or 1)
-    controls.refreshTime:SetText(opts.refreshTime)
 
     local clonesText
     if opts.clones then
@@ -663,48 +760,8 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
     end
     controls.clones:SetText(clonesText)
 
-    -- -- controls.group:SetValue(opts.group or "default")
-    -- controls.duration:SetText((type(opts.duration) == "function" and "<func>") or opts.duration)
-    -- controls.scale:SetValue(opts.scale or 1)
-    -- controls.scale_until:SetText(opts.scale_until)
- --    controls.hide_until:SetText(opts.hide_until)
-    -- controls.shine:SetValue(opts.shine)
-    -- controls.shinerefresh:SetValue(opts.shinerefresh)
-
-    -- if opts.ghost then
-    -- 	controls.ghost:SetValue(true)
-    -- else
-    -- 	controls.ghost:SetValue(false)
-    -- end
-    -- controls.maxtimers:SetText(opts.maxtimers)
-    -- controls.singleTarget:SetValue(opts.singleTarget)
-    -- controls.multiTarget:SetValue(opts.multiTarget)
-
     controls.color:SetColor(fillAlpha(opts.color or {1,1,1,1} ))
-    controls.foreigncolor:SetColor(fillAlpha(opts.foreigncolor or {1,1,1,0} ))
-
-    -- controls.color2:SetColor(fillAlpha(opts.color2 or {1,1,1,0} ))
-    -- controls.arrow:SetColor(fillAlpha(opts.arrow or {1,1,1,0} ))
-
-    -- controls.affiliation:SetValue(opts.affiliation or COMBATLOG_OBJECT_AFFILIATION_MINE)
-    -- controls.nameplates:SetValue(opts.nameplates)
-
-    -- controls.tick:SetText(opts.tick)
-    -- controls.recast_mark:SetText(opts.recast_mark)
-    -- controls.fixedlen:SetText(opts.fixedlen)
-
-    -- if opts.overlay then
-    -- 	controls.overlay_start:SetText(opts.overlay[1])
-    -- 	controls.overlay_end:SetText(opts.overlay[2])
-    -- 	controls.overlay_haste:SetValue(opts.overlay[4])
-    -- else
-    -- 	controls.overlay_start:SetText("")
-    -- 	controls.overlay_end:SetText("")
-    -- 	controls.overlay_haste:SetValue(false)
-    -- end
-
- --    controls.effect:SetValue(opts.effect or "NONE")
- --    controls.ghosteffect:SetValue(opts.ghosteffect or "NONE")
+    -- controls.foreigncolor:SetColor(fillAlpha(opts.foreigncolor or {1,1,1,0} ))
 
     if id and not AptechkaDefaultConfig[category][id] then
         controls.delete:SetDisabled(false)
@@ -717,30 +774,43 @@ function ns.FillForm(self, Form, class, category, id, opts, isEmptyForm)
         controls.delete:SetText("Restore")
     end
 
-
-    if category == "auras" then
-        controls.name:SetDisabled(true)
-        controls.showDuration:SetDisabled(false)
-        controls.showCount:SetDisabled(false)
-        controls.maxCount:SetDisabled(false)
-        -- controls.scale:SetDisabled(false)
-        controls.isMine:SetDisabled(false)
-        controls.extend_below:SetDisabled(false)
-        controls.refreshTime:SetDisabled(false)
-        controls.isMissing:SetDisabled(false)
-    else
-        controls.name:SetDisabled(true)
-        controls.showDuration:SetDisabled(true)
-        controls.showCount:SetDisabled(true)
-        controls.maxCount:SetDisabled(true)
-        -- controls.scale:SetDisabled(true)
-        controls.isMine:SetDisabled(true)
-        controls.extend_below:SetDisabled(true)
-        controls.refreshTime:SetDisabled(true)
-        controls.isMissing:SetDisabled(true)
-    end
-
+    controls.name:SetDisabled(true)
 end
+
+local function TraceForm_Create(self)
+    local Form = InitForm()
+
+    Form.Fill = TraceForm_Fill
+
+    form_save(Form)
+    form_delete(Form)
+    form_spellID(Form)
+    form_name(Form)
+    form_disabled(Form)
+    form_prio(Form)
+    form_assignto(Form)
+    form_color(Form)
+    form_scale(Form)
+    form_clones(Form)
+
+    return Form
+end
+
+formConstructors.auras.Create = function(self)
+    local topgroup = AuraForm_Create()
+    return topgroup
+end
+formConstructors.traces.Create = function()
+    local topgroup = TraceForm_Create()
+    return topgroup
+end
+-- formConstructors.templates.Create = function(self)
+--     local topgroup = ns:CreateCommonForm()
+--     return topgroup
+-- end
+
+
+
 
 
 
@@ -871,15 +941,12 @@ function ns.CreateSpellList(name, parent )
 
         Aptechka.util.UnwrapTemplate(opts)
 
-        -- if category == "spells" then
         Frame.rpane:Clear()
-        if not AuraForm then
-            AuraForm = ns:CreateAuraForm()
-        end
-        ns:FillForm(AuraForm, class, category, spellID, opts)
-        Frame.rpane:AddChild(AuraForm)
 
-        -- end
+        local form = GetFormForCategory(category)
+
+        form:Fill(class, category, spellID, opts)
+        Frame.rpane:AddChild(form)
     end)
 
     Frame.rpane = treegroup
