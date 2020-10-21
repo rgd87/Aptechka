@@ -16,40 +16,40 @@ local tankCD = { type = "HELPFUL", assignto = set("icon"), global = true, showDu
 local survivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, showDuration = true, priority = 90 }
 
 -- WARLOCK
-A{ id = { 6229, 11739, 11740, 28610 }, prototype = survivalCD } -- Shadow Ward
+A{ id = { 6229, 11739, 11740, 28610 }, template = "survivalCD" } -- Shadow Ward
 
 -- DRUID
-A{ id = 22812,  prototype = survivalCD } -- Barkskin
-A{ id = 29166,  prototype = survivalCD } -- Innervate
+A{ id = 22812,  template = "survivalCD" } -- Barkskin
+A{ id = 29166,  template = "survivalCD" } -- Innervate
 
 
 -- MAGE
-A{ id = 11958,  prototype = tankCD } -- Ice Block
-A{ id = { 543, 8457, 8458, 10223, 10225 },  prototype = survivalCD } -- Fire Ward
-A{ id = { 6143, 8461, 8462, 10177, 28609 },  prototype = survivalCD } -- Frost Ward
+A{ id = 11958,  template = "tankCD" } -- Ice Block
+A{ id = { 543, 8457, 8458, 10223, 10225 },  template = "survivalCD" } -- Fire Ward
+A{ id = { 6143, 8461, 8462, 10177, 28609 },  template = "survivalCD" } -- Frost Ward
 
 -- PALADIN
-A{ id = { 498, 5573, 642, 1020 }, prototype = tankCD, priority = 95 } -- Divine Shield
-A{ id = { 1022, 5599, 10278 }, prototype = survivalCD } -- Blessing of Protection
-A{ id = 1044, prototype = survivalCD, priority = 40 } -- Blessing of Freedom
+A{ id = { 498, 5573, 642, 1020 }, template = "tankCD", priority = 95 } -- Divine Shield
+A{ id = { 1022, 5599, 10278 }, template = "survivalCD" } -- Blessing of Protection
+A{ id = 1044, template = "survivalCD", priority = 40 } -- Blessing of Freedom
 
 -- HUNTER
-A{ id = 19263, prototype = survivalCD } -- Deterrence
+A{ id = 19263, template = "survivalCD" } -- Deterrence
 
 -- WARRIOR
-A{ id = 20230, prototype = survivalCD } -- Retaliation
-A{ id = 12976, prototype = survivalCD, priority = 85 } --Last Stand
-A{ id = 871,   prototype = tankCD } --Shield Wall 40%
+A{ id = 20230, template = "survivalCD" } -- Retaliation
+A{ id = 12976, template = "survivalCD", priority = 85 } --Last Stand
+A{ id = 871,   template = "tankCD" } --Shield Wall 40%
 
 -- ROGUE
-A{ id = 5277, prototype = survivalCD } -- Evasion
-A{ id = { 1856, 1857 }, prototype = tankCD } -- Vanish
+A{ id = 5277, template = "survivalCD" } -- Evasion
+A{ id = { 1856, 1857 }, template = "tankCD" } -- Vanish
 
 -- WARLOCK
-A{ id = { 6229, 11739, 11740, 28610 },  prototype = survivalCD } -- Shadow Ward
+A{ id = { 6229, 11739, 11740, 28610 },  template = "survivalCD" } -- Shadow Ward
 
 -- Healing Reduction
--- A{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, prototype = bossDebuff, global = true, } --Mortal Strike
+-- A{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, template = "bossDebuff", global = true, } --Mortal Strike
 
 -- Battleground
 A{ id = 23333, type = "HELPFUL", assignto = set("raidbuff"), scale = 1.7, color = {1,0,0}, priority = 95, global = true, } --Warsong Flag
@@ -101,11 +101,11 @@ if playerClass == "PRIEST" then
     A{ id = 6788, type = "HARMFUL", assignto = set("spell3"), priority = 70, color = { 0.8, 0, 0}, showDuration = true }
 
     -- Prayer of Healing
-    Trace{id = { 596, 996, 10960, 10961, 15019, 25316 }, type = "HEAL", assignto = set("healfeedback"), color = { .5, .5, 1}, fade = 0.7, priority = 96 }
+    Trace{id = { 596, 996, 10960, 10961, 15019, 25316 }, template = "HealTrace", color = { .5, .5, 1} }
     -- Flash Heal
-    Trace{id = { 2061, 9472, 9473, 9474, 10915, 10916, 10917 } , type = "HEAL", assignto = set("healfeedback"), color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
+    Trace{id = { 2061, 9472, 9473, 9474, 10915, 10916, 10917 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
     -- Greater Heal
-    Trace{id = { 2060, 10963, 10964, 10965, 25314 }, type = "HEAL", assignto = set("healfeedback"), color = { 0.7, 1, 0.7}, fade = 0.7, priority = 96 }
+    Trace{id = { 2060, 10963, 10964, 10965, 25314 }, template = "HealTrace", color = { 0.7, 1, 0.7} }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(2050), -- Lesser Heal Rank 1
@@ -131,7 +131,7 @@ if playerClass == "DRUID" then
     A{ id = 2893, type = "HELPFUL", assignto = set("bars"), priority = 30, color = {15/255, 78/255, 60/255} , showDuration = true, isMine = false }
 
     -- Healing Touch
-    Trace{id = { 5185, 5186, 5187, 5188, 5189, 6778, 8903, 9758, 9888, 9889, 25297 } , type = "HEAL", assignto = set("healfeedback"), color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
+    Trace{id = { 5185, 5186, 5187, 5188, 5189, 6778, 8903, 9758, 9888, 9889, 25297 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(5185),
@@ -153,9 +153,9 @@ if playerClass == "PALADIN" then
     -- A{ id = 1044, type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 1, 0.4, 0.2} }
 
     -- Holy Light
-    Trace{id = { 635, 639, 647, 1026, 1042, 3472, 10328, 10329, 25292 } , type = "HEAL", assignto = set("healfeedback"), color = { 1, 1, 0.6}, fade = 0.7, priority = 96 }
+    Trace{id = { 635, 639, 647, 1026, 1042, 3472, 10328, 10329, 25292 } , template = "HealTrace", color = { 1, 1, 0.6} }
     -- Flash of Light
-    Trace{id = { 19750, 19939, 19940, 19941, 19942, 19943 } , type = "HEAL", assignto = set("healfeedback"), color = { 0.6, 1, 0.6}, fade = 0.7, priority = 96 }
+    Trace{id = { 19750, 19939, 19940, 19941, 19942, 19943 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
 
 
     config.UnitInRangeFunctions = {
@@ -204,9 +204,9 @@ if playerClass == "SHAMAN" then
     A{ id = { 16177, 16236, 16237 }, type = "HELPFUL", assignto = set("bars"), showDuration = true, color = { 1, 0.85, 0} }
 
     -- Chain Heal
-    Trace{id = { 1064, 10622, 10623 }, type = "HEAL", assignto = set("healfeedback"), color = { 1, 1, 0 }, fade = 0.7, priority = 96 }
+    Trace{id = { 1064, 10622, 10623 }, template = "HealTrace", color = { 1, 1, 0 } }
     -- Healing Wave incl Lesser Wave
-    Trace{id = { 331, 332, 547, 913, 939, 959, 8004, 8005, 8008, 8010, 10395, 10396, 10466, 10467, 10468, 25357 }, type = "HEAL", assignto = set("healfeedback"), color = { 0.5, 1, 0.5 }, fade = 0.7, priority = 96 }
+    Trace{id = { 331, 332, 547, 913, 939, 959, 8004, 8005, 8008, 8010, 10395, 10396, 10466, 10467, 10468, 25357 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(331),
