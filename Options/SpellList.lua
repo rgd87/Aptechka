@@ -929,9 +929,15 @@ function ns.CreateSpellList(name, parent )
             return
         end
 
+        local opts
+
+        -- if category == "templates" then
+        --     local templateName = spellID
+
+        -- else
         spellID = tonumber(spellID)
         local defaultOpts = AptechkaDefaultConfig[category][spellID]
-        local opts = defaultOpts and CopyTable(defaultOpts) or {}
+        opts = defaultOpts and CopyTable(defaultOpts) or {}
 
         if AptechkaConfigCustom[class] and AptechkaConfigCustom[class][category] and AptechkaConfigCustom[class][category][spellID] then
             local customOpts = AptechkaConfigCustom[class][category][spellID]
@@ -940,6 +946,7 @@ function ns.CreateSpellList(name, parent )
         end
 
         Aptechka.util.UnwrapTemplate(opts)
+        -- end
 
         Frame.rpane:Clear()
 

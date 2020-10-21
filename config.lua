@@ -113,7 +113,7 @@ end
 local RangeCheckBySpell = helpers.RangeCheckBySpell
 
 
-config.Templates = {
+config.templates = {
     TankCD = { type = "HELPFUL", assignto = set("icon"), global = true, showDuration = true, priority = 94, color = { 1, 0.2, 1} },
     SurvivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, showDuration = true, priority = 90, color = { 0.4, 1, 0.4} },
     ActiveMitigation = { type = "HELPFUL", assignto = set("mitigation"), showDuration = true, global = true, color = {0.7, 0.7, 0.7}, priority = 80 },
