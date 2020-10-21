@@ -9,6 +9,7 @@
     <Script file="..\Locales\ruRU.lua"/>
     <Script file="..\Locales\zhCN.lua"/>
     <Script file="..\Locales\deDE.lua"/>
+    <Script file="..\Locales\koKR.lua"/>
 
     <Script file="GlobalSettings.lua"/>
     <Script file="ProfileSettings.lua"/>
