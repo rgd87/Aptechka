@@ -85,6 +85,43 @@ function helpers.DispelTypes(...)
 end
 
 local protomt = { __index = function(t,k) return t.prototype[k] end }
+
+
+local function SetupDefaults(t, defaults)
+    if not defaults then return end
+    for k,v in pairs(defaults) do
+        if type(v) == "table" then
+            if t[k] == nil then
+                t[k] = CopyTable(v)
+            elseif t[k] == false then
+                t[k] = false --pass
+            else
+                SetupDefaults(t[k], v)
+            end
+        else
+            if type(t) == "table" and t[k] == nil then t[k] = v end
+            if t[k] == "__REMOVED__" then t[k] = nil end
+        end
+    end
+end
+helpers.SetupDefaults = SetupDefaults
+
+function helpers.UnwrapTemplate(opts)
+    if not opts.template then return false end
+    local templateName = opts.template
+    local templateTable = config.templates[templateName]
+
+    SetupDefaults(opts, templateTable)
+    return true
+end
+local UnwrapTemplate = helpers.UnwrapTemplate
+
+function helpers.UnwrapConfigTemplates(configCategory)
+    for spellID, opts in pairs(configCategory) do
+        UnwrapTemplate(opts)
+    end
+end
+
 function helpers.AddLoadableAura(data, todefault)
     if data.id then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
@@ -115,15 +152,7 @@ function helpers.AddAura(data, todefault)
     if data.id and not data.name then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (string.format("[Aptechka] %d spell id missing", data.id)) return end
 
-    if data.prototype then -- metatables break because of config merging for gui
-        -- setmetatable(data, { __index = function(t,k) return t.prototype[k] end })
-        for k,v in pairs(data.prototype) do
-            if not data[k] then
-                data[k] = v
-            end
-        end
-        data.prototype = nil
-    end
+    -- FixMetatable(data)
 
     if not data.type then data.type = "HELPFUL" end
 
@@ -160,7 +189,6 @@ function helpers.AddTrace(data)
     end
 
     if data.id then data.name = GetSpellInfo(data.id) or data.name end
-    data.type = "SPELL_"..data.type
     if not config.traces then config.traces = {} end
     if not data.name then print(string.format("[Aptechka] %d spell id missing", data.id)) return end
     data.actualname = data.name
@@ -168,6 +196,7 @@ function helpers.AddTrace(data)
     data.name = data.actualname.."Trace"
     local id = data.id
     data.id = nil -- important to do that, because statuses with id field treated as aura
+    -- FixMetatable(data)
     config.traces[id] = data
 end
 
@@ -387,26 +416,6 @@ do
     end
 end
 
-
-local function SetupDefaults(t, defaults)
-    if not defaults then return end
-    for k,v in pairs(defaults) do
-        if type(v) == "table" then
-            if t[k] == nil then
-                t[k] = CopyTable(v)
-            elseif t[k] == false then
-                t[k] = false --pass
-            else
-                SetupDefaults(t[k], v)
-            end
-        else
-            if type(t) == "table" and t[k] == nil then t[k] = v end
-            if t[k] == "__REMOVED__" then t[k] = nil end
-        end
-    end
-end
-helpers.SetupDefaults = SetupDefaults
-
 local function RemoveDefaults(t, defaults)
     if not defaults then return end
     for k, v in pairs(defaults) do
@@ -443,6 +452,13 @@ local function MergeTable(t1, t2)
 end
 helpers.MergeTable = MergeTable
 
+-- function helpers.ShallowCopyTable(tbl)
+--     local copy = {}
+--     for k,v in pairs(tbl) do
+--         copy[k] = v
+--     end
+--     return copy
+-- end
 
 local Set = {}
 local mt = { __index = Set }
@@ -517,10 +533,9 @@ helpers.Set = Set
 
 
 function helpers.ShakeAssignments(newOpts, defaultOpts)
-    if newOpts.assignto then
+    if newOpts.assignto and defaultOpts.assignto then
         local toRemove = {}
         for slot, enabled in pairs(newOpts.assignto) do
-            if defaultOpts.assignto then
                 local defSlot = defaultOpts.assignto[slot]
                 if not enabled and (defSlot == false or defSlot == nil) then
                     table.insert(toRemove, slot)
@@ -528,7 +543,6 @@ function helpers.ShakeAssignments(newOpts, defaultOpts)
                 if enabled and defSlot == true then
                     table.insert(toRemove, slot)
                 end
-            end
         end
         for _, slot in ipairs(toRemove) do
             newOpts.assignto[slot] = nil

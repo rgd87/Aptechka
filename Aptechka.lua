@@ -334,8 +334,12 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.util.MergeTable(AptechkaConfigMerged, widgetConfig)
 
     Aptechka.spellNameToID = helpers.spellNameToID
-
     Aptechka:UpdateSpellNameToIDTable()
+
+    -- Template application
+    helpers.UnwrapConfigTemplates(AptechkaConfigMerged.traces)
+    helpers.UnwrapConfigTemplates(AptechkaConfigMerged.auras)
+
     Aptechka:FixWidgetsAfterUpgrade()
 
     -- compiling a list of spells that should activate indicator when missing

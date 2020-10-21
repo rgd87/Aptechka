@@ -51,6 +51,13 @@ local FRAMELEVEL = {
 
 Aptechka.Widget = {}
 
+local dummy = function() end
+local function WrapFrameAsWidget(frame)
+    if not frame.SetJob then frame.SetJob = dummy end
+    if not frame.StartTrace then frame.StartTrace = dummy end
+    return frame
+end
+
 local function InheritGlobalOptions(popts, gopts)
     assert(gopts)
     if not popts then
@@ -658,7 +665,7 @@ local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, gr
 
     hdr.SetJob = SetJob_Array
 
-    return hdr
+    return WrapFrameAsWidget(hdr)
 end
 
 -------------------------------------------------------------------------------------------
@@ -1117,7 +1124,7 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     AddSpinAnimation(f)
 
     f:Hide()
-    return f
+    return WrapFrameAsWidget(f)
 end
 AptechkaDefaultConfig.GridSkin_CreateStatusBar = CreateStatusBar
 
@@ -1326,7 +1333,7 @@ local BaseCreateIcon = function(parent, width, height, alpha, point, frame, to, 
     icon.SetJob = SetJob_Icon
     icon:Hide()
 
-    return icon
+    return WrapFrameAsWidget(icon)
 end
 
 local function CreateIcon(parent, width, height, alpha, point, frame, to, x, y, textsize, outlineEnabled, drawEdge, ...)
@@ -2389,8 +2396,7 @@ end
 
 
 
-local dummy = function() end
-local function WrapAsWidget(func, customSetJob, customStartTrace)
+local function WrapFuncAsWidget(func, customSetJob, customStartTrace)
     return function(...)
         local frame = func(...)
         if not frame then return end
@@ -2411,7 +2417,7 @@ local optional_widgets = {
 Aptechka.optional_widgets = optional_widgets
 
 function Aptechka:RegisterWidget(name, func, customSetJob, customStartTrace)
-    optional_widgets[name] = WrapAsWidget(func, customSetJob, customStartTrace)
+    optional_widgets[name] = WrapFuncAsWidget(func, customSetJob, customStartTrace)
 end
 
 Aptechka:RegisterWidget("pixelGlow", CreatePixelGlow)
