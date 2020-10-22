@@ -729,6 +729,7 @@ function Aptechka.GetWidgetList()
     list["vehicle"] = nil
     list["text1"] = nil
     list["incomingCastIcon"] = nil
+    list["floatingIcon"] = nil
     return list
 end
 
