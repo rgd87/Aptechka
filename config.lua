@@ -1057,6 +1057,7 @@ helpers.buffGainWhitelist = {
     [247483] = AURA, -- Tigereye Brew
     --[[DUP]] [209584] = AURA, -- Zen Focus Tea
     --[[DUP]] [120954] = AURA, -- Fortifying Brew
+    --[[DUP]] [243435] = AURA, -- Fortifying Brew (MW/WW)
     -- monk summons
     [123904] = CAST, -- Xuen
     --[[DUP]] [132578] = CAST, -- Niuzao
