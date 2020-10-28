@@ -207,8 +207,11 @@ local function form_save(form)
         end
 
         local default_opts_wrapped = AptechkaDefaultConfig[category][spellID]
-        local default_opts = CopyTable(default_opts_wrapped)
-        Aptechka.util.UnwrapTemplate(default_opts) -- Merges and removes 'prototype' property
+        local default_opts
+        if default_opts_wrapped then
+            default_opts = CopyTable(default_opts_wrapped)
+            Aptechka.util.UnwrapTemplate(default_opts) -- Merges and removes 'prototype' property
+        end
         if default_opts then
             clean(opts, default_opts, "name", false)
             clean(opts, default_opts, "priority", false)

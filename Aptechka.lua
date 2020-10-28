@@ -761,6 +761,7 @@ function Aptechka.GetWidgetList()
     list["vehicle"] = nil
     list["text1"] = nil
     list["incomingCastIcon"] = nil
+    list["floatingIcon"] = nil
     return list
 end
 
@@ -816,6 +817,7 @@ end
 function Aptechka:ReconfigureUnprotected()
     self:UpdateUnprotectedUpvalues()
     self:RefreshAllUnitsColors()
+    self:RefreshAllUnitsHealth() -- Updates health with new settings fg/bg settings after switch
     for group, header in ipairs(group_headers) do
         for _, f in ipairs({ header:GetChildren() }) do
             self:UpdateName(f)
