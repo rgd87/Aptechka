@@ -154,6 +154,29 @@ function ns.MakeStatusConfig()
                 },
             },
         }
+
+        if status == "HealthTextStatus" then
+            opt.args[status].args.formatType = {
+                name = L"Formatting",
+                type = "select",
+                width = "full",
+                values = {
+                    PERCENTAGE = L"Percentage",
+                    PERCENTAGE_NOSIGN = L"Percentage No Sign",
+                    MISSING_VALUE_SHORT = L"Missing Value",
+                    -- VALUE_SHORT = L"Value",
+                },
+                get = function() return AptechkaConfigMerged[status].formatType end,
+                set = function(info, value)
+                    AptechkaConfigMerged[status].formatType = value
+                    Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
+                    AptechkaConfigCustom.WIDGET[status].formatType = value
+
+                    Aptechka:ReapplyJob(AptechkaConfigMerged[status])
+                end,
+                order = 3.5,
+            }
+        end
     end
 
     local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")

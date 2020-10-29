@@ -12,7 +12,7 @@ LSM:Register("font", "AlegreyaSans-Medium", [[Interface\AddOns\Aptechka\Alegreya
 
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
-
+local string_format = string.format
 --[[
 DRAW LAYERS
 2 shield icon border
@@ -226,18 +226,50 @@ local function formatMissingHealth(mh)
     end
 end
 
+local function formatShorten(v)
+    if v < 1000 then
+        return "%d", v
+    elseif v < 10000 then
+        return "%.1fk", v / 1000
+    else
+        return "%.0fk", v / 1000
+    end
+end
+
+local TextFormatters = {
+    MISSING_VALUE_SHORT = function(cur, max)
+        return string_format(formatMissingHealth(max - cur))
+    end,
+    VALUE = function(cur, max)
+        return cur
+    end,
+    VALUE_SHORT = function(cur, max)
+        return string_format(formatShorten(cur))
+    end,
+    PERCENTAGE = function(cur, max)
+        return string_format("%.0f%%", cur/max*100)
+    end,
+    PERCENTAGE_NOSIGN = function(cur, max)
+        return string_format("%.0f", cur/max*100)
+    end,
+}
+local function FormatText(job, ...)
+    local formattter = TextFormatters[job.formatType] or TextFormatters.VALUE
+    return formattter(...)
+end
+
 local contentNormalizers = {}
 function contentNormalizers.HealthText(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     cur, max = ...
-    text = string.format(formatMissingHealth(max - cur))
+    text = FormatText(job, cur, max)
     r,g,b = GetClassOrTextColor(job, state)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
 function contentNormalizers.INCOMING_HEAL(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     cur = ...
-    text = string.format("+%d", cur)
+    text = string_format("+%d", cur)
     r,g,b = GetTextColor(job)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
@@ -274,7 +306,7 @@ function contentNormalizers.Stagger(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     local stagger = state.stagger
 
-    text = stagger and string.format("%.0f%%", stagger*100) or ""
+    text = stagger and string_format("%.0f%%", stagger*100) or ""
 
     r,g,b = helpers.PercentColor(stagger)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
@@ -284,13 +316,9 @@ function contentNormalizers.PROGRESS(job, state, contentType, ...)
     local c, m, perc = ...
     cur = c
     max = m
-    if job.formatAs == "PERCENTAGE" then
-        r,g,b = helpers.PercentColor(perc)
-        text = string.format("%.0f%%", perc*100)
-    else
-        r,g,b = GetTextColor(job)
-        text = cur
-    end
+    r,g,b = GetTextColor(job)
+    -- r,g,b = helpers.PercentColor(perc)
+    text = FormatText(job, cur, max)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
 function contentNormalizers.UnitName(job, state, contentType, ...)
@@ -2064,7 +2092,6 @@ end
 ------------------------------------------------------------------------------
 
     local hour, minute = 3600, 60
-    local format = string.format
     local ceil = math.ceil
     local function FormatTime(s)
         if s >= hour then
@@ -2078,9 +2105,9 @@ end
     local Text_OnUpdate = function(t3frame,time)
         local remains = t3frame.expirationTime - GetTime()
         if remains >= 2 then
-            t3frame.text:SetText(string.format("%d", remains))
+            t3frame.text:SetText(string_format("%d", remains))
         elseif remains >= 0 then
-            t3frame.text:SetText(string.format("%.1f", remains))
+            t3frame.text:SetText(string_format("%.1f", remains))
         else
             t3frame:SetScript("OnUpdate", nil)
         end
