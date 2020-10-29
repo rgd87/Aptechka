@@ -194,6 +194,7 @@ A{ id = 329543, template = "TankCD" } -- Divine Ascension
 A{ id = 642,    template = "TankCD", priority = 95 } -- Divine Shield
 A{ id = 1022,   template = "SurvivalCD" } -- Blessing of Protection
 A{ id = 204018, template = "SurvivalCD" } -- Blessing of Spellwarding
+A{ id = 1044,   template = "SurvivalCD" } -- Blessing of Freedom
 A{ id = 184662, template = "SurvivalCD" } -- Shield of Vengeance
 A{ id = 205191, template = "SurvivalCD" } -- Eye for an Eye
 A{ id = 498,    template = "SurvivalCD" } -- Divine Protection
@@ -317,8 +318,6 @@ if playerClass == "MONK" then
     A{ id = 124682, type = "HELPFUL", assignto = set("bars"), refreshTime = 6*0.3, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 75 }
     --Soothing Mist
     A{ id = 115175, type = "HELPFUL", assignto = set("bars"), isMine = true, showDuration = true, color = { 0, .8, 0}, priority = 80 }
-    --Tear of Morning
-    A{ id = 337993, type = "HELPFUL", assignto = set("bars"), isMine = true, showDuration = true, color = { 0.4, 1, 0.8}, scale = 0.5, priority = 80 }
     --Bonedust Brew
     A{ id = 325216, type = "HELPFUL", assignto = set("bars"), isMine = true, showDuration = true, color = { 0.3, 0.35, 0.5}, scale = 0.5, priority = 80 }
     --Statue's Soothing Mist
