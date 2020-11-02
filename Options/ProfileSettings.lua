@@ -548,6 +548,19 @@ function ns.MakeProfileSettings()
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
+                            rangeAlpha = {
+                                name = L"Out of Range Alpha"..newFeatureIcon,
+                                type = "range",
+                                get = function(info) return Aptechka.db.profile.alphaOutOfRange end,
+                                set = function(info, v)
+                                    Aptechka.db.profile.alphaOutOfRange = v
+                                    Aptechka:UpdateUnprotectedUpvalues()
+                                end,
+                                min = 0,
+                                max = 0.9,
+                                step = 0.01,
+                                order = 19,
+                            },
                         }
                     },
                     mulGroup = {

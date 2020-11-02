@@ -124,6 +124,7 @@ local DispelTypeProc, DispelTypePostUpdate
 local enableTraceheals
 local enableAuraEvents
 local enableFloatingIcon
+local alphaOutOfRange = 0.45
 -- local enableLowHealthStatus
 local debuffLimit
 local tankUnits = {}
@@ -210,6 +211,7 @@ local defaults = {
         healthColor1 = {0,1,0},
         healthColor2 = {1,1,0},
         healthColor3 = {1,0,0},
+        alphaOutOfRange = 0.45,
 
         scale = 1, --> into
         debuffBossScale = 1.3,
@@ -803,6 +805,7 @@ function Aptechka:UpdateUnprotectedUpvalues()
     enableTraceheals = config.enableTraceHeals and next(traceheals)
     enableAuraEvents = Aptechka.db.profile.auraUpdateEffect
     enableFloatingIcon = Aptechka.db.profile.showFloatingIcons
+    alphaOutOfRange = Aptechka.db.profile.alphaOutOfRange
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
@@ -1347,7 +1350,7 @@ local function FrameUpdateRangeAlpha(frame, unit)
     if AptechkaUnitInRange(unit) then
         frame:SetAlpha(1)
     else
-        frame:SetAlpha(0.45)
+        frame:SetAlpha(alphaOutOfRange)
     end
 end
 local function FrameResetRangeAlpha(frame, unit)
