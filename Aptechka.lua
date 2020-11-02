@@ -581,7 +581,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
     Aptechka:SetGrowth(group_headers, unitGrowth, groupGrowth)
 
-    Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
+    C_Timer.NewTicker(0.3, Aptechka.OnRangeUpdate)
     Aptechka:Show()
 
     if firstTimeUse then
@@ -1358,9 +1358,6 @@ local function FrameResetRangeAlpha(frame, unit)
 end
 --Range check
 Aptechka.OnRangeUpdate = function (self, time)
-    self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
-    if self.OnUpdateCounter < 0.3 then return end
-    self.OnUpdateCounter = 0
 
     Aptechka:UpdateStagger()
 
