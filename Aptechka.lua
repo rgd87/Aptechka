@@ -216,6 +216,9 @@ local defaults = {
         fgShowMissing = true,
         fgColorMultiplier = 1,
         bgColorMultiplier = 0.2,
+        normalAlpha = 1,
+        oocombatAlpha = 1,
+        oorangeAlpha = 0.5,
         groupFilter = 255,
         bgAlpha = 1,
         widgetConfig = {},
@@ -765,6 +768,15 @@ end
 function Aptechka:ReconfigureAllWidgets()
     for widgetName in pairs(Aptechka.db.global.widgetConfig) do
         self:ReconfigureWidget(widgetName)
+    end
+end
+
+function Aptechka:UpdateHeaderAlpha()
+    local inCombat = UnitAffectingCombat("player")
+    local profile = self.db.profile
+    local a = inCombat and profile.normalAlpha or profile.oocombatAlpha
+    for group, header in ipairs(group_headers) do
+        header:SetAlpha(a)
     end
 end
 
