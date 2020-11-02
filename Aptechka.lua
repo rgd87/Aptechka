@@ -124,6 +124,7 @@ local DispelTypeProc, DispelTypePostUpdate
 local enableTraceheals
 local enableAuraEvents
 local enableFloatingIcon
+local enableStagger
 local alphaOutOfRange = 0.45
 -- local enableLowHealthStatus
 local debuffLimit
@@ -1359,7 +1360,9 @@ end
 --Range check
 Aptechka.OnRangeUpdate = function (self, time)
 
-    Aptechka:UpdateStagger()
+    if enableStagger then
+        Aptechka:UpdateStagger()
+    end
 
     if not IsInGroup() then --UnitInRange returns false when not grouped
         Aptechka:ForEachFrame(FrameResetRangeAlpha)
@@ -1469,8 +1472,10 @@ function Aptechka.FrameCheckRoles(self, unit )
 
     if isAnyTank and select(2, UnitClass(unit)) == "MONK" then
         staggerUnits[unit] = true
+        enableStagger = true
     elseif staggerUnits[unit] then
         staggerUnits[unit] = nil
+        enableStagger = next(staggerUnits) ~= nil
         FrameSetJob(self, config.StaggerStatus, false)
     end
 
