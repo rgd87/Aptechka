@@ -452,6 +452,19 @@ function ns.MakeProfileSettings()
                         step = 1,
                         order = 14.5,
                     },
+                    powerbarSize = {
+                        name = L"Power Thickness",
+                        type = "range",
+                        get = function(info) return Aptechka.db.profile.powerSize end,
+                        set = function(info, v)
+                            Aptechka.db.profile.powerSize = v
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        min = 1,
+                        max = 30,
+                        step = 1,
+                        order = 14.5,
+                    },
 
 
                     healthColorGroup = {
@@ -534,6 +547,19 @@ function ns.MakeProfileSettings()
                                     Aptechka.db.profile.healthColor3 = {r,g,b}
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
+                            },
+                            rangeAlpha = {
+                                name = L"Out of Range Alpha"..newFeatureIcon,
+                                type = "range",
+                                get = function(info) return Aptechka.db.profile.alphaOutOfRange end,
+                                set = function(info, v)
+                                    Aptechka.db.profile.alphaOutOfRange = v
+                                    Aptechka:UpdateUnprotectedUpvalues()
+                                end,
+                                min = 0,
+                                max = 0.9,
+                                step = 0.01,
+                                order = 19,
                             },
                         }
                     },

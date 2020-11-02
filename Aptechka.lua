@@ -129,6 +129,8 @@ local DispelTypeProc, DispelTypePostUpdate
 local enableTraceheals
 local enableAuraEvents
 local enableFloatingIcon
+local enableStagger
+local alphaOutOfRange = 0.45
 -- local enableLowHealthStatus
 local debuffLimit
 local tankUnits = {}
@@ -190,6 +192,7 @@ local defaults = {
         y = 0,
         width = 55,
         height = 55,
+        powerSize = 4,
         healthOrientation = "VERTICAL",
         unitGrowth = "RIGHT",
         groupGrowth = "TOP",
@@ -215,6 +218,7 @@ local defaults = {
         healthColor1 = {0,1,0},
         healthColor2 = {1,1,0},
         healthColor3 = {1,0,0},
+        alphaOutOfRange = 0.45,
 
         scale = 1, --> into
         debuffBossScale = 1.3,
@@ -610,7 +614,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
     Aptechka:SetGrowth(group_headers, unitGrowth, groupGrowth)
 
-    Aptechka:SetScript("OnUpdate",Aptechka.OnRangeUpdate)
+    C_Timer.NewTicker(0.3, Aptechka.OnRangeUpdate)
     Aptechka:Show()
 
     if firstTimeUse then
@@ -788,7 +792,7 @@ function Aptechka.FrameUpdateUnitColor(frame, unit)
     Aptechka.FrameColorize(frame, unit)
     FrameSetJob(frame, config.UnitNameStatus, true, nil, GetTime())
     FrameSetJob(frame, config.HealthBarColor, true, nil, GetTime())
-    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
+    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true, nil, GetTime()) end
 end
 function Aptechka:RefreshAllUnitsColors()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateUnitColor)
@@ -834,6 +838,7 @@ function Aptechka:UpdateUnprotectedUpvalues()
     enableTraceheals = config.enableTraceHeals and next(traceheals)
     enableAuraEvents = Aptechka.db.profile.auraUpdateEffect
     enableFloatingIcon = Aptechka.db.profile.showFloatingIcons
+    alphaOutOfRange = Aptechka.db.profile.alphaOutOfRange
 end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
@@ -1434,7 +1439,7 @@ local function FrameUpdateRangeAlpha(frame, unit)
     if AptechkaUnitInRange(unit) then
         frame:SetAlpha(1)
     else
-        frame:SetAlpha(0.45)
+        frame:SetAlpha(alphaOutOfRange)
     end
 end
 local function FrameResetRangeAlpha(frame, unit)
@@ -1442,11 +1447,10 @@ local function FrameResetRangeAlpha(frame, unit)
 end
 --Range check
 Aptechka.OnRangeUpdate = function (self, time)
-    self.OnUpdateCounter = (self.OnUpdateCounter or 0) + time
-    if self.OnUpdateCounter < 0.3 then return end
-    self.OnUpdateCounter = 0
 
-    Aptechka:UpdateStagger()
+    if enableStagger then
+        Aptechka:UpdateStagger()
+    end
 
     if not IsInGroup() then --UnitInRange returns false when not grouped
         Aptechka:ForEachFrame(FrameResetRangeAlpha)
@@ -1556,8 +1560,10 @@ function Aptechka.FrameCheckRoles(self, unit )
 
     if isAnyTank and select(2, UnitClass(unit)) == "MONK" then
         staggerUnits[unit] = true
+        enableStagger = true
     elseif staggerUnits[unit] then
         staggerUnits[unit] = nil
+        enableStagger = next(staggerUnits) ~= nil
         FrameSetJob(self, config.StaggerStatus, false)
     end
 
