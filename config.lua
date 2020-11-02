@@ -220,6 +220,7 @@ A{ id = 110909,  template = "SurvivalCD" } -- Alter Time
 
 -- HUNTER
 A{ id = 186265, template = "SurvivalCD" } -- Aspect of the Turtle
+A{ id = 264735, template = "SurvivalCD" } -- Survival of the Fittest
 -- A{ id = 53480, template = "SurvivalCD" } -- Roar of Sacrifice (PVP)
 
 -- SHAMAN
@@ -1131,6 +1132,7 @@ helpers.buffGainWhitelist = {
     [19574] = AURA, -- Bestial Wrath
     [288613] = AURA, -- Trueshot
     --[[DUP]] [186265] = AURA, -- Aspect of the Turtle
+    --[[DUP]] [264735] = AURA, -- Survival of the Fittest
 
     -- SHAMAN
     --[[DUP]] [108271] = AURA, -- Astral Shift

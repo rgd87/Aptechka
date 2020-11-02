@@ -184,6 +184,7 @@ local defaults = {
         y = 0,
         width = 55,
         height = 55,
+        powerSize = 4,
         healthOrientation = "VERTICAL",
         unitGrowth = "RIGHT",
         groupGrowth = "TOP",
@@ -756,7 +757,7 @@ function Aptechka.FrameUpdateUnitColor(frame, unit)
     Aptechka.FrameColorize(frame, unit)
     FrameSetJob(frame, config.UnitNameStatus, true, nil, GetTime())
     FrameSetJob(frame, config.HealthBarColor, true, nil, GetTime())
-    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true) end
+    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true, nil, GetTime()) end
 end
 function Aptechka:RefreshAllUnitsColors()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateUnitColor)

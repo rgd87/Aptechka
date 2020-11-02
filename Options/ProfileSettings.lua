@@ -452,6 +452,19 @@ function ns.MakeProfileSettings()
                         step = 1,
                         order = 14.5,
                     },
+                    powerbarSize = {
+                        name = L"Power Thickness",
+                        type = "range",
+                        get = function(info) return Aptechka.db.profile.powerSize end,
+                        set = function(info, v)
+                            Aptechka.db.profile.powerSize = v
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        min = 1,
+                        max = 30,
+                        step = 1,
+                        order = 14.5,
+                    },
 
 
                     healthColorGroup = {

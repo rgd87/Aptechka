@@ -2489,6 +2489,9 @@ local function Reconf(self)
     self.power:SetStatusBarTexture(texpath2)
     self.power:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     self.power.bg:SetTexture(texpath2)
+    local bgAlpha = db.bgAlpha
+    self.power.separator:SetAlpha(bgAlpha)
+    local powerSize = pixelperfect(db.powerSize)
 
     if not db.fgShowMissing then
         -- Blizzard's StatusBar SetFillStyle is bad, because even if it reverses direction,
@@ -2521,11 +2524,16 @@ local function Reconf(self)
         self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
         self.health:SetHeight(frameLength)
 
-        self.power:ClearAllPoints()
-        self.power:SetWidth(4)
-        self.power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-        self.power:SetHeight(frameLength)
-        self.power:OnPowerTypeChange()
+        local power = self.power
+        power:ClearAllPoints()
+        power:SetWidth(powerSize)
+        power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
+        power:SetHeight(frameLength)
+        power:OnPowerTypeChange()
+        power.separator:ClearAllPoints()
+        power.separator:SetWidth(pixelperfect(1))
+        power.separator:SetPoint("BOTTOM", power, "BOTTOMLEFT",0,0)
+        power.separator:SetPoint("TOP", power, "TOPLEFT",0,0)
 
         local  absorb = self.health.absorb
         absorb:ClearAllPoints()
@@ -2560,11 +2568,16 @@ local function Reconf(self)
         self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
         self.health:SetWidth(frameLength)
 
-        self.power:ClearAllPoints()
-        self.power:SetHeight(4)
-        self.power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-        self.power:SetWidth(frameLength)
-        self.power:OnPowerTypeChange()
+        local power = self.power
+        power:ClearAllPoints()
+        power:SetHeight(powerSize)
+        power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+        power:SetWidth(frameLength)
+        power:OnPowerTypeChange()
+        power.separator:ClearAllPoints()
+        power.separator:SetHeight(pixelperfect(1))
+        power.separator:SetPoint("LEFT", power, "TOPLEFT",0,0)
+        power.separator:SetPoint("RIGHT", power, "TOPRIGHT",0,0)
 
         local absorb = self.health.absorb
         absorb:ClearAllPoints()
@@ -2663,6 +2676,14 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hpbg.SetColor = HealthBarSetColorBG
     hp.bg = hpbg
 
+    local separator = powerbar:CreateTexture(nil, "ARTWORK", nil, -5)
+    separator:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+    separator:SetVertexColor(0,0,0)
+    separator:SetWidth(pixelperfect(1))
+    separator:SetPoint("BOTTOM", powerbar, "BOTTOMLEFT",0,0)
+    separator:SetPoint("TOP", powerbar, "TOPLEFT",0,0)
+    powerbar.separator = separator
+
     ----------------------
     -- HEALTH LOST EFFECT
     ----------------------
@@ -2754,12 +2775,14 @@ AptechkaDefaultConfig.GridSkin = function(self)
     end
     self.flashPool = flashPool
 
+    --[[
     local hpMask = hp:CreateMaskTexture(nil, "ARTWORK", nil, 5)
     hpMask:SetWidth(20)
     hpMask:SetHeight(20)
     hpMask:SetTexture("Interface\\BUTTONS\\WHITE8X8")
     hpMask:SetVertexColor(0,0,0)
     hpMask:SetPoint("CENTER",0,0)
+    ]]
 
     ------------------------
     -- Mouseover highlight
