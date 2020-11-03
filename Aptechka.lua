@@ -203,6 +203,7 @@ local defaults = {
         petGroup = false,
         showRaidIcons = true,
         showDispels = true,
+        showSeparator = false,
         showFloatingIcons = false,
         healthTexture = "Gradient",
         powerTexture = "Gradient",
