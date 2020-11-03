@@ -988,6 +988,8 @@ helpers.buffGainWhitelist = {
     [307192] = HEAL, -- Spiritual Healing Potion (SL)
     [301308] = HEAL, -- Abyssal Healing Potion (BFA)
 
+    [7744] = AURA, -- Will of the Forsaken
+
     -- Shadowlands Potions
     [344314] = AURA, -- Potion of Psychopomp's Speed
     [307195] = AURA, -- Potion of Invisibility
@@ -1027,6 +1029,10 @@ helpers.buffGainWhitelist = {
     [194249] = AURA, -- Voidform
     [319952] = AURA, -- Surrender to Madness
     [118594] = HEAL, -- Void Shift
+    --[[DUP]] [47788] = AURA, -- Guardian Spirit
+    --[[DUP]] [62618] = CAST, -- PW: Barrier
+    [64843] = CAST, -- Divine Hymn
+    --[[DUP]] [213602] = AURA, -- Greater Fade
     --[[DUP]] [289655] = AURA, -- Holy Word: Concentration
     --[[DUP]] [213610] = AURA, -- Holy Ward (PVP)
 
@@ -1043,6 +1049,7 @@ helpers.buffGainWhitelist = {
     [121471] = AURA, -- Shadow Blades
 
     -- WARRIOR
+    [97463] = CAST, -- Rallying Cry
     [236320] = CAST, -- War Banner
     --[[DUP]] [23920] = AURA, -- Spell Reflect
     [262228] = AURA, -- Deadly Calm
@@ -1088,6 +1095,10 @@ helpers.buffGainWhitelist = {
     [12042] = AURA, -- Arcane Power
     [55342] = AURA, -- Mirror Image
     [12472] = AURA, -- Icy Veins
+    [190319] = AURA, -- Combustion
+    [45438] = AURA, -- Ice Block
+    [32612] = AURA, -- Invisibility
+    [110960] = AURA, -- Greater Invisibility
 
     -- PALADIN
     --[[DUP]] [205191] = AURA, -- Eye for an Eye
@@ -1115,6 +1126,10 @@ helpers.buffGainWhitelist = {
     [102543] = AURA, -- Incarnation: King of the Jungle
     [194223] = AURA, -- Celestial Alignment
     [197721] = AURA, -- Flourish
+    [77764] = CAST, -- Stampeding Roar
+    [50334] = AURA, -- Berserk (Bear)
+    -- [5215] = AURA, -- Prowl
+    --[[DUP]] [22812] = AURA, -- Barkskin
     --[[DUP]] [1850] = AURA, -- Dash
     --[[DUP]] [252216] = AURA, -- Tiger Dash
     --[[DUP]] [61336] = AURA, -- Survival Instincts
