@@ -8,7 +8,8 @@ end)
 
 --- Compatibility with Classic
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-local isShadowlands = select(4,GetBuildInfo()) > 90000
+local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+-- local isShadowlands = select(4,GetBuildInfo()) > 90000
 
 local UnitHasVehicleUI = UnitHasVehicleUI
 local UnitInVehicle = UnitInVehicle
@@ -460,7 +461,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:UpdateHighlightedDebuffsHashMap()
 
     self:RegisterEvent("UNIT_HEALTH")
-    if not isShadowlands then self:RegisterEvent("UNIT_HEALTH_FREQUENT") end
+    if not isMainline then self:RegisterEvent("UNIT_HEALTH_FREQUENT") end
     self:RegisterEvent("UNIT_MAXHEALTH")
     Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
@@ -549,7 +550,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         local CLH = LibStub("LibCombatLogHealth-1.0")
         UnitHealth = CLH.UnitHealth
         self:UnregisterEvent("UNIT_HEALTH")
-        if not isShadowlands then self:UnregisterEvent("UNIT_HEALTH_FREQUENT") end
+        if not isMainline then self:UnregisterEvent("UNIT_HEALTH_FREQUENT") end
         -- table.insert(config.HealthBarColor.assignto, "health2")
         CLH.RegisterCallback(self, "COMBAT_LOG_HEALTH", function(event, unit, eventType)
             return Aptechka:UNIT_HEALTH(eventType, unit)
@@ -1255,10 +1256,27 @@ function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdatePower, ptype)
 end
 
-function Aptechka.FrameUpdateDisplayPower(frame, unit, isDead)
-    if frame.power and frame.power.OnPowerTypeChange then
-        local tnum, tname = UnitPowerType(unit)
-        frame.power:OnPowerTypeChange(tname, isDead)
+do
+    local healerClasses = {
+        PRIEST = true,
+        DRUID = true,
+        SHAMAN = true,
+        PALADIN = true,
+        MONK = true,
+    }
+    local showHybridMana = false
+    function Aptechka.FrameUpdateDisplayPower(frame, unit, isDead)
+        if frame.power and frame.power.OnPowerTypeChange then
+            local tnum, tname = UnitPowerType(unit)
+            local _, unitClass = UnitClass(unit)
+            if showHybridMana and healerClasses[unitClass] then
+                tnum, tname = 0, "MANA"
+            end
+            if isMainline and not healerClasses[unitClass] then
+                tnum, tname = 4, "HAPPINESS"
+            end
+            frame.power:OnPowerTypeChange(tname, isDead)
+        end
     end
 end
 function Aptechka.UNIT_DISPLAYPOWER(self, event, unit, isDead)
