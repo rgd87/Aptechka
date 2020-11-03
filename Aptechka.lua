@@ -988,7 +988,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
 
     if not event then return end -- no death checks on CLH
 
-    local isDead = UnitIsDeadOrGhost(unit)
+    local isDead = UnitIsDeadOrGhost(unit) or h == 0
     if isDead then
         FrameSetJob(self, config.AggroStatus, false)
         local isGhost = UnitIsGhost(unit)
