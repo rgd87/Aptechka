@@ -2395,6 +2395,17 @@ local CreateAutocastGlow = function(parent)
     return f
 end
 
+local function CreateHealthPowerSeparator(powerbar)
+    local separator = powerbar:CreateTexture(nil, "ARTWORK", nil, -5)
+    separator:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+    separator:SetVertexColor(0,0,0)
+    separator:SetWidth(pixelperfect(1))
+    separator:SetPoint("BOTTOM", powerbar, "BOTTOMLEFT",0,0)
+    separator:SetPoint("TOP", powerbar, "TOPLEFT",0,0)
+    -- powerbar.separator = separator
+    return separator
+end
+
 
 local border_backdrop = {
     edgeFile = "Interface\\Addons\\Aptechka\\border", tileEdge = true, edgeSize = 14,
@@ -2490,8 +2501,16 @@ local function Reconf(self)
     self.power:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     self.power.bg:SetTexture(texpath2)
     local bgAlpha = db.bgAlpha
-    self.power.separator:SetAlpha(bgAlpha)
     local powerSize = pixelperfect(db.powerSize)
+
+    local enableSeparator = db.showSeparator
+    if enableSeparator then
+        self.power.separator = self.power.separator or CreateHealthPowerSeparator(self.power)
+        self.power.separator:Show()
+        self.power.separator:SetAlpha(bgAlpha)
+    else
+        if self.power.separator then self.power.separator:Hide() end
+    end
 
     if not db.fgShowMissing then
         -- Blizzard's StatusBar SetFillStyle is bad, because even if it reverses direction,
@@ -2530,10 +2549,12 @@ local function Reconf(self)
         power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
         power:SetHeight(frameLength)
         power:OnPowerTypeChange()
-        power.separator:ClearAllPoints()
-        power.separator:SetWidth(pixelperfect(1))
-        power.separator:SetPoint("BOTTOM", power, "BOTTOMLEFT",0,0)
-        power.separator:SetPoint("TOP", power, "TOPLEFT",0,0)
+        if enableSeparator then
+            power.separator:ClearAllPoints()
+            power.separator:SetWidth(pixelperfect(1))
+            power.separator:SetPoint("BOTTOM", power, "BOTTOMLEFT",0,0)
+            power.separator:SetPoint("TOP", power, "TOPLEFT",0,0)
+        end
 
         local  absorb = self.health.absorb
         absorb:ClearAllPoints()
@@ -2574,10 +2595,12 @@ local function Reconf(self)
         power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
         power:SetWidth(frameLength)
         power:OnPowerTypeChange()
-        power.separator:ClearAllPoints()
-        power.separator:SetHeight(pixelperfect(1))
-        power.separator:SetPoint("LEFT", power, "TOPLEFT",0,0)
-        power.separator:SetPoint("RIGHT", power, "TOPRIGHT",0,0)
+        if enableSeparator then
+            power.separator:ClearAllPoints()
+            power.separator:SetHeight(pixelperfect(1))
+            power.separator:SetPoint("LEFT", power, "TOPLEFT",0,0)
+            power.separator:SetPoint("RIGHT", power, "TOPRIGHT",0,0)
+        end
 
         local absorb = self.health.absorb
         absorb:ClearAllPoints()
@@ -2675,14 +2698,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hpbg:SetTexture(texture)
     hpbg.SetColor = HealthBarSetColorBG
     hp.bg = hpbg
-
-    local separator = powerbar:CreateTexture(nil, "ARTWORK", nil, -5)
-    separator:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-    separator:SetVertexColor(0,0,0)
-    separator:SetWidth(pixelperfect(1))
-    separator:SetPoint("BOTTOM", powerbar, "BOTTOMLEFT",0,0)
-    separator:SetPoint("TOP", powerbar, "TOPLEFT",0,0)
-    powerbar.separator = separator
 
     ----------------------
     -- HEALTH LOST EFFECT

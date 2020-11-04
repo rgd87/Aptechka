@@ -463,7 +463,17 @@ function ns.MakeProfileSettings()
                         min = 1,
                         max = 30,
                         step = 1,
-                        order = 14.5,
+                        order = 14.6,
+                    },
+                    enableSeparator = {
+                        name = L"Separator Line",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.profile.showSeparator end,
+                        set = function(info, v)
+                            Aptechka.db.profile.showSeparator = not Aptechka.db.profile.showSeparator
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        order = 14.7,
                     },
 
 
