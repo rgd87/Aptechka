@@ -153,6 +153,12 @@ function helpers.AddAura(data, todefault)
 
     -- FixMetatable(data)
 
+    if data.showDuration then
+        data.infoType = "DURATION"
+    elseif data.showCount then
+        data.infoType = "COUNT"
+    end
+
     if not data.type then data.type = "HELPFUL" end
 
     if not config.auras then config.auras = {} end
