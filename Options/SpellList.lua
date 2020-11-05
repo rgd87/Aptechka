@@ -122,7 +122,7 @@ function ns.CreateNewTimerForm(self)
 
         local opts
         if category == "auras" then
-            opts = { assignto = Aptechka.util.set("spell1"), showDuration = true, isMine = true, type = "HELPFUL", }
+            opts = { assignto = Aptechka.util.set("spell1"), infoType = "DURATION", isMine = true, type = "HELPFUL", }
         elseif category == "traces" then
             opts = { assignto = Aptechka.util.set("spell1"), fade = 0.7, type = "SPELL_HEAL" }
         end
@@ -218,10 +218,8 @@ local function form_save(form)
             clean(opts, default_opts, "extend_below", false)
             clean(opts, default_opts, "refreshTime", false)
             clean(opts, default_opts, "foreigncolor", false)
-            clean(opts, default_opts, "showDuration", false)
-            clean(opts, default_opts, "showCount", false)
+            clean(opts, default_opts, "infoType", false)
             clean(opts, default_opts, "maxCount", false)
-            clean(opts, default_opts, "showText", false)
             clean(opts, default_opts, "text", false)
             clean(opts, default_opts, "scale", 1)
             clean(opts, default_opts, "clones", false)
@@ -509,10 +507,10 @@ local function AuraForm_Fill(Form, class, category, id, opts, isEmptyForm)
     controls.extend_below:SetText(opts.extend_below)
     controls.isMine:SetValue(opts.isMine)
     controls.isMissing:SetValue(opts.isMissing)
-    controls.showDuration:SetValue(opts.showDuration)
-    controls.showCount:SetValue(opts.showCount)
+    controls.showDuration:SetValue(opts.infoType == "DURATION")
+    controls.showCount:SetValue(opts.infoType == "COUNT")
     controls.maxCount:SetText(opts.maxCount)
-    controls.showText:SetValue(opts.showText)
+    controls.showText:SetValue(opts.infoType == "STATIC")
     controls.text:SetText(opts.text)
     controls.scale:SetValue(opts.scale or 1)
     controls.refreshTime:SetText(opts.refreshTime)
@@ -614,12 +612,12 @@ local function AuraForm_Create(self)
     showDuration:SetLabel(L"Show Duration")
     showDuration:SetRelativeWidth(0.45)
     showDuration:SetCallback("OnValueChanged", function(self, event, value)
-        self.parent.opts["showDuration"] = value
         if value then
+            self.parent.opts["infoType"] = "DURATION"
             self.parent.controls.showCount:SetValue(false)
-            self.parent.opts["showCount"] = false
             self.parent.controls.showText:SetValue(false)
-            self.parent.opts["showText"] = false
+        else
+            self.parent.opts["infoType"] = false
         end
     end)
     Form.controls.showDuration = showDuration
@@ -663,12 +661,12 @@ local function AuraForm_Create(self)
     showCount:SetLabel(L"Show Stacks")
     showCount:SetRelativeWidth(0.45)
     showCount:SetCallback("OnValueChanged", function(self, event, value)
-        self.parent.opts["showCount"] = value
         if value then
+            self.parent.opts["infoType"] = "COUNT"
             self.parent.controls.showDuration:SetValue(false)
-            self.parent.opts["showDuration"] = false
             self.parent.controls.showText:SetValue(false)
-            self.parent.opts["showText"] = false
+        else
+            self.parent.opts["infoType"] = false
         end
     end)
     Form.controls.showCount = showCount
@@ -694,12 +692,12 @@ local function AuraForm_Create(self)
     showText:SetLabel(L"Show Text")
     showText:SetRelativeWidth(0.45)
     showText:SetCallback("OnValueChanged", function(self, event, value)
-        self.parent.opts["showText"] = value
         if value then
-            self.parent.controls.showDuration:SetValue(false)
-            self.parent.opts["showDuration"] = false
+            self.parent.opts["infoType"] = "STATIC"
             self.parent.controls.showCount:SetValue(false)
-            self.parent.opts["showCount"] = false
+            self.parent.controls.showDuration:SetValue(false)
+        else
+            self.parent.opts["infoType"] = false
         end
     end)
     Form.controls.showText = showText

@@ -114,9 +114,9 @@ local RangeCheckBySpell = helpers.RangeCheckBySpell
 
 
 config.templates = {
-    TankCD = { type = "HELPFUL", assignto = set("icon"), global = true, showDuration = true, priority = 94, color = { 1, 0.2, 1} },
-    SurvivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, showDuration = true, priority = 90, color = { 0.4, 1, 0.4} },
-    ActiveMitigation = { type = "HELPFUL", assignto = set("mitigation"), showDuration = true, global = true, color = {0.7, 0.7, 0.7}, priority = 80 },
+    TankCD = { type = "HELPFUL", assignto = set("icon"), global = true, infoType = "DURATION", priority = 94, color = { 1, 0.2, 1} },
+    SurvivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, infoType = "DURATION", priority = 90, color = { 0.4, 1, 0.4} },
+    ActiveMitigation = { type = "HELPFUL", assignto = set("mitigation"), infoType = "DURATION", global = true, color = {0.7, 0.7, 0.7}, priority = 80 },
     HealTrace = { type = "SPELL_HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 },
 }
 
@@ -249,11 +249,11 @@ if playerClass == "PRIEST" then
     A{ id = 21562, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
 
     --Renew
-    A{ id = 139,   type = "HELPFUL", assignto = set("bars"), refreshTime = 15*0.3, priority = 50, color = { 0, 1, 0}, showDuration = true, isMine = true, pandemicTime = 4.5 }
+    A{ id = 139,   type = "HELPFUL", assignto = set("bars"), refreshTime = 15*0.3, priority = 50, color = { 0, 1, 0}, infoType = "DURATION", isMine = true, pandemicTime = 4.5 }
     --Power Word: Shield
-    A{ id = 17,    type = "HELPFUL", assignto = set("bars"), priority = 90, isMine = true, color = { 1, .85, 0}, showDuration = true }
+    A{ id = 17,    type = "HELPFUL", assignto = set("bars"), priority = 90, isMine = true, color = { 1, .85, 0}, infoType = "DURATION" }
     -- Weakened Soul
-    A{ id = 6788,    type = "HELPFUL", assignto = set("bars"), priority = 70, scale = 0.5, color = { 0.8, 0, 0}, showDuration = true, isMine = true }
+    A{ id = 6788,    type = "HELPFUL", assignto = set("bars"), priority = 70, scale = 0.5, color = { 0.8, 0, 0}, infoType = "DURATION", isMine = true }
     --Prayer of Mending
     A{ id = 41635, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, stackcolor =   {
                                                                             [1] = { 1, 0, 0},
@@ -266,7 +266,7 @@ if playerClass == "PRIEST" then
                                                                             [8] = { 148/255, 0, 1},
                                                                             [9] = { 148/255, 0, 1},
                                                                             [10] = { 148/255, 0, 1},
-                                                                        }, maxCount = 5, showCount = true}
+                                                                        }, maxCount = 5, infoType = "COUNT"}
                                                                         -- stackcolor =   {
                                                                         --     [1] = { .8, 0, 0},
                                                                         --     [2] = { 1, 0, 0},
@@ -275,9 +275,9 @@ if playerClass == "PRIEST" then
                                                                         --     [5] = { 1, .6, .6},
                                                                         -- }} --Prayer of Mending
     --Atonement, Trinity Atonement
-    A{ id = { 194384, 214206 },type = "HELPFUL", assignto = set("bar4"), extend_below = 15, color = { 1, .3, .3}, showDuration = true, isMine = true}
+    A{ id = { 194384, 214206 },type = "HELPFUL", assignto = set("bar4"), extend_below = 15, color = { 1, .3, .3}, infoType = "DURATION", isMine = true}
     --Luminous Barrier
-    A{ id = 271466,type = "HELPFUL", assignto = set("bars"), priority = 70, color = { 1, .65, 0}, showDuration = true, isMine = true}
+    A{ id = 271466,type = "HELPFUL", assignto = set("bars"), priority = 70, color = { 1, .65, 0}, infoType = "DURATION", isMine = true}
 
     -- Penance
     Trace{id = 47750, template = "HealTrace", color = { 52/255, 172/255, 114/255 } }
@@ -314,33 +314,33 @@ end
 
 if playerClass == "MONK" then
     --Renewing Mist
-    A{ id = 119611, type = "HELPFUL", assignto = set("bar4"), refreshTime = 20*0.3, extend_below = 20, isMine = true, color = {38/255, 221/255, 163/255}, showDuration = true }
+    A{ id = 119611, type = "HELPFUL", assignto = set("bar4"), refreshTime = 20*0.3, extend_below = 20, isMine = true, color = {38/255, 221/255, 163/255}, infoType = "DURATION" }
     --Enveloping Mist
-    A{ id = 124682, type = "HELPFUL", assignto = set("bars"), refreshTime = 6*0.3, isMine = true, showDuration = true, color = { 1,1,0 }, priority = 75 }
+    A{ id = 124682, type = "HELPFUL", assignto = set("bars"), refreshTime = 6*0.3, isMine = true, infoType = "DURATION", color = { 1,1,0 }, priority = 75 }
     --Soothing Mist
-    A{ id = 115175, type = "HELPFUL", assignto = set("bars"), isMine = true, showDuration = true, color = { 0, .8, 0}, priority = 80 }
+    A{ id = 115175, type = "HELPFUL", assignto = set("bars"), isMine = true, infoType = "DURATION", color = { 0, .8, 0}, priority = 80 }
     --Bonedust Brew
-    A{ id = 325216, type = "HELPFUL", assignto = set("bars"), isMine = true, showDuration = true, color = { 0.3, 0.35, 0.5}, scale = 0.5, priority = 80 }
+    A{ id = 325216, type = "HELPFUL", assignto = set("bars"), isMine = true, infoType = "DURATION", color = { 0.3, 0.35, 0.5}, scale = 0.5, priority = 80 }
     --Statue's Soothing Mist
-    -- A{ id = 198533, type = "HELPFUL", name = "Statue Mist", assignto = set("spell3"), isMine = true, showDuration = false, color = { 0.4, 1, 0.4}, priority = 50 }
+    -- A{ id = 198533, type = "HELPFUL", name = "Statue Mist", assignto = set("spell3"), isMine = true, color = { 0.4, 1, 0.4}, priority = 50 }
 
     --Essence Font
-    A{ id = { 191840, 344006 }, type = "HELPFUL", assignto = set("bars"), priority = 50, color = {0.5,0.7,1}, showDuration = true, isMine = true }
+    A{ id = { 191840, 344006 }, type = "HELPFUL", assignto = set("bars"), priority = 50, color = {0.5,0.7,1}, infoType = "DURATION", isMine = true }
 
 
     Trace{id = 116670, template = "HealTrace", color = {38/255, 221/255, 163/255} } -- Vivify
     Trace{id = 343819, template = "HealTrace", color = { 1, 0.3, 0.55} } -- Gust of Mists
 
-    -- A{ id = 157627, type = "HELPFUL", assignto = set("bar2"), showDuration = true, color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
+    -- A{ id = 157627, type = "HELPFUL", assignto = set("bar2"), infoType = "DURATION", color = {1, 1, 0}, priority = 95 } --Breath of the Serpent
 
     -- Dome of Mist
-    A{ id = 205655, type = "HELPFUL", assignto = set("buffIcons"), showDuration = true, priority = 97 }
+    A{ id = 205655, type = "HELPFUL", assignto = set("buffIcons"), infoType = "DURATION", priority = 97 }
 
     --Surging Mist Buff (PvP)
     A{ id = 227344, type = "HELPFUL", assignto = set("raidbuff"), priority = 50, stackcolor = {
         [1] = {16/255, 110/255, 81/255},
         [2] = {38/255, 221/255, 163/255},
-    }, showDuration = true, isMine = true }
+    }, infoType = "DURATION", isMine = true }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(116670), -- Vivify
@@ -367,27 +367,27 @@ end
 if playerClass == "PALADIN" then
 
     --Glimmer of Light
-    A{ id = 287280,type = "HELPFUL", assignto = set("bars"), color = { 1, .3, .3}, showDuration = true, isMine = true}
+    A{ id = 287280,type = "HELPFUL", assignto = set("bars"), color = { 1, .3, .3}, infoType = "DURATION", isMine = true}
 
-    A{ id = { 328282, 328620, 328622, 328281 },  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Blessing of Seasons
+    A{ id = { 328282, 328620, 328622, 328281 },  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Blessing of Seasons
 
     --Tyr's Deliverance
-    A{ id = 200654, type = "HELPFUL", assignto = set("spell3"), color = { 1, .8, 0}, priority = 70, showDuration = true, isMine = true }
+    A{ id = 200654, type = "HELPFUL", assignto = set("spell3"), color = { 1, .8, 0}, priority = 70, infoType = "DURATION", isMine = true }
      --Bestow Faith
-    A{ id = 223306,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 1 , .9, 0} }
+    A{ id = 223306,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 1 , .9, 0} }
 
     -- Forbearance
-    A{ id = 25771, type = "HARMFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.8, 0, 0 } }
+    A{ id = 25771, type = "HARMFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.8, 0, 0 } }
 
     -- Beacon of Virtue
-    A{ id = 200025, type = "HELPFUL", assignto = set("bar4"), showDuration = true, isMine = true, color = { 0,.9,0 } }
-    A{ id = 53563, type = "HELPFUL", assignto = set("bar4"), showDuration = true,
+    A{ id = 200025, type = "HELPFUL", assignto = set("bar4"), infoType = "DURATION", isMine = true, color = { 0,.9,0 } }
+    A{ id = 53563, type = "HELPFUL", assignto = set("bar4"), infoType = "DURATION",
                                                                             isMine = true,
                                                                             color = { 0,.9,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Light
 
-    A{ id = 156910, type = "HELPFUL", assignto = set("bar4"), showDuration = true,
+    A{ id = 156910, type = "HELPFUL", assignto = set("bar4"), infoType = "DURATION",
                                                                             isMine = true,
                                                                             color = { 1,.7,0 },
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
@@ -422,8 +422,8 @@ end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
 
-    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), showDuration = true, scale = 1.25, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
-    A{ id = 974,    type = "HELPFUL", assignto = set("bar4"), showCount = true, maxCount = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
+    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.25, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
+    A{ id = 974,    type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
                                                                         -- stackcolor =   {
                                                                         --     [1] = { 0,.4, 0},
                                                                         --     [2] = { 0,.5, 0},
@@ -463,10 +463,10 @@ end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = set("raidbuff"), color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
 
-    -- A{ id = 327037,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Protection
-    A{ id = 327071,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Focus
-    -- A{ id = 327022,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Empowerment
-    A{ id = 325748,  type = "HELPFUL", assignto = set("bars"), showDuration = true, isMine = true, color = { 0.4 , 0.4, 1} } -- Adaptive Swarm
+    -- A{ id = 327037,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Protection
+    A{ id = 327071,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Focus
+    -- A{ id = 327022,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Empowerment
+    A{ id = 325748,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Adaptive Swarm
 
     -- Tranquility
     --[[
@@ -478,21 +478,21 @@ if playerClass == "DRUID" then
         [5] = { 108/255, 0, 1},
         [6] = { 148/255, 0, 1},
         [7] = { 148/255, 0, 1},
-    }, showCount = 5}
+    }, infoType = "COUNT"}
     ]]
 
     -- Cenarion Ward
     A{ id = 102351, type = "HELPFUL", assignto = set("bars"), priority = 55, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
     -- Rejuvenation
-    A{ id = 774,   type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1.25, refreshTime = 4.5, priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, showDuration = true, isMine = true }
+    A{ id = 774,   type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1.25, refreshTime = 4.5, priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, infoType = "DURATION", isMine = true }
     -- Germination
-    A{ id = 155777,type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1, refreshTime = 4.5, priority = 80, color = { 1, 0.4, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, showDuration = true, isMine = true }
+    A{ id = 155777,type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1, refreshTime = 4.5, priority = 80, color = { 1, 0.4, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, infoType = "DURATION", isMine = true }
     -- Lifebloom
-    A{ id = 33763, type = "HELPFUL", assignto = set("bar4"), extend_below = 14, refreshTime = 4.5, priority = 60, showDuration = true, isMine = true, color = { 0.2, 1, 0.2}, }
+    A{ id = 33763, type = "HELPFUL", assignto = set("bar4"), extend_below = 14, refreshTime = 4.5, priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
     -- Regrowth
-    A{ id = 8936, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 50, showDuration = true }
+    A{ id = 8936, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 50, infoType = "DURATION" }
     -- Wild Growth
-    A{ id = 48438, type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, showDuration = true, isMine = true }
+    A{ id = 48438, type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, infoType = "DURATION", isMine = true }
 
     Trace{id = 8936, template = "HealTrace", color = { 0, 0.8, 0.2 } } -- Regrowth
 
