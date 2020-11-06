@@ -16,37 +16,37 @@ local tankCD = { type = "HELPFUL", assignto = set("icon"), global = true, showDu
 local survivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, showDuration = true, priority = 90 }
 
 -- WARLOCK
-A{ id = { 6229, 11739, 11740, 28610 }, template = "survivalCD" } -- Shadow Ward
+A{ id = { 6229, 11739, 11740, 28610 }, template = "SurvivalCD" } -- Shadow Ward
 
 -- DRUID
-A{ id = 22812,  template = "survivalCD" } -- Barkskin
-A{ id = 29166,  template = "survivalCD" } -- Innervate
+A{ id = 22812,  template = "SurvivalCD" } -- Barkskin
+A{ id = 29166,  template = "SurvivalCD" } -- Innervate
 
 
 -- MAGE
-A{ id = 11958,  template = "tankCD" } -- Ice Block
-A{ id = { 543, 8457, 8458, 10223, 10225 },  template = "survivalCD" } -- Fire Ward
-A{ id = { 6143, 8461, 8462, 10177, 28609 },  template = "survivalCD" } -- Frost Ward
+A{ id = 11958,  template = "TankCD" } -- Ice Block
+A{ id = { 543, 8457, 8458, 10223, 10225 },  template = "SurvivalCD" } -- Fire Ward
+A{ id = { 6143, 8461, 8462, 10177, 28609 },  template = "SurvivalCD" } -- Frost Ward
 
 -- PALADIN
-A{ id = { 498, 5573, 642, 1020 }, template = "tankCD", priority = 95 } -- Divine Shield
-A{ id = { 1022, 5599, 10278 }, template = "survivalCD" } -- Blessing of Protection
-A{ id = 1044, template = "survivalCD", priority = 40 } -- Blessing of Freedom
+A{ id = { 498, 5573, 642, 1020 }, template = "TankCD", priority = 95 } -- Divine Shield
+A{ id = { 1022, 5599, 10278 }, template = "SurvivalCD" } -- Blessing of Protection
+A{ id = 1044, template = "SurvivalCD", priority = 40 } -- Blessing of Freedom
 
 -- HUNTER
-A{ id = 19263, template = "survivalCD" } -- Deterrence
+A{ id = 19263, template = "SurvivalCD" } -- Deterrence
 
 -- WARRIOR
-A{ id = 20230, template = "survivalCD" } -- Retaliation
-A{ id = 12976, template = "survivalCD", priority = 85 } --Last Stand
-A{ id = 871,   template = "tankCD" } --Shield Wall 40%
+A{ id = 20230, template = "SurvivalCD" } -- Retaliation
+A{ id = 12976, template = "SurvivalCD", priority = 85 } --Last Stand
+A{ id = 871,   template = "TankCD" } --Shield Wall 40%
 
 -- ROGUE
-A{ id = 5277, template = "survivalCD" } -- Evasion
-A{ id = { 1856, 1857 }, template = "tankCD" } -- Vanish
+A{ id = 5277, template = "SurvivalCD" } -- Evasion
+A{ id = { 1856, 1857 }, template = "TankCD" } -- Vanish
 
 -- WARLOCK
-A{ id = { 6229, 11739, 11740, 28610 },  template = "survivalCD" } -- Shadow Ward
+A{ id = { 6229, 11739, 11740, 28610 },  template = "SurvivalCD" } -- Shadow Ward
 
 -- Healing Reduction
 -- A{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, template = "bossDebuff", global = true, } --Mortal Strike
