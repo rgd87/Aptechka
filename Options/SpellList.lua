@@ -342,6 +342,11 @@ local function form_save(form)
                 Aptechka.util.UnwrapTemplate(finalOpts)
                 AptechkaConfigMerged[category][spellID] = finalOpts
             else
+                local templateOpts = delta.template and AptechkaConfigMerged.templates[delta.template]
+                if templateOpts then
+                    Aptechka.util.ShakeAssignments(delta, templateOpts)
+                    Aptechka.util.RemoveDefaults(delta, templateOpts)
+                end
                 AptechkaConfigMerged[category][spellID] = delta
                 delta.isAdded = true
             end
@@ -657,6 +662,14 @@ local function form_template(form)
     template:SetRelativeWidth(1)
     template:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["template"] = value
+        local templateOpts = Aptechka:GetTemplateOpts(value)
+        if templateOpts then
+            local topts = CopyTable(templateOpts)
+            for k,v in pairs(topts) do
+                self.parent.opts[k] = v
+            end
+            self.parent:Refill()
+        end
     end)
     form.controls.template = template
     form:AddChild(template)
@@ -710,11 +723,16 @@ local function Form_FillTemplate(controls, opts)
     controls.template:SetValue(v)
 end
 
+local function Form_Refill(form)
+    form:Fill(form.class, form.category, form.id, form.opts, form.isNew)
+end
+
 local function AuraForm_Fill(Form, class, category, id, opts, isEmptyForm)
     Form.opts = opts
     Form.class = class
     Form.category = category
     Form.id = id
+    Form.isNew = isEmptyForm
     local controls = Form.controls
 
     controls.spellID:SetText(id or "")
@@ -770,6 +788,7 @@ local function AuraForm_Create(self)
     local Form = InitForm()
 
     Form.Fill = AuraForm_Fill
+    Form.Refill = Form_Refill
 
     form_save(Form)
     form_delete(Form)
@@ -926,6 +945,7 @@ local function TemplateForm_Create(self)
     local form = InitForm()
 
     form.Fill = TemplateForm_Fill
+    form.Refill = Form_Refill
 
     form_save(form)
     form_delete(form)
@@ -991,6 +1011,7 @@ local function TraceForm_Create(self)
     local Form = InitForm()
 
     Form.Fill = TraceForm_Fill
+    Form.Refill = Form_Refill
 
     form_save(Form)
     form_delete(Form)

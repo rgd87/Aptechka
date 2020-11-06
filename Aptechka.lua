@@ -3616,3 +3616,7 @@ end
 function Aptechka:Print(...)
     print(AptechkaString, ...)
 end
+
+function Aptechka:GetTemplateOpts(name)
+    return AptechkaConfigMerged.templates[name]
+end
