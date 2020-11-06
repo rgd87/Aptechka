@@ -114,10 +114,10 @@ local RangeCheckBySpell = helpers.RangeCheckBySpell
 
 
 config.templates = {
-    TankCD = { type = "HELPFUL", assignto = set("icon"), global = true, infoType = "DURATION", priority = 94, color = { 1, 0.2, 1} },
-    SurvivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, infoType = "DURATION", priority = 90, color = { 0.4, 1, 0.4} },
-    ActiveMitigation = { type = "HELPFUL", assignto = set("mitigation"), infoType = "DURATION", global = true, color = {0.7, 0.7, 0.7}, priority = 80 },
-    HealTrace = { type = "SPELL_HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 },
+    TankCD = { assignto = set("icon"), global = true, infoType = "DURATION", priority = 94, color = { 1, 0.2, 1} },
+    SurvivalCD = { assignto = set("buffIcons"), global = true, infoType = "DURATION", priority = 90, color = { 0.4, 1, 0.4} },
+    ActiveMitigation = { assignto = set("mitigation"), infoType = "DURATION", global = true, color = {0.7, 0.7, 0.7}, priority = 80 },
+    HealTrace = { assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 },
 }
 
 -- ESSENCES
