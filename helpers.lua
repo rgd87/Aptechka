@@ -108,7 +108,7 @@ helpers.SetupDefaults = SetupDefaults
 function helpers.UnwrapTemplate(opts)
     if not opts.template then return false end
     local templateName = opts.template
-    local templateTable = config.templates[templateName]
+    local templateTable = AptechkaConfigMerged.templates[templateName]
 
     SetupDefaults(opts, templateTable)
     return true

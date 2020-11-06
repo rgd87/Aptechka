@@ -247,12 +247,29 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.db = LibStub("AceDB-3.0"):New("AptechkaDB_Global", defaults, "Default") -- Create a DB using defaults and using a shared default profile
     AptechkaDB = self.db
 
+    -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
+    colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
+
+    AptechkaConfigCustom = AptechkaConfigCustom or {}
+
+    local _, class = UnitClass("player")
+    local categories = {"auras", "traces"}
+    if not AptechkaConfigCustom[class] then AptechkaConfigCustom[class] = {} end
+
+    -- Creates AptechkaConfigMerged, and updates 'config' upvalue
+    Aptechka:GenerateMergedConfig()
+
+    Aptechka:FixWidgetsAfterUpgrade()
+
+    -- compiling a list of spells that should activate indicator when missing
+    self:UpdateMissingAuraList()
+
+    Aptechka:UpdateUnprotectedUpvalues()
+
     self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
     self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
     self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
 
-    -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
-    colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
 
     local customBlacklist = AptechkaDB.global.customBlacklist
     blacklist = setmetatable({}, {
@@ -260,112 +277,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             return customBlacklist[k] or defaultBlacklist[k]
         end,
     })
-
-    AptechkaConfigCustom = AptechkaConfigCustom or {}
-    AptechkaConfigMerged = CopyTable(AptechkaDefaultConfig)
-    config = AptechkaConfigMerged
-    config.DebuffTypes = config.DebuffTypes or {}
-    config.DebuffDisplay = config.DebuffDisplay or {}
-    config.auras = config.auras or {}
-    config.traces = config.traces or {}
-    auras = config.auras
-    traceheals = config.traces
-
-    Aptechka:UpdateUnprotectedUpvalues()
-
-    local _, class = UnitClass("player")
-    local categories = {"auras", "traces"}
-    if not AptechkaConfigCustom[class] then AptechkaConfigCustom[class] = {} end
-
-    local function fixRemovedDefaultSpells(customConfig, defaultConfig)
-        if not (customConfig and defaultConfig) then return end
-        local toRemove = {}
-        for spellID, opts in pairs(customConfig) do
-            local dopts = defaultConfig[spellID]
-            if not dopts and not opts.name then
-                table.insert(toRemove, spellID)
-            elseif opts.name then -- then it's a is probably an added spell
-                opts.isAdded = true -- making sure it's marked as added
-            end
-        end
-        for _, spellID in ipairs(toRemove) do
-            customConfig[spellID] = nil
-        end
-    end
-
-    local fixOldAuraFormat = function(customConfigPart)
-        if not customConfigPart then return end
-        for id, opts in pairs(customConfigPart) do
-            if opts.id == nil then
-                opts.id = id
-            end
-        end
-    end
-
-    local globalConfig = AptechkaConfigCustom["GLOBAL"]
-    if globalConfig then
-        fixOldAuraFormat(globalConfig.auras)
-        fixOldAuraFormat(globalConfig.traces)
-        fixRemovedDefaultSpells(globalConfig.auras, config.auras)
-        fixRemovedDefaultSpells(globalConfig.traces, config.traces)
-    end
-    Aptechka.util.MergeTable(AptechkaConfigMerged, globalConfig)
-
-    local classConfig = AptechkaConfigCustom[class]
-    if classConfig then
-        fixOldAuraFormat(classConfig.auras)
-        fixOldAuraFormat(classConfig.traces)
-        fixRemovedDefaultSpells(classConfig.auras, config.auras)
-        fixRemovedDefaultSpells(classConfig.traces, config.traces)
-    end
-    Aptechka.util.MergeTable(AptechkaConfigMerged, classConfig)
-
-    local widgetConfig = AptechkaConfigCustom["WIDGET"]
-    Aptechka.util.MergeTable(AptechkaConfigMerged, widgetConfig)
-
-    -- Template application
-    helpers.UnwrapConfigTemplates(AptechkaConfigMerged.traces)
-    helpers.UnwrapConfigTemplates(AptechkaConfigMerged.auras)
-
-    Aptechka:FixWidgetsAfterUpgrade()
-
-    -- compiling a list of spells that should activate indicator when missing
-    self:UpdateMissingAuraList()
-
-    -- filling up ranks for auras
-    local cloneIDs = {}
-    local rankCategories = { "auras", "traces" }
-    local tempTable = {}
-    for _, category in ipairs(rankCategories) do
-        table_wipe(tempTable)
-        for spellID, opts in pairs(config[category]) do
-            if not cloneIDs[spellID] and opts.clones then
-                for additionalSpellID, enabled in pairs(opts.clones) do
-                    if enabled then
-                        tempTable[additionalSpellID] = opts
-                        cloneIDs[additionalSpellID] = true
-                    end
-                end
-            end
-        end
-        for spellID, opts in pairs(tempTable) do
-            config[category][spellID] = opts
-        end
-    end
-    config.spellClones = cloneIDs
-
-    for spellID, originalSpell in pairs(traceheals) do
-        if not cloneIDs[spellID] and originalSpell.clones then
-            for additionalSpellID, enabled in pairs(originalSpell.clones) do
-                if enabled then
-                    traceheals[additionalSpellID] = originalSpell
-                    cloneIDs[additionalSpellID] = true
-                end
-            end
-        end
-    end
-
-
 
     Aptechka.Roster = Roster
 
@@ -662,6 +573,105 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self.isInitialized = true
 end  -- END PLAYER_LOGIN
+
+function Aptechka:GenerateMergedConfig()
+    AptechkaConfigMerged = CopyTable(AptechkaDefaultConfig)
+    config = AptechkaConfigMerged
+    config.DebuffTypes = config.DebuffTypes or {}
+    config.DebuffDisplay = config.DebuffDisplay or {}
+    config.auras = config.auras or {}
+    config.traces = config.traces or {}
+    auras = config.auras
+    traceheals = config.traces
+
+    local _, class = UnitClass("player")
+
+    local function fixRemovedDefaultSpells(customConfig, defaultConfig)
+        if not (customConfig and defaultConfig) then return end
+        local toRemove = {}
+        for spellID, opts in pairs(customConfig) do
+            local dopts = defaultConfig[spellID]
+            if not dopts and not opts.name then
+                table.insert(toRemove, spellID)
+            elseif opts.name then -- then it's a is probably an added spell
+                opts.isAdded = true -- making sure it's marked as added
+            end
+        end
+        for _, spellID in ipairs(toRemove) do
+            customConfig[spellID] = nil
+        end
+    end
+
+    local fixOldAuraFormat = function(customConfigPart)
+        if not customConfigPart then return end
+        for id, opts in pairs(customConfigPart) do
+            if opts.id == nil then
+                opts.id = id
+            end
+        end
+    end
+
+    local templateConfig = AptechkaConfigCustom["TEMPLATES"]
+    Aptechka.util.MergeTable(AptechkaConfigMerged.templates, templateConfig)
+
+    local globalConfig = AptechkaConfigCustom["GLOBAL"]
+    if globalConfig then
+        fixOldAuraFormat(globalConfig.auras)
+        fixOldAuraFormat(globalConfig.traces)
+        fixRemovedDefaultSpells(globalConfig.auras, config.auras)
+        fixRemovedDefaultSpells(globalConfig.traces, config.traces)
+    end
+    Aptechka.util.MergeTable(AptechkaConfigMerged, globalConfig)
+
+    local classConfig = AptechkaConfigCustom[class]
+    if classConfig then
+        fixOldAuraFormat(classConfig.auras)
+        fixOldAuraFormat(classConfig.traces)
+        fixRemovedDefaultSpells(classConfig.auras, config.auras)
+        fixRemovedDefaultSpells(classConfig.traces, config.traces)
+    end
+    Aptechka.util.MergeTable(AptechkaConfigMerged, classConfig)
+
+    local widgetConfig = AptechkaConfigCustom["WIDGET"]
+    Aptechka.util.MergeTable(AptechkaConfigMerged, widgetConfig)
+
+    -- Template application
+    helpers.UnwrapConfigTemplates(AptechkaConfigMerged.traces)
+    helpers.UnwrapConfigTemplates(AptechkaConfigMerged.auras)
+
+    -- filling up ranks for auras
+    local cloneIDs = {}
+    local rankCategories = { "auras", "traces" }
+    local tempTable = {}
+    for _, category in ipairs(rankCategories) do
+        table_wipe(tempTable)
+        for spellID, opts in pairs(config[category]) do
+            if not cloneIDs[spellID] and opts.clones then
+                for additionalSpellID, enabled in pairs(opts.clones) do
+                    if enabled then
+                        tempTable[additionalSpellID] = opts
+                        cloneIDs[additionalSpellID] = true
+                    end
+                end
+            end
+        end
+        for spellID, opts in pairs(tempTable) do
+            config[category][spellID] = opts
+        end
+    end
+    config.spellClones = cloneIDs
+
+    for spellID, originalSpell in pairs(traceheals) do
+        if not cloneIDs[spellID] and originalSpell.clones then
+            for additionalSpellID, enabled in pairs(originalSpell.clones) do
+                if enabled then
+                    traceheals[additionalSpellID] = originalSpell
+                    cloneIDs[additionalSpellID] = true
+                end
+            end
+        end
+    end
+end
 
 
 function Aptechka:ToggleCompactRaidFrames()
