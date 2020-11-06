@@ -2,6 +2,7 @@ local _, helpers = ...
 local _, playerClass = UnitClass("player")
 local isHealer = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "DRUID" or playerClass == "MONK")
 local A = helpers.AddAura
+local AG = helpers.AddAuraGlobal
 local DispelTypes = helpers.DispelTypes
 local D = helpers.AddDebuff
 local Trace = helpers.AddTrace
@@ -114,122 +115,122 @@ local RangeCheckBySpell = helpers.RangeCheckBySpell
 
 
 config.templates = {
-    TankCD = { assignto = set("icon"), global = true, infoType = "DURATION", priority = 94, color = { 1, 0.2, 1} },
-    SurvivalCD = { assignto = set("buffIcons"), global = true, infoType = "DURATION", priority = 90, color = { 0.4, 1, 0.4} },
-    ActiveMitigation = { assignto = set("mitigation"), infoType = "DURATION", global = true, color = {0.7, 0.7, 0.7}, priority = 80 },
+    TankCD = { assignto = set("icon"), infoType = "DURATION", priority = 94, color = { 1, 0.2, 1} },
+    SurvivalCD = { assignto = set("buffIcons"), infoType = "DURATION", priority = 90, color = { 0.4, 1, 0.4} },
+    ActiveMitigation = { assignto = set("mitigation"), infoType = "DURATION", color = {0.7, 0.7, 0.7}, priority = 80 },
     HealTrace = { assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 },
 }
 
 -- ESSENCES
-A{ id = 296094, template = "TankCD" } --Standstill (Artifice of Time)
-A{ id = 296230, template = "SurvivalCD" } --Vitality Conduit
+AG{ id = 296094, template = "TankCD" } --Standstill (Artifice of Time)
+AG{ id = 296230, template = "SurvivalCD" } --Vitality Conduit
 
 -- ACTIVE MITIGATION
-A{ id = 132404, template = "ActiveMitigation" } -- Shield Block
-A{ id = 132403, template = "ActiveMitigation" } -- Shield of the Righteousness
-A{ id = 203819, template = "ActiveMitigation" } -- Demon Spikes
-A{ id = 192081, template = "ActiveMitigation" } -- Ironfur
+AG{ id = 132404, template = "ActiveMitigation" } -- Shield Block
+AG{ id = 132403, template = "ActiveMitigation" } -- Shield of the Righteousness
+AG{ id = 203819, template = "ActiveMitigation" } -- Demon Spikes
+AG{ id = 192081, template = "ActiveMitigation" } -- Ironfur
 
 -- COVENANT
-A{ id = 330749, template = "SurvivalCD" } -- Phial of Serenity (Patience, overtime soulbind trait from pelagos)
+AG{ id = 330749, template = "SurvivalCD" } -- Phial of Serenity (Patience, overtime soulbind trait from pelagos)
 
 -- MONK
-A{ id = 122783, template = "SurvivalCD" } -- Diffuse Magic
-A{ id = 122278, template = "SurvivalCD" } -- Dampen Harm
-A{ id = 132578, template = "SurvivalCD" } -- Invoke Niuzao
-A{ id = 243435, template = "SurvivalCD", priority = 91 } -- Fortifying Brew (Mistweaver/Windwalker)
-A{ id = 125174, template = "SurvivalCD", priority = 91 } -- Touch of Karma
-A{ id = 115176, template = "TankCD" } -- Zen Meditation
-A{ id = 116849, template = "SurvivalCD", priority = 88 } --Life Cocoon
-A{ id = 120954, template = "TankCD" } --Fortifying Brew (Brewmaster)
+AG{ id = 122783, template = "SurvivalCD" } -- Diffuse Magic
+AG{ id = 122278, template = "SurvivalCD" } -- Dampen Harm
+AG{ id = 132578, template = "SurvivalCD" } -- Invoke Niuzao
+AG{ id = 243435, template = "SurvivalCD", priority = 91 } -- Fortifying Brew (Mistweaver/Windwalker)
+AG{ id = 125174, template = "SurvivalCD", priority = 91 } -- Touch of Karma
+AG{ id = 115176, template = "TankCD" } -- Zen Meditation
+AG{ id = 116849, template = "SurvivalCD", priority = 88 } --Life Cocoon
+AG{ id = 120954, template = "TankCD" } --Fortifying Brew (Brewmaster)
 -- Spell( 209584 ,{ name = "Zen Focus Tea", color = colors.LBLUE, shine = true, group = "buffs", duration = 5 })
 
 -- WARRIOR
-A{ id = 184364, template = "SurvivalCD" } -- Enraged Regeneration
-A{ id = 118038, template = "SurvivalCD" } -- Die by the Sword
-A{ id = 12975,  template = "SurvivalCD" } --Last Stand
-A{ id = 871,    template = "TankCD" } --Shield Wall 40%
-A{ id = 107574, template = "SurvivalCD", priority = 85 } --Avatar
-A{ id = 23920, template = "SurvivalCD", priority = 85 } --Spell Reflect
+AG{ id = 184364, template = "SurvivalCD" } -- Enraged Regeneration
+AG{ id = 118038, template = "SurvivalCD" } -- Die by the Sword
+AG{ id = 12975,  template = "SurvivalCD" } --Last Stand
+AG{ id = 871,    template = "TankCD" } --Shield Wall 40%
+AG{ id = 107574, template = "SurvivalCD", priority = 85 } --Avatar
+AG{ id = 23920, template = "SurvivalCD", priority = 85 } --Spell Reflect
 
 -- DEMON HUNTER
-A{ id = 212800, template = "SurvivalCD" } -- Blur
-A{ id = 187827, template = "SurvivalCD" } -- Vengeance Meta
-A{ id = 209426, template = "SurvivalCD" } -- Darkness
+AG{ id = 212800, template = "SurvivalCD" } -- Blur
+AG{ id = 187827, template = "SurvivalCD" } -- Vengeance Meta
+AG{ id = 209426, template = "SurvivalCD" } -- Darkness
 
 -- ROGUE
-A{ id = 185311, template = "SurvivalCD" } -- Crimson Vial
--- A{ id = 1784,   template = "SurvivalCD" } -- Stealh
-A{ id = 11327,  template = "SurvivalCD" } -- Vanish
-A{ id = 5277,   template = "SurvivalCD" } -- Evasion
-A{ id = 1966,   template = "SurvivalCD" } -- Feint
-A{ id = 31224,  template = "SurvivalCD", priority = 91 } -- Cloak of Shadows
-A{ id = 45182,  template = "TankCD" } -- Cheating Death
+AG{ id = 185311, template = "SurvivalCD" } -- Crimson Vial
+-- AG{ id = 1784,   template = "SurvivalCD" } -- Stealh
+AG{ id = 11327,  template = "SurvivalCD" } -- Vanish
+AG{ id = 5277,   template = "SurvivalCD" } -- Evasion
+AG{ id = 1966,   template = "SurvivalCD" } -- Feint
+AG{ id = 31224,  template = "SurvivalCD", priority = 91 } -- Cloak of Shadows
+AG{ id = 45182,  template = "TankCD" } -- Cheating Death
 
 -- WARLOCK
-A{ id = 104773, template = "SurvivalCD" } -- Unending Resolve
-A{ id = 132413, template = "SurvivalCD" } -- Shadow Bulwark
+AG{ id = 104773, template = "SurvivalCD" } -- Unending Resolve
+AG{ id = 132413, template = "SurvivalCD" } -- Shadow Bulwark
 
 -- DRUID
 -- local druidColor = { RAID_CLASS_COLORS.DRUID:GetRGB() }
-A{ id = 22812,  template = "SurvivalCD" } -- Barkskin
-A{ id = 102342, template = "TankCD", priority = 93 } --Ironbark
-A{ id = 61336,  template = "TankCD" } --Survival Instincts 50% (Feral & Guardian)
-A{ id = 236696,  template = "SurvivalCD" } -- Thorns
+AG{ id = 22812,  template = "SurvivalCD" } -- Barkskin
+AG{ id = 102342, template = "TankCD", priority = 93 } --Ironbark
+AG{ id = 61336,  template = "TankCD" } --Survival Instincts 50% (Feral & Guardian)
+AG{ id = 236696,  template = "SurvivalCD" } -- Thorns
 
 -- PRIEST
-A{ id = 19236,  template = "SurvivalCD" } -- Desperate Prayer
-A{ id = 586,  template = "SurvivalCD" } -- Fade
-A{ id = 47585,  template = "SurvivalCD" } -- Dispersion
-A{ id = 47788, template = "TankCD", priority = 90 } --Guardian Spirit
-A{ id = 33206, template = "TankCD", priority = 93 } --Pain Suppression
-A{ id = 81782, template = "SurvivalCD" } -- Power Word: Barrier
+AG{ id = 19236,  template = "SurvivalCD" } -- Desperate Prayer
+AG{ id = 586,  template = "SurvivalCD" } -- Fade
+AG{ id = 47585,  template = "SurvivalCD" } -- Dispersion
+AG{ id = 47788, template = "TankCD", priority = 90 } --Guardian Spirit
+AG{ id = 33206, template = "TankCD", priority = 93 } --Pain Suppression
+AG{ id = 81782, template = "SurvivalCD" } -- Power Word: Barrier
 -----
-A{ id = 213610, template = "SurvivalCD" } -- Holy Ward (PVP)
-A{ id = 289655, template = "SurvivalCD" } -- Holy Word: Concentration
-A{ id = 213602, template = "TankCD" } -- Greater Fade
-A{ id = 329543, template = "TankCD" } -- Divine Ascension
+AG{ id = 213610, template = "SurvivalCD" } -- Holy Ward (PVP)
+AG{ id = 289655, template = "SurvivalCD" } -- Holy Word: Concentration
+AG{ id = 213602, template = "TankCD" } -- Greater Fade
+AG{ id = 329543, template = "TankCD" } -- Divine Ascension
 
 -- PALADIN
-A{ id = 642,    template = "TankCD", priority = 95 } -- Divine Shield
-A{ id = 1022,   template = "SurvivalCD" } -- Blessing of Protection
-A{ id = 204018, template = "SurvivalCD" } -- Blessing of Spellwarding
-A{ id = 1044,   template = "SurvivalCD" } -- Blessing of Freedom
-A{ id = 184662, template = "SurvivalCD" } -- Shield of Vengeance
-A{ id = 205191, template = "SurvivalCD" } -- Eye for an Eye
-A{ id = 498,    template = "SurvivalCD" } -- Divine Protection
-A{ id = 6940,   template = "SurvivalCD" } -- Blessing of Sacrifice
-A{ id = 31850,  template = "SurvivalCD", priority = 88 } --Ardent Defender
-A{ id = 86659,  template = "TankCD" } --Guardian of Ancient Kings 50%
--- A{ id = 204150, template = "TankCD", priority = 85 } -- Aegis of Light
+AG{ id = 642,    template = "TankCD", priority = 95 } -- Divine Shield
+AG{ id = 1022,   template = "SurvivalCD" } -- Blessing of Protection
+AG{ id = 204018, template = "SurvivalCD" } -- Blessing of Spellwarding
+AG{ id = 1044,   template = "SurvivalCD" } -- Blessing of Freedom
+AG{ id = 184662, template = "SurvivalCD" } -- Shield of Vengeance
+AG{ id = 205191, template = "SurvivalCD" } -- Eye for an Eye
+AG{ id = 498,    template = "SurvivalCD" } -- Divine Protection
+AG{ id = 6940,   template = "SurvivalCD" } -- Blessing of Sacrifice
+AG{ id = 31850,  template = "SurvivalCD", priority = 88 } --Ardent Defender
+AG{ id = 86659,  template = "TankCD" } --Guardian of Ancient Kings 50%
+-- AG{ id = 204150, template = "TankCD", priority = 85 } -- Aegis of Light
 -- Guardian of the Forgotten Queen - Divine Shield (PvP)
-A{ id = 228050, template = "TankCD", priority = 97 }
+AG{ id = 228050, template = "TankCD", priority = 97 }
 
 -- DEATH KNIGHT
-A{ id = 194679, template = "SurvivalCD" } -- Rune Tap
-A{ id = 55233,  template = "TankCD", priority = 94 } --Vampiric Blood
-A{ id = 48792,  template = "TankCD", priority = 94 } --Icebound Fortitude 50%
-A{ id = 81256,  template = "SurvivalCD" } -- Dancing Rune Weapon
-A{ id = 145629, template = "SurvivalCD" } -- Anti-Magic Zone
-A{ id = 48707, template = "SurvivalCD" } -- Anti-Magic Shell
+AG{ id = 194679, template = "SurvivalCD" } -- Rune Tap
+AG{ id = 55233,  template = "TankCD", priority = 94 } --Vampiric Blood
+AG{ id = 48792,  template = "TankCD", priority = 94 } --Icebound Fortitude 50%
+AG{ id = 81256,  template = "SurvivalCD" } -- Dancing Rune Weapon
+AG{ id = 145629, template = "SurvivalCD" } -- Anti-Magic Zone
+AG{ id = 48707, template = "SurvivalCD" } -- Anti-Magic Shell
 
 -- MAGE
-A{ id = 113862, template = "SurvivalCD" } -- Arcane Greater Invisibility
-A{ id = 45438,  template = "TankCD" } -- Ice Block
-A{ id = 110909,  template = "SurvivalCD" } -- Alter Time
+AG{ id = 113862, template = "SurvivalCD" } -- Arcane Greater Invisibility
+AG{ id = 45438,  template = "TankCD" } -- Ice Block
+AG{ id = 110909,  template = "SurvivalCD" } -- Alter Time
 
 -- HUNTER
-A{ id = 186265, template = "SurvivalCD" } -- Aspect of the Turtle
-A{ id = 264735, template = "SurvivalCD" } -- Survival of the Fittest
--- A{ id = 53480, template = "SurvivalCD" } -- Roar of Sacrifice (PVP)
+AG{ id = 186265, template = "SurvivalCD" } -- Aspect of the Turtle
+AG{ id = 264735, template = "SurvivalCD" } -- Survival of the Fittest
+-- AG{ id = 53480, template = "SurvivalCD" } -- Roar of Sacrifice (PVP)
 
 -- SHAMAN
-A{ id = 108271, template = "SurvivalCD" } -- Astral Shift
-A{ id = 204293, template = "SurvivalCD" } -- Spirit Link (PvP)
--- A{ id = 210918, template = "SurvivalCD" } -- Ethereal Form
+AG{ id = 108271, template = "SurvivalCD" } -- Astral Shift
+AG{ id = 204293, template = "SurvivalCD" } -- Spirit Link (PvP)
+-- AG{ id = 210918, template = "SurvivalCD" } -- Ethereal Form
 
 
-A{ id = {
+AG{ id = {
     430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
     34291, 43183, 43182, -- BC & WotLK water
     80166, 80167, 105232, 118358, -- Cata water
@@ -241,7 +242,7 @@ A{ id = {
     167152, -- Mage Food
     170906, 192002, 195472, 225743, 251232, 257427, 257428, 272819, 279739, 297098, -- Food & Drink
     308429, 308433, 327786, 340109, -- Shadowlands Food & Drink
-}, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
+}, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", priority = 30 }
 
 
 if playerClass == "PRIEST" then

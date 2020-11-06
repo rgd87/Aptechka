@@ -577,12 +577,6 @@ end  -- END PLAYER_LOGIN
 function Aptechka:GenerateMergedConfig()
     AptechkaConfigMerged = CopyTable(AptechkaDefaultConfig)
     config = AptechkaConfigMerged
-    config.DebuffTypes = config.DebuffTypes or {}
-    config.DebuffDisplay = config.DebuffDisplay or {}
-    config.auras = config.auras or {}
-    config.traces = config.traces or {}
-    auras = config.auras
-    traceheals = config.traces
 
     local _, class = UnitClass("player")
 
@@ -618,26 +612,42 @@ function Aptechka:GenerateMergedConfig()
     if globalConfig then
         fixOldAuraFormat(globalConfig.auras)
         fixOldAuraFormat(globalConfig.traces)
-        fixRemovedDefaultSpells(globalConfig.auras, config.auras)
-        fixRemovedDefaultSpells(globalConfig.traces, config.traces)
+        fixRemovedDefaultSpells(globalConfig.auras, config.GLOBAL.auras)
+        fixRemovedDefaultSpells(globalConfig.traces, config.GLOBAL.traces)
     end
-    Aptechka.util.MergeTable(AptechkaConfigMerged, globalConfig)
+    Aptechka.util.MergeTable(AptechkaConfigMerged.GLOBAL, globalConfig)
 
     local classConfig = AptechkaConfigCustom[class]
     if classConfig then
         fixOldAuraFormat(classConfig.auras)
         fixOldAuraFormat(classConfig.traces)
-        fixRemovedDefaultSpells(classConfig.auras, config.auras)
-        fixRemovedDefaultSpells(classConfig.traces, config.traces)
+        fixRemovedDefaultSpells(classConfig.auras, config[class].auras)
+        fixRemovedDefaultSpells(classConfig.traces, config[class].traces)
     end
-    Aptechka.util.MergeTable(AptechkaConfigMerged, classConfig)
+    Aptechka.util.MergeTable(AptechkaConfigMerged[class], classConfig)
 
     local widgetConfig = AptechkaConfigCustom["WIDGET"]
     Aptechka.util.MergeTable(AptechkaConfigMerged, widgetConfig)
 
+    -- Merge GLOBAL anc CLASS into one
+    config.auras = config.GLOBAL.auras
+    config.traces = config.GLOBAL.traces
+    Aptechka.util.MergeTable(config.auras, config[class].auras)
+    Aptechka.util.MergeTable(config.traces, config[class].traces)
+    config.GLOBAL = nil
+    config[class] = nil
+
     -- Template application
     helpers.UnwrapConfigTemplates(AptechkaConfigMerged.traces)
     helpers.UnwrapConfigTemplates(AptechkaConfigMerged.auras)
+
+    -- Updating upvalues
+    config.DebuffTypes = config.DebuffTypes or {}
+    config.DebuffDisplay = config.DebuffDisplay or {}
+    config.auras = config.auras or {}
+    config.traces = config.traces or {}
+    auras = config.auras
+    traceheals = config.traces
 
     -- filling up ranks for auras
     local cloneIDs = {}
@@ -659,7 +669,7 @@ function Aptechka:GenerateMergedConfig()
             config[category][spellID] = opts
         end
     end
-    config.spellClones = cloneIDs
+    AptechkaConfigMerged.spellClones = cloneIDs
 
     for spellID, originalSpell in pairs(traceheals) do
         if not cloneIDs[spellID] and originalSpell.clones then

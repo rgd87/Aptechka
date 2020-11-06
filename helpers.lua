@@ -2,12 +2,12 @@ local _, helpers = ...
 
 helpers.frame = CreateFrame("Frame","Aptechka",UIParent)
 
-AptechkaDefaultConfig = {
-    auras = {},
-    traces = {},
-}
+AptechkaDefaultConfig = {}
 local config = AptechkaDefaultConfig
 AptechkaUserConfig = AptechkaDefaultConfig
+local _, playerClass = UnitClass("player")
+config["GLOBAL"] = { auras = {}, traces = {}, }
+config[playerClass] = { auras = {}, traces = {}, }
 
 
 local pmult = 1
@@ -134,7 +134,9 @@ function helpers.AddLoadableAura(data, todefault)
     if not Aptechka.loadedAuras then Aptechka.loadedAuras = {} end
     Aptechka.loadedAuras[data.id] = data
 end
-function helpers.AddAura(data, todefault)
+
+
+local function PrepareAuraOpts(data)
     if type(data.id) == "table" then
         local clones = data.id
         data.id = clones[1] -- extract first spell id from the last as original
@@ -151,19 +153,28 @@ function helpers.AddAura(data, todefault)
     if data.id and not data.name then data.name = GetSpellInfo(data.id) end
     if data.name == nil then print (string.format("[Aptechka] %d spell id missing", data.id)) return end
 
-    -- FixMetatable(data)
-
     if data.showDuration then
         data.infoType = "DURATION"
     elseif data.showCount then
         data.infoType = "COUNT"
     end
 
-    if not data.type then data.type = "HELPFUL" end
-
-    if not config.auras then config.auras = {} end
-    config.auras[data.id] = data
+    return data
 end
+
+function helpers.AddAura(opts)
+    local data = PrepareAuraOpts(opts)
+    if data then
+        config[playerClass].auras[data.id] = data
+    end
+end
+function helpers.AddAuraGlobal(opts)
+    local data = PrepareAuraOpts(opts)
+    if data then
+        config["GLOBAL"].auras[data.id] = data
+    end
+end
+
 function helpers.AddAuraToDefault(data)
     helpers.AddAura(data,true)
 end
@@ -196,8 +207,8 @@ function helpers.AddTrace(data)
     data.name = data.actualname.."Trace"
     local id = data.id
     data.id = nil -- important to do that, because statuses with id field treated as aura
-    -- FixMetatable(data)
-    config.traces[id] = data
+
+    config[playerClass].traces[id] = data
 end
 
 function helpers.AddDebuff(index, data)

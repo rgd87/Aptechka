@@ -52,10 +52,11 @@ function ns.GenerateCategoryTree(self, settingsClass, category)
     local _,class = UnitClass("player")
     local isGlobal = settingsClass == "GLOBAL"
     local isTemplate = settingsClass == "TEMPLATES"
+    local default = AptechkaDefaultConfig[settingsClass] or {}
     local custom = AptechkaConfigCustom[settingsClass] or {}
 
     local spellList = AptechkaConfigMerged[category]
-    local defaultSpellList = AptechkaDefaultConfig[category]
+    local defaultSpellList = default[category]
     local customSpellList = custom[category]
     if settingsClass == "TEMPLATES" then
         spellList = AptechkaConfigMerged.templates
@@ -66,7 +67,7 @@ function ns.GenerateCategoryTree(self, settingsClass, category)
     local t = {}
     for spellID, opts in pairs(spellList) do
         if not AptechkaConfigMerged.spellClones[spellID] then
-            if isTemplate or (isGlobal and opts.global) or (not isGlobal and not opts.global) then
+            if isTemplate or defaultSpellList[spellID] or customSpellList[spellID] then
                 local name
                 if type(spellID) == "number" then
                     name = (GetSpellInfo(spellID) or "<Unknown>") or opts.name
@@ -237,13 +238,17 @@ local function form_save(form)
             end
         end
 
-        local default_opts_wrapped = AptechkaDefaultConfig[category][spellID]
+
         local default_opts
-        if default_opts_wrapped then
-            default_opts = CopyTable(default_opts_wrapped)
-            if not isTemplate then
+        local default_opts_wrapped
+        if not isTemplate then
+            default_opts_wrapped = AptechkaDefaultConfig[class][category][spellID]
+            if default_opts_wrapped then
+                default_opts = CopyTable(default_opts_wrapped)
                 Aptechka.util.UnwrapTemplate(default_opts) -- Merges and removes 'prototype' property
             end
+        else
+            default_opts = CopyTable(AptechkaDefaultConfig.templates[spellID])
         end
         if default_opts then
             clean(opts, default_opts, "name", false)
@@ -292,7 +297,7 @@ local function form_save(form)
                 Aptechka.util.RemoveDefaults(delta, default_opts)
 
                 -- Generating actual working table
-                local finalOpts = CopyTable(default_opts_wrapped) -- Copy of original default table with prototype
+                local finalOpts = CopyTable(default_opts) -- Copy of original default table with prototype
                 Aptechka.util.MergeTable(finalOpts, delta)
                 AptechkaConfigMerged[category][spellID] = finalOpts
             else
@@ -413,7 +418,7 @@ local function form_delete(form)
             end)
 
             AptechkaConfigCustom[class][category][spellID] = nil
-            AptechkaConfigMerged[category][spellID] = AptechkaDefaultConfig[category][spellID]
+            AptechkaConfigMerged[category][spellID] = AptechkaDefaultConfig[class][category][spellID]
 
             ns.frame.tree:UpdateSpellTree()
             ns.frame.tree:SelectByPath(class, category, spellID)
@@ -740,7 +745,7 @@ local function AuraForm_Fill(Form, class, category, id, opts, isEmptyForm)
     controls.foreigncolor:SetColor(fillAlpha(opts.foreigncolor or {1,1,1,0} ))
 
 
-    if id and not AptechkaDefaultConfig[category][id] then
+    if id and not AptechkaDefaultConfig[class][category][id] then
         controls.delete:SetDisabled(false)
         controls.delete:SetText("Delete")
     elseif AptechkaConfigCustom[class] and  AptechkaConfigCustom[class][category] and AptechkaConfigCustom[class][category][id] then
@@ -968,7 +973,7 @@ local function TraceForm_Fill(Form, class, category, id, opts, isEmptyForm)
     controls.color:SetColor(fillAlpha(opts.color or {1,1,1,1} ))
     -- controls.foreigncolor:SetColor(fillAlpha(opts.foreigncolor or {1,1,1,0} ))
 
-    if id and not AptechkaDefaultConfig[category][id] then
+    if id and not AptechkaDefaultConfig[class][category][id] then
         controls.delete:SetDisabled(false)
         controls.delete:SetText("Delete")
     elseif AptechkaConfigCustom[class] and  AptechkaConfigCustom[class][category] and AptechkaConfigCustom[class][category][id] then
@@ -1158,7 +1163,7 @@ function ns.CreateSpellList(name, parent )
             end
         else
             spellID = tonumber(spellID)
-            local defaultOpts = AptechkaDefaultConfig[category][spellID]
+            local defaultOpts = AptechkaDefaultConfig[class][category][spellID]
             opts = defaultOpts and CopyTable(defaultOpts) or {}
 
             if AptechkaConfigCustom[class] and AptechkaConfigCustom[class][category] and AptechkaConfigCustom[class][category][spellID] then
