@@ -765,13 +765,13 @@ local function AuraForm_Fill(Form, class, category, id, opts, isEmptyForm)
 
     if id and not AptechkaDefaultConfig[class][category][id] then
         controls.delete:SetDisabled(false)
-        controls.delete:SetText("Delete")
+        controls.delete:SetText(L"Delete")
     elseif AptechkaConfigCustom[class] and  AptechkaConfigCustom[class][category] and AptechkaConfigCustom[class][category][id] then
         controls.delete:SetDisabled(false)
-        controls.delete:SetText("Restore")
+        controls.delete:SetText(L"Restore")
     else
         controls.delete:SetDisabled(true)
-        controls.delete:SetText("Restore")
+        controls.delete:SetText(L"Restore")
     end
 
     controls.showDuration:SetDisabled(false)
@@ -931,13 +931,13 @@ local function TemplateForm_Fill(Form, class, category, id, opts, isEmptyForm)
 
     if id and not AptechkaDefaultConfig.templates[id] then
         controls.delete:SetDisabled(false)
-        controls.delete:SetText("Delete")
+        controls.delete:SetText(L"Delete")
     elseif AptechkaConfigCustom.TEMPLATES and AptechkaConfigCustom.TEMPLATES[id] then
         controls.delete:SetDisabled(false)
-        controls.delete:SetText("Restore")
+        controls.delete:SetText(L"Restore")
     else
         controls.delete:SetDisabled(true)
-        controls.delete:SetText("Restore")
+        controls.delete:SetText(L"Restore")
     end
 end
 
@@ -995,13 +995,13 @@ local function TraceForm_Fill(Form, class, category, id, opts, isEmptyForm)
 
     if id and not AptechkaDefaultConfig[class][category][id] then
         controls.delete:SetDisabled(false)
-        controls.delete:SetText("Delete")
+        controls.delete:SetText(L"Delete")
     elseif AptechkaConfigCustom[class] and  AptechkaConfigCustom[class][category] and AptechkaConfigCustom[class][category][id] then
         controls.delete:SetDisabled(false)
-        controls.delete:SetText("Restore")
+        controls.delete:SetText(L"Restore")
     else
         controls.delete:SetDisabled(true)
-        controls.delete:SetText("Restore")
+        controls.delete:SetText(L"Restore")
     end
 
     controls.name:SetDisabled(true)
