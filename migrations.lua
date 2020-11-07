@@ -1,7 +1,7 @@
 local addonName, helpers = ...
 
 do
-    local CURRENT_DB_VERSION = 10
+    local CURRENT_DB_VERSION = 11
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -355,6 +355,32 @@ do
             end
 
             db.DB_VERSION = 10
+        end
+
+        if db.DB_VERSION == 10 then
+            local categories = helpers:GetAllSpellCategories()
+
+            local spellTypes = { "auras", "traces" }
+            for _,category in ipairs(categories) do
+                for _,spellType in ipairs(spellTypes) do
+                    if AptechkaConfigCustom[category] and AptechkaConfigCustom[category][spellType] then
+                        for spellID, opts in pairs(AptechkaConfigCustom[category][spellType]) do
+                            if opts.showDuration then
+                                opts.infoType = "DURATION"
+                            elseif opts.showCount then
+                                opts.infoType = "COUNT"
+                            elseif opts.showText then
+                                opts.infoType = "STATIC"
+                            end
+                            opts.showDuration = nil
+                            opts.showCount = nil
+                            opts.showText = nil
+                        end
+                    end
+                end
+            end
+
+            db.DB_VERSION = 11
         end
 
         db.DB_VERSION = CURRENT_DB_VERSION

@@ -2,6 +2,7 @@ local _, helpers = ...
 local _, playerClass = UnitClass("player")
 local isHealer = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "DRUID" or playerClass == "MONK")
 local A = helpers.AddAura
+local AG = helpers.AddAuraGlobal
 local DispelTypes = helpers.DispelTypes
 local D = helpers.AddDebuff
 local Trace = helpers.AddTrace
@@ -114,8 +115,8 @@ local RangeCheckBySpell = helpers.RangeCheckBySpell
 
 
 config.templates = {
-    TankCD = { type = "HELPFUL", assignto = set("icon"), global = true, showDuration = true, priority = 94, color = { 1, 0.2, 1} },
-    SurvivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, showDuration = true, priority = 90, color = { 0.4, 1, 0.4} },
-    ActiveMitigation = { type = "HELPFUL", assignto = set("mitigation"), showDuration = true, global = true, color = {0.7, 0.7, 0.7}, priority = 80 },
-    HealTrace = { type = "SPELL_HEAL", assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 },
+    TankCD = { assignto = set("icon"), infoType = "DURATION", priority = 94, color = { 1, 0.2, 1} },
+    SurvivalCD = { assignto = set("buffIcons"), infoType = "DURATION", priority = 90, color = { 0.4, 1, 0.4} },
+    ActiveMitigation = { assignto = set("mitigation"), infoType = "DURATION", color = {0.7, 0.7, 0.7}, priority = 80 },
+    HealTrace = { assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 },
 }

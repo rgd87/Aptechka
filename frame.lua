@@ -279,15 +279,14 @@ function contentNormalizers.AURA(job, state, contentType, ...)
 
     count = count1
     text = job.text or job.name
-    if job.showCount then
-        cur = count
-        max = job.maxCount or 5
-        text = count
-    end
-    if job.showDuration and duration ~= 0 then
+    if job.infoType == "DURATION" and duration ~= 0 then
         cur = duration
         max = expirationTime
         timerType = "TIMER"
+    elseif job.infoType == "COUNT" then
+        cur = count
+        max = job.maxCount or 5
+        text = count
     end
     icon = icon1
     r,g,b = GetSpellColor(job, caster, count)
