@@ -2,6 +2,7 @@ local _, helpers = ...
 local _, playerClass = UnitClass("player")
 local isHealer = (playerClass == "PRIEST" or playerClass == "PALADIN" or playerClass == "SHAMAN" or playerClass == "DRUID" or playerClass == "MONK")
 local A = helpers.AddAura
+local AG = helpers.AddAuraGlobal
 local DT = helpers.AddDispellType
 local D = helpers.AddDebuff
 local Trace = helpers.AddTrace
@@ -12,57 +13,55 @@ local IsPlayerSpell = IsPlayerSpell
 local set = helpers.set
 
 local color1 = { 0.9, 0, 0 }
-local tankCD = { type = "HELPFUL", assignto = set("icon"), global = true, showDuration = true, priority = 94}
-local survivalCD = { type = "HELPFUL", assignto = set("buffIcons"), global = true, showDuration = true, priority = 90 }
 
 -- WARLOCK
-A{ id = { 6229, 11739, 11740, 28610 }, template = "SurvivalCD" } -- Shadow Ward
+AG{ id = { 6229, 11739, 11740, 28610 }, template = "SurvivalCD" } -- Shadow Ward
 
 -- DRUID
-A{ id = 22812,  template = "SurvivalCD" } -- Barkskin
-A{ id = 29166,  template = "SurvivalCD" } -- Innervate
+AG{ id = 22812,  template = "SurvivalCD" } -- Barkskin
+AG{ id = 29166,  template = "SurvivalCD" } -- Innervate
 
 
 -- MAGE
-A{ id = 11958,  template = "TankCD" } -- Ice Block
-A{ id = { 543, 8457, 8458, 10223, 10225 },  template = "SurvivalCD" } -- Fire Ward
-A{ id = { 6143, 8461, 8462, 10177, 28609 },  template = "SurvivalCD" } -- Frost Ward
+AG{ id = 11958,  template = "TankCD" } -- Ice Block
+AG{ id = { 543, 8457, 8458, 10223, 10225 },  template = "SurvivalCD" } -- Fire Ward
+AG{ id = { 6143, 8461, 8462, 10177, 28609 },  template = "SurvivalCD" } -- Frost Ward
 
 -- PALADIN
-A{ id = { 498, 5573, 642, 1020 }, template = "TankCD", priority = 95 } -- Divine Shield
-A{ id = { 1022, 5599, 10278 }, template = "SurvivalCD" } -- Blessing of Protection
-A{ id = 1044, template = "SurvivalCD", priority = 40 } -- Blessing of Freedom
+AG{ id = { 498, 5573, 642, 1020 }, template = "TankCD", priority = 95 } -- Divine Shield
+AG{ id = { 1022, 5599, 10278 }, template = "SurvivalCD" } -- Blessing of Protection
+AG{ id = 1044, template = "SurvivalCD", priority = 40 } -- Blessing of Freedom
 
 -- HUNTER
-A{ id = 19263, template = "SurvivalCD" } -- Deterrence
+AG{ id = 19263, template = "SurvivalCD" } -- Deterrence
 
 -- WARRIOR
-A{ id = 20230, template = "SurvivalCD" } -- Retaliation
-A{ id = 12976, template = "SurvivalCD", priority = 85 } --Last Stand
-A{ id = 871,   template = "TankCD" } --Shield Wall 40%
+AG{ id = 20230, template = "SurvivalCD" } -- Retaliation
+AG{ id = 12976, template = "SurvivalCD", priority = 85 } --Last Stand
+AG{ id = 871,   template = "TankCD" } --Shield Wall 40%
 
 -- ROGUE
-A{ id = 5277, template = "SurvivalCD" } -- Evasion
-A{ id = { 1856, 1857 }, template = "TankCD" } -- Vanish
+AG{ id = 5277, template = "SurvivalCD" } -- Evasion
+AG{ id = { 1856, 1857 }, template = "TankCD" } -- Vanish
 
 -- WARLOCK
-A{ id = { 6229, 11739, 11740, 28610 },  template = "SurvivalCD" } -- Shadow Ward
+AG{ id = { 6229, 11739, 11740, 28610 },  template = "SurvivalCD" } -- Shadow Ward
 
 -- Healing Reduction
--- A{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, template = "bossDebuff", global = true, } --Mortal Strike
+-- AG{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, template = "bossDebuff", global = true, } --Mortal Strike
 
 -- Battleground
-A{ id = 23333, type = "HELPFUL", assignto = set("raidbuff"), scale = 1.7, color = {1,0,0}, priority = 95, global = true, } --Warsong Flag
-A{ id = 23335, type = "HELPFUL", assignto = set("raidbuff"), scale = 1.7, color = {0,0,1}, priority = 95, global = true, } --Silverwing Flag
+AG{ id = 23333, type = "HELPFUL", assignto = set("raidbuff"), scale = 1.7, color = {1,0,0}, priority = 95, global = true, } --Warsong Flag
+AG{ id = 23335, type = "HELPFUL", assignto = set("raidbuff"), scale = 1.7, color = {0,0,1}, priority = 95, global = true, } --Silverwing Flag
 
 -- Soulstone Resurrection
-A{ id = { 20707, 20762, 20763, 20764, 20765 }, type = "HELPFUL", global = true, assignto = set("raidbuff"), color = { 0.6, 0, 1 }, priority = 20 }
+AG{ id = { 20707, 20762, 20763, 20764, 20765 }, type = "HELPFUL", global = true, assignto = set("raidbuff"), color = { 0.6, 0, 1 }, priority = 20 }
 
-A{ id = {
+AG{ id = {
     430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
 }, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
-A{ id = 5384, assignto = set("text2"), color = {0, 0.7, 1}, text = "FD", global = true, priority = 75 } -- Feign Death
+AG{ id = 5384, assignto = set("text2"), color = {0, 0.7, 1}, text = "FD", global = true, priority = 75 } -- Feign Death
 
 local manaClasses = {
     HUNTER = true,
