@@ -56,12 +56,12 @@ function ns.GenerateCategoryTree(self, settingsClass, category)
     local custom = AptechkaConfigCustom[settingsClass] or {}
 
     local spellList = AptechkaConfigMerged[category]
-    local defaultSpellList = default[category]
-    local customSpellList = custom[category]
+    local defaultSpellList = default[category] or {}
+    local customSpellList = custom[category] or {}
     if settingsClass == "TEMPLATES" then
         spellList = AptechkaConfigMerged.templates
         defaultSpellList = AptechkaDefaultConfig.templates
-        customSpellList = AptechkaConfigCustom.TEMPLATES
+        customSpellList = AptechkaConfigCustom.TEMPLATES or {}
     end
 
     local t = {}
