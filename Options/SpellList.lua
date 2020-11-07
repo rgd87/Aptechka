@@ -248,7 +248,8 @@ local function form_save(form)
                 Aptechka.util.UnwrapTemplate(default_opts) -- Merges and removes 'prototype' property
             end
         else
-            default_opts = CopyTable(AptechkaDefaultConfig.templates[spellID])
+            local default_template = AptechkaDefaultConfig.templates[spellID]
+            default_opts = default_template and CopyTable(default_template)
         end
         if default_opts then
             clean(opts, default_opts, "name", false)

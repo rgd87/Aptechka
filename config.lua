@@ -1063,6 +1063,7 @@ helpers.buffGainWhitelist = {
     -- MONK
     [326860] = AURA, -- Fallen Order
     [247483] = AURA, -- Tigereye Brew
+    -- [124507] = HEAL, -- BrM Healing Spheres
     --[[DUP]] [209584] = AURA, -- Zen Focus Tea
     --[[DUP]] [120954] = AURA, -- Fortifying Brew
     --[[DUP]] [243435] = AURA, -- Fortifying Brew (MW/WW)
