@@ -91,10 +91,11 @@ function ns.GenerateCategoryTree(self, settingsClass, category)
                     order = 2
                 end
                 local text = status and status..name or name
+                local icon = not isTemplate and GetSpellTexture(spellID)
                 table.insert(t, {
                     value = spellID,
                     text = text,
-                    icon = GetSpellTexture(spellID),
+                    icon = icon,
                     order = order,
                 })
             end
