@@ -544,6 +544,18 @@ helpers.auraBlacklist = {
     -- cast blacklist is shared with auras
     [120651] = true, -- explosive orb affix cast
 
+    [178394] = true, -- Honorless Target
+
+    [338906] = true, -- Jailer's Chains (Torghast debuff)
+    [331148] = true, -- Torment: Eye of Skoldus
+    [326469] = true, -- Torment: Soulforge Heat
+    [331149] = true, -- Torment: Fracturing Forces
+    [331151] = true, -- Torment: Breath of Coldheart
+    [331153] = true, -- Torment: Mort'regar's Echoes
+    [331154] = true, -- Torment: Might of the Upper Reaches
+    [296847] = true, -- Torghast: Opressive Aura
+
+
     -- nazjatar pvp event participation states
     [304966] = true,
     [304959] = true,
