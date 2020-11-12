@@ -347,6 +347,7 @@ function helpers.Reverse(p1)
     elseif p2 == "TOP" or p2 == "BOTTOM" then
         return p2, "VERTICAL"
     end
+    return p2
 end
 
 function helpers.GetVerticalAlignmentFromPoint(p1)

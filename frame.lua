@@ -1374,7 +1374,7 @@ local function BaseCreateIcon(parent, popts, gopts)
     SetIconTexCoord(icon.texture, w, h)
 
     icon.stacktext = AddStackText(icon, icontex)
-    UpdateFontStringSettings(icon.stacktext, opts.font, opts.textsize, opts.effect)
+    UpdateFontStringSettings(icon.stacktext, opts.font, opts.textsize, opts.effect or "OUTLINE")
 
     icon.SetJob = SetJob_Icon
     icon:Hide()
@@ -1413,7 +1413,7 @@ function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
     f:SetAlpha(opts.alpha)
 
     SetIconTexCoord(f.texture, w, h)
-    UpdateFontStringSettings(f.stacktext, opts.font, opts.textsize, opts.effect)
+    UpdateFontStringSettings(f.stacktext, opts.font, opts.textsize, opts.effect or "OUTLINE")
 
     if f.cd then
         local drawEdge = opts.edge
@@ -1582,9 +1582,6 @@ function Aptechka.Widget.DebuffIcon.Create(parent, popts, gopts)
     icon.SetJob = DebuffIcon_SetJob
     icon:SetFrameLevel(FRAMELEVEL.DEBUFFICON)
 
-    icon:SetDebuffStyle(opts)
-    icon:SetAnimDirection(opts.animdir)
-
     icon:Hide()
 
     local ag = icon:CreateAnimationGroup()
@@ -1601,6 +1598,9 @@ function Aptechka.Widget.DebuffIcon.Create(parent, popts, gopts)
     ag.t1 = t1
     ag.t2 = t2
     icon.eyeCatcher = ag
+
+    icon:SetDebuffStyle(opts)
+    icon:SetAnimDirection(opts.animdir)
 
     return icon
 end
@@ -1753,6 +1753,12 @@ end
 --     -- if now >= self.expirationTime then self:Hide(); return end
 --     self:SetValue(self.expirationTime - now)
 -- end
+local function PulseAnim_GenAlpha(ag, alpha)
+    ag.a1:SetFromAlpha(1*alpha)
+    ag.a1:SetToAlpha(0.55*alpha)
+    ag.a2:SetFromAlpha(0.55*alpha)
+    ag.a2:SetToAlpha(1*alpha)
+end
 
 Aptechka.Widget.BarIcon = {}
 Aptechka.Widget.BarIcon.default = { type = "BarIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false, vertical = false }
@@ -1770,7 +1776,6 @@ function Aptechka.Widget.BarIcon.Create(parent, popts, gopts)
     -- local fg = bar:CreateTexture(nil,"ARTWORK", nil, 2)
     -- bar:SetStatusBarTexture(fg)
     -- bar.fg = fg
-    SetIconTexCoord(bar, w, h)
 
     UpdateFramePoints(bar, parent, opts, w, h)
 
@@ -1781,12 +1786,13 @@ function Aptechka.Widget.BarIcon.Create(parent, popts, gopts)
 
     bar:SetAlpha(opts.alpha or 1)
 
+    SetIconTexCoord(bar, w, h)
     SetIconTexCoord(bar.bg, w, h)
 
     bar.SetJob = BarIcon_SetJob
 
     bar.stacktext = AddStackText(bar, bar)
-    UpdateFontStringSettings(bar.stacktext, opts.font, opts.textsize, opts.effect)
+    UpdateFontStringSettings(bar.stacktext, opts.font, opts.textsize, opts.effect or "OUTLINE")
     UpdateOptionalOutline(bar, opts.outline)
 
     -- bar:SetScript("OnUpdate", BarIcon_OnUpdate)
@@ -1803,9 +1809,8 @@ function Aptechka.Widget.BarIcon.Create(parent, popts, gopts)
 
     AddPulseAnimation(bar)
     bar.pulse.a1:SetDuration(0.3)
-    bar.pulse.a1:SetToAlpha(0.55)
     bar.pulse.a2:SetDuration(0.3)
-    bar.pulse.a2:SetFromAlpha(0.55)
+    PulseAnim_GenAlpha(bar.pulse, opts.alpha or 1)
     bar.pulse.maxpulses = 9999
 
 
@@ -1819,13 +1824,14 @@ function Aptechka.Widget.BarIcon.Reconf(parent, f, popts, gopts)
 
     UpdateFramePoints(f, parent, opts, w, h)
     f:SetAlpha(opts.alpha or 1)
+    SetIconTexCoord(f, w, h)
     SetIconTexCoord(f.bg, w, h)
-    SetIconTexCoord(f.fg, w, h)
-    UpdateFontStringSettings(f.stacktext, opts.font, opts.textsize, opts.effect)
+    UpdateFontStringSettings(f.stacktext, opts.font, opts.textsize, opts.effect or "OUTLINE")
     UpdateOptionalOutline(f, opts.outline)
+    PulseAnim_GenAlpha(f.pulse, opts.alpha or 1)
 
-    f.bar:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
-    f.bar.spark:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
+    f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
+    f.spark:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
 end
 
 ----------------------------------------------------------
