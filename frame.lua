@@ -3016,11 +3016,130 @@ end
 
 
 
+local MaskStatusBar = {}
+function MaskStatusBar.SetWidth(self, w)
+    self:_SetWidth(w)
+    self._width = w
+end
+
+function MaskStatusBar.SetHeight(self, w)
+    self:_SetHeight(w)
+    self._height = w
+end
+function MaskStatusBar.SetStatusBarTexture(self, ...)
+    self._texture:SetTexture(...)
+end
+function MaskStatusBar.SetStatusBarColor(self, ...)
+    self._texture:SetVertexColor(...)
+end
+function MaskStatusBar.SetTexCoord(self, ...)
+    self._texture:SetTexCoord(...)
+end
+function MaskStatusBar.SetMinMaxValues(self, min, max)
+    if max > min then
+        self._min = min
+        self._max = max
+    else
+        self._min = 0
+        self._max = 1
+    end
+end
+
+function MaskStatusBar.SetFillStyle(self, fillStyle)
+    if self._fillStyle == fillStyle then return end
+    self._fillStyle = fillStyle
+    self:_Configure()
+end
+function MaskStatusBar.SetOrientation(self, orientation)
+    if self._orientation == orientation then return end
+    self._orientation = orientation
+    self:_Configure()
+end
+
+local function MaskStatusBar_ResizeVertical(self, value)
+    local len = self._height or self:GetHeight()
+    self._mask:SetHeight(len*value)
+end
+local function MaskStatusBar_ResizeHorizontal(self, value)
+    local len = self._width or self:GetWidth()
+    self._mask:SetWidth(len*value)
+end
+function MaskStatusBar._Configure(self)
+    local isReversed = self._fillStyle == "REVERSE"
+    local orientation = self._orientation
+    local mask = self._mask
+    mask:ClearAllPoints()
+    if orientation == "VERTICAL" then
+        self._Resize = MaskStatusBar_ResizeVertical
+        if isReversed then
+            mask:SetPoint("BOTTOMLEFT")
+            mask:SetPoint("BOTTOMRIGHT")
+        else
+            mask:SetPoint("TOPLEFT")
+            mask:SetPoint("TOPRIGHT")
+        end
+    else
+        self._Resize = MaskStatusBar_ResizeHorizontal
+        if isReversed then
+            mask:SetPoint("TOPLEFT")
+            mask:SetPoint("BOTTOMLEFT")
+        else
+            mask:SetPoint("TOPRIGHT")
+            mask:SetPoint("BOTTOMRIGHT")
+        end
+    end
+    self:SetValue(self._value)
+end
+
+function MaskStatusBar.SetValue(self, val)
+    local min = self._min
+    local max = self._max
+    self._value = val
+    local rpos = (max-val)/(max-min)
+    if rpos > 1 then rpos = 1 end
+    local mask = self._mask
+    if rpos <= 0 then mask:Hide(); return end
+
+    mask:Show()
+
+    self:_Resize(rpos)
+end
 
 
+function MaskStatusBar.Create(name, parent, orientation, fillStyle)
+    local f = CreateFrame("Frame", name, parent)
+    f._min = 0
+    f._max = 100
+    f._value = 0
 
+    local tex = f:CreateTexture(nil, "ARTWORK")
+    tex:SetAllPoints(f)
 
+    f._texture = tex
 
+    local mask = f:CreateMaskTexture(nil, "ARTWORK")
+    mask:SetTexture("Interface\\Addons\\Aptechka\\tmask", "CLAMPTOWHITE", "CLAMPTOWHITE")
+    tex:AddMaskTexture(mask)
+    -- local mask = f:CreateTexture(nil, "ARTWORK", 3)
+    -- mask:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+
+    f._mask = mask
+
+    f._SetWidth = f.SetWidth
+    f._SetHeight = f.SetHeight
+
+    Mixin(f, MaskStatusBar)
+
+    f._fillStyle = fillStyle
+    f._orientation = orientation
+
+    f:_Configure()
+
+    f:Show()
+
+    return f
+end
+Aptechka.CreateMaskStatusBar = MaskStatusBar.Create
 
 
 
