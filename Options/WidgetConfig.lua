@@ -324,6 +324,8 @@ function ns.CreateWidgetConfig(name, parent)
         DebuffIconArray = "Interface\\Icons\\spell_shadow_curseofsargeras",
         Texture = "Interface\\Icons\\spell_shadow_ritualofsacrifice",
         FloatingIcon = 135992,
+        BarIcon = 136097,
+        BarIconArray = 136097,
     }
 
     treegroup.UpdateWidgetTree = function(self)

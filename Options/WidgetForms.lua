@@ -247,6 +247,32 @@ function ns.WidgetForms.IconArray.Fill(form, name, opts, popts, gopts)
     FillArraySettings(form, opts, popts, gopts)
 end
 
+-- BarIcon
+ns.WidgetForms.BarIcon = {}
+function ns.WidgetForms.BarIcon.Create(form)
+    form = form or ns.WidgetForms.Icon.Create(form)
+    local vertical = ns.AddCheckbox(form, 0.95, L"Vertical Bar", "vertical", false, callbackUpdateForm)
+
+    return form
+end
+function ns.WidgetForms.BarIcon.Fill(form, name, opts, popts, gopts)
+    ns.WidgetForms.Icon.Fill(form, name, opts, popts, gopts)
+    Control_SetValue(form, "vertical", opts, gopts)
+end
+
+-- BarIconArray
+ns.WidgetForms.BarIconArray = {}
+function ns.WidgetForms.BarIconArray.Create(form)
+    form = form or ns.WidgetForms.BarIcon.Create(form)
+    CreateArraySettings(form)
+    return form
+end
+
+function ns.WidgetForms.BarIconArray.Fill(form, name, opts, popts, gopts)
+    ns.WidgetForms.BarIcon.Fill(form, name, opts, popts, gopts)
+    FillArraySettings(form, opts, popts, gopts)
+end
+
 -- DebuffIcon
 
 ns.WidgetForms.DebuffIcon = {}
