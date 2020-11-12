@@ -539,6 +539,7 @@ local function AddPulseAnimation(f)
     pa1:SetToAlpha(0)
     pa1:SetDuration(0.15)
     pa1:SetOrder(1)
+    pag.a1 = pa1
     local pa2 = pag:CreateAnimation("Alpha")
     pa2:SetFromAlpha(0)
     pa2:SetToAlpha(1)
@@ -1667,31 +1668,35 @@ end
 -- Bar Icon
 ----------------------------------------------------------
 
+local min = math.min
 local function BarIcon_OnUpdate(self)
-    local startTime = self.startTime
-    local endTime = self.endTime
-    local duration = endTime - startTime
+    local timeLeft = self.endTime - GetTime()
 
-    local timeLeft = endTime - GetTime()
-
-    -- if self.pandemic and timeLeft < self.pandemic then
-    --     local color = self._color
-    --     self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
-    --     self.pandemic = nil
-    -- end
+    local pandemic = self.pandemic
+    if pandemic and timeLeft < pandemic then
+        if not self.pulse:IsPlaying() then
+            self.pulse.maxpulses = 999999
+            self.pulse:Play()
+        end
+        self.pandemic = nil
+    end
     if self.isReversed then
-        timeLeft = startTime + timeLeft
+        timeLeft = self.startTime + timeLeft
     end
 
     -- self.spark:UpdatePos(timeLeft/duration)
-    self.spark:Hide()
+    local a = min(timeLeft, 2)
+    self.spark:SetAlpha(a/2)
     self:SetValue(timeLeft)
 end
 
 local function BarIcon_SetJob(self, job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
-
+    if self.currentJob ~= self.previousJob then
+        self:SetScript("OnUpdate", nil)
+        self.pulse:Stop()
+    end
 
     if count and count > 1 then
         self.stacktext:SetText(count)
@@ -1711,13 +1716,11 @@ local function BarIcon_SetJob(self, job, state, contentType, ...)
         local pandemic = job.refreshTime
         self.pandemic = pandemic
         self:SetMinMaxValues(0, duration)
-        -- self:SetValue(timeLeft)
         BarIcon_OnUpdate(self, 0)
         self:SetScript("OnUpdate", BarIcon_OnUpdate)
     elseif max and cur then
         self:SetMinMaxValues(0, max)
         self:SetValue(cur)
-        self.spark:UpdatePos(cur/max)
         self:SetScript("OnUpdate", nil)
         self.stacktext:SetText()
     else
@@ -1727,41 +1730,21 @@ local function BarIcon_SetJob(self, job, state, contentType, ...)
     end
 end
 
-local function BarIcon_SetCooldown(self, startTime, duration)
-    self:SetMinMaxValues(0, duration)
-    self.expirationTime = startTime+duration
-    self.startTime = startTime
-    self.duration = duration
-    self:SetValue(GetTime())
-    self:Show()
-end
-
-
-local function BarIcon_Spark_UpdatePosHorizontal(spark, progress)
-    local bar = spark:GetParent()
-    local frameLength = bar:GetWidth()
-    local p = frameLength * progress
-    spark:SetPoint("CENTER", bar, "LEFT", p, 0)
-end
-local function BarIcon_Spark_UpdatePosVertical(spark, progress)
-    local bar = spark:GetParent()
-    local frameLength = bar:GetWidth()
-    local p = frameLength * progress
-    spark:SetPoint("CENTER", bar, "BOTTOM", 0, p)
-end
 local function BarIcon_Spark_SetOrientation(spark, orientation)
     spark:ClearAllPoints();
     if orientation == "VERTICAL" then
-        local width = spark:GetParent():GetWidth()
-        spark.UpdatePos = BarIcon_Spark_UpdatePosVertical
+        local bar = spark:GetParent()
+        local width = bar:GetWidth()
+        spark:SetPoint("CENTER", bar._mask, "BOTTOM", 0, 0)
         spark:SetWidth(width)
-        spark:SetHeight(width*2)
+        spark:SetHeight(width)
         spark:SetTexCoord(1,1,0,1,1,0,0,0)
     else
-        local height = spark:GetParent():GetHeight()
-        spark.UpdatePos = BarIcon_Spark_UpdatePosHorizontal
+        local bar = spark:GetParent()
+        local height = bar:GetHeight()
+        spark:SetPoint("CENTER", bar._mask, "LEFT", 0, 0)
         spark:SetTexCoord(0,1,0,1)
-        spark:SetWidth(height*2)
+        spark:SetWidth(height)
         spark:SetHeight(height)
     end
 end
@@ -1779,8 +1762,9 @@ function Aptechka.Widget.BarIcon.Create(parent, popts, gopts)
     local w = pixelperfect(opts.width)
     local h = pixelperfect(opts.height)
 
+    local orientation = opts.vertical and "VERTICAL" or "HORIZONTAL"
     -- local bar = CreateFrame("StatusBar", nil, parent)
-    local bar = Aptechka.CreateCustomStatusBar(nil, parent, "HORIZONTAL")
+    local bar = Aptechka.CreateMaskStatusBar(nil, parent, orientation)
     bar:SetFrameLevel(FRAMELEVEL.ICON)
 
     -- local fg = bar:CreateTexture(nil,"ARTWORK", nil, 2)
@@ -1795,7 +1779,7 @@ function Aptechka.Widget.BarIcon.Create(parent, popts, gopts)
     bg:SetAllPoints(bar)
     bar.bg = bg
 
-    bar:SetAlpha(opts.alpha)
+    bar:SetAlpha(opts.alpha or 1)
 
     SetIconTexCoord(bar.bg, w, h)
 
@@ -1807,14 +1791,23 @@ function Aptechka.Widget.BarIcon.Create(parent, popts, gopts)
 
     -- bar:SetScript("OnUpdate", BarIcon_OnUpdate)
 
-    local spark = bar:CreateTexture(nil, "ARTWORK")
+    local spark = bar:CreateTexture(nil, "ARTWORK", nil, 5)
     -- spark:SetAtlas("honorsystem-bar-spark")
     -- spark:SetSize(height/4, height*1.6)
     spark:SetTexture("Interface/AddOns/Aptechka/spark")
     spark:SetBlendMode("ADD")
+    spark:SetVertexColor(1,0.7,0)
     spark.SetOrientation = BarIcon_Spark_SetOrientation
-    spark:SetOrientation("HORIZONTAL")
+    spark:SetOrientation(orientation)
     bar.spark = spark
+
+    AddPulseAnimation(bar)
+    bar.pulse.a1:SetDuration(0.3)
+    bar.pulse.a1:SetToAlpha(0.55)
+    bar.pulse.a2:SetDuration(0.3)
+    bar.pulse.a2:SetFromAlpha(0.55)
+    bar.pulse.maxpulses = 9999
+
 
     return WrapFrameAsWidget(bar)
 end
@@ -1825,7 +1818,7 @@ function Aptechka.Widget.BarIcon.Reconf(parent, f, popts, gopts)
     local h = pixelperfect(opts.height)
 
     UpdateFramePoints(f, parent, opts, w, h)
-    f:SetAlpha(opts.alpha)
+    f:SetAlpha(opts.alpha or 1)
     SetIconTexCoord(f.bg, w, h)
     SetIconTexCoord(f.fg, w, h)
     UpdateFontStringSettings(f.stacktext, opts.font, opts.textsize, opts.effect)
@@ -1834,6 +1827,17 @@ function Aptechka.Widget.BarIcon.Reconf(parent, f, popts, gopts)
     f.bar:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
     f.bar.spark:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
 end
+
+----------------------------------------------------------
+
+Aptechka.Widget.BarIconArray = {}
+Aptechka.Widget.BarIconArray.default = { type = "BarIconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 10, outline = true, edge = true, vertical = true, growth = "LEFT", max = 3 }
+function Aptechka.Widget.BarIconArray.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    return CreateArrayHeader("BarIcon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+end
+
+Aptechka.Widget.BarIconArray.Reconf = Aptechka.Widget.BarArray.Reconf
 
 ----------------------------------------------------------
 -- Progress Icon
