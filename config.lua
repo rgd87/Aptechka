@@ -555,6 +555,7 @@ helpers.auraBlacklist = {
     [331153] = true, -- Torment: Mort'regar's Echoes
     [331154] = true, -- Torment: Might of the Upper Reaches
     [296847] = true, -- Torghast: Opressive Aura
+    [294720] = true, -- Torghast: Bottled Enigma
 
 
     -- nazjatar pvp event participation states
