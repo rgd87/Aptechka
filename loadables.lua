@@ -61,6 +61,10 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         -- [320069] = { 320069, 1, "Challengers, Mortal Strike" },
         [323831] = { 323831, 1, "Mordretha, Death Grasp" },
     },
+    ["Spires of Ascension"] = {
+        [323744] = { 323744, 1, "Forsworn Stealthclaw, Pounce" },
+        [324154] = { 324154, 1, "Ventunax, Dark Stride" },
+    },
     ["The Necrotic Wake"] = {
         -- 320596/heaving-retch -- Blightbone dot
         -- 320462 -- Necrotic bolt debuff, blacklist?

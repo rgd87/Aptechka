@@ -741,6 +741,13 @@ helpers.importantTargetedCasts = {
     -- Spires of Ascension
     [324608] = true, -- Oryphrion, Charged Stomp
 
+    -- [317936] = true, -- Forsworn Mender/Champion, Forsworn Doctrine (Heal)
+    [327413] = true, -- Forswordn Goliath, Rebellious Fist (aoe dmg)
+    [320966] = true, -- Kin-Tara, Overhead Slash
+
+    -- [317661] = true, -- Etherdiver, Insidious Venom
+    [327648] = true, -- Forsworn Inquisitor, Internal Strife
+
     -- Theather of pain
     [320069] = true, -- Challengers, Mortal Strike
     [323515] = true, -- Gorechop, Hateful Strike
