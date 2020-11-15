@@ -305,7 +305,9 @@ local borderStyles = {
     BORDER = "Border",
 }
 function ns.WidgetForms.DebuffIcon.Create(form)
-    form = form or CreateBaseIconSettings(form)
+    form = form or ns.InitForm()
+
+    CreateBaseIconSettings(form)
     local style = ns.AddDropdown(form, 0.46, L"Border Style", "style", "STRIP_RIGHT", borderStyles, callbackUpdateForm)
     local animdir = ns.AddDropdown(form, 0.46, L"Animation Direction", "animdir", "LEFT", growthDirections, callbackUpdateForm)
     return form
