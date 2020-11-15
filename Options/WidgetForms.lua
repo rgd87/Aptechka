@@ -179,6 +179,13 @@ local function FillAnchorSettings(form, opts, popts, gopts)
     Control_SetValue(form, "y", opts, gopts)
 end
 
+local function CreateDisable(form)
+    local disabled = ns.AddCheckbox(form, 0.95, L"Disabled", "disabled", false, callbackUpdateForm)
+end
+local function FillDisable(form, opts, popts, gopts)
+    Control_SetValue(form, "disabled", opts, gopts)
+end
+
 local function CreateSizeSettings(form)
     local height = ns.AddSlider(form, 0.46, L"Height", "height", 20, 5, 100, 0.5, callbackUpdateForm)
     local width = ns.AddSlider(form, 0.46, L"Width", "width", 20, 5, 100, 0.5, callbackUpdateForm)
@@ -205,10 +212,8 @@ local function FillArraySettings(form, opts, popts, gopts)
 end
 
 -- Icon
-ns.WidgetForms.Icon = {}
-function ns.WidgetForms.Icon.Create(form)
-    form = form or ns.InitForm()
 
+local function CreateBaseIconSettings(form)
     CreateSizeSettings(form)
     CreateAnchorSettings(form)
     local font = ns.AddFontDropdown(form, 0.46, L"Stacks Font", "font", AptechkaDefaultConfig.defaultFont, callbackUpdateForm)
@@ -216,11 +221,8 @@ function ns.WidgetForms.Icon.Create(form)
     local alpha = ns.AddSlider(form, 0.95, L"Alpha", "alpha", 1, 0, 1, 0.05, callbackUpdateForm)
     local outline = ns.AddCheckbox(form, 0.46, L"Outline", "outline", false, callbackUpdateForm)
     local edge = ns.AddCheckbox(form, 0.46, L"Edge", "edge", true, callbackUpdateForm)
-
-    return form
 end
-
-function ns.WidgetForms.Icon.Fill(form, name, opts, popts, gopts)
+local function FillBaseIconSettings(form, opts, popts, gopts)
     FillSizeSettings(form, opts, popts, gopts)
     FillAnchorSettings(form, opts, popts, gopts)
 
@@ -229,6 +231,21 @@ function ns.WidgetForms.Icon.Fill(form, name, opts, popts, gopts)
     Control_SetValue(form, "alpha", opts, gopts)
     Control_SetValue(form, "outline", opts, gopts)
     Control_SetValue(form, "edge", opts, gopts)
+end
+
+ns.WidgetForms.Icon = {}
+function ns.WidgetForms.Icon.Create(form)
+    form = form or ns.InitForm()
+
+    CreateDisable(form)
+    CreateBaseIconSettings(form)
+
+    return form
+end
+
+function ns.WidgetForms.Icon.Fill(form, name, opts, popts, gopts)
+    FillDisable(form, opts, popts, gopts)
+    FillBaseIconSettings(form, opts, popts, gopts)
 end
 
 -- ProgressIcon
@@ -284,14 +301,14 @@ local borderStyles = {
     BORDER = "Border",
 }
 function ns.WidgetForms.DebuffIcon.Create(form)
-    form = form or ns.WidgetForms.Icon.Create(form)
+    form = form or CreateBaseIconSettings(form)
     local style = ns.AddDropdown(form, 0.46, L"Border Style", "style", "STRIP_RIGHT", borderStyles, callbackUpdateForm)
     local animdir = ns.AddDropdown(form, 0.46, L"Animation Direction", "animdir", "LEFT", growthDirections, callbackUpdateForm)
     return form
 end
 
 function ns.WidgetForms.DebuffIcon.Fill(form, name, opts, popts, gopts)
-    ns.WidgetForms.Icon.Fill(form, name, opts, popts, gopts)
+    FillBaseIconSettings(form, opts, popts, gopts)
     Control_SetValue(form, "style", opts, gopts)
     Control_SetValue(form, "animdir", opts, gopts)
 end
@@ -327,6 +344,7 @@ ns.WidgetForms.Indicator = {}
 function ns.WidgetForms.Indicator.Create(form)
     form = form or ns.InitForm()
 
+    CreateDisable(form)
     CreateSizeSettings(form)
     CreateAnchorSettings(form)
 
@@ -334,6 +352,7 @@ function ns.WidgetForms.Indicator.Create(form)
 end
 
 function ns.WidgetForms.Indicator.Fill(form, name, opts, popts, gopts)
+    FillDisable(form, opts, popts, gopts)
     FillSizeSettings(form, opts, popts, gopts)
     FillAnchorSettings(form, opts, popts, gopts)
 end
@@ -358,6 +377,7 @@ ns.WidgetForms.Bar = {}
 function ns.WidgetForms.Bar.Create(form)
     form = form or ns.InitForm()
 
+    CreateDisable(form)
     CreateSizeSettings(form)
     CreateAnchorSettings(form)
     local vertical = ns.AddCheckbox(form, 0.95, L"Vertical Bar", "vertical", false, callbackUpdateForm)
@@ -366,6 +386,7 @@ function ns.WidgetForms.Bar.Create(form)
 end
 
 function ns.WidgetForms.Bar.Fill(form, name, opts, popts, gopts)
+    FillDisable(form, opts, popts, gopts)
     FillSizeSettings(form, opts, popts, gopts)
     FillAnchorSettings(form, opts, popts, gopts)
     Control_SetValue(form, "vertical", opts, gopts)
@@ -398,6 +419,7 @@ ns.WidgetForms.Text = {}
 function ns.WidgetForms.Text.Create(form)
     form = form or ns.InitForm()
 
+    CreateDisable(form)
     CreateAnchorSettings(form)
     local font = ns.AddFontDropdown(form, 0.46, L"Font", "font", AptechkaDefaultConfig, callbackUpdateForm)
     local textsize = ns.AddSlider(form, 0.46, L"Font Size", "textsize", 12, 6, 30, 1, callbackUpdateForm)
@@ -407,6 +429,7 @@ function ns.WidgetForms.Text.Create(form)
 end
 
 function ns.WidgetForms.Text.Fill(form, name, opts, popts, gopts)
+    FillDisable(form, opts, popts, gopts)
     FillAnchorSettings(form, opts, popts, gopts)
     Control_SetValue(form, "font", opts, gopts)
     Control_SetValue(form, "textsize", opts, gopts)
@@ -435,6 +458,7 @@ local blendModes = {
 function ns.WidgetForms.Texture.Create(form)
     form = form or ns.InitForm()
 
+    CreateDisable(form)
     CreateSizeSettings(form)
     CreateAnchorSettings(form)
     local texture = ns.AddEditbox(form, 0.95, L"Texture", "texture", "", callbackUpdateForm)
@@ -448,6 +472,7 @@ function ns.WidgetForms.Texture.Create(form)
 end
 
 function ns.WidgetForms.Texture.Fill(form, name, opts, popts, gopts)
+    FillDisable(form, opts, popts, gopts)
     FillSizeSettings(form, opts, popts, gopts)
     FillAnchorSettings(form, opts, popts, gopts)
     Control_SetText(form, "texture", opts, gopts)
