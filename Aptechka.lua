@@ -1849,7 +1849,6 @@ local function updateUnitButton(self, unit)
 
     -- HealthBar color update needs some unique value to force update
     FrameSetJob(self,config.HealthBarColor,true, nil, GetTime())
-    FrameSetJob(self,config.PowerBarColor,true, nil, GetTime())
     Aptechka.FrameScanAuras(self, unit)
     state.wasDead = nil
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
@@ -1869,6 +1868,7 @@ local function updateUnitButton(self, unit)
         Aptechka.FrameUpdatePower(self, unit, ptype)
         Aptechka.FrameUpdatePower(self, unit, "RUNIC_POWER")
         Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
+        FrameSetJob(self,config.PowerBarColor,true, nil, GetTime())
     end
     Aptechka.FrameUpdateThreat(self, unit)
     Aptechka.FrameUpdateMindControl(self, unit)
