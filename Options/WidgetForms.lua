@@ -148,6 +148,10 @@ local function callbackUpdateForm(form, key, value)
     form:Refill();
     AptechkaOptions.widgetConfig.header:Update()
 end
+local function callbackUpdateFormAndTree(form, key, value)
+    callbackUpdateForm(form, key, value)
+    AptechkaOptions.widgetConfig.tree:UpdateWidgetTree()
+end
 
 local function MakeControlSetter(setFuncName)
     return function(form, key, opts, gopts, isProfile)
@@ -180,7 +184,7 @@ local function FillAnchorSettings(form, opts, popts, gopts)
 end
 
 local function CreateDisable(form)
-    local disabled = ns.AddCheckbox(form, 0.95, L"Disabled", "disabled", false, callbackUpdateForm)
+    local disabled = ns.AddCheckbox(form, 0.95, L"Disabled", "disabled", false, callbackUpdateFormAndTree)
 end
 local function FillDisable(form, opts, popts, gopts)
     Control_SetValue(form, "disabled", opts, gopts)

@@ -332,16 +332,18 @@ function ns.CreateWidgetConfig(name, parent)
         local gconfig = Aptechka.db.global.widgetConfig
 
         local t = {}
-        for name, opts in pairs(gconfig) do
+        for name, gopts in pairs(gconfig) do
             local defaultWidgets = AptechkaDefaultConfig.DefaultWidgets
 
             local popts = Aptechka.db.profile.widgetConfig and Aptechka.db.profile.widgetConfig[name]
             local hasProfileSettings = popts and next(popts)
+            local isDisabled = (popts and popts.disabled) or gopts.disabled
 
             local displayName = hasProfileSettings and name.."|cffaaffaa*|r" or name
             displayName = defaultWidgets[name] and string.format("|cffdddddd%s|r", displayName) or string.format("|cffaaffaa%s|r", displayName)
-            displayName = displayName..string.format(" |cff888888[%s]|r", opts.type)
-            local icon = IconsByType[opts.type] or "Interface\\Icons\\spell_holy_resurrection"
+            if isDisabled then displayName = displayName.. " |cffff0000[D]|r" end
+            displayName = displayName..string.format(" |cff888888[%s]|r", gopts.type)
+            local icon = IconsByType[gopts.type] or "Interface\\Icons\\spell_holy_resurrection"
             table.insert(t,
             {
                 value = name,
