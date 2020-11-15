@@ -598,6 +598,21 @@ local function UpdateFramePoints(frame, parent, opts, w, h)
     frame:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
 end
 
+-- This function is called from Reconf and by itself
+-- handles disables between profile switches
+local function CheckDisabled(widget, isDisabled)
+    local wasDisabled = widget.disabled
+    widget.disabled = isDisabled
+    if isDisabled then
+        widget:Hide()
+    -- elseif wasDisabled ~= isDisabled and wasDisabled ~= nil then
+    elseif wasDisabled == true then
+        local frame = widget:GetParent()
+        if frame.state then -- if parent is an actual untiframe and not just header
+            Aptechka:UpdateWidget(frame, widget)
+        end
+    end
+end
 
 ----------------------------------------------------------------
 -- Array
@@ -678,10 +693,13 @@ local function ArrayHeader_OnHide(hdr)
     end
 end
 
-local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, growthDirection, maxChildren)
+local function CreateArrayHeader(childType, parent, opts)
+    local barTemplate = opts
     local hdr = CreateFrame("Frame", nil, parent)
+    CheckDisabled(hdr, opts.disabled)
+
     hdr:SetSize(10, 10)
-    hdr:SetPoint(point, parent, point, x, y)
+    hdr:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
 
     -- local firstChild = Aptechka.Widget.Bar.Create(hdr, barTemplate)
     -- firstChild:ClearAllPoints()
@@ -689,9 +707,9 @@ local function CreateArrayHeader(childType, parent, point, x, y, barTemplate, gr
 
     hdr.childType = childType
     hdr.children = {}
-    hdr.maxChildren = maxChildren or 5
+    hdr.maxChildren = opts.max or 5
     hdr.template = barTemplate
-    hdr.growthDirection = growthDirection
+    hdr.growthDirection = opts.growth
     hdr:SetScript("OnHide", ArrayHeader_OnHide)
 
     hdr.Add = ArrayHeader_Add
@@ -782,19 +800,38 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
     end
 end
 
-local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackdrop)
-    local f = CreateFrame("Frame",nil,parent)
-    local w = pixelperfect(width)
-    local h = pixelperfect(height)
-    local border = pixelperfect(Aptechka.db.global.borderWidth)
+Aptechka.Widget.Indicator = {}
+Aptechka.Widget.Indicator.default = { type = "Indicator", width = 7, height = 7, point = "TOPRIGHT", x = 0, y = 0, }
 
-    f:SetWidth(w); f:SetHeight(h);
+function Aptechka.Widget.Indicator.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    CheckDisabled(f, opts.disabled)
+
+    local w = pixelperfect(opts.width)
+    local h = pixelperfect(opts.height)
     f._baseWidth = w
     f._baseHeight = h
-    if not nobackdrop then
-        local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
-        outline:SetVertexColor(0,0,0)
-    end
+    UpdateFramePoints(f, parent, opts, w, h)
+end
+function Aptechka.Widget.Indicator.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+
+    local f = CreateFrame("Frame",nil,parent)
+
+    Aptechka.Widget.Indicator.Reconf(parent, f, popts, gopts)
+    -- local w = pixelperfect(opts.width)
+    -- local h = pixelperfect(opts.height)
+
+    -- f._baseWidth = w
+    -- f._baseHeight = h
+
+    -- UpdateFramePoints(f, parent, opts, w, h)
+
+    local border = pixelperfect(Aptechka.db.global.borderWidth)
+
+    local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
+    outline:SetVertexColor(0,0,0)
+
     f:SetFrameLevel(FRAMELEVEL.INDICATOR)
     local t = f:CreateTexture(nil,"ARTWORK")
     t:SetTexture[[Interface\BUTTONS\WHITE8X8]]
@@ -813,7 +850,7 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     icd:SetReverse(true)
     icd:SetAllPoints(f)
     f.cd = icd
-    f:SetPoint(point,frame,to,x,y)
+
     f.parent = parent
     f.SetJob = SetJob_Indicator
     f.StartTrace = Indicator_StartTrace
@@ -847,26 +884,8 @@ local CreateIndicator = function (parent,width,height,point,frame,to,x,y,nobackd
     end
 
     f:Hide()
+
     return f
-end
-AptechkaDefaultConfig.GridSkin_CreateIndicator = CreateIndicator
-
-Aptechka.Widget.Indicator = {}
-Aptechka.Widget.Indicator.default = { type = "Indicator", width = 7, height = 7, point = "TOPRIGHT", x = 0, y = 0, }
-
-function Aptechka.Widget.Indicator.Create(parent, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-    return CreateIndicator(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y)
-end
-function Aptechka.Widget.Indicator.Reconf(parent, f, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-    local w = pixelperfect(opts.width)
-    local h = pixelperfect(opts.height)
-    f:SetSize(w, h)
-    f._baseWidth = w
-    f._baseHeight = h
-    f:ClearAllPoints()
-    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
 end
 
 -------------------------------------------------------------------------------------------
@@ -976,56 +995,14 @@ local function Texture_RotateCoords(t, rotation)
         t:SetTexCoord(0,1, 0,1) -- STRAIGHT / BOTTOMRIGHT
     end
 end
-function Aptechka.Widget.Texture.Create(parent, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
 
-    local f = CreateFrame("Frame",nil,parent)
-    f:SetWidth(pixelperfect(opts.width));
-    f:SetHeight(pixelperfect(opts.height));
-
-    local zOrderMod = opts.zorder or 0
-    f:SetFrameLevel(math.max(FRAMELEVEL.TEXTURE+zOrderMod, 0))
-
-    local t = f:CreateTexture(nil,"ARTWORK")
-
-    -- t:SetDrawLayer("ARTWORK", 0)
-
-    t:SetTexture(opts.texture)
-    f._defaultTexture = opts.texture
-    f.disableOverrides = opts.disableOverrides
-
-    t:SetBlendMode(opts.blendmode)
-    t:SetAlpha(opts.alpha)
-
-    t.RotateCoords = Texture_RotateCoords
-
-    local rotation = opts.rotation
-    t.rotation = rotation
-    t:RotateCoords(rotation)
-
-    t:SetAllPoints(f)
-
-    f.texture = t
-
-    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
-    f.parent = parent
-    f.SetJob = SetJob_Texture
-    f.StartTrace = Texture_StartTrace
-
-    AddBlinkAnimation(f)
-    AddPulseAnimation(f)
-
-    f:Hide()
-
-    return f
-end
 function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
+    CheckDisabled(f, opts.disabled)
 
-    f:SetSize(pixelperfect(opts.width), pixelperfect(opts.height))
-
-    f:ClearAllPoints()
-    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+    local w = pixelperfect(opts.width)
+    local h = pixelperfect(opts.height)
+    UpdateFramePoints(f, parent, opts, w, h)
 
     local t = f.texture
 
@@ -1045,6 +1022,29 @@ function Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
     local zOrderMod = opts.zorder or 0
     f:SetFrameLevel(math.max(FRAMELEVEL.TEXTURE+zOrderMod, 0))
     -- t:SetDrawLayer("ARTWORK", 0)
+end
+
+function Aptechka.Widget.Texture.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+
+    local f = CreateFrame("Frame",nil,parent)
+    f.parent = parent
+    f.SetJob = SetJob_Texture
+    f.StartTrace = Texture_StartTrace
+
+    local t = f:CreateTexture(nil,"ARTWORK")
+    t.RotateCoords = Texture_RotateCoords
+    t:SetAllPoints(f)
+    f.texture = t
+
+    Aptechka.Widget.Texture.Reconf(parent, f, popts, gopts)
+
+    AddBlinkAnimation(f)
+    AddPulseAnimation(f)
+
+    f:Hide()
+
+    return f
 end
 
 -------------------------------------------------------------------------------------------
@@ -1114,28 +1114,35 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
 end
 
 
-local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackdrop, isVertical)
-    local f = CreateFrame("StatusBar",nil,parent)
-    local w = pixelperfect(width)
-    local h = pixelperfect(height)
-    local border = pixelperfect(Aptechka.db.global.borderWidth)
-    f:SetWidth(w);
+Aptechka.Widget.Bar = {}
+Aptechka.Widget.Bar.default = { type = "Bar", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false }
+function Aptechka.Widget.Bar.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    CheckDisabled(f, opts.disabled)
+
+    local w = pixelperfect(opts.width)
+    local h = pixelperfect(opts.height)
+
     f._baseWidth = w
-    f:SetHeight(h);
     f._baseHeight = h
-    if not nobackdrop then
-        local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
-        outline:SetVertexColor(0,0,0)
-    end
+    UpdateFramePoints(f, parent, opts, w, h)
+
+    f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
+end
+function Aptechka.Widget.Bar.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+
+    local f = CreateFrame("StatusBar",nil,parent)
+
+    Aptechka.Widget.Bar.Reconf(parent, f, popts, gopts)
+
+    local border = pixelperfect(Aptechka.db.global.borderWidth)
+
+    local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
+    outline:SetVertexColor(0,0,0)
+
     f:SetFrameLevel(FRAMELEVEL.BAR)
-
-    if isVertical then
-        f:SetOrientation("VERTICAL")
-    end
-
     f:SetStatusBarTexture[[Interface\BUTTONS\WHITE8X8]]
-    -- f:SetMinMaxValues(0,100)
-    -- f:SetStatusBarColor(1,1,1)
 
     local bg = f:CreateTexture(nil,"ARTWORK",nil,-2)
     bg:SetTexture[[Interface\BUTTONS\WHITE8X8]]
@@ -1149,7 +1156,6 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     -- pandot:SetPoint("CENTER", f, "RIGHT", -pixelperfect(4), 0)
     -- f.pandot = pandot
 
-    f:SetPoint(point,frame,to,x,y)
     f.parent = parent
     f.SetJob = SetJob_StatusBar
     Mixin(f, PixelScaleMixin)
@@ -1158,28 +1164,8 @@ local CreateStatusBar = function (parent,width,height,point,frame,to,x,y,nobackd
     AddSpinAnimation(f)
 
     f:Hide()
+
     return WrapFrameAsWidget(f)
-end
-AptechkaDefaultConfig.GridSkin_CreateStatusBar = CreateStatusBar
-
-Aptechka.Widget.Bar = {}
-Aptechka.Widget.Bar.default = { type = "Bar", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false }
-function Aptechka.Widget.Bar.Create(parent, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-    return CreateStatusBar(parent, opts.width, opts.height, opts.point, parent, opts.point, opts.x, opts.y, nil, opts.vertical)
-end
-
-function Aptechka.Widget.Bar.Reconf(parent, f, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-    local w = pixelperfect(opts.width)
-    f:SetWidth(w)
-    f._baseWidth = w
-    local h = pixelperfect(opts.height)
-    f:SetHeight(h)
-    f._baseHeight = h
-    f:ClearAllPoints()
-    f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
-    f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
 end
 
 
@@ -1187,7 +1173,7 @@ Aptechka.Widget.BarArray = {}
 Aptechka.Widget.BarArray.default = { type = "BarArray", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 }
 function Aptechka.Widget.BarArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    return CreateArrayHeader("Bar", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+    return CreateArrayHeader("Bar", parent, opts)
 end
 
 function Aptechka.Widget.BarArray.Reconf(parent, hdr, popts, gopts)
@@ -1201,6 +1187,7 @@ function Aptechka.Widget.BarArray.Reconf(parent, hdr, popts, gopts)
         Aptechka.Widget[hdr.childType].Reconf(hdr, widget, nil, opts) -- Ruins anchors until the following :Arrange()
     end
     hdr:Arrange()
+    CheckDisabled(hdr, opts.disabled)
 end
 
 ------------------------------------------------------------------------------------------
@@ -1211,7 +1198,7 @@ Aptechka.Widget.IndicatorArray = {}
 Aptechka.Widget.IndicatorArray.default = { type = "IndicatorArray", width = 7, height = 7, point = "TOPRIGHT", x = 0, y = 0, growth = "LEFT", max = 3 }
 function Aptechka.Widget.IndicatorArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    return CreateArrayHeader("Indicator", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+    return CreateArrayHeader("Indicator", parent, opts)
 end
 
 Aptechka.Widget.IndicatorArray.Reconf = Aptechka.Widget.BarArray.Reconf
@@ -1224,7 +1211,7 @@ Aptechka.Widget.IconArray = {}
 Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
 function Aptechka.Widget.IconArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    return CreateArrayHeader("Icon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+    return CreateArrayHeader("Icon", parent, opts)
 end
 
 Aptechka.Widget.IconArray.Reconf = Aptechka.Widget.BarArray.Reconf
@@ -1353,63 +1340,16 @@ local function UpdateFontStringSettings(text, fontName, fontSize, effect)
     text:SetFont(font, fontSize, flags)
 end
 
-local function BaseCreateIcon(parent, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-
-    -- width, height, alpha, point, frame, to, x, y, fontName, textsize, outlineEnabled, drawEdge)
-    local w = pixelperfect(opts.width)
-    local h = pixelperfect(opts.height)
-
-    local icon = CreateFrame("Frame",nil,parent)
-    UpdateFramePoints(icon, parent, opts, w, h)
-
-    local icontex = icon:CreateTexture(nil,"ARTWORK")
-    icon:SetFrameLevel(FRAMELEVEL.ICON)
-    icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
-    icontex:SetPoint("BOTTOMRIGHT",icon, "BOTTOMRIGHT",0,0)
-    icon.texture = icontex
-
-    icon:SetAlpha(opts.alpha)
-
-    SetIconTexCoord(icon.texture, w, h)
-
-    icon.stacktext = AddStackText(icon, icontex)
-    UpdateFontStringSettings(icon.stacktext, opts.font, opts.textsize, opts.effect or "OUTLINE")
-
-    icon.SetJob = SetJob_Icon
-    icon:Hide()
-
-    return WrapFrameAsWidget(icon)
-end
-
-
 Aptechka.Widget.Icon = {}
 Aptechka.Widget.Icon.default = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = true, edge = true }
-function Aptechka.Widget.Icon.Create(parent, popts, gopts)
-    local icon = BaseCreateIcon(parent, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-
-    local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
-    icd.noCooldownCount = true -- disable OmniCC for this cooldown
-    icd:SetHideCountdownNumbers(true)
-    icd:SetReverse(true)
-    local drawEdge = opts.edge
-    if drawEdge == nil then drawEdge = true end
-    icd:SetDrawEdge(drawEdge)
-    icd:SetAllPoints(icon.texture)
-    icon.cd = icd
-
-    UpdateOptionalOutline(icon, opts.outline)
-
-    return icon
-end
-
 function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
+    CheckDisabled(f, opts.disabled)
+
     local w = pixelperfect(opts.width)
     local h = pixelperfect(opts.height)
-
     UpdateFramePoints(f, parent, opts, w, h)
+
     f:SetAlpha(opts.alpha)
 
     SetIconTexCoord(f.texture, w, h)
@@ -1422,6 +1362,33 @@ function Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
     end
 
     UpdateOptionalOutline(f, opts.outline)
+end
+function Aptechka.Widget.Icon.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+
+    local icon = CreateFrame("Frame",nil,parent)
+
+    local icontex = icon:CreateTexture(nil,"ARTWORK")
+    icon:SetFrameLevel(FRAMELEVEL.ICON)
+    icontex:SetPoint("TOPLEFT",icon, "TOPLEFT",0,0)
+    icontex:SetPoint("BOTTOMRIGHT",icon, "BOTTOMRIGHT",0,0)
+    icon.texture = icontex
+
+    icon.stacktext = AddStackText(icon, icontex)
+
+    icon.SetJob = SetJob_Icon
+    icon:Hide()
+
+    local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
+    icd.noCooldownCount = true -- disable OmniCC for this cooldown
+    icd:SetHideCountdownNumbers(true)
+    icd:SetReverse(true)
+    icd:SetAllPoints(icon.texture)
+    icon.cd = icd
+
+    Aptechka.Widget.Icon.Reconf(parent, icon, popts, gopts)
+
+    return WrapFrameAsWidget(icon)
 end
 
 ----------------------------------------------------------
@@ -1563,14 +1530,18 @@ end
 
 Aptechka.Widget.DebuffIcon = {}
 Aptechka.Widget.DebuffIcon.default = { type = "DebuffIcon", width = 13, height = 13, point = "CENTER", x = 0, y = 0, alpha = 1, style = "STRIP_RIGHT", animdir = "LEFT", font = config.defaultFont, textsize = 12, edge = false }
+Aptechka.Widget.DebuffIcon.Reconf = function(parent, f, popts, gopts)
+    Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
+    -- CheckDisabled(f, opts.disabled)
+    local icon = f
+    if icon.outline then icon.outline:Hide() end
+    local opts = InheritGlobalOptions(popts, gopts)
+    icon:SetDebuffStyle(opts)
+    icon:SetAnimDirection(opts.animdir)
+end
 function Aptechka.Widget.DebuffIcon.Create(parent, popts, gopts)
     local icon = Aptechka.Widget.Icon.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-
-    if icon.outline then icon.outline:Hide() end
-
-    local w = pixelperfect(opts.width)
-    local h = pixelperfect(opts.height)
 
     local dttex = icon:CreateTexture(nil, "ARTWORK", nil, -2)
     dttex:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
@@ -1599,19 +1570,11 @@ function Aptechka.Widget.DebuffIcon.Create(parent, popts, gopts)
     ag.t2 = t2
     icon.eyeCatcher = ag
 
-    icon:SetDebuffStyle(opts)
-    icon:SetAnimDirection(opts.animdir)
+    Aptechka.Widget.DebuffIcon.Reconf(parent, icon, popts, gopts)
 
     return icon
 end
-Aptechka.Widget.DebuffIcon.Reconf = function(parent, f, popts, gopts)
-    Aptechka.Widget.Icon.Reconf(parent, f, popts, gopts)
-    local icon = f
-    if icon.outline then icon.outline:Hide() end
-    local opts = InheritGlobalOptions(popts, gopts)
-    icon:SetDebuffStyle(opts)
-    icon:SetAnimDirection(opts.animdir)
-end
+
 
 ----------------------------------------------------------
 -- Debuff Icon Array
@@ -1651,13 +1614,15 @@ Aptechka.Widget.DebuffIconArray.default = DebuffIconArray_default
 
 function Aptechka.Widget.DebuffIconArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    local hdr = CreateArrayHeader("DebuffIcon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+    local hdr = CreateArrayHeader("DebuffIcon", parent, opts)
+    hdr.disabled = nil
     hdr.SetDebuffIcon = DebuffIconArray_SetDebuffIcon
     Aptechka._BossDebuffScale = gopts.bigscale
     return hdr
 end
 function Aptechka.Widget.DebuffIconArray.Reconf(parent, hdr, popts, gopts)
     Aptechka.Widget.IconArray.Reconf(parent, hdr, popts, gopts)
+    hdr.disabled = nil
 
     local opts = InheritGlobalOptions(popts, gopts)
     Aptechka._BossDebuffScale = opts.bigscale
@@ -1762,11 +1727,32 @@ end
 
 Aptechka.Widget.BarIcon = {}
 Aptechka.Widget.BarIcon.default = { type = "BarIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false, vertical = false }
-function Aptechka.Widget.BarIcon.Create(parent, popts, gopts)
+function Aptechka.Widget.BarIcon.Reconf(parent, f, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
+    CheckDisabled(f, opts.disabled)
 
     local w = pixelperfect(opts.width)
     local h = pixelperfect(opts.height)
+    UpdateFramePoints(f, parent, opts, w, h)
+
+    f:SetAlpha(opts.alpha or 1)
+
+    SetIconTexCoord(f, w, h)
+    SetIconTexCoord(f.bg, w, h)
+
+    UpdateFontStringSettings(f.stacktext, opts.font, opts.textsize, opts.effect or "OUTLINE")
+    UpdateOptionalOutline(f, opts.outline)
+    PulseAnim_GenAlpha(f.pulse, opts.alpha or 1)
+
+    local orientation = opts.vertical and "VERTICAL" or "HORIZONTAL"
+    f:SetOrientation(orientation)
+    f.spark:SetOrientation(orientation)
+end
+function Aptechka.Widget.BarIcon.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+
+    -- local w = pixelperfect(opts.width)
+    -- local h = pixelperfect(opts.height)
 
     local orientation = opts.vertical and "VERTICAL" or "HORIZONTAL"
     -- local bar = CreateFrame("StatusBar", nil, parent)
@@ -1777,23 +1763,23 @@ function Aptechka.Widget.BarIcon.Create(parent, popts, gopts)
     -- bar:SetStatusBarTexture(fg)
     -- bar.fg = fg
 
-    UpdateFramePoints(bar, parent, opts, w, h)
+    -- UpdateFramePoints(bar, parent, opts, w, h)
 
     local bg = bar:CreateTexture(nil,"ARTWORK", nil, -3)
     bg:SetDesaturated(true)
     bg:SetAllPoints(bar)
     bar.bg = bg
 
-    bar:SetAlpha(opts.alpha or 1)
+    -- bar:SetAlpha(opts.alpha or 1)
 
-    SetIconTexCoord(bar, w, h)
-    SetIconTexCoord(bar.bg, w, h)
+    -- SetIconTexCoord(bar, w, h)
+    -- SetIconTexCoord(bar.bg, w, h)
 
     bar.SetJob = BarIcon_SetJob
 
     bar.stacktext = AddStackText(bar, bar)
-    UpdateFontStringSettings(bar.stacktext, opts.font, opts.textsize, opts.effect or "OUTLINE")
-    UpdateOptionalOutline(bar, opts.outline)
+    -- UpdateFontStringSettings(bar.stacktext, opts.font, opts.textsize, opts.effect or "OUTLINE")
+    -- UpdateOptionalOutline(bar, opts.outline)
 
     -- bar:SetScript("OnUpdate", BarIcon_OnUpdate)
 
@@ -1804,34 +1790,19 @@ function Aptechka.Widget.BarIcon.Create(parent, popts, gopts)
     spark:SetBlendMode("ADD")
     spark:SetVertexColor(1,0.7,0)
     spark.SetOrientation = BarIcon_Spark_SetOrientation
-    spark:SetOrientation(orientation)
+    -- spark:SetOrientation(orientation)
     bar.spark = spark
 
     AddPulseAnimation(bar)
     bar.pulse.a1:SetDuration(0.3)
     bar.pulse.a2:SetDuration(0.3)
-    PulseAnim_GenAlpha(bar.pulse, opts.alpha or 1)
+    -- PulseAnim_GenAlpha(bar.pulse, opts.alpha or 1)
     bar.pulse.maxpulses = 9999
+
+    Aptechka.Widget.BarIcon.Reconf(parent, bar, popts, gopts)
 
 
     return WrapFrameAsWidget(bar)
-end
-
-function Aptechka.Widget.BarIcon.Reconf(parent, f, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-    local w = pixelperfect(opts.width)
-    local h = pixelperfect(opts.height)
-
-    UpdateFramePoints(f, parent, opts, w, h)
-    f:SetAlpha(opts.alpha or 1)
-    SetIconTexCoord(f, w, h)
-    SetIconTexCoord(f.bg, w, h)
-    UpdateFontStringSettings(f.stacktext, opts.font, opts.textsize, opts.effect or "OUTLINE")
-    UpdateOptionalOutline(f, opts.outline)
-    PulseAnim_GenAlpha(f.pulse, opts.alpha or 1)
-
-    f:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
-    f.spark:SetOrientation( opts.vertical and "VERTICAL" or "HORIZONTAL")
 end
 
 ----------------------------------------------------------
@@ -1840,7 +1811,7 @@ Aptechka.Widget.BarIconArray = {}
 Aptechka.Widget.BarIconArray.default = { type = "BarIconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 10, outline = true, edge = true, vertical = true, growth = "LEFT", max = 3 }
 function Aptechka.Widget.BarIconArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    return CreateArrayHeader("BarIcon", parent, opts.point, opts.x, opts.y, opts, opts.growth, opts.max)
+    return CreateArrayHeader("BarIcon", parent, opts)
 end
 
 Aptechka.Widget.BarIconArray.Reconf = Aptechka.Widget.BarArray.Reconf
@@ -2028,6 +1999,8 @@ function Aptechka.Widget.FloatingIcon.Create(parent, popts, gopts)
 end
 function Aptechka.Widget.FloatingIcon.Reconf(parent, f, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
+    -- CheckDisabled(f, opts.disabled)
+
     f.opts = opts
 end
 
@@ -2306,6 +2279,8 @@ end
 
 function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
+    CheckDisabled(f, opts.disabled)
+
     f.text:ClearAllPoints()
     f.text:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
     -- f.text:SetJustifyH(opts.justify:upper())
@@ -2986,19 +2961,12 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local text3_opts = Aptechka:GetWidgetsOptionsMerged("text3")
     local text3 = Aptechka.Widget.Text.Create(self, nil, text3_opts)
 
-    -- local bar1 = CreateStatusBar(self, 21, 6, "BOTTOMRIGHT",self, "BOTTOMRIGHT",0,0)
-    -- local bar2 = CreateStatusBar(self, 21, 4, "BOTTOMLEFT", bar1, "TOPLEFT",0,1)
-    -- local bar3 = CreateStatusBar(self, 21, 4, "TOPRIGHT", self, "TOPRIGHT",0,1)
-    -- local vbar1 = CreateStatusBar(self, 4, 19, "TOPRIGHT", self, "TOPRIGHT",-9,2, nil, true)
-
     self.debuffIcons = Aptechka.Widget.DebuffIconArray.Create(self, Aptechka:GetWidgetsOptions("debuffIcons"))
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     -- local bossdebuff = CreateCorner(self, 17, 17, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") --last arg changes orientation
     -- local bossdebuff = Aptechka.Widget.Indicator.Create(self, Aptechka:GetWidgetsOptions("bossdebuff"))
     local bossdebuff = border
-
-    -- local roundIndicator = CreateRoundIndicator(self, 13, 13, "BOTTOMLEFT", self, "BOTTOMLEFT",-8, -8)
 
     self.health = hp
     self.text1 = text

@@ -2432,7 +2432,12 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
         widget.previousJob = widget.currentJob
         widget.currentJob = currentJobData.job -- important that it's before SetJob
 
-        if widget ~= frame then widget:Show() end   -- taint if we show protected unitbutton frame
+        if widget ~= frame then -- Taint if :Show() protected unitbutton frame
+            widget:Show()
+            -- Quick solution to avoid widget state problems while it is disabled
+            -- State is still fully updated, just the widget is not being displayed
+            if widget.disabled then widget:Hide(); return end
+        end
         widget:SetJob(currentJobData.job, state, unpack(currentJobData))
     else
         if widget ~= frame then widget:Hide() end
@@ -2457,7 +2462,10 @@ function Aptechka:UpdateWidget(frame, widget)
         widget.previousJob = widget.currentJob
         widget.currentJob = currentJobData.job -- important that it's before SetJob
 
-        if widget ~= frame then widget:Show() end   -- taint if we show protected unitbutton frame
+        if widget ~= frame then
+            widget:Show()
+            if widget.disabled then widget:Hide(); return end
+        end
         if widget.SetJob then
             widget:SetJob(currentJobData.job, state, unpack(currentJobData))
         end
@@ -2467,6 +2475,27 @@ function Aptechka:UpdateWidget(frame, widget)
         widget.currentJob = nil
     end
 end
+
+--[[
+function Aptechka:UpdateWidgetByName(frame, slotName)
+    local widget = frame[slotName]
+    if widget then
+        self:UpdateWidget(frame, widget)
+    end
+end
+
+function Aptechka:EnumWidgets()
+    return pairs(Aptechka.db.global.widgetConfig)
+end
+
+function Aptechka:UpdateAllWidgets()
+    Aptechka:ForEachFrame(function(frame, unit)
+        for widgetName in self:EnumWidgets() do
+            Aptechka:UpdateWidgetByName(frame, widgetName)
+        end
+    end)
+end
+]]
 
 -- Clears and reapplies a job with the same args, used in statau list for dynamic updates
 function Aptechka:ReapplyJob(opts)
