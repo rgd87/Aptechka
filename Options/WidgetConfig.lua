@@ -195,11 +195,34 @@ function ns.CreateWidgetConfig(name, parent)
     -- frame:SetLayout("Fill")
     frame:SetLayout("Flow")
 
-    local helpButton = CreateFrame("Button", nil, frame.frame, "UIPanelButtonTemplate")
-    helpButton:SetSize(60, 25)
-    helpButton:SetPoint("TOPRIGHT", 0,0)
-    helpButton:GetFontString():SetText("Help")
-    helpButton:SetScript("OnClick", function()
+
+
+    local profileDropdown = AceGUI:Create("Dropdown")
+    profileDropdown.Update = function(self)
+        self:SetList(ns.GetProfileList(Aptechka.db))
+        self:SetValue(Aptechka.db:GetCurrentProfile())
+    end
+    profileDropdown:SetCallback("OnValueChanged", function(self, event, value)
+        Aptechka.db:SetProfile(value)
+
+        frame.header:Update()
+        frame.tree:UpdateWidgetTree()
+        frame.header.profileCheckbox:Update()
+        if CURRENT_FORM then
+            local name = CURRENT_FORM.widgetName
+            local profileSpecific = frame.header.profileCheckbox:GetValue()
+            CURRENT_FORM:SetTargetWidget(name, profileSpecific)
+        end
+    end)
+    profileDropdown.frame:SetParent(frame.frame)
+    profileDropdown.frame:SetWidth(250)
+    profileDropdown.frame:SetHeight(30)
+    profileDropdown.frame:SetPoint("TOPLEFT", frame.frame, "TOPLEFT", 180, -10)
+    frame.profileDropdown = profileDropdown
+
+    local helpButton = AceGUI:Create("Button")
+    helpButton:SetText("Help")
+    helpButton:SetCallback("OnClick", function()
         print("text1 - name text")
         print("text2 - missing health text")
         print("text3 - used to display group leader and timers")
@@ -209,6 +232,11 @@ function ns.CreateWidgetConfig(name, parent)
         print("buffIcons - survival cooldowns row")
         print("statusIcon - used to display Res, RC, Phase icons")
     end)
+    helpButton.frame:SetParent(frame.frame)
+    helpButton.frame:SetWidth(60)
+    helpButton.frame:SetHeight(25)
+    helpButton.frame:SetPoint("TOPRIGHT", frame.frame, "TOPRIGHT", 0,0)
+    helpButton.frame:Show()
 
 
     frame.header = {}
@@ -361,6 +389,7 @@ function ns.CreateWidgetConfig(name, parent)
         self.tree:UpdateWidgetTree()
         self.header.profileCheckbox:Update()
         self.header:Update()
+        self.profileDropdown:Update()
         if CURRENT_FORM then
             local oldFormWidgetName = CURRENT_FORM.widgetName
             if oldFormWidgetName then
