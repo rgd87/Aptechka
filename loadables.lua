@@ -65,6 +65,9 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         [323744] = { 323744, 1, "Forsworn Stealthclaw, Pounce" },
         [324154] = { 324154, 1, "Ventunax, Dark Stride" },
     },
+    ["Sanguine Depths"] = {
+        [322554] = { 322554, 1, "Executor Tarvold, Castigate" },
+    },
     ["The Necrotic Wake"] = {
         -- 320596/heaving-retch -- Blightbone dot
         -- 320462 -- Necrotic bolt debuff, blacklist?

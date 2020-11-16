@@ -740,8 +740,15 @@ helpers.importantTargetedCasts = {
 
     -- Sanguine Depths
     [319650] = true, -- Kryxis, Vicious Headbutt
+    [319713] = true, -- Kryxis, Juggernaut Rush
     [322554] = true, -- Executor Tarvold, Castigate
     [325254] = true, -- Beryilla, Iron Spikes
+    [324103] = true, -- General Kaal, Gloom Squall
+
+    [320991] = true, -- Regal Mistdancer, Echoing Thrust
+    [321178] = true, -- Insatiable Brute, Slam
+    [326836] = true, -- Wicked Oppressor/Grand Overseer, Curse of Suppression
+    [335308] = true, --	Depths Warden, Crushing Strike
 
     -- Spires of Ascension
     [324608] = true, -- Oryphrion, Charged Stomp
