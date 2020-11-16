@@ -27,6 +27,21 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 1,
                     },
+                    alwaysUnlocked = {
+                        name = L"Permanently Unlocked",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.stayUnlocked end,
+                        set = function(info, v)
+                            Aptechka.db.global.stayUnlocked = not Aptechka.db.global.stayUnlocked
+                            if Aptechka.db.global.stayUnlocked then
+                                Aptechka:Unlock()
+                            else
+                                Aptechka:Lock()
+                            end
+                        end,
+                        order = 2,
+                    },
                     RMBClickthrough = {
                         name = L"RMB Mouselook Clickthrough"..newFeatureIcon,
                         desc = L"Allows to turn with RMB without moving mouse away from the unitframes. With Clique this will override its RMB binding",

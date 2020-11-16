@@ -146,6 +146,7 @@ local defaults = {
         disableBlizzardParty = true,
         hideBlizzardRaid = true,
         RMBClickthrough = false,
+        stayUnlocked = false,
         enableNickTag = false,
         sortUnitsByRole = true,
         showAFK = false,
@@ -498,7 +499,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     C_Timer.NewTicker(0.3, Aptechka.OnRangeUpdate)
     Aptechka:Show()
 
-    if firstTimeUse then
+    if firstTimeUse or Aptechka.db.global.stayUnlocked then
         Aptechka.Commands.unlock()
     end
 
