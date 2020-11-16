@@ -118,9 +118,13 @@ local RangeCheckBySpell = helpers.RangeCheckBySpell
 config.templates = {
     TankCD = { assignto = set("icon"), infoType = "DURATION", priority = 94, color = { 1, 0.2, 1}, refreshTime = 2 },
     SurvivalCD = { assignto = set("buffIcons"), infoType = "DURATION", priority = 90, color = { 0.4, 1, 0.4} },
+    AreaDR = { assignto = set("buffIcons"), infoType = "DURATION", priority = 89, color = { 0.4, 1, 0.4} },
     ActiveMitigation = { assignto = set("mitigation"), infoType = "DURATION", color = {0.7, 0.7, 0.7}, priority = 80 },
     HealTrace = { assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 },
 }
+
+-- DUNGEON MECHANICS
+AG{ id = 324092, template = "AreaDR" } -- Sanguine Depths, Shining Radiance (Naaru thing)
 
 -- ESSENCES
 AG{ id = 296094, template = "TankCD" } --Standstill (Artifice of Time)
@@ -157,7 +161,7 @@ AG{ id = 23920, template = "SurvivalCD", priority = 85 } --Spell Reflect
 -- DEMON HUNTER
 AG{ id = 212800, template = "SurvivalCD" } -- Blur
 AG{ id = 187827, template = "SurvivalCD" } -- Vengeance Meta
-AG{ id = 209426, template = "SurvivalCD" } -- Darkness
+AG{ id = 209426, template = "AreaDR" } -- Darkness
 
 -- ROGUE
 AG{ id = 185311, template = "SurvivalCD" } -- Crimson Vial
@@ -185,7 +189,7 @@ AG{ id = 586,  template = "SurvivalCD" } -- Fade
 AG{ id = 47585,  template = "SurvivalCD" } -- Dispersion
 AG{ id = 47788, template = "TankCD", priority = 90 } --Guardian Spirit
 AG{ id = 33206, template = "TankCD", priority = 93 } --Pain Suppression
-AG{ id = 81782, template = "SurvivalCD" } -- Power Word: Barrier
+AG{ id = 81782, template = "AreaDR" } -- Power Word: Barrier
 -----
 AG{ id = 213610, template = "SurvivalCD" } -- Holy Ward (PVP)
 AG{ id = 289655, template = "SurvivalCD" } -- Holy Word: Concentration
@@ -212,7 +216,7 @@ AG{ id = 194679, template = "SurvivalCD" } -- Rune Tap
 AG{ id = 55233,  template = "TankCD", priority = 94 } --Vampiric Blood
 AG{ id = 48792,  template = "TankCD", priority = 94 } --Icebound Fortitude 50%
 AG{ id = 81256,  template = "SurvivalCD" } -- Dancing Rune Weapon
-AG{ id = 145629, template = "SurvivalCD" } -- Anti-Magic Zone
+AG{ id = 145629, template = "AreaDR" } -- Anti-Magic Zone
 AG{ id = 48707, template = "SurvivalCD" } -- Anti-Magic Shell
 
 -- MAGE
@@ -227,6 +231,7 @@ AG{ id = 264735, template = "SurvivalCD" } -- Survival of the Fittest
 
 -- SHAMAN
 AG{ id = 108271, template = "SurvivalCD" } -- Astral Shift
+AG{ id = 325174, template = "AreaDR" } -- Spirit Link Totem
 AG{ id = 204293, template = "SurvivalCD" } -- Spirit Link (PvP)
 -- AG{ id = 210918, template = "SurvivalCD" } -- Ethereal Form
 
