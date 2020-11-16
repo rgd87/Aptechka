@@ -3595,8 +3595,8 @@ function Aptechka:UpdateCastsConfig()
             LibTargetedCasts.UnregisterCallback("Aptechka", "SPELLCAST_UPDATE")
 
             if self.isInitialized then
-                self:ForEachFrame(function(self)
-                    self.incomingCastIcon:Hide()
+                self:ForEachFrame(function(frame)
+                    FrameSetJob(frame, config.IncomingCastStatus, false)
                 end)
             end
         end
