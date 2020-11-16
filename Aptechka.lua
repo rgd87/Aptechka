@@ -2153,27 +2153,33 @@ end
 
 function Aptechka.CreateAnchor(self,hdr,num)
     local f = CreateFrame("Frame","NugRaidAnchor"..num,UIParent)
+    f:SetFrameStrata("HIGH")
 
-    f:SetHeight(20)
-    f:SetWidth(20)
+    f:SetHeight(24)
+    f:SetWidth(24)
 
-    local t = f:CreateTexture(nil,"BACKGROUND")
-    t:SetTexture("Interface\\Buttons\\UI-RadioButton")
-    t:SetTexCoord(0,0.25,0,1)
-    t:SetAllPoints(f)
+    -- While the toplevel draggable frame has high strata to avoid becoming unreachable,
+    -- this texture frame should appear below the unitframes
+    local tf = CreateFrame("Frame", nil, f)
+    tf:SetFrameStrata("BACKGROUND")
+    tf:SetAllPoints(f)
 
-    t = f:CreateTexture(nil,"BACKGROUND")
-    t:SetTexture("Interface\\Buttons\\UI-RadioButton")
-    t:SetTexCoord(0.25,0.49,0,1)
-    if num == 1 then t:SetVertexColor(1, 0, 0)
-    elseif num == 9 then t:SetVertexColor(1, 0.6, 0)
-    else t:SetVertexColor(0, 1, 0) end
-    t:SetAllPoints(f)
+    local t = tf:CreateTexture(nil,"BACKGROUND", nil, -5)
+    t:SetAtlas("ShipMissionIcon-Bonus-Map")
+    t:SetDesaturated(true)
+    t:SetVertexColor(0.8, 0.8, 0.8)
+    t:SetSize(30, 30)
+    t:SetPoint("CENTER", tf, "CENTER", 8, 8)
+
+    local t2 = tf:CreateTexture(nil,"BACKGROUND", nil, -4)
+    t2:SetAtlas("hud-microbutton-communities-icon-notification")
+    t2:SetSize(12, 12)
+    t2:SetVertexColor(1, 0.5, 0.5)
+    t2:SetPoint("CENTER", t, "CENTER", 0,0)
 
     f:RegisterForDrag("LeftButton")
     f:EnableMouse(true)
     f:SetMovable(true)
-    f:SetFrameStrata("HIGH")
 
     anchors[num] = f
     f:Hide()
