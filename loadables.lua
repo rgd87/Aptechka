@@ -55,7 +55,7 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
     },
     ["Halls of Atonement"] = {
         [322977] = { 322977, 1, "Halkias, Sinlight Visions" },
-        -- [325552] = { 325552, 1, "Domina Venomblade, Cryotoxic Slash" },
+        [325876] = { 325876, 1, "Depraved Obliterator, Curse of Obliteration" },
     },
     ["Theater of Pain"] = {
         -- [320069] = { 320069, 1, "Challengers, Mortal Strike" },

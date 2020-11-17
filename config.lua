@@ -705,6 +705,12 @@ helpers.importantTargetedCasts = {
     [324667] = true, -- Globgrog, Slime Wave
     [325552] = true, -- Cytotoxic Slash, Domina Venomblade
 
+    -- Halls of Atonement
+    [322936] = true, -- Halkias, Crumbling Slam
+    [319941] = true, -- Echelon, Stone Shattering Leap
+    -- [326450] = true, -- Depraved Houndmaster, Loyal Beasts (Gargon buff)
+    [325876] = true, -- Depraved Obliterator, Curse of Obliteration
+
     -- Mists of Tirna Scithe
     [323137] = true, -- Droman Oulfarran, Bewildering Pollen
     [322614] = true, -- Tred'ova, Mind Link
