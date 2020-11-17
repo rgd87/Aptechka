@@ -384,14 +384,15 @@ function contentNormalizers.CAST(job, state, contentType, ...)
 
     if castType == "CHANNEL" then
         r,g,b = 0.8, 1, 0.3
-        isReversed = true
+        isReversed = false
     else
         r,g,b = 1, 0.65, 0
+        isReversed = true
     end
     text = name
     icon = icon1
 
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed
 end
 local RaidTargetCoords = {
     { 0, 0.25, 0, 0.25, },
@@ -1064,7 +1065,7 @@ local StatusBarOnUpdate = function(self, time)
         self.pandemic = nil
     end
     if self.isReversed then
-        timeLeft = self.startTime + timeLeft
+        timeLeft = self.duration - timeLeft
     end
 
     self:SetValue(timeLeft)
@@ -1079,7 +1080,7 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
         self.endTime = expirationTime
-        self.startTime = expirationTime - duration
+        self.duration = duration
         self.isReversed = isReversed
         local pandemic = job.refreshTime
         self.pandemic = pandemic
@@ -1646,7 +1647,7 @@ local function BarIcon_OnUpdate(self)
         self.pandemic = nil
     end
     if self.isReversed then
-        timeLeft = self.startTime + timeLeft
+        timeLeft = self.duration - timeLeft
     end
 
     -- self.spark:UpdatePos(timeLeft/duration)
@@ -1676,7 +1677,7 @@ local function BarIcon_SetJob(self, job, state, contentType, ...)
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
         self.endTime = expirationTime
-        self.startTime = expirationTime - duration
+        self.duration = duration
         self.isReversed = isReversed
         local pandemic = job.refreshTime
         self.pandemic = pandemic
