@@ -3067,32 +3067,25 @@ function Aptechka.TestDebuffSlotsForUnit(frame, unit)
         end
     end
 
-
-    -- local icon = frame.incomingCastIcon
-    -- local spellID = randomIDs[math.random(#randomIDs)]
-    -- local _, _, texture = GetSpellInfo(spellID)
-    -- local startTime = now
-    -- local duration = math.random(20)+5
-    -- local endTime = startTime + duration
-    -- local count = math.random(18)
-    -- local castType = "CAST"
-    -- icon.texture:SetTexture(texture)
-    -- icon.cd:SetReverse(castType == "CAST")
-
-    -- local r,g,b = 1, 0.65, 0
-
-    -- icon.cd:SetSwipeColor(r,g,b);
-
-    -- duration = endTime - startTime
-    -- icon.cd:SetCooldown(startTime, duration)
-    -- icon.cd:Show()
-
-    -- icon.stacktext:SetText(count > 1 and count)
-    -- icon:Show()
-
     for i=shown+1, debuffLineLength do
         frame.debuffIcons:SetDebuffIcon(frame, unit, i, false)
     end
+end
+
+function Aptechka:TestCastBars()
+    Aptechka:ForEachFrame(Aptechka.TestCastBar)
+end
+function Aptechka.TestCastBar(frame, unit)
+    local spellID = 172
+    local srcGUID = UnitGUID("player")
+    local castType = "CAST"
+    local name, _, icon = GetSpellInfo(spellID)
+    local dstGUID = srcGUID
+    local totalCasts = math.random(5)
+    local duration = math.random(20)+5
+    local startTime = GetTime()
+    local endTime = startTime + duration
+    FrameSetJob(frame, config.IncomingCastStatus, true, "CAST", castType, name, duration, endTime, totalCasts, icon, spellID)
 end
 
 local ParseOpts = function(str)
