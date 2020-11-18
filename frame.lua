@@ -3390,30 +3390,45 @@ function Aptechka:CreateFakeGroupHeaders()
     end
 end
 
-function Aptechka:EnableTestMode()
-    if not self.testGroupHeaders then
-        self:CreateFakeGroupHeaders()
-        self:ReconfigureTestHeaders()
+do
+    local groupSizes = { 1, 4, 6, 8 }
+    local sizeIndex = 1
+    function Aptechka:CycleTestMode()
+        if not self.testGroupHeaders then
+            self:CreateFakeGroupHeaders()
+            self:ReconfigureTestHeaders()
+        end
+        self.testGroupHeaders.enabled = true
+        -- for i=1,8 do
+        --     self.testGroupHeaders[i]:Show()
+        -- end
+        local groupLimit = groupSizes[sizeIndex]
+        if groupLimit == nil then
+            sizeIndex = 1
+            return self:DisableTestMode()
+        end
+        for i=1,8 do
+            local hdr = self.testGroupHeaders[i]
+            if i <= groupLimit then
+                hdr:Show()
+            else
+                hdr:Hide()
+            end
+        end
+        sizeIndex = sizeIndex + 1
     end
-    self.testGroupHeaders.enabled = true
-    for i=1,8 do
-        self.testGroupHeaders[i]:Show()
-    end
-end
-function Aptechka:DisableTestMode()
-    if not self.testGroupHeaders then return end
-    self.testGroupHeaders.enabled = false
-    for i=1,8 do
-        self.testGroupHeaders[i]:Hide()
+    function Aptechka:DisableTestMode()
+        if not self.testGroupHeaders then return end
+        self.testGroupHeaders.enabled = false
+        for i=1,8 do
+            self.testGroupHeaders[i]:Hide()
+        end
+        sizeIndex = 1
     end
 end
 
 function Aptechka:ToggleTestMode()
-    if self.testGroupHeaders and self.testGroupHeaders.enabled then
-        self:DisableTestMode()
-    else
-        self:EnableTestMode()
-    end
+    self:CycleTestMode()
 end
 
 function Aptechka:ReconfigureTestHeaders()

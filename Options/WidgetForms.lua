@@ -191,8 +191,8 @@ local function FillDisable(form, opts, popts, gopts)
 end
 
 local function CreateSizeSettings(form)
-    local height = ns.AddSlider(form, 0.46, L"Height", "height", 20, 5, 100, 0.5, callbackUpdateForm)
-    local width = ns.AddSlider(form, 0.46, L"Width", "width", 20, 5, 100, 0.5, callbackUpdateForm)
+    local height = ns.AddSlider(form, 0.46, L"Height", "height", 20, 2, 100, 0.5, callbackUpdateForm)
+    local width = ns.AddSlider(form, 0.46, L"Width", "width", 20, 2, 100, 0.5, callbackUpdateForm)
 end
 local function FillSizeSettings(form, opts, popts, gopts)
     Control_SetValue(form, "height", opts, gopts)
