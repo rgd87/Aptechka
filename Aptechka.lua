@@ -1303,6 +1303,7 @@ do
             end
             frame.power:OnPowerTypeChange(tname, isDead)
         end
+        FrameSetJob(frame, config.PowerBarColor,true, nil, GetTime())
     end
 end
 function Aptechka.UNIT_DISPLAYPOWER(self, event, unit, isDead)
