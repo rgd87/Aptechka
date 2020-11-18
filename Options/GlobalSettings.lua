@@ -89,6 +89,17 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 8.7,
                     },
+                    disableBlizzardPlayer = {
+                        name = L"Disable Blizzard Player Frame",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.disableBlizzardPlayer end,
+                        set = function(info, v)
+                            Aptechka.db.global.disableBlizzardPlayer = not Aptechka.db.global.disableBlizzardPlayer
+                            Aptechka:PrintReloadUIWarning()
+                        end,
+                        order = 8.9,
+                    },
                     disableBlizzardParty = {
                         name = L"Disable Blizzard Party Frames",
                         width = "double",

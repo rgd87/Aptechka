@@ -143,6 +143,7 @@ Aptechka.L = setmetatable({}, {
 
 local defaults = {
     global = {
+        disableBlizzardPlayer = false,
         disableBlizzardParty = true,
         hideBlizzardRaid = true,
         RMBClickthrough = false,
@@ -281,6 +282,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka.Roster = Roster
 
+    if AptechkaDB.global.disableBlizzardPlayer then
+        helpers.DisableBlizzPlayerFrame()
+    end
     if AptechkaDB.global.disableBlizzardParty then
         helpers.DisableBlizzParty()
     end

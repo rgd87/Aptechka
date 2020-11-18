@@ -9,6 +9,7 @@ local _, playerClass = UnitClass("player")
 config["GLOBAL"] = { auras = {}, traces = {}, }
 config[playerClass] = { auras = {}, traces = {}, }
 
+local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local pmult = 1
 function helpers.pixelperfect(size)
@@ -303,6 +304,35 @@ function helpers.utf8sub(str, start, numChars)
         numChars = numChars - 1
     end
     return str:sub(start, currentIndex - 1)
+end
+
+function helpers.DisableBlizzPlayerFrame()
+    local hiddenParent = helpers.hiddenParent or CreateFrame('Frame', nil, UIParent)
+    helpers.hiddenParent = hiddenParent
+    hiddenParent:SetAllPoints()
+    hiddenParent:Hide()
+
+    local frame = PlayerFrame
+
+    frame:SetParent(hiddenParent)
+
+    frame:UnregisterAllEvents()
+    frame:Hide()
+
+    frame.healthbar:UnregisterAllEvents()
+    frame.manabar:UnregisterAllEvents()
+
+    if not isClassic then
+        -- Aspparently ыome issues if these events are disable
+        frame:RegisterEvent('PLAYER_ENTERING_WORLD')
+        frame:RegisterEvent('UNIT_ENTERING_VEHICLE')
+        frame:RegisterEvent('UNIT_ENTERED_VEHICLE')
+        frame:RegisterEvent('UNIT_EXITING_VEHICLE')
+        frame:RegisterEvent('UNIT_EXITED_VEHICLE')
+    end
+
+    frame:SetUserPlaced(true)
+	frame:SetDontSavePosition(true)
 end
 
 function helpers.DisableBlizzParty(self)
