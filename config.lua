@@ -701,6 +701,15 @@ helpers.auraBlacklist = {
 }
 
 helpers.importantTargetedCasts = {
+    -- Castle Nathria
+    [325877] = true, -- Sun King's Salvation, Shade, Ember Blast
+    [325361] = true, -- Xy'mox, Glyph of Destruction
+    [329774] = true, -- Hungering Destroyer, Overwhelm
+    [332318] = true, -- Sludgefist, Destructive Stomp
+    -- [334404] = true, -- Hustsman, Spreadshot
+    [334929] = true, -- Stone Legion Generals, Kaal, Serrated Swipe
+    [342425] = true, -- Stone Legion Generals, Stone Fist
+
     -- Plaguefall
     [324667] = true, -- Globgrog, Slime Wave
     [325552] = true, -- Cytotoxic Slash, Domina Venomblade

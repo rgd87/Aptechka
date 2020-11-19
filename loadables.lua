@@ -51,7 +51,18 @@ AptechkaDefaultConfig.MapIDs = {
 AptechkaDefaultConfig.defaultDebuffHighlights = {
 
     ["Castle Nathria"] = {
-        [25163] = { 25163, 3, "Placeholder Disgusting Oozeling" },
+
+        [334971] = { 334971, 1, "Huntsman Altimor, Margore, Jagged Claws" },
+        [341473] = { 341473, 1, "Bleakwing Assassin, Crimson Flurry" },
+        [325236] = { 325236, 4, "Artificer Xy'mox, Glyph of Destruction" },
+        [326302] = { 326302, 3, "Artificer Xy'mox, Stasis Trap" },
+        [340860] = { 340860, 1, "Artificer Xy'mox, Withering Touch" },
+        [329298] = { 329298, 1, "Hungering Destroyer, Gluttonous Miasma" },
+        -- [334064] = { 334064, 1, "Hungering Destroyer, Volatile Ejection" },
+        [325382] = { 325382, 1, "Lady Inerva Darkvein, Warped Desires" },
+        [334771] = { 334771, 1, "Stone Legion Generals, Kaal, Heart Hemorrhage" },
+        [332794] = { 332794, 1, "Sire Denathrius, Fatal Finesse" },
+        -- [25163] = { 25163, 3, "Placeholder Disgusting Oozeling" },
     },
     ["Halls of Atonement"] = {
         [322977] = { 322977, 1, "Halkias, Sinlight Visions" },
