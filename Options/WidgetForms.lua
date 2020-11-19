@@ -303,6 +303,7 @@ local borderStyles = {
     STRIP_BOTTOM = "Bottom Strip",
     CORNER = "Corner",
     BORDER = "Border",
+    NONE = "None",
 }
 function ns.WidgetForms.DebuffIcon.Create(form)
     form = form or ns.InitForm()

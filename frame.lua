@@ -1510,6 +1510,14 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 3,1)
         if self.SetBackdrop then self:SetBackdrop(nil) end
         dtt:Show()
+    elseif style == "NONE" then
+        self:SetSize(w,h)
+        it:SetSize(w,h)
+        it:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
+        cd:SetAllPoints(it)
+
+        if self.SetBackdrop then self:SetBackdrop(nil) end
+        dtt:Hide()
     end
 end
 
