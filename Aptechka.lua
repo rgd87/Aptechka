@@ -2859,36 +2859,21 @@ end
 function Aptechka.DispelTypePostUpdate(frame, unit)
     local debuffTypeMaskDispellable = bit_band( debuffTypeMask, BITMASK_DISPELLABLE )
 
-    if frame.debuffTypeMask ~= debuffTypeMaskDispellable then
-
-        local debuffType
-        if bit_band(debuffTypeMaskDispellable, BITMASK_MAGIC) > 0 then
-            debuffType = "Magic"
-        elseif bit_band(debuffTypeMaskDispellable, BITMASK_POISON) > 0 then
-            debuffType = "Poison"
-        elseif bit_band(debuffTypeMaskDispellable, BITMASK_DISEASE) > 0 then
-            debuffType = "Disease"
-        elseif bit_band(debuffTypeMaskDispellable, BITMASK_CURSE) > 0 then
-            debuffType = "Curse"
-        end
-
-        if debuffType then
-            local color = helpers.DebuffTypeColors[debuffType]
-            config.DispelStatus.color = color
-            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID
-            local indexOrSlot = maxIndexOrSlot
-            if isClassic then
-                name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, indexOrSlot, "HARMFUL")
-            else
-                name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID = UnitAuraBySlot(unit, indexOrSlot)
-            end
-            FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", debuffType, duration, expirationTime, count, icon, spellID, caster)
-        else
+    if debuffTypeMaskDispellable == 0 then
+        if frame.debuffTypeMask ~= debuffTypeMaskDispellable then -- Only disable once
             FrameSetJob(frame, config.DispelStatus, false)
         end
-
-        frame.debuffTypeMask = debuffTypeMaskDispellable
+    else
+        local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID
+        local indexOrSlot = maxIndexOrSlot
+        if isClassic then
+            name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, indexOrSlot, "HARMFUL")
+        else
+            name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAuraBySlot(unit, indexOrSlot)
+        end
+        FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", dt, duration, expirationTime, count, icon, spellID, caster)
     end
+    frame.debuffTypeMask = debuffTypeMaskDispellable
 end
 function Aptechka.DummyFunction() end
 
