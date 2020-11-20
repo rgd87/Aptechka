@@ -712,7 +712,11 @@ helpers.importantTargetedCasts = {
 
     -- Plaguefall
     [324667] = true, -- Globgrog, Slime Wave
+    [329110] = true, -- Doctor Ickus Slime Injection
     [325552] = true, -- Cytotoxic Slash, Domina Venomblade
+    [330403] = true, -- Plagueroc, Wing Buffet
+    -- [327233] = true, -- Plaguebelcher, Belch Plague
+    -- [319070] = true, -- Rotmarrow Slime, Corrosive Gunk
 
     -- Halls of Atonement
     [322936] = true, -- Halkias, Crumbling Slam
@@ -779,7 +783,11 @@ helpers.importantTargetedCasts = {
     [320069] = true, -- Challengers, Mortal Strike
     [323515] = true, -- Gorechop, Hateful Strike
     [320644] = true, -- Xav the Unfallen, Brutal Combo
+    [339415] = true, -- Xav the Unfallen, Deafening Crash
     [324079] = true, -- Mordretha, Reaping Scythe
+    [341969] = true, -- Blighted Sludge-Spewer, Withering Discharge
+    -- [330614] = true, -- Vile Eruption
+    [330810] = true, -- Shackled Soul, Bind Soul
 
     -- De other side
     [322736] = true, -- Hakkar the Soulflayer, Piercing Barb

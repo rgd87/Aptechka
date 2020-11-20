@@ -71,6 +71,8 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
     ["Theater of Pain"] = {
         -- [320069] = { 320069, 1, "Challengers, Mortal Strike" },
         [323831] = { 323831, 1, "Mordretha, Death Grasp" },
+        [330608] = { 330608, 1, "Rancid Gasbag, Vile Eruption" },
+        -- [330810] = { 330810, 1, "Shackled Soul, Bind Soul" },
     },
     ["Spires of Ascension"] = {
         [323744] = { 323744, 1, "Forsworn Stealthclaw, Pounce" },
