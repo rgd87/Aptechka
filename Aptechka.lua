@@ -148,6 +148,7 @@ local defaults = {
         hideBlizzardRaid = true,
         RMBClickthrough = false,
         stayUnlocked = false,
+        singleHeaderMode = false,
         enableNickTag = false,
         sortMethod = "ROLE", -- "INDEX" or "NONE" | "ROLE" | "NAME"
         showAFK = false,
@@ -488,7 +489,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     skinAnchorsName = "GridSkin"
     local i = 1
-    while (i <= config.maxgroups) do
+    local maxGroups = 8
+    if Aptechka.db.global.singleHeaderMode then
+        maxGroups = 1
+    end
+    while (i <= maxGroups) do
         local f  = Aptechka:CreateHeader(i) -- if second arg is true then it's petgroup
         group_headers[i] = f
         i = i + 1
@@ -708,9 +713,10 @@ end
 
 
 function Aptechka:CreatePetGroup()
-    if group_headers[9] then return end -- already exists
+    local lastHeader = group_headers[#group_headers]
+    if lastHeader.isPetGroup then return end -- already exists
     local pets  = Aptechka:CreateHeader(9,true)
-    group_headers[9] = pets
+    table.insert(group_headers, pets)
     pets:Show()
 end
 function Aptechka:UpdatePetGroupConfig()
@@ -1978,13 +1984,24 @@ function Aptechka.CreateHeader(self,group,petgroup)
     elseif unitgr == "TOP" then
         ygap = -ygap
     end
+
+    if Aptechka.db.global.singleHeaderMode then
+        f:SetAttribute("maxColumns", 8 )
+        f:SetAttribute("unitsPerColumn", 5)
+        f:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
+        local groupGrowth = AptechkaDB.profile.groupGrowth
+        f:SetAttribute("columnAnchorPoint", reverse(groupGrowth))
+    end
+
     f:SetAttribute("point", unitgr)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
 
     if not petgroup
     then
-        f:SetAttribute("groupFilter", group)
+        if not Aptechka.db.global.singleHeaderMode then
+            f:SetAttribute("groupFilter", group)
+        end
         if AptechkaDB.global.sortMethod == "ROLE" then
             f:SetAttribute("groupBy", "ASSIGNEDROLE")
             f:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER,NONE")
@@ -2104,7 +2121,16 @@ do -- this function supposed to be called from layout switchers
 
             local hdr = headers[groupIndex]
 
-            for _,button in ipairs{ hdr:GetChildren() } do -- group header doesn't clear points when attribute value changes
+            if Aptechka.db.global.singleHeaderMode then
+                hdr:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
+                hdr:SetAttribute("unitsPerColumn", 5*maxGroupsInRow)
+                hdr:SetAttribute("columnAnchorPoint", reverse(groupGrowth)) -- the anchor point of each new column (ie. use LEFT for the columns to grow to the right)
+                -- point attr controls unit growth: SetPoint(LEFT, prevButton or hdr, reverse(LEFT), xOffset, yOffset)
+                -- columnAnchorPoint controls group/column growth: SetPoint(BOTTOM, prevColumnButton1, reverse(BOTTOM), 0, yOffset)
+            end
+            -- group header doesn't clear points when attribute value changes
+            -- so it's important to manually clear them before setting the last attribte that affects what points are set
+            for _,button in ipairs{ hdr:GetChildren() } do
                 button:ClearAllPoints()
             end
             hdr:SetAttribute("point", unitgr)
