@@ -2850,7 +2850,7 @@ local maxIndexOrSlot
 function Aptechka.DispelTypeProc(frame, unit, index, slot, filter, name, icon, count, debuffType)
     local DTconst = GetDebuffTypeBitmask(debuffType)
     debuffTypeMask = bit_bor( debuffTypeMask, DTconst)
-    if DTconst >= maxDispelType then
+    if DTconst >= maxDispelType and bit_band( DTconst, BITMASK_DISPELLABLE) > 0 then
         maxDispelType = DTconst
         maxIndexOrSlot = slot or index
     end
