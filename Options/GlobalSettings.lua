@@ -60,9 +60,13 @@ function ns.MakeGlobalSettings()
                         name = L"Sort Units by Role",
                         width = "full",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.global.sortUnitsByRole end,
+                        get = function(info) return Aptechka.db.global.sortMethod == "ROLE" end,
                         set = function(info, v)
-                            Aptechka.db.global.sortUnitsByRole = not Aptechka.db.global.sortUnitsByRole
+                            if Aptechka.db.global.sortMethod == "ROLE" then
+                                Aptechka.db.global.sortMethod = "NONE"
+                            else
+                                Aptechka.db.global.sortMethod = "ROLE"
+                            end
                             Aptechka:PrintReloadUIWarning()
                         end,
                         order = 8.5,

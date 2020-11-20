@@ -149,7 +149,7 @@ local defaults = {
         RMBClickthrough = false,
         stayUnlocked = false,
         enableNickTag = false,
-        sortUnitsByRole = true,
+        sortMethod = "ROLE", -- "INDEX" or "NONE" | "ROLE" | "NAME"
         showAFK = false,
         translitCyrillic = false,
         enableMouseoverStatus = true,
@@ -1985,9 +1985,11 @@ function Aptechka.CreateHeader(self,group,petgroup)
     if not petgroup
     then
         f:SetAttribute("groupFilter", group)
-        if AptechkaDB.global.sortUnitsByRole then
+        if AptechkaDB.global.sortMethod == "ROLE" then
             f:SetAttribute("groupBy", "ASSIGNEDROLE")
             f:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER,NONE")
+        elseif AptechkaDB.global.sortMethod == "NAME" then
+            f:SetAttribute("sortMethod", "NAME")
         end
     else
         f.isPetGroup = true
