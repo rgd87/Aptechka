@@ -693,6 +693,11 @@ function Aptechka:GenerateMergedConfig()
     end
 end
 
+local uniqueToken = 0
+local function makeUnique()
+    uniqueToken = uniqueToken + 1
+    return uniqueToken
+end
 
 function Aptechka:ToggleCompactRaidFrames()
     local v = IsAddOnLoaded("Blizzard_CompactRaidFrames")
@@ -791,9 +796,9 @@ function Aptechka:RefreshAllUnitsHealth()
 end
 function Aptechka.FrameUpdateUnitColor(frame, unit)
     Aptechka.FrameColorize(frame, unit)
-    FrameSetJob(frame, config.UnitNameStatus, true, nil, GetTime())
-    FrameSetJob(frame, config.HealthBarColor, true, nil, GetTime())
-    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true, nil, GetTime()) end
+    FrameSetJob(frame, config.UnitNameStatus, true, nil, makeUnique())
+    FrameSetJob(frame, config.HealthBarColor, true, nil, makeUnique())
+    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true, nil, makeUnique()) end
 end
 function Aptechka:RefreshAllUnitsColors()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateUnitColor)
@@ -1309,7 +1314,7 @@ do
             end
             frame.power:OnPowerTypeChange(tname, isDead)
         end
-        FrameSetJob(frame, config.PowerBarColor,true, nil, GetTime())
+        FrameSetJob(frame, config.PowerBarColor,true, nil, makeUnique())
     end
 end
 function Aptechka.UNIT_DISPLAYPOWER(self, event, unit, isDead)
@@ -1860,7 +1865,7 @@ local function updateUnitButton(self, unit)
     Aptechka:UpdateName(self)
 
     -- HealthBar color update needs some unique value to force update
-    FrameSetJob(self,config.HealthBarColor,true, nil, GetTime())
+    FrameSetJob(self,config.HealthBarColor,true, nil, makeUnique())
     Aptechka.FrameScanAuras(self, unit)
     state.wasDead = nil
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
@@ -1880,7 +1885,7 @@ local function updateUnitButton(self, unit)
         Aptechka.FrameUpdatePower(self, unit, ptype)
         Aptechka.FrameUpdatePower(self, unit, "RUNIC_POWER")
         Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
-        FrameSetJob(self,config.PowerBarColor,true, nil, GetTime())
+        FrameSetJob(self,config.PowerBarColor,true, nil, makeUnique())
     end
     Aptechka.FrameUpdateThreat(self, unit)
     Aptechka.FrameUpdateMindControl(self, unit)
