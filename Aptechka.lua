@@ -1272,9 +1272,9 @@ function Aptechka.FrameUpdatePower(frame, unit, ptype)
         local power = UnitPower(unit, Enum_Alternate)
         if power > 0 then
             local p = power/powerMax
-            FrameSetJob(frame, config.AlternatePowerStatus, true, "PROGRESS", power, powerMax, p)
+            FrameSetJob(frame, config.AltPowerStatus, true, "PROGRESS", power, powerMax, p)
         else
-            FrameSetJob(frame, config.AlternatePowerStatus, false)
+            FrameSetJob(frame, config.AltPowerStatus, false)
         end
     end
 end
