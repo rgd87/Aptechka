@@ -148,11 +148,14 @@ Aptechka.L = setmetatable({}, {
 
 local defaults = {
     global = {
+        disableBlizzardPlayer = false,
         disableBlizzardParty = true,
         hideBlizzardRaid = true,
         RMBClickthrough = false,
+        stayUnlocked = false,
+        singleHeaderMode = false,
         enableNickTag = false,
-        sortUnitsByRole = true,
+        sortMethod = "ROLE", -- "INDEX" or "NONE" | "ROLE" | "NAME"
         showAFK = false,
         translitCyrillic = false,
         enableMouseoverStatus = true,
@@ -296,6 +299,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka.Roster = Roster
 
+    if AptechkaDB.global.disableBlizzardPlayer then
+        helpers.DisableBlizzPlayerFrame()
+    end
     if AptechkaDB.global.disableBlizzardParty then
         helpers.DisableBlizzParty()
     end
@@ -512,7 +518,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     skinAnchorsName = "GridSkin"
     local i = 1
-    while (i <= config.maxgroups) do
+    local maxGroups = 8
+    if Aptechka.db.global.singleHeaderMode then
+        maxGroups = 1
+    end
+    while (i <= maxGroups) do
         local f  = Aptechka:CreateHeader(i) -- if second arg is true then it's petgroup
         group_headers[i] = f
         i = i + 1
@@ -527,7 +537,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     C_Timer.NewTicker(0.3, Aptechka.OnRangeUpdate)
     Aptechka:Show()
 
-    if firstTimeUse then
+    if firstTimeUse or Aptechka.db.global.stayUnlocked then
         Aptechka.Commands.unlock()
     end
 
@@ -715,6 +725,11 @@ function Aptechka:GenerateMergedConfig()
     end
 end
 
+local uniqueToken = 0
+local function makeUnique()
+    uniqueToken = uniqueToken + 1
+    return uniqueToken
+end
 
 function Aptechka:ToggleCompactRaidFrames()
     local v = IsAddOnLoaded("Blizzard_CompactRaidFrames")
@@ -735,9 +750,10 @@ end
 
 
 function Aptechka:CreatePetGroup()
-    if group_headers[9] then return end -- already exists
+    local lastHeader = group_headers[#group_headers]
+    if lastHeader.isPetGroup then return end -- already exists
     local pets  = Aptechka:CreateHeader(9,true)
-    group_headers[9] = pets
+    table.insert(group_headers, pets)
     pets:Show()
 end
 function Aptechka:UpdatePetGroupConfig()
@@ -812,9 +828,9 @@ function Aptechka:RefreshAllUnitsHealth()
 end
 function Aptechka.FrameUpdateUnitColor(frame, unit)
     Aptechka.FrameColorize(frame, unit)
-    FrameSetJob(frame, config.UnitNameStatus, true, nil, GetTime())
-    FrameSetJob(frame, config.HealthBarColor, true, nil, GetTime())
-    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true, nil, GetTime()) end
+    FrameSetJob(frame, config.UnitNameStatus, true, nil, makeUnique())
+    FrameSetJob(frame, config.HealthBarColor, true, nil, makeUnique())
+    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true, nil, makeUnique()) end
 end
 function Aptechka:RefreshAllUnitsColors()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateUnitColor)
@@ -1355,9 +1371,9 @@ function Aptechka.FrameUpdatePower(frame, unit, ptype)
         local power = UnitPower(unit, Enum_Alternate)
         if power > 0 then
             local p = power/powerMax
-            FrameSetJob(frame, config.AlternatePowerStatus, true, "PROGRESS", power, powerMax, p)
+            FrameSetJob(frame, config.AltPowerStatus, true, "PROGRESS", power, powerMax, p)
         else
-            FrameSetJob(frame, config.AlternatePowerStatus, false)
+            FrameSetJob(frame, config.AltPowerStatus, false)
         end
     end
 end
@@ -1386,6 +1402,7 @@ do
             end
             frame.power:OnPowerTypeChange(tname, isDead)
         end
+        FrameSetJob(frame, config.PowerBarColor,true, nil, makeUnique())
     end
 end
 function Aptechka.UNIT_DISPLAYPOWER(self, event, unit, isDead)
@@ -1936,7 +1953,7 @@ local function updateUnitButton(self, unit)
     Aptechka:UpdateName(self)
 
     -- HealthBar color update needs some unique value to force update
-    FrameSetJob(self,config.HealthBarColor,true, nil, GetTime())
+    FrameSetJob(self,config.HealthBarColor,true, nil, makeUnique())
     Aptechka.FrameScanAuras(self, unit)
     state.wasDead = nil
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
@@ -1956,7 +1973,7 @@ local function updateUnitButton(self, unit)
         Aptechka.FrameUpdatePower(self, unit, ptype)
         Aptechka.FrameUpdatePower(self, unit, "RUNIC_POWER")
         Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
-        FrameSetJob(self,config.PowerBarColor,true, nil, GetTime())
+        FrameSetJob(self,config.PowerBarColor,true, nil, makeUnique())
     end
     Aptechka.FrameUpdateThreat(self, unit)
     Aptechka.FrameUpdateMindControl(self, unit)
@@ -2060,16 +2077,29 @@ function Aptechka.CreateHeader(self,group,petgroup)
     elseif unitgr == "TOP" then
         ygap = -ygap
     end
+
+    if Aptechka.db.global.singleHeaderMode then
+        f:SetAttribute("maxColumns", 8 )
+        f:SetAttribute("unitsPerColumn", 5)
+        f:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
+        local groupGrowth = AptechkaDB.profile.groupGrowth
+        f:SetAttribute("columnAnchorPoint", reverse(groupGrowth))
+    end
+
     f:SetAttribute("point", unitgr)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
 
     if not petgroup
     then
-        f:SetAttribute("groupFilter", group)
-        if AptechkaDB.global.sortUnitsByRole then
+        if not Aptechka.db.global.singleHeaderMode then
+            f:SetAttribute("groupFilter", group)
+        end
+        if AptechkaDB.global.sortMethod == "ROLE" then
             f:SetAttribute("groupBy", "ROLE")
             f:SetAttribute("groupingOrder", "MAINTANK,MAINASSIST")
+        elseif AptechkaDB.global.sortMethod == "NAME" then
+            f:SetAttribute("sortMethod", "NAME")
         end
     else
         f.isPetGroup = true
@@ -2184,7 +2214,16 @@ do -- this function supposed to be called from layout switchers
 
             local hdr = headers[groupIndex]
 
-            for _,button in ipairs{ hdr:GetChildren() } do -- group header doesn't clear points when attribute value changes
+            if Aptechka.db.global.singleHeaderMode then
+                hdr:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
+                hdr:SetAttribute("unitsPerColumn", 5*maxGroupsInRow)
+                hdr:SetAttribute("columnAnchorPoint", reverse(groupGrowth)) -- the anchor point of each new column (ie. use LEFT for the columns to grow to the right)
+                -- point attr controls unit growth: SetPoint(LEFT, prevButton or hdr, reverse(LEFT), xOffset, yOffset)
+                -- columnAnchorPoint controls group/column growth: SetPoint(BOTTOM, prevColumnButton1, reverse(BOTTOM), 0, yOffset)
+            end
+            -- group header doesn't clear points when attribute value changes
+            -- so it's important to manually clear them before setting the last attribte that affects what points are set
+            for _,button in ipairs{ hdr:GetChildren() } do
                 button:ClearAllPoints()
             end
             hdr:SetAttribute("point", unitgr)
@@ -2240,27 +2279,33 @@ end
 
 function Aptechka.CreateAnchor(self,hdr,num)
     local f = CreateFrame("Frame","NugRaidAnchor"..num,UIParent)
+    f:SetFrameStrata("HIGH")
 
-    f:SetHeight(20)
-    f:SetWidth(20)
+    f:SetHeight(24)
+    f:SetWidth(24)
 
-    local t = f:CreateTexture(nil,"BACKGROUND")
-    t:SetTexture("Interface\\Buttons\\UI-RadioButton")
-    t:SetTexCoord(0,0.25,0,1)
-    t:SetAllPoints(f)
+    -- While the toplevel draggable frame has high strata to avoid becoming unreachable,
+    -- this texture frame should appear below the unitframes
+    local tf = CreateFrame("Frame", nil, f)
+    tf:SetFrameStrata("BACKGROUND")
+    tf:SetAllPoints(f)
 
-    t = f:CreateTexture(nil,"BACKGROUND")
-    t:SetTexture("Interface\\Buttons\\UI-RadioButton")
-    t:SetTexCoord(0.25,0.49,0,1)
-    if num == 1 then t:SetVertexColor(1, 0, 0)
-    elseif num == 9 then t:SetVertexColor(1, 0.6, 0)
-    else t:SetVertexColor(0, 1, 0) end
-    t:SetAllPoints(f)
+    local t = tf:CreateTexture(nil,"BACKGROUND", nil, -5)
+    t:SetAtlas("ShipMissionIcon-Bonus-Map")
+    t:SetDesaturated(true)
+    t:SetVertexColor(0.8, 0.8, 0.8)
+    t:SetSize(30, 30)
+    t:SetPoint("CENTER", tf, "CENTER", 8, 8)
+
+    local t2 = tf:CreateTexture(nil,"BACKGROUND", nil, -4)
+    t2:SetAtlas("hud-microbutton-communities-icon-notification")
+    t2:SetSize(12, 12)
+    t2:SetVertexColor(1, 0.5, 0.5)
+    t2:SetPoint("CENTER", t, "CENTER", 0,0)
 
     f:RegisterForDrag("LeftButton")
     f:EnableMouse(true)
     f:SetMovable(true)
-    f:SetFrameStrata("HIGH")
 
     anchors[num] = f
     f:Hide()
@@ -2936,7 +2981,7 @@ local maxIndexOrSlot
 function Aptechka.DispelTypeProc(frame, unit, index, slot, filter, name, icon, count, debuffType)
     local DTconst = GetDebuffTypeBitmask(debuffType)
     debuffTypeMask = bit_bor( debuffTypeMask, DTconst)
-    if DTconst >= maxDispelType then
+    if DTconst >= maxDispelType and bit_band( DTconst, BITMASK_DISPELLABLE) > 0 then
         maxDispelType = DTconst
         maxIndexOrSlot = slot or index
     end
@@ -2945,36 +2990,21 @@ end
 function Aptechka.DispelTypePostUpdate(frame, unit)
     local debuffTypeMaskDispellable = bit_band( debuffTypeMask, BITMASK_DISPELLABLE )
 
-    if frame.debuffTypeMask ~= debuffTypeMaskDispellable then
-
-        local debuffType
-        if bit_band(debuffTypeMaskDispellable, BITMASK_MAGIC) > 0 then
-            debuffType = "Magic"
-        elseif bit_band(debuffTypeMaskDispellable, BITMASK_POISON) > 0 then
-            debuffType = "Poison"
-        elseif bit_band(debuffTypeMaskDispellable, BITMASK_DISEASE) > 0 then
-            debuffType = "Disease"
-        elseif bit_band(debuffTypeMaskDispellable, BITMASK_CURSE) > 0 then
-            debuffType = "Curse"
-        end
-
-        if debuffType then
-            local color = helpers.DebuffTypeColors[debuffType]
-            config.DispelStatus.color = color
-            local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID
-            local indexOrSlot = maxIndexOrSlot
-            if isClassic then
-                name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, indexOrSlot, "HARMFUL")
-            else
-                name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID = UnitAuraBySlot(unit, indexOrSlot)
-            end
-            FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", debuffType, duration, expirationTime, count, icon, spellID, caster)
-        else
+    if debuffTypeMaskDispellable == 0 then
+        if frame.debuffTypeMask ~= debuffTypeMaskDispellable then -- Only disable once
             FrameSetJob(frame, config.DispelStatus, false)
         end
-
-        frame.debuffTypeMask = debuffTypeMaskDispellable
+    else
+        local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID
+        local indexOrSlot = maxIndexOrSlot
+        if isClassic then
+            name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, indexOrSlot, "HARMFUL")
+        else
+            name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAuraBySlot(unit, indexOrSlot)
+        end
+        FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", dt, duration, expirationTime, count, icon, spellID, caster)
     end
+    frame.debuffTypeMask = debuffTypeMaskDispellable
 end
 function Aptechka.DummyFunction() end
 
@@ -3152,32 +3182,25 @@ function Aptechka.TestDebuffSlotsForUnit(frame, unit)
         end
     end
 
-
-    -- local icon = frame.incomingCastIcon
-    -- local spellID = randomIDs[math.random(#randomIDs)]
-    -- local _, _, texture = GetSpellInfo(spellID)
-    -- local startTime = now
-    -- local duration = math.random(20)+5
-    -- local endTime = startTime + duration
-    -- local count = math.random(18)
-    -- local castType = "CAST"
-    -- icon.texture:SetTexture(texture)
-    -- icon.cd:SetReverse(castType == "CAST")
-
-    -- local r,g,b = 1, 0.65, 0
-
-    -- icon.cd:SetSwipeColor(r,g,b);
-
-    -- duration = endTime - startTime
-    -- icon.cd:SetCooldown(startTime, duration)
-    -- icon.cd:Show()
-
-    -- icon.stacktext:SetText(count > 1 and count)
-    -- icon:Show()
-
     for i=shown+1, debuffLineLength do
         frame.debuffIcons:SetDebuffIcon(frame, unit, i, false)
     end
+end
+
+function Aptechka:TestCastBars()
+    Aptechka:ForEachFrame(Aptechka.TestCastBar)
+end
+function Aptechka.TestCastBar(frame, unit)
+    local spellID = 172
+    local srcGUID = UnitGUID("player")
+    local castType = "CAST"
+    local name, _, icon = GetSpellInfo(spellID)
+    local dstGUID = srcGUID
+    local totalCasts = math.random(5)
+    local duration = math.random(20)+5
+    local startTime = GetTime()
+    local endTime = startTime + duration
+    FrameSetJob(frame, config.IncomingCastStatus, true, "CAST", castType, name, duration, endTime, totalCasts, icon, spellID)
 end
 
 local ParseOpts = function(str)
@@ -3701,8 +3724,8 @@ function Aptechka:UpdateCastsConfig()
             LibTargetedCasts.UnregisterCallback("Aptechka", "SPELLCAST_UPDATE")
 
             if self.isInitialized then
-                self:ForEachFrame(function(self)
-                    self.incomingCastIcon:Hide()
+                self:ForEachFrame(function(frame)
+                    FrameSetJob(frame, config.IncomingCastStatus, false)
                 end)
             end
         end

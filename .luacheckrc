@@ -232,4 +232,5 @@ globals = {
     "IsShiftKeyDown",
     "GameTooltip_SetTitle",
     "GameTooltip_AddInstructionLine",
+    "PlayerFrame",
 }

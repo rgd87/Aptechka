@@ -27,6 +27,21 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 1,
                     },
+                    alwaysUnlocked = {
+                        name = L"Permanently Unlocked",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.stayUnlocked end,
+                        set = function(info, v)
+                            Aptechka.db.global.stayUnlocked = not Aptechka.db.global.stayUnlocked
+                            if Aptechka.db.global.stayUnlocked then
+                                Aptechka:Unlock()
+                            else
+                                Aptechka:Lock()
+                            end
+                        end,
+                        order = 2,
+                    },
                     RMBClickthrough = {
                         name = L"RMB Mouselook Clickthrough"..newFeatureIcon,
                         desc = L"Allows to turn with RMB without moving mouse away from the unitframes. With Clique this will override its RMB binding",
@@ -45,9 +60,13 @@ function ns.MakeGlobalSettings()
                         name = L"Sort Units by Role",
                         width = "full",
                         type = "toggle",
-                        get = function(info) return Aptechka.db.global.sortUnitsByRole end,
+                        get = function(info) return Aptechka.db.global.sortMethod == "ROLE" end,
                         set = function(info, v)
-                            Aptechka.db.global.sortUnitsByRole = not Aptechka.db.global.sortUnitsByRole
+                            if Aptechka.db.global.sortMethod == "ROLE" then
+                                Aptechka.db.global.sortMethod = "NONE"
+                            else
+                                Aptechka.db.global.sortMethod = "ROLE"
+                            end
                             Aptechka:PrintReloadUIWarning()
                         end,
                         order = 8.5,
@@ -73,6 +92,17 @@ function ns.MakeGlobalSettings()
                             Aptechka:PrintReloadUIWarning()
                         end,
                         order = 8.7,
+                    },
+                    disableBlizzardPlayer = {
+                        name = L"Disable Blizzard Player Frame",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.disableBlizzardPlayer end,
+                        set = function(info, v)
+                            Aptechka.db.global.disableBlizzardPlayer = not Aptechka.db.global.disableBlizzardPlayer
+                            Aptechka:PrintReloadUIWarning()
+                        end,
+                        order = 8.9,
                     },
                     disableBlizzardParty = {
                         name = L"Disable Blizzard Party Frames",

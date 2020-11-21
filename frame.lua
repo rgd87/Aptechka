@@ -384,14 +384,15 @@ function contentNormalizers.CAST(job, state, contentType, ...)
 
     if castType == "CHANNEL" then
         r,g,b = 0.8, 1, 0.3
-        isReversed = true
+        isReversed = false
     else
         r,g,b = 1, 0.65, 0
+        isReversed = true
     end
     text = name
     icon = icon1
 
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed
 end
 local RaidTargetCoords = {
     { 0, 0.25, 0, 0.25, },
@@ -1064,7 +1065,7 @@ local StatusBarOnUpdate = function(self, time)
         self.pandemic = nil
     end
     if self.isReversed then
-        timeLeft = self.startTime + timeLeft
+        timeLeft = self.duration - timeLeft
     end
 
     self:SetValue(timeLeft)
@@ -1079,7 +1080,7 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
         self.endTime = expirationTime
-        self.startTime = expirationTime - duration
+        self.duration = duration
         self.isReversed = isReversed
         local pandemic = job.refreshTime
         self.pandemic = pandemic
@@ -1509,6 +1510,14 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         text:SetPoint("BOTTOMRIGHT", it,"BOTTOMRIGHT", 3,1)
         if self.SetBackdrop then self:SetBackdrop(nil) end
         dtt:Show()
+    elseif style == "NONE" then
+        self:SetSize(w,h)
+        it:SetSize(w,h)
+        it:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
+        cd:SetAllPoints(it)
+
+        if self.SetBackdrop then self:SetBackdrop(nil) end
+        dtt:Hide()
     end
 end
 
@@ -1646,7 +1655,7 @@ local function BarIcon_OnUpdate(self)
         self.pandemic = nil
     end
     if self.isReversed then
-        timeLeft = self.startTime + timeLeft
+        timeLeft = self.duration - timeLeft
     end
 
     -- self.spark:UpdatePos(timeLeft/duration)
@@ -1676,7 +1685,7 @@ local function BarIcon_SetJob(self, job, state, contentType, ...)
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
         self.endTime = expirationTime
-        self.startTime = expirationTime - duration
+        self.duration = duration
         self.isReversed = isReversed
         local pandemic = job.refreshTime
         self.pandemic = pandemic
@@ -2446,7 +2455,8 @@ local LibCustomGlow = LibStub("LibCustomGlow-1.0")
 local SetJob_PixelGlow = function(self, job, state, contentType, ...)
     local color = job.color or {1,1,1,1}
     local thickness = pixelperfect(2)
-    local offset = pixelperfect(4)
+    local outlineSize = pixelperfect(Aptechka.db.global.borderWidth)
+    local offset = outlineSize + pixelperfect(2)
     local freq = 0.35
     local length = 4
     local border = nil -- false hides border
@@ -3389,30 +3399,45 @@ function Aptechka:CreateFakeGroupHeaders()
     end
 end
 
-function Aptechka:EnableTestMode()
-    if not self.testGroupHeaders then
-        self:CreateFakeGroupHeaders()
-        self:ReconfigureTestHeaders()
+do
+    local groupSizes = { 1, 4, 6, 8 }
+    local sizeIndex = 1
+    function Aptechka:CycleTestMode()
+        if not self.testGroupHeaders then
+            self:CreateFakeGroupHeaders()
+            self:ReconfigureTestHeaders()
+        end
+        self.testGroupHeaders.enabled = true
+        -- for i=1,8 do
+        --     self.testGroupHeaders[i]:Show()
+        -- end
+        local groupLimit = groupSizes[sizeIndex]
+        if groupLimit == nil then
+            sizeIndex = 1
+            return self:DisableTestMode()
+        end
+        for i=1,8 do
+            local hdr = self.testGroupHeaders[i]
+            if i <= groupLimit then
+                hdr:Show()
+            else
+                hdr:Hide()
+            end
+        end
+        sizeIndex = sizeIndex + 1
     end
-    self.testGroupHeaders.enabled = true
-    for i=1,8 do
-        self.testGroupHeaders[i]:Show()
-    end
-end
-function Aptechka:DisableTestMode()
-    if not self.testGroupHeaders then return end
-    self.testGroupHeaders.enabled = false
-    for i=1,8 do
-        self.testGroupHeaders[i]:Hide()
+    function Aptechka:DisableTestMode()
+        if not self.testGroupHeaders then return end
+        self.testGroupHeaders.enabled = false
+        for i=1,8 do
+            self.testGroupHeaders[i]:Hide()
+        end
+        sizeIndex = 1
     end
 end
 
 function Aptechka:ToggleTestMode()
-    if self.testGroupHeaders and self.testGroupHeaders.enabled then
-        self:DisableTestMode()
-    else
-        self:EnableTestMode()
-    end
+    self:CycleTestMode()
 end
 
 function Aptechka:ReconfigureTestHeaders()
