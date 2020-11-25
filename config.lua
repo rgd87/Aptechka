@@ -547,6 +547,9 @@ config.autoload = {
 
 
 helpers.auraBlacklist = {
+    -- Maw Debuffs
+    -- [330030] = true, -- Gorgoan Lament Damage taken increased by 5%. Damage inflicted increased by 5%.
+
     -- cast blacklist is shared with auras
     [120651] = true, -- explosive orb affix cast
 
@@ -780,6 +783,7 @@ helpers.importantTargetedCasts = {
     [327648] = true, -- Forsworn Inquisitor, Internal Strife
 
     -- Theather of pain
+    [320063] = true, -- Challengers, Dessia, Slam
     [320069] = true, -- Challengers, Mortal Strike
     [323515] = true, -- Gorechop, Hateful Strike
     [320644] = true, -- Xav the Unfallen, Brutal Combo

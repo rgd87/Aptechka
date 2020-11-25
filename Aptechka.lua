@@ -401,6 +401,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self:RegisterEvent("INCOMING_SUMMON_CHANGED")
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    self:RegisterEvent("CINEMATIC_STOP")
 
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER_UPDATE")
@@ -1182,6 +1183,12 @@ end
 function Aptechka:PLAYER_ENTERING_WORLD(event)
     self:ForEachFrame(Aptechka.FrameUpdateIncomingSummon)
     Aptechka:ForEachFrame(purgeOldAuraEvents)
+end
+
+function Aptechka:CINEMATIC_STOP(event)
+    Aptechka:ForEachFrame(function(frame, unit)
+        Aptechka.FrameUpdatePower(frame, unit, "ALTERNATE")
+    end)
 end
 
 function Aptechka.FrameUpdateIncomingSummon(frame, unit)
