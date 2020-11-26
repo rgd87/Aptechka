@@ -440,7 +440,9 @@ local HealthBarSetColorBG = function(self, r,g,b,a, mul)
 end
 
 local SetJob_HealthBar = function(self, job, state, contentType)
+    local profile = Aptechka.db.profile
     local r,g,b,a
+    local r2,g2,b2
     if contentType == "HealthBar" then
         local isGradient = state.gradientHealthColor
         local c1 = state.healthColor1
@@ -455,16 +457,22 @@ local SetJob_HealthBar = function(self, job, state, contentType)
         else
             r,g,b = unpack(c1)
         end
+        if profile.useCustomBackgroundColor then
+            r2,g2,b2 = unpack(profile.customBackgroundColor)
+        else
+            r2,g2,b2 = r,g,b
+        end
     elseif job.color then
         local c = job.color
         r,g,b,a = unpack(c)
+        r2,g2,b2 = r,g,b
     end
     if b then
-        local mulFG = Aptechka.db.profile.fgColorMultiplier or 1
-        local mulBG = Aptechka.db.profile.bgColorMultiplier or 0.2
-        local bgAlpha = Aptechka.db.profile.bgAlpha
+        local mulFG = profile.fgColorMultiplier or 1
+        local mulBG = profile.bgColorMultiplier or 0.2
+        local bgAlpha = profile.bgAlpha
         self:SetColor(r,g,b,a,mulFG)
-        self.bg:SetColor(r,g,b, bgAlpha,mulBG)
+        self.bg:SetColor(r2,g2,b2, bgAlpha,mulBG)
     end
 end
 

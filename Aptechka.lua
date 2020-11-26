@@ -217,6 +217,8 @@ local defaults = {
         healthColor1 = {0,1,0},
         healthColor2 = {1,1,0},
         healthColor3 = {1,0,0},
+        useCustomBackgroundColor = false,
+        customBackgroundColor = {1,0,0},
         alphaOutOfRange = 0.45,
 
         scale = 1, --> into

@@ -558,6 +558,31 @@ function ns.MakeProfileSettings()
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
+                            useBGColor = {
+                                name = L"Use Separate Background Color",
+                                type = "toggle",
+                                width = 2,
+                                get = function(info) return Aptechka.db.profile.useCustomBackgroundColor end,
+                                set = function(info, v)
+                                    Aptechka.db.profile.useCustomBackgroundColor = not Aptechka.db.profile.useCustomBackgroundColor
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                                order = 7.1,
+                            },
+                            bgColor = {
+                                name = L"Background Color",
+                                type = 'color',
+                                order = 7.2,
+                                disabled = function() return not Aptechka.db.profile.useCustomBackgroundColor end,
+                                get = function(info)
+                                    local r,g,b = unpack(Aptechka.db.profile.customBackgroundColor)
+                                    return r,g,b
+                                end,
+                                set = function(info, r, g, b)
+                                    Aptechka.db.profile.customBackgroundColor = {r,g,b}
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                            },
                             rangeAlpha = {
                                 name = L"Out of Range Alpha"..newFeatureIcon,
                                 type = "range",
