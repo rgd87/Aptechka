@@ -2506,7 +2506,7 @@ Aptechka.AssignToSlot = AssignToSlot
 function Aptechka:UpdateWidget(frame, widget)
     local state = frame.state
     local widgetState = state.widgets[widget]
-    if not widgetState then
+    if not widgetState and widget ~= frame then
         widget:Hide()
         return
     end
