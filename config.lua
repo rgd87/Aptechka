@@ -549,6 +549,7 @@ config.autoload = {
 helpers.auraBlacklist = {
     -- Maw Debuffs
     -- [330030] = true, -- Gorgoan Lament Damage taken increased by 5%. Damage inflicted increased by 5%.
+    [326790] = true, -- Sanguine Depths, Naaru cooldown
 
     -- cast blacklist is shared with auras
     [120651] = true, -- explosive orb affix cast
