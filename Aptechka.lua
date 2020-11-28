@@ -223,6 +223,8 @@ local defaults = {
         healthColor1 = {0,1,0},
         healthColor2 = {1,1,0},
         healthColor3 = {1,0,0},
+        useCustomBackgroundColor = false,
+        customBackgroundColor = {1,0,0},
         alphaOutOfRange = 0.45,
 
         scale = 1, --> into
@@ -427,6 +429,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     ]]
 
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
+    self:RegisterEvent("CINEMATIC_STOP")
 
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER_UPDATE")
@@ -1270,6 +1273,12 @@ end
 
 function Aptechka:PLAYER_ENTERING_WORLD(event)
     Aptechka:ForEachFrame(purgeOldAuraEvents)
+end
+
+function Aptechka:CINEMATIC_STOP(event)
+    Aptechka:ForEachFrame(function(frame, unit)
+        Aptechka.FrameUpdatePower(frame, unit, "ALTERNATE")
+    end)
 end
 
 function Aptechka.FrameUpdateIncomingSummon(frame, unit)
@@ -2595,7 +2604,7 @@ Aptechka.AssignToSlot = AssignToSlot
 function Aptechka:UpdateWidget(frame, widget)
     local state = frame.state
     local widgetState = state.widgets[widget]
-    if not widgetState then
+    if not widgetState and widget ~= frame then
         widget:Hide()
         return
     end
