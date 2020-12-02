@@ -405,7 +405,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("CINEMATIC_STOP")
 
-    self:RegisterEvent("UNIT_TARGETABLE_CHANGED")
+    if not isClassic then
+        self:RegisterEvent("UNIT_TARGETABLE_CHANGED")
+    end
 
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER_UPDATE")
@@ -1198,8 +1200,10 @@ end
 
 -- Workaround for a bug when frames disappear when zoning into the Maw
 function Aptechka:UNIT_TARGETABLE_CHANGED(event)
-    for i, hdr in ipairs(group_headers) do
-        hdr:CycleAttribute()
+    if not InCombatLockdown() then
+        for i, hdr in ipairs(group_headers) do
+            hdr:CycleAttribute()
+        end
     end
 end
 
