@@ -405,6 +405,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("CINEMATIC_STOP")
 
+    self:RegisterEvent("UNIT_TARGETABLE_CHANGED")
+
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER_UPDATE")
         self:RegisterEvent("UNIT_MAXPOWER")
@@ -1193,6 +1195,14 @@ function Aptechka:CINEMATIC_STOP(event)
     end)
 end
 
+
+-- Workaround for a bug when frames disappear when zoning into the Maw
+function Aptechka:UNIT_TARGETABLE_CHANGED(event)
+    for i, hdr in ipairs(group_headers) do
+        hdr:CycleAttribute()
+    end
+end
+
 function Aptechka.FrameUpdateIncomingSummon(frame, unit)
     if HasIncomingSummon(unit) then
         local status = C_IncomingSummon.IncomingSummonStatus(unit);
@@ -1440,9 +1450,7 @@ Aptechka.OnRangeUpdate = function (self, time)
                 RosterUpdateOccured = nil
 
                 for i,hdr in pairs(group_headers) do
-                    local showSolo = hdr:GetAttribute("showSolo")
-                    hdr:SetAttribute("showSolo", not showSolo)
-                    hdr:SetAttribute("showSolo", showSolo)
+                    hdr:CycleAttribute()
                 end
             end
         end
@@ -1989,6 +1997,11 @@ function Aptechka.CreateHeader(self,group,petgroup)
         SecureHandlerSetFrameRef(f, 'clickcast_header', Clique.header)
     end
 
+    f.CycleAttribute = function(hdr) -- This is a way to force update on group header
+        local showSolo = hdr:GetAttribute("showSolo")
+        hdr:SetAttribute("showSolo", not showSolo)
+        hdr:SetAttribute("showSolo", showSolo)
+    end
 
     local xgap = AptechkaDB.profile.unitGap or config.unitGap
     local ygap = AptechkaDB.profile.unitGap or config.unitGap
