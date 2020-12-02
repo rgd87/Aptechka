@@ -550,6 +550,8 @@ helpers.auraBlacklist = {
     -- Maw Debuffs
     -- [330030] = true, -- Gorgoan Lament Damage taken increased by 5%. Damage inflicted increased by 5%.
     [326790] = true, -- Sanguine Depths, Naaru cooldown
+    [304510] = true, -- Ravendreth debuff
+    [337646] = true, -- Torghast: +25% chance to get critted
 
     -- cast blacklist is shared with auras
     [120651] = true, -- explosive orb affix cast
@@ -726,7 +728,8 @@ helpers.importantTargetedCasts = {
     [322936] = true, -- Halkias, Crumbling Slam
     [319941] = true, -- Echelon, Stone Shattering Leap
     -- [326450] = true, -- Depraved Houndmaster, Loyal Beasts (Gargon buff)
-    [325876] = true, -- Depraved Obliterator, Curse of Obliteration
+    [325523] = true, -- Depraved Darkblade, Deadly Thrust
+    -- [325876] = true, -- Depraved Obliterator, Curse of Obliteration
 
     -- Mists of Tirna Scithe
     [323137] = true, -- Droman Oulfarran, Bewildering Pollen

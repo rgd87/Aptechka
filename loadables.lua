@@ -66,13 +66,15 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
     },
     ["Halls of Atonement"] = {
         [322977] = { 322977, 1, "Halkias, Sinlight Visions" },
-        [325876] = { 325876, 1, "Depraved Obliterator, Curse of Obliteration" },
+        [325701] = { 325701, 1, "Depraved Collector, Siphon Life" },
     },
     ["Theater of Pain"] = {
-        -- [320069] = { 320069, 1, "Challengers, Mortal Strike" },
-        [323831] = { 323831, 1, "Mordretha, Death Grasp" },
+        [320069] = { 320069, 1, "Dessia the Decapitator, Mortal Strike" },
+        -- [323831] = { 323831, 1, "Mordretha, Death Grasp" },
         [330608] = { 330608, 1, "Rancid Gasbag, Vile Eruption" },
-        -- [330810] = { 330810, 1, "Shackled Soul, Bind Soul" },
+        [341949] = { 341949, 2, "Blighted Sludge-Spewer, Withering Blight from Withering Discharge" },
+        -- [319626] = { 319626, 1, "Kul'tharok, Phantasmal Parasite" },
+        [319539] = { 319539, 2, "Kul'tharok, Soulless" },
     },
     ["Spires of Ascension"] = {
         [323744] = { 323744, 1, "Forsworn Stealthclaw, Pounce" },
@@ -96,18 +98,18 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
     },
     ["Mists of Tirna Scithe"] = {
         -- [322563] = { 322563, 1, "Tred'ova, Marked Prey" },
-        [337253] = { 337253, 1, "Tred'ova, Parasitic Domination MC" },
-        [322557] = { 322557, 1, "Drust Soulcleaver, Soul Split" },
-        [321968] = { 321968, 2, "Tirnenn Villager, Bewildering Pollen" },
-        [322486] = { 322486, 1, "Tirnenn Villager, Overgrowth" },
-        [322487] = { 322487, 3, "Tirnenn Villager, Overgrowth Stun" },
+        -- [337253] = { 337253, 1, "Tred'ova, Parasitic Domination MC" },
+        [322557] = { 322557, 2, "Drust Soulcleaver, Soul Split" },
+        [321968] = { 321968, 1, "Tirnenn Villager, Bewildering Pollen" },
+        -- [322486] = { 322486, 1, "Tirnenn Villager, Overgrowth" },
+        [322487] = { 322487, 1, "Tirnenn Villager, Overgrowth Stun" },
         [323137] = { 321968, 1, "Droman Oulfarran, Bewildering Pollen" },
         [321891] = { 321891, 1, "Mistcaller Vulpin, Freeze Tag Fixation" },
         -- 325224 -- Mistveil Stinger, Anima Injection, If Anima Injection expires, Anima Detonation is triggered.
     },
     ["De Other Side"] = {
         [332605] = { 332605, 1, "Atal'ai Hoodoo Hexxer, Hex" },
-        [334505] = { 334505, 1, "Shimmerdust Sleep" },
+        [339769] = { 339769, 1, "Shimmerdust Sleep" },
     },
     ["Mythic+ 8.3"] = {
         [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
