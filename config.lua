@@ -467,6 +467,9 @@ if playerClass == "SHAMAN" then
         DispelTypes("Magic", "Curse"),
     }
 end
+if playerClass == "HUNTER" then
+    A{ id = 136, template = "SurvivalCD" } -- Mend Pet
+end
 if playerClass == "DRUID" then
     --A{ id = 1126,  type = "HELPFUL", assignto = set("raidbuff"), color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
 
