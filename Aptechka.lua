@@ -876,12 +876,9 @@ function Aptechka:ReconfigureProtected()
             f:SetHeight(height)
         end
 
-        local groupEnabled = self:IsGroupEnabled(groupId)
-        if groupId == 9 then groupEnabled = self.db.profile.petGroup end
-        if groupEnabled then
-            header:Enable()
-        else
-            header:Disable()
+        header:UpdateVisibility() -- checks if group is enabled in group filter
+        if Aptechka.db.global.singleHeaderMode then
+            header:SetAttribute("groupFilter", Aptechka:GetGroupFilterAsString())
         end
     end
 
@@ -1934,8 +1931,8 @@ local OnAttributeChanged = function(self, attrname, unit)
 end
 
 
-
-local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
+local AptechkaHeader = {}
+function AptechkaHeader.MakePoints(prv_group, notreverse, unitGrowth, groupGrowth)
         local p1, p2
         local xgap = 0
         local ygap = AptechkaDB.profile.groupGap or config.groupGap
@@ -1960,13 +1957,12 @@ local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         end
         return p1, prv_group, p2, xgap, ygap
 end
-Aptechka.arrangeHeaders = arrangeHeaders
-local AptechkaHeader_Disable = function(hdr)
+function AptechkaHeader.Disable(hdr)
     hdr:SetAttribute("showRaid", false)
     hdr:SetAttribute("showParty", false)
     hdr:SetAttribute("showSolo", false)
 end
-local AptechkaHeader_Enable = function(hdr)
+function AptechkaHeader.Enable(hdr)
     local groupID = hdr:GetID()
     hdr:SetAttribute("showRaid", AptechkaDB.profile.showRaid)
     if groupID >= 2 and groupID <= 8 then
@@ -1977,6 +1973,32 @@ local AptechkaHeader_Enable = function(hdr)
         hdr:SetAttribute("showSolo", AptechkaDB.profile.showSolo)
     end
 end
+function AptechkaHeader:CycleAttribute() -- This is a way to force update on group header
+    local showSolo = self:GetAttribute("showSolo")
+    self:SetAttribute("showSolo", not showSolo)
+    self:SetAttribute("showSolo", showSolo)
+end
+function AptechkaHeader.UpdateVisibility(header)
+    local groupId = header:GetID()
+    local groupEnabled = Aptechka:IsGroupEnabled(groupId)
+    if groupId == 9 then groupEnabled = Aptechka.db.profile.petGroup end
+    if groupEnabled then
+        header:Enable()
+    else
+        header:Disable()
+    end
+end
+
+function AptechkaHeader:GetGroupFilterAsString()
+    for i=1,8 do
+        local t = {}
+        if Aptechka:IsGroupEnabled(i) then
+            table.insert(t, i)
+        end
+        return table.concat(t, ",")
+    end
+end
+
 function Aptechka:IsGroupEnabled(id)
     return helpers.CheckBit(self.db.profile.groupFilter, id)
 end
@@ -1999,12 +2021,6 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetAttribute("template", "SecureUnitButtonTemplate, SecureHandlerStateTemplate, SecureHandlerEnterLeaveTemplate")
     if(Clique) then
         SecureHandlerSetFrameRef(f, 'clickcast_header', Clique.header)
-    end
-
-    f.CycleAttribute = function(hdr) -- This is a way to force update on group header
-        local showSolo = hdr:GetAttribute("showSolo")
-        hdr:SetAttribute("showSolo", not showSolo)
-        hdr:SetAttribute("showSolo", showSolo)
     end
 
     local xgap = AptechkaDB.profile.unitGap or config.unitGap
@@ -2032,6 +2048,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
     then
         if not Aptechka.db.global.singleHeaderMode then
             f:SetAttribute("groupFilter", group)
+        else
+            f:SetAttribute("groupFilter", Aptechka:GetGroupFilterAsString())
         end
         if AptechkaDB.global.sortMethod == "ROLE" then
             f:SetAttribute("groupBy", "ASSIGNEDROLE")
@@ -2049,9 +2067,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
     --our group header doesn't really inherits SecureHandlerBaseTemplate
 
     f:SetID(group)
-    f.Enable = AptechkaHeader_Enable
-    f.Disable = AptechkaHeader_Disable
-    f:Enable()
+    Mixin(f, AptechkaHeader)
+    f:UpdateVisibility()
     f:SetAttribute("showPlayer", true)
     f.initialConfigFunction = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
@@ -2173,15 +2190,15 @@ do -- this function supposed to be called from layout switchers
             if groupIndex == 1 then
                 hdr:SetPoint(anchorpoint, anchors[groupIndex], reverse(anchorpoint),0,0)
             elseif petgroup then
-                hdr:SetPoint(arrangeHeaders(headers[1], nil, unitGrowth, reverse(groupGrowth)))
+                hdr:SetPoint(AptechkaHeader.MakePoints(headers[1], nil, unitGrowth, reverse(groupGrowth)))
             else
                 if groupIndex >= prevRowIndex + maxGroupsInRow then
                     local prevRowHeader = headers[prevRowIndex]
-                    hdr:SetPoint(arrangeHeaders(prevRowHeader, nil, unitGrowth, groupGrowth))
+                    hdr:SetPoint(AptechkaHeader.MakePoints(prevRowHeader, nil, unitGrowth, groupGrowth))
                     prevRowIndex = groupIndex
                 else
                     local prevHeader = headers[groupIndex-1]
-                    hdr:SetPoint(arrangeHeaders(prevHeader, nil, groupGrowth, groupRowGrowth))
+                    hdr:SetPoint(AptechkaHeader.MakePoints(prevHeader, nil, groupGrowth, groupRowGrowth))
                 end
             end
             groupIndex = groupIndex + 1
