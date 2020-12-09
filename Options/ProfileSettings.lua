@@ -225,13 +225,13 @@ function ns.MakeProfileSettings()
                         end
                     },
                     showCasts = {
-                        name = L"Show Casts",
+                        name = L"Show Incoming Casts",
                         disabled = isClassic,
                         type = "toggle",
                         get = function(info) return Aptechka.db.profile.showCasts end,
                         set = function(info, v)
                             Aptechka.db.profile.showCasts = not Aptechka.db.profile.showCasts
-                            Aptechka:UpdateCastsConfig()
+                            Aptechka:UpdateIncomingCastsConfig()
                         end,
                         order = 12,
                     },

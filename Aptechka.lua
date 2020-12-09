@@ -469,7 +469,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
     self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
 
-    self:UpdateCastsConfig()
+    self:UpdateIncomingCastsConfig()
 
 
     -- AptechkaDB.global.useCombatLogHealthUpdates = false
@@ -761,7 +761,7 @@ function Aptechka:Reconfigure()
     self:UpdateDebuffScanningMethod()
     self:UpdateRaidIconsConfig()
     self:UpdateAggroConfig()
-    self:UpdateCastsConfig()
+    self:UpdateIncomingCastsConfig()
 end
 function Aptechka:RefreshAllUnitsHealth()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateHealth)
@@ -3624,7 +3624,7 @@ function Aptechka:VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED(event, member
 end
 
 
-function Aptechka:UpdateCastsConfig()
+function Aptechka:UpdateIncomingCastsConfig()
     LibTargetedCasts = LibStub("LibTargetedCasts", true)
     if LibTargetedCasts then
         if AptechkaDB.profile.showCasts then
