@@ -555,6 +555,7 @@ helpers.auraBlacklist = {
     [326790] = true, -- Sanguine Depths, Naaru cooldown
     [304510] = true, -- Ravendreth debuff
     [337646] = true, -- Torghast: +25% chance to get critted
+    [320227] = true, -- Ardenweald debuff
 
     -- cast blacklist is shared with auras
     [120651] = true, -- explosive orb affix cast

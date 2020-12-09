@@ -52,12 +52,12 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
 
     ["Castle Nathria"] = {
 
-        [334971] = { 334971, 1, "Huntsman Altimor, Margore, Jagged Claws" },
+        -- [334971] = { 334971, 1, "Huntsman Altimor, Margore, Jagged Claws" },
         [341473] = { 341473, 1, "Bleakwing Assassin, Crimson Flurry" },
         [325236] = { 325236, 4, "Artificer Xy'mox, Glyph of Destruction" },
         [326302] = { 326302, 3, "Artificer Xy'mox, Stasis Trap" },
         [340860] = { 340860, 1, "Artificer Xy'mox, Withering Touch" },
-        [329298] = { 329298, 1, "Hungering Destroyer, Gluttonous Miasma" },
+        [329298] = { 329298, 3, "Hungering Destroyer, Gluttonous Miasma" },
         -- [334064] = { 334064, 1, "Hungering Destroyer, Volatile Ejection" },
         [325382] = { 325382, 1, "Lady Inerva Darkvein, Warped Desires" },
         [334771] = { 334771, 1, "Stone Legion Generals, Kaal, Heart Hemorrhage" },
