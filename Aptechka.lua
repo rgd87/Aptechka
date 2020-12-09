@@ -168,6 +168,7 @@ local defaults = {
             HEALER = {
                 solo = "Default",
                 party = "Default",
+                arena = "Default",
                 smallRaid = "Default",
                 mediumRaid = "Default",
                 bigRaid = "Default",
@@ -176,6 +177,7 @@ local defaults = {
             DAMAGER = {
                 solo = "Default",
                 party = "Default",
+                arena = "Default",
                 smallRaid = "Default",
                 mediumRaid = "Default",
                 bigRaid = "Default",
@@ -1184,6 +1186,7 @@ local purgeOldAuraEvents = function(frame)
 end
 
 function Aptechka:PLAYER_ENTERING_WORLD(event)
+    Aptechka:LayoutUpdate()
     self:ForEachFrame(Aptechka.FrameUpdateIncomingSummon)
     Aptechka:ForEachFrame(purgeOldAuraEvents)
 end
@@ -1640,7 +1643,10 @@ do
 end
 
 function Aptechka:GetCurrentGroupType()
-    if IsInRaid() then
+    local _, instanceType = GetInstanceInfo()
+    if instanceType == "arena" then
+        return "arena"
+    elseif IsInRaid() then
         local numMembers = GetNumGroupMembers()
         if numMembers > 30 then
             return "fullRaid"

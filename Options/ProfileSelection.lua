@@ -95,6 +95,35 @@ function ns.MakeProfileSelection()
                         end,
                     },
 
+                    HEALER_arena = {
+                        name = string.format("%s: %s", L"HEALER", L"Arena"),
+                        type = 'select',
+                        order = 4.1,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.HEALER.arena end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.HEALER.arena = v
+                            Aptechka:LayoutUpdate()
+                        end,
+                    },
+                    DAMAGER_arena = {
+                        name = string.format("%s: %s", L"DAMAGER", L"Arena"),
+                        type = 'select',
+                        order = 4.2,
+                        width = 1.6,
+                        values = function()
+                            return GetProfileList(Aptechka.db)
+                        end,
+                        get = function(info) return Aptechka.db.global.profileSelection.DAMAGER.arena end,
+                        set = function(info, v)
+                            Aptechka.db.global.profileSelection.DAMAGER.arena = v
+                            Aptechka:LayoutUpdate()
+                        end,
+                    },
+
 
                     HEALER_smallRaid = {
                         name = string.format("%s: %s %s", L"HEALER", L"Small Raid", "(6-10)"),

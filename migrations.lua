@@ -1,7 +1,7 @@
 local addonName, helpers = ...
 
 do
-    local CURRENT_DB_VERSION = 12
+    local CURRENT_DB_VERSION = 13
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -389,6 +389,17 @@ do
             end
 
             db.DB_VERSION = 12
+        end
+
+        if db.DB_VERSION == 12 then
+            if db.global and db.global.profileSelection and db.global.profileSelection.HEALER and db.global.profileSelection.HEALER.party then
+                db.global.profileSelection.HEALER.arena = db.global.profileSelection.HEALER.party
+            end
+            if db.global and db.global.profileSelection and db.global.profileSelection.DAMAGER and db.global.profileSelection.DAMAGER.party then
+                db.global.profileSelection.DAMAGER.arena = db.global.profileSelection.DAMAGER.party
+            end
+
+            db.DB_VERSION = 13
         end
 
         db.DB_VERSION = CURRENT_DB_VERSION
