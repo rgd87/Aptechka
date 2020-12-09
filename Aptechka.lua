@@ -204,6 +204,7 @@ local defaults = {
         showRaid = true,
         cropNamesLen = 7,
         showCasts = true,
+        showGroupCasts = false,
         showAggro = true,
         petGroup = false,
         showRaidIcons = true,
@@ -470,6 +471,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
 
     self:UpdateIncomingCastsConfig()
+    self:UpdateOutgoingCastsConfig()
 
 
     -- AptechkaDB.global.useCombatLogHealthUpdates = false
@@ -762,6 +764,7 @@ function Aptechka:Reconfigure()
     self:UpdateRaidIconsConfig()
     self:UpdateAggroConfig()
     self:UpdateIncomingCastsConfig()
+    self:UpdateOutgoingCastsConfig()
 end
 function Aptechka:RefreshAllUnitsHealth()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateHealth)
@@ -3667,7 +3670,7 @@ function Aptechka.FrameUpdateIncomingCast(frame, unit)
     if minSrcGUID then
         local srcGUID, dstGUID, castType, name, text, icon, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
         local duration = endTime-startTime
-        FrameSetJob(frame, config.IncomingCastStatus, true, "CAST", castType, name, duration, endTime, totalCasts, icon, spellID)
+        FrameSetJob(frame, config.IncomingCastStatus, true, "CAST", castType, name, duration, endTime, totalCasts, icon, spellID, castID)
     else
         FrameSetJob(frame, config.IncomingCastStatus, false)
     end
@@ -3687,3 +3690,86 @@ end
 function Aptechka:GetTemplateOpts(name)
     return AptechkaConfigMerged.templates[name]
 end
+
+
+function Aptechka:UpdateOutgoingCastsConfig()
+    if AptechkaDB.profile.showGroupCasts then
+        self:RegisterEvent("UNIT_SPELLCAST_START")
+        self:RegisterEvent("UNIT_SPELLCAST_DELAYED")
+        self:RegisterEvent("UNIT_SPELLCAST_STOP")
+        self:RegisterEvent("UNIT_SPELLCAST_FAILED")
+        self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+        self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+        self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+        self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+    else
+        self:UnregisterEvent("UNIT_SPELLCAST_START")
+        self:UnregisterEvent("UNIT_SPELLCAST_DELAYED")
+        self:UnregisterEvent("UNIT_SPELLCAST_STOP")
+        self:UnregisterEvent("UNIT_SPELLCAST_FAILED")
+        self:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+        self:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+        self:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+        self:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+
+        if self.isInitialized then
+            self:ForEachFrame(function(frame)
+                FrameSetJob(frame, config.OutgoingCastStatus, false)
+            end)
+        end
+    end
+end
+
+
+local function Frame_CastStart(frame, unit)
+    local name, text, icon, startTime, endTime, isTradeSkill, castID2, notInterruptible, spellID = UnitCastingInfo(unit)
+    if not name then
+        return FrameSetJob(frame, config.OutgoingCastStatus, false)
+    end
+    local castType = "CAST"
+    endTime = endTime / 1000
+    startTime = startTime / 1000
+    local duration = endTime-startTime
+    frame.state.castID = castID2
+    local count = 1
+    FrameSetJob(frame, config.OutgoingCastStatus, true, "CAST", castType, name, duration, endTime, count, icon, spellID, castID2)
+end
+function Aptechka.UNIT_SPELLCAST_START(self,event, unit, castID, spellID)
+    Aptechka:ForEachUnitFrame(unit, Frame_CastStart)
+end
+
+local function Frame_ChannelStart(frame, unit)
+    local name, text, icon, startTime, endTime, isTradeSkill, castID2, notInterruptible, spellID = UnitChannelInfo(unit)
+    if not name then
+        return FrameSetJob(frame, config.OutgoingCastStatus, false)
+    end
+    local castType = "CHANNEL"
+    endTime = endTime / 1000
+    startTime = startTime / 1000
+    local duration = endTime-startTime
+    local count = 1
+    FrameSetJob(frame, config.OutgoingCastStatus, true, "CAST", castType, name, duration, endTime, count, icon, spellID, castID2)
+end
+Aptechka.UNIT_SPELLCAST_DELAYED = Aptechka.UNIT_SPELLCAST_START
+Aptechka.UNIT_SPELLCAST_CHANNEL_UPDATE = Aptechka.UNIT_SPELLCAST_CHANNEL_START
+function Aptechka.UNIT_SPELLCAST_CHANNEL_START(self,event, unit, castID, spellID)
+    Aptechka:ForEachUnitFrame(unit, Frame_ChannelStart)
+end
+
+local function Frame_CastStop(frame, unit)
+    FrameSetJob(frame, config.OutgoingCastStatus, false)
+end
+function Aptechka.UNIT_SPELLCAST_STOP(self,event, unit, castID, spellID)
+    Aptechka:ForEachUnitFrame(unit, Frame_CastStop)
+end
+Aptechka.UNIT_SPELLCAST_CHANNEL_STOP = Aptechka.UNIT_SPELLCAST_STOP
+
+local function Frame_CastFailed(frame, unit, argCastID)
+    if frame.state.castID == argCastID then
+        FrameSetJob(frame, config.OutgoingCastStatus, false)
+    end
+end
+function Aptechka.UNIT_SPELLCAST_FAILED(self, event, unit, castID)
+    Aptechka:ForEachUnitFrame(unit, Frame_CastFailed, castID)
+end
+Aptechka.UNIT_SPELLCAST_INTERRUPTED = Aptechka.UNIT_SPELLCAST_FAILED
