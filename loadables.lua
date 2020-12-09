@@ -51,7 +51,6 @@ AptechkaDefaultConfig.MapIDs = {
 AptechkaDefaultConfig.defaultDebuffHighlights = {
 
     ["Castle Nathria"] = {
-
         -- [334971] = { 334971, 1, "Huntsman Altimor, Margore, Jagged Claws" },
         [341473] = { 341473, 1, "Bleakwing Assassin, Crimson Flurry" },
         [325236] = { 325236, 4, "Artificer Xy'mox, Glyph of Destruction" },
@@ -65,14 +64,15 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         -- [25163] = { 25163, 3, "Placeholder Disgusting Oozeling" },
     },
     ["Halls of Atonement"] = {
+        [326607] = { 326607, 3, "Stoneborn Reaver, Turn to Stone" },
         [322977] = { 322977, 1, "Halkias, Sinlight Visions" },
         [325701] = { 325701, 1, "Depraved Collector, Siphon Life" },
     },
     ["Theater of Pain"] = {
         [320069] = { 320069, 1, "Dessia the Decapitator, Mortal Strike" },
-        -- [323831] = { 323831, 1, "Mordretha, Death Grasp" },
-        [330608] = { 330608, 1, "Rancid Gasbag, Vile Eruption" },
-        [341949] = { 341949, 2, "Blighted Sludge-Spewer, Withering Blight from Withering Discharge" },
+        [323831] = { 323831, 3, "Mordretha, Death Grasp" },
+        [330608] = { 330608, 2, "Rancid Gasbag, Vile Eruption" },
+        [341949] = { 341949, 1, "Blighted Sludge-Spewer, Withering Blight from Withering Discharge" },
         -- [319626] = { 319626, 1, "Kul'tharok, Phantasmal Parasite" },
         [319539] = { 319539, 2, "Kul'tharok, Soulless" },
     },
@@ -81,13 +81,15 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         [324154] = { 324154, 1, "Ventunax, Dark Stride" },
     },
     ["Sanguine Depths"] = {
-        [322554] = { 322554, 1, "Executor Tarvold, Castigate" },
+        [322554] = { 322554, 4, "Executor Tarvold, Castigate" },
+        [326836] = { 326836, 3, "Oppressor/Overseer, Curse of Suppression (Silence)" },
+        [336277] = { 336277, 2, "Remnant of Fury, Explosive Anger" },
     },
     ["The Necrotic Wake"] = {
         -- 320596/heaving-retch -- Blightbone dot
         -- 320462 -- Necrotic bolt debuff, blacklist?
         -- [323198] = { 323198, 1, "Nalthor, Dark Exile" },
-        [334748] = { 334748, 1, "Corpse Harvester, Drain Fluids" },
+        [334748] = { 334748, 3, "Corpse Harvester, Drain Fluids" },
         [338606] = { 338606, 1, "Separation Assistant, Morbid Fixation" },
         [343556] = { 343556, 1, "Surgeon Stitchflesh, Morbid Fixation" },
 
@@ -109,7 +111,7 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
     },
     ["De Other Side"] = {
         [332605] = { 332605, 1, "Atal'ai Hoodoo Hexxer, Hex" },
-        [339769] = { 339769, 1, "Shimmerdust Sleep" },
+        [334505] = { 334505, 3, "Shimmerdust Sleep" },
     },
     ["Mythic+ 8.3"] = {
         [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
