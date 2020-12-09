@@ -538,40 +538,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
-    --[[ --autoloading
-    for _,spell_group in pairs(config.autoload) do
-        config.LoadableDebuffs[spell_group]()
-        loaded[spell_group] = true
-    end
-    ]]
-    --raid/pvp debuffs loading
-    local loader = CreateFrame("Frame")
-    loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-    loader:RegisterEvent("PLAYER_ENTERING_WORLD")
-    local mapIDs = config.MapIDs
-
-    local CheckCurrentMap = function()
-        local instance
-        local _, instanceType = GetInstanceInfo()
-        if instanceType == "arena" or instanceType == "pvp" then
-            instance = "PvP"
-        else
-            local uiMapID = C_Map.GetBestMapForUnit("player")
-            instance = mapIDs[uiMapID]
-        end
-        if not instance then return end
-        local add = config.LoadableDebuffs[instance]
-        if add and not loaded[instance] then
-            add()
-            print (AptechkaString..instance.." debuffs loaded.")
-            loaded[instance] = true
-        end
-    end
-
-    loader:SetScript("OnEvent",function (self,event)
-        C_Timer.After(2, CheckCurrentMap)
-    end)
-
     if not self.db.global.LDBData.hide then
         Aptechka:CreteMinimapIcon()
     end
