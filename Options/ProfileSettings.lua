@@ -507,7 +507,7 @@ function ns.MakeProfileSettings()
                             color1 = {
                                 name = L"Base Color",
                                 type = 'color',
-                                width = 2,
+                                width = 1,
                                 order = 3,
                                 disabled = function() return Aptechka.db.profile.healthColorByClass end,
                                 get = function(info)
@@ -516,6 +516,21 @@ function ns.MakeProfileSettings()
                                 end,
                                 set = function(info, r, g, b)
                                     Aptechka.db.profile.healthColor1 = {r,g,b}
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                            },
+                            petColor = {
+                                name = L"Pet Class Color",
+                                type = 'color',
+                                width = 1,
+                                order = 3.1,
+                                disabled = function() return not Aptechka.db.profile.healthColorByClass end,
+                                get = function(info)
+                                    local r,g,b = unpack(Aptechka.db.profile.petColor)
+                                    return r,g,b
+                                end,
+                                set = function(info, r, g, b)
+                                    Aptechka.db.profile.petColor = {r,g,b}
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },

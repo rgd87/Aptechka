@@ -12,7 +12,6 @@ local set = helpers.set
 
 config.frameStrata = "MEDIUM"
 config.maxgroups = 8
-config.petcolor = {1,.5,.5}
 --A maximum of 5 pets can be displayed.
 
 config.defaultFont = "AlegreyaSans-Medium"

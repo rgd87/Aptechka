@@ -222,6 +222,7 @@ local defaults = {
         healthColor3 = {1,0,0},
         useCustomBackgroundColor = false,
         customBackgroundColor = {1,0,0},
+        petColor = {1, 0.5, 0.5},
         alphaOutOfRange = 0.45,
 
         scale = 1, --> into
@@ -1763,8 +1764,10 @@ function Aptechka.FrameColorize(frame, unit)
 
     local state = frame.state
 
+    local profile = Aptechka.db.profile
+
     if hdr.isPetGroup then
-        state.classColor = config.petcolor
+        state.classColor = profile.petColor
     else
         local _,class = UnitClass(unit)
         if class then
@@ -1772,8 +1775,6 @@ function Aptechka.FrameColorize(frame, unit)
             state.classColor = {color.r,color.g,color.b}
         end
     end
-
-    local profile = Aptechka.db.profile
 
     if profile.healthColorByClass then
         state.healthColor1 = state.classColor
