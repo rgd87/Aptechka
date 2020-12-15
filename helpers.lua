@@ -457,11 +457,8 @@ do
     end
 
     function helpers.UnsetBit(num, index)
-        local n = pow(2,index-1)
-        if n >= num then
-            return num - n
-        end
-        return num
+        local n = bit.bnot( pow(2,index-1))
+        return band(num, n)
     end
 end
 

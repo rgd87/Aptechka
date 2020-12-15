@@ -1242,16 +1242,6 @@ local SetJob_Icon = function(self, job, state, contentType, ...)
     end
 
     self.texture:SetTexture(icon or 136190)
-    -- if icon then
-    --     self.texture:SetTexture(icon)
-    --     self.texture:SetVertexColor(1,1,1)
-    -- else
-    --     self.texture:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-    --     self.texture:SetVertexColor(r,g,b)
-    -- end
-
-    -- local scale = job.scale or 1
-    -- self:SetScale(scale)
 
     if count and count > 1 then
         self.stacktext:SetText(count)
@@ -1838,9 +1828,26 @@ Aptechka.Widget.BarIconArray.Reconf = Aptechka.Widget.BarArray.Reconf
 ----------------------------------------------------------
 
 local SetJob_ProgressIcon = function(self, job, state, contentType, ...)
-    SetJob_Icon(self, job, state, contentType, ...)
-
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
+
+    --[[== Copy of SetJob_Icon ==]]
+    if timerType == "TIMER" then
+        local duration, expirationTime = cur, max
+        self.cd:SetReverse(not isReversed)
+        self.cd:SetCooldown(expirationTime - duration, duration)
+        self.cd:Show()
+    else
+        self.cd:Hide()
+    end
+
+    self.texture:SetTexture(icon or 136190)
+
+    if count and count > 1 then
+        self.stacktext:SetText(count)
+    else
+        self.stacktext:SetText()
+    end
+    --[[===]]
 
     self.cd:SetReverse(isReversed)
 

@@ -233,4 +233,6 @@ globals = {
     "GameTooltip_SetTitle",
     "GameTooltip_AddInstructionLine",
     "PlayerFrame",
+    "UnitCastingInfo",
+    "UnitChannelInfo",
 }

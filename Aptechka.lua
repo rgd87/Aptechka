@@ -174,6 +174,7 @@ local defaults = {
             HEALER = {
                 solo = "Default",
                 party = "Default",
+                arena = "Default",
                 smallRaid = "Default",
                 mediumRaid = "Default",
                 bigRaid = "Default",
@@ -182,6 +183,7 @@ local defaults = {
             DAMAGER = {
                 solo = "Default",
                 party = "Default",
+                arena = "Default",
                 smallRaid = "Default",
                 mediumRaid = "Default",
                 bigRaid = "Default",
@@ -208,6 +210,7 @@ local defaults = {
         showRaid = true,
         cropNamesLen = 7,
         showCasts = true,
+        showGroupCasts = false,
         showAggro = true,
         petGroup = false,
         showRaidIcons = true,
@@ -225,6 +228,7 @@ local defaults = {
         healthColor3 = {1,0,0},
         useCustomBackgroundColor = false,
         customBackgroundColor = {1,0,0},
+        petColor = {1, 0.5, 0.5},
         alphaOutOfRange = 0.45,
 
         scale = 1, --> into
@@ -431,6 +435,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("CINEMATIC_STOP")
 
+    if not isClassic then
+        self:RegisterEvent("UNIT_TARGETABLE_CHANGED")
+    end
+
     if not config.disableManaBar then
         self:RegisterEvent("UNIT_POWER_UPDATE")
         self:RegisterEvent("UNIT_MAXPOWER")
@@ -492,7 +500,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
 
-    self:UpdateCastsConfig()
+    self:UpdateIncomingCastsConfig()
+    self:UpdateOutgoingCastsConfig()
 
 
     -- AptechkaDB.global.useCombatLogHealthUpdates = false
@@ -560,40 +569,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-
-    --[[ --autoloading
-    for _,spell_group in pairs(config.autoload) do
-        config.LoadableDebuffs[spell_group]()
-        loaded[spell_group] = true
-    end
-    ]]
-    --raid/pvp debuffs loading
-    local loader = CreateFrame("Frame")
-    loader:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-    loader:RegisterEvent("PLAYER_ENTERING_WORLD")
-    local mapIDs = config.MapIDs
-
-    local CheckCurrentMap = function()
-        local instance
-        local _, instanceType = GetInstanceInfo()
-        if instanceType == "arena" or instanceType == "pvp" then
-            instance = "PvP"
-        else
-            local uiMapID = C_Map.GetBestMapForUnit("player")
-            instance = mapIDs[uiMapID]
-        end
-        if not instance then return end
-        local add = config.LoadableDebuffs[instance]
-        if add and not loaded[instance] then
-            add()
-            print (AptechkaString..instance.." debuffs loaded.")
-            loaded[instance] = true
-        end
-    end
-
-    loader:SetScript("OnEvent",function (self,event)
-        C_Timer.After(2, CheckCurrentMap)
-    end)
 
     if not self.db.global.LDBData.hide then
         Aptechka:CreteMinimapIcon()
@@ -821,7 +796,8 @@ function Aptechka:Reconfigure()
     self:UpdateDebuffScanningMethod()
     self:UpdateRaidIconsConfig()
     self:UpdateAggroConfig()
-    self:UpdateCastsConfig()
+    self:UpdateIncomingCastsConfig()
+    self:UpdateOutgoingCastsConfig()
 end
 function Aptechka:RefreshAllUnitsHealth()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateHealth)
@@ -916,12 +892,9 @@ function Aptechka:ReconfigureProtected()
             end
         end
 
-        local groupEnabled = self:IsGroupEnabled(groupId)
-        if groupId == 9 then groupEnabled = self.db.profile.petGroup end
-        if groupEnabled then
-            header:Enable()
-        else
-            header:Disable()
+        header:UpdateVisibility() -- checks if group is enabled in group filter
+        if Aptechka.db.global.singleHeaderMode then
+            header:SetAttribute("groupFilter", Aptechka:GetGroupFilterAsString())
         end
     end
 
@@ -1272,6 +1245,7 @@ local purgeOldAuraEvents = function(frame)
 end
 
 function Aptechka:PLAYER_ENTERING_WORLD(event)
+    Aptechka:LayoutUpdate()
     Aptechka:ForEachFrame(purgeOldAuraEvents)
 end
 
@@ -1279,6 +1253,16 @@ function Aptechka:CINEMATIC_STOP(event)
     Aptechka:ForEachFrame(function(frame, unit)
         Aptechka.FrameUpdatePower(frame, unit, "ALTERNATE")
     end)
+end
+
+
+-- Workaround for a bug when frames disappear when zoning into the Maw
+function Aptechka:UNIT_TARGETABLE_CHANGED(event)
+    if not InCombatLockdown() then
+        for i, hdr in ipairs(group_headers) do
+            hdr:CycleAttribute()
+        end
+    end
 end
 
 function Aptechka.FrameUpdateIncomingSummon(frame, unit)
@@ -1528,9 +1512,7 @@ Aptechka.OnRangeUpdate = function (self, time)
                 RosterUpdateOccured = nil
 
                 for i,hdr in pairs(group_headers) do
-                    local showSolo = hdr:GetAttribute("showSolo")
-                    hdr:SetAttribute("showSolo", not showSolo)
-                    hdr:SetAttribute("showSolo", showSolo)
+                    hdr:CycleAttribute()
                 end
             end
         end
@@ -1719,7 +1701,10 @@ do
 end
 
 function Aptechka:GetCurrentGroupType()
-    if IsInRaid() then
+    local _, instanceType = GetInstanceInfo()
+    if instanceType == "arena" then
+        return "arena"
+    elseif IsInRaid() then
         local numMembers = GetNumGroupMembers()
         if numMembers > 30 then
             return "fullRaid"
@@ -1867,8 +1852,10 @@ function Aptechka.FrameColorize(frame, unit)
 
     local state = frame.state
 
+    local profile = Aptechka.db.profile
+
     if hdr.isPetGroup then
-        state.classColor = config.petcolor
+        state.classColor = profile.petColor
     else
         local _,class = UnitClass(unit)
         if class then
@@ -1876,8 +1863,6 @@ function Aptechka.FrameColorize(frame, unit)
             state.classColor = {color.r,color.g,color.b}
         end
     end
-
-    local profile = Aptechka.db.profile
 
     if profile.healthColorByClass then
         state.healthColor1 = state.classColor
@@ -2010,8 +1995,8 @@ local OnAttributeChanged = function(self, attrname, unit)
 end
 
 
-
-local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
+local AptechkaHeader = {}
+function AptechkaHeader.MakePoints(prv_group, notreverse, unitGrowth, groupGrowth)
         local p1, p2
         local xgap = 0
         local ygap = AptechkaDB.profile.groupGap or config.groupGap
@@ -2036,13 +2021,12 @@ local arrangeHeaders = function(prv_group, notreverse, unitGrowth, groupGrowth)
         end
         return p1, prv_group, p2, xgap, ygap
 end
-Aptechka.arrangeHeaders = arrangeHeaders
-local AptechkaHeader_Disable = function(hdr)
+function AptechkaHeader.Disable(hdr)
     hdr:SetAttribute("showRaid", false)
     hdr:SetAttribute("showParty", false)
     hdr:SetAttribute("showSolo", false)
 end
-local AptechkaHeader_Enable = function(hdr)
+function AptechkaHeader.Enable(hdr)
     local groupID = hdr:GetID()
     hdr:SetAttribute("showRaid", AptechkaDB.profile.showRaid)
     if groupID >= 2 and groupID <= 8 then
@@ -2053,6 +2037,32 @@ local AptechkaHeader_Enable = function(hdr)
         hdr:SetAttribute("showSolo", AptechkaDB.profile.showSolo)
     end
 end
+function AptechkaHeader:CycleAttribute() -- This is a way to force update on group header
+    local showSolo = self:GetAttribute("showSolo")
+    self:SetAttribute("showSolo", not showSolo)
+    self:SetAttribute("showSolo", showSolo)
+end
+function AptechkaHeader.UpdateVisibility(header)
+    local groupId = header:GetID()
+    local groupEnabled = Aptechka:IsGroupEnabled(groupId)
+    if groupId == 9 then groupEnabled = Aptechka.db.profile.petGroup end
+    if groupEnabled then
+        header:Enable()
+    else
+        header:Disable()
+    end
+end
+
+function AptechkaHeader:GetGroupFilterAsString()
+    for i=1,8 do
+        local t = {}
+        if Aptechka:IsGroupEnabled(i) then
+            table.insert(t, i)
+        end
+        return table.concat(t, ",")
+    end
+end
+
 function Aptechka:IsGroupEnabled(id)
     return helpers.CheckBit(self.db.profile.groupFilter, id)
 end
@@ -2076,7 +2086,6 @@ function Aptechka.CreateHeader(self,group,petgroup)
     if(Clique) then
         SecureHandlerSetFrameRef(f, 'clickcast_header', Clique.header)
     end
-
 
     local xgap = AptechkaDB.profile.unitGap or config.unitGap
     local ygap = AptechkaDB.profile.unitGap or config.unitGap
@@ -2103,6 +2112,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
     then
         if not Aptechka.db.global.singleHeaderMode then
             f:SetAttribute("groupFilter", group)
+        else
+            f:SetAttribute("groupFilter", Aptechka:GetGroupFilterAsString())
         end
         if AptechkaDB.global.sortMethod == "ROLE" then
             f:SetAttribute("groupBy", "ROLE")
@@ -2120,9 +2131,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
     --our group header doesn't really inherits SecureHandlerBaseTemplate
 
     f:SetID(group)
-    f.Enable = AptechkaHeader_Enable
-    f.Disable = AptechkaHeader_Disable
-    f:Enable()
+    Mixin(f, AptechkaHeader)
+    f:UpdateVisibility()
     f:SetAttribute("showPlayer", true)
     f.initialConfigFunction = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
@@ -2244,15 +2254,15 @@ do -- this function supposed to be called from layout switchers
             if groupIndex == 1 then
                 hdr:SetPoint(anchorpoint, anchors[groupIndex], reverse(anchorpoint),0,0)
             elseif petgroup then
-                hdr:SetPoint(arrangeHeaders(headers[1], nil, unitGrowth, reverse(groupGrowth)))
+                hdr:SetPoint(AptechkaHeader.MakePoints(headers[1], nil, unitGrowth, reverse(groupGrowth)))
             else
                 if groupIndex >= prevRowIndex + maxGroupsInRow then
                     local prevRowHeader = headers[prevRowIndex]
-                    hdr:SetPoint(arrangeHeaders(prevRowHeader, nil, unitGrowth, groupGrowth))
+                    hdr:SetPoint(AptechkaHeader.MakePoints(prevRowHeader, nil, unitGrowth, groupGrowth))
                     prevRowIndex = groupIndex
                 else
                     local prevHeader = headers[groupIndex-1]
-                    hdr:SetPoint(arrangeHeaders(prevHeader, nil, groupGrowth, groupRowGrowth))
+                    hdr:SetPoint(AptechkaHeader.MakePoints(prevHeader, nil, groupGrowth, groupRowGrowth))
                 end
             end
             groupIndex = groupIndex + 1
@@ -3724,7 +3734,7 @@ function Aptechka:VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED(event, member
 end
 
 
-function Aptechka:UpdateCastsConfig()
+function Aptechka:UpdateIncomingCastsConfig()
     LibTargetedCasts = LibStub("LibTargetedCasts", true)
     if LibTargetedCasts then
         if AptechkaDB.profile.showCasts then
@@ -3767,7 +3777,7 @@ function Aptechka.FrameUpdateIncomingCast(frame, unit)
     if minSrcGUID then
         local srcGUID, dstGUID, castType, name, text, icon, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
         local duration = endTime-startTime
-        FrameSetJob(frame, config.IncomingCastStatus, true, "CAST", castType, name, duration, endTime, totalCasts, icon, spellID)
+        FrameSetJob(frame, config.IncomingCastStatus, true, "CAST", castType, name, duration, endTime, totalCasts, icon, spellID, castID)
     else
         FrameSetJob(frame, config.IncomingCastStatus, false)
     end
@@ -3787,3 +3797,86 @@ end
 function Aptechka:GetTemplateOpts(name)
     return AptechkaConfigMerged.templates[name]
 end
+
+
+function Aptechka:UpdateOutgoingCastsConfig()
+    if AptechkaDB.profile.showGroupCasts then
+        self:RegisterEvent("UNIT_SPELLCAST_START")
+        self:RegisterEvent("UNIT_SPELLCAST_DELAYED")
+        self:RegisterEvent("UNIT_SPELLCAST_STOP")
+        self:RegisterEvent("UNIT_SPELLCAST_FAILED")
+        self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+        self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+        self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+        self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+    else
+        self:UnregisterEvent("UNIT_SPELLCAST_START")
+        self:UnregisterEvent("UNIT_SPELLCAST_DELAYED")
+        self:UnregisterEvent("UNIT_SPELLCAST_STOP")
+        self:UnregisterEvent("UNIT_SPELLCAST_FAILED")
+        self:UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+        self:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+        self:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
+        self:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+
+        if self.isInitialized then
+            self:ForEachFrame(function(frame)
+                FrameSetJob(frame, config.OutgoingCastStatus, false)
+            end)
+        end
+    end
+end
+
+
+local function Frame_CastStart(frame, unit)
+    local name, text, icon, startTime, endTime, isTradeSkill, castID2, notInterruptible, spellID = UnitCastingInfo(unit)
+    if not name then
+        return FrameSetJob(frame, config.OutgoingCastStatus, false)
+    end
+    local castType = "CAST"
+    endTime = endTime / 1000
+    startTime = startTime / 1000
+    local duration = endTime-startTime
+    frame.state.castID = castID2
+    local count = 1
+    FrameSetJob(frame, config.OutgoingCastStatus, true, "CAST", castType, name, duration, endTime, count, icon, spellID, castID2)
+end
+function Aptechka.UNIT_SPELLCAST_START(self,event, unit, castID, spellID)
+    Aptechka:ForEachUnitFrame(unit, Frame_CastStart)
+end
+
+local function Frame_ChannelStart(frame, unit)
+    local name, text, icon, startTime, endTime, isTradeSkill, castID2, notInterruptible, spellID = UnitChannelInfo(unit)
+    if not name then
+        return FrameSetJob(frame, config.OutgoingCastStatus, false)
+    end
+    local castType = "CHANNEL"
+    endTime = endTime / 1000
+    startTime = startTime / 1000
+    local duration = endTime-startTime
+    local count = 1
+    FrameSetJob(frame, config.OutgoingCastStatus, true, "CAST", castType, name, duration, endTime, count, icon, spellID, castID2)
+end
+Aptechka.UNIT_SPELLCAST_DELAYED = Aptechka.UNIT_SPELLCAST_START
+Aptechka.UNIT_SPELLCAST_CHANNEL_UPDATE = Aptechka.UNIT_SPELLCAST_CHANNEL_START
+function Aptechka.UNIT_SPELLCAST_CHANNEL_START(self,event, unit, castID, spellID)
+    Aptechka:ForEachUnitFrame(unit, Frame_ChannelStart)
+end
+
+local function Frame_CastStop(frame, unit)
+    FrameSetJob(frame, config.OutgoingCastStatus, false)
+end
+function Aptechka.UNIT_SPELLCAST_STOP(self,event, unit, castID, spellID)
+    Aptechka:ForEachUnitFrame(unit, Frame_CastStop)
+end
+Aptechka.UNIT_SPELLCAST_CHANNEL_STOP = Aptechka.UNIT_SPELLCAST_STOP
+
+local function Frame_CastFailed(frame, unit, argCastID)
+    if frame.state.castID == argCastID then
+        FrameSetJob(frame, config.OutgoingCastStatus, false)
+    end
+end
+function Aptechka.UNIT_SPELLCAST_FAILED(self, event, unit, castID)
+    Aptechka:ForEachUnitFrame(unit, Frame_CastFailed, castID)
+end
+Aptechka.UNIT_SPELLCAST_INTERRUPTED = Aptechka.UNIT_SPELLCAST_FAILED

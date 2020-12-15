@@ -12,7 +12,6 @@ local set = helpers.set
 
 config.frameStrata = "MEDIUM"
 config.maxgroups = 8
-config.petcolor = {1,.5,.5}
 --A maximum of 5 pets can be displayed.
 
 config.defaultFont = "AlegreyaSans-Medium"
@@ -45,14 +44,15 @@ config.PhasedStatus = { name = "Phased", priority = 84, assignto = set("statusIc
 config.RoleStatus = { name = "RoleIcon", assignto = set("roleIcon"), priority = 65, color = { 1, 1, 1 } }
 config.RaidTargetStatus = { name = "RaidTarget", assignto = set("raidTargetIcon"), priority = 70, color = { 1, 1, 1 } }
 config.IncomingCastStatus = { name = "IncomingCast", priority = 97, assignto = set("incomingCastIcon"), color = { 1, 1, 1} }
+config.OutgoingCastStatus = { name = "OutgoingCast", priority = 96, assignto = set("incomingCastIcon"), color = { 1, 1, 1} }
 config.LeaderStatus = { name = "Leader", priority = 59, assignto = set("text3"), color = {1,.8,.2}, text = "L" }
 -- config.AssistStatus = { name = "Assist", priority = 59, assignto = set("text3"), color = {1,.8,.2}, text = "A" }
 config.VoiceChatStatus = { name = "VoiceChat", assignto = set("text3"), color = {0.3, 1, 0.3}, text = "S", priority = 99 }
 config.MainTankStatus = { name = "MainTank", priority = 60, assignto = set("border"), color = {0.6,0.6,0.6} }
 config.LowHealthStatus = { name = "LowHealth", priority = 60, assignto = set("border"), color = {1,0,0} }
-config.DeadStatus = { name = "Dead", assignto = set("text2","health"), color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
-config.GhostStatus = { name = "Ghost", assignto = set("text2","health"), color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
-config.OfflineStatus = { name = "Offline", assignto = set("text2","text3","health"), color = {0.5,0.5,0.5}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
+config.DeadStatus = { name = "Dead", assignto = set("text2","healthColor"), color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
+config.GhostStatus = { name = "Ghost", assignto = set("text2","healthColor"), color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
+config.OfflineStatus = { name = "Offline", assignto = set("text2","text3","healthColor"), color = {0.5,0.5,0.5}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.AwayStatus = { name = "AFK", assignto = set("text2","text3"), color = {0.4,0.4,0.4}, textcolor = {1,0.8,0}, text = "AFK",  priority = 15}
 config.IncomingHealStatus = { name = "IncHealText", assignto = set("text2"), color = { 0, 1, 0}, priority = 15 }
 config.HealthTextStatus = { name = "HealthText", assignto = set("text2"), color = { 54/255, 201/255, 99/256 }, priority = 10, formatType = "MISSING_VALUE_SHORT" }
