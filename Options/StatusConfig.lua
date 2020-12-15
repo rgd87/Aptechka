@@ -24,6 +24,7 @@ function ns.MakeStatusConfig()
         "HealthTextStatus",
         "DeadStatus",
         "GhostStatus",
+        "OfflineStatus",
         "RunicPowerStatus",
         "AltPowerStatus",
         "DebuffAlert1",
