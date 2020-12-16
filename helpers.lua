@@ -370,8 +370,39 @@ local MIRROR_POINTS = {
 	["TOP"] = "BOTTOM",
 	["BOTTOM"] = "TOP",
 };
-function helpers.Reverse(p1)
-    local p2 = MIRROR_POINTS[p1]
+
+local MIRROR_POINTS_HORIZONTAL = {
+	["TOPLEFT"] = "TOPRIGHT",
+	["LEFT"] = "RIGHT",
+	["BOTTOMLEFT"] = "BOTTOMRIGHT",
+	["TOPRIGHT"] = "TOPLEFT",
+	["RIGHT"] = "LEFT",
+	["BOTTOMRIGHT"] = "BOTTOMLEFT",
+	["CENTER"] = "CENTER",
+	["TOP"] = "TOP",
+	["BOTTOM"] = "BOTTOM",
+};
+
+local MIRROR_POINTS_VERTICAL = {
+	["TOPLEFT"] = "BOTTOMLEFT",
+	["LEFT"] = "LEFT",
+	["BOTTOMLEFT"] = "TOPLEFT",
+	["TOPRIGHT"] = "BOTTOMRIGHT",
+	["RIGHT"] = "RIGHT",
+	["BOTTOMRIGHT"] = "TOPRIGHT",
+	["CENTER"] = "CENTER",
+	["TOP"] = "BOTTOM",
+	["BOTTOM"] = "TOP",
+};
+function helpers.Reverse(p1, direction)
+    local mirrorTable = MIRROR_POINTS
+    if direction == "HORIZONTAL" then
+        mirrorTable = MIRROR_POINTS_HORIZONTAL
+    elseif direction == "VERTICAL" then
+        mirrorTable = MIRROR_POINTS_VERTICAL
+    end
+    local p2 = mirrorTable[p1]
+
     if p2 == "RIGHT" or p2 == "LEFT" then
         return p2, "HORIZONTAL"
     elseif p2 == "TOP" or p2 == "BOTTOM" then

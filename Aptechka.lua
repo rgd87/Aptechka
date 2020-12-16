@@ -805,8 +805,6 @@ end
 
 function Aptechka:ReconfigureUnprotected()
     self:UpdateUnprotectedUpvalues()
-    self:RefreshAllUnitsColors()
-    self:RefreshAllUnitsHealth() -- Updates health with new settings fg/bg settings after switch
     for group, header in ipairs(group_headers) do
         for _, f in ipairs({ header:GetChildren() }) do
             self:UpdateName(f)
@@ -814,6 +812,8 @@ function Aptechka:ReconfigureUnprotected()
             Aptechka:SafeCall("PostFrameUpdate", f)
         end
     end
+    self:RefreshAllUnitsColors()
+    self:RefreshAllUnitsHealth() -- Updates health with new settings fg/bg settings after switch
 end
 function Aptechka:UpdateUnprotectedUpvalues()
     ignoreplayer = config.incomingHealIgnorePlayer or false
@@ -948,6 +948,9 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     local shields = UnitGetTotalAbsorbs(unit)
     local healabsorb = UnitGetTotalHealAbsorbs(unit)
     local incomingHeal = GetIncomingHealsCustom(unit, ignoreplayer)
+    -- shields = hm*0.25
+    -- healabsorb = hm*0.20
+    -- incomingHeal = hm*0.10
     if hm == 0 then return end
     local foregroundValue, perc = GetForegroundSeparation(h, hm, fgShowMissing)
     local state = self.state
