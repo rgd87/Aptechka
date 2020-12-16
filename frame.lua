@@ -3101,7 +3101,11 @@ function MaskStatusBar.SetValue(self, val)
     local rpos = (max-val)/(max-min)
     if rpos > 1 then rpos = 1 end
     local mask = self._mask
-    if rpos <= 0 then mask:Hide(); return end
+    if rpos <= 0 then
+        self:_Resize(0.001)
+        mask:Hide()
+        return
+    end
 
     mask:Show()
 
