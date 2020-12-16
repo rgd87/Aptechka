@@ -2175,18 +2175,19 @@ local function CreateAbsorbSideBar(hp)
     absorb:SetParent(hp)
     -- absorb:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
     absorb:SetPoint("TOPLEFT",hp,"TOPLEFT",-3,0)
-    absorb:SetWidth(3)
+    absorb:SetWidth(pixelperfect(3))
 
     local at = absorb:CreateTexture(nil, "ARTWORK", nil, -4)
     at:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     at:SetVertexColor(.7, .7, 1, 1)
     at:SetAllPoints(absorb)
 
+    local p = pixelperfect(1)
     local atbg = absorb:CreateTexture(nil, "ARTWORK", nil, -5)
     atbg:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     atbg:SetVertexColor(0,0,0,1)
-    atbg:SetPoint("TOPLEFT", at, "TOPLEFT", -1,1)
-    atbg:SetPoint("BOTTOMRIGHT", at, "BOTTOMRIGHT", 1,-1)
+    atbg:SetPoint("TOPLEFT", at, "TOPLEFT", -p,p)
+    atbg:SetPoint("BOTTOMRIGHT", at, "BOTTOMRIGHT", p,-p)
 
     absorb.AlignAbsorb = AlignAbsorbVertical
 
