@@ -262,25 +262,8 @@ if playerClass == "PRIEST" then
     -- Weakened Soul
     A{ id = 6788,    type = "HELPFUL", assignto = set("bars"), priority = 70, scale = 0.5, color = { 0.8, 0, 0}, infoType = "DURATION", isMine = true }
     --Prayer of Mending
-    A{ id = 41635, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, stackcolor =   {
-                                                                            [1] = { 1, 0, 0},
-                                                                            [2] = { 1, 0, 102/255},
-                                                                            [3] = { 1, 0, 190/255},
-                                                                            [4] = { 204/255, 0, 1},
-                                                                            [5] = { 108/255, 0, 1},
-                                                                            [6] = { 148/255, 0, 1},
-                                                                            [7] = { 148/255, 0, 1},
-                                                                            [8] = { 148/255, 0, 1},
-                                                                            [9] = { 148/255, 0, 1},
-                                                                            [10] = { 148/255, 0, 1},
-                                                                        }, maxCount = 5, infoType = "COUNT"}
-                                                                        -- stackcolor =   {
-                                                                        --     [1] = { .8, 0, 0},
-                                                                        --     [2] = { 1, 0, 0},
-                                                                        --     [3] = { 1, .2, .2},
-                                                                        --     [4] = { 1, .4, .4},
-                                                                        --     [5] = { 1, .6, .6},
-                                                                        -- }} --Prayer of Mending
+    A{ id = 41635, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
+
     --Atonement, Trinity Atonement
     A{ id = { 194384, 214206 },type = "HELPFUL", assignto = set("bar4"), extend_below = 15, color = { 1, .3, .3}, infoType = "DURATION", isMine = true}
     --Luminous Barrier
