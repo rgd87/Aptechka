@@ -56,6 +56,18 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 8.3,
                     },
+                    singleHeaderMode = {
+                        name = L"Merge Groups"..newFeatureIcon,
+                        desc = L"Lose distinction between groups, but sorting will work across the whole raid",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.singleHeaderMode end,
+                        set = function(info, v)
+                            Aptechka.db.global.singleHeaderMode = not Aptechka.db.global.singleHeaderMode
+                            Aptechka:PrintReloadUIWarning()
+                        end,
+                        order = 8.4,
+                    },
                     sortUnitsByRole = {
                         name = L"Sort Units by Role",
                         width = "full",

@@ -1968,7 +1968,7 @@ function AptechkaHeader.UpdateVisibility(header)
     end
 end
 
-function AptechkaHeader:GetGroupFilterAsString()
+function Aptechka:GetGroupFilterAsString()
     for i=1,8 do
         local t = {}
         if Aptechka:IsGroupEnabled(i) then
