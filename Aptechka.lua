@@ -1969,15 +1969,22 @@ function AptechkaHeader.UpdateVisibility(header)
 end
 
 function Aptechka:GetGroupFilterAsString()
+    local t = {}
     for i=1,8 do
-        local t = {}
         if Aptechka:IsGroupEnabled(i) then
             table.insert(t, i)
         end
-        return table.concat(t, ",")
     end
+    return table.concat(t, ",")
 end
 
+function Aptechka:GetMaxGroupEnabled()
+    for i=8,1,-1 do
+        if helpers.CheckBit(self.db.profile.groupFilter, i) then
+            return i
+        end
+    end
+end
 function Aptechka:IsGroupEnabled(id)
     return helpers.CheckBit(self.db.profile.groupFilter, id)
 end
