@@ -270,8 +270,7 @@ function ns.MakeProfileSettings()
                         type = "range",
                         get = function(info) return Aptechka:GetMaxGroupEnabled() end,
                         set = function(info, v)
-                            local filters = {1, 3, 7, 15, 31, 63, 127, 255}
-                            Aptechka.db.profile.groupFilter = filters[v] or 255
+                            Aptechka.db.profile.groupFilter = math.pow(2, v) - 1
                             Aptechka:Reconfigure()
                         end,
                         min = 1,
