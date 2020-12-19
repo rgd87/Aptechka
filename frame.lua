@@ -124,7 +124,7 @@ end
 local reverse = helpers.Reverse
 local function AttachRegionToMask(region, parent, growth)
     region:ClearAllPoints()
-    local mask, orientation, isReversed, p1, p2 = parent:GetMaskAttachmentPoints()
+    local mask, orientation, isReversed, p1, p2 = parent:GetSeparationRegionAttachmentPoints()
     if not isReversed then growth = growth * -1 end
     -- return points on the mask that currently separate health
 
@@ -2771,7 +2771,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- outline:AddMaskTexture(outlineMask)
 
     -- local powerbar = CreateFrame("StatusBar", nil, self)
-    local powerbar = Aptechka.CreateMaskStatusBar(nil, self, "VERTICAL")
+    -- local powerbar = Aptechka.CreateMaskStatusBar(nil, self, "VERTICAL")
+    local powerbar = Aptechka.CreateCoordStatusBar(nil, self, "VERTICAL")
     powerbar:SetFrameLevel(FRAMELEVEL.POWER)
     powerbar:SetWidth(4)
     powerbar:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
@@ -2793,7 +2794,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
 
     -- local hp = CreateFrame("StatusBar", nil, self)
-    local hp = Aptechka.CreateMaskStatusBar(nil, self, "VERTICAL")
+    -- local hp = Aptechka.CreateMaskStatusBar(nil, self, "VERTICAL")
+    local hp = Aptechka.CreateCoordStatusBar(nil, self, "VERTICAL")
     hp:SetFrameLevel(FRAMELEVEL.HEALTH)
     --hp:SetAllPoints(self)
     hp:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
@@ -3032,7 +3034,7 @@ end
 function MaskStatusBar.GetStatusBarTexture(self)
     return self._texture
 end
-function MaskStatusBar.GetMaskAttachmentPoints(self)
+function MaskStatusBar.GetSeparationRegionAttachmentPoints(self)
     local isReversed = self._fillStyle == "REVERSE"
     local orientation = self._orientation
     local mask = self._mask
@@ -3166,6 +3168,213 @@ function MaskStatusBar.Create(name, parent, orientation, fillStyle)
     return f
 end
 Aptechka.CreateMaskStatusBar = MaskStatusBar.Create
+
+
+
+local CoordStatusBar = {}
+function CoordStatusBar.SetStatusBarTexture(self, texture)
+    self._texture:SetTexture(texture)
+end
+function CoordStatusBar.GetStatusBarTexture(self)
+    return self._texture
+end
+function CoordStatusBar.SetStatusBarColor(self, r,g,b,a)
+    self._texture:SetVertexColor(r,g,b,a)
+end
+function CoordStatusBar.SetMinMaxValues(self, min, max)
+    if max > min then
+        self._min = min
+        self._max = max
+    else
+        self._min = 0
+        self._max = 1
+    end
+end
+function CoordStatusBar.GetSeparationRegionAttachmentPoints(self)
+    local isReversed = self._fillStyle == "REVERSE"
+    local orientation = self._orientation
+    local region = self._texture
+    if orientation == "VERTICAL" then
+        if isReversed then
+            return region, orientation, not isReversed, "BOTTOMLEFT", "BOTTOMRIGHT"
+        else
+            return region, orientation, not isReversed, "TOPLEFT", "TOPRIGHT"
+        end
+    else
+        if isReversed then
+            return region, orientation, not isReversed, "TOPLEFT", "BOTTOMLEFT"
+        else
+            return region, orientation, not isReversed, "TOPRIGHT", "BOTTOMRIGHT"
+        end
+    end
+    return region
+end
+function CoordStatusBar.SetFillStyle(self, fillStyle)
+    if self._fillStyle == fillStyle then return end
+    self._fillStyle = fillStyle
+    self:_Configure()
+end
+function CoordStatusBar.SetOrientation(self, orientation)
+    if self._orientation == orientation then return end
+    self._orientation = orientation
+    self:_Configure()
+end
+
+function CoordStatusBar.SetTexCoord(self, ...)
+    if not self.texCoords then
+        self.texCoords = {...}
+    else
+        local existingCoords = self.texCoords
+        local equal = true
+        for i=1,4 do
+            if select(i, ...) ~= existingCoords[i] then
+                equal = false
+            end
+        end
+        if equal then return end
+    end
+    self:_Configure()
+end
+
+function CoordStatusBar.ResizeVertical(self, value)
+    local len = self._height or self:GetHeight()
+    self._texture:SetHeight(len*value)
+end
+function CoordStatusBar.ResizeHorizontal(self, value)
+    local len = self._width or self:GetWidth()
+    self._texture:SetWidth(len*value)
+end
+
+function CoordStatusBar.MakeCoordsVerticalStandard(self, p)
+    -- left,right, bottom - (bottom-top)*pos , bottom
+    return 0,1, 1-p, 1
+end
+function CoordStatusBar.MakeCoordsVerticalReversed(self, p)
+    return 0,1, 0, p
+end
+function CoordStatusBar.MakeCoordsHorizontalStandard(self, p)
+    return 0,p,0,1
+end
+function CoordStatusBar.MakeCoordsHorizontalReversed(self, p)
+    return 1-p,1,0,1
+end
+
+function CoordStatusBar.SetWidth(self, w)
+    self:_SetWidth(w)
+    self._width = w
+end
+
+function CoordStatusBar.SetHeight(self, w)
+    self:_SetHeight(w)
+    self._height = w
+end
+
+function CoordStatusBar._Configure(self)
+    local isReversed = self._fillStyle == "REVERSE"
+    local orientation = self._orientation
+    local tex = self._texture
+    local l,r,t,b, chrange, cvrange
+    if self.texCoords then
+        l,r,t,b = unpack(self.texCoords)
+        chrange = r - l
+        cvrange = b - t
+    end
+    tex:ClearAllPoints()
+    if orientation == "VERTICAL" then
+        self._Resize = CoordStatusBar.ResizeVertical
+        if isReversed then
+            tex:SetPoint("TOPLEFT")
+            tex:SetPoint("TOPRIGHT")
+            self.MakeCoords = CoordStatusBar.MakeCoordsVerticalReversed
+            if self.texCoords then
+                self.MakeCoords = function(self, p)
+                    return l,r, t, t+p*cvrange
+                end
+            end
+        else
+            tex:SetPoint("BOTTOMLEFT")
+            tex:SetPoint("BOTTOMRIGHT")
+            self.MakeCoords = CoordStatusBar.MakeCoordsVerticalStandard
+            if self.texCoords then
+                self.MakeCoords = function(self, p)
+                    return l,r, b-p*cvrange, b
+                end
+            end
+        end
+    else
+        self._Resize = CoordStatusBar.ResizeHorizontal
+        if isReversed then
+            tex:SetPoint("TOPRIGHT")
+            tex:SetPoint("BOTTOMRIGHT")
+            self.MakeCoords = CoordStatusBar.MakeCoordsHorizontalReversed
+            if self.texCoords then
+                self.MakeCoords = function(self, p)
+                    return r-p*chrange,r,t,b
+                end
+            end
+        else
+            tex:SetPoint("TOPLEFT")
+            tex:SetPoint("BOTTOMLEFT")
+            self.MakeCoords = CoordStatusBar.MakeCoordsHorizontalStandard
+            if self.texCoords then
+                self.MakeCoords = function(self, p)
+                    return l,l+p*chrange,t,b
+                end
+            end
+        end
+    end
+    self:SetValue(self._value)
+end
+
+function CoordStatusBar.SetValue(self, val)
+    local min = self._min
+    local max = self._max
+    self._value = val
+    local pos = (val-min)/(max-min)
+    if pos > 1 then pos = 1 end
+    local tex = self._texture
+    if pos <= 0 then tex:Hide(); return end
+
+    tex:Show()
+
+    self:_Resize(pos)
+    self._texture:SetTexCoord(self:MakeCoords(pos))
+end
+
+
+function CoordStatusBar.Create(name, parent, orientation, fillStyle, l,r,t,b)
+    local f = CreateFrame("Frame", name, parent)
+    f._min = 0
+    f._max = 100
+    f._value = 0
+
+    local tex = f:CreateTexture(nil, "ARTWORK")
+
+    f._texture = tex
+
+    -- As i later found out, parent:GetHeight() doesn't immediately return the correct values on login, leading to infinite bars
+    -- So i had to move from attachment by opposing corners to attachment by neighboring corners + SetHeight/SetWidth
+
+    f._SetWidth = f.SetWidth
+    f._SetHeight = f.SetHeight
+
+    Mixin(f, CoordStatusBar)
+
+    f._fillStyle = fillStyle
+    f._orientation = orientation
+    if b then
+        f.texCoords = {l,r,t,b}
+    end
+    f:_Configure()
+
+    f:Show()
+
+    return f
+end
+Aptechka.CreateCoordStatusBar = CoordStatusBar.Create
+
+
+
 
 
 local function FakeHeader_Arrange(hdr)
