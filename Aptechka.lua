@@ -1079,16 +1079,16 @@ function Aptechka:UpdateMindControl(unit)
 end
 
 
-local function WidgetStartTrace(widget, slot, frame, opts)
+local function WidgetStartTrace(widget, slot, frame, opts, ...)
     if not widget then
         widget = Aptechka:CreateDynamicWidget(frame, slot)
     end
     if widget then
-        widget:StartTrace(opts)
+        widget:StartTrace(opts, ...)
     end
 end
-local function FrameStartTrace(frame, unit, opts)
-    Aptechka:ForEachFrameOptsWidget(frame, opts, WidgetStartTrace, frame, opts)
+local function FrameStartTrace(frame, unit, opts, ...)
+    Aptechka:ForEachFrameOptsWidget(frame, opts, WidgetStartTrace, frame, opts, ...)
 end
 Aptechka.FrameStartTrace = FrameStartTrace
 
@@ -1118,7 +1118,7 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
                 local minamount = opts.minamount
                 if not minamount or amount > minamount then
                     local unit = guidMap[dstGUID]
-                    Aptechka:ForEachUnitFrame(unit, FrameStartTrace, opts)
+                    Aptechka:ForEachUnitFrame(unit, FrameStartTrace, opts, spellID)
                 end
             end
         end

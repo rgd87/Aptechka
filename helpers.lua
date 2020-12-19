@@ -152,7 +152,10 @@ local function PrepareAuraOpts(data)
     end
 
     if data.id and not data.name then data.name = GetSpellInfo(data.id) end
-    if data.name == nil then print (string.format("[Aptechka] %d spell id missing", data.id)) return end
+    if data.name == nil then
+        -- print(string.format("[Aptechka] %d spell id missing", data.id))
+        return
+    end
 
     if data.showDuration then
         data.infoType = "DURATION"
@@ -203,9 +206,10 @@ function helpers.AddTrace(data)
 
     if data.id then data.name = GetSpellInfo(data.id) or data.name end
     if not config.traces then config.traces = {} end
-    if not data.name then print(string.format("[Aptechka] %d spell id missing", data.id)) return end
-    data.actualname = data.name
-    data.name = data.actualname.."Trace"
+    if not data.name then
+        -- print(string.format("[Aptechka] %d spell id missing", data.id))
+        return
+    end
     local id = data.id
     data.id = nil -- important to do that, because statuses with id field treated as aura
 
