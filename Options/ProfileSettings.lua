@@ -265,6 +265,19 @@ function ns.MakeProfileSettings()
                         end,
                         order = 18,
                     },
+                    maxGroups = {
+                        name = L"Max Groups",
+                        type = "range",
+                        get = function(info) return Aptechka:GetMaxGroupEnabled() end,
+                        set = function(info, v)
+                            Aptechka.db.profile.groupFilter = math.pow(2, v) - 1
+                            Aptechka:Reconfigure()
+                        end,
+                        min = 1,
+                        max = 8,
+                        step = 1,
+                        order = 19,
+                    },
                 }
             },
 

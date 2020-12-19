@@ -837,8 +837,6 @@ end
 
 function Aptechka:ReconfigureUnprotected()
     self:UpdateUnprotectedUpvalues()
-    self:RefreshAllUnitsColors()
-    self:RefreshAllUnitsHealth() -- Updates health with new settings fg/bg settings after switch
     for group, header in ipairs(group_headers) do
         for _, f in ipairs({ header:GetChildren() }) do
             self:UpdateName(f)
@@ -846,6 +844,8 @@ function Aptechka:ReconfigureUnprotected()
             Aptechka:SafeCall("PostFrameUpdate", f)
         end
     end
+    self:RefreshAllUnitsColors()
+    self:RefreshAllUnitsHealth() -- Updates health with new settings fg/bg settings after switch
 end
 function Aptechka:UpdateUnprotectedUpvalues()
     ignoreplayer = config.incomingHealIgnorePlayer or false
@@ -1034,6 +1034,9 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     local shields = UnitGetTotalAbsorbs(unit)
     local healabsorb = UnitGetTotalHealAbsorbs(unit)
     local incomingHeal = GetIncomingHealsCustom(unit, ignoreplayer)
+    -- shields = hm*0.25
+    -- healabsorb = hm*0.20
+    -- incomingHeal = hm*0.10
     if hm == 0 then return end
     local foregroundValue, perc = GetForegroundSeparation(h, hm, fgShowMissing)
     local state = self.state
@@ -1162,16 +1165,16 @@ function Aptechka:UpdateMindControl(unit)
 end
 
 
-local function WidgetStartTrace(widget, slot, frame, opts)
+local function WidgetStartTrace(widget, slot, frame, opts, ...)
     if not widget then
         widget = Aptechka:CreateDynamicWidget(frame, slot)
     end
     if widget then
-        widget:StartTrace(opts)
+        widget:StartTrace(opts, ...)
     end
 end
-local function FrameStartTrace(frame, unit, opts)
-    Aptechka:ForEachFrameOptsWidget(frame, opts, WidgetStartTrace, frame, opts)
+local function FrameStartTrace(frame, unit, opts, ...)
+    Aptechka:ForEachFrameOptsWidget(frame, opts, WidgetStartTrace, frame, opts, ...)
 end
 Aptechka.FrameStartTrace = FrameStartTrace
 
@@ -1204,7 +1207,7 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
                 local minamount = opts.minamount
                 if not minamount or amount > minamount then
                     local unit = guidMap[dstGUID]
-                    Aptechka:ForEachUnitFrame(unit, FrameStartTrace, opts)
+                    Aptechka:ForEachUnitFrame(unit, FrameStartTrace, opts, spellID)
                 end
             end
         end
@@ -1554,7 +1557,7 @@ function Aptechka.UNIT_SPELLCAST_SENT(self, event, unit, targetName, lineID, spe
     LastCastSentTime = GetTime()
 end
 function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
-    if errcode == 50 or errcode == 51 then -- Out of Range code
+    if errtext == SPELL_FAILED_LINE_OF_SIGHT then -- Out of Range code
         if LastCastSentTime > GetTime() - 0.5 then
             for unit in pairs(Roster) do
                 if UnitName(unit) == LastCastTargetName then
@@ -2053,16 +2056,23 @@ function AptechkaHeader.UpdateVisibility(header)
     end
 end
 
-function AptechkaHeader:GetGroupFilterAsString()
+function Aptechka:GetGroupFilterAsString()
+    local t = {}
     for i=1,8 do
-        local t = {}
         if Aptechka:IsGroupEnabled(i) then
             table.insert(t, i)
         end
-        return table.concat(t, ",")
     end
+    return table.concat(t, ",")
 end
 
+function Aptechka:GetMaxGroupEnabled()
+    for i=8,1,-1 do
+        if helpers.CheckBit(self.db.profile.groupFilter, i) then
+            return i
+        end
+    end
+end
 function Aptechka:IsGroupEnabled(id)
     return helpers.CheckBit(self.db.profile.groupFilter, id)
 end

@@ -121,6 +121,23 @@ function Aptechka:FixWidgetsAfterUpgrade()
     end
 end
 
+local reverse = helpers.Reverse
+local function AttachRegionToMask(region, parent, growth)
+    region:ClearAllPoints()
+    local mask, orientation, isReversed, p1, p2 = parent:GetSeparationRegionAttachmentPoints()
+    if not isReversed then growth = growth * -1 end
+    -- return points on the mask that currently separate health
+
+    if growth > 0 then -- region will grow in the same direction as mask
+
+        region:SetPoint(reverse(p1, orientation), mask, p1, 0, 0)
+        region:SetPoint(reverse(p2, orientation), mask, p2, 0, 0)
+    else -- opposite
+        region:SetPoint(p1, mask, p1, 0, 0)
+        region:SetPoint(p2, mask, p2, 0, 0)
+    end
+end
+
 local MakeBorder = function(self, tex, left, right, top, bottom, level)
     local t = self:CreateTexture(nil,"BORDER",nil,level)
     t:SetTexture(tex)
@@ -566,7 +583,7 @@ end
 
 local BlinkAnimOnFinished = function(ag)
     local widget = ag:GetParent()
-    local frame = widget.parent
+    local frame = widget:GetParent()
     widget.traceJob = nil
     Aptechka:UpdateWidget(frame, widget)
 end
@@ -589,6 +606,36 @@ local function AddBlinkAnimation(f)
     bag:SetScript("OnFinished", BlinkAnimOnFinished)
     f.blink = bag
 end
+
+local function MakeStartTraceForBlinkAnimation(func)
+    return function(self, job, ...)
+        if self.traceJob and self.traceJob.priority > job.priority then
+            return
+        end
+
+        self.traceJob = job
+
+        self:Show()
+
+        self.blink.a2:SetFromAlpha(1)
+        self.blink.a2:SetToAlpha(0)
+        local duration = job.fade or 0.7
+        self.blink.a2:SetDuration(duration)
+
+        func(self, job, ...)
+        -- local r,g,b,a = GetColor(job)
+        -- self.texture:SetVertexColor(r,g,b,a)
+
+        -- local scale = job.scale or 1
+        -- self:SetScale(scale)
+
+        if self.blink:IsPlaying() then
+            self.blink:Stop()
+        end
+        self.blink:Play()
+    end
+end
+
 
 local function AddSpinAnimation(f)
     local rag = f:CreateAnimationGroup()
@@ -749,28 +796,11 @@ function PixelScaleMixin.SetUScale(self, scale)
     self:SetVScale(scale)
 end
 
-local function Indicator_StartTrace(self, job)
-    if self.traceJob and self.traceJob.priority > job.priority then
-        return
-    end
-
-    self.traceJob = job
-
-    self:Show()
-
-    self.blink.a2:SetFromAlpha(1)
-    self.blink.a2:SetToAlpha(0)
-    local duration = job.fade or 0.7
-    self.blink.a2:SetDuration(duration)
-
+local Indicator_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
     local r,g,b,a = GetColor(job)
     self.color:SetVertexColor(r,g,b,a)
+end)
 
-    if self.blink:IsPlaying() then
-        self.blink:Stop()
-    end
-    self.blink:Play()
-end
 local SetJob_Indicator = function(self, job, state, contentType, ...)
     if self.traceJob then return end -- widget is busy with animation
 
@@ -900,31 +930,13 @@ end
 -------------------------------------------------------------------------------------------
 -- Texture
 -------------------------------------------------------------------------------------------
-local function Texture_StartTrace(self, job)
-    if self.traceJob and self.traceJob.priority > job.priority then
-        return
-    end
-
-    self.traceJob = job
-
-    self:Show()
-
-    self.blink.a2:SetFromAlpha(1)
-    self.blink.a2:SetToAlpha(0)
-    local duration = job.fade or 0.7
-    self.blink.a2:SetDuration(duration)
-
+local Texture_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
     local r,g,b,a = GetColor(job)
     self.texture:SetVertexColor(r,g,b,a)
 
     local scale = job.scale or 1
     self:SetScale(scale)
-
-    if self.blink:IsPlaying() then
-        self.blink:Stop()
-    end
-    self.blink:Play()
-end
+end)
 
 
 -- function PrintSetRaidTargetIconTexture (texture, raidTargetIconIndex)
@@ -1250,6 +1262,14 @@ local SetJob_Icon = function(self, job, state, contentType, ...)
     end
 end
 
+local Icon_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job, spellID)
+    local tex = spellID and GetSpellTexture(spellID)
+    self.texture:SetTexture(tex or job.icon or 136190)
+
+    self.stacktext:SetText()
+    self.cd:Hide()
+end)
+
 --[[
 local CreateShieldIcon = function(parent,w,h,alpha,point,frame,to,x,y)
     local icon = CreateFrame("Frame",nil,parent)
@@ -1384,6 +1404,9 @@ function Aptechka.Widget.Icon.Create(parent, popts, gopts)
     icd:SetReverse(true)
     icd:SetAllPoints(icon.texture)
     icon.cd = icd
+
+    AddBlinkAnimation(icon)
+    icon.StartTrace = Icon_StartTrace
 
     Aptechka.Widget.Icon.Reconf(parent, icon, popts, gopts)
 
@@ -1808,6 +1831,7 @@ function Aptechka.Widget.BarIcon.Create(parent, popts, gopts)
 
     Aptechka.Widget.BarIcon.Reconf(parent, bar, popts, gopts)
 
+    bar:Hide()
 
     return WrapFrameAsWidget(bar)
 end
@@ -2031,20 +2055,15 @@ end
 ----------------
 -- HEAL ABSORB
 ----------------
-local HealAbsorbUpdatePositionVertical = function(self, p, health, parent)
+local HealthRegionbUpdatePositionVertical = function(self, p, health, parent)
     local frameLength = parent.frameLength
     self:SetHeight(p*frameLength)
-    local offset = (health-p)*frameLength
-    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, offset)
-    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 0, offset)
 end
-local HealAbsorbUpdatePositionHorizontal = function(self, p, health, parent)
+local HealthRegionbUpdatePositionHorizontal = function(self, p, health, parent)
     local frameLength = parent.frameLength
     self:SetWidth(p*frameLength)
-    local offset = (health-p)*frameLength
-    self:SetPoint("TOPLEFT", parent, "TOPLEFT", offset, 0)
-    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", offset, 0)
 end
+
 local HealAbsorbSetValue = function(self, p, health)
     if p < 0.005 then
         self:Hide()
@@ -2068,11 +2087,11 @@ local function CreateHealAbsorb(hp)
     healAbsorb:SetVertTile(true)
     healAbsorb:SetTexture("Interface\\AddOns\\Aptechka\\shieldtex", "REPEAT", "REPEAT")
     healAbsorb:SetVertexColor(0.5,0.1,0.1, 0.65)
-    healAbsorb:SetBlendMode("ADD")
+    healAbsorb:SetBlendMode("BLEND")
 
-    healAbsorb.UpdatePositionVertical = HealAbsorbUpdatePositionVertical
-    healAbsorb.UpdatePositionHorizontal = HealAbsorbUpdatePositionHorizontal
-    healAbsorb.UpdatePosition = HealAbsorbUpdatePositionVertical
+    healAbsorb.UpdatePositionVertical = HealthRegionbUpdatePositionVertical
+    healAbsorb.UpdatePositionHorizontal = HealthRegionbUpdatePositionHorizontal
+    healAbsorb.UpdatePosition = HealthRegionbUpdatePositionVertical
 
     healAbsorb.SetValue = HealAbsorbSetValue
     return healAbsorb
@@ -2080,20 +2099,6 @@ end
 --------------------
 -- ABSORB BAR
 --------------------
-local AbsorbUpdatePositionVertical = function(self, p, health, parent)
-    local frameLength = parent.frameLength
-    self:SetHeight(p*frameLength)
-    local offset = health*frameLength
-    self:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 0, offset)
-    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", 0, offset)
-end
-local AbsorbUpdatePositionHorizontal = function(self, p, health, parent)
-    local frameLength = parent.frameLength
-    self:SetWidth(p*frameLength)
-    local offset = health*frameLength
-    self:SetPoint("TOPLEFT", parent, "TOPLEFT", offset, 0)
-    self:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", offset, 0)
-end
 local AbsorbSetValue = function(self, p, health)
     if p + health > 1 then
         p = 1 - health
@@ -2104,10 +2109,8 @@ local AbsorbSetValue = function(self, p, health)
         return
     end
 
-    local parent = self.parent
-
     self:Show()
-    self:UpdatePosition(p, health, parent)
+    self:UpdatePosition(p, health, self.parent)
 end
 local function CreateAbsorbBar(hp)
     local absorb = hp:CreateTexture(nil, "ARTWORK", nil, -5)
@@ -2118,9 +2121,9 @@ local function CreateAbsorbBar(hp)
     absorb:SetVertexColor(0,0,0, 0.65)
     -- absorb:SetBlendMode("ADD")
 
-    absorb.UpdatePositionVertical = AbsorbUpdatePositionVertical
-    absorb.UpdatePositionHorizontal = AbsorbUpdatePositionHorizontal
-    absorb.UpdatePosition = AbsorbUpdatePositionVertical
+    absorb.UpdatePositionVertical = HealthRegionbUpdatePositionVertical
+    absorb.UpdatePositionHorizontal = HealthRegionbUpdatePositionHorizontal
+    absorb.UpdatePosition = HealthRegionbUpdatePositionVertical
 
     absorb.SetValue = AbsorbSetValue
     return absorb
@@ -2129,16 +2132,16 @@ end
 --------------------
 -- INCOMING HEAL
 --------------------
-local function CreateIncominHealBar(hp)
+local function CreateIncomingHealBar(hp)
     local hpi = hp:CreateTexture(nil, "ARTWORK", nil, -5)
 
     -- hpi:SetTexture("Interface\\Tooltips\\UI-Tooltip-Background")
     hpi:SetTexture("Interface\\BUTTONS\\WHITE8X8")
     hpi:SetVertexColor(0,0,0, 0.5)
 
-    hpi.UpdatePositionVertical = AbsorbUpdatePositionVertical
-    hpi.UpdatePositionHorizontal = AbsorbUpdatePositionHorizontal
-    hpi.UpdatePosition = AbsorbUpdatePositionVertical
+    hpi.UpdatePositionVertical = HealthRegionbUpdatePositionVertical
+    hpi.UpdatePositionHorizontal = HealthRegionbUpdatePositionHorizontal
+    hpi.UpdatePosition = HealthRegionbUpdatePositionVertical
 
     hpi.SetValue = AbsorbSetValue
     return hpi
@@ -2179,18 +2182,19 @@ local function CreateAbsorbSideBar(hp)
     absorb:SetParent(hp)
     -- absorb:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
     absorb:SetPoint("TOPLEFT",hp,"TOPLEFT",-3,0)
-    absorb:SetWidth(3)
+    absorb:SetWidth(pixelperfect(3))
 
     local at = absorb:CreateTexture(nil, "ARTWORK", nil, -4)
     at:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     at:SetVertexColor(.7, .7, 1, 1)
     at:SetAllPoints(absorb)
 
+    local p = pixelperfect(1)
     local atbg = absorb:CreateTexture(nil, "ARTWORK", nil, -5)
     atbg:SetTexture[[Interface\BUTTONS\WHITE8X8]]
     atbg:SetVertexColor(0,0,0,1)
-    atbg:SetPoint("TOPLEFT", at, "TOPLEFT", -1,1)
-    atbg:SetPoint("BOTTOMRIGHT", at, "BOTTOMRIGHT", 1,-1)
+    atbg:SetPoint("TOPLEFT", at, "TOPLEFT", -p,p)
+    atbg:SetPoint("BOTTOMRIGHT", at, "BOTTOMRIGHT", p,-p)
 
     absorb.AlignAbsorb = AlignAbsorbVertical
 
@@ -2270,35 +2274,37 @@ local SetJob_StaticText = function(self, job, state, contentType, ...)
     self.text:SetText(text)
 end
 
-local CreateTextTimer = function(parent, point, frame, to, x, y, hjustify, fontsize, font, flags)
-    local f = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
-    local text = f:CreateFontString(nil, "ARTWORK")
-    f:SetFrameLevel(FRAMELEVEL.TEXT)
-    f.text = text
-    text:SetPoint(point,frame,to,x,y)--"TOPLEFT",self,"TOPLEFT",-2,0)
-    -- text:SetJustifyH("LEFT")
-    text:SetFont(font, fontsize or 11, flags)
-    f.SetJob = SetJob_Text
-    return f
-end
-AptechkaDefaultConfig.GridSkin_CreateTextTimer = CreateTextTimer
+local Text_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
+    local r,g,b,a = GetTextColor(job)
+    self.text:SetTextColor(r,g,b,a)
+
+    local scale = job.scale or 1
+    self:SetScale(scale)
+
+    self.text:SetText(job.text or job.name)
+end)
 
 Aptechka.Widget.Text = {}
 Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] font = config.defaultFont, textsize = 13, effect = "NONE" }
 function Aptechka.Widget.Text.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
-    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", config.defaultFont)
-    local flags = opts.effect == "OUTLINE" and "OUTLINE"
-    local text = CreateTextTimer(parent, opts.point, parent, opts.point, opts.x, opts.y, opts.justify, opts.textsize, font, flags)
-    if opts.effect == "SHADOW" then
-        text.text:SetShadowOffset(1,-1)
-    else
-        text.text:SetShadowOffset(0,0)
-    end
+
+    local f = CreateFrame("Frame", nil, parent) -- We need frame to create OnUpdate handler for time updates
+    local text = f:CreateFontString(nil, "ARTWORK")
+    f:SetFrameLevel(FRAMELEVEL.TEXT)
+    f.text = text
+
+    Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
+
     if opts.type == "StaticText" then
-        text.SetJob = SetJob_StaticText
+        f.SetJob = SetJob_StaticText
+    else
+        f.SetJob = SetJob_Text
     end
-    return text
+
+    AddBlinkAnimation(f)
+    f.StartTrace = Text_StartTrace
+    return WrapFrameAsWidget(f)
 end
 
 function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
@@ -2528,7 +2534,7 @@ local border_backdrop = {
     edgeFile = "Interface\\Addons\\Aptechka\\border", tileEdge = true, edgeSize = 14,
     insets = {left = -2, right = -2, top = -2, bottom = -2},
 }
-local SetJob_Border = function(self, job, state, contentType, ...)
+local Border_SetJob = function(self, job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
     self:SetBackdropBorderColor(r,g,b, 0.5)
@@ -2539,6 +2545,10 @@ local SetJob_Border = function(self, job, state, contentType, ...)
         end
     end
 end
+local Border_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
+    local r,g,b,a = GetColor(job)
+    self:SetBackdropBorderColor(r,g,b, 0.5)
+end)
 
 
 local OnMouseEnterFunc = function(self)
@@ -2684,15 +2694,15 @@ local function Reconf(self)
         flashPool.UpdatePosition = flashPool.UpdatePositionVertical
 
         local healAbsorb = self.health.healabsorb
-        healAbsorb:ClearAllPoints()
+        AttachRegionToMask(healAbsorb, self.health, -1)
         healAbsorb.UpdatePosition = healAbsorb.UpdatePositionVertical
 
         local absorb2 = self.health.absorb2
-        absorb2:ClearAllPoints()
+        AttachRegionToMask(absorb2, self.health, 1)
         absorb2.UpdatePosition = absorb2.UpdatePositionVertical
 
         local hpi = self.health.incoming
-        hpi:ClearAllPoints()
+        AttachRegionToMask(hpi, self.health, 1)
         hpi.UpdatePosition = hpi.UpdatePositionVertical
     else
         self.health:SetOrientation("HORIZONTAL")
@@ -2730,15 +2740,15 @@ local function Reconf(self)
         flashPool.UpdatePosition = flashPool.UpdatePositionHorizontal
 
         local healAbsorb = self.health.healabsorb
-        healAbsorb:ClearAllPoints()
+        AttachRegionToMask(healAbsorb, self.health, -1)
         healAbsorb.UpdatePosition = healAbsorb.UpdatePositionHorizontal
 
         local absorb2 = self.health.absorb2
-        absorb2:ClearAllPoints()
+        AttachRegionToMask(absorb2, self.health, 1)
         absorb2.UpdatePosition = absorb2.UpdatePositionHorizontal
 
         local hpi = self.health.incoming
-        hpi:ClearAllPoints()
+        AttachRegionToMask(hpi, self.health, 1)
         hpi.UpdatePosition = hpi.UpdatePositionHorizontal
     end
 
@@ -2774,7 +2784,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- outline:AddMaskTexture(outlineMask)
 
     -- local powerbar = CreateFrame("StatusBar", nil, self)
-    local powerbar = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
+    -- local powerbar = Aptechka.CreateMaskStatusBar(nil, self, "VERTICAL")
+    local powerbar = Aptechka.CreateCoordStatusBar(nil, self, "VERTICAL")
     powerbar:SetFrameLevel(FRAMELEVEL.POWER)
     powerbar:SetWidth(4)
     powerbar:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
@@ -2796,7 +2807,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
 
     -- local hp = CreateFrame("StatusBar", nil, self)
-    local hp = Aptechka.CreateCustomStatusBar(nil, self, "VERTICAL")
+    -- local hp = Aptechka.CreateMaskStatusBar(nil, self, "VERTICAL")
+    local hp = Aptechka.CreateCoordStatusBar(nil, self, "VERTICAL")
     hp:SetFrameLevel(FRAMELEVEL.HEALTH)
     --hp:SetAllPoints(self)
     hp:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
@@ -2951,7 +2963,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     -----------------------
 
-    local hpi = CreateIncominHealBar(hp)
+    local hpi = CreateIncomingHealBar(hp)
     hpi.parent = hp
     hp.incoming = hpi
 
@@ -2963,7 +2975,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
     border:SetBackdrop(border_backdrop)
     border:SetBackdropBorderColor(1, 1, 1, 0.5)
     AddPulseAnimation(border)
-    border.SetJob = SetJob_Border
+    border.SetJob = Border_SetJob
+
+    AddBlinkAnimation(border)
+    border.StartTrace = Border_StartTrace
+
     border:Hide()
 
 
@@ -3002,7 +3018,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.border = border
 
-    self.healthColor = self.health
+    self.healthColor = WrapFrameAsWidget(self.health)
     self.bossdebuff = bossdebuff
     self.raidicon = raidicon
     self.healabsorb = healAbsorb
@@ -3031,6 +3047,28 @@ function MaskStatusBar.SetHeight(self, w)
 end
 function MaskStatusBar.SetStatusBarTexture(self, ...)
     self._texture:SetTexture(...)
+end
+function MaskStatusBar.GetStatusBarTexture(self)
+    return self._texture
+end
+function MaskStatusBar.GetSeparationRegionAttachmentPoints(self)
+    local isReversed = self._fillStyle == "REVERSE"
+    local orientation = self._orientation
+    local mask = self._mask
+    if orientation == "VERTICAL" then
+        if isReversed then
+            return mask, orientation, isReversed, "TOPLEFT", "TOPRIGHT"
+        else
+            return mask, orientation, isReversed, "BOTTOMLEFT", "BOTTOMRIGHT"
+        end
+    else
+        if isReversed then
+            return mask, orientation, isReversed, "TOPRIGHT", "BOTTOMRIGHT"
+        else
+            return mask, orientation, isReversed, "TOPLEFT", "BOTTOMLEFT"
+        end
+    end
+    return mask
 end
 function MaskStatusBar.SetStatusBarColor(self, ...)
     self._texture:SetVertexColor(...)
@@ -3101,7 +3139,11 @@ function MaskStatusBar.SetValue(self, val)
     local rpos = (max-val)/(max-min)
     if rpos > 1 then rpos = 1 end
     local mask = self._mask
-    if rpos <= 0 then mask:Hide(); return end
+    if rpos <= 0 then
+        self:_Resize(0.001)
+        mask:Hide()
+        return
+    end
 
     mask:Show()
 
@@ -3146,205 +3188,209 @@ Aptechka.CreateMaskStatusBar = MaskStatusBar.Create
 
 
 
-do
-    local function CustomStatusBar_SetStatusBarTexture(self, texture)
-        self._texture:SetTexture(texture)
+local CoordStatusBar = {}
+function CoordStatusBar.SetStatusBarTexture(self, texture)
+    self._texture:SetTexture(texture)
+end
+function CoordStatusBar.GetStatusBarTexture(self)
+    return self._texture
+end
+function CoordStatusBar.SetStatusBarColor(self, r,g,b,a)
+    self._texture:SetVertexColor(r,g,b,a)
+end
+function CoordStatusBar.SetMinMaxValues(self, min, max)
+    if max > min then
+        self._min = min
+        self._max = max
+    else
+        self._min = 0
+        self._max = 1
     end
-    local function CustomStatusBar_GetStatusBarTexture(self)
-        return self._texture
-    end
-    local function CustomStatusBar_SetStatusBarColor(self, r,g,b,a)
-        self._texture:SetVertexColor(r,g,b,a)
-    end
-    local function CustomStatusBar_SetMinMaxValues(self, min, max)
-        if max > min then
-            self._min = min
-            self._max = max
+end
+function CoordStatusBar.GetSeparationRegionAttachmentPoints(self)
+    local isReversed = self._fillStyle == "REVERSE"
+    local orientation = self._orientation
+    local region = self._texture
+    if orientation == "VERTICAL" then
+        if isReversed then
+            return region, orientation, not isReversed, "BOTTOMLEFT", "BOTTOMRIGHT"
         else
-            self._min = 0
-            self._max = 1
+            return region, orientation, not isReversed, "TOPLEFT", "TOPRIGHT"
+        end
+    else
+        if isReversed then
+            return region, orientation, not isReversed, "TOPLEFT", "BOTTOMLEFT"
+        else
+            return region, orientation, not isReversed, "TOPRIGHT", "BOTTOMRIGHT"
         end
     end
+    return region
+end
+function CoordStatusBar.SetFillStyle(self, fillStyle)
+    if self._fillStyle == fillStyle then return end
+    self._fillStyle = fillStyle
+    self:_Configure()
+end
+function CoordStatusBar.SetOrientation(self, orientation)
+    if self._orientation == orientation then return end
+    self._orientation = orientation
+    self:_Configure()
+end
 
-    local function CustomStatusBar_SetFillStyle(self, fillStyle)
-        if self._fillStyle == fillStyle then return end
-        self._fillStyle = fillStyle
-        self:_Configure()
+function CoordStatusBar.SetTexCoord(self, ...)
+    if not self.texCoords then
+        self.texCoords = {...}
+    else
+        local existingCoords = self.texCoords
+        local equal = true
+        for i=1,4 do
+            if select(i, ...) ~= existingCoords[i] then
+                equal = false
+            end
+        end
+        if equal then return end
     end
-    local function CustomStatusBar_SetOrientation(self, orientation)
-        if self._orientation == orientation then return end
-        self._orientation = orientation
-        self:_Configure()
-    end
+    self:_Configure()
+end
 
-    local function CustomStatusBar_SetTexCoord(self, ...)
-        if not self.texCoords then
-            self.texCoords = {...}
-        else
-            local existingCoords = self.texCoords
-            local equal = true
-            for i=1,4 do
-                if select(i, ...) ~= existingCoords[i] then
-                    equal = false
+function CoordStatusBar.ResizeVertical(self, value)
+    local len = self._height or self:GetHeight()
+    self._texture:SetHeight(len*value)
+end
+function CoordStatusBar.ResizeHorizontal(self, value)
+    local len = self._width or self:GetWidth()
+    self._texture:SetWidth(len*value)
+end
+
+function CoordStatusBar.MakeCoordsVerticalStandard(self, p)
+    -- left,right, bottom - (bottom-top)*pos , bottom
+    return 0,1, 1-p, 1
+end
+function CoordStatusBar.MakeCoordsVerticalReversed(self, p)
+    return 0,1, 0, p
+end
+function CoordStatusBar.MakeCoordsHorizontalStandard(self, p)
+    return 0,p,0,1
+end
+function CoordStatusBar.MakeCoordsHorizontalReversed(self, p)
+    return 1-p,1,0,1
+end
+
+function CoordStatusBar.SetWidth(self, w)
+    self:_SetWidth(w)
+    self._width = w
+end
+
+function CoordStatusBar.SetHeight(self, w)
+    self:_SetHeight(w)
+    self._height = w
+end
+
+function CoordStatusBar._Configure(self)
+    local isReversed = self._fillStyle == "REVERSE"
+    local orientation = self._orientation
+    local tex = self._texture
+    local l,r,t,b, chrange, cvrange
+    if self.texCoords then
+        l,r,t,b = unpack(self.texCoords)
+        chrange = r - l
+        cvrange = b - t
+    end
+    tex:ClearAllPoints()
+    if orientation == "VERTICAL" then
+        self._Resize = CoordStatusBar.ResizeVertical
+        if isReversed then
+            tex:SetPoint("TOPLEFT")
+            tex:SetPoint("TOPRIGHT")
+            self.MakeCoords = CoordStatusBar.MakeCoordsVerticalReversed
+            if self.texCoords then
+                self.MakeCoords = function(self, p)
+                    return l,r, t, t+p*cvrange
                 end
             end
-            if equal then return end
-        end
-        self:_Configure()
-    end
-
-    local function CustomStatusBar_ResizeVertical(self, value)
-        local len = self._height or self:GetHeight()
-        self._texture:SetHeight(len*value)
-    end
-    local function CustomStatusBar_ResizeHorizontal(self, value)
-        local len = self._width or self:GetWidth()
-        self._texture:SetWidth(len*value)
-    end
-
-    local function CustomStatusBar_MakeCoordsVerticalStandard(self, p)
-        -- left,right, bottom - (bottom-top)*pos , bottom
-        return 0,1, 1-p, 1
-    end
-    local function CustomStatusBar_MakeCoordsVerticalReversed(self, p)
-        return 0,1, 0, p
-    end
-    local function CustomStatusBar_MakeCoordsHorizontalStandard(self, p)
-        return 0,p,0,1
-    end
-    local function CustomStatusBar_MakeCoordsHorizontalReversed(self, p)
-        return 1-p,1,0,1
-    end
-
-    local function CustomStatusBar_SetWidth(self, w)
-        self:_SetWidth(w)
-        self._width = w
-    end
-
-    local function CustomStatusBar_SetHeight(self, w)
-        self:_SetHeight(w)
-        self._height = w
-    end
-
-    local function CustomStatusBar_Configure(self)
-        local isReversed = self._fillStyle == "REVERSE"
-        local orientation = self._orientation
-        local tex = self._texture
-        local l,r,t,b, chrange, cvrange
-        if self.texCoords then
-            l,r,t,b = unpack(self.texCoords)
-            chrange = r - l
-            cvrange = b - t
-        end
-        tex:ClearAllPoints()
-        if orientation == "VERTICAL" then
-            self._Resize = CustomStatusBar_ResizeVertical
-            if isReversed then
-                tex:SetPoint("TOPLEFT")
-                tex:SetPoint("TOPRIGHT")
-                self.MakeCoords = CustomStatusBar_MakeCoordsVerticalReversed
-                if self.texCoords then
-                    self.MakeCoords = function(self, p)
-                        return l,r, t, t+p*cvrange
-                    end
-                end
-            else
-                tex:SetPoint("BOTTOMLEFT")
-                tex:SetPoint("BOTTOMRIGHT")
-                self.MakeCoords = CustomStatusBar_MakeCoordsVerticalStandard
-                if self.texCoords then
-                    self.MakeCoords = function(self, p)
-                        return l,r, b-p*cvrange, b
-                    end
-                end
-            end
         else
-            self._Resize = CustomStatusBar_ResizeHorizontal
-            if isReversed then
-                tex:SetPoint("TOPRIGHT")
-                tex:SetPoint("BOTTOMRIGHT")
-                self.MakeCoords = CustomStatusBar_MakeCoordsHorizontalReversed
-                if self.texCoords then
-                    self.MakeCoords = function(self, p)
-                        return r-p*chrange,r,t,b
-                    end
-                end
-            else
-                tex:SetPoint("TOPLEFT")
-                tex:SetPoint("BOTTOMLEFT")
-                self.MakeCoords = CustomStatusBar_MakeCoordsHorizontalStandard
-                if self.texCoords then
-                    self.MakeCoords = function(self, p)
-                        return l,l+p*chrange,t,b
-                    end
+            tex:SetPoint("BOTTOMLEFT")
+            tex:SetPoint("BOTTOMRIGHT")
+            self.MakeCoords = CoordStatusBar.MakeCoordsVerticalStandard
+            if self.texCoords then
+                self.MakeCoords = function(self, p)
+                    return l,r, b-p*cvrange, b
                 end
             end
         end
-        self:SetValue(self._value)
-    end
-
-    local function CustomStatusBar_SetValue(self, val)
-        local min = self._min
-        local max = self._max
-        self._value = val
-        local pos = (val-min)/(max-min)
-        if pos > 1 then pos = 1 end
-        local tex = self._texture
-        if pos <= 0 then tex:Hide(); return end
-
-        tex:Show()
-
-        self:_Resize(pos)
-        self._texture:SetTexCoord(self:MakeCoords(pos))
-    end
-
-
-    function Aptechka.CreateCustomStatusBar(name, parent, orientation, fillStyle, l,r,t,b)
-        local f = CreateFrame("Frame", name, parent)
-        f._min = 0
-        f._max = 100
-        f._value = 0
-
-        local tex = f:CreateTexture(nil, "ARTWORK")
-
-        f._texture = tex
-
-
-        f.SetStatusBarTexture = CustomStatusBar_SetStatusBarTexture
-        f.GetStatusBarTexture = CustomStatusBar_GetStatusBarTexture
-        f.SetStatusBarColor = CustomStatusBar_SetStatusBarColor
-        f.SetMinMaxValues = CustomStatusBar_SetMinMaxValues
-        f.SetFillStyle = CustomStatusBar_SetFillStyle
-        f.SetOrientation = CustomStatusBar_SetOrientation
-        f.SetTexCoord = CustomStatusBar_SetTexCoord
-        f._Configure = CustomStatusBar_Configure
-        f.SetValue = CustomStatusBar_SetValue
-
-        -- As i later found out, parent:GetHeight() doesn't immediately return the correct values on login, leading to infinite bars
-        -- So i had to move from attachment by opposing corners to attachment by neighboring corners + SetHeight/SetWidth
-
-        f._SetWidth = f.SetWidth
-        f.SetWidth = CustomStatusBar_SetWidth
-        f._SetHeight = f.SetHeight
-        f.SetHeight = CustomStatusBar_SetHeight
-
-        f._fillStyle = fillStyle
-        f._orientation = orientation
-        if b then
-            f.texCoords = {l,r,t,b}
+    else
+        self._Resize = CoordStatusBar.ResizeHorizontal
+        if isReversed then
+            tex:SetPoint("TOPRIGHT")
+            tex:SetPoint("BOTTOMRIGHT")
+            self.MakeCoords = CoordStatusBar.MakeCoordsHorizontalReversed
+            if self.texCoords then
+                self.MakeCoords = function(self, p)
+                    return r-p*chrange,r,t,b
+                end
+            end
+        else
+            tex:SetPoint("TOPLEFT")
+            tex:SetPoint("BOTTOMLEFT")
+            self.MakeCoords = CoordStatusBar.MakeCoordsHorizontalStandard
+            if self.texCoords then
+                self.MakeCoords = function(self, p)
+                    return l,l+p*chrange,t,b
+                end
+            end
         end
-        f:_Configure()
-
-        f:Show()
-
-        return f
     end
+    self:SetValue(self._value)
+end
+
+function CoordStatusBar.SetValue(self, val)
+    local min = self._min
+    local max = self._max
+    self._value = val
+    local pos = (val-min)/(max-min)
+    if pos > 1 then pos = 1 end
+    local tex = self._texture
+    if pos <= 0 then tex:Hide(); return end
+
+    tex:Show()
+
+    self:_Resize(pos)
+    self._texture:SetTexCoord(self:MakeCoords(pos))
 end
 
 
+function CoordStatusBar.Create(name, parent, orientation, fillStyle, l,r,t,b)
+    local f = CreateFrame("Frame", name, parent)
+    f._min = 0
+    f._max = 100
+    f._value = 0
+
+    local tex = f:CreateTexture(nil, "ARTWORK")
+
+    f._texture = tex
+
+    -- As i later found out, parent:GetHeight() doesn't immediately return the correct values on login, leading to infinite bars
+    -- So i had to move from attachment by opposing corners to attachment by neighboring corners + SetHeight/SetWidth
+
+    f._SetWidth = f.SetWidth
+    f._SetHeight = f.SetHeight
+
+    Mixin(f, CoordStatusBar)
+
+    f._fillStyle = fillStyle
+    f._orientation = orientation
+    if b then
+        f.texCoords = {l,r,t,b}
+    end
+    f:_Configure()
+
+    f:Show()
+
+    return f
+end
+Aptechka.CreateCoordStatusBar = CoordStatusBar.Create
 
 
-local reverse = helpers.Reverse
 local function FakeHeader_Arrange(hdr)
     local db = Aptechka.db.profile
     local w = pixelperfect(db.width)

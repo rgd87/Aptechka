@@ -154,7 +154,10 @@ local function PrepareAuraOpts(data)
     end
 
     if data.id and not data.name then data.name = GetSpellInfo(data.id) end
-    if data.name == nil then print (string.format("[Aptechka] %d spell id missing", data.id)) return end
+    if data.name == nil then
+        -- print(string.format("[Aptechka] %d spell id missing", data.id))
+        return
+    end
 
     if data.showDuration then
         data.infoType = "DURATION"
@@ -209,10 +212,10 @@ function helpers.AddTrace(data)
 
     if data.id then data.name = GetSpellInfo(data.id) or data.name end
     if not config.traces then config.traces = {} end
-    if not data.name then print(string.format("[Aptechka] %d spell id missing", data.id)) return end
-    data.actualname = data.name
-
-    data.name = data.actualname.."Trace"
+    if not data.name then
+        -- print(string.format("[Aptechka] %d spell id missing", data.id))
+        return
+    end
     local id = data.id
     data.id = nil -- important to do that, because statuses with id field treated as aura
 
@@ -377,8 +380,39 @@ local MIRROR_POINTS = {
 	["TOP"] = "BOTTOM",
 	["BOTTOM"] = "TOP",
 };
-function helpers.Reverse(p1)
-    local p2 = MIRROR_POINTS[p1]
+
+local MIRROR_POINTS_HORIZONTAL = {
+	["TOPLEFT"] = "TOPRIGHT",
+	["LEFT"] = "RIGHT",
+	["BOTTOMLEFT"] = "BOTTOMRIGHT",
+	["TOPRIGHT"] = "TOPLEFT",
+	["RIGHT"] = "LEFT",
+	["BOTTOMRIGHT"] = "BOTTOMLEFT",
+	["CENTER"] = "CENTER",
+	["TOP"] = "TOP",
+	["BOTTOM"] = "BOTTOM",
+};
+
+local MIRROR_POINTS_VERTICAL = {
+	["TOPLEFT"] = "BOTTOMLEFT",
+	["LEFT"] = "LEFT",
+	["BOTTOMLEFT"] = "TOPLEFT",
+	["TOPRIGHT"] = "BOTTOMRIGHT",
+	["RIGHT"] = "RIGHT",
+	["BOTTOMRIGHT"] = "TOPRIGHT",
+	["CENTER"] = "CENTER",
+	["TOP"] = "BOTTOM",
+	["BOTTOM"] = "TOP",
+};
+function helpers.Reverse(p1, direction)
+    local mirrorTable = MIRROR_POINTS
+    if direction == "HORIZONTAL" then
+        mirrorTable = MIRROR_POINTS_HORIZONTAL
+    elseif direction == "VERTICAL" then
+        mirrorTable = MIRROR_POINTS_VERTICAL
+    end
+    local p2 = mirrorTable[p1]
+
     if p2 == "RIGHT" or p2 == "LEFT" then
         return p2, "HORIZONTAL"
     elseif p2 == "TOP" or p2 == "BOTTOM" then
