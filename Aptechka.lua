@@ -290,7 +290,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.Roster = Roster
 
     if AptechkaDB.global.disableBlizzardPlayer then
-        helpers.DisableBlizzPlayerFrame()
+        Aptechka:SafeCallDirect(helpers.DisableBlizzPlayerFrame)
     end
     if AptechkaDB.global.disableBlizzardParty then
         helpers.DisableBlizzParty()
@@ -2288,6 +2288,18 @@ do
                 return ret
             else
                 Aptechka[func] = nil
+            end
+        end
+    end
+    local errorhandler2 = function(err)
+        print("|cffff7777Aptechka Error:|r")
+        print(err)
+    end
+    function Aptechka:SafeCallDirect(func, ...)
+        if func then
+            local ok, ret = xpcall(func, errorhandler2, ...)
+            if ok then
+                return ret
             end
         end
     end
