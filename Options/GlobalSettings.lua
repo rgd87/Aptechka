@@ -95,7 +95,7 @@ function ns.MakeGlobalSettings()
                         order = 8.6,
                     },
                     thickBorder = {
-                        name = L"Thick Frame Outline"..newFeatureIcon,
+                        name = L"Thick Frame Outline",
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.global.borderWidth == 2 end,
@@ -150,7 +150,7 @@ function ns.MakeGlobalSettings()
                         order = 10.1,
                     },
                     translitCyrillic = {
-                        name = L"Transliterate Russian Names"..newFeatureIcon,
+                        name = L"Transliterate Russian Names",
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.global.translitCyrillic end,
