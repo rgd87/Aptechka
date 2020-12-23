@@ -1080,8 +1080,7 @@ local StatusBarOnUpdate = function(self, time)
     local timeLeft = self.endTime - GetTime()
 
     if self.pandemic and timeLeft < self.pandemic then
-        local color = self._color
-        self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
+        self:SetStatusBarColor(unpack(self.refreshColor))
         self.pandemic = nil
     end
     if self.isReversed then
@@ -1095,7 +1094,6 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
 
     self:SetStatusBarColor(r,g,b)
     self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
-    self._color = { r,g,b }
 
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
@@ -1103,6 +1101,15 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
         self.duration = duration
         self.isReversed = isReversed
         local pandemic = job.refreshTime
+
+        if pandemic then
+            if job.refreshColor then
+                self.refreshColor = job.refreshColor
+            else
+                self.refreshColor = { r*0.75, g*0.75, b*0.75 }
+            end
+        end
+
         self.pandemic = pandemic
         self:SetMinMaxValues(0, duration)
         -- self:SetValue(timeLeft)
@@ -2220,14 +2227,19 @@ end
         return "%ds", floor(s)
     end
 
-    local Text_OnUpdate = function(t3frame,time)
-        local remains = t3frame.expirationTime - GetTime()
-        if remains >= 2 then
-            t3frame.text:SetText(string_format("%d", remains))
-        elseif remains >= 0 then
-            t3frame.text:SetText(string_format("%.1f", remains))
+    local Text_OnUpdate = function(self,time)
+        local timeLeft = self.expirationTime - GetTime()
+        if timeLeft >= 2 then
+            self.text:SetText(string_format("%d", timeLeft))
+        elseif timeLeft >= 0 then
+            self.text:SetText(string_format("%.1f", timeLeft))
         else
-            t3frame:SetScript("OnUpdate", nil)
+            self:SetScript("OnUpdate", nil)
+        end
+
+        if self.pandemic and timeLeft < self.pandemic then
+            self.text:SetTextColor(unpack(self.refreshColor))
+            self.pandemic = nil
         end
     end
     local Text_OnUpdateForward = function(frame,time)
@@ -2255,6 +2267,17 @@ local SetJob_Text = function(self, job, state, contentType, ...)
         local duration, expirationTime = cur, max
         self.expirationTime = expirationTime
         self.startTime = nil
+
+        local pandemic = job.refreshTime
+        self.pandemic = pandemic
+        if pandemic then
+            if job.refreshColor then
+                self.refreshColor = job.refreshColor
+            else
+                self.refreshColor = { r*0.75, g*0.75, b*0.75 }
+            end
+        end
+
         self:SetScript("OnUpdate", Text_OnUpdate)
     elseif timerType == "FORWARD" then
         self.startTime = cur

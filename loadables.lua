@@ -61,6 +61,8 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         [325382] = { 325382, 1, "Lady Inerva Darkvein, Warped Desires" },
         [334771] = { 334771, 1, "Stone Legion Generals, Kaal, Heart Hemorrhage" },
         [332794] = { 332794, 1, "Sire Denathrius, Fatal Finesse" },
+        [346651] = { 346651, 4, "Blood Council, Drain Essence" },
+
         -- [25163] = { 25163, 3, "Placeholder Disgusting Oozeling" },
     },
     ["Halls of Atonement"] = {
