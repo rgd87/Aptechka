@@ -185,6 +185,7 @@ AG{ id = 236696,  template = "SurvivalCD" } -- Thorns
 
 -- PRIEST
 AG{ id = 19236,  template = "SurvivalCD" } -- Desperate Prayer
+AG{ id = 15286,  template = "SurvivalCD" } -- Vampiric Embrace
 AG{ id = 586,  template = "SurvivalCD" } -- Fade
 AG{ id = 47585,  template = "SurvivalCD" } -- Dispersion
 AG{ id = 47788, template = "TankCD", priority = 90 } --Guardian Spirit
@@ -220,9 +221,10 @@ AG{ id = 145629, template = "AreaDR" } -- Anti-Magic Zone
 AG{ id = 48707, template = "SurvivalCD" } -- Anti-Magic Shell
 
 -- MAGE
+-- AG{ id = 190319, template = "SurvivalCD" } -- Combustion
 AG{ id = 113862, template = "SurvivalCD" } -- Arcane Greater Invisibility
 AG{ id = 45438,  template = "TankCD" } -- Ice Block
-AG{ id = 110909,  template = "SurvivalCD" } -- Alter Time
+AG{ id = { 110909, 342246 },  template = "SurvivalCD" } -- Alter Time
 
 -- HUNTER
 AG{ id = 186265, template = "SurvivalCD" } -- Aspect of the Turtle
@@ -233,6 +235,7 @@ AG{ id = 264735, template = "SurvivalCD" } -- Survival of the Fittest
 AG{ id = 108271, template = "SurvivalCD" } -- Astral Shift
 AG{ id = 325174, template = "AreaDR" } -- Spirit Link Totem
 AG{ id = 204293, template = "SurvivalCD" } -- Spirit Link (PvP)
+-- AG{ id = 207498, template = "AreaDR", priority = 60 } -- Ancestral Protection Totem
 -- AG{ id = 210918, template = "SurvivalCD" } -- Ethereal Form
 
 
@@ -412,7 +415,7 @@ end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
 
-    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.25, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
+    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.25, refreshTime = 5.4, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
     A{ id = 974,    type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
                                                                         -- stackcolor =   {
                                                                         --     [1] = { 0,.4, 0},
