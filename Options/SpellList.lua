@@ -258,6 +258,7 @@ local function form_save(form)
             clean(opts, default_opts, "extend_below", false)
             clean(opts, default_opts, "refreshTime", false)
             clean(opts, default_opts, "foreigncolor", false)
+            clean(opts, default_opts, "refreshColor", false)
             clean(opts, default_opts, "infoType", false)
             clean(opts, default_opts, "template", false)
             clean(opts, default_opts, "maxCount", false)
@@ -762,8 +763,12 @@ local function AuraForm_Fill(Form, class, category, id, opts, isEmptyForm)
     Form_FillClones(controls, opts)
 
     controls.color:SetColor(fillAlpha(opts.color or {1,1,1,1} ))
+
+    controls.fcr:SetValue(not not opts.foreigncolor)
     controls.foreigncolor:SetColor(fillAlpha(opts.foreigncolor or {1,1,1,0} ))
 
+    controls.rcr:SetValue(not not opts.refreshColor)
+    controls.refreshColor:SetColor(fillAlpha(opts.refreshColor or {1,1,1,0} ))
 
     if id and not AptechkaDefaultConfig[class][category][id] then
         controls.delete:SetDisabled(false)
@@ -803,6 +808,20 @@ local function AuraForm_Create(self)
     form_color(Form)
     form_isMine(Form)
 
+
+    local fcr = AceGUI:Create("CheckBox")
+    fcr:SetLabel()
+    fcr:SetRelativeWidth(0.07)
+    fcr:SetCallback("OnValueChanged", function(self, event, value)
+        if not value then
+            self.parent.opts["foreigncolor"] = false
+            self.parent.controls.foreigncolor:SetColor(1,1,1,0)
+        end
+        self.parent.controls.foreigncolor:SetDisabled(not value)
+    end)
+    Form.controls.fcr = fcr
+    Form:AddChild(fcr)
+
     local foreigncolor = AceGUI:Create("ColorPicker")
     foreigncolor:SetLabel(L"Others' Color")
     foreigncolor:SetRelativeWidth(0.27)
@@ -812,17 +831,6 @@ local function AuraForm_Create(self)
     end)
     Form.controls.foreigncolor = foreigncolor
     Form:AddChild(foreigncolor)
-
-    local fcr = AceGUI:Create("Button")
-    fcr:SetText("X")
-    fcr:SetRelativeWidth(0.1)
-    fcr:SetCallback("OnClick", function(self, event)
-        self.parent.opts["foreigncolor"] = false
-        self.parent.controls.foreigncolor:SetColor(1,1,1,0)
-    end)
-    Form.controls.fcr = fcr
-    Form:AddChild(fcr)
-    AddTooltip(fcr, L"Reset")
 
     local isMissing = AceGUI:Create("CheckBox")
     isMissing:SetLabel(L"Show Missing")
@@ -869,6 +877,30 @@ local function AuraForm_Create(self)
     Form.controls.refreshTime = refreshTime
     Form:AddChild(refreshTime)
     AddTooltip(refreshTime, "Pandemic indication. Only works for bars")
+
+    local rcr = AceGUI:Create("CheckBox")
+    rcr:SetLabel(L"Custom Refresh Color")
+    rcr:SetRelativeWidth(0.45)
+    rcr:SetCallback("OnValueChanged", function(self, event, value)
+        if not value then
+            self.parent.opts["refreshColor"] = false
+            self.parent.controls.refreshColor:SetColor(1,1,1,0)
+        end
+        self.parent.controls.refreshColor:SetDisabled(not value)
+    end)
+    Form.controls.rcr = rcr
+    Form:AddChild(rcr)
+    -- AddTooltip(rcr, "Pandemic color")
+
+    local refreshColor = AceGUI:Create("ColorPicker")
+    refreshColor:SetLabel(L"Refresh Color")
+    refreshColor:SetRelativeWidth(0.27)
+    refreshColor:SetHasAlpha(false)
+    refreshColor:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
+        self.parent.opts["refreshColor"] = {r,g,b}
+    end)
+    Form.controls.refreshColor = refreshColor
+    Form:AddChild(refreshColor)
 
     form_showCount(Form)
 
