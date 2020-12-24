@@ -389,6 +389,14 @@ function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     texCoords = DT_TextureCoords[debuffType]
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
+function contentNormalizers.LEADER(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    r,g,b = GetColor(job)
+    text = "L"
+    texture = "Interface\\GroupFrame\\UI-Group-LeaderIcon"
+    icon = isClassic and 132768 or 1670850
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
 function contentNormalizers.CAST(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed
 

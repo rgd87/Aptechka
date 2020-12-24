@@ -1543,7 +1543,7 @@ function Aptechka.FrameCheckRoles(self, unit )
         local isLeader = UnitIsGroupLeader(unit)
         local role = UnitGroupRolesAssigned(unit)
 
-        FrameSetJob(self, config.LeaderStatus, isLeader)
+        FrameSetJob(self, config.LeaderStatus, isLeader, "LEADER")
         if config.AssistStatus then
             local isAssistant = UnitIsGroupAssistant(unit)
             FrameSetJob(self, config.AssistStatus, isAssistant)
