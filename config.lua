@@ -55,6 +55,7 @@ config.GhostStatus = { name = "Ghost", assignto = set("text2","healthColor"), co
 config.OfflineStatus = { name = "Offline", assignto = set("text2","text3","healthColor"), color = {0.5,0.5,0.5}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.AwayStatus = { name = "AFK", assignto = set("text2","text3"), color = {0.4,0.4,0.4}, textcolor = {1,0.8,0}, text = "AFK",  priority = 15}
 config.IncomingHealStatus = { name = "IncHealText", assignto = set("text2"), color = { 0, 1, 0}, priority = 15 }
+-- config.AbsorbTextStatus = { name = "AbsorbText", assignto = set("text2"), color = { 0.7, 0.7, 1 }, priority = 11, formatType = "PERCENTAGE" }
 config.HealthTextStatus = { name = "HealthText", assignto = set("text2"), color = { 54/255, 201/255, 99/256 }, priority = 10, formatType = "MISSING_VALUE_SHORT" }
 config.UnitNameStatus = { name = "UnitName", assignto = set("text1"), classcolor = true, priority = 20 }
 config.HealthBarColor = { name = "HealthBar", assignto = set("health"), color = {1, .3, .3}, classcolor = true, priority = 10 }

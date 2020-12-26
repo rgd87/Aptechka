@@ -910,6 +910,10 @@ function Aptechka.FrameUpdateAbsorb(frame, unit)
     end
     frame.absorb:SetValue(p, ch)
     frame.absorb2:SetValue(p, ch)
+
+    -- if true then
+    --     FrameSetJob(frame, config.AbsorbTextStatus, a + h > hm, nil, a, hm )
+    -- end
 end
 function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateAbsorb)
@@ -954,8 +958,6 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     if hm == 0 then return end
     local foregroundValue, perc = GetForegroundSeparation(h, hm, fgShowMissing)
     local state = self.state
-    state.vHealth = h
-    state.vHealthMax = hm
     self.health:SetValue(foregroundValue*100)
     self.healabsorb:SetValue(healabsorb/hm, perc)
     self.absorb2:SetValue(shields/hm, perc)

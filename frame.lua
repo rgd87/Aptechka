@@ -283,6 +283,7 @@ function contentNormalizers.HealthText(job, state, contentType, ...)
     r,g,b = GetClassOrTextColor(job, state)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
+-- contentNormalizers.AbsorbText = contentNormalizers.HealthText
 function contentNormalizers.INCOMING_HEAL(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     cur = ...
