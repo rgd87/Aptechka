@@ -8,6 +8,7 @@ local _, helpers = ...
 -- Mouseover the spell and use this macro /dump GetMouseFocus():GetParent().spellID
 AptechkaDefaultConfig.MapIDs = {
     [147] = "Ulduar",
+    -- This table used to be map IDs, but now it's just used to content relevance sorting
 
     [934] = "Atal'Dazar",
     [936] = "Freehold",

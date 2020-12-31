@@ -745,7 +745,7 @@ function Aptechka.GetWidgetList()
     list["roleIcon"] = nil
     list["debuffIcons"] = nil
     list["mindcontrol"] = nil
-    list["unhealable"] = nil
+    -- list["unhealable"] = nil
     list["vehicle"] = nil
     list["text1"] = nil
     list["incomingCastIcon"] = nil

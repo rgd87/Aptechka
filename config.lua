@@ -485,6 +485,7 @@ if playerClass == "DRUID" then
     -- Germination
     A{ id = 155777,type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1, refreshTime = 4.5, priority = 80, color = { 1, 0.4, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, infoType = "DURATION", isMine = true }
     -- Lifebloom
+    -- 188550 -- dark titan's lesson legendary
     A{ id = { 33763, 188550 } , type = "HELPFUL", assignto = set("bar4"), extend_below = 14, refreshTime = 4.5, priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
     -- Regrowth
     A{ id = 8936, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 50, infoType = "DURATION" }
