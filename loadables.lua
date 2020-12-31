@@ -39,8 +39,10 @@ AptechkaDefaultConfig.MapIDs = {
     [1679] = "De Other Side",
     [1683] = "Theater of Pain",
     [1693] = "Spires of Ascension",
+
+    [1701] = "PvP",
+
     [1735] = "Castle Nathria",
-    -- This table is also used for debuff highlight sorting by content relevance
 
     [704] = "Halls of Valor",
     [706] = "Maw of Souls",
@@ -50,7 +52,11 @@ AptechkaDefaultConfig.MapIDs = {
 }
 
 AptechkaDefaultConfig.defaultDebuffHighlights = {
-
+    ["PvP"] = {
+        [207736] = { 207736, 3, "Shadowy Duel" },
+        [212183] = { 212183, 3, "Smoke Bomb" },
+        [33786] = { 33786, 3, "Cyclone" },
+    },
     ["Castle Nathria"] = {
         -- [334971] = { 334971, 1, "Huntsman Altimor, Margore, Jagged Claws" },
         [341473] = { 341473, 1, "Bleakwing Assassin, Crimson Flurry" },
