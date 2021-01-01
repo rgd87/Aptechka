@@ -2317,7 +2317,7 @@ local Text_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
 end)
 
 Aptechka.Widget.Text = {}
-Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] font = config.defaultFont, textsize = 13, effect = "NONE" }
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", width = 10, height = 10, x = 0, y = 0, --[[justify = "LEFT",]] font = config.defaultFont, textsize = 13, effect = "NONE" }
 function Aptechka.Widget.Text.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
 
@@ -2343,8 +2343,24 @@ function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     CheckDisabled(f, opts.disabled)
 
+    local w = pixelperfect(opts.width)
+    local h = pixelperfect(opts.height)
+    UpdateFramePoints(f, parent, opts, w, h)
+
     f.text:ClearAllPoints()
     f.text:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+    -- If attaching to text frame then the weird bug happens and text is not visible on initial login for a few sec
+    -- So just attaching both frame and fontstring to the parent unitframe
+
+    if opts.bg then
+        if not f.bg then
+            f.bg = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", 0, 0, 0, 0, -2)
+        end
+        f.bg:SetVertexColor(0,0,0, opts.bgAlpha or 0.5)
+    elseif f.bg then
+        f.bg:Hide()
+    end
+
     -- f.text:SetJustifyH(opts.justify:upper())
     local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", config.defaultFont)
     local flags = opts.effect == "OUTLINE" and "OUTLINE"
