@@ -538,6 +538,9 @@ config.autoload = {
 
 
 helpers.auraBlacklist = {
+    -- Castle Nathria
+    [325184] = true, -- Darkvein, Loose Anima
+
     -- Maw Debuffs
     -- [330030] = true, -- Gorgoan Lament Damage taken increased by 5%. Damage inflicted increased by 5%.
     [326790] = true, -- Sanguine Depths, Naaru cooldown
