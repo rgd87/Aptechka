@@ -480,6 +480,7 @@ if playerClass == "DRUID" then
 
     -- Cenarion Ward
     A{ id = 102351, type = "HELPFUL", assignto = set("bars"), priority = 55, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
+    A{ id = 102352, type = "HELPFUL", assignto = set("bars"), priority = 55, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
     -- Rejuvenation
     A{ id = 774,   type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1.25, refreshTime = 4.5, priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, infoType = "DURATION", isMine = true }
     -- Germination
