@@ -479,15 +479,16 @@ if playerClass == "DRUID" then
     ]]
 
     -- Cenarion Ward
-    A{ id = 102351, type = "HELPFUL", assignto = set("bars"), priority = 55, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
-    A{ id = 102352, type = "HELPFUL", assignto = set("bars"), priority = 55, scale = 0.75, color = { 0, 0.7, 0.9 }, isMine = true }
+    A{ id = 102351, type = "HELPFUL", assignto = set("bars"), priority = 55, scale = 0.75, color = { 0, 0.5, 0.7 }, isMine = true }
+    -- Cenarion Ward effect
+    A{ id = 102352, type = "HELPFUL", assignto = set("bars"), priority = 55, scale = 0.8, color = { 0, 0.7, 0.9 }, isMine = true }
     -- Rejuvenation
-    A{ id = 774,   type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1.25, refreshTime = 4.5, priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0, 0.4 }, infoType = "DURATION", isMine = true }
+    A{ id = 774,   type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1.25, refreshTime = 4.5, priority = 90, color = { 1, 0.2, 1}, refreshColor = { 1, 0.1, 0.1}, foreigncolor = { 0.4, 0, 0.4 }, infoType = "DURATION", isMine = true }
     -- Germination
-    A{ id = 155777,type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1, refreshTime = 4.5, priority = 80, color = { 1, 0.4, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, infoType = "DURATION", isMine = true }
+    A{ id = 155777,type = "HELPFUL", assignto = set("bars"), extend_below = 15, scale = 1, refreshTime = 4.5, priority = 80, color = { 1, 0.4, 1}, refreshColor = { 1, 0.1, 0.1}, foreigncolor = { 0.4, 0.1, 0.4 }, infoType = "DURATION", isMine = true }
     -- Lifebloom
     -- 188550 -- dark titan's lesson legendary
-    A{ id = { 33763, 188550 } , type = "HELPFUL", assignto = set("bar4"), extend_below = 14, refreshTime = 4.5, priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
+    A{ id = { 33763, 188550 } , type = "HELPFUL", assignto = set("bar4"), extend_below = 14, refreshTime = 4.5, refreshColor = { 1, 0.6, 0.2}, priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
     -- Regrowth
     A{ id = 8936, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 50, infoType = "DURATION" }
     -- Wild Growth
