@@ -306,7 +306,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     Aptechka.Roster = Roster
 
     if AptechkaDB.global.disableBlizzardPlayer then
-        helpers.DisableBlizzPlayerFrame()
+        Aptechka:SafeCallDirect(helpers.DisableBlizzPlayerFrame)
     end
     if AptechkaDB.global.disableBlizzardParty then
         helpers.DisableBlizzParty()
@@ -777,7 +777,7 @@ function Aptechka.GetWidgetList()
     list["roleIcon"] = nil
     list["debuffIcons"] = nil
     list["mindcontrol"] = nil
-    list["unhealable"] = nil
+    -- list["unhealable"] = nil
     list["vehicle"] = nil
     list["text1"] = nil
     list["incomingCastIcon"] = nil
@@ -996,6 +996,10 @@ function Aptechka.FrameUpdateAbsorb(frame, unit)
     end
     frame.absorb:SetValue(p, ch)
     frame.absorb2:SetValue(p, ch)
+
+    -- if true then
+    --     FrameSetJob(frame, config.AbsorbTextStatus, a + h > hm, nil, a, hm )
+    -- end
 end
 function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateAbsorb)
@@ -1040,8 +1044,6 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     if hm == 0 then return end
     local foregroundValue, perc = GetForegroundSeparation(h, hm, fgShowMissing)
     local state = self.state
-    state.vHealth = h
-    state.vHealthMax = hm
     self.health:SetValue(foregroundValue*100)
     self.healabsorb:SetValue(healabsorb/hm, perc)
     self.absorb2:SetValue(shields/hm, perc)
@@ -1631,7 +1633,7 @@ function Aptechka.FrameCheckRoles(self, unit )
         local isLeader = UnitIsGroupLeader(unit)
         local role = UnitGroupRolesAssigned(unit)
 
-        FrameSetJob(self, config.LeaderStatus, isLeader)
+        FrameSetJob(self, config.LeaderStatus, isLeader, "LEADER")
         if config.AssistStatus then
             local isAssistant = UnitIsGroupAssistant(unit)
             FrameSetJob(self, config.AssistStatus, isAssistant)
@@ -2375,6 +2377,18 @@ do
                 return ret
             else
                 Aptechka[func] = nil
+            end
+        end
+    end
+    local errorhandler2 = function(err)
+        print("|cffff7777Aptechka Error:|r")
+        print(err)
+    end
+    function Aptechka:SafeCallDirect(func, ...)
+        if func then
+            local ok, ret = xpcall(func, errorhandler2, ...)
+            if ok then
+                return ret
             end
         end
     end

@@ -283,6 +283,7 @@ function contentNormalizers.HealthText(job, state, contentType, ...)
     r,g,b = GetClassOrTextColor(job, state)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
+-- contentNormalizers.AbsorbText = contentNormalizers.HealthText
 function contentNormalizers.INCOMING_HEAL(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     cur = ...
@@ -387,6 +388,14 @@ function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
     icon = icon1 -- DT_Icons[debuffType]
     texCoords = DT_TextureCoords[debuffType]
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.LEADER(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    r,g,b = GetColor(job)
+    text = "L"
+    texture = "Interface\\GroupFrame\\UI-Group-LeaderIcon"
+    icon = isClassic and 132768 or 1670850
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
 function contentNormalizers.CAST(job, state, contentType, ...)
@@ -1080,8 +1089,7 @@ local StatusBarOnUpdate = function(self, time)
     local timeLeft = self.endTime - GetTime()
 
     if self.pandemic and timeLeft < self.pandemic then
-        local color = self._color
-        self:SetStatusBarColor(color[1]*0.75, color[2]*0.75, color[3]*0.75)
+        self:SetStatusBarColor(unpack(self.refreshColor))
         self.pandemic = nil
     end
     if self.isReversed then
@@ -1095,7 +1103,6 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
 
     self:SetStatusBarColor(r,g,b)
     self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
-    self._color = { r,g,b }
 
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
@@ -1103,6 +1110,15 @@ local SetJob_StatusBar = function(self, job, state, contentType, ...)
         self.duration = duration
         self.isReversed = isReversed
         local pandemic = job.refreshTime
+
+        if pandemic then
+            if job.refreshColor then
+                self.refreshColor = job.refreshColor
+            else
+                self.refreshColor = { r*0.75, g*0.75, b*0.75 }
+            end
+        end
+
         self.pandemic = pandemic
         self:SetMinMaxValues(0, duration)
         -- self:SetValue(timeLeft)
@@ -2220,14 +2236,19 @@ end
         return "%ds", floor(s)
     end
 
-    local Text_OnUpdate = function(t3frame,time)
-        local remains = t3frame.expirationTime - GetTime()
-        if remains >= 2 then
-            t3frame.text:SetText(string_format("%d", remains))
-        elseif remains >= 0 then
-            t3frame.text:SetText(string_format("%.1f", remains))
+    local Text_OnUpdate = function(self,time)
+        local timeLeft = self.expirationTime - GetTime()
+        if timeLeft >= 2 then
+            self.text:SetText(string_format("%d", timeLeft))
+        elseif timeLeft >= 0 then
+            self.text:SetText(string_format("%.1f", timeLeft))
         else
-            t3frame:SetScript("OnUpdate", nil)
+            self:SetScript("OnUpdate", nil)
+        end
+
+        if self.pandemic and timeLeft < self.pandemic then
+            self.text:SetTextColor(unpack(self.refreshColor))
+            self.pandemic = nil
         end
     end
     local Text_OnUpdateForward = function(frame,time)
@@ -2255,6 +2276,17 @@ local SetJob_Text = function(self, job, state, contentType, ...)
         local duration, expirationTime = cur, max
         self.expirationTime = expirationTime
         self.startTime = nil
+
+        local pandemic = job.refreshTime
+        self.pandemic = pandemic
+        if pandemic then
+            if job.refreshColor then
+                self.refreshColor = job.refreshColor
+            else
+                self.refreshColor = { r*0.75, g*0.75, b*0.75 }
+            end
+        end
+
         self:SetScript("OnUpdate", Text_OnUpdate)
     elseif timerType == "FORWARD" then
         self.startTime = cur
@@ -2333,7 +2365,7 @@ local CreateUnhealableOverlay = function(parent)
     tex2:SetHorizTile(true)
     tex2:SetVertTile(true)
     tex2:SetTexture("Interface\\AddOns\\Aptechka\\swirl", "REPEAT", "REPEAT")
-    tex2:SetVertexColor(0,0,0, 0.6)
+    tex2:SetVertexColor(0,0,0, 0.7)
 
     tex2:SetBlendMode("BLEND")
     tex2:SetAllPoints(parent)
@@ -2590,6 +2622,7 @@ Aptechka:RegisterWidget("autocastGlow", CreateAutocastGlow)
 Aptechka:RegisterWidget("mindcontrol", CreateMindControlIcon)
 Aptechka:RegisterWidget("vehicle", CreateVehicleIcon)
 Aptechka:RegisterWidget("innerglow", CreateInnerGlow)
+Aptechka:RegisterWidget("unhealable", CreateUnhealableOverlay)
 Aptechka:RegisterWidget("flash", CreateFlash)
 
 function Aptechka:CreateDynamicWidget(frame, widgetName)

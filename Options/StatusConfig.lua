@@ -19,6 +19,7 @@ function ns.MakeStatusConfig()
         "TargetStatus",
         "MouseoverStatus",
         "MainTankStatus",
+        "LeaderStatus",
         "DispelStatus",
         "LOSStatus",
         "HealthTextStatus",

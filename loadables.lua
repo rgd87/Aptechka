@@ -8,6 +8,7 @@ local _, helpers = ...
 -- Mouseover the spell and use this macro /dump GetMouseFocus():GetParent().spellID
 AptechkaDefaultConfig.MapIDs = {
     [147] = "Ulduar",
+    -- This table used to be map IDs, but now it's just used to content relevance sorting
 
     -- Classic semi-random map ids, there's no maps in classic anyway
     [232] = "Molten Core",
@@ -46,8 +47,10 @@ AptechkaDefaultConfig.MapIDs = {
     [1679] = "De Other Side",
     [1683] = "Theater of Pain",
     [1693] = "Spires of Ascension",
+
+    [1701] = "PvP",
+
     [1735] = "Castle Nathria",
-    -- This table is also used for debuff highlight sorting by content relevance
 
     [704] = "Halls of Valor",
     [706] = "Maw of Souls",
