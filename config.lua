@@ -542,6 +542,10 @@ config.autoload = {
 helpers.auraBlacklist = {
     -- Castle Nathria
     [325184] = true, -- Darkvein, Loose Anima
+    [334909] = true, -- The Council of Blood, Oppressive Atmosphere
+
+    [329492] = true, -- Slumberwood Band
+    [328891] = true, -- Tantalizingly Large Gilded Plum
 
     -- Maw Debuffs
     -- [330030] = true, -- Gorgoan Lament Damage taken increased by 5%. Damage inflicted increased by 5%.
