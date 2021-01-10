@@ -60,6 +60,16 @@ end
 
 local function InheritGlobalOptions(popts, gopts)
     assert(gopts)
+
+    --[[
+    local gmt = getmetatable(gopts)
+    if not gmt then
+        local typeDefaults = Aptechka.Widget[gopts.type].default
+        gmt = { __index = typeDefaults }
+        setmetatable(gopts, gmt)
+    end
+    ]]
+
     if not popts then
         return gopts
     else
@@ -2317,7 +2327,7 @@ local Text_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
 end)
 
 Aptechka.Widget.Text = {}
-Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", width = 10, height = 10, x = 0, y = 0, --[[justify = "LEFT",]] font = config.defaultFont, textsize = 13, effect = "NONE" }
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", width = 10, height = 10, x = 0, y = 0, --[[justify = "LEFT",]] font = config.defaultFont, textsize = 13, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0 }
 function Aptechka.Widget.Text.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
 
@@ -2343,14 +2353,19 @@ function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     CheckDisabled(f, opts.disabled)
 
+    f.text:ClearAllPoints()
+    local mx, my = helpers.GetMultipliersFromPoint(opts.point)
+    local padding = opts.padding
+    local ox = padding*mx
+    local oy = padding*my
+    -- f.text:SetPoint(opts.point, parent, opts.point, opts.x+ox, opts.y+oy)
+    f.text:SetPoint(opts.point, ox, oy)
+    -- Here text can be bugged and hidden after initial login (not reload)
+
     local w = pixelperfect(opts.width)
     local h = pixelperfect(opts.height)
+    UpdateFramePoints(f, parent, opts, w, h-1)
     UpdateFramePoints(f, parent, opts, w, h)
-
-    f.text:ClearAllPoints()
-    f.text:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
-    -- If attaching to text frame then the weird bug happens and text is not visible on initial login for a few sec
-    -- So just attaching both frame and fontstring to the parent unitframe
 
     if opts.bg then
         if not f.bg then
@@ -2374,6 +2389,20 @@ end
 
 Aptechka.Widget.StaticText = CopyTable(Aptechka.Widget.Text)
 Aptechka.Widget.StaticText.default.type = "StaticText"
+
+Aptechka.Widget.TextArray = {}
+local TextArray_default = CopyTable(Aptechka.Widget.Text.default)
+TextArray_default.type = "TextArray"
+TextArray_default.growth = "LEFT"
+TextArray_default.max = 3
+Aptechka.Widget.TextArray.default = TextArray_default
+
+function Aptechka.Widget.TextArray.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    return CreateArrayHeader("Text", parent, opts)
+end
+
+Aptechka.Widget.TextArray.Reconf = Aptechka.Widget.BarArray.Reconf
 
 
 local CreateUnhealableOverlay = function(parent)

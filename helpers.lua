@@ -415,6 +415,24 @@ function helpers.Reverse(p1, direction)
     return p2
 end
 
+local POINT_MULS = {
+	["TOPLEFT"] = { 1, -1 },
+	["LEFT"] = { 1, 0 },
+	["BOTTOMLEFT"] = { 1, 1 },
+	["TOPRIGHT"] = { -1, -1 },
+	["RIGHT"] = { -1, 0 },
+	["BOTTOMRIGHT"] = { -1, 1 },
+	["CENTER"] = { 0, 0 },
+	["TOP"] = { 0, -1 },
+	["BOTTOM"] = { 0, 1 },
+};
+function helpers.GetMultipliersFromPoint(point)
+    local muls = POINT_MULS[point]
+    if muls then
+        return unpack(muls)
+    end
+end
+
 function helpers.GetVerticalAlignmentFromPoint(p1)
     if string.find(p1,"BOTTOM") then return "BOTTOM" end
     return "TOP"
