@@ -432,6 +432,11 @@ function ns.WidgetForms.Text.Create(form)
     local textsize = ns.AddSlider(form, 0.46, L"Font Size", "textsize", 12, 6, 30, 1, callbackUpdateForm)
     local effect = ns.AddDropdown(form, 0.46, L"Effect", "effect", "NONE", textEffects, callbackUpdateForm)
 
+    local bg = ns.AddCheckbox(form, 0.95, L"Background", "bg", false, callbackUpdateForm)
+    CreateSizeSettings(form)
+    local bgAlpha = ns.AddSlider(form, 0.46, L"Background Alpha", "bgAlpha", 0.5, 0, 1, 0.05, callbackUpdateForm)
+    local padding = ns.AddSlider(form, 0.46, L"Padding", "padding", 0, 0, 10, 0.5, callbackUpdateForm)
+
     return form
 end
 
@@ -441,6 +446,23 @@ function ns.WidgetForms.Text.Fill(form, name, opts, popts, gopts)
     Control_SetValue(form, "font", opts, gopts)
     Control_SetValue(form, "textsize", opts, gopts)
     Control_SetValue(form, "effect", opts, gopts)
+
+    Control_SetValue(form, "bg", opts, gopts)
+    FillSizeSettings(form, opts, popts, gopts)
+    Control_SetValue(form, "bgAlpha", opts, gopts)
+    Control_SetValue(form, "padding", opts, gopts)
+end
+
+ns.WidgetForms.TextArray = {}
+function ns.WidgetForms.TextArray.Create(form)
+    form = form or ns.WidgetForms.Text.Create(form)
+    CreateArraySettings(form)
+    return form
+end
+
+function ns.WidgetForms.TextArray.Fill(form, name, opts, popts, gopts)
+    ns.WidgetForms.Text.Fill(form, name, opts, popts, gopts)
+    FillArraySettings(form, opts, popts, gopts)
 end
 
 -- StaticText
