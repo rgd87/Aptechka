@@ -2269,13 +2269,18 @@ end
 
     local Text_OnUpdate = function(self,time)
         local timeLeft = self.expirationTime - GetTime()
+        local timeText
         if timeLeft >= 2 then
-            self.text:SetText(string_format("%d", timeLeft))
+            timeText = string_format("%d", timeLeft)
         elseif timeLeft >= 0 then
-            self.text:SetText(string_format("%.1f", timeLeft))
+            timeText = string_format("%.1f", timeLeft)
         else
             self:SetScript("OnUpdate", nil)
+            return
         end
+
+        local prefix = self.prefix -- or ""
+        self.text:SetFormattedText("%s%s", prefix, timeText)
 
         if self.pandemic and timeLeft < self.pandemic then
             self.text:SetTextColor(unpack(self.refreshColor))
@@ -2307,6 +2312,8 @@ local SetJob_Text = function(self, job, state, contentType, ...)
         local duration, expirationTime = cur, max
         self.expirationTime = expirationTime
         self.startTime = nil
+
+        self.prefix = job.text or ""
 
         local pandemic = job.refreshTime
         self.pandemic = pandemic
