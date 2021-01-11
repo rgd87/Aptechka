@@ -2392,8 +2392,26 @@ function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
 
     local w = pixelperfect(opts.width)
     local h = pixelperfect(opts.height)
-    UpdateFramePoints(f, parent, opts, w, h-1)
     UpdateFramePoints(f, parent, opts, w, h)
+
+    -- Workaround for the issue with frame dimensions bugging out text on initial login
+    f.text:SetWidth(w*1.5)
+    f.text:SetHeight(h*1.5)
+    local point = opts.point
+    if string.find(point, "TOP") then
+        f.text:SetJustifyV("TOP")
+    elseif string.find(point, "BOTTOM") then
+        f.text:SetJustifyV("BOTTOM")
+    else
+        f.text:SetJustifyV("MIDDLE")
+    end
+    if string.find(point, "LEFT") then
+        f.text:SetJustifyH("LEFT")
+    elseif string.find(point, "RIGHT") then
+        f.text:SetJustifyH("RIGHT")
+    else
+        f.text:SetJustifyH("CENTER")
+    end
 
     if opts.bg then
         if not f.bg then
