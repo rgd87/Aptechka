@@ -400,6 +400,25 @@ function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     texCoords = DT_TextureCoords[debuffType]
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
+function contentNormalizers.CCEFFECT(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local debuffType, duration, expirationTime, count1, icon1, spellID, caster = ...
+
+    debuffType = debuffType or "Physical"
+    local color = job.color or helpers.DebuffTypeColors[debuffType]
+
+    cur = duration
+    max = expirationTime
+    timerType = "TIMER"
+    count = count1
+
+    r,g,b = unpack(color)
+    text = job.text
+    texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
+    icon = icon1 -- DT_Icons[debuffType]
+    texCoords = DT_TextureCoords[debuffType]
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
 function contentNormalizers.LEADER(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     r,g,b = GetColor(job)
@@ -669,7 +688,9 @@ end
 
 local function UpdateFramePoints(frame, parent, opts, w, h)
     frame:ClearAllPoints()
-    frame:SetSize(w, h)
+    -- frame:SetSize(w, h)
+    frame:SetWidth(w)
+    frame:SetHeight(h)
     frame:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
 end
 

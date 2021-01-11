@@ -57,6 +57,8 @@ end
 
 
 helpers.DebuffTypeColors = {
+    Physical = { 1, 0.3 ,0.3 }, -- Used in CC List
+
     Magic = { 0.2, 0.6, 1},
     Curse = { 0.6, 0, 1},
     Poison = { 0, 0.6, 0},
@@ -495,6 +497,11 @@ do
     function helpers.CheckBit(num, index)
         local n = pow(2,index-1)
         return band(num, n) > 0
+    end
+    local CheckBit = helpers.CheckBit
+
+    function helpers.CompareBits(n1, n2, index)
+        return CheckBit(n1, index) == CheckBit(n2, index)
     end
 
     function helpers.SetBit(num, index)
