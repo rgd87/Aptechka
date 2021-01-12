@@ -59,6 +59,8 @@ end
 
 
 helpers.DebuffTypeColors = {
+    Physical = { 1, 0.3 ,0.3 }, -- Used in CC List
+
     Magic = { 0.2, 0.6, 1},
     Curse = { 0.6, 0, 1},
     Poison = { 0, 0.6, 0},
@@ -421,6 +423,24 @@ function helpers.Reverse(p1, direction)
     return p2
 end
 
+local POINT_MULS = {
+	["TOPLEFT"] = { 1, -1 },
+	["LEFT"] = { 1, 0 },
+	["BOTTOMLEFT"] = { 1, 1 },
+	["TOPRIGHT"] = { -1, -1 },
+	["RIGHT"] = { -1, 0 },
+	["BOTTOMRIGHT"] = { -1, 1 },
+	["CENTER"] = { 0, 0 },
+	["TOP"] = { 0, -1 },
+	["BOTTOM"] = { 0, 1 },
+};
+function helpers.GetMultipliersFromPoint(point)
+    local muls = POINT_MULS[point]
+    if muls then
+        return unpack(muls)
+    end
+end
+
 function helpers.GetVerticalAlignmentFromPoint(p1)
     if string.find(p1,"BOTTOM") then return "BOTTOM" end
     return "TOP"
@@ -483,6 +503,11 @@ do
     function helpers.CheckBit(num, index)
         local n = pow(2,index-1)
         return band(num, n) > 0
+    end
+    local CheckBit = helpers.CheckBit
+
+    function helpers.CompareBits(n1, n2, index)
+        return CheckBit(n1, index) == CheckBit(n2, index)
     end
 
     function helpers.SetBit(num, index)

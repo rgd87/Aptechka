@@ -60,6 +60,16 @@ end
 
 local function InheritGlobalOptions(popts, gopts)
     assert(gopts)
+
+    --[[
+    local gmt = getmetatable(gopts)
+    if not gmt then
+        local typeDefaults = Aptechka.Widget[gopts.type].default
+        gmt = { __index = typeDefaults }
+        setmetatable(gopts, gmt)
+    end
+    ]]
+
     if not popts then
         return gopts
     else
@@ -390,6 +400,25 @@ function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     texCoords = DT_TextureCoords[debuffType]
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
+function contentNormalizers.CCEFFECT(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local debuffType, duration, expirationTime, count1, icon1, spellID, caster = ...
+
+    debuffType = debuffType or "Physical"
+    local color = job.color or helpers.DebuffTypeColors[debuffType]
+
+    cur = duration
+    max = expirationTime
+    timerType = "TIMER"
+    count = count1
+
+    r,g,b = unpack(color)
+    text = job.text
+    texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
+    icon = icon1 -- DT_Icons[debuffType]
+    texCoords = DT_TextureCoords[debuffType]
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
 function contentNormalizers.LEADER(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     r,g,b = GetColor(job)
@@ -659,7 +688,9 @@ end
 
 local function UpdateFramePoints(frame, parent, opts, w, h)
     frame:ClearAllPoints()
-    frame:SetSize(w, h)
+    -- frame:SetSize(w, h)
+    frame:SetWidth(w)
+    frame:SetHeight(h)
     frame:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
 end
 
@@ -2238,13 +2269,18 @@ end
 
     local Text_OnUpdate = function(self,time)
         local timeLeft = self.expirationTime - GetTime()
+        local timeText
         if timeLeft >= 2 then
-            self.text:SetText(string_format("%d", timeLeft))
+            timeText = string_format("%d", timeLeft)
         elseif timeLeft >= 0 then
-            self.text:SetText(string_format("%.1f", timeLeft))
+            timeText = string_format("%.1f", timeLeft)
         else
             self:SetScript("OnUpdate", nil)
+            return
         end
+
+        local prefix = self.prefix -- or ""
+        self.text:SetFormattedText("%s%s", prefix, timeText)
 
         if self.pandemic and timeLeft < self.pandemic then
             self.text:SetTextColor(unpack(self.refreshColor))
@@ -2276,6 +2312,8 @@ local SetJob_Text = function(self, job, state, contentType, ...)
         local duration, expirationTime = cur, max
         self.expirationTime = expirationTime
         self.startTime = nil
+
+        self.prefix = job.text or ""
 
         local pandemic = job.refreshTime
         self.pandemic = pandemic
@@ -2317,7 +2355,7 @@ local Text_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
 end)
 
 Aptechka.Widget.Text = {}
-Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", x = 0, y = 0, --[[justify = "LEFT",]] font = config.defaultFont, textsize = 13, effect = "NONE" }
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", width = 10, height = 10, x = 0, y = 0, --[[justify = "LEFT",]] font = config.defaultFont, textsize = 13, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0 }
 function Aptechka.Widget.Text.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
 
@@ -2344,7 +2382,46 @@ function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
     CheckDisabled(f, opts.disabled)
 
     f.text:ClearAllPoints()
-    f.text:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+    local mx, my = helpers.GetMultipliersFromPoint(opts.point)
+    local padding = opts.padding
+    local ox = padding*mx
+    local oy = padding*my
+    -- f.text:SetPoint(opts.point, parent, opts.point, opts.x+ox, opts.y+oy)
+    f.text:SetPoint(opts.point, ox, oy)
+    -- Here text can be bugged and hidden after initial login (not reload)
+
+    local w = pixelperfect(opts.width)
+    local h = pixelperfect(opts.height)
+    UpdateFramePoints(f, parent, opts, w, h)
+
+    -- Workaround for the issue with frame dimensions bugging out text on initial login
+    f.text:SetWidth(w*1.5)
+    f.text:SetHeight(h*1.5)
+    local point = opts.point
+    if string.find(point, "TOP") then
+        f.text:SetJustifyV("TOP")
+    elseif string.find(point, "BOTTOM") then
+        f.text:SetJustifyV("BOTTOM")
+    else
+        f.text:SetJustifyV("MIDDLE")
+    end
+    if string.find(point, "LEFT") then
+        f.text:SetJustifyH("LEFT")
+    elseif string.find(point, "RIGHT") then
+        f.text:SetJustifyH("RIGHT")
+    else
+        f.text:SetJustifyH("CENTER")
+    end
+
+    if opts.bg then
+        if not f.bg then
+            f.bg = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", 0, 0, 0, 0, -2)
+        end
+        f.bg:SetVertexColor(0,0,0, opts.bgAlpha or 0.5)
+    elseif f.bg then
+        f.bg:Hide()
+    end
+
     -- f.text:SetJustifyH(opts.justify:upper())
     local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", config.defaultFont)
     local flags = opts.effect == "OUTLINE" and "OUTLINE"
@@ -2358,6 +2435,20 @@ end
 
 Aptechka.Widget.StaticText = CopyTable(Aptechka.Widget.Text)
 Aptechka.Widget.StaticText.default.type = "StaticText"
+
+Aptechka.Widget.TextArray = {}
+local TextArray_default = CopyTable(Aptechka.Widget.Text.default)
+TextArray_default.type = "TextArray"
+TextArray_default.growth = "LEFT"
+TextArray_default.max = 3
+Aptechka.Widget.TextArray.default = TextArray_default
+
+function Aptechka.Widget.TextArray.Create(parent, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    return CreateArrayHeader("Text", parent, opts)
+end
+
+Aptechka.Widget.TextArray.Reconf = Aptechka.Widget.BarArray.Reconf
 
 
 local CreateUnhealableOverlay = function(parent)

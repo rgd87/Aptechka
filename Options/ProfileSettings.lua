@@ -265,6 +265,16 @@ function ns.MakeProfileSettings()
                         end,
                         order = 18,
                     },
+                    CCList = {
+                        name = L"CC List (PvP)"..newFeatureIcon,
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.profile.showCCList end,
+                        set = function(info, v)
+                            Aptechka.db.profile.showCCList = not Aptechka.db.profile.showCCList
+                            Aptechka:UpdateDebuffScanningMethod()
+                        end,
+                        order = 18.1,
+                    },
                     maxGroups = {
                         name = L"Max Groups",
                         type = "range",
@@ -352,7 +362,7 @@ function ns.MakeProfileSettings()
                             Aptechka:ReconfigureProtected()
                         end,
                         min = 3,
-                        max = 20,
+                        max = 80,
                         step = 1,
                         order = 5,
                     },
@@ -382,7 +392,7 @@ function ns.MakeProfileSettings()
                             Aptechka:ReconfigureProtected()
                         end,
                         min = 3,
-                        max = 20,
+                        max = 80,
                         step = 1,
                         order = 7,
                     },

@@ -127,6 +127,7 @@ local HealComm
 local BuffProc
 local DebuffProc, DebuffPostUpdate
 local DispelTypeProc, DispelTypePostUpdate
+local EffectListProc, EffectListPostUpdate, EffectIndices
 local enableTraceheals
 local enableAuraEvents
 local enableFloatingIcon
@@ -212,6 +213,7 @@ local defaults = {
         showCasts = true,
         showGroupCasts = false,
         showAggro = true,
+        showCCList = false,
         petGroup = false,
         showRaidIcons = true,
         showDispels = true,
@@ -482,6 +484,19 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     LibAuraTypes = LibStub("LibAuraTypes")
+    EffectIndices = {
+        [LibAuraTypes.E_SLOW] = 1,
+        [LibAuraTypes.E_ROOT] = 2,
+        [LibAuraTypes.E_DISORIENT] = 3,
+        [LibAuraTypes.E_DISARM] = 4,
+        [LibAuraTypes.E_SILENCE] = 5,
+        [LibAuraTypes.E_INCAP] = 6,
+        [LibAuraTypes.E_FEAR] = 7,
+        [LibAuraTypes.E_STUN] = 8,
+        [LibAuraTypes.E_ANTIDISPEL] = 9,
+        [LibAuraTypes.E_PHASED] = 10,
+        [LibAuraTypes.E_BADTHING] = 11,
+    }
     if AptechkaDB.global.useDebuffOrdering then
         LibSpellLocks = LibStub("LibSpellLocks")
 
@@ -3016,6 +3031,97 @@ local HighlightProc = Aptechka.HighlightProc
 local HighlightPostUpdate = Aptechka.HighlightPostUpdate
 
 ---------------------------
+-- Effect List
+---------------------------
+local CCListBits -- Resets to 0 at the start of every aura scan
+-- local EffectIndices = {
+--     [LibAuraTypes.E_SLOW] = 1,
+--     [LibAuraTypes.E_ROOT] = 2,
+--     [LibAuraTypes.E_DISORIENT] = 3,
+--     [LibAuraTypes.E_DISARM] = 4,
+--     [LibAuraTypes.E_SILENCE] = 5,
+--     [LibAuraTypes.E_INCAP] = 6,
+--     [LibAuraTypes.E_FEAR] = 7,
+--     [LibAuraTypes.E_STUN] = 8,
+--     [LibAuraTypes.E_ANTIDISPEL] = 9,
+--     [LibAuraTypes.E_PHASED] = 10,
+--     [LibAuraTypes.E_BADTHING] = 11,
+-- }
+
+local EffectOpts = {
+    { name = "E_SLOW", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Slow ", priority = 10 },
+    { name = "E_ROOT", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Root ", priority = 20 },
+    { name = "E_DISORIENT", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Disorient ", priority = 30 },
+    { name = "E_DISARM", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Disarm ", priority = 40 },
+    { name = "E_SILENCE", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Silence ", priority = 50 },
+    { name = "E_INCAP", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Incap ", priority = 60 },
+    { name = "E_FEAR", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Fear ", priority = 70 },
+    { name = "E_STUN", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Stun ", priority = 80 },
+    { name = "E_ANTIDISPEL", assignto = helpers.set("CCList"), color = { 1,0,1 }, infoType = "DURATION", text = "Anti-Dispel ", priority = 90 },
+    { name = "E_PHASED", assignto = helpers.set("CCList"), color = { 1,0,1 }, infoType = "DURATION", text = "Phased ", priority = 100 },
+    { name = "E_BADTHING", assignto = helpers.set("CCList"), color = { 1,0,1 }, infoType = "DURATION", text = "BadThing ", priority = 110 },
+}
+
+local effectData = { 1,2,3,4,5,6,8,9,10,11 }
+local effectDataPrio = { 1,2,3,4,5,6,8,9,10,11 }
+local function table_fill(tbl, num)
+    for i=1,#tbl do
+        tbl[i] = num
+    end
+end
+
+function Aptechka.EffectListProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID)
+    local prio, spellType, _sid, effectType = LibAuraTypes.GetAuraInfo(spellID, "ALLY")
+    if effectType then
+        local effectIndex = EffectIndices[effectType]
+        CCListBits = helpers.SetBit( CCListBits, effectIndex)
+
+        local currentPrio = effectDataPrio[effectIndex] or -100
+        if prio >= currentPrio then
+            effectData[effectIndex] = slot or index
+            effectDataPrio[effectIndex] = prio
+        end
+    end
+end
+
+function Aptechka.EffectListPostUpdate(frame, unit)
+
+    -- While some effects are present update info on them continuously
+    if CCListBits > 0 then
+        for i=1,11 do
+            if helpers.CheckBit(CCListBits, i) then
+                local opts = EffectOpts[i]
+
+                local indexOrSlot =  effectData[i]
+
+                local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID
+                if isClassic then
+                    name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, indexOrSlot, "HARMFUL")
+                else
+                    name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAuraBySlot(unit, indexOrSlot)
+                end
+
+                FrameSetJob(frame, opts, true, "CCEFFECT", dt, duration, expirationTime, count, icon, spellID, caster)
+            end
+        end
+    end
+
+    -- When something is changed in the list remove all the now missing statuses
+    if CCListBits ~= frame.CCListBits then
+        -- local bitsNow = CCListBits
+        -- local bitsBefore = frame.CCListBits or 0
+
+        for i=1,11 do
+            if not helpers.CheckBit(CCListBits, i) then
+                local opts = EffectOpts[i]
+                FrameSetJob(frame, opts, false)
+            end
+        end
+    end
+    frame.CCListBits = CCListBits
+end
+
+---------------------------
 -- Dispel Type Indicator
 ---------------------------
 local debuffTypeMask -- Resets to 0 at the start of every aura scan
@@ -3061,6 +3167,7 @@ local handleDebuffs = function(frame, unit, index, slot, filter, ...)
     DebuffProc(frame, unit, index, slot, filter, ...)
     HighlightProc(frame, unit, index, slot, filter, ...)
     DispelTypeProc(frame, unit, index, slot, filter, ...)
+    EffectListProc(frame, unit, index, slot, filter, ...)
 end
 
 function Aptechka.FrameScanAuras(frame, unit)
@@ -3071,6 +3178,8 @@ function Aptechka.FrameScanAuras(frame, unit)
     highlightedDebuffsBits = 0
     -- debuffs cleanup
     table_wipe(debuffList)
+    CCListBits = 0
+    table_fill(effectDataPrio, -100)
 
 
     visType = UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT"
@@ -3100,6 +3209,7 @@ function Aptechka.FrameScanAuras(frame, unit)
     IndicatorAurasPostUpdate(frame, unit)
     DebuffPostUpdate(frame, unit)
     DispelTypePostUpdate(frame, unit)
+    EffectListPostUpdate(frame, unit)
     HighlightPostUpdate(frame, unit)
 end
 function Aptechka.ScanAuras(unit)
@@ -3141,6 +3251,14 @@ function Aptechka:UpdateDebuffScanningMethod()
     else
         DispelTypeProc = Aptechka.DummyFunction
         DispelTypePostUpdate = Aptechka.DummyFunction
+    end
+    local useCCList = Aptechka.db.profile.showCCList
+    if useCCList then
+        EffectListProc = Aptechka.EffectListProc
+        EffectListPostUpdate = Aptechka.EffectListPostUpdate
+    else
+        EffectListProc = Aptechka.DummyFunction
+        EffectListPostUpdate = Aptechka.DummyFunction
     end
 end
 
