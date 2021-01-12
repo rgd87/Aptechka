@@ -68,22 +68,6 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 8.4,
                     },
-                    sortUnitsByRole = {
-                        name = L"Sort Units by Role",
-                        width = "full",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.global.sortMethod == "ROLE" end,
-                        set = function(info, v)
-                            if Aptechka.db.global.sortMethod == "ROLE" then
-                                Aptechka.db.global.sortMethod = "NONE"
-                            else
-                                Aptechka.db.global.sortMethod = "ROLE"
-                            end
-                            Aptechka:PrintReloadUIWarning()
-                        end,
-                        order = 8.5,
-                    },
-
                     mouseoverStatus = {
                         name = L"Mouseover Status",
                         width = "full",
