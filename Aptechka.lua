@@ -156,7 +156,6 @@ local defaults = {
         stayUnlocked = false,
         singleHeaderMode = false,
         enableNickTag = false,
-        sortMethod = "ROLE", -- "INDEX" or "NONE" | "ROLE" | "NAME"
         showAFK = false,
         translitCyrillic = false,
         enableMouseoverStatus = true,
@@ -210,6 +209,7 @@ local defaults = {
         showParty = true,
         showRaid = true,
         cropNamesLen = 7,
+        sortMethod = "ROLE", -- "INDEX" or "NONE" | "ROLE" | "NAME"
         showCasts = true,
         showGroupCasts = false,
         showAggro = true,
@@ -911,6 +911,8 @@ function Aptechka:ReconfigureProtected()
         if Aptechka.db.global.singleHeaderMode then
             header:SetAttribute("groupFilter", Aptechka:GetGroupFilterAsString())
         end
+
+        header:UpdateSortingMethod()
     end
 
     local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
@@ -2073,6 +2075,20 @@ function AptechkaHeader.UpdateVisibility(header)
     end
 end
 
+function AptechkaHeader:UpdateSortingMethod()
+    if Aptechka.db.profile.sortMethod == "ROLE" then
+        self:SetAttribute("groupBy", "ROLE")
+        self:SetAttribute("groupingOrder", "MAINTANK,MAINASSIST")
+        self:SetAttribute("sortMethod", "INDEX")
+    elseif Aptechka.db.profile.sortMethod == "NAME" then
+        self:SetAttribute("sortMethod", "NAME")
+        self:SetAttribute("groupBy", nil)
+    else --if Aptechka.db.global.sortMethod == "NONE" then
+        self:SetAttribute("sortMethod", "INDEX")
+        self:SetAttribute("groupBy", nil)
+    end
+end
+
 function Aptechka:GetGroupFilterAsString()
     local t = {}
     for i=1,8 do
@@ -2131,6 +2147,9 @@ function Aptechka.CreateHeader(self,group,petgroup)
         f:SetAttribute("columnAnchorPoint", reverse(groupGrowth))
     end
 
+    f:SetID(group)
+    Mixin(f, AptechkaHeader)
+
     f:SetAttribute("point", unitgr)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
@@ -2142,12 +2161,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
         else
             f:SetAttribute("groupFilter", Aptechka:GetGroupFilterAsString())
         end
-        if AptechkaDB.global.sortMethod == "ROLE" then
-            f:SetAttribute("groupBy", "ROLE")
-            f:SetAttribute("groupingOrder", "MAINTANK,MAINASSIST")
-        elseif AptechkaDB.global.sortMethod == "NAME" then
-            f:SetAttribute("sortMethod", "NAME")
-        end
+        f:UpdateSortingMethod()
     else
         f.isPetGroup = true
         f:SetAttribute("maxColumns", 1 )
@@ -2157,8 +2171,6 @@ function Aptechka.CreateHeader(self,group,petgroup)
     end
     --our group header doesn't really inherits SecureHandlerBaseTemplate
 
-    f:SetID(group)
-    Mixin(f, AptechkaHeader)
     f:UpdateVisibility()
     f:SetAttribute("showPlayer", true)
     f.initialConfigFunction = Aptechka.SetupFrame

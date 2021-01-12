@@ -1,7 +1,7 @@
 local addonName, helpers = ...
 
 do
-    local CURRENT_DB_VERSION = 13
+    local CURRENT_DB_VERSION = 14
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -400,6 +400,21 @@ do
             end
 
             db.DB_VERSION = 13
+        end
+
+        if db.DB_VERSION == 13 then
+            if db.global and db.global.sortMethod then
+                local globalMethod = db.global.sortMethod
+                if db.profiles then
+                    for profileName, profile in pairs(db.profiles) do
+                        profile.sortMethod = globalMethod
+                    end
+                end
+
+                db.global.sortMethod = nil
+            end
+
+            db.DB_VERSION = 14
         end
 
         db.DB_VERSION = CURRENT_DB_VERSION

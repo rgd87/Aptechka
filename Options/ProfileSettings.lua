@@ -288,6 +288,22 @@ function ns.MakeProfileSettings()
                         step = 1,
                         order = 19,
                     },
+                    sortMethod = {
+                        name = L"Sorting Method",
+                        desc = L"Note that for sorting to work across the whole raid you need to enable 'Merge Groups' global option",
+                        type = 'select',
+                        order = 20,
+                        values = {
+                            NONE = L"None (Unit Index)",
+                            ROLE = L"Role",
+                            NAME = L"Name",
+                        },
+                        get = function(info) return Aptechka.db.profile.sortMethod end,
+                        set = function( info, v )
+                            Aptechka.db.profile.sortMethod = v
+                            Aptechka:ReconfigureProtected()
+                        end,
+                    },
                 }
             },
 
