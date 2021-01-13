@@ -298,7 +298,15 @@ function helpers.GetAuraHash(spellId, duration, expirationTime, count, caster)
     return hash
 end
 
-
+-- lifted from SecureGroupHeaders.lua
+function helpers.setAttributesWithoutResponse(self, ...)
+	local oldIgnore = self:GetAttribute("_ignore");
+	self:SetAttribute("_ignore", "attributeChanges");
+	for i = 1, select('#', ...), 2 do
+		self:SetAttribute(select(i, ...));
+	end
+	self:SetAttribute("_ignore", oldIgnore);
+end
 
 function helpers.utf8sub(str, start, numChars)
     local currentIndex = start

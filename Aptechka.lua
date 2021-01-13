@@ -886,8 +886,12 @@ function Aptechka:ReconfigureProtected()
     -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
     for groupId, header in ipairs(group_headers) do
         if header:CanChangeAttribute() then
-            header:SetAttribute("frameWidth", width)
-            header:SetAttribute("frameHeight", height)
+            -- header:SetAttribute("frameWidth", width)
+            -- header:SetAttribute("frameHeight", height)
+            helpers.setAttributesWithoutResponse(header,
+                            "frameWidth", width,
+                            "frameHeight", height)
+
         end
         header:SetScale(scale)
         for _, f in ipairs({ header:GetChildren() }) do
@@ -2076,16 +2080,22 @@ function AptechkaHeader.UpdateVisibility(header)
 end
 
 function AptechkaHeader:UpdateSortingMethod()
+    -- setAttributesWithoutResponse skips OnAttrChanged callback
     if Aptechka.db.profile.sortMethod == "ROLE" then
-        self:SetAttribute("groupBy", "ROLE")
-        self:SetAttribute("groupingOrder", "MAINTANK,MAINASSIST")
+        helpers.setAttributesWithoutResponse(self,
+                            "groupingOrder", "MAINTANK,MAINASSIST",
+                            "groupBy", "ROLE")
         self:SetAttribute("sortMethod", "INDEX")
     elseif Aptechka.db.profile.sortMethod == "NAME" then
+        helpers.setAttributesWithoutResponse(self,
+                            "groupingOrder", nil,
+                            "groupBy", nil)
         self:SetAttribute("sortMethod", "NAME")
-        self:SetAttribute("groupBy", nil)
     else --if Aptechka.db.global.sortMethod == "NONE" then
+        helpers.setAttributesWithoutResponse(self,
+                            "groupingOrder", nil,
+                            "groupBy", nil)
         self:SetAttribute("sortMethod", "INDEX")
-        self:SetAttribute("groupBy", nil)
     end
 end
 
