@@ -86,8 +86,8 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
 
         [346651] = { 346651, 4, "Blood Council, Drain Essence" },
 
-        -- [331209] = { 331209, 1, "Hateful Gaze, Sludgefist" },
-        [335354] = { 335354, 1, "Chain Slam, Sludgefist" },
+        -- [331209] = { 331209, 1, "Sludgefist, Hateful Gaze" },
+        [335354] = { 335354, 1, "Sludgefist, Chain Slam" },
 
         -- [334765] = { 334765, 2, "Stone Legion Generals, Kaal, Heart Rend" },
         -- [333377] = { 333377, 2, "Stone Legion Generals, Kaal, Wicked Mark" },
