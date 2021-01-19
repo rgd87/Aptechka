@@ -417,7 +417,7 @@ end
 if playerClass == "SHAMAN" then
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
 
-    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.25, refreshTime = 5.4, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
+    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.3, refreshTime = 5.4, refreshColor = { 1, 0.1, 0.1}, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
     A{ id = 974,    type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 9, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
                                                                         -- stackcolor =   {
                                                                         --     [1] = { 0,.4, 0},
@@ -547,6 +547,9 @@ helpers.auraBlacklist = {
 
     [329492] = true, -- Slumberwood Band
     [328891] = true, -- Tantalizingly Large Gilded Plum
+
+    [340556] = true, -- Some Druid cd
+    [211319] = true, -- Some priest legendary thing
 
     -- Maw Debuffs
     -- [330030] = true, -- Gorgoan Lament Damage taken increased by 5%. Damage inflicted increased by 5%.

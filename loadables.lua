@@ -58,17 +58,47 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
         [33786] = { 33786, 3, "Cyclone" },
     },
     ["Castle Nathria"] = {
+
+        [342077] = { 342077, 1, "Shriekwing, Echolocation" },
+        [343303] = { 343303, 3, "Shriekwing, Blood Lantern" },
+        [343024] = { 343024, 2, "Shriekwing, Horrified" },
+
         -- [334971] = { 334971, 1, "Huntsman Altimor, Margore, Jagged Claws" },
-        [341473] = { 341473, 1, "Bleakwing Assassin, Crimson Flurry" },
+
+        [341473] = { 341473, 1, "Kael'thas, Bleakwing Assassin, Crimson Flurry" },
+        [328889] = { 328889, 4, "Kael'thas, Greater Castigation" },
+        -- [332871] = { 332871, 4, "Kael'thas, Greater Castigation" },
+
         [325236] = { 325236, 4, "Artificer Xy'mox, Glyph of Destruction" },
         [326302] = { 326302, 3, "Artificer Xy'mox, Stasis Trap" },
         [340860] = { 340860, 1, "Artificer Xy'mox, Withering Touch" },
+        [328468] = { 328468, 2, "Artificer Xy'mox, Displacement Cypher" },
+        [328448] = { 328448, 2, "Artificer Xy'mox, Displacement Cypher" },
+
         [329298] = { 329298, 3, "Hungering Destroyer, Gluttonous Miasma" },
         -- [334064] = { 334064, 1, "Hungering Destroyer, Volatile Ejection" },
+
+        [340477] = { 340477, 2, "Lady Inerva Darkvein, Highly Concentrated Anima (Mythic)" },
         [325382] = { 325382, 1, "Lady Inerva Darkvein, Warped Desires" },
-        [334771] = { 334771, 1, "Stone Legion Generals, Kaal, Heart Hemorrhage" },
-        [332794] = { 332794, 1, "Sire Denathrius, Fatal Finesse" },
+        [340452] = { 340452, 3, "Lady Inerva Darkvein, Change of Heart" },
+        [324982] = { 324982, 4, "Lady Inerva Darkvein, Shared Suffering" },
+        [324983] = { 324983, 4, "Lady Inerva Darkvein, Shared Suffering" },
+
         [346651] = { 346651, 4, "Blood Council, Drain Essence" },
+
+        -- [331209] = { 331209, 1, "Hateful Gaze, Sludgefist" },
+        [335354] = { 335354, 1, "Chain Slam, Sludgefist" },
+
+        -- [334765] = { 334765, 2, "Stone Legion Generals, Kaal, Heart Rend" },
+        -- [333377] = { 333377, 2, "Stone Legion Generals, Kaal, Wicked Mark" },
+        [334771] = { 334771, 1, "Stone Legion Generals, Kaal, Heart Hemorrhage" },
+        [342735] = { 342735, 4, "Stone Legion Generals, Kaal, Ravenous Feast" },
+
+
+        [329951] = { 329951, 2, "Sire Denathrius, Impale" },
+        [341732] = { 341732, 3, "Sire Denathrius, Searing Censure" },
+        [332794] = { 332794, 1, "Sire Denathrius, Fatal Finesse" },
+        [332797] = { 332797, 1, "Sire Denathrius, Fatal Finesse" },
 
         -- [25163] = { 25163, 3, "Placeholder Disgusting Oozeling" },
     },
