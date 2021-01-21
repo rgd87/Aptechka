@@ -773,8 +773,8 @@ function Aptechka:Reconfigure()
     if not self.isInitialized then return end
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
     self:ReconfigureProtected()
-    self:ReconfigureAllWidgets()
     self:ReconfigureUnprotected()
+    self:ReconfigureAllWidgets()
 
     self:UpdateDebuffScanningMethod()
     self:UpdateRaidIconsConfig()
@@ -1640,6 +1640,7 @@ end
 
 function Aptechka:GetCurrentGroupType()
     local _, instanceType = GetInstanceInfo()
+    -- if math.random(2) == 1 then return "arena" end
     if instanceType == "arena" then
         return "arena"
     elseif IsInRaid() then
@@ -3027,6 +3028,12 @@ function Aptechka.EffectListPostUpdate(frame, unit)
                     name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAuraBySlot(unit, indexOrSlot)
                 end
 
+                -- local duration = 15
+                -- local expirationTime = GetTime()+20
+                -- local count = 1
+                -- local icon = 136202
+                -- local spellID = 17
+
                 FrameSetJob(frame, opts, true, "CCEFFECT", dt, duration, expirationTime, count, icon, spellID, caster)
             end
         end
@@ -3274,6 +3281,11 @@ function Aptechka.TestDebuffSlotsForUnit(frame, unit)
     for i=shown+1, debuffLineLength do
         frame.debuffIcons:SetDebuffIcon(frame, unit, i, false)
     end
+
+    -- local bitsSetups = { 14, 9, 20 }
+    -- CCListBits = bitsSetups[math.random(#bitsSetups)]
+    -- EffectListPostUpdate(frame, unit)
+    -- CCListBits = 0
 end
 
 function Aptechka:TestCastBars()
