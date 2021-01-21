@@ -99,7 +99,16 @@ local function GenListItems()
         -- Adding a header for the category
         table.insert(orderedList, { -19, category })
         local count = 0
+
+        local categorySpellsOrdered = {}
         for spellId, opts in pairs(spells) do
+            table.insert(categorySpellsOrdered, opts)
+        end
+        table.sort(categorySpellsOrdered, function(a,b)
+            return a[3] > b[3]
+        end)
+
+        for _, opts in ipairs(categorySpellsOrdered) do
             -- Adding all its spells
             table.insert(orderedList, opts)
             count = count + 1
