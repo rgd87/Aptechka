@@ -38,7 +38,7 @@ function Aptechka:DeleteHighlightInfo(spellId, noRegen, customOnly)
         exists, category = IsSpellInList(defaultDebuffHighlights, spellId)
         if exists then
             customDebuffHighlights[category] = customDebuffHighlights[category] or {}
-            customDebuffHighlights[category][spellId] = "__REMOVED__"
+            customDebuffHighlights[category][spellId] = false
         end
     end
 
