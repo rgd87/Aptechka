@@ -544,6 +544,7 @@ helpers.auraBlacklist = {
     -- Castle Nathria
     [325184] = true, -- Darkvein, Loose Anima
     [334909] = true, -- The Council of Blood, Oppressive Atmosphere
+    [332443] = true, -- Sludgefist, Crumbling Foundation
 
     [329492] = true, -- Slumberwood Band
     [328891] = true, -- Tantalizingly Large Gilded Plum
