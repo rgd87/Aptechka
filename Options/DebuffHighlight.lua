@@ -107,7 +107,7 @@ local function GenListItems()
             end
         end
         table.sort(categorySpellsOrdered, function(a,b)
-            return a[3] > b[3]
+            return (a[3] or "") > (b[3] or "")
         end)
 
         for _, opts in ipairs(categorySpellsOrdered) do
