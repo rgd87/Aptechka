@@ -1,7 +1,7 @@
 local addonName, helpers = ...
 
 do
-    local CURRENT_DB_VERSION = 14
+    local CURRENT_DB_VERSION = 15
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -415,6 +415,20 @@ do
             end
 
             db.DB_VERSION = 14
+        end
+
+        if db.DB_VERSION == 14 then
+            if db.global and db.global.customDebuffHighlights then
+                for category, spells in pairs(db.global.customDebuffHighlights) do
+                    for spellId, opts in pairs(spells) do
+                        if opts == "__REMOVED__" then
+                            db.global.customDebuffHighlights[category][spellId] = false
+                        end
+                    end
+                end
+            end
+
+            db.DB_VERSION = 15
         end
 
         db.DB_VERSION = CURRENT_DB_VERSION

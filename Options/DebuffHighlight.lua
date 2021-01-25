@@ -38,7 +38,7 @@ function Aptechka:DeleteHighlightInfo(spellId, noRegen, customOnly)
         exists, category = IsSpellInList(defaultDebuffHighlights, spellId)
         if exists then
             customDebuffHighlights[category] = customDebuffHighlights[category] or {}
-            customDebuffHighlights[category][spellId] = "__REMOVED__"
+            customDebuffHighlights[category][spellId] = false
         end
     end
 
@@ -102,10 +102,12 @@ local function GenListItems()
 
         local categorySpellsOrdered = {}
         for spellId, opts in pairs(spells) do
-            table.insert(categorySpellsOrdered, opts)
+            if opts then
+                table.insert(categorySpellsOrdered, opts)
+            end
         end
         table.sort(categorySpellsOrdered, function(a,b)
-            return a[3] > b[3]
+            return (a[3] or "") > (b[3] or "")
         end)
 
         for _, opts in ipairs(categorySpellsOrdered) do
