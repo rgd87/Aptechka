@@ -102,7 +102,9 @@ local function GenListItems()
 
         local categorySpellsOrdered = {}
         for spellId, opts in pairs(spells) do
-            table.insert(categorySpellsOrdered, opts)
+            if opts then
+                table.insert(categorySpellsOrdered, opts)
+            end
         end
         table.sort(categorySpellsOrdered, function(a,b)
             return a[3] > b[3]
