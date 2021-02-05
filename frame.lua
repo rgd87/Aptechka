@@ -2355,7 +2355,7 @@ local Text_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
 end)
 
 Aptechka.Widget.Text = {}
-Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", width = 10, height = 10, x = 0, y = 0, --[[justify = "LEFT",]] font = config.defaultFont, textsize = 13, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0 }
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", width = 10, height = 10, x = 0, y = 0, justify = "CENTER", font = config.defaultFont, textsize = 13, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0 }
 function Aptechka.Widget.Text.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
 
@@ -2387,7 +2387,7 @@ function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
     local ox = padding*mx
     local oy = padding*my
     -- f.text:SetPoint(opts.point, parent, opts.point, opts.x+ox, opts.y+oy)
-    f.text:SetPoint(opts.point, ox, oy)
+    f.text:SetPoint("CENTER", 0, 0)
     -- Here text can be bugged and hidden after initial login (not reload)
 
     local w = pixelperfect(opts.width)
@@ -2395,23 +2395,11 @@ function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
     UpdateFramePoints(f, parent, opts, w, h)
 
     -- Workaround for the issue with frame dimensions bugging out text on initial login
-    f.text:SetWidth(w*1.5)
-    f.text:SetHeight(h*1.5)
+    f.text:SetWidth(w-(padding*2))
+    f.text:SetHeight(h+4)
     local point = opts.point
-    if string.find(point, "TOP") then
-        f.text:SetJustifyV("TOP")
-    elseif string.find(point, "BOTTOM") then
-        f.text:SetJustifyV("BOTTOM")
-    else
-        f.text:SetJustifyV("MIDDLE")
-    end
-    if string.find(point, "LEFT") then
-        f.text:SetJustifyH("LEFT")
-    elseif string.find(point, "RIGHT") then
-        f.text:SetJustifyH("RIGHT")
-    else
-        f.text:SetJustifyH("CENTER")
-    end
+
+    f.text:SetJustifyH(opts.justify)
 
     if opts.bg then
         if not f.bg then
