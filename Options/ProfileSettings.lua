@@ -275,6 +275,18 @@ function ns.MakeProfileSettings()
                         end,
                         order = 18.1,
                     },
+                    targetedCount = {
+                        name = L"Enemy Counter"..newFeatureIcon,
+                        desc = "Shows how many enemies target a unit, mostly for PvP",
+                        type = "toggle",
+                        width = "full",
+                        get = function(info) return Aptechka.db.profile.showTargetedCount end,
+                        set = function(info, v)
+                            Aptechka.db.profile.showTargetedCount = not Aptechka.db.profile.showTargetedCount
+                            Aptechka:UpdateTargetedCountConfig()
+                        end,
+                        order = 18.2,
+                    },
                     maxGroups = {
                         name = L"Max Groups",
                         type = "range",
