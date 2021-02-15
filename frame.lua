@@ -383,6 +383,20 @@ function contentNormalizers.DEBUFF_HIGHLIGHT(job, state, contentType, ...)
     texCoords = DT_TextureCoords.DANGER
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
+function contentNormalizers.TARGET_COUNT(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    count = ...
+
+    cur = count
+    max = 10
+
+    r,g,b = GetTextColor(job)
+    text = count
+    -- texture = nil
+    icon = 458723
+    -- texCoords = nil
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
 function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     local debuffType, duration, expirationTime, count1, icon1, spellID, caster = ...

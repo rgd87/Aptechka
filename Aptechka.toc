@@ -23,6 +23,7 @@ Libs\LibTranslit-1.0\LibTranslit-1.0.lua
 Libs\LibSpellLocks\LibSpellLocks.lua
 Libs\LibAuraTypes\LibAuraTypes.lua
 Libs\LibTargetedCasts\LibTargetedCasts.lua
+Libs\LibTargeted\LibTargeted.lua
 
 helpers.lua
 config.lua

@@ -15,6 +15,7 @@ externals:
   Libs/LibSharedMedia-3.0: https://repos.wowace.com/wow/libsharedmedia-3-0/trunk/LibSharedMedia-3.0
   Libs/LibCustomGlow: https://github.com/Stanzilla/LibCustomGlow.git
   Libs/LibTargetedCasts: https://github.com/rgd87/LibTargetedCasts.git
+  Libs/LibTargeted: https://github.com/rgd87/LibTargeted.git
   Libs/LibSpellLocks:
     url: https://github.com/rgd87/LibSpellLocks.git
     tag: master

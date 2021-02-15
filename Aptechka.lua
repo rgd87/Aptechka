@@ -115,6 +115,7 @@ local AptechkaDB
 local NickTag
 local LibSpellLocks
 local LibAuraTypes
+local LibTargeted
 local LibTargetedCasts
 local tinsert = table.insert
 local tremove = table.remove
@@ -204,6 +205,7 @@ local defaults = {
         showRaid = true,
         cropNamesLen = 7,
         sortMethod = "ROLE", -- "INDEX" or "NONE" | "ROLE" | "NAME"
+        showTargetedCount = false,
         showCasts = true,
         showGroupCasts = false,
         showAggro = true,
@@ -486,6 +488,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
     self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
 
+    self:UpdateTargetedCountConfig()
     self:UpdateIncomingCastsConfig()
     self:UpdateOutgoingCastsConfig()
 
@@ -1491,6 +1494,11 @@ function Aptechka.UNIT_SPELLCAST_SENT(self, event, unit, targetName, lineID, spe
     LastCastTargetName = string.match(targetName, "(.+)-") or targetName
     LastCastSentTime = GetTime()
 end
+    -- SPELL_FAILED_FIZZLE
+    -- SPELL_FAILED_INTERRUPTED_COMBAT -- res interrupted by combat probably
+    -- SPELL_FAILED_INTERRUPTED
+    -- SPELL_FAILED_OUT_OF_RANGE
+    -- SPELL_FAILED_NOPATH
 function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
     if errtext == SPELL_FAILED_LINE_OF_SIGHT then -- Out of Range code
         if LastCastSentTime > GetTime() - 0.5 then
@@ -3800,6 +3808,39 @@ function Aptechka:VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED(event, member
     local unit = guidMap[guid]
     if unit then
         SetJob(unit, config.VoiceChatStatus, isSpeaking)
+    end
+end
+
+function Aptechka:UpdateTargetedCountConfig()
+    LibTargeted = LibStub("LibTargeted", true)
+    if LibTargeted then
+        if AptechkaDB.profile.showTargetedCount then
+            LibTargeted.RegisterCallback("Aptechka", "TARGETED_COUNT_CHANGED", Aptechka.TARGETED_COUNT_CHANGED)
+        else
+            LibTargeted.UnregisterCallback("Aptechka", "TARGETED_COUNT_CHANGED")
+
+            if self.isInitialized then
+                self:ForEachFrame(function(frame)
+                    FrameSetJob(frame, config.TargetedCountStatus, false)
+                end)
+            end
+        end
+    end
+end
+
+function Aptechka.FrameUpdateTargetedCount(frame, unit, newCount)
+    local count = newCount or LibTargeted:GetUnitTargetedCount(unit)
+    if count > 0 then
+        FrameSetJob(frame, config.TargetedCountStatus, true, "TARGET_COUNT", count)
+    else
+        FrameSetJob(frame, config.TargetedCountStatus, false)
+    end
+end
+
+function Aptechka.TARGETED_COUNT_CHANGED(event, GUID, newCount)
+    local unit = guidMap[GUID]
+    if unit then
+        Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateTargetedCount)
     end
 end
 

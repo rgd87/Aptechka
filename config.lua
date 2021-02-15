@@ -75,6 +75,7 @@ config.DebuffAlert2 = { name = "DebuffAlert2", assignto = set("debuffHighlight",
 config.DebuffAlert3 = { name = "DebuffAlert3", assignto = set("innerglow", "border", "flash"), color = {1,0,0}, priority = 90 }
 config.DebuffAlert4 = { name = "DebuffAlert4", assignto = set("pixelGlow"), color = {1,1,1}, priority = 95 }
 
+config.TargetedCountStatus = { name = "TargetedCount", assignto = set("EnemyCounter"), color = {1,0.2,0.2}, priority = 70 }
 -- config.MindControl = { name = "MIND_CONTROL", assignto = set("mindcontrol"), color = {1,0,0}, priority = 52 }
 config.MindControlStatus = { name = "MIND_CONTROL", assignto = set("border", "mindcontrol", "innerglow"), color = {0.5,0,1}, priority = 52 }
 -- config.UnhealableStatus = { name = "UNHEALABLE", assignto = set("unhealable"), color = {0.5,0,1}, priority = 50 }
@@ -104,6 +105,7 @@ config.DefaultWidgets = {
     healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 7-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
     debuffHighlight = { type = "Texture", width = 12, height = 15, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 13-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
     CCList = { type = "TextArray", point="BOTTOMLEFT", width = 60, height = 12, x=0, y=-15, font = config.defaultFont, textsize = 10, effect = "NONE", bg = true, bgAlpha = 0.7, padding = 1.5, growth = "DOWN", max = 4, justify = "LEFT" },
+    EnemyCounter = { type = "Text", point="TOPLEFT", width = 20, height = 15, x=19, y=6, font = config.defaultFont, textsize = 13, effect = "OUTLINE", bg = false, bgAlpha = 0.5, padding = 0, justify = "CENTER" },
 }
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 if isClassic then
