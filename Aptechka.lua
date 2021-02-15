@@ -1494,13 +1494,19 @@ function Aptechka.UNIT_SPELLCAST_SENT(self, event, unit, targetName, lineID, spe
     LastCastTargetName = string.match(targetName, "(.+)-") or targetName
     LastCastSentTime = GetTime()
 end
-    -- SPELL_FAILED_FIZZLE
-    -- SPELL_FAILED_INTERRUPTED_COMBAT -- res interrupted by combat probably
-    -- SPELL_FAILED_INTERRUPTED
-    -- SPELL_FAILED_OUT_OF_RANGE
-    -- SPELL_FAILED_NOPATH
+
+do
+local SpellFailedErrorMessages = {
+    [SPELL_FAILED_LINE_OF_SIGHT] = true,
+    [SPELL_FAILED_FIZZLE] = true,
+    [SPELL_FAILED_BAD_TARGETS] = true, -- Invalid target
+    -- [SPELL_FAILED_INTERRUPTED_COMBAT] = true, -- res interrupted by combat probably
+    -- [SPELL_FAILED_INTERRUPTED] = true,
+    -- [SPELL_FAILED_OUT_OF_RANGE] = true,
+    [SPELL_FAILED_NOPATH] = true,
+}
 function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
-    if errtext == SPELL_FAILED_LINE_OF_SIGHT then -- Out of Range code
+    if SpellFailedErrorMessages[errtext] then
         if LastCastSentTime > GetTime() - 0.5 then
             for unit in pairs(Roster) do
                 if UnitName(unit) == LastCastTargetName then
@@ -1510,6 +1516,7 @@ function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
             end
         end
     end
+end
 end
 
 function Aptechka.FrameUpdateStagger(frame, unit)
