@@ -21,6 +21,7 @@ function ns.MakeStatusConfig()
         "MainTankStatus",
         "LeaderStatus",
         "DispelStatus",
+        "InVehicleStatus",
         "LOSStatus",
         "HealthTextStatus",
         "DeadStatus",

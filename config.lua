@@ -254,7 +254,7 @@ AG{ id = {
     314646, -- Shadowlands water
     167152, -- Mage Food
     170906, 192002, 195472, 225743, 251232, 257427, 257428, 272819, 279739, 297098, -- Food & Drink
-    308429, 308433, 327786, 340109, -- Shadowlands Food & Drink
+    308429, 308433, 327786, 340109, 348436,-- Shadowlands Food & Drink
 }, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", priority = 30 }
 
 
