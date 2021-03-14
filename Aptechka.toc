@@ -10,6 +10,7 @@
 ## X-Website: https://github.com/rgd87/Aptechka
 ## X-WoWI-ID: 14339
 ## X-Curse-Project-ID: 280790
+## X-Wago-ID: 5bGoY160
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
