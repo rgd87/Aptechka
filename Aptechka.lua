@@ -224,6 +224,8 @@ local defaults = {
         healthColor1 = {0,1,0},
         healthColor2 = {1,1,0},
         healthColor3 = {1,0,0},
+        nameColor = {1,1,1},
+        nameColorByClass = true,
         useCustomBackgroundColor = false,
         customBackgroundColor = {1,0,0},
         petColor = {1, 0.5, 0.5},
@@ -448,9 +450,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     NickTag = LibStub("NickTag-1.0", true)
     if NickTag then
         NickTag.RegisterCallback("Aptechka", "NickTag_Update", function()
-            Aptechka:ForEachUnitFrame("player", function(frame)
-                Aptechka:UpdateName(frame)
-            end)
+            Aptechka:ForEachUnitFrame("player", Aptechka.FrameUpdateName)
         end)
     end
 
@@ -726,17 +726,17 @@ function Aptechka:UpdatePetGroupConfig()
     end
 end
 
-function Aptechka:UpdateName(frame)
+function Aptechka.FrameUpdateName(frame, unit)
     local name = frame.state.nameFull
     if Aptechka.db.global.translitCyrillic then
         name = LibTranslit:Transliterate(name)
     end
-    if NickTag and self.db.global.enableNickTag then
+    if NickTag and Aptechka.db.global.enableNickTag then
         local nickname = NickTag:GetNickname(name, nil, true) -- name, default, silent
         if nickname then name = nickname end
     end
     frame.state.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
-    FrameSetJob(frame, config.UnitNameStatus, true, nil, frame.state.name)
+    FrameSetJob(frame, config.UnitNameStatus, true, nil, frame.state.name, makeUnique())
 end
 
 function Aptechka.GetWidgetListRaw()
@@ -798,6 +798,7 @@ function Aptechka.FrameUpdateUnitColor(frame, unit)
     if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true, nil, makeUnique()) end
 end
 function Aptechka:RefreshAllUnitsColors()
+    Aptechka:ForEachFrame(Aptechka.FrameUpdateName)
     Aptechka:ForEachFrame(Aptechka.FrameUpdateUnitColor)
 end
 
@@ -825,7 +826,6 @@ function Aptechka:ReconfigureUnprotected()
     self:UpdateUnprotectedUpvalues()
     for group, header in ipairs(group_headers) do
         for _, f in ipairs({ header:GetChildren() }) do
-            self:UpdateName(f)
             f:ReconfigureUnitFrame()
             Aptechka:SafeCall("PostFrameUpdate", f)
         end
@@ -1898,7 +1898,7 @@ local function updateUnitButton(self, unit)
 
     Aptechka.FrameColorize(self, owner)
     self.state.nameFull = name
-    Aptechka:UpdateName(self)
+    Aptechka.FrameUpdateName(self, owner)
 
     -- HealthBar color update needs some unique value to force update
     FrameSetJob(self,config.HealthBarColor,true, nil, makeUnique())

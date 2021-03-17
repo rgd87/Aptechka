@@ -649,6 +649,31 @@ function ns.MakeProfileSettings()
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
+                            nameColorClassColor = {
+                                name = L"Use Name Class Color",
+                                type = "toggle",
+                                width = 2,
+                                get = function(info) return Aptechka.db.profile.nameColorByClass end,
+                                set = function(info, v)
+                                    Aptechka.db.profile.nameColorByClass = not Aptechka.db.profile.nameColorByClass
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                                order = 7.3,
+                            },
+                            nameColorCustom = {
+                                name = L"Name Color",
+                                type = 'color',
+                                order = 7.4,
+                                disabled = function() return Aptechka.db.profile.nameColorByClass end,
+                                get = function(info)
+                                    local r,g,b = unpack(Aptechka.db.profile.nameColor)
+                                    return r,g,b
+                                end,
+                                set = function(info, r, g, b)
+                                    Aptechka.db.profile.nameColor = {r,g,b}
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                            },
                             rangeAlpha = {
                                 name = L"Out of Range Alpha"..newFeatureIcon,
                                 type = "range",

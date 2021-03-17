@@ -351,7 +351,13 @@ end
 function contentNormalizers.UnitName(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
     text = state.name
-    r,g,b = GetClassOrTextColor(job, state)
+    local db = Aptechka.db.profile
+    local c = (db.nameColorByClass and state.classColor) or db.nameColor
+    r,g,b = unpack(c)
+    local m = db.nameColorMultiplier
+    r = r*m
+    g = g*m
+    b = b*m
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
 function contentNormalizers.TEXTURE(job, state, contentType, ...)
@@ -512,6 +518,7 @@ local SetJob_HealthBar = function(self, job, state, contentType)
     local profile = Aptechka.db.profile
     local r,g,b,a
     local r2,g2,b2
+    -- TODO: Move to content handlers?
     if contentType == "HealthBar" then
         local isGradient = state.gradientHealthColor
         local c1 = state.healthColor1
