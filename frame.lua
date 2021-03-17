@@ -1772,16 +1772,22 @@ local function BarIcon_SetJob(self, job, state, contentType, ...)
         local pandemic = job.refreshTime
         self.pandemic = pandemic
         self:SetMinMaxValues(0, duration)
+        if duration == 0 then
+            self.spark:SetAlpha(0)
+        end
         BarIcon_OnUpdate(self, 0)
         self:SetScript("OnUpdate", BarIcon_OnUpdate)
     elseif max and cur then
         self:SetMinMaxValues(0, max)
         self:SetValue(cur)
+        local isFull = cur == max
+        self.spark:SetAlpha(isFull and 0 or 1)
         self:SetScript("OnUpdate", nil)
         self.stacktext:SetText()
     else
         self:SetMinMaxValues(0, 1)
         self:SetValue(1)
+        self.spark:SetAlpha(0)
         self:SetScript("OnUpdate", nil)
     end
 end
