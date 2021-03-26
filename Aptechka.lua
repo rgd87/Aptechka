@@ -1883,7 +1883,12 @@ local function updateUnitButton(self, unit)
     if not unit then return end
 
     local name, realm = UnitName(owner)
+    -- Workaround for Group Finder progressive unit loading bug
     if name == UNKNOWNOBJECT or name == nil then
+        has_unknowns = true
+    end
+    -- Maybe Workaround for player unitframe becoming disconnected after leaving bgs
+    if unit == "player" and not UnitIsConnected("player") then
         has_unknowns = true
     end
 
