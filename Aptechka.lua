@@ -7,9 +7,11 @@ Aptechka:SetScript("OnEvent", function(self, event, ...)
 end)
 
 --- Compatibility with Classic
-local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local apiLevel = math.floor(select(4,GetBuildInfo())/10000)
+local isClassic = apiLevel <= 2
+local isBC = apiLevel == 2
+-- local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
--- local isShadowlands = select(4,GetBuildInfo()) > 90000
 
 local UnitHasVehicleUI = UnitHasVehicleUI
 local UnitInVehicle = UnitInVehicle
@@ -22,12 +24,13 @@ local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local UnitPhaseReason = UnitPhaseReason
 local GetSpecialization = GetSpecialization
 local GetSpecializationInfo = GetSpecializationInfo
+local GetSpecializationRole = GetSpecializationRole
 local HasIncomingSummon = C_IncomingSummon and C_IncomingSummon.HasIncomingSummon
 local COMBATLOG_OBJECT_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
 local COMBATLOG_OBJECT_AFFILIATION_UPTORAID = COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE
 
 local dummyNil = function() return nil end
-if isClassic then
+if apiLevel <= 2 then
     local dummyFalse = function() return false end
     local dummy0 = function() return 0 end
 
@@ -41,6 +44,7 @@ if isClassic then
     UnitGroupRolesAssigned = function(unit) if GetPartyAssignment("MAINTANK", unit) then return "TANK" end end
     GetSpecialization = function() return 1 end
     GetSpecializationInfo = function() return "DAMAGER" end
+    GetSpecializationRole = function(spec) return AptechkaDB_Char.forcedClassicRole end
     HasIncomingSummon = dummyNil
 end
 
@@ -334,7 +338,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end
     end
 
-    if config.enableIncomingHeals then
+    if config.enableIncomingHeals and not isClassic then
         self:RegisterEvent("UNIT_HEAL_PREDICTION")
     end
 
@@ -411,7 +415,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.PARTY_MEMBER_DISABLE = self.UNIT_PHASE
     ]]
 
-    self:RegisterEvent("INCOMING_SUMMON_CHANGED")
+    if not isClassic then
+        self:RegisterEvent("INCOMING_SUMMON_CHANGED")
+    end
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("CINEMATIC_STOP")
 
@@ -485,8 +491,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
     end
 
-    self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
-    self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
+    if not isClassic then
+        self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+        self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
+    end
 
     self:UpdateTargetedCountConfig()
     self:UpdateIncomingCastsConfig()
