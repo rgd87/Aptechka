@@ -51,6 +51,9 @@ AG{ id = { 1856, 1857 }, template = "TankCD" } -- Vanish
 -- WARLOCK
 AG{ id = { 6229, 11739, 11740, 28610 },  template = "SurvivalCD" } -- Shadow Ward
 
+-- SHAMAN
+AG{ id = 30823,  template = "SurvivalCD" } -- Shamanistic Rage
+
 -- Healing Reduction
 -- AG{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, template = "bossDebuff", global = true, } --Mortal Strike
 
@@ -183,33 +186,39 @@ if playerClass == "SHAMAN" then
     -- Healing Way
     A{ id = 29203, type = "HELPFUL", assignto = set("bar4"), showStacks = 3, color = {38/255, 221/255, 163/255} }
 
+    A{ id = 974, type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 6, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
+
     local prioWater = 75
     local prioAir = 74
     local prioEarth = 73
     local prioFire = 72
     -- Earth
-    A{ id = { 8072, 8156, 8157, 10403, 10404, 10405 }, type = "HELPFUL", assignto = set("totemCluster2"), priority = prioEarth, isMine = true, color = {151/255, 86/255, 168/255} }  -- Stoneskin Totem
-    A{ id = { 8076, 8162, 8163, 10441, 25362 }, type = "HELPFUL", assignto = set("totemCluster2"), priority = prioEarth, isMine = true, color = {15/255, 78/255, 60/255} }  -- Strength of Earth Totem
+    A{ id = { 8072, 8156, 8157, 10403, 10404, 10405, 25506, 25507 }, type = "HELPFUL", assignto = set("totemCluster2"), priority = prioEarth, isMine = true, color = {151/255, 86/255, 168/255} }  -- Stoneskin Totem
+    A{ id = { 8076, 8162, 8163, 10441, 25362, 25527 }, type = "HELPFUL", assignto = set("totemCluster2"), priority = prioEarth, isMine = true, color = {15/255, 78/255, 60/255} }  -- Strength of Earth Totem
     -- Fire
-    A{ id = { 8182, 10476, 10477 }, type = "HELPFUL", assignto = set("raidbuff"), priority = prioFire, isMine = true, color = { 1,0.4,0.4} }  -- Frost Resistance Totem
+    A{ id = { 8182, 10476, 10477, 25559 }, type = "HELPFUL", assignto = set("raidbuff"), priority = prioFire, isMine = true, color = { 1,0.4,0.4} }  -- Frost Resistance Totem
+    A{ id = 30708, type = "HELPFUL", assignto = set("raidbuff"), priority = prioFire, isMine = true, color = { 1,0.4,0.4} }  -- Totem of Wrath
     -- Water
-    A{ id = { 16191, 17355, 17360 }, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = {38/255, 221/255, 163/255} }  -- Mana Tide Totem
-    A{ id = { 5677, 10491, 10493, 10494 }, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = { 187/255, 75/255, 128/255 } }  -- Mana Spring Totem
-    A{ id = { 5672, 6371, 6372, 10460, 10461 }, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = { 0.63, 0.8, 0.35 } }  -- Healing Stream Totem
-    A{ id = { 8185, 10534, 10535 }, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = { 65/255, 110/255, 1 } }  -- Fire Resistance Totem
+    A{ id = 16191, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = {38/255, 221/255, 163/255} }  -- Mana Tide Totem
+    A{ id = { 5677, 10491, 10493, 10494, 25569 }, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = { 187/255, 75/255, 128/255 } }  -- Mana Spring Totem
+    A{ id = { 5672, 6371, 6372, 10460, 10461, 25566 }, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = { 0.63, 0.8, 0.35 } }  -- Healing Stream Totem
+    A{ id = { 8185, 10534, 10535, 25562 }, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = { 65/255, 110/255, 1 } }  -- Fire Resistance Totem
     -- Air
     A{ id = 8178, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = { 0.6, 0, 1 } }  -- Grounding Totem
     A{ id = 25909, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = {149/255, 121/255, 214/255} }  -- Tranquil Air Totem
     A{ id = { 8836, 10626, 25360 }, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = { 65/255, 110/255, 1 } }  -- Grace of Air Totem
-    A{ id = { 10596, 10598, 10599 }, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = {52/255, 172/255, 114/255} }  -- Nature Resistance Totem
+    A{ id = { 10596, 10598, 10599, 25573 }, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = {52/255, 172/255, 114/255} }  -- Nature Resistance Totem
+    A{ id = 2895, type = "HELPFUL", assignto = set("raidbuff"), priority = prioAir, isMine = true, color = { 1,0.4,0.4} }  -- Wrath of Air
 
     -- Ancestral Healing
     A{ id = { 16177, 16236, 16237 }, type = "HELPFUL", assignto = set("bars"), showDuration = true, color = { 1, 0.85, 0} }
 
     -- Chain Heal
-    Trace{id = { 1064, 10622, 10623 }, template = "HealTrace", color = { 1, 1, 0 } }
-    -- Healing Wave incl Lesser Wave
-    Trace{id = { 331, 332, 547, 913, 939, 959, 8004, 8005, 8008, 8010, 10395, 10396, 10466, 10467, 10468, 25357 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
+    Trace{id = { 1064, 10622, 10623, 25422, 25423 }, template = "HealTrace", color = { 1, 1, 0 } }
+    -- Healing Wave
+    Trace{id = { 331, 332, 547, 913, 939, 959, 8005, 10395, 10396, 25357, 25391, 25396 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
+    -- Lesser Healing Wave
+    Trace{id = { 8004, 8008, 8010, 10466, 10467, 10468, 25420 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(331),
