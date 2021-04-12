@@ -6,6 +6,7 @@ local AG = helpers.AddAuraGlobal
 local DT = helpers.AddDispellType
 local D = helpers.AddDebuff
 local Trace = helpers.AddTrace
+local pixelperfect = helpers.pixelperfect
 local config = AptechkaDefaultConfig
 local DispelTypes = helpers.DispelTypes
 local RangeCheckBySpell = helpers.RangeCheckBySpell
@@ -16,6 +17,12 @@ local apiLevel = math.floor(select(4,GetBuildInfo())/10000)
 local isBC = apiLevel == 2
 if not isBC then return end
 
+if apiLevel <= 3 then
+    config.DefaultWidgets.totemCluster1 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(6), y = 0 }
+    config.DefaultWidgets.totemCluster2 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(12), y = 0 }
+    config.DefaultWidgets.totemCluster3 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(19), y = 0 }
+end
+
 local color1 = { 0.9, 0, 0 }
 
 -- WARLOCK
@@ -25,6 +32,9 @@ AG{ id = { 6229, 11739, 11740, 28610 }, template = "SurvivalCD" } -- Shadow Ward
 AG{ id = 22812,  template = "SurvivalCD" } -- Barkskin
 AG{ id = 29166,  template = "SurvivalCD" } -- Innervate
 
+-- PRIEST
+AG{ id = 15286,  template = "SurvivalCD" } -- Vampiric Embrace
+AG{ id = 33206, template = "TankCD", priority = 93 } --Pain Suppression
 
 -- MAGE
 AG{ id = 11958,  template = "TankCD" } -- Ice Block
@@ -45,8 +55,10 @@ AG{ id = 12976, template = "SurvivalCD", priority = 85 } --Last Stand
 AG{ id = 871,   template = "TankCD" } --Shield Wall 40%
 
 -- ROGUE
-AG{ id = 5277, template = "SurvivalCD" } -- Evasion
+AG{ id = { 5277, 26669 }, template = "SurvivalCD" } -- Evasion
 AG{ id = { 1856, 1857 }, template = "TankCD" } -- Vanish
+AG{ id = 45182,  template = "TankCD" } -- Cheating Death
+AG{ id = 31224,  template = "SurvivalCD", priority = 91 } -- Cloak of Shadows
 
 -- WARLOCK
 AG{ id = { 6229, 11739, 11740, 28610 },  template = "SurvivalCD" } -- Shadow Ward
@@ -387,3 +399,71 @@ helpers.customBossAuras = {
     [12809] = true, -- Concussion Blow
 
 }
+
+do
+    local AURA = helpers.BuffGainTypes.AURA
+    local CAST = helpers.BuffGainTypes.CAST
+    local HEAL = helpers.BuffGainTypes.HEAL
+    helpers.buffGainWhitelist = {
+        [27237] = HEAL, -- Master Healthstone
+        [27236] = HEAL,
+        [27235] = HEAL,
+        [28495] = HEAL, -- Super Healing Potion (TBC)
+
+        [7744] = AURA, -- Will of the Forsaken
+
+        -- WARLOCK
+        [27239] = AURA, -- Soulstone
+
+        -- PRIEST
+        [10060] = AURA, -- Power Infusion
+        [28276] = AURA, -- Lightwell Renew, 70lvl rank
+
+
+        -- ROGUE
+        [2983] = AURA, -- Sprint
+        [8696] = AURA,
+        [11305] = AURA,
+
+        --[[DUP]] [5277] = AURA, -- Evasion
+        [26669] = AURA,
+        --[[DUP]] [31224] = AURA, -- Cloak of Shadows
+        [1787] = AURA, -- Stealth last rank
+
+        -- WARRIOR
+        [12292] = AURA, -- Death Wish
+        [1719] = AURA, -- Recklessness
+        --[[DUP]] [23920] = AURA, -- Spell Reflect
+
+        -- MAGE
+        [12042] = AURA, -- Arcane Power
+        [12472] = AURA, -- Icy Veins
+        [28682] = AURA, -- Combustion
+        [11958] = AURA, -- Ice Block
+        [66] = AURA, -- Invisiblity Fade
+        [32612] = AURA, -- Invisibility
+
+        -- PALADIN
+        [31884] = AURA, -- Avenging Wrath
+        --[[DUP]] [498] = AURA, -- Divine Protection
+        --[[DUP]] [642] = AURA, -- Divine Shield
+        --[[DUP]] [1020] = AURA,
+        [1022] = AURA, -- Blessing of Protection
+        [5599] = AURA,
+        [10278] = AURA,
+        [1044] = AURA, -- Blessing of Freedom
+
+        -- DRUID
+        [9913] = AURA, -- Prowl 60 lvl rank
+        --[[DUP]] [22812] = AURA, -- Barkskin
+        --[[DUP]] [1850] = AURA, -- Dash
+        [9821] = AURA,
+        [33357] = AURA,
+
+        -- HUNTER
+        [19574] = AURA, -- Bestial Wrath
+
+        -- SHAMAN
+        [2894] = CAST, -- Fire Elemental Totem
+    }
+    end

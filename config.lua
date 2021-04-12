@@ -107,17 +107,16 @@ config.DefaultWidgets = {
     CCList = { type = "TextArray", point="BOTTOMLEFT", width = 60, height = 12, x=0, y=-15, font = config.defaultFont, textsize = 10, effect = "NONE", bg = true, bgAlpha = 0.7, padding = 1.5, growth = "DOWN", max = 4, justify = "LEFT" },
     EnemyCounter = { type = "Text", point="TOPLEFT", width = 20, height = 15, x=19, y=6, font = config.defaultFont, textsize = 13, effect = "OUTLINE", bg = false, bgAlpha = 0.5, padding = 0, justify = "CENTER" },
 }
-local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-if isClassic then
-    config.DefaultWidgets.totemCluster1 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(6), y = 0 }
-    config.DefaultWidgets.totemCluster2 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(12), y = 0 }
-    config.DefaultWidgets.totemCluster3 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(19), y = 0 }
-end
 
 -- default priority is 80
 
 local RangeCheckBySpell = helpers.RangeCheckBySpell
 
+helpers.BuffGainTypes = {
+    AURA = { events = set("SPELL_AURA_APPLIED", "SPELL_AURA_REFRESH"), target = "DST", scale = 1 },
+    CAST = { events = set("SPELL_CAST_SUCCESS"), target = "SRC", scale = 1 },
+    HEAL = { events = set("SPELL_HEAL"), target = "DST", scale = 1 },
+}
 
 config.templates = {
     TankCD = { assignto = set("icon"), infoType = "DURATION", priority = 94, color = { 1, 0.2, 1}, refreshTime = 2 },
@@ -126,6 +125,9 @@ config.templates = {
     ActiveMitigation = { assignto = set("mitigation"), infoType = "DURATION", color = {0.7, 0.7, 0.7}, priority = 80 },
     HealTrace = { assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 },
 }
+
+local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+if not isMainline then return end
 
 -- DUNGEON MECHANICS
 AG{ id = 324092, template = "AreaDR" } -- Sanguine Depths, Shining Radiance (Naaru thing)
@@ -1052,9 +1054,9 @@ helpers.customBossAuras = {
 }
 ]]
 do
-local AURA = { events = set("SPELL_AURA_APPLIED", "SPELL_AURA_REFRESH"), target = "DST", scale = 1 }
-local CAST = { events = set("SPELL_CAST_SUCCESS"), target = "SRC", scale = 1 }
-local HEAL = { events = set("SPELL_HEAL"), target = "DST", scale = 1 }
+local AURA = helpers.BuffGainTypes.AURA
+local CAST = helpers.BuffGainTypes.CAST
+local HEAL = helpers.BuffGainTypes.HEAL
 helpers.buffGainWhitelist = {
     [6262]   = HEAL, -- Healthstone
     [323436] = HEAL, -- Phial of Serenity 20%
