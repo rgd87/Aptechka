@@ -2831,7 +2831,7 @@ if apiLevel <= 2 then
     end
 else
     UnitAuraUniversal = UnitAuraBySlot
-    ForEachAura = helpers.ForEachAura -- This one is using Slots API
+    -- ForEachAura = helpers.ForEachAura -- This one is using Slots API
 end
 
 local BITMASK_DISEASE = helpers.BITMASK_DISEASE
