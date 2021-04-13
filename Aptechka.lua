@@ -2819,6 +2819,21 @@ end
 ---------------------------
 -- Ordered
 ---------------------------
+local UnitAuraUniversal -- If available it's using slots API, otherwise just normal UnitAura
+if apiLevel <= 2 then
+    UnitAuraUniversal = UnitAura
+    ForEachAura = function(frame, unit, filter, batchSize, func)
+        for i=1,100 do
+            local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, i, filter)
+            if not name then break end
+            func(frame, unit, i, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
+        end
+    end
+else
+    UnitAuraUniversal = UnitAuraBySlot
+    ForEachAura = helpers.ForEachAura -- This one is using Slots API
+end
+
 local BITMASK_DISEASE = helpers.BITMASK_DISEASE
 local BITMASK_POISON = helpers.BITMASK_POISON
 local BITMASK_CURSE = helpers.BITMASK_CURSE
@@ -2880,11 +2895,11 @@ function Aptechka.OrderedDebuffPostUpdate(frame, unit)
         local indexOrSlot, prio, auraFilter = unpack(debuffIndexCont)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
         if indexOrSlot >= 0 then
-            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot) -- UnitAura(unit, indexOrSlot, auraFilter)
+            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, auraFilter)
             if auraFilter == "HELPFUL" then
                 debuffType = "Helpful"
             end
-            -- name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
+
             if prio >= 50 then -- 50 is roots
                 isBossAura = true
             end
@@ -2936,8 +2951,7 @@ function Aptechka.SimpleDebuffPostUpdate(frame, unit)
     local debuffLineLength = debuffIcons.maxChildren
 
     for i, indexOrSlot in ipairs(debuffList) do
-        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot) -- UnitAura(unit, indexOrSlot, "HARMFUL")
-        -- local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraBySlot(unit, indexOrSlot)
+        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, "HARMFUL")
 
         fill = fill + (isBossAura and Aptechka._BossDebuffScale or 1)
 
@@ -3042,12 +3056,7 @@ function Aptechka.EffectListPostUpdate(frame, unit)
 
                 local indexOrSlot =  effectData[i]
 
-                local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID
-                if isClassic then
-                    name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, indexOrSlot, "HARMFUL")
-                else
-                    name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAuraBySlot(unit, indexOrSlot)
-                end
+                local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAuraUniversal(unit, indexOrSlot, "HARMFUL")
 
                 -- local duration = 15
                 -- local expirationTime = GetTime()+20
@@ -3098,13 +3107,8 @@ function Aptechka.DispelTypePostUpdate(frame, unit)
             FrameSetJob(frame, config.DispelStatus, false)
         end
     else
-        local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID
         local indexOrSlot = maxIndexOrSlot
-        if isClassic then
-            name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, indexOrSlot, "HARMFUL")
-        else
-            name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAuraBySlot(unit, indexOrSlot)
-        end
+        local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAuraUniversal(unit, indexOrSlot, "HARMFUL")
         FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", dt, duration, expirationTime, count, icon, spellID, caster)
     end
     frame.debuffTypeMask = debuffTypeMaskDispellable
@@ -3138,27 +3142,7 @@ function Aptechka.FrameScanAuras(frame, unit)
 
     visType = UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT"
 
-    -- Old API
-    --[[
-    local filter = "HELPFUL"
-    for i=1,100 do
-        local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, i, filter)
-        if not name then break end
-        handleBuffs(frame, unit, i, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
-    end
-
-    filter = "HARMFUL"
-    for numDebuffs=1,100 do
-        local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, numDebuffs, filter)
-        if not name then
-            -- numDebuffs = numDebuffs-1
-            break
-        end
-        handleDebuffs(frame, unit, numDebuffs, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
-    end
-    ]]
-
-    -- New API
+    -- New API (Universal)
     ForEachAura(frame, unit, "HELPFUL", 5, handleBuffs)
     ForEachAura(frame, unit, "HARMFUL", 5, handleDebuffs)
 
