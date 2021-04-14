@@ -35,6 +35,8 @@ function Aptechka:CreteMinimapIcon()
 
 
             LoadAddOn('AptechkaOptions')
+            Aptechka:OpenGUI()
+            --[[
             InterfaceOptionsFrame_OpenToCategory("Aptechka")
 			if button == 'LeftButton' then
 				if IsShiftKeyDown() then
@@ -49,6 +51,7 @@ function Aptechka:CreteMinimapIcon()
 					InterfaceOptionsFrame_OpenToCategory(AptechkaOptions.spellList)
 				end
 			end
+            ]]
 		end,
 
 		OnTooltipShow = function(tooltip)

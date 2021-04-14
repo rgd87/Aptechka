@@ -571,6 +571,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         Aptechka:CreteMinimapIcon()
     end
 
+    --[[
     local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
     f:SetScript('OnShow', function(self)
         self:SetScript('OnShow', nil)
@@ -584,6 +585,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             end
         end, false)
     end)
+    ]]
 
     self.isInitialized = true
 end  -- END PLAYER_LOGIN
@@ -3392,8 +3394,9 @@ function Aptechka:OpenGUI()
     if not IsAddOnLoaded("AptechkaOptions") then
         LoadAddOn("AptechkaOptions")
     end
-    InterfaceOptionsFrame_OpenToCategory("Aptechka")
-    InterfaceOptionsFrame_OpenToCategory("Aptechka")
+    AptechkaOptions.Open()
+    -- InterfaceOptionsFrame_OpenToCategory("Aptechka")
+    -- InterfaceOptionsFrame_OpenToCategory("Aptechka")
 end
 
 function Aptechka:Unlock()

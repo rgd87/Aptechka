@@ -766,6 +766,7 @@ function ns.MakeProfileSettings()
 
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
     local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaProfileSettings", L"Profile Settings", "Aptechka")
+    panelFrame.optName = "AptechkaProfileSettings"
 
     return panelFrame
 end

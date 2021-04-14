@@ -252,6 +252,7 @@ function ns.MakeProfileSelection()
 
     local AceConfigDialog = LibStub("AceConfigDialog-3.0")
     local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaProfile", L"Profile Selection", "Aptechka")
+    panelFrame.optName = "AptechkaProfile"
 
     return panelFrame
 end
