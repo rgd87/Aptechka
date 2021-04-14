@@ -51,6 +51,11 @@ AptechkaDefaultConfig.MapIDs = {
     [751] = "Black Rook Hold",
 }
 
+local apiLevel = math.floor(select(4,GetBuildInfo())/10000)
+local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+local isBC = apiLevel == 2
+
+if isMainline then
 AptechkaDefaultConfig.defaultDebuffHighlights = {
     ["PvP"] = {
         [207736] = { 207736, 3, "Shadowy Duel" },
@@ -245,7 +250,18 @@ AptechkaDefaultConfig.defaultDebuffHighlights = {
     },
     ]]
 }
-
+elseif isBC then
+AptechkaDefaultConfig.defaultDebuffHighlights = {
+    ["PvP"] = {
+        [33786] = { 33786, 3, "Cyclone" },
+    },
+    ["Karazhan"] = {
+        [29522] = { 29522, 1, "Maiden of Virtue, Holy Fire" },
+        [34694] = { 34694, 1, "Moroes, Blind" },
+        [30898] = { 30898, 1, "Prince Malchezaar, Shadow Word: Pain" },
+    },
+}
+end
 
 
 local A = helpers.AddLoadableAura
