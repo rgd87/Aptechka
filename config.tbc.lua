@@ -289,6 +289,51 @@ if playerClass == "WARRIOR" then
 
 end
 
+-------------------------
+-- Debuff Highlights
+-------------------------
+
+config.MapIDs = {
+    [257] = "Auchenai Crypts",
+    [258] = "Sethekk Halls",
+    [260] = "Shadow Labyrinth",
+    [256] = "Mana Tombs", --272
+
+    [261] = "The Blood Furnace",
+    [246] = "The Shattered Halls",
+
+    [262] = "The Underbog",
+    [263] = "The Steamvault",
+    [265] = "The Slave Pens",
+
+    [266] = "The Botanica",
+    [267] = "The Mechanar",
+    [269] = "The Arcatraz",
+
+    [273] = "Black Morass",
+    [274] = "Old Hillsbrad Foothills",
+
+    [347] = "Hellfire Ramparts",
+    [349] = "Magisters' Terrace",
+    [350] = "Karazhan",
+
+    [1701] = "PvP",
+}
+
+config.defaultDebuffHighlights = {
+    ["PvP"] = {
+        [33786] = { 33786, 3, "Cyclone" },
+    },
+    ["Karazhan"] = {
+        [29522] = { 29522, 1, "Maiden of Virtue, Holy Fire" },
+        [34694] = { 34694, 1, "Moroes, Blind" },
+        [30898] = { 30898, 1, "Prince Malchezaar, Shadow Word: Pain" },
+    },
+}
+
+-------------------------
+-- Blacklist
+-------------------------
 
 helpers.auraBlacklist = {
     [26013] = true, -- PVP Deserter

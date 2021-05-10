@@ -31,7 +31,6 @@ Libs\LibHealComm-4.0\LibHealComm-4.0.xml
 helpers.lua
 config.lua
 config.tbc.lua
-loadables.lua
 Aptechka.lua
 migrations.lua
 frame.lua

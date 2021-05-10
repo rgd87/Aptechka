@@ -543,6 +543,259 @@ config.autoload = {
     "TankCooldowns"
 }
 
+-------------------------
+-- Debuff Highlights
+-------------------------
+
+-- To find out current zone map id type: /dump C_Map.GetBestMapForUnit("player")
+-- OR
+-- Open dungeon in Encounter Journal and type: /dump EJ_GetInstanceInfo(), 7th return value will be the mapID
+-- Getting Spell IDs from Encounter Journal:
+-- Mouseover the spell and use this macro /dump GetMouseFocus():GetParent().spellID
+
+config.MapIDs = {
+    [147] = "Ulduar",
+    -- This table used to be map IDs, but now it's just used to content relevance sorting
+
+    [934] = "Atal'Dazar",
+    [936] = "Freehold",
+    [974] = "Tol Dagor",
+    [1004] = "Kings Rest",
+    [1010] = "The MOTHERLODE!!",
+    [1015] = "Waycrest Manor",
+    [1038] = "Temple of Sethraliss",
+    [1039] = "Shrine of the Storm",
+    [1041] = "The Underrot",
+    [1162] = "Siege of Boralus",
+    [1148] = "Uldir",
+
+    [1469] = "Horrific Visions", -- Orgrimmar
+    [1470] = "Horrific Visions", -- Stormwind
+
+    [1490] = "Operation: Mechagon",
+
+    [1580] = "Ny'alotha", -- Wrathion room
+    [1581] = "Ny'alotha",
+    [1600] = "Mythic+ 8.3",
+
+    [1663] = "Halls of Atonement",
+    [1666] = "The Necrotic Wake",
+    [1669] = "Mists of Tirna Scithe",
+    [1674] = "Plaguefall",
+    [1675] = "Sanguine Depths",
+    [1679] = "De Other Side",
+    [1683] = "Theater of Pain",
+    [1693] = "Spires of Ascension",
+
+    [1701] = "PvP",
+
+    [1735] = "Castle Nathria",
+
+    [704] = "Halls of Valor",
+    [706] = "Maw of Souls",
+    [731] = "Neltharion's Lair",
+    [733] = "Darkheart Thicket",
+    [751] = "Black Rook Hold",
+}
+
+config.defaultDebuffHighlights = {
+    ["PvP"] = {
+        [207736] = { 207736, 3, "Shadowy Duel" },
+        [212183] = { 212183, 3, "Smoke Bomb" },
+        [33786] = { 33786, 3, "Cyclone" },
+    },
+    ["Castle Nathria"] = {
+
+        -- [342077] = { 342077, 1, "Shriekwing, Echolocation" },
+        [343303] = { 343303, 3, "Shriekwing, Blood Lantern" },
+        [343024] = { 343024, 2, "Shriekwing, Horrified" },
+
+        -- [334971] = { 334971, 1, "Huntsman Altimor, Margore, Jagged Claws" },
+
+        [341473] = { 341473, 1, "Kael'thas, Bleakwing Assassin, Crimson Flurry" },
+        -- [328889] = { 328889, 4, "Kael'thas, Greater Castigation" },
+        -- [332871] = { 332871, 4, "Kael'thas, Greater Castigation" },
+
+        [325236] = { 325236, 4, "Artificer Xy'mox, Glyph of Destruction" },
+        [326302] = { 326302, 3, "Artificer Xy'mox, Stasis Trap" },
+        [340860] = { 340860, 1, "Artificer Xy'mox, Withering Touch" },
+        -- [328468] = { 328468, 2, "Artificer Xy'mox, Displacement Cypher" },
+        -- [328448] = { 328448, 2, "Artificer Xy'mox, Displacement Cypher" },
+
+        [329298] = { 329298, 3, "Hungering Destroyer, Gluttonous Miasma" },
+        -- [334064] = { 334064, 1, "Hungering Destroyer, Volatile Ejection" },
+
+        [340477] = { 340477, 2, "Lady Inerva Darkvein, Highly Concentrated Anima (Mythic)" },
+        [325382] = { 325382, 1, "Lady Inerva Darkvein, Warped Desires" },
+        [340452] = { 340452, 3, "Lady Inerva Darkvein, Change of Heart" },
+        -- [324982] = { 324982, 4, "Lady Inerva Darkvein, Shared Suffering" },
+        -- [324983] = { 324983, 4, "Lady Inerva Darkvein, Shared Suffering" },
+
+        [346651] = { 346651, 4, "Blood Council, Drain Essence" },
+
+        -- [331209] = { 331209, 1, "Sludgefist, Hateful Gaze" },
+        -- [335354] = { 335354, 1, "Sludgefist, Chain Slam" },
+
+        -- [334765] = { 334765, 2, "Stone Legion Generals, Kaal, Heart Rend" },
+        -- [333377] = { 333377, 2, "Stone Legion Generals, Kaal, Wicked Mark" },
+        [334771] = { 334771, 1, "Stone Legion Generals, Kaal, Heart Hemorrhage" },
+        [342735] = { 342735, 4, "Stone Legion Generals, Kaal, Ravenous Feast" },
+
+
+        [329951] = { 329951, 2, "Sire Denathrius, Impale" },
+        [341732] = { 341732, 3, "Sire Denathrius, Searing Censure" },
+        [332794] = { 332794, 1, "Sire Denathrius, Fatal Finesse" },
+        [332797] = { 332797, 1, "Sire Denathrius, Fatal Finesse" },
+
+        -- [25163] = { 25163, 3, "Placeholder Disgusting Oozeling" },
+    },
+    ["Halls of Atonement"] = {
+        [326607] = { 326607, 3, "Stoneborn Reaver, Turn to Stone" },
+        [322977] = { 322977, 1, "Halkias, Sinlight Visions" },
+        [325701] = { 325701, 1, "Depraved Collector, Siphon Life" },
+    },
+    ["Theater of Pain"] = {
+        [320069] = { 320069, 1, "Dessia the Decapitator, Mortal Strike" },
+        [323831] = { 323831, 3, "Mordretha, Death Grasp" },
+        [330608] = { 330608, 2, "Rancid Gasbag, Vile Eruption" },
+        [341949] = { 341949, 1, "Blighted Sludge-Spewer, Withering Blight from Withering Discharge" },
+        -- [319626] = { 319626, 1, "Kul'tharok, Phantasmal Parasite" },
+        [319539] = { 319539, 2, "Kul'tharok, Soulless" },
+    },
+    ["Spires of Ascension"] = {
+        [323744] = { 323744, 1, "Forsworn Stealthclaw, Pounce" },
+        [324154] = { 324154, 1, "Ventunax, Dark Stride" },
+    },
+    ["Sanguine Depths"] = {
+        [322554] = { 322554, 4, "Executor Tarvold, Castigate" },
+        [326836] = { 326836, 3, "Oppressor/Overseer, Curse of Suppression (Silence)" },
+        [336277] = { 336277, 2, "Remnant of Fury, Explosive Anger" },
+    },
+    ["The Necrotic Wake"] = {
+        -- 320596/heaving-retch -- Blightbone dot
+        -- 320462 -- Necrotic bolt debuff, blacklist?
+        -- [323198] = { 323198, 1, "Nalthor, Dark Exile" },
+        [334748] = { 334748, 3, "Corpse Harvester, Drain Fluids" },
+        [338606] = { 338606, 1, "Separation Assistant, Morbid Fixation" },
+        [343556] = { 343556, 1, "Surgeon Stitchflesh, Morbid Fixation" },
+
+    },
+    ["Plaguefall"] = {
+        [329110] = { 329110, 1, "Docktor Ickus, Slime Injection" },
+        [325552] = { 325552, 1, "Domina Venomblade, Cryotoxic Slash" },
+    },
+    ["Mists of Tirna Scithe"] = {
+        -- [322563] = { 322563, 1, "Tred'ova, Marked Prey" },
+        -- [337253] = { 337253, 1, "Tred'ova, Parasitic Domination MC" },
+        [322557] = { 322557, 2, "Drust Soulcleaver, Soul Split" },
+        [321968] = { 321968, 1, "Tirnenn Villager, Bewildering Pollen" },
+        -- [322486] = { 322486, 1, "Tirnenn Villager, Overgrowth" },
+        [322487] = { 322487, 1, "Tirnenn Villager, Overgrowth Stun" },
+        [323137] = { 321968, 1, "Droman Oulfarran, Bewildering Pollen" },
+        [321891] = { 321891, 1, "Mistcaller Vulpin, Freeze Tag Fixation" },
+        -- 325224 -- Mistveil Stinger, Anima Injection, If Anima Injection expires, Anima Detonation is triggered.
+    },
+    ["De Other Side"] = {
+        [332605] = { 332605, 1, "Atal'ai Hoodoo Hexxer, Hex" },
+        [334505] = { 334505, 3, "Shimmerdust Sleep" },
+    },
+    ["Mythic+ 8.3"] = {
+        [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
+    },
+    ["Horrific Visions"] = {
+        [306965] = { 306965, 1, "Madness: Dark Delusions Stun" },
+        [306545] = { 306545, 2, "Madness: Haunting Shadows Fear" },
+        [316510] = { 316510, 2, "Madness: Split Personality Disorient" },
+        [298033] = { 298033, 1, "K'thir Dominator and SI:7 Informant, Touch of the Abyss" },
+        [300530] = { 300530, 1, "K'thir Mindcarver, Mind Carver" },
+        [298514] = { 298514, 1, "Aqiri Mind Toxin Stun" },
+        -- [11641] = { 11641, 1, "Bwemba, Hex" },
+        [304969] = { 304969, 1, "Inquisitor Gnshal, Void Torrent Stun" },
+        -- [304634] = { 304634, 1, "Oblivion Elemental, Despair Stun" },
+        [304350] = { 304350, 1, "Rexxar, Mind Trap Stun" },
+        -- [306726] = { 306726, 1, "Vez'okk the Lightless, Defiled Ground Stun" },
+        -- [306646] = { 306646, 1, "Vez'okk the Lightless, Ring of Chaos Stun" },
+        -- [305378] = { 305378, 1, "Voidbound Honor Guard, Horrifying Shout Fear" },
+        -- [298630] = { 298630, 1, "Voidbound Shieldbearer, Shockwave Stun" },
+        -- Agustus Moulaine Stun
+        [309648] = { 309648, 1, "Magister Umbric, Tainted Polymorph" },
+        [309882] = { 309882, 1, "Cultist Slavedriver, Brutal Smash" },
+        -- Fallen Riftwalker, Rift Strike
+        [308380] = { 308380, 3, "Inquisitor Darkspeak, Convert" }, -- Will normal MC pick it up?
+        -- 308375 Portal Keeper, Psychic Scream
+        -- [298770] = { 298770, 1, "Slavemaster Ul'rok, Chains of Servitude Stun" },
+    },
+    ["Ny'alotha"] = {
+        [314992] = { 314992, 1, "Maut, Drain Essence" },
+
+        [307645] = { 307645, 1, "Vexiona, Heart of Darkness fear" },
+        [310224] = { 310224, 1, "Vexiona, Annihilation" },
+
+        [310361] = { 310361, 1, "Drest'agath, Unleashed Insanity stun" },
+
+        [312486] = { 312486, 1, "Il'gynoth, Recurring Nightmare" },
+
+        [313400] = { 313400, 1, "N'Zoth, the Corruptor, Corrupted Mind" },
+        [313793] = { 313793, 1, "N'Zoth, the Corruptor, Flames of Insanity disorient" },
+    },
+
+    ["Operation: Mechagon"] = {
+        [294929] = { 294929, 1, "K.U.-J.0., Blazing Chomp" },
+        [299572] = { 299572, 3, "Mechagon Renormalizer, Shrink" },
+    },
+    ["Freehold"] = {
+        [258323] = { 258323, 1, "Infected Wound" },
+        [257908] = { 257908, 1, "Oiled Blade" },
+    },
+
+    ["Shrine of the Storm"] = {
+        [268233] = { 268233, 1, "Electrifying Shock" },
+    },
+
+    ["Temple of Sethraliss"] = {
+        [280032] = { 280032, 1, "Neurotoxin" },
+        [268008] = { 268008, 1, "Snake Charm" },
+        [263958] = { 263958, 1, "A Knot of Snakes" },
+    },
+
+    ["Atal'Dazar"] = {
+        [257407] = { 257407, 1, "Pursuit" },
+    },
+
+    ["Waycrest Manor"] = {
+        [260741] = { 260741, 1, "Jagged Nettles" },
+        [267907] = { 267907, 1, "Soul Thorns" },
+        [268202] = { 268202, 1, "Death Lens" },
+        [263891] = { 263891, 1, "Grasping Thorns" },
+    },
+
+    ["Kings Rest"] = {
+        [270920] = { 270920, 1, "Seduction" },
+        [270865] = { 270865, 1, "Hidden Blade" },
+        [270487] = { 270487, 1, "Severing Blade" },
+    },
+
+    ["The Underrot"] = {
+        [278961] = { 278961, 1, "Decaying Mind" },
+    },
+
+    ["Siege of Boralus"] = {
+        [272571] = { 272571, 1, "Choking Waters" },
+    },
+
+    --[[
+    ["Ulduar"] = {
+        [64125] = { 64125, 1, "Squeeze, Yogg-Saron" },
+        [62717] = { 62717, 1, "Slag Pot, Ignis" },
+        [61903] = { 61903, 1, "Fusion Punch, Assembly of Iron" },
+        [64290] = { 64290, 1, "Stone Grip, Kologarn" },
+    },
+    ]]
+}
+
+-------------------------
+-- Blacklist
+-------------------------
 
 helpers.auraBlacklist = {
     -- Castle Nathria

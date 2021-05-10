@@ -262,6 +262,38 @@ if playerClass == "WARRIOR" then
 
 end
 
+-------------------------
+-- Debuff Highlights
+-------------------------
+
+config.MapIDs = {
+    -- Classic semi-random map ids, there's no maps in classic anyway
+    [232] = "Molten Core",
+    [233] = "Zul'Gurub",
+    [247] = "Ruins of Ahn'Qiraj",
+    [319] = "Ahn'Qiraj",
+    [287] = "Blackwing Lair",
+    [400] = "Naxxramas",
+
+    [1701] = "PvP",
+}
+
+config.defaultDebuffHighlights = {
+    ["Naxxramas"] = {
+        [27808] = { 27808, 3, "Kel'Thuzad, Frost Blast" },
+        [28622] = { 28622, 1, "Maexxna, Web Wrap" },
+    },
+    ["Molten Core"] = {
+        [20475] = { 20475, 4, "Living Bomb" },
+    },
+    ["Blackwing Lair"] = {
+        [22687] = { 22687, 3, "Nefarian, Veil of Shadow" },
+    },
+}
+
+-------------------------
+-- Blacklist
+-------------------------
 
 helpers.auraBlacklist = {
     [26013] = true, -- PVP Deserter

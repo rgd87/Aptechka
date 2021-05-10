@@ -29,7 +29,6 @@ Libs\LibTargeted\LibTargeted.lua
 helpers.lua
 config.lua
 config.tbc.lua
-loadables.lua
 Aptechka.lua
 migrations.lua
 frame.lua
