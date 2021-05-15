@@ -138,7 +138,11 @@ local debuffLimit
 local tankUnits = {}
 local staggerUnits = {}
 local LibTranslit = LibStub("LibTranslit-1.0")
+
+-- Classic things
 local HealComm
+local LibClassicDurations = LibStub("LibClassicDurations", true)
+local spellNameToID = helpers.spellNameToID
 
 Aptechka.L = setmetatable({}, {
     __index = function(t, k)
@@ -355,6 +359,58 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             end
         else
             self:RegisterEvent("UNIT_HEAL_PREDICTION")
+        end
+    end
+
+    if LibClassicDurations then
+        LibClassicDurations:RegisterFrame(self)
+        UnitAura = LibClassicDurations.UnitAuraWrapper
+        Aptechka:UpdateSpellNameToIDTable()
+
+        local spellNameBasedCategories = { "traces" }
+        function Aptechka:UpdateSpellNameToIDTable()
+            local mergedConfig = AptechkaConfigMerged
+            local visited = {}
+
+            for _, catName in ipairs(spellNameBasedCategories) do
+                local category = mergedConfig[catName]
+                if category then
+                    for spellID, opts in pairs(category) do
+                        if not visited[opts] then
+                            local lastRankID
+                            local clones = opts.clones
+                            if clones and next(clones)then
+                                lastRankID = spellID
+                                for sid in pairs(clones) do
+                                    if lastRankID < sid then
+                                        lastRankID = sid
+                                    end
+                                end
+                            else
+                                lastRankID = spellID
+                            end
+                            helpers.AddSpellNameRecognition(lastRankID)
+
+                            visited[opts] = true
+                        end
+                    end
+                end
+            end
+        end
+
+        function Aptechka:SetClassicClickcastAttributes(f)
+            if f:CanChangeAttribute() then
+                -- this is only for classic, because its SGH doesn't have _initialAttributeNames
+                f:SetAttribute("_onenter",[[
+                    local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
+                    self:CallMethod("onenter")
+                ]])
+
+                f:SetAttribute("_onleave",[[
+                    local snippet = self:GetAttribute('clickcast_onleave'); if snippet then self:Run(snippet) end
+                    self:CallMethod("onleave")
+                ]])
+            end
         end
     end
 
@@ -894,6 +950,7 @@ function Aptechka:ReconfigureProtected()
         for _, f in ipairs({ header:GetChildren() }) do
             f:SetWidth(width)
             f:SetHeight(height)
+            if apiLevel == 1 then Aptechka:SetClassicClickcastAttributes(f) end
         end
 
         header:UpdateVisibility() -- checks if group is enabled in group filter
@@ -1186,6 +1243,9 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
     dstGUID, dstName, dstFlags, dstFlags2,
     spellID, spellName, spellSchool, amount, overhealing, absorbed, critical = CombatLogGetCurrentEventInfo()
     if enableTraceheals and bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE then
+        if spellID == 0 then
+            spellID = spellNameToID[spellName]
+        end
         local opts = traceheals[spellID]
         if opts and eventType == "SPELL_HEAL" then
             if guidMap[dstGUID] and not opts.disabled then
@@ -1203,7 +1263,12 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
             eventType == "SPELL_AURA_APPLIED_DOSE"
         then
             local unit = guidMap[dstGUID]
-            Aptechka:ForEachUnitFrame(unit, FrameBumpAuraEvent, spellID)
+
+            local spellIdOrName = spellID
+            if spellID == 0 then
+                spellIdOrName = spellName
+            end
+            Aptechka:ForEachUnitFrame(unit, FrameBumpAuraEvent, spellIdOrName)
         end
     end
     if enableFloatingIcon and buffGainWhitelist[spellID] then
@@ -2058,9 +2123,15 @@ end
 function AptechkaHeader:UpdateSortingMethod()
     -- setAttributesWithoutResponse skips OnAttrChanged callback
     if Aptechka.db.profile.sortMethod == "ROLE" then
-        helpers.setAttributesWithoutResponse(self,
-                            "groupingOrder", "TANK,HEALER,DAMAGER,NONE",
-                            "groupBy", "ASSIGNEDROLE")
+        if apiLevel <= 2 then
+            helpers.setAttributesWithoutResponse(self,
+                            "groupingOrder", "MAINTANK,MAINASSIST",
+                            "groupBy", "ROLE")
+        else
+            helpers.setAttributesWithoutResponse(self,
+                                "groupingOrder", "TANK,HEALER,DAMAGER,NONE",
+                                "groupBy", "ASSIGNEDROLE")
+        end
         self:SetAttribute("sortMethod", "INDEX")
     elseif Aptechka.db.profile.sortMethod == "NAME" then
         helpers.setAttributesWithoutResponse(self,
@@ -2419,6 +2490,7 @@ function Aptechka.SetupFrame(header, frameName)
 
     if not InCombatLockdown() then
         f:SetSize(width, height)
+        if apiLevel == 1 then Aptechka:SetClassicClickcastAttributes(f) end
     end
 
     f.onenter = onenter
@@ -2752,6 +2824,26 @@ local GetRealID = function(id) return type(id) == "table" and id[1] or id end
 -----------------------
 
 local function SetDebuffIcon(frame, unit, index, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, spellName)
+    local iconFrame = frame.debuffIcons[index]
+    if debuffType == false then
+        iconFrame:Hide()
+    else
+        iconFrame:SetJob(debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+        iconFrame:Show()
+
+        local refreshTimestamp = frame.auraEvents[spellID]
+        local now = GetTime()
+        if refreshTimestamp and now - refreshTimestamp < 0.1 then
+            frame.auraEvents[spellID] = nil
+
+            iconFrame.eyeCatcher:Stop()
+            iconFrame.eyeCatcher:Play()
+        end
+    end
+end
+
+if apiLevel == 1 then
+    SetDebuffIcon = function (frame, unit, index, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, spellName)
         local iconFrame = frame.debuffIcons[index]
         if debuffType == false then
             iconFrame:Hide()
@@ -2759,15 +2851,16 @@ local function SetDebuffIcon(frame, unit, index, debuffType, expirationTime, dur
             iconFrame:SetJob(debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
             iconFrame:Show()
 
-            local refreshTimestamp = frame.auraEvents[spellID]
+            local refreshTimestamp = frame.auraEvents[spellName]
             local now = GetTime()
             if refreshTimestamp and now - refreshTimestamp < 0.1 then
-                frame.auraEvents[spellID] = nil
+                frame.auraEvents[spellName] = nil
 
                 iconFrame.eyeCatcher:Stop()
                 iconFrame.eyeCatcher:Play()
             end
         end
+    end
 end
 
 
@@ -3486,6 +3579,17 @@ Aptechka.Commands = {
                 hdr:Show()
             end
         end
+    end,
+    ["setrole"] = function(v) -- Classic and BCC manual role selection
+        if apiLevel >= 3 then return end
+        v = string.upper(v)
+        if v == "HEALER" then
+            AptechkaDB_Char.forcedClassicRole = v
+        else
+            AptechkaDB_Char.forcedClassicRole = "DAMAGER"
+        end
+        print("Role changed to", AptechkaDB_Char.forcedClassicRole)
+        Aptechka:OnRoleChanged()
     end,
     ["createpets"] = function()
         if not AptechkaDB.profile.petGroup then

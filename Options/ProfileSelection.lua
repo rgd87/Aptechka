@@ -247,6 +247,39 @@ function ns.MakeProfileSelection()
         },
     }
 
+    if Aptechka.util.GetAPILevel() <= 2 then
+        opt.args.manualRoleSelection = {
+            type = "group",
+            name = L"Manual Role selection for current character",
+            width = "double",
+            disabled = function() return not Aptechka.db.global.enableProfileSwitching end,
+            guiInline = true,
+            order = 1.5,
+            args = {
+                healer = {
+                    name = L"Healer",
+                    type = "toggle",
+                    get = function(info) return AptechkaDB_Char.forcedClassicRole == "HEALER" end,
+                    set = function(info, v)
+                        AptechkaDB_Char.forcedClassicRole = "HEALER"
+                        Aptechka:OnRoleChanged()
+                    end,
+                    order = 1,
+                },
+                damager = {
+                    name = L"Damager/Tank",
+                    type = "toggle",
+                    get = function(info) return AptechkaDB_Char.forcedClassicRole == "DAMAGER" end,
+                    set = function(info, v)
+                        AptechkaDB_Char.forcedClassicRole = "DAMAGER"
+                        Aptechka:OnRoleChanged()
+                    end,
+                    order = 2,
+                },
+            }
+        }
+    end
+
     local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
     AceConfigRegistry:RegisterOptionsTable("AptechkaProfile", opt)
 

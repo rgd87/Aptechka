@@ -11,6 +11,18 @@ config[playerClass] = { auras = {}, traces = {}, }
 
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
+local APILevel = math.floor(select(4,GetBuildInfo())/10000)
+function helpers.GetAPILevel()
+    return APILevel
+end
+
+if APILevel == 1 then
+    helpers.spellNameToID = {}
+    helpers.AddSpellNameRecognition = function(lastRankID)
+        helpers.spellNameToID[GetSpellInfo(lastRankID)] = lastRankID
+    end
+end
+
 local pmult = 1
 function helpers.pixelperfect(size)
     return floor(size/pmult + 0.5)*pmult

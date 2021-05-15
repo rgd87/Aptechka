@@ -354,6 +354,10 @@ local function form_save(form)
                 delta.isAdded = true
             end
 
+            if LibStub("LibClassicDurations", true) then
+                Aptechka:UpdateSpellNameToIDTable()
+            end
+
             local originalSpell = AptechkaConfigMerged[category][spellID]
             -- fill up spell clones of the new version
             if originalSpell.clones then
