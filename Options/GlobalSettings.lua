@@ -222,9 +222,5 @@ function ns.MakeGlobalSettings()
     local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
     AceConfigRegistry:RegisterOptionsTable("AptechkaGlobalSettings", opt)
 
-    local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaGlobalSettings", L"Global Settings", "Aptechka")
-    panelFrame.optName = "AptechkaGlobalSettings"
-
-    return panelFrame
+    return "AptechkaGlobalSettings", L"Global Settings"
 end

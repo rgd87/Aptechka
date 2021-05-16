@@ -189,11 +189,15 @@ end
 
 function ns.CreateWidgetConfig(name, parent)
 
-    local frame = AceGUI:Create("BlizOptionsGroup")
-    frame:SetName(name, parent)
-    frame:SetTitle("Aptechka "..L"Widgets")
-    -- frame:SetLayout("Fill")
+    local panel = CreateFrame("Frame", nil, InterfaceOptionsFrame)
+    panel:Hide() -- hide initially, otherwise OnShow won't fire on the first activation
+
+    local frame = AceGUI:Create("SimpleGroup")
     frame:SetLayout("Flow")
+
+    frame.frame:SetParent(panel)
+    frame:SetPoint("TOPLEFT", panel, "TOPLEFT", 2, -30)
+    frame:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -2, 2)
 
 
 
@@ -217,7 +221,7 @@ function ns.CreateWidgetConfig(name, parent)
     profileDropdown.frame:SetParent(frame.frame)
     profileDropdown.frame:SetWidth(250)
     profileDropdown.frame:SetHeight(30)
-    profileDropdown.frame:SetPoint("TOPLEFT", frame.frame, "TOPLEFT", 180, -10)
+    profileDropdown.frame:SetPoint("TOPLEFT", frame.frame, "TOPLEFT", 180, 30)
     frame.profileDropdown = profileDropdown
 
     local helpButton = AceGUI:Create("Button")
@@ -233,9 +237,9 @@ function ns.CreateWidgetConfig(name, parent)
         print("statusIcon - used to display Res, RC, Phase icons")
     end)
     helpButton.frame:SetParent(frame.frame)
-    helpButton.frame:SetWidth(60)
+    helpButton.frame:SetWidth(80)
     helpButton.frame:SetHeight(25)
-    helpButton.frame:SetPoint("TOPRIGHT", frame.frame, "TOPRIGHT", 0,0)
+    helpButton.frame:SetPoint("TOPRIGHT", frame.frame, "TOPRIGHT", 0,30)
     helpButton.frame:Show()
 
 
@@ -413,6 +417,6 @@ function ns.CreateWidgetConfig(name, parent)
 
     -- Frame.tree:SelectByPath("debuffIcons")
 
-    return frame
+    return nil, L"Widgets", panel
 end
 

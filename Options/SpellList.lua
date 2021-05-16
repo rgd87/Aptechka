@@ -1091,10 +1091,16 @@ function ns.CreateSpellList(name, parent )
     -- Frame:SetLayout("Flow")
     -- Frame:Hide()
 
-    local Frame = AceGUI:Create("BlizOptionsGroup")
-    Frame:SetName(name, parent)
-    Frame:SetTitle("Aptechka "..L"Spell List")
+    local panel = CreateFrame("Frame", nil, InterfaceOptionsFrame)
+    panel:Hide() -- hide initially, otherwise OnShow won't fire on the first activation
+
+    local Frame = AceGUI:Create("SimpleGroup")
+    Frame:SetFullWidth(true)
     Frame:SetLayout("Fill")
+    Frame.frame:SetParent(panel)
+
+    Frame:SetPoint("TOPLEFT", panel, "TOPLEFT", 2, -2)
+    Frame:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -2, 2)
     -- Frame:SetHeight(500)
     -- Frame:SetWidth(700)
     -- Frame:Show()
@@ -1327,5 +1333,5 @@ function ns.CreateSpellList(name, parent )
 
 
 
-    return Frame
+    return nil, L"Spell List", panel
 end

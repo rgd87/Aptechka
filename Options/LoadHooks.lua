@@ -2,28 +2,45 @@ local addonName, ns = ...
 
 local L = Aptechka.L
 
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+
 local f = CreateFrame('Frame', "AptechkaOptions", InterfaceOptionsFrame)
 -- f.name = "Aptechka"
 -- InterfaceOptions_AddCategory(f);
 
 local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
 
-f.globals = ns.MakeGlobalSettings()
-f.profile = ns.MakeProfileSettings()
-f.profileSelection = ns.MakeProfileSelection()
-f.highlighting = ns.MakeDebuffHighlight()
+local globalsOptName, globalsName, globalsFrame = ns.MakeGlobalSettings()
+-- globalsFrame = AceConfigDialog:AddToBlizOptions(globalsOptName, globalsName, "Aptechka")
 
-local wconfig = ns.CreateWidgetConfig(L"Widgets"..newFeatureIcon, "Aptechka")
-f.widgetConfig = wconfig
-f.widgets = f.widgetConfig.frame
-InterfaceOptions_AddCategory(f.widgetConfig.frame);
+local profileOptName, profileName, profileFrame = ns.MakeProfileSettings()
+-- profileFrame = AceConfigDialog:AddToBlizOptions(profileOptName, profileName, "Aptechka")
 
-ns.frame = ns.CreateSpellList(L"Spell List", "Aptechka")
-f.spellList = ns.frame.frame
-InterfaceOptions_AddCategory(f.spellList);
+local profileSelOptName, profileSelName, profileSelFrame =  ns.MakeProfileSelection()
+-- profileSelFrame = AceConfigDialog:AddToBlizOptions(profileSelOptName, profileSelName, "Aptechka")
 
-f.statusList = ns.MakeStatusConfig()
-f.blacklist = ns.MakeBlacklist()
+local _, highlightingName, highlightingFrame = ns.MakeDebuffHighlight()
+highlightingFrame.name = highlightingName
+highlightingFrame.parent = "Aptechka"
+-- InterfaceOptions_AddCategory(highlightingFrame);
+
+local _, widgetsName, widgetsFrame = ns.CreateWidgetConfig(L"Widgets"..newFeatureIcon, "Aptechka")
+widgetsFrame.name = widgetsName
+widgetsFrame.parent = "Aptechka"
+-- InterfaceOptions_AddCategory(f.widgetConfig.frame);
+
+local spellListOptName, spellListName, spellListFrame = ns.CreateSpellList()
+spellListFrame.name = spellListName
+spellListFrame.parent = "Aptechka"
+-- InterfaceOptions_AddCategory(f.spellList);
+
+local statusOptName, statusName, statusFrame = ns.MakeStatusConfig()
+-- statusFrame = AceConfigDialog:AddToBlizOptions("AptechkaStatusConfig", L"Status List", "Aptechka")
+
+local blacklistOptName, blacklistName, blacklistFrame = ns.MakeBlacklist()
+blacklistFrame.name = blacklistName
+blacklistFrame.parent = "Aptechka"
+-- InterfaceOptions_AddCategory(blacklistFrame);
 
 f:Hide()
 f:SetScript("OnShow", function(self)
@@ -51,40 +68,45 @@ function f.Open()
         local treegroup = AceGUI:Create("TreeGroup")
         treegroup:SetTree({
             {
-                value = f.globals.optName,
-                text = f.globals.name,
+                value = globalsOptName,
+                text = globalsName,
             },
             {
-                value = f.profile.optName,
-                text = f.profile.name,
+                value = profileOptName,
+                text = profileName,
             },
             {
-                value = f.profileSelection.optName,
-                text = f.profileSelection.name,
+                value = profileSelOptName,
+                text = profileSelName,
             },
             {
                 value = "HIGHLIGHTS",
-                text = f.highlighting.name,
+                text = highlightingName,
             },
             {
                 value = "WIDGETCONFIG",
-                text = f.widgetConfig.frame.name,
+                text = widgetsName,
+            },
+
+            {
+                value = statusOptName,
+                text = statusName,
             },
             {
                 value = "SPELLLIST",
-                text = f.spellList.name,
+                text = spellListName,
             },
             {
                 value = "BLACKLIST",
-                text = f.blacklist.name,
+                text = blacklistName,
             },
         })
 
         local CustomPanels = {
-            HIGHLIGHTS = f.highlighting,
-            BLACKLIST = f.blacklist,
-            SPELLLIST = f.spellList,
-            WIDGETCONFIG = f.widgetConfig.frame,
+            HIGHLIGHTS = highlightingFrame,
+            BLACKLIST = blacklistFrame,
+            SPELLLIST = spellListFrame,
+            WIDGETCONFIG = widgetsFrame,
         }
 
 
@@ -119,5 +141,5 @@ function f.Open()
     end
 
     window:Show()
-    window.treegroup:SelectByPath(f.profile.optName)
+    window.treegroup:SelectByPath(profileOptName)
 end

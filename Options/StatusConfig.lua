@@ -187,8 +187,5 @@ function ns.MakeStatusConfig()
     local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
     AceConfigRegistry:RegisterOptionsTable("AptechkaStatusConfig", opt)
 
-    local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-    local panelFrame = AceConfigDialog:AddToBlizOptions("AptechkaStatusConfig", L"Status List", "Aptechka")
-
-    return panelFrame
+    return "AptechkaStatusConfig", L"Status List"
 end

@@ -244,9 +244,6 @@ local PaneBackdrop  = {
 }
 function ns.MakeBlacklist()
     local panel = CreateFrame("Frame", nil, InterfaceOptionsFrame)
-    panel.name = L"Blacklist".."|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
-    panel.parent = "Aptechka"
-    InterfaceOptions_AddCategory(panel);
     panel:Hide() -- hide initially, otherwise OnShow won't fire on the first activation
     panel:SetScript("OnShow", function(self)
         if not self.isCreated then
@@ -278,6 +275,11 @@ function ns.MakeBlacklist()
             -- f:SetPoint("TOPLEFT", panel, "TOPLEFT", 15,-50)
             f:SetPoint("BOTTOMLEFT", panel, "BOTTOMLEFT", 10, 10)
 
+            local customWindow = true
+            if customWindow then
+                f:SetHeight(620)
+            end
+
             f.editForm = form
 
             f.ListScrollFrame.scrollBar.ScrollBarTop:Hide()
@@ -299,5 +301,5 @@ function ns.MakeBlacklist()
         end
     end)
 
-    return panel
+    return nil, L"Blacklist".."|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t", panel
 end

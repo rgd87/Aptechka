@@ -391,9 +391,6 @@ local PaneBackdrop  = {
 }
 function ns.MakeDebuffHighlight()
     local panel = CreateFrame("Frame", nil, InterfaceOptionsFrame)
-    panel.name = L"Debuff Highlighting"
-    panel.parent = "Aptechka"
-    InterfaceOptions_AddCategory(panel);
     panel:Hide() -- hide initially, otherwise OnShow won't fire on the first activation
     panel:SetScript("OnShow", function(self)
         if not self.isCreated then
@@ -424,6 +421,11 @@ function ns.MakeDebuffHighlight()
             -- f:SetPoint("TOPLEFT", panel, "TOPLEFT", 15,-50)
             f:SetPoint("BOTTOMLEFT", panel, "BOTTOMLEFT", 10, 10)
 
+            local customWindow = true
+            if customWindow then
+                f:SetHeight(560)
+            end
+
             f.editForm = form
 
             f.ListScrollFrame.scrollBar.ScrollBarTop:Hide()
@@ -445,5 +447,5 @@ function ns.MakeDebuffHighlight()
         end
     end)
 
-    return panel
+    return nil, L"Debuff Highlighting", panel
 end
