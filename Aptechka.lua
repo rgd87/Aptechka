@@ -3615,31 +3615,6 @@ Aptechka.Commands = {
             hdr:Hide()
         end
     end,
-    ["spells"] = function()
-        print("=== Spells ===")
-        local spellset = AptechkaUserConfig.auras or AptechkaDefaultConfig.auras
-        for spellName,opts in pairs(spellset) do
-            local format = string.find(opts.type,"HARMFUL") and "|cffff7777%s|r" or "|cff77ff77%s|r"
-            print(string.format(format,spellName))
-        end
-    end,
-    ["load"] = function(v)
-        local add = config.LoadableDebuffs[v]
-        if v == "" then
-            print("Spell sets:")
-            for k,v in pairs(config.LoadableDebuffs) do
-                print(k)
-            end return
-        end
-        if add then
-            if loaded[v] then return end
-            add()
-            print(AptechkaString..v.." loaded.")
-            loaded[v] = true
-        else
-            print(AptechkaString..v.." doesn't exist")
-        end
-    end,
     ["setpos"] = function(v)
         local fields = ParseOpts(v)
         if not next(fields) then print("Usage: /apt setpos point=center x=0 y=0") return end
