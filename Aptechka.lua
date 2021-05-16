@@ -643,6 +643,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         Aptechka:CreteMinimapIcon()
     end
 
+    Aptechka:CreateBlizzOptionsPanel()
     --[[
     local f = CreateFrame('Frame', nil, InterfaceOptionsFrame)
     f:SetScript('OnShow', function(self)
@@ -4110,3 +4111,29 @@ function Aptechka.UNIT_SPELLCAST_FAILED(self, event, unit, castID)
     Aptechka:ForEachUnitFrame(unit, Frame_CastFailed, castID)
 end
 Aptechka.UNIT_SPELLCAST_INTERRUPTED = Aptechka.UNIT_SPELLCAST_FAILED
+
+
+function Aptechka:CreateBlizzOptionsPanel()
+    local f = CreateFrame('Frame', "AptechkaBlizzOptionsPanel", InterfaceOptionsFrame)
+    f.name = "Aptechka"
+    InterfaceOptions_AddCategory(f);
+
+    local content = CreateFrame("Frame", "$parentContent", f)
+    content:SetPoint("TOPLEFT", 10, -10)
+    content:SetPoint("BOTTOMRIGHT", -10, 10)
+
+    local label = content:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+	label:SetPoint("TOPLEFT", 10, -15)
+	label:SetPoint("BOTTOMRIGHT", content, "TOPRIGHT", 10, -45)
+	label:SetJustifyH("LEFT")
+	label:SetText("Aptechka Options")
+
+    local optionsButton = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
+    optionsButton:SetSize(200, 30)
+    optionsButton:SetPoint("TOPLEFT", 10, -60)
+    optionsButton:GetFontString():SetText("Open Options Panel")
+    optionsButton:SetScript("OnClick", function()
+        LoadAddOn('AptechkaOptions')
+        Aptechka:OpenGUI()
+    end)
+end

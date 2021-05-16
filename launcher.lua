@@ -59,10 +59,12 @@ function Aptechka:CreteMinimapIcon()
 
             GameTooltip_SetTitle(tooltip, string.format("%s    %s",addonName, GetAddOnMetadata(addonName, "version")))
             GameTooltip_AddInstructionLine(tooltip, string.format("LeftClick - %s", L"Profile Settings"))
-            GameTooltip_AddInstructionLine(tooltip, string.format("Shift-LeftClick - %s", L"Widgets"))
             GameTooltip_AddInstructionLine(tooltip, string.format("|cffc9e06cCtrl-LeftClick - %s|r", L"Unlock"))
+            --[[
+            GameTooltip_AddInstructionLine(tooltip, string.format("Shift-LeftClick - %s", L"Widgets"))
             GameTooltip_AddInstructionLine(tooltip, string.format("RightClick - %s", L"Spell List"))
             GameTooltip_AddInstructionLine(tooltip, string.format("Shift-RightClick - %s", L"Status List"))
+            ]]
             GameTooltip_AddInstructionLine(tooltip, string.format("|cffe0896cMiddleClick - %s|r", L"Hide Icon"))
 		end
 	})
