@@ -1,4 +1,4 @@
-## Interface: 90100
+## Interface: 20503
 ## Title: Aptechka
 ## Notes: Raid Frames
 ## Version: @project-version@
@@ -15,6 +15,7 @@
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\LibCombatLogHealth-1.0\LibCombatLogHealth-1.0.lua
 Libs\LibCustomGlow\LibCustomGlow-1.0.xml
 Libs\LibSharedMedia-3.0\lib.xml
 Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
@@ -24,6 +25,8 @@ Libs\LibSpellLocks\LibSpellLocks.lua
 Libs\LibAuraTypes\LibAuraTypes.lua
 Libs\LibTargetedCasts\LibTargetedCasts.lua
 Libs\LibTargeted\LibTargeted.lua
+
+Libs\LibHealComm-4.0\LibHealComm-4.0.xml
 
 helpers.lua
 config.lua
