@@ -397,7 +397,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 end
             end
         end
-
+    end
+    if apiLevel <= 2 then
         function Aptechka:SetClassicClickcastAttributes(f)
             if f:CanChangeAttribute() then
                 -- this is only for classic, because its SGH doesn't have _initialAttributeNames
@@ -951,7 +952,7 @@ function Aptechka:ReconfigureProtected()
         for _, f in ipairs({ header:GetChildren() }) do
             f:SetWidth(width)
             f:SetHeight(height)
-            if apiLevel == 1 then Aptechka:SetClassicClickcastAttributes(f) end
+            if apiLevel <= 2 then Aptechka:SetClassicClickcastAttributes(f) end
         end
 
         header:UpdateVisibility() -- checks if group is enabled in group filter
@@ -2491,7 +2492,7 @@ function Aptechka.SetupFrame(header, frameName)
 
     if not InCombatLockdown() then
         f:SetSize(width, height)
-        if apiLevel == 1 then Aptechka:SetClassicClickcastAttributes(f) end
+        if apiLevel <= 2 then Aptechka:SetClassicClickcastAttributes(f) end
     end
 
     f.onenter = onenter
