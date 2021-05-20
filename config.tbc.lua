@@ -354,6 +354,8 @@ helpers.auraBlacklist = {
 }
 
 
+helpers.importantTargetedCasts = {}
+
 
 helpers.customBossAuras = {
     [5782] = true, -- Fear 3 ranks

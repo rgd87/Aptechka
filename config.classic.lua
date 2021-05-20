@@ -402,3 +402,5 @@ helpers.customBossAuras = {
     [12809] = true, -- Concussion Blow
 
 }
+
+    helpers.importantTargetedCasts = {}
