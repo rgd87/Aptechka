@@ -79,7 +79,7 @@ for wtype in pairs(Aptechka.Widget) do
     widgetTypes["FloatingIcon"] = nil
 end
 
-local function CreateNewWidgetForm()
+local function CreateNewWidgetForm(rootFrame)
     local form = AceGUI:Create("ScrollFrame")
     form:SetFullWidth(true)
     form:SetLayout("Flow")
@@ -120,7 +120,6 @@ local function CreateNewWidgetForm()
         local wtype = self.parent.opts.widgetType
         local wname = self.parent.opts.name
         Aptechka:CreateNewWidget(wtype, wname)
-        local rootFrame = AptechkaOptions.widgetConfig
         rootFrame.tree:UpdateWidgetTree()
         rootFrame.tree:SetSelected(wname)
         rootFrame:SelectForConfig(wname)
@@ -194,6 +193,7 @@ function ns.CreateWidgetConfig(name, parent)
 
     local frame = AceGUI:Create("SimpleGroup")
     frame:SetLayout("Flow")
+    local rootFrame = frame
 
     frame.frame:SetParent(panel)
     frame:SetPoint("TOPLEFT", panel, "TOPLEFT", 2, -30)
@@ -252,11 +252,10 @@ function ns.CreateWidgetConfig(name, parent)
     new:SetText(L"New")
     new:SetRelativeWidth(0.14)
     new:SetCallback("OnClick", function(self, event)
-        local rootFrame = AptechkaOptions.widgetConfig
         rootFrame.rpane:Clear()
         rootFrame.header:Update()
         if not formCache["_NewWidgetForm"] then
-            formCache["_NewWidgetForm"] = CreateNewWidgetForm()
+            formCache["_NewWidgetForm"] = CreateNewWidgetForm(rootFrame)
         end
         local form = formCache["_NewWidgetForm"]
 
@@ -273,7 +272,6 @@ function ns.CreateWidgetConfig(name, parent)
         local name = CURRENT_FORM.widgetName
         if not name then return end
         Aptechka:RemoveWidget(name)
-        local rootFrame = AptechkaOptions.widgetConfig
         rootFrame.tree:UpdateWidgetTree()
         rootFrame.rpane:Clear()
         rootFrame.header:Update()
@@ -389,15 +387,15 @@ function ns.CreateWidgetConfig(name, parent)
     end
 
     local t = treegroup:UpdateWidgetTree()
-    frame:SetCallback("OnShow", function(self)
-        self.tree:UpdateWidgetTree()
-        self.header.profileCheckbox:Update()
-        self.header:Update()
-        self.profileDropdown:Update()
+    panel:SetScript("OnShow", function(self)
+        rootFrame.tree:UpdateWidgetTree()
+        rootFrame.header.profileCheckbox:Update()
+        rootFrame.header:Update()
+        rootFrame.profileDropdown:Update()
         if CURRENT_FORM then
             local oldFormWidgetName = CURRENT_FORM.widgetName
             if oldFormWidgetName then
-                self:SelectForConfig(oldFormWidgetName)
+                rootFrame:SelectForConfig(oldFormWidgetName)
             end
         end
     end)

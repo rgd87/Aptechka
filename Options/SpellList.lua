@@ -9,7 +9,7 @@ local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
 
 local AceGUI = LibStub("AceGUI-3.0")
-
+local rootFrame
 local FORM_CACHE = {}
 local formConstructors = {
     auras = {},
@@ -131,7 +131,7 @@ function ns.CreateNewTimerForm(self)
 
     Form.ShowNewTimer = function(self, category)
         assert(category)
-        local Frame = ns.frame
+        local Frame = rootFrame
         local class = self.class
 
         Frame.rpane:Clear()
@@ -315,8 +315,8 @@ local function form_save(form)
             -- Regenerate spells with new template
             Aptechka:GenerateMergedConfig()
 
-            ns.frame.tree:UpdateSpellTree()
-            ns.frame.tree:SelectByPath(class, templateName)
+            rootFrame.tree:UpdateSpellTree()
+            rootFrame.tree:SelectByPath(class, templateName)
         else
 
             local oldOriginalSpell = AptechkaConfigMerged[category][spellID]
@@ -374,8 +374,8 @@ local function form_save(form)
             if not next(delta) then delta = nil end
             AptechkaConfigCustom[class][category][spellID] = delta
 
-            ns.frame.tree:UpdateSpellTree()
-            ns.frame.tree:SelectByPath(class, category, spellID)
+            rootFrame.tree:UpdateSpellTree()
+            rootFrame.tree:SelectByPath(class, category, spellID)
         end
 
         -- Rescan all units' auras with new settings
@@ -419,8 +419,8 @@ local function form_delete(form)
             -- Regenerate spells with new template
             Aptechka:GenerateMergedConfig()
 
-            ns.frame.tree:UpdateSpellTree()
-            ns.frame.tree:SelectByPath(class, templateName)
+            rootFrame.tree:UpdateSpellTree()
+            rootFrame.tree:SelectByPath(class, templateName)
         else
 
             local oldOriginalSpell = AptechkaConfigMerged[category][spellID]
@@ -432,8 +432,8 @@ local function form_delete(form)
             AptechkaConfigCustom[class][category][spellID] = nil
             AptechkaConfigMerged[category][spellID] = AptechkaDefaultConfig[class][category][spellID]
 
-            ns.frame.tree:UpdateSpellTree()
-            ns.frame.tree:SelectByPath(class, category, spellID)
+            rootFrame.tree:UpdateSpellTree()
+            rootFrame.tree:SelectByPath(class, category, spellID)
         end
 
         -- Rescan all units' auras with new settings
@@ -1095,6 +1095,7 @@ function ns.CreateSpellList(name, parent )
     panel:Hide() -- hide initially, otherwise OnShow won't fire on the first activation
 
     local Frame = AceGUI:Create("SimpleGroup")
+    rootFrame = Frame
     Frame:SetFullWidth(true)
     Frame:SetLayout("Fill")
     Frame.frame:SetParent(panel)
