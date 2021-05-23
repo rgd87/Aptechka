@@ -194,6 +194,7 @@ function ns.CreateWidgetConfig(name, parent)
     local frame = AceGUI:Create("SimpleGroup")
     frame:SetLayout("Flow")
     local rootFrame = frame
+    panel.rootFrame = frame
 
     frame.frame:SetParent(panel)
     frame:SetPoint("TOPLEFT", panel, "TOPLEFT", 2, -30)

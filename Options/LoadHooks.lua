@@ -27,6 +27,7 @@ highlightingFrame.parent = "Aptechka"
 local _, widgetsName, widgetsFrame = ns.CreateWidgetConfig(L"Widgets"..newFeatureIcon, "Aptechka")
 widgetsFrame.name = widgetsName
 widgetsFrame.parent = "Aptechka"
+f.widgetConfig = widgetsFrame.rootFrame
 -- InterfaceOptions_AddCategory(f.widgetConfig.frame);
 
 local spellListOptName, spellListName, spellListFrame = ns.CreateSpellList()
