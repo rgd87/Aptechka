@@ -747,6 +747,7 @@ function Aptechka:GenerateMergedConfig()
         table_wipe(tempTable)
         for spellID, opts in pairs(config[category]) do
             if not cloneIDs[spellID] and opts.clones then
+                opts.clones[spellID] = nil -- Removing possible input of original spell ID into clone list
                 for additionalSpellID, enabled in pairs(opts.clones) do
                     if enabled then
                         tempTable[additionalSpellID] = opts

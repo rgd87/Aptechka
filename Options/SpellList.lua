@@ -361,10 +361,11 @@ local function form_save(form)
             local originalSpell = AptechkaConfigMerged[category][spellID]
             -- fill up spell clones of the new version
             if originalSpell.clones then
+                originalSpell.clones[spellID] = nil -- Removing possible input of original spell ID into clone list
                 for additionalSpellID, enabled in pairs(originalSpell.clones) do
                     if enabled then
-                    AptechkaConfigMerged[category][additionalSpellID] = originalSpell
-                    AptechkaConfigMerged.spellClones[additionalSpellID] = true
+                        AptechkaConfigMerged[category][additionalSpellID] = originalSpell
+                        AptechkaConfigMerged.spellClones[additionalSpellID] = true
                     end
                 end
             end

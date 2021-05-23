@@ -208,7 +208,7 @@ if playerClass == "SHAMAN" then
     -- Healing Way
     A{ id = 29203, type = "HELPFUL", assignto = set("bar4"), maxCount = 3, infoType = "COUNT", color = {38/255, 221/255, 163/255} }
 
-    A{ id = 974, type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 6, isMine = true, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
+    A{ id = { 974, 32593, 32594 } , type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 6, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
 
     local prioWater = 75
     local prioAir = 74
