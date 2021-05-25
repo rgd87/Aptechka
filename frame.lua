@@ -10,7 +10,7 @@ local LSM = LibStub("LibSharedMedia-3.0")
 LSM:Register("statusbar", "Gradient", [[Interface\AddOns\Aptechka\gradient.tga]])
 LSM:Register("font", "AlegreyaSans-Medium", [[Interface\AddOns\Aptechka\AlegreyaSans-Medium.ttf]],  GetLocale() ~= "enUS" and 15)
 
-local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local APILevel = math.floor(select(4,GetBuildInfo())/10000)
 
 local string_format = string.format
 --[[
@@ -444,7 +444,7 @@ function contentNormalizers.LEADER(job, state, contentType, ...)
     r,g,b = GetColor(job)
     text = "L"
     texture = "Interface\\GroupFrame\\UI-Group-LeaderIcon"
-    icon = isClassic and 132768 or 1670850
+    icon = APILevel <= 3 and 132768 or 1670850
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
 function contentNormalizers.CAST(job, state, contentType, ...)
@@ -2575,7 +2575,7 @@ end
 local CreateMindControlIcon = function(parent)
     local f = CreateFrame("Frame", nil, parent)
 
-    if not isClassic then
+    if APILevel >= 8 then
         local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
         tex:SetAllPoints(f)
         tex:SetTexture("Interface/CorruptedItems/CorruptedInventoryIcon")
@@ -2593,7 +2593,7 @@ local CreateMindControlIcon = function(parent)
 end
 
 local CreateVehicleIcon = function(parent)
-    if isClassic then return end
+    if APILevel <= 2 then return end
 
     local f = CreateFrame("Frame", nil, parent)
     local tex = f:CreateTexture(nil, "ARTWORK", nil, -3)
