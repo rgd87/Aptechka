@@ -111,7 +111,7 @@ if playerClass == "PRIEST" then
     -- Abolish Disease
     A{ id = 552, type = "HELPFUL", assignto = set("bars"), priority = 30, color = { 118/255, 69/255, 50/255} , infoType = "DURATION" }
     -- Renew
-    A{ id = { 139, 6074, 6075, 6076, 6077, 6078, 10927, 10928, 10929, 25221, 25222, 25315 },   type = "HELPFUL", assignto = set("bars"), priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, infoType = "DURATION" }
+    A{ id = { 139, 6074, 6075, 6076, 6077, 6078, 10927, 10928, 10929, 25221, 25222, 25315 }, type = "HELPFUL", isMine = true, assignto = set("bars"), priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, infoType = "DURATION" }
     -- Lightwell Renew
     A{ id = { 7001, 27873, 27874, 28276 }, type = "HELPFUL", assignto = set("bars"), priority = 20, color = { 0.5, 0.7, 0}, infoType = "DURATION" }
     -- Power Word: Shield
@@ -150,7 +150,7 @@ if playerClass == "DRUID" then
     -- Mark of the Wild, Gift of the Wild
     A{ id = { 1126, 5232, 5234, 6756, 8907, 9884, 9885, 26990, 21849, 21850, 26991 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.2, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1126) end }
     -- Rejuvenation
-    A{ id = { 774, 1058, 1430, 2090, 2091, 3627, 8910, 9839, 9840, 9841, 25299, 26981, 26982 }, type = "HELPFUL", assignto = set("bars"), priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, infoType = "DURATION" }
+    A{ id = { 774, 1058, 1430, 2090, 2091, 3627, 8910, 9839, 9840, 9841, 25299, 26981, 26982 }, type = "HELPFUL", assignto = set("bars"), isMine = true, priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, infoType = "DURATION" }
     -- Regrowth
     A{ id = { 8936, 8938, 8939, 8940, 8941, 9750, 9856, 9857, 9858, 26980 }, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2}, priority = 50, infoType = "DURATION" }
     -- Abolish Poison
