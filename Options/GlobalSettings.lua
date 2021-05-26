@@ -2,7 +2,8 @@ local addonName, ns = ...
 
 local L = Aptechka.L
 
-local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local APILevel = math.floor(select(4,GetBuildInfo())/10000)
+local isClassic = APILevel <= 3
 local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
 
 function ns.MakeGlobalSettings()
