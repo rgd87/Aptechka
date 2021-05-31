@@ -3226,12 +3226,14 @@ end
 local debuffTypeMask -- Resets to 0 at the start of every aura scan
 local maxDispelType = 0
 local maxIndexOrSlot
-function Aptechka.DispelTypeProc(frame, unit, index, slot, filter, name, icon, count, debuffType)
-    local DTconst = GetDebuffTypeBitmask(debuffType)
-    debuffTypeMask = bit_bor( debuffTypeMask, DTconst)
-    if DTconst >= maxDispelType and bit_band( DTconst, BITMASK_DISPELLABLE) > 0 then
-        maxDispelType = DTconst
-        maxIndexOrSlot = slot or index
+function Aptechka.DispelTypeProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID)
+    if debuffType and not blacklist[spellID] then
+        local DTconst = GetDebuffTypeBitmask(debuffType)
+        debuffTypeMask = bit_bor( debuffTypeMask, DTconst)
+        if DTconst >= maxDispelType and bit_band( DTconst, BITMASK_DISPELLABLE) > 0 then
+            maxDispelType = DTconst
+            maxIndexOrSlot = slot or index
+        end
     end
 end
 
