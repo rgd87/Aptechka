@@ -1191,6 +1191,7 @@ function Aptechka.FrameCheckPhase(frame, unit)
         frame.centericon:Show()
     ]]
     local isPhased = UnitIsPlayer(unit) and UnitPhaseReason(unit) and not frame.state.isInVehicle
+    frame.state.isPhased = isPhased
     FrameSetJob(frame, config.PhasedStatus, isPhased, "TEXTURE", "Interface\\TargetingFrame\\UI-PhasingIcon", phaseIconCoords)
 end
 end
@@ -1542,10 +1543,12 @@ end
 
 
 local function FrameUpdateRangeAlpha(frame, unit)
-    if AptechkaUnitInRange(unit) then
-        frame:SetAlpha(1)
-    else
+    if not AptechkaUnitInRange(unit) then
         frame:SetAlpha(alphaOutOfRange)
+    elseif frame.state.isPhased then
+        frame:SetAlpha(alphaOutOfRange)
+    else
+        frame:SetAlpha(1)
     end
 end
 local function FrameResetRangeAlpha(frame, unit)
