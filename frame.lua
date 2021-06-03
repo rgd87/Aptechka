@@ -2367,6 +2367,10 @@ local SetJob_StaticText = function(self, job, state, contentType, ...)
         r,g,b = unpack(job.textcolor)
     end
 
+    if timerType == "TIMER" then
+        text = tostring(count)
+    end
+
     self.text:SetTextColor(r,g,b)
     self.text:SetText(text)
 end

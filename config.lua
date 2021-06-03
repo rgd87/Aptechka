@@ -90,6 +90,7 @@ config.DefaultWidgets = {
     -- spell2 = { type = "Indicator", width = 9, height = 8, point = "TOP", x = 0, y = 0, },
     spell3 = { type = "Indicator", width = 9, height = 8, point = "TOPRIGHT", x = 0, y = 0, },
     bar4 = { type = "Bar", width=21, height=5, point="TOPRIGHT", x=0, y=2, vertical = false},
+    bar4text = { type = "StaticText", point="TOPRIGHT", width = 30, height = 10, x=-23, y=5, font = config.defaultFont, textsize = 12, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0, justify = "RIGHT" },
     buffIcons = { type = "BarIconArray", width = 12, height = 18, point = "TOPRIGHT", x = 5, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, vertical = true, font = config.defaultFont, textsize = 12 },
     bars = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 },
     vbar1 = { type = "Bar", width=4, height=20, point="TOPRIGHT", x=-9, y=2, vertical = true},
@@ -494,6 +495,8 @@ if playerClass == "DRUID" then
     -- Lifebloom
     -- 188550 -- dark titan's lesson legendary
     A{ id = { 33763, 188550 } , type = "HELPFUL", assignto = set("bar4"), extend_below = 14, refreshTime = 4.5, refreshColor = { 1, 0.6, 0.2}, priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
+    -- Lifebloom PVP Talent Focused Growth
+    A{ id = 203554, type = "HELPFUL", assignto = set("bar4text"), priority = 60, infoType = "COUNT", isMine = true, color = { 0.2, 1, 0.2}, }
     -- Regrowth
     A{ id = 8936, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2},priority = 50, infoType = "DURATION" }
     -- Wild Growth

@@ -156,7 +156,7 @@ if playerClass == "DRUID" then
     -- Abolish Poison
     A{ id = 2893, type = "HELPFUL", assignto = set("bars"), priority = 30, color = {15/255, 78/255, 60/255} , infoType = "DURATION", isMine = false }
     -- Lifebloom
-    A{ id = 33763, type = "HELPFUL", assignto = set("bar4"), priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
+    A{ id = 33763, type = "HELPFUL", assignto = set("bar4", "bar4text"), priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
 
     -- Healing Touch
     Trace{id = { 5185, 5186, 5187, 5188, 5189, 6778, 8903, 9758, 9888, 9889, 25297, 26978, 26979 } , template = "HealTrace", color = { 0.6, 1, 0.6} }

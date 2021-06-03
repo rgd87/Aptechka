@@ -2874,7 +2874,8 @@ local function IndicatorAurasProc(frame, unit, index, slot, filter, name, icon, 
 
     local opts = auras[spellID] or loadedAuras[spellID]
     if opts and not opts.disabled then
-        if caster == "player" or not opts.isMine then
+        local anySource = not opts.isMine
+        if caster == "player" or anySource then
             local realID = GetRealID(opts.id)
             opts.realID = realID
 
