@@ -2337,7 +2337,11 @@ do -- this function supposed to be called from layout switchers
             if Aptechka.db.global.singleHeaderMode or hdr.isPetGroup then
                 hdr:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
                 hdr:SetAttribute("unitsPerColumn", 5*maxGroupsInRow)
-                hdr:SetAttribute("columnAnchorPoint", reverse(groupGrowth)) -- the anchor point of each new column (ie. use LEFT for the columns to grow to the right)
+                local columnAnchorPoint = reverse(groupGrowth)
+                if hdr.isPetGroup then
+                    columnAnchorPoint = groupGrowth
+                end
+                hdr:SetAttribute("columnAnchorPoint", columnAnchorPoint) -- the anchor point of each new column (ie. use LEFT for the columns to grow to the right)
                 -- point attr controls unit growth: SetPoint(LEFT, prevButton or hdr, reverse(LEFT), xOffset, yOffset)
                 -- columnAnchorPoint controls group/column growth: SetPoint(BOTTOM, prevColumnButton1, reverse(BOTTOM), 0, yOffset)
             end
@@ -2349,12 +2353,11 @@ do -- this function supposed to be called from layout switchers
             hdr:SetAttribute("point", unitgr)
             hdr:SetAttribute("xOffset", xgap)
             hdr:SetAttribute("yOffset", ygap)
-            local petgroup = hdr.isPetGroup
 
             hdr:ClearAllPoints()
             if groupIndex == 1 then
                 hdr:SetPoint(anchorpoint, anchors[groupIndex], reverse(anchorpoint),0,0)
-            elseif petgroup then
+            elseif hdr.isPetGroup then
                 hdr:SetPoint(AptechkaHeader.MakePoints(headers[1], nil, unitGrowth, reverse(groupGrowth)))
             else
                 if groupIndex >= prevRowIndex + maxGroupsInRow then
