@@ -957,7 +957,7 @@ function Aptechka:ReconfigureProtected()
         end
 
         header:UpdateVisibility() -- checks if group is enabled in group filter
-        if Aptechka.db.global.singleHeaderMode then
+        if Aptechka.db.global.singleHeaderMode or header.isPetGroup then
             header:SetAttribute("groupFilter", Aptechka:GetGroupFilterAsString())
         end
 
@@ -2118,7 +2118,7 @@ end
 function AptechkaHeader.UpdateVisibility(header)
     local groupId = header:GetID()
     local groupEnabled = Aptechka:IsGroupEnabled(groupId)
-    if groupId == 9 then groupEnabled = Aptechka.db.profile.petGroup end
+    if header.isPetGroup then groupEnabled = Aptechka.db.profile.petGroup end
     if groupEnabled then
         header:Enable()
     else
@@ -2202,12 +2202,20 @@ function Aptechka.CreateHeader(self,group,petgroup)
         ygap = -ygap
     end
 
-    if Aptechka.db.global.singleHeaderMode then
+    if petgroup then
+        f.isPetGroup = true
+        f:SetAttribute("isPetHeader", true)
+    end
+    if Aptechka.db.global.singleHeaderMode or f.isPetGroup then
         f:SetAttribute("maxColumns", 8 )
         f:SetAttribute("unitsPerColumn", 5)
         f:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
         local groupGrowth = AptechkaDB.profile.groupGrowth
-        f:SetAttribute("columnAnchorPoint", reverse(groupGrowth))
+        local columnAnchorPoint = reverse(groupGrowth)
+        if f.isPetGroup then
+            columnAnchorPoint = groupGrowth
+        end
+        f:SetAttribute("columnAnchorPoint", columnAnchorPoint)
     end
 
     f:SetID(group)
@@ -2217,21 +2225,12 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
 
-    if not petgroup
-    then
-        if not Aptechka.db.global.singleHeaderMode then
-            f:SetAttribute("groupFilter", group)
-        else
-            f:SetAttribute("groupFilter", Aptechka:GetGroupFilterAsString())
-        end
-        f:UpdateSortingMethod()
+    if Aptechka.db.global.singleHeaderMode or f.isPetGroup then
+        f:SetAttribute("groupFilter", Aptechka:GetGroupFilterAsString())
     else
-        f.isPetGroup = true
-        f:SetAttribute("maxColumns", 1 )
-        f:SetAttribute("unitsPerColumn", 5)
-        f:SetAttribute("isPetHeader", true)
-        --f:SetAttribute("startingIndex", 5*((group - config.maxgroups)-1))
+        f:SetAttribute("groupFilter", group)
     end
+    f:UpdateSortingMethod()
     --our group header doesn't really inherits SecureHandlerBaseTemplate
 
     f:UpdateVisibility()
@@ -2335,7 +2334,7 @@ do -- this function supposed to be called from layout switchers
 
             local hdr = headers[groupIndex]
 
-            if Aptechka.db.global.singleHeaderMode then
+            if Aptechka.db.global.singleHeaderMode or hdr.isPetGroup then
                 hdr:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
                 hdr:SetAttribute("unitsPerColumn", 5*maxGroupsInRow)
                 hdr:SetAttribute("columnAnchorPoint", reverse(groupGrowth)) -- the anchor point of each new column (ie. use LEFT for the columns to grow to the right)
