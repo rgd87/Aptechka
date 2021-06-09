@@ -3059,7 +3059,7 @@ function Aptechka.OrderedDebuffPostUpdate(frame, unit)
         local indexOrSlot, prio, auraFilter = unpack(debuffIndexCont)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
         if indexOrSlot >= 0 then
-            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, auraFilter)
+            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraUniversal(unit, indexOrSlot, auraFilter)
             if auraFilter == "HELPFUL" then
                 debuffType = "Helpful"
             end
@@ -3115,7 +3115,7 @@ function Aptechka.SimpleDebuffPostUpdate(frame, unit)
     local debuffLineLength = debuffIcons.maxChildren
 
     for i, indexOrSlot in ipairs(debuffList) do
-        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAura(unit, indexOrSlot, "HARMFUL")
+        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraUniversal(unit, indexOrSlot, "HARMFUL")
 
         fill = fill + (isBossAura and Aptechka._BossDebuffScale or 1)
 
