@@ -202,6 +202,10 @@ local defaults = {
         y = 0,
         width = 55,
         height = 55,
+        petwidth = 55,
+        petheight = 55,
+        petscale = 0.7,
+
         powerSize = 4,
         healthOrientation = "VERTICAL",
         unitGrowth = "RIGHT",
@@ -935,12 +939,21 @@ function Aptechka:ReconfigureProtected()
     self:UpdatePetGroupConfig()
     self:ReconfigureTestHeaders()
 
-    local width = pixelperfect(AptechkaDB.profile.width or config.width)
-    local height = pixelperfect(AptechkaDB.profile.height or config.height)
-    local scale = AptechkaDB.profile.scale or config.scale
+    local _width = pixelperfect(AptechkaDB.profile.width or config.width)
+    local _height = pixelperfect(AptechkaDB.profile.height or config.height)
+    local _scale = AptechkaDB.profile.scale or config.scale
     -- local strata = config.frameStrata or "LOW"
     -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
     for groupId, header in ipairs(group_headers) do
+        local width = _width
+        local height = _height
+        local scale = _scale
+        if header.isPetGroup then
+            -- width = pixelperfect(AptechkaDB.profile.petwidth)
+            -- height = pixelperfect(AptechkaDB.profile.petheight)
+            scale = AptechkaDB.profile.petscale
+        end
+
         if header:CanChangeAttribute() then
             -- header:SetAttribute("frameWidth", width)
             -- header:SetAttribute("frameHeight", height)
@@ -2241,6 +2254,11 @@ function Aptechka.CreateHeader(self,group,petgroup)
     local width = pixelperfect(AptechkaDB.profile.width or config.width)
     local height = pixelperfect(AptechkaDB.profile.height or config.height)
     local scale = AptechkaDB.profile.scale or config.scale
+    if f.isPetGroup then
+        -- width = pixelperfect(AptechkaDB.profile.petwidth)
+        -- height = pixelperfect(AptechkaDB.profile.petheight)
+        scale = AptechkaDB.profile.petscale
+    end
     f:SetAttribute("frameWidth", width)
     f:SetAttribute("frameHeight", height)
     f:SetScale(scale)
@@ -2492,6 +2510,10 @@ function Aptechka.SetupFrame(header, frameName)
 
     local width = pixelperfect(AptechkaDB.profile.width or config.width)
     local height = pixelperfect(AptechkaDB.profile.height or config.height)
+    if header.isPetGroup then
+        -- width = pixelperfect(AptechkaDB.profile.petwidth)
+        -- height = pixelperfect(AptechkaDB.profile.petheight)
+    end
     if InCombatLockdown() then
         Aptechka:ReconfigureProtected()
     end
