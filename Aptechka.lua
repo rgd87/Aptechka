@@ -204,7 +204,7 @@ local defaults = {
         height = 55,
         petwidth = 55,
         petheight = 55,
-        petscale = 0.7,
+        petscale = 0.8,
 
         powerSize = 4,
         healthOrientation = "VERTICAL",
@@ -227,7 +227,7 @@ local defaults = {
         showRaidIcons = true,
         showDispels = true,
         showSeparator = false,
-        showFloatingIcons = false,
+        showFloatingIcons = true,
         healthTexture = "Gradient",
         powerTexture = "Gradient",
         damageEffect = true,

@@ -183,17 +183,6 @@ function ns.MakeProfileSettings()
                         end,
                         order = 8.2,
                     },
-                    petGroup = {
-                        name = L"Enable Pet Group",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.profile.petGroup end,
-                        set = function(info, v)
-                            Aptechka.db.profile.petGroup = not Aptechka.db.profile.petGroup
-                            Aptechka:UpdatePetGroupConfig()
-                            Aptechka:ReconfigureProtected()
-                        end,
-                        order = 15.7,
-                    },
                     showAggro = {
                         name = L"Show Aggro",
                         type = "toggle",
@@ -286,6 +275,31 @@ function ns.MakeProfileSettings()
                             Aptechka:UpdateTargetedCountConfig()
                         end,
                         order = 18.2,
+                    },
+                    petGroup = {
+                        name = L"Enable Pet Group",
+                        type = "toggle",
+                        width = 1.5,
+                        get = function(info) return Aptechka.db.profile.petGroup end,
+                        set = function(info, v)
+                            Aptechka.db.profile.petGroup = not Aptechka.db.profile.petGroup
+                            Aptechka:UpdatePetGroupConfig()
+                            Aptechka:ReconfigureProtected()
+                        end,
+                        order = 18.4,
+                    },
+                    petScale = {
+                        name = L"Pet Scale",
+                        type = "range",
+                        get = function(info) return Aptechka.db.profile.petscale end,
+                        set = function(info, v)
+                            Aptechka.db.profile.petscale = v
+                            Aptechka:ReconfigureProtected()
+                        end,
+                        min = 0.5,
+                        max = 2,
+                        step = 0.01,
+                        order = 18.41,
                     },
                     maxGroups = {
                         name = L"Max Groups",
