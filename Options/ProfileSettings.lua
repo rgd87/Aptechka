@@ -296,8 +296,8 @@ function ns.MakeProfileSettings()
                             Aptechka.db.profile.petscale = v
                             Aptechka:ReconfigureProtected()
                         end,
-                        min = 0.5,
-                        max = 2,
+                        min = 0.3,
+                        max = 1,
                         step = 0.01,
                         order = 18.41,
                     },

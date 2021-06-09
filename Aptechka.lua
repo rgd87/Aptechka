@@ -953,7 +953,7 @@ function Aptechka:ReconfigureProtected()
         if header.isPetGroup then
             -- width = pixelperfect(AptechkaDB.profile.petwidth)
             -- height = pixelperfect(AptechkaDB.profile.petheight)
-            scale = AptechkaDB.profile.petscale
+            scale = scale * AptechkaDB.profile.petscale
         end
 
         if header:CanChangeAttribute() then
@@ -2263,7 +2263,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     if f.isPetGroup then
         -- width = pixelperfect(AptechkaDB.profile.petwidth)
         -- height = pixelperfect(AptechkaDB.profile.petheight)
-        scale = AptechkaDB.profile.petscale
+        scale = scale * AptechkaDB.profile.petscale
     end
     f:SetAttribute("frameWidth", width)
     f:SetAttribute("frameHeight", height)
