@@ -235,4 +235,5 @@ globals = {
     "PlayerFrame",
     "UnitCastingInfo",
     "UnitChannelInfo",
+    "GetRaidRosterInfo",
 }

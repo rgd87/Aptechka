@@ -613,6 +613,8 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         group_headers[i] = f
         i = i + 1
     end
+    self:CreateAnchor(group_headers[1], 1)
+    -- self.border = self:CreateBorder("AptechkaBorder")
     self:UpdatePetGroupConfig()
 
     if config.unlocked then anchors[1]:Show() end
@@ -980,6 +982,8 @@ function Aptechka:ReconfigureProtected()
     local unitGrowth = AptechkaDB.profile.unitGrowth or config.unitGrowth
     local groupGrowth = AptechkaDB.profile.groupGrowth or config.groupGrowth
     Aptechka:SetGrowth(group_headers, unitGrowth, groupGrowth)
+
+    Aptechka:UpdateBorder()
 end
 
 local function GetIncomingHealsCustom(unit, excludePlayer)
@@ -1754,6 +1758,8 @@ end
 function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
     RosterUpdateOccured = GetTime()
 
+    Aptechka:UpdateBorder()
+
     --raid autoscaling
     Aptechka:LayoutUpdate()
     Aptechka:ForEachFrame(Aptechka.FrameCheckRoles)
@@ -2307,10 +2313,6 @@ function Aptechka.CreateHeader(self,group,petgroup)
     --         self:SetAttribute('toggleForVehicle', true)
     --     end
     -- ]])
-
-    if group == 1 then
-        Aptechka:CreateAnchor(f,group)
-    end
 
     -- Buttons will be created after Show
     f:Show()
@@ -4168,4 +4170,108 @@ function Aptechka:CreateBlizzOptionsPanel()
         LoadAddOn('AptechkaOptions')
         Aptechka:OpenGUI()
     end)
+end
+
+do
+    function Aptechka:GetGridDimensions()
+        local maxGroups = 1
+        local maxGroupSize = 1
+        local showSolo = self.db.profile.showSolo
+        if IsInRaid() then
+            local groups = {0,0,0,0, 0,0,0,0}
+            local numMembers = GetNumGroupMembers();
+            for i=1, numMembers do
+                local name, _, subgroup, _, _, className, _, _, _, role, _, assignedRole = GetRaidRosterInfo(i);
+                groups[subgroup] = groups[subgroup] + 1
+            end
+
+            local i = 8
+            while groups[i] == 0 do
+                i = i - 1
+            end
+            maxGroups = i
+
+            for j=1,8 do
+                if groups[j] > maxGroupSize then
+                    maxGroupSize = groups[j]
+                    if maxGroupSize == 5 then break end
+                end
+            end
+        elseif IsInGroup() then
+            maxGroupSize = GetNumGroupMembers()
+            if not showSolo then maxGroupSize = maxGroupSize - 1 end
+        else
+            maxGroupSize = 1
+            if not showSolo then maxGroupSize = maxGroupSize - 1 end
+        end
+
+        return maxGroups, maxGroupSize
+    end
+
+
+    local offset = 7
+    local Border_BackdropTable = {
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 16,
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+        insets = {left = offset-4, right = offset-4, top = offset-4, bottom = offset-4},
+    }
+
+
+    local function Border_Update(border)
+        local unitGrowth = Aptechka.db.profile.unitGrowth
+        local groupGrowth = Aptechka.db.profile.groupGrowth
+        local fwidth = pixelperfect(Aptechka.db.profile.width)
+        local fheight = pixelperfect(Aptechka.db.profile.height)
+        local anchorpoint = Aptechka:SetAnchorpoint(unitGrowth, groupGrowth)
+        local xm, ym = helpers.GetMultipliersFromPoint(anchorpoint)
+        -- local offset = 7
+        local unitGap = Aptechka.db.profile.unitGap
+        local groupGap = Aptechka.db.profile.groupGap
+        -- border:SetPoint(anchorpoint, anchors[1], reverse(anchorpoint), -offset*xm, -offset*ym)
+
+        border:SetScale(Aptechka.db.profile.scale)
+        local groups, maxsize = Aptechka:GetGridDimensions()
+
+        local gh, gw
+        if unitGrowth == "TOP" or groupGrowth == "BOTTOM" then
+            gh = maxsize*fheight + (maxsize-1)*unitGap
+            gw = fwidth
+        else
+            gh = fheight
+            gw = maxsize*fwidth + (maxsize-1)*unitGap
+        end
+
+        local bw, bh
+        if groupGrowth == "TOP" or groupGrowth == "BOTTOM" then
+            bh = groups * gh + (groups-1)*groupGap
+            bw = gw
+        else
+            bh = gh
+            bw = groups * gw + (groups-1)*groupGap
+        end
+
+        border:ClearAllPoints()
+        border:SetPoint(anchorpoint, anchors[1], reverse(anchorpoint), -offset*xm, -offset*ym)
+        border:SetSize(bw+offset*2, bh+offset*2)
+    end
+
+    local function Border_Create(parent, name)
+        local border = CreateFrame("Frame", nil, parent, BackdropTemplateMixin and "BackdropTemplate")
+
+        border:SetFrameStrata("BACKGROUND")
+
+        border:SetBackdrop(Border_BackdropTable)
+        border:SetBackdropBorderColor(0.55,0.55,0.55)
+        border:SetBackdropColor(0,0,0, 0.8)
+        border:Show()
+        border.Update = Border_Update
+        border:Update()
+    end
+    Aptechka.CreateBorder = Border_Create
+
+    function Aptechka:UpdateBorder()
+        if self.border then
+            self.border:Update()
+        end
+    end
 end
