@@ -4180,21 +4180,27 @@ do
         if IsInRaid() then
             local groups = {0,0,0,0, 0,0,0,0}
             local numMembers = GetNumGroupMembers();
-            for i=1, numMembers do
-                local name, _, subgroup, _, _, className, _, _, _, role, _, assignedRole = GetRaidRosterInfo(i);
-                groups[subgroup] = groups[subgroup] + 1
-            end
 
-            local i = 8
-            while groups[i] == 0 do
-                i = i - 1
-            end
-            maxGroups = i
+            if self.db.global.singleHeaderMode then
+                maxGroups = math.ceil(numMembers / 5)
+                maxGroupSize = math.min(numMembers, 5)
+            else
+                for i=1, numMembers do
+                    local name, _, subgroup, _, _, className, _, _, _, role, _, assignedRole = GetRaidRosterInfo(i);
+                    groups[subgroup] = groups[subgroup] + 1
+                end
 
-            for j=1,8 do
-                if groups[j] > maxGroupSize then
-                    maxGroupSize = groups[j]
-                    if maxGroupSize == 5 then break end
+                local i = 8
+                while groups[i] == 0 do
+                    i = i - 1
+                end
+                maxGroups = i
+
+                for j=1,8 do
+                    if groups[j] > maxGroupSize then
+                        maxGroupSize = groups[j]
+                        if maxGroupSize == 5 then break end
+                    end
                 end
             end
         elseif IsInGroup() then
