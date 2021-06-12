@@ -798,7 +798,7 @@ function Aptechka:UpdateMissingAuraList()
     table_wipe(missingFlagSpells)
     for spellID, opts in pairs(auras) do
         if opts.isMissing and not opts.disabled then
-            missingFlagSpells[opts] = true
+            missingFlagSpells[opts.id] = opts
         end
     end
 end
@@ -2908,7 +2908,14 @@ local function IndicatorAurasProc(frame, unit, index, slot, filter, name, icon, 
             local realID = GetRealID(opts.id)
             opts.realID = realID
 
-            encountered[realID] = opts
+            if anySource then
+                local alreadyEncounteredCaster = encountered[realID]
+                if alreadyEncounteredCaster and alreadyEncounteredCaster == "player" then
+                    return
+                end
+            end
+
+            encountered[realID] = caster
 
             local status = true
             if opts.isMissing then status = false end
@@ -2931,21 +2938,21 @@ local function IndicatorAurasPostUpdate(frame, unit)
                     frame.activeAuras[realID] = nil
                 end
             end
-            for optsMissing in pairs(missingFlagSpells) do
+            for missingRealID, missingOpts in pairs(missingFlagSpells) do
                 local isPresent
-                for spellID, opts in pairs(encountered) do
-                    if optsMissing == opts then
+                for realID, _ in pairs(encountered) do
+                    if missingRealID == realID then
                         isPresent = true
                         break
                     end
                 end
                 if not isPresent then
                     local isKnown = true
-                    if optsMissing.isKnownCheck then
-                        isKnown = optsMissing.isKnownCheck(unit)
+                    if missingOpts.isKnownCheck then
+                        isKnown = missingOpts.isKnownCheck(unit)
                     end
                     if isKnown then
-                        FrameSetJob(frame, optsMissing, true)
+                        FrameSetJob(frame, missingOpts, true)
                     end
                 end
             end
