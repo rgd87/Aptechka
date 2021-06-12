@@ -207,7 +207,13 @@ end
 if playerClass == "SHAMAN" then
 
     -- Healing Way
-    A{ id = 29203, type = "HELPFUL", assignto = set("bar4"), maxCount = 3, infoType = "COUNT", color = {38/255, 221/255, 163/255} }
+    A{ id = 29203, type = "HELPFUL", assignto = set("bars"), maxCount = 3, infoType = "DURATION", scale = 0.7, --color = {38/255, 221/255, 163/255},
+        stackcolor =   {
+            [1] = {27/255, 158/255, 117/255},
+            [2] = {32/255, 186/255, 137/255},
+            [3] = {38/255, 221/255, 163/255},
+        },
+    }
 
     A{ id = { 974, 32593, 32594 } , type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 6, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
 

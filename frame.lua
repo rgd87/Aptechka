@@ -205,10 +205,10 @@ local function GetSpellColor(job, caster, count)
     local color
     if caster ~= "player" and job.foreigncolor then
         return unpack(job.foreigncolor)
-    elseif job.stackcolor then
-        return unpack(job.stackcolor[count])
     elseif job.color then
         return unpack(job.color)
+    elseif job.stackcolor then
+        return unpack(job.stackcolor[count])
     end
     return 1,1,1
 end
