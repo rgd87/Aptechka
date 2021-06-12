@@ -78,7 +78,8 @@ AG{ id = { 20707, 20762, 20763, 20764, 20765, 27239 }, type = "HELPFUL", global 
 
 AG{ id = {
     430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
-    34291, 43183, 43182, -- BC & WotLK water,
+    34291, 43183, 43182, 43706, -- BC & WotLK water,
+    27089, 46755, -- BC mage water
 }, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
 AG{ id = 5384, assignto = set("text2"), color = {0, 0.7, 1}, text = "FD", global = true, priority = 75 } -- Feign Death
