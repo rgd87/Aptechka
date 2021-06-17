@@ -500,6 +500,9 @@ local function NormalizeContent(job, state, contentType, ...)
     local handler = contentNormalizers[contentType] or contentNormalizers["Default"]
     return handler(job, state, contentType, ...)
 end
+function Aptechka:NormalizeWidgetContent(...)
+    NormalizeContent(...)
+end
 
 
 
