@@ -3,7 +3,7 @@ local addonName, ns = ...
 
 local L = Aptechka.L
 
-local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local APILevel = math.floor(select(4,GetBuildInfo())/10000)
 
 function ns.MakeStatusConfig()
     local opt = {
@@ -34,7 +34,7 @@ function ns.MakeStatusConfig()
         "DebuffAlert3",
         "DebuffAlert4",
     }
-    if isClassic then
+    if APILevel <= 2 then
         table.insert(configurableWidgets, "IncomingHealStatus")
     end
 
