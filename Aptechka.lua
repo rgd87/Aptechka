@@ -1028,6 +1028,9 @@ if apiLevel <= 2 then
         SetJob(unit, config.IncomingHealStatus, showHeal, "INCOMING_HEAL", heal)
     end
 end
+function Aptechka:GetIncomingHeals(...)
+    return GetIncomingHealsCustom(...)
+end
 
 local AbsorbBarDisable = function(f)
     if not f.absorb._SetValue then
