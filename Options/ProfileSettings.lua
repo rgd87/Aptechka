@@ -322,6 +322,7 @@ function ns.MakeProfileSettings()
                         values = {
                             NONE = L"None (Unit Index)",
                             ROLE = L"Role",
+                            CLASS= L"Class",
                             NAME = L"Name",
                         },
                         get = function(info) return Aptechka.db.profile.sortMethod end,

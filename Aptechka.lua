@@ -2166,6 +2166,11 @@ function AptechkaHeader:UpdateSortingMethod()
                             "groupingOrder", nil,
                             "groupBy", nil)
         self:SetAttribute("sortMethod", "NAME")
+    elseif Aptechka.db.profile.sortMethod == "CLASS" then
+        helpers.setAttributesWithoutResponse(self,
+                                "groupingOrder", "WARRIOR,DEATHKNIGHT,DEMONHUNTER,PALADIN,DRUID,MONK,SHAMAN,PRIEST,HUNTER,ROGUE,WARLOCK,MAGE",
+                                "groupBy", "CLASS")
+        self:SetAttribute("sortMethod", "INDEX")
     else --if Aptechka.db.global.sortMethod == "NONE" then
         helpers.setAttributesWithoutResponse(self,
                             "groupingOrder", nil,
