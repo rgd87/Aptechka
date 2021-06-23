@@ -543,9 +543,9 @@ local function form_color(form)
     local color = AceGUI:Create("ColorPicker")
     color:SetLabel(L"Color")
     color:SetRelativeWidth(0.15)
-    color:SetHasAlpha(false)
+    color:SetHasAlpha(true)
     color:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
-        self.parent.opts["color"] = {r,g,b}
+        self.parent.opts["color"] = {r,g,b, a}
     end)
     form.controls.color = color
     form:AddChild(color)

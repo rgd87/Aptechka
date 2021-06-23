@@ -116,8 +116,8 @@ function ns.MakeStatusConfig()
                             return 0,0,0
                         end
                     end,
-                    set = function(info, r,g,b)
-                        local c = {r,g,b}
+                    set = function(info, r,g,b, a)
+                        local c = {r,g,b,a}
                         AptechkaConfigMerged[status].color = c
                         Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
                         AptechkaConfigCustom.WIDGET[status].color = c
