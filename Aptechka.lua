@@ -843,7 +843,8 @@ function Aptechka.GetWidgetListRaw()
         end
     end
     list["border"] = "border"
-    list["healthColor"] = "healthColor"
+    list["healthColor"] = "HealthColor"
+    list["frameAlpha"] = "FrameAlpha"
     return list
 end
 
@@ -1211,7 +1212,6 @@ function Aptechka.FrameCheckPhase(frame, unit)
         frame.centericon:Show()
     ]]
     local isPhased = UnitIsPlayer(unit) and UnitPhaseReason(unit) and not frame.state.isInVehicle
-    frame.state.isPhased = isPhased
     FrameSetJob(frame, config.PhasedStatus, isPhased, "TEXTURE", "Interface\\TargetingFrame\\UI-PhasingIcon", phaseIconCoords)
 end
 end
@@ -1563,16 +1563,20 @@ end
 
 
 local function FrameUpdateRangeAlpha(frame, unit)
-    if not AptechkaUnitInRange(unit) then
-        frame:SetAlpha(alphaOutOfRange)
-    elseif frame.state.isPhased then
-        frame:SetAlpha(alphaOutOfRange)
-    else
-        frame:SetAlpha(1)
+    local wasInRange = frame[1]
+    local isInRange = AptechkaUnitInRange(unit)
+    if wasInRange ~= isInRange then
+        FrameSetJob(frame, config.RangeStatus, not isInRange, "OUTOFRANGE", alphaOutOfRange)
     end
+    frame[1] = isInRange
 end
 local function FrameResetRangeAlpha(frame, unit)
-    frame:SetAlpha(1)
+    local wasInRange = frame[1]
+    local isInRange = true
+    if wasInRange ~= isInRange then
+        FrameSetJob(frame, config.RangeStatus, not isInRange, "OUTOFRANGE", alphaOutOfRange)
+    end
+    frame[1] = isInRange
 end
 --Range check
 Aptechka.OnRangeUpdate = function (self, time)
@@ -2044,6 +2048,9 @@ local function updateUnitButton(self, unit)
     -- HealthBar color update needs some unique value to force update
     FrameSetJob(self,config.HealthBarColor,true, nil, makeUnique())
     Aptechka.FrameScanAuras(self, unit)
+    if #self > 0 then
+        self[1] = -1 -- reset range state to undefined
+    end
     state.wasDead = nil
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
     Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
@@ -2517,6 +2524,10 @@ end
 
 function Aptechka.SetupFrame(header, frameName)
     local f = _G[frameName]
+
+    if #f == 0 then -- just placing any value into table's array part to use for range state
+        table.insert(f, -1)
+    end
 
     local width = pixelperfect(AptechkaDB.profile.width or config.width)
     local height = pixelperfect(AptechkaDB.profile.height or config.height)

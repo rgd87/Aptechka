@@ -2696,6 +2696,28 @@ local Border_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
 end)
 
 
+local function Alpha_SetJob(self, job, state, contentType, ...)
+    local a = ...
+    if not a then
+        local c = job.color
+        if c then
+            a = c[4]
+        end
+    end
+    a = a or 1
+    self:GetParent():SetAlpha(a)
+end
+local function Alpha_Restore(self)
+    self:GetParent():SetAlpha(1)
+end
+local function CreateAlphaWidget(parent)
+    local f = WrapFrameAsWidget(CreateFrame("Frame", nil, parent))
+    f:SetScript("OnHide", Alpha_Restore)
+    f.SetJob = Alpha_SetJob
+    return f
+end
+
+
 local OnMouseEnterFunc = function(self)
     self.mouseover:Show()
 end
@@ -3112,6 +3134,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local hpi = CreateIncomingHealBar(hp)
     hpi.parent = hp
     hp.incoming = hpi
+
+    -----------------------
+
+    local alphaWidget = CreateAlphaWidget(self)
+    self.frameAlpha = alphaWidget
 
     local p4 = outlineSize + pixelperfect(2)
     local border = CreateFrame("Frame", nil, self, BackdropTemplateMixin and "BackdropTemplate" or nil)

@@ -32,7 +32,7 @@ config.displayRoles = true
 config.enableTraceHeals = true
 config.enableVehicleSwap = true
 config.enableAbsorbBar = true
-
+config.RangeStatus = { name = "OutOfRange", assignto = set("frameAlpha"), color = {0,0,0,0.65}, priority = 90 }
 config.TargetStatus = { name = "Target", assignto = set("border"), color = {0.7,0.2,0.5}, priority = 65 }
 config.MouseoverStatus = { name = "Mouseover", assignto = set("border"), color = {1,0.5,0.8}, priority = 66 }
 config.AggroStatus = { name = "Aggro", assignto = set("raidbuff"),  color = { 0.7, 0, 0},priority = 85 }
@@ -40,7 +40,7 @@ config.RCReady = { name = "RCReady", priority = 90, assignto = set("statusIcon")
 config.RCNotReady = { name = "RCNotReady", priority = 91, assignto = set("statusIcon"), color = { 1, 0, 0}, text = "NOT READY" }
 config.RCWaiting = { name = "RCWaiting", priority = 89, assignto = set("statusIcon"), color = { 0.8, 0.6, 0}, text = "WAITING" }
 config.IncResStatus = { name = "IncRes", priority = 86, assignto = set("statusIcon"), color = { 1, 1, 1} }
-config.PhasedStatus = { name = "Phased", priority = 84, assignto = set("statusIcon"), color = { 0.3, 0.3, 0.45} }
+config.PhasedStatus = { name = "Phased", priority = 84, assignto = set("statusIcon", "frameAlpha"), color = { 0.3, 0.3, 0.45, 0.77} }
 config.RoleStatus = { name = "RoleIcon", assignto = set("roleIcon"), priority = 65, color = { 1, 1, 1 } }
 config.RaidTargetStatus = { name = "RaidTarget", assignto = set("raidTargetIcon"), priority = 70, color = { 1, 1, 1 } }
 config.IncomingCastStatus = { name = "IncomingCast", priority = 97, assignto = set("incomingCastIcon"), color = { 1, 1, 1} }

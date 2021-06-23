@@ -20,6 +20,7 @@ function ns.MakeStatusConfig()
         "MouseoverStatus",
         "MainTankStatus",
         "LeaderStatus",
+        "RangeStatus",
         "DispelStatus",
         "InVehicleStatus",
         "LOSStatus",
@@ -105,6 +106,7 @@ function ns.MakeStatusConfig()
                 color = {
                     name = L"Color",
                     type = "color",
+                    hasAlpha = true,
                     width = 0.6,
                     get = function(info)
                         local color = AptechkaConfigMerged[status].color
