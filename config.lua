@@ -74,6 +74,7 @@ config.DebuffAlert1 = { name = "DebuffAlert1", assignto = set("debuffHighlight",
 config.DebuffAlert2 = { name = "DebuffAlert2", assignto = set("debuffHighlight", "flash"), color = {1,0,1}, priority = 95, scale = 1.15, pulse = 10, }
 config.DebuffAlert3 = { name = "DebuffAlert3", assignto = set("innerglow", "border", "flash"), color = {1,0,0}, priority = 90 }
 config.DebuffAlert4 = { name = "DebuffAlert4", assignto = set("pixelGlow"), color = {1,1,1}, priority = 95 }
+config.DebuffAlert5 = { name = "DebuffAlert5", assignto = set("frameAlpha"), color = {0,0,0, 0.8}, priority = 50 }
 
 config.TargetedCountStatus = { name = "TargetedCount", assignto = set("EnemyCounter"), color = {1,0.2,0.2}, priority = 70 }
 -- config.MindControl = { name = "MIND_CONTROL", assignto = set("mindcontrol"), color = {1,0,0}, priority = 52 }

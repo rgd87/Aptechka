@@ -34,6 +34,7 @@ function ns.MakeStatusConfig()
         "DebuffAlert2",
         "DebuffAlert3",
         "DebuffAlert4",
+        "DebuffAlert5",
     }
     if APILevel <= 2 then
         table.insert(configurableWidgets, "IncomingHealStatus")

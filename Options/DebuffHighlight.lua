@@ -298,17 +298,18 @@ function ns.CreateSpellDataPanel()
     local priority = AceGUI:Create("Button")
     priority:SetText("1")
     priority:SetRelativeWidth(0.08)
+    local MAX_DEBUFF_ALERT_LEVEL = 5
     priority:SetCallback("OnClick", function(self, event)
         local priority = self.parent.opts["priority"] or 1
         self.parent.opts["priority"] = priority + 1
-        if self.parent.opts["priority"] > 4 then
+        if self.parent.opts["priority"] > MAX_DEBUFF_ALERT_LEVEL then
             self.parent.opts["priority"] = 1
         end
         self:SetText(self.parent.opts["priority"])
     end)
     Group.controls.priority = priority
     Group:AddChild(priority)
-    ns.WidgetAddTooltip(priority, "1 - Red Corner\n2 - Pink Corner\n3 - Red Border\n4 - Pixel Glow")
+    ns.WidgetAddTooltip(priority, "1 - Red Corner\n2 - Pink Corner\n3 - Red Border\n4 - Pixel Glow\n5 - Faded Frame")
 
     local category = AceGUI:Create("EditBox")
     category:SetLabel(L"Category")
