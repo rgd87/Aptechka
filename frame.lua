@@ -1681,7 +1681,7 @@ end
 -- Debuff Icon Array
 ----------------------------------------------------------
 
-local function DebuffIconArray_SetDebuffIcon(hdr, frame, unit, index, spellName, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+local function DebuffIconArray_SetDebuffIcon(hdr, frame, unit, index, filter, uaIndex, spellName, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
     -- local hdr = frame.debuffIcons
     if index > hdr.maxChildren then return end
     local iconFrame = hdr.children[index]
@@ -1693,6 +1693,10 @@ local function DebuffIconArray_SetDebuffIcon(hdr, frame, unit, index, spellName,
         end
 
         iconFrame:SetJob(debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+        iconFrame.spellID = spellID
+        iconFrame.unit = unit
+        iconFrame.filter = filter
+        iconFrame.index = uaIndex
         iconFrame:Show()
 
         local refreshTimestamp = frame.auraEvents[spellID]

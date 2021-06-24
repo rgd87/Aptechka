@@ -3055,7 +3055,7 @@ function Aptechka.OrderedDebuffProc(frame, unit, index, slot, filter, name, icon
                 prio = prio + 15
             end
         end
-        tinsert(debuffList, { slot or index, prio, filter })
+        tinsert(debuffList, { slot, index, prio, filter })
         -- tinsert(debuffList, { index, prio, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura })
         return 1
     end
@@ -3065,7 +3065,7 @@ end
 function Aptechka.OrderedBuffProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     if isBossAura and not blacklist[spellID] then
         local prio = 60
-        tinsert(debuffList, { slot or index, prio, filter })
+        tinsert(debuffList, { slot, index, prio, filter })
         return 1
     end
     return 0
@@ -3084,10 +3084,11 @@ function Aptechka.OrderedDebuffPostUpdate(frame, unit)
     tsort(debuffList, sortfunc)
 
     for i, debuffIndexCont in ipairs(debuffList) do
-        local indexOrSlot, prio, auraFilter = unpack(debuffIndexCont)
+        local slot, index, prio, auraFilter = unpack(debuffIndexCont)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
-        if indexOrSlot >= 0 then
-            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraUniversal(unit, indexOrSlot, auraFilter)
+        local slotOrIndex = slot or index
+        if slotOrIndex >= 0 then
+            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraUniversal(unit, slotOrIndex, auraFilter)
             if auraFilter == "HELPFUL" then
                 debuffType = "Helpful"
             end
@@ -3105,7 +3106,7 @@ function Aptechka.OrderedDebuffPostUpdate(frame, unit)
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            debuffIcons:SetDebuffIcon(frame, unit, shown, name, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+            debuffIcons:SetDebuffIcon(frame, unit, shown, auraFilter, index, name, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
         else
             break
         end
