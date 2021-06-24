@@ -3119,6 +3119,7 @@ end
 ---------------------------
 -- Simple
 ---------------------------
+--[[
 function Aptechka.SimpleDebuffProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
     if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
         if isBossAura then
@@ -3159,6 +3160,7 @@ function Aptechka.SimpleDebuffPostUpdate(frame, unit)
         debuffIcons:SetDebuffIcon(frame, unit, i, nil)
     end
 end
+]]
 ---------------------------
 -- Debuff Highlight
 ---------------------------
@@ -3371,15 +3373,15 @@ function Aptechka:UpdateDebuffScanningMethod()
         useOrdering = not IsInRaid() or (isBattleground and numMembers <= 15)
     end
     ]]
-    if useOrdering then
+    -- if useOrdering then
         DebuffProc = Aptechka.OrderedDebuffProc
         BuffProc = Aptechka.OrderedBuffProc
         DebuffPostUpdate = Aptechka.OrderedDebuffPostUpdate
-    else
-        DebuffProc = Aptechka.SimpleDebuffProc
-        BuffProc = Aptechka.SimpleBuffProc
-        DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
-    end
+    -- else
+    --     DebuffProc = Aptechka.SimpleDebuffProc
+    --     BuffProc = Aptechka.SimpleBuffProc
+    --     DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
+    -- end
     if AptechkaDB.profile.showDispels then
         DispelTypeProc = Aptechka.DispelTypeProc
         DispelTypePostUpdate = Aptechka.DispelTypePostUpdate
