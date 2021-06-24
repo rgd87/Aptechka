@@ -1207,7 +1207,6 @@ function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
 end
 
 do
-local phaseIconCoords = {0.15625, 0.84375, 0.15625, 0.84375}
 function Aptechka.FrameCheckPhase(frame, unit)
     --[[
     elseif HasIncomingSummon(unit) then
@@ -1223,7 +1222,7 @@ function Aptechka.FrameCheckPhase(frame, unit)
         frame.centericon:Show()
     ]]
     local isPhased = UnitIsPlayer(unit) and UnitPhaseReason(unit) and not frame.state.isInVehicle
-    FrameSetJob(frame, config.PhasedStatus, isPhased, "TEXTURE", "Interface\\TargetingFrame\\UI-PhasingIcon", phaseIconCoords)
+    FrameSetJob(frame, config.PhasedStatus, isPhased, "PHASED")
 end
 end
 
@@ -1742,7 +1741,7 @@ function Aptechka.FrameCheckRoles(self, unit )
         end
 
         if role == "HEALER" or role == "TANK" then
-            FrameSetJob(self, config.RoleStatus, true, "TEXTURE", "Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES", roleCoords[role])
+            FrameSetJob(self, config.RoleStatus, true, "ROLE", role)
         else
             FrameSetJob(self, config.RoleStatus, false)
         end
@@ -1930,12 +1929,12 @@ function Aptechka.FrameReadyCheckConfirm(frame, unit)
     local opts
     if status == 'ready' then
         FrameSetJob(frame, config.RCWaiting, false)
-        FrameSetJob(frame, config.RCReady, true, "TEXTURE", READY_CHECK_READY_TEXTURE)
+        FrameSetJob(frame, config.RCReady, true, "READY_CHECK", status)
     elseif status == 'notready' then
         FrameSetJob(frame, config.RCWaiting, false)
-        FrameSetJob(frame, config.RCNotReady, true, "TEXTURE", READY_CHECK_NOT_READY_TEXTURE)
+        FrameSetJob(frame, config.RCNotReady, true, "READY_CHECK", status)
     elseif status == 'waiting' then
-        FrameSetJob(frame, config.RCWaiting, true, "TEXTURE", READY_CHECK_WAITING_TEXTURE)
+        FrameSetJob(frame, config.RCWaiting, true, "READY_CHECK", status)
     else
         return Aptechka.FrameReadyCheckFinished(frame, unit)
     end
@@ -2099,6 +2098,12 @@ local delayedUpdateTimer = C_Timer.NewTicker(5, function()
         Aptechka:ForEachFrame(updateUnitButton)
     end
 end)
+
+-- For testing
+function Aptechka:ShakeUnitButtons()
+    Aptechka:ForEachFrame(updateUnitButton)
+end
+
 
 --UnitButton initialization
 local OnAttributeChanged = function(self, attrname, unit)

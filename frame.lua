@@ -367,6 +367,50 @@ function contentNormalizers.TEXTURE(job, state, contentType, ...)
     r,g,b = 1,1,1
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
+local phaseIconCoords = {0.15625, 0.84375, 0.15625, 0.84375}
+function contentNormalizers.PHASED(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, alpha
+    texture = "Interface\\TargetingFrame\\UI-PhasingIcon"
+    texCoords = phaseIconCoords
+    alpha = job.color[4] or 1
+    text = job.name
+    r,g,b = 0.3,1,1
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, alpha
+end
+local roleCoords = {
+    TANK = { 0, 19/64, 22/64, 41/64 },
+    HEALER = { 20/64, 39/64, 1/64, 20/64 },
+}
+function contentNormalizers.ROLE(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local role = ...
+    texture = "Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES"
+    texCoords = roleCoords[role]
+    text = job.name
+    r,g,b = 1,1,1
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.READY_CHECK(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local status = ...
+    if status == 'ready' then
+        texture = READY_CHECK_READY_TEXTURE
+    elseif status == 'notready' then
+        texture = READY_CHECK_NOT_READY_TEXTURE
+    elseif status == 'waiting' then
+        texture = READY_CHECK_WAITING_TEXTURE
+    end
+    text = job.name
+    r,g,b = 1,1,1
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+end
+function contentNormalizers.OUTOFRANGE(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, alpha
+    alpha = ...
+    text = job.name
+    r,g,b = 1,1,1
+    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, alpha
+end
 local DT_TextureCoords = {
     Magic = { 0.90234375, 0.97265625, 0.109375, 0.390625 },
     Curse = { 0.02734375, 0.09765625, 0.609375, 0.890625 },
@@ -2701,14 +2745,8 @@ end)
 
 
 local function Alpha_SetJob(self, job, state, contentType, ...)
-    local a = ...
-    if not a then
-        local c = job.color
-        if c then
-            a = c[4]
-        end
-    end
-    a = a or 1
+    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, alpha = NormalizeContent(job, state, contentType, ...)
+    local a = alpha or 1
     self:GetParent():SetAlpha(a)
 end
 local function Alpha_Restore(self)
