@@ -158,7 +158,7 @@ function ns.MakeGlobalSettings()
                     --     order = 10.4,
                     -- },
                     disableTooltip = {
-                        name = L"Disable Tooltips",
+                        name = L"Disable Unit Tooltips",
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.global.disableTooltip end,
@@ -166,6 +166,47 @@ function ns.MakeGlobalSettings()
                             Aptechka.db.global.disableTooltip = not Aptechka.db.global.disableTooltip
                         end,
                         order = 10.8,
+                    },
+                    switches = {
+                        type = "group",
+                        name = "Debuff Tooltip Modifiers",
+                        guiInline = true,
+                        order = 10.81,
+                        args = {
+                            Ctrl = {
+                                name = "Ctrl",
+                                width = 0.3,
+                                type = "toggle",
+                                get = function(info) return Aptechka.db.global.debuffTooltip_bindCtrl end,
+                                set = function(info, v)
+                                    Aptechka.db.global.debuffTooltip_bindCtrl = not Aptechka.db.global.debuffTooltip_bindCtrl
+                                    Aptechka.tooltipPool.modchecks:MakeFromDB()
+                                end,
+                                order = 1,
+                            },
+                            Alt = {
+                                name = "Alt",
+                                width = 0.3,
+                                type = "toggle",
+                                get = function(info) return Aptechka.db.global.debuffTooltip_bindAlt end,
+                                set = function(info, v)
+                                    Aptechka.db.global.debuffTooltip_bindAlt = not Aptechka.db.global.debuffTooltip_bindAlt
+                                    Aptechka.tooltipPool.modchecks:MakeFromDB()
+                                end,
+                                order = 2,
+                            },
+                            Shift = {
+                                name = "Shift",
+                                width = 0.3,
+                                type = "toggle",
+                                get = function(info) return Aptechka.db.global.debuffTooltip_bindShift end,
+                                set = function(info, v)
+                                    Aptechka.db.global.debuffTooltip_bindShift = not Aptechka.db.global.debuffTooltip_bindShift
+                                    Aptechka.tooltipPool.modchecks:MakeFromDB()
+                                end,
+                                order = 3,
+                            },
+                        }
                     },
                     disableAbsorbBar = {
                         name = L"Disable Absorb Side Bar",
