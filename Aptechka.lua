@@ -170,6 +170,9 @@ local defaults = {
         disableTooltip = false,
         disableAbsorbBar = false,
         debuffTooltip = false,
+        debuffTooltip_bindAlt = false,
+        debuffTooltip_bindShift = true,
+        debuffTooltip_bindCtrl = true,
         useDebuffOrdering = true, -- On always?
         customDebuffHighlights = {},
         borderWidth = 1,
@@ -628,6 +631,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if firstTimeUse or Aptechka.db.global.stayUnlocked then
         Aptechka.Commands.unlock()
     end
+
+    Aptechka:CreateDebuffTooltips()
+    Aptechka.tooltipPool.modchecks:MakeFromDB()
+    self:RegisterEvent("MODIFIER_STATE_CHANGED")
 
     SLASH_APTECHKA1= "/aptechka"
     SLASH_APTECHKA2= "/apt"
@@ -2477,8 +2484,13 @@ function Aptechka.CreateAnchor(self,hdr,num)
     end)
 end
 
+local currentMouseoverFrame
 local onenter = function(self)
     if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
+    currentMouseoverFrame = self
+    if Aptechka.tooltipPool.modchecks:CheckAND() then
+        Aptechka:ShowDebuffTooltips(self)
+    end
     if AptechkaDB.global.enableMouseoverStatus then
         FrameSetJob(self, config.MouseoverStatus, true)
     end
@@ -2488,9 +2500,22 @@ local onenter = function(self)
 end
 local onleave = function(self)
     if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
+    currentMouseoverFrame = nil
+    Aptechka:HideDebuffTooltips(self)
     FrameSetJob(self, config.MouseoverStatus, false)
     UnitFrame_OnLeave(self)
     self:SetScript("OnUpdate", nil)
+end
+
+function Aptechka:MODIFIER_STATE_CHANGED(event)
+    if currentMouseoverFrame then
+        if Aptechka.tooltipPool.modchecks:CheckAND() then
+            Aptechka:HideDebuffTooltips()
+            Aptechka:ShowDebuffTooltips(currentMouseoverFrame)
+        else
+            Aptechka:HideDebuffTooltips()
+        end
+    end
 end
 
 do
@@ -4200,6 +4225,111 @@ function Aptechka:CreateBlizzOptionsPanel()
         LoadAddOn('AptechkaOptions')
         Aptechka:OpenGUI()
     end)
+end
+
+do
+
+    local modchecks = {}
+    function modchecks:CheckAND()
+        if #self == 0 then return false end
+        for i,func in ipairs(self) do
+            if not func() then return false end
+        end
+        return true
+    end
+    function modchecks:MakeFromDB()
+        while #self > 0 do table.remove(self) end
+        if AptechkaDB.global.debuffTooltip_bindAlt then table.insert(self, IsAltKeyDown) end
+        if AptechkaDB.global.debuffTooltip_bindShift then table.insert(self, IsShiftKeyDown) end
+        if AptechkaDB.global.debuffTooltip_bindCtrl then table.insert(self, IsControlKeyDown) end
+    end
+    -- function modchecks:MakeFromString(str)
+    --     while #self > 0 do table.remove(self) end
+    --     str = str:upper()
+    --     if str:find("ALT") then table.insert(self, IsAltKeyDown) end
+    --     if str:find("SHIFT") then table.insert(self, IsShiftKeyDown) end
+    --     if str:find("CTRL") then table.insert(self, IsControlKeyDown) end
+    -- end
+    -- modchecks:MakeFromString("SHIFT-ALT")
+
+
+    local function Tooltip_creationFunc(framePool)
+        framePool.numObjects = framePool.numObjects or 0
+        framePool.numObjects = framePool.numObjects + 1
+        local id = framePool.numObjects
+        local tip = CreateFrame(framePool.frameType, "AptTooltip"..id, framePool.parent, framePool.frameTemplate);
+
+        local tex = tip:CreateTexture(nil, "ARTWORK")
+        tex:SetSize(28, 28)
+        tex:SetPoint("TOPRIGHT", tip, "TOPLEFT", -2, -5)
+        tip.iconTexture = tex
+
+        tip:SetClampedToScreen(false)
+        return tip
+    end
+    local function Tooltip_resetterFunc(pool, tooltipFrame)
+        tooltipFrame:ClearAllPoints()
+        tooltipFrame:SetOwner(UIParent, "ANCHOR_NONE")
+        tooltipFrame:Hide()
+    end
+
+    local elapsedAcc = 0
+    local function Tooltip_FrameOnUpdate(frame, elapsed)
+        elapsedAcc = elapsedAcc + elapsed
+        if elapsedAcc > 0.5 then
+            elapsedAcc = elapsedAcc - 0.5
+            Aptechka.tooltipPool:ReleaseAll()
+            Aptechka:ShowDebuffTooltips(frame)
+        end
+    end
+
+
+    local currentActiveFrame
+    function Aptechka:ShowDebuffTooltips(frame)
+        local debuffIcons = frame.debuffIcons
+        currentActiveFrame = frame
+        currentActiveFrame:SetScript("OnUpdate", Tooltip_FrameOnUpdate)
+
+        local prev
+
+        for i, icon in ipairs(debuffIcons.children) do
+            local spellID = icon.spellID
+
+            if not icon:IsShown() then return end
+
+            local tooltip = self.tooltipPool:Acquire()
+            tooltip:SetOwner(frame, "ANCHOR_NONE")
+
+            local name,_, texture = GetSpellInfo(spellID)
+            tooltip.iconTexture:SetTexture(texture)
+            tooltip:SetUnitAura(icon.unit, icon.index, icon.filter)
+
+            if prev then
+                tooltip:SetPoint("BOTTOMLEFT", prev, "TOPLEFT",0,5)
+            else
+                tooltip:SetPoint("BOTTOMRIGHT", frame, "BOTTOMLEFT",0,0)
+            end
+
+            tooltip:Show()
+            prev = tooltip
+        end
+    end
+
+    function Aptechka:HideDebuffTooltips(frame)
+        self.tooltipPool:ReleaseAll()
+        if currentActiveFrame then
+            currentActiveFrame:SetScript("OnUpdate", nil)
+        end
+    end
+
+    function Aptechka:CreateDebuffTooltips()
+        local tooltipPool = CreateFramePool("GameTooltip", UIParent, "GameTooltipTemplate")
+        tooltipPool.resetterFunc = Tooltip_resetterFunc
+        tooltipPool.creationFunc = Tooltip_creationFunc
+        self.tooltipPool = tooltipPool
+        self.tooltipPool.modchecks = modchecks
+        return tooltipPool
+    end
 end
 
 do

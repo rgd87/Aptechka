@@ -230,10 +230,12 @@ globals = {
     "BackdropTemplateMixin",
     "UnitPhaseReason",
     "IsShiftKeyDown",
+    "IsAltKeyDown",
     "GameTooltip_SetTitle",
     "GameTooltip_AddInstructionLine",
     "PlayerFrame",
     "UnitCastingInfo",
     "UnitChannelInfo",
     "GetRaidRosterInfo",
+    "CreateFramePool",
 }
