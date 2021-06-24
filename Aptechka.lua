@@ -144,13 +144,17 @@ local HealComm
 local LibClassicDurations = LibStub("LibClassicDurations", true)
 local spellNameToID = helpers.spellNameToID
 
-Aptechka.L = setmetatable({}, {
+local L = setmetatable({}, {
     __index = function(t, k)
         -- print(string.format('L["%s"] = ""',k:gsub("\n","\\n")));
         return k
     end,
     __call = function(t,k) return t[k] end,
 })
+Aptechka.L = L
+
+_G.BINDING_HEADER_APTECHKA = "Aptechka"
+_G.BINDING_NAME_APTECHKA_DEBUFF_TOOLTIP_HOLD = L"Debuff Tooltip Toggle(Hold)"
 
 local defaults = {
     global = {
@@ -2505,6 +2509,13 @@ local onleave = function(self)
     FrameSetJob(self, config.MouseoverStatus, false)
     UnitFrame_OnLeave(self)
     self:SetScript("OnUpdate", nil)
+end
+
+function Aptechka:ShowDebuffTooltipsOnMouseover()
+    if currentMouseoverFrame then
+        Aptechka:HideDebuffTooltips()
+        Aptechka:ShowDebuffTooltips(currentMouseoverFrame)
+    end
 end
 
 function Aptechka:MODIFIER_STATE_CHANGED(event)

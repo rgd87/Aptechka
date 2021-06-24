@@ -1,0 +1,9 @@
+<Bindings>
+	<Binding name="APTECHKA_DEBUFF_TOOLTIP_HOLD" header="APTECHKA" runOnUp="true" category="ADDONS">
+		if keystate == "down" then
+			Aptechka:ShowDebuffTooltipsOnMouseover()
+		else
+			Aptechka:HideDebuffTooltips()
+		end
+	</Binding>
+</Bindings>
