@@ -1577,20 +1577,20 @@ end
 
 
 local function FrameUpdateRangeAlpha(frame, unit)
-    local wasInRange = frame[1]
+    -- local wasInRange = frame[1]
     local isInRange = AptechkaUnitInRange(unit)
-    if wasInRange ~= isInRange then
+    -- if wasInRange ~= isInRange then
         FrameSetJob(frame, config.RangeStatus, not isInRange, "OUTOFRANGE", alphaOutOfRange)
-        frame[1] = isInRange
-    end
+    --     frame[1] = isInRange
+    -- end
 end
 local function FrameResetRangeAlpha(frame, unit)
-    local wasInRange = frame[1]
+    -- local wasInRange = frame[1]
     local isInRange = true
-    if wasInRange ~= isInRange then
+    -- if wasInRange ~= isInRange then
         FrameSetJob(frame, config.RangeStatus, not isInRange, "OUTOFRANGE", alphaOutOfRange)
-        frame[1] = isInRange
-    end
+        -- frame[1] = isInRange
+    -- end
 end
 --Range check
 Aptechka.OnRangeUpdate = function (self, time)
