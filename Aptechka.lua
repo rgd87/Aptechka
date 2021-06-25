@@ -309,7 +309,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local customBlacklist = AptechkaDB.global.customBlacklist
     blacklist = setmetatable({}, {
         __index = function(t,k)
-            return customBlacklist[k] or defaultBlacklist[k]
+            local custom = customBlacklist[k]
+            if custom ~= nil then
+                return custom
+            end
+            return defaultBlacklist[k]
         end,
     })
 
