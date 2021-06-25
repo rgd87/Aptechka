@@ -4324,6 +4324,8 @@ do
             tooltip.iconTexture:SetTexture(texture)
             tooltip:SetUnitAura(icon.unit, icon.index, icon.filter)
 
+            tooltip:AddLine(string.format("|cff888888Spell ID:|r |cffff7744%d|r",spellID))
+
             if prev then
                 tooltip:SetPoint("BOTTOMLEFT", prev, "TOPLEFT",0,5)
             else
