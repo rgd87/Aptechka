@@ -298,7 +298,7 @@ function ns.CreateSpellDataPanel()
     local priority = AceGUI:Create("Button")
     priority:SetText("1")
     priority:SetRelativeWidth(0.08)
-    local MAX_DEBUFF_ALERT_LEVEL = 5
+    local MAX_DEBUFF_ALERT_LEVEL = 4
     priority:SetCallback("OnClick", function(self, event)
         local priority = self.parent.opts["priority"] or 1
         self.parent.opts["priority"] = priority + 1

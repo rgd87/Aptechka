@@ -859,7 +859,7 @@ function Aptechka.GetWidgetListRaw()
     end
     list["border"] = "border"
     list["healthColor"] = "HealthColor"
-    list["frameAlpha"] = "FrameAlpha"
+    -- list["frameAlpha"] = "FrameAlpha"
     return list
 end
 
@@ -1226,6 +1226,7 @@ function Aptechka.FrameCheckPhase(frame, unit)
         frame.centericon:Show()
     ]]
     local isPhased = UnitIsPlayer(unit) and UnitPhaseReason(unit) and not frame.state.isInVehicle
+    frame.state.isPhased = isPhased
     FrameSetJob(frame, config.PhasedStatus, isPhased, "PHASED")
 end
 end
@@ -1575,7 +1576,7 @@ function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameOnEnteredVehicle)
 end
 
-
+--[[
 local function FrameUpdateRangeAlpha(frame, unit)
     local wasInRange = frame[1]
     local isInRange = AptechkaUnitInRange(unit)
@@ -1591,6 +1592,19 @@ local function FrameResetRangeAlpha(frame, unit)
         FrameSetJob(frame, config.RangeStatus, not isInRange, "OUTOFRANGE", alphaOutOfRange)
         frame[1] = isInRange
     end
+end
+]]
+local function FrameUpdateRangeAlpha(frame, unit)
+    if not AptechkaUnitInRange(unit) then
+        frame:SetAlpha(alphaOutOfRange)
+    elseif frame.state.isPhased then
+        frame:SetAlpha(alphaOutOfRange)
+    else
+        frame:SetAlpha(1)
+    end
+end
+local function FrameResetRangeAlpha(frame, unit)
+    frame:SetAlpha(1)
 end
 --Range check
 Aptechka.OnRangeUpdate = function (self, time)
