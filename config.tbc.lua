@@ -343,6 +343,7 @@ config.defaultDebuffHighlights = {
 -------------------------
 
 helpers.auraBlacklist = {
+    [51120] = true, -- Tinnitus
     [26013] = true, -- PVP Deserter
     [8326] = true, -- Ghost
     [25771] = true, -- Forbearance
