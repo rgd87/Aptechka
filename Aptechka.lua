@@ -2993,7 +2993,7 @@ local function IndicatorAurasProc(frame, unit, index, slot, filter, name, icon, 
                 end
             end
 
-            encountered[realID] = caster
+            encountered[realID] = caster or true
 
             local status = true
             if opts.isMissing then status = false end
