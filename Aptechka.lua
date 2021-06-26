@@ -562,7 +562,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         [LibAuraTypes.E_PHASED] = 10,
         [LibAuraTypes.E_BADTHING] = 11,
     }
-    if AptechkaDB.global.useDebuffOrdering then
+    -- if AptechkaDB.global.useDebuffOrdering then
         LibSpellLocks = LibStub("LibSpellLocks")
 
         LibSpellLocks.RegisterCallback("Aptechka", "UPDATE_INTERRUPT", function(event, guid)
@@ -571,13 +571,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 Aptechka.ScanAuras(unit)
             end
         end)
-
-        DebuffProc = Aptechka.OrderedDebuffProc
-        DebuffPostUpdate = Aptechka.OrderedDebuffPostUpdate
-    else
-        DebuffProc = Aptechka.SimpleDebuffProc
-        DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
-    end
+    -- end
 
     if not isClassic then
         self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
