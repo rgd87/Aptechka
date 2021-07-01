@@ -225,6 +225,7 @@ function ns.CreateWidgetConfig(name, parent)
     profileDropdown.frame:SetPoint("TOPLEFT", frame.frame, "TOPLEFT", 180, 30)
     frame.profileDropdown = profileDropdown
 
+    --[[
     local helpButton = AceGUI:Create("Button")
     helpButton:SetText("Help")
     helpButton:SetCallback("OnClick", function()
@@ -242,6 +243,7 @@ function ns.CreateWidgetConfig(name, parent)
     helpButton.frame:SetHeight(25)
     helpButton.frame:SetPoint("TOPRIGHT", frame.frame, "TOPRIGHT", 0,30)
     helpButton.frame:Show()
+    ]]
 
 
     frame.header = {}
