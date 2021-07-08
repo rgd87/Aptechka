@@ -595,6 +595,8 @@ config.MapIDs = {
 
     [1735] = "Castle Nathria",
 
+    [1998] = "Sanctum of Domination",
+
     [704] = "Halls of Valor",
     [706] = "Maw of Souls",
     [731] = "Neltharion's Lair",
@@ -607,6 +609,22 @@ config.defaultDebuffHighlights = {
         [207736] = { 207736, 3, "Shadowy Duel" },
         [212183] = { 212183, 3, "Smoke Bomb" },
         [33786] = { 33786, 3, "Cyclone" },
+    },
+    ["Sanctum of Domination"] = {
+        [358610] = { 358610, 1, "Eye of the Jailer, Desolation Beam" },
+        [350388] = { 350388, 1, "The Nine, Sorrowful Procession" },
+        [350496] = { 350496, 1, "Guardian of the First Ones, Threat Neutralization" },
+        [350217] = { 350217, 1, "Soulrender Dormazain, Torment" },
+        [355506] = { 355506, 1, "Painsmith Raznal, Shadowsteel Chains" },
+        [350568] = { 350568, 2, "Fatescribe Roh-Kalo, Call of Eternity" },
+        [357686] = { 357686, 2, "Fatescribe Roh-Kalo, Exposed Threads of Fate" },
+        [347670] = { 347670, 1, "Sylvanas, Shadow Dagger" },
+        [358433] = { 358433, 2, "Sylvanas, Death Knives" },
+
+        [348508] = { 348508, 4, "Painsmith Raznal, Reverberating Hammer" },
+        [355568] = { 355568, 4, "Painsmith Raznal, Cruciform Axe" },
+        [355778] = { 355778, 4, "Painsmith Raznal, Dualblade Scythe" },
+
     },
     ["Castle Nathria"] = {
 
