@@ -183,8 +183,22 @@ local function FillAnchorSettings(form, opts, popts, gopts)
     Control_SetValue(form, "y", opts, gopts)
 end
 
+local function CreateSpellListingButton(form)
+    local spellList = AceGUI:Create("Button")
+    spellList:SetText(L"List Widget Spells")
+    spellList:SetRelativeWidth(0.7)
+    spellList:SetCallback("OnClick", function(self, event)
+        Aptechka:ListSpellsForWidget(self.form.widgetName)
+    end)
+    form:AddChild(spellList)
+    spellList.form = form
+    form.controls["spellList"] = spellList
+    return spellList
+end
+
 local function CreateDisable(form)
-    local disabled = ns.AddCheckbox(form, 0.95, L"Disabled", "disabled", false, callbackUpdateFormAndTree)
+    local disabled = ns.AddCheckbox(form, 0.25, L"Disabled", "disabled", false, callbackUpdateFormAndTree)
+    CreateSpellListingButton(form)
 end
 local function FillDisable(form, opts, popts, gopts)
     Control_SetValue(form, "disabled", opts, gopts)

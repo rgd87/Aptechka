@@ -3667,6 +3667,37 @@ function Aptechka:Lock()
     Aptechka:DisableTestMode()
 end
 
+function Aptechka:ListSpellsForWidget(widgetName)
+    local _,class = UnitClass("player")
+    local cats = { "auras", "traces", "templates" }
+    print(string.format("Spell Listing for '%s'", widgetName))
+    for _, cat in pairs(cats) do
+        local spellList = AptechkaConfigMerged[cat]
+        print(string.upper(cat))
+        for spellID, opts in pairs(spellList) do
+            if not AptechkaConfigMerged.spellClones[spellID] then
+                if opts.assignto[widgetName] then
+                    local name
+                    local icon
+                    if type(spellID) == "number" then
+                        name = GetSpellInfo(spellID) or "<Unknown>"
+                        icon = GetSpellTexture(spellID)
+                    else
+                        name = spellID
+                        icon = 134400
+                    end
+
+                    if cat == "templates" then
+                        icon = 135934
+                    end
+
+                    print(string.format("    |T%d:0|t", icon),name)
+                end
+            end
+        end
+    end
+end
+
 Aptechka.Commands = {
     ["unlockall"] = function()
         for _,anchor in pairs(anchors) do
