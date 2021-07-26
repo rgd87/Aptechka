@@ -183,13 +183,31 @@ local function FillAnchorSettings(form, opts, popts, gopts)
     Control_SetValue(form, "y", opts, gopts)
 end
 
+
+local tooltipOnEnter = function(self, event)
+    GameTooltip:SetOwner(self.frame, "ANCHOR_TOPLEFT")
+    local spells = Aptechka:ListSpellsForWidget(self.form.widgetName)
+    if next(spells) then
+        for cat, list in pairs(spells) do
+            GameTooltip:AddLine(string.upper(cat))
+            for _, spellData in ipairs(list) do
+                GameTooltip:AddLine(string.format("    |T%d:0|t %s", spellData[2], spellData[1]))
+            end
+        end
+    else
+        GameTooltip:AddLine("None")
+    end
+    GameTooltip:Show();
+end
+local tooltipOnLeave = function(self, event)
+    GameTooltip:Hide();
+end
 local function CreateSpellListingButton(form)
     local spellList = AceGUI:Create("Button")
     spellList:SetText(L"List Widget Spells")
     spellList:SetRelativeWidth(0.7)
-    spellList:SetCallback("OnClick", function(self, event)
-        Aptechka:ListSpellsForWidget(self.form.widgetName)
-    end)
+    spellList:SetCallback("OnEnter", tooltipOnEnter)
+    spellList:SetCallback("OnLeave", tooltipOnLeave)
     form:AddChild(spellList)
     spellList.form = form
     form.controls["spellList"] = spellList

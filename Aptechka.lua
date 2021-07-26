@@ -3670,10 +3670,11 @@ end
 function Aptechka:ListSpellsForWidget(widgetName)
     local _,class = UnitClass("player")
     local cats = { "auras", "traces", "templates" }
-    print(string.format("Spell Listing for '%s'", widgetName))
+    -- print(string.format("Spell Listing for '%s'", widgetName))
+    local spells = {}
     for _, cat in pairs(cats) do
         local spellList = AptechkaConfigMerged[cat]
-        print(string.upper(cat))
+        -- print(string.upper(cat))
         for spellID, opts in pairs(spellList) do
             if not AptechkaConfigMerged.spellClones[spellID] then
                 if opts.assignto[widgetName] then
@@ -3691,11 +3692,15 @@ function Aptechka:ListSpellsForWidget(widgetName)
                         icon = 135934
                     end
 
-                    print(string.format("    |T%d:0|t", icon),name)
+                    spells[cat] = spells[cat] or {}
+
+                    table.insert(spells[cat], { name, icon })
+                    -- print(string.format("    |T%d:0|t", icon),name)
                 end
             end
         end
     end
+    return spells
 end
 
 Aptechka.Commands = {
