@@ -1463,7 +1463,7 @@ local function SetIconTexCoord(texture, w, h)
 end
 
 local function UpdateFontStringSettings(text, fontName, fontSize, effect)
-    fontName = fontName or config.defaultFont
+    fontName = fontName or Aptechka.db.profile.defaultFont
     local font = LSM:Fetch("font",  fontName)
     local flags = effect == "OUTLINE" and "OUTLINE"
     if effect == "SHADOW" then
@@ -2493,7 +2493,7 @@ function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
     end
 
     -- f.text:SetJustifyH(opts.justify:upper())
-    local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", config.defaultFont)
+    local font = LSM:Fetch("font", Aptechka.db.profile.defaultFont) or LSM:Fetch("font",  opts.font)
     local flags = opts.effect == "OUTLINE" and "OUTLINE"
     if opts.effect == "SHADOW" then
         f.text:SetShadowOffset(1,-1)
@@ -2832,6 +2832,10 @@ local function Reconf(self)
     self.health:SetStatusBarTexture(texpath)
     self.health:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     self.health.bg:SetTexture(texpath)
+
+    Aptechka:ReconfigureWidget("text1")
+    Aptechka:ReconfigureWidget("text2")
+    Aptechka:ReconfigureWidget("text3")
 
     local texpath2 = LSM:Fetch("statusbar", db.powerTexture)
     self.power:SetStatusBarTexture(texpath2)

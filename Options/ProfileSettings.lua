@@ -505,6 +505,20 @@ function ns.MakeProfileSettings()
                         values = LSM:HashTable("statusbar"),
                         dialogControl = "LSM30_Statusbar",
                     },
+
+                    name = {
+                        type = "select",
+                        name = L"Font name",
+                        order = 14.25,
+                        get = function(info) return Aptechka.db.profile.defaultFont end,
+                        set = function(info, value)
+                            Aptechka.db.profile.defaultFont = value
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        values = AceGUIWidgetLSMlists.font,
+                        dialogControl = 'LSM30_Font',
+                    },
+
                     nameLength = {
                         name = L"Name Length",
                         type = "range",

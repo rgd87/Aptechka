@@ -61,6 +61,7 @@ do
             default_profile.showRaidIcons = db.showRaidIcons
             default_profile.showDispels = db.showDispels
             default_profile.healthTexture = db.healthTexture
+            default_profile.defaultFont = db.defaultFont
             default_profile.powerTexture = db.powerTexture
 
             default_profile.scale = db.scale
@@ -134,6 +135,7 @@ do
             db.showRaidIcons = nil
             db.showDispels = nil
             db.healthTexture = nil
+            db.defaultFont = nil
             db.powerTexture = nil
             db.scale = nil
             db.debuffSize = nil
