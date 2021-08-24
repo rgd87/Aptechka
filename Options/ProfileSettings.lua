@@ -404,9 +404,9 @@ function ns.MakeProfileSettings()
                             Aptechka.db.profile.groupGap = v
                             Aptechka:ReconfigureProtected()
                         end,
-                        min = 3,
-                        max = 80,
-                        step = 1,
+                        min = -3,
+                        max = 50,
+                        step = 0.5,
                         order = 5,
                     },
                     unitGrowth = {
@@ -434,9 +434,9 @@ function ns.MakeProfileSettings()
                             Aptechka.db.profile.unitGap = v
                             Aptechka:ReconfigureProtected()
                         end,
-                        min = 3,
-                        max = 80,
-                        step = 1,
+                        min = -3,
+                        max = 50,
+                        step = 0.5,
                         order = 7,
                     },
                     groupsInARow = {
