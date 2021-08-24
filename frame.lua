@@ -2521,7 +2521,7 @@ end
 Aptechka.Widget.TextArray.Reconf = Aptechka.Widget.BarArray.Reconf
 
 
-local CreateUnhealableOverlay = function(parent)
+local function CreateUnhealableOverlay(parent)
     local tex2 = parent.health:CreateTexture(nil, "ARTWORK", nil, -4)
     tex2:SetHorizTile(true)
     tex2:SetVertTile(true)
@@ -2535,6 +2535,18 @@ local CreateUnhealableOverlay = function(parent)
     return tex2
 end
 
+local function CreateMouseoverHighlight(parent)
+    local mot = parent:CreateTexture(nil,"OVERLAY")
+    mot:SetAllPoints(parent)
+    mot:SetTexture(136810)
+    -- /dump GetFileIDFromPath("Interface\\QuestFrame\\UI-QuestTitleHighlight")
+    -- mot:SetVertexColor(0.7,0.7,1)
+    mot:SetTexCoord(0,1,0,0.9)
+    mot:SetAlpha(0.1)
+    mot:SetBlendMode("ADD")
+    mot:Hide()
+    return WrapFrameAsWidget(mot)
+end
 
 local SetJob_InnerGlow = function(self, job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
@@ -2761,10 +2773,10 @@ end
 
 
 local OnMouseEnterFunc = function(self)
-    self.mouseover:Show()
+    -- self.mouseover:Show()
 end
 local OnMouseLeaveFunc = function(self)
-    self.mouseover:Hide()
+    -- self.mouseover:Hide()
 end
 
 
@@ -3142,16 +3154,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- Mouseover highlight
     ------------------------
 
-    local mot = hp:CreateTexture(nil,"OVERLAY")
-    mot:SetAllPoints(hp)
-    mot:SetTexture(136810)
-    -- /dump GetFileIDFromPath("Interface\\QuestFrame\\UI-QuestTitleHighlight")
-    -- mot:SetVertexColor(0.7,0.7,1)
-    mot:SetTexCoord(0,1,0,0.9)
-    mot:SetAlpha(0.1)
-    mot:SetBlendMode("ADD")
-    mot:Hide()
-    self.mouseover = mot
+    local mot = CreateMouseoverHighlight(hp)
+    self.mouseoverHighlight = mot
 
     --------------------
 

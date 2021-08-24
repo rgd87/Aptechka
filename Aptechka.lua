@@ -853,6 +853,7 @@ function Aptechka.GetWidgetListRaw()
     end
     list["border"] = "border"
     list["healthColor"] = "HealthColor"
+    list["mouseoverHighlight"] = "MouseoverHighlight"
     -- list["frameAlpha"] = "FrameAlpha"
     return list
 end
