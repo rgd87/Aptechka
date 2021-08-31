@@ -247,6 +247,11 @@ AG{ id = 204293, template = "SurvivalCD" } -- Spirit Link (PvP)
 -- AG{ id = 210918, template = "SurvivalCD" } -- Ethereal Form
 
 
+-- Stealth, Prowl, Camo, Shadowmeld
+AG{ id = {1784, 5215, 199483, 58984}, assignto = set("text2"), color = {0.2, 1, 0.3}, text = "STEALTH", priority = 20 }
+-- Feign Death
+AG{ id = 5384, assignto = set("text2"), color = {0, 0.7, 1}, text = "FD", global = true, priority = 75 }
+
 AG{ id = {
     430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
     34291, 43183, 43182, -- BC & WotLK water

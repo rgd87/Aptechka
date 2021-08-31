@@ -82,6 +82,9 @@ AG{ id = {
     27089, 46755, -- BC mage water
 }, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
+-- Stealth, Prowl, Shadowmeld
+AG{ id = {1784, 5215, 20580}, assignto = set("text2"), color = {0.2, 1, 0.3}, text = "STEALTH", priority = 20 }
+
 AG{ id = 5384, assignto = set("text2"), color = {0, 0.7, 1}, text = "FD", global = true, priority = 75 } -- Feign Death
 
 local manaClasses = {
