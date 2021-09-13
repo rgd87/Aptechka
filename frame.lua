@@ -561,7 +561,7 @@ local HealthBarSetColorBG = function(self, r,g,b,a, mul)
     self:SetVertexColor(r*mul, g*mul, b*mul, a)
 end
 
-local SetJob_HealthBar = function(self, job, state, contentType)
+local SetJob_HealthBar = function(self, job, state, contentType, ...)
     local profile = Aptechka.db.profile
     local r,g,b,a
     local r2,g2,b2
@@ -585,9 +585,9 @@ local SetJob_HealthBar = function(self, job, state, contentType)
         else
             r2,g2,b2 = r,g,b
         end
-    elseif job.color then
-        local c = job.color
-        r,g,b,a = unpack(c)
+    else
+        local timerType, cur, max, count, icon, text, rC,gC,bC, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
+        r,g,b,a = rC,gC,bC,1
         r2,g2,b2 = r,g,b
     end
     if b then
