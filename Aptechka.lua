@@ -365,37 +365,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         LibClassicDurations:RegisterFrame(self)
         UnitAura = LibClassicDurations.UnitAuraWrapper
         Aptechka:UpdateSpellNameToIDTable()
-
-        local spellNameBasedCategories = { "traces" }
-        function Aptechka:UpdateSpellNameToIDTable()
-            local mergedConfig = AptechkaConfigMerged
-            local visited = {}
-
-            for _, catName in ipairs(spellNameBasedCategories) do
-                local category = mergedConfig[catName]
-                if category then
-                    for spellID, opts in pairs(category) do
-                        if not visited[opts] then
-                            local lastRankID
-                            local clones = opts.clones
-                            if clones and next(clones)then
-                                lastRankID = spellID
-                                for sid in pairs(clones) do
-                                    if lastRankID < sid then
-                                        lastRankID = sid
-                                    end
-                                end
-                            else
-                                lastRankID = spellID
-                            end
-                            helpers.AddSpellNameRecognition(lastRankID)
-
-                            visited[opts] = true
-                        end
-                    end
-                end
-            end
-        end
     end
     if apiLevel <= 2 then
         function Aptechka:SetClassicClickcastAttributes(f)
@@ -725,6 +694,11 @@ function Aptechka:GenerateMergedConfig()
     Aptechka.util.MergeTable(config.traces, config[class].traces)
     config.GLOBAL = nil
     config[class] = nil
+
+    if apiLevel == 1 then
+        Aptechka.spellNameToID = helpers.spellNameToID
+        Aptechka:UpdateSpellNameToIDTable()
+    end
 
     -- Template application
     helpers.UnwrapConfigTemplates(AptechkaConfigMerged.traces)
@@ -1243,16 +1217,19 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
     dstGUID, dstName, dstFlags, dstFlags2,
     spellID, spellName, spellSchool, amount, overhealing, absorbed, critical = CombatLogGetCurrentEventInfo()
     if enableTraceheals and bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE then
+        local traceSpellID -- separate var so it wouldn't interfere with aura events below
         if spellID == 0 then
-            spellID = spellNameToID[spellName]
+            traceSpellID = spellNameToID[spellName]
+        else
+            traceSpellID = spellID
         end
-        local opts = traceheals[spellID]
+        local opts = traceheals[traceSpellID]
         if opts and eventType == "SPELL_HEAL" then
             if guidMap[dstGUID] and not opts.disabled then
                 local minamount = opts.minamount
                 if not minamount or amount > minamount then
                     local unit = guidMap[dstGUID]
-                    Aptechka:ForEachUnitFrame(unit, FrameStartTrace, opts, spellID)
+                    Aptechka:ForEachUnitFrame(unit, FrameStartTrace, opts, traceSpellID)
                 end
             end
         end
@@ -2914,6 +2891,38 @@ local function SetDebuffIcon(frame, unit, index, debuffType, expirationTime, dur
 end
 
 if apiLevel == 1 then
+    local spellNameBasedCategories = { "traces" }
+    function Aptechka:UpdateSpellNameToIDTable()
+        local mergedConfig = AptechkaConfigMerged
+        local visited = {}
+
+        for _, catName in ipairs(spellNameBasedCategories) do
+            local category = mergedConfig[catName]
+            if category then
+                for spellID, opts in pairs(category) do
+                    if not visited[opts] then
+                        local lastRankID
+                        local clones = opts.clones
+                        if clones and next(clones)then
+                            lastRankID = spellID
+                            for sid in pairs(clones) do
+                                if lastRankID < sid then
+                                    lastRankID = sid
+                                end
+                            end
+                        else
+                            lastRankID = spellID
+                        end
+                        helpers.AddSpellNameRecognition(lastRankID)
+
+                        visited[opts] = true
+                    end
+                end
+            end
+        end
+    end
+
+
     SetDebuffIcon = function (frame, unit, index, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, spellName)
         local iconFrame = frame.debuffIcons[index]
         if debuffType == false then
