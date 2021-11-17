@@ -60,6 +60,7 @@ local ignoreplayer
 local fgShowMissing
 local gradientHealthColor
 local damageEffect
+local mergedIncomingHealing -- Show incoimng healing text in the same widget as missing health
 
 local config = AptechkaDefaultConfig
 Aptechka.loadedAuras = {}
@@ -898,6 +899,7 @@ function Aptechka:UpdateUnprotectedUpvalues()
     fgShowMissing = Aptechka.db.profile.fgShowMissing
     gradientHealthColor = Aptechka.db.profile.gradientHealthColor
     damageEffect = Aptechka.db.profile.damageEffect
+    mergedIncomingHealing = AptechkaConfigMerged.HealthTextStatus.formatType == "MISSING_HEALING_SHORT"
     enableTraceheals = config.enableTraceHeals and next(traceheals)
     enableAuraEvents = Aptechka.db.profile.auraUpdateEffect
     enableFloatingIcon = Aptechka.db.profile.showFloatingIcons
@@ -1105,7 +1107,9 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     if gradientHealthColor then
         FrameSetJob(self, config.HealthBarColor, true, "HealthBar", h)
     end
-    FrameSetJob(self, config.HealthTextStatus, ((hm-h) > hm*0.05), nil, h, hm )
+    incomingHeal = mergedIncomingHealing and incomingHeal or 0
+    -- h-hm-incomingHeal-h is not the missing+incoming, but kind of a flag if either deviate more than 5% from max
+    FrameSetJob(self, config.HealthTextStatus, ((h-hm-incomingHeal) < hm*-0.05), nil, h, hm, incomingHeal)
 
     if not event then return end -- no death checks on CLH
 

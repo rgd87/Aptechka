@@ -157,6 +157,7 @@ function ns.MakeStatusConfig()
                             AptechkaConfigCustom.WIDGET[status] = nil
                         end
                         AptechkaConfigMerged[status] = CopyTable(AptechkaDefaultConfig[status])
+                        Aptechka:UpdateUnprotectedUpvalues() -- for health text formatting
                     end,
                     order = 16,
                 },
@@ -172,6 +173,7 @@ function ns.MakeStatusConfig()
                     PERCENTAGE = L"Percentage",
                     PERCENTAGE_NOSIGN = L"Percentage No Sign",
                     MISSING_VALUE_SHORT = L"Missing Value",
+                    MISSING_HEALING_SHORT = L"Missing Health excl. Incoming Healing",
                     -- VALUE_SHORT = L"Value",
                 },
                 get = function() return AptechkaConfigMerged[status].formatType end,
@@ -180,6 +182,7 @@ function ns.MakeStatusConfig()
                     Aptechka.util.MakeTables(AptechkaConfigCustom, "WIDGET", status)
                     AptechkaConfigCustom.WIDGET[status].formatType = value
 
+                    Aptechka:UpdateUnprotectedUpvalues()
                     Aptechka:ReapplyJob(AptechkaConfigMerged[status])
                 end,
                 order = 3.5,

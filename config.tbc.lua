@@ -17,6 +17,8 @@ local apiLevel = math.floor(select(4,GetBuildInfo())/10000)
 local isBC = apiLevel == 2
 if not isBC then return end
 
+config.HealthTextStatus.formatType = "MISSING_HEALING_SHORT"
+
 if apiLevel <= 3 then
     config.DefaultWidgets.totemCluster1 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(6), y = 0 }
     config.DefaultWidgets.totemCluster2 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(12), y = 0 }

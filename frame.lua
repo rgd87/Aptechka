@@ -245,11 +245,11 @@ end
 
 local function formatMissingHealth(mh)
     if mh < 1000 then
-        return "-%d", mh
+        return "%d", mh
     elseif mh < 10000 then
-        return "-%.1fk", mh / 1000
+        return "%.1fk", mh / 1000
     else
-        return "-%.0fk", mh / 1000
+        return "%.0fk", mh / 1000
     end
 end
 
@@ -263,9 +263,27 @@ local function formatShorten(v)
     end
 end
 
+local function formatShortenPositiveHealing(v)
+    if v < 1000 then
+        return "|cff00ff00+%d|r", v
+    elseif v < 10000 then
+        return "|cff00ff00+%.1fk|r", v / 1000
+    else
+        return "|cff00ff00+%.0fk|r", v / 1000
+    end
+end
+
 local TextFormatters = {
     MISSING_VALUE_SHORT = function(cur, max)
-        return string_format(formatMissingHealth(max - cur))
+        return string_format(formatMissingHealth(cur-max))
+    end,
+    MISSING_HEALING_SHORT = function(cur, max, incomingHeal)
+        local diff = cur-max+incomingHeal
+        if diff < 0 then
+            return string_format(formatShorten(cur-max+incomingHeal))
+        else
+            return string_format(formatShortenPositiveHealing(cur-max+incomingHeal))
+        end
     end,
     VALUE = function(cur, max)
         return cur
@@ -288,8 +306,9 @@ end
 local contentNormalizers = {}
 function contentNormalizers.HealthText(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
-    cur, max = ...
-    text = FormatText(job, cur, max)
+    local incomingHeal
+    cur, max, incomingHeal = ...
+    text = FormatText(job, cur, max, incomingHeal)
     r,g,b = GetClassOrTextColor(job, state)
     return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
 end
