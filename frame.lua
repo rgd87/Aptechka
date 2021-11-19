@@ -2899,6 +2899,14 @@ local function Reconf(self)
         self.health.incoming:SetDrawLayer("ARTWORK", -5)
     end
 
+    -- forcing colos
+    if not db.absorbColorAuto then
+        self.health.absorb2:SetVertexColor(unpack(db.absorbColor))
+    end
+    if not db.incHealColorAuto then
+        self.health.incoming:SetVertexColor(unpack(db.incHealColor))
+    end
+
     if isVertical then
         self.health:SetOrientation("VERTICAL")
         self.power:SetOrientation("VERTICAL")

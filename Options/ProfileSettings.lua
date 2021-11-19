@@ -689,6 +689,58 @@ function ns.MakeProfileSettings()
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
+                            incHealColorAuto = {
+                                name = L"Auto Inc.Heal Color",
+                                type = "toggle",
+                                width = 2,
+                                get = function(info) return Aptechka.db.profile.incHealColorAuto end,
+                                set = function(info, v)
+                                    Aptechka.db.profile.incHealColorAuto = not Aptechka.db.profile.incHealColorAuto
+                                    Aptechka:ReconfigureUnprotected()
+                                end,
+                                order = 8.1,
+                            },
+                            incHealColor = {
+                                name = L"Custom Inc.Heal Color",
+                                type = 'color',
+                                order = 8.2,
+                                hasAlpha = true,
+                                disabled = function() return Aptechka.db.profile.incHealColorAuto end,
+                                get = function(info)
+                                    local r,g,b,a = unpack(Aptechka.db.profile.incHealColor)
+                                    return r,g,b,a
+                                end,
+                                set = function(info, r, g, b, a)
+                                    Aptechka.db.profile.incHealColor = {r,g,b,a}
+                                    Aptechka:ReconfigureUnprotected()
+                                end,
+                            },
+                            absorbColorAuto = {
+                                name = L"Auto Absorb Color",
+                                type = "toggle",
+                                width = 2,
+                                get = function(info) return Aptechka.db.profile.absorbColorAuto end,
+                                set = function(info, v)
+                                    Aptechka.db.profile.absorbColorAuto = not Aptechka.db.profile.absorbColorAuto
+                                    Aptechka:ReconfigureUnprotected()
+                                end,
+                                order = 8.3,
+                            },
+                            absorbColor = {
+                                name = L"Custom Absorb Color",
+                                type = 'color',
+                                order = 8.4,
+                                hasAlpha = true,
+                                disabled = function() return Aptechka.db.profile.absorbColorAuto end,
+                                get = function(info)
+                                    local r,g,b,a = unpack(Aptechka.db.profile.absorbColor)
+                                    return r,g,b,a
+                                end,
+                                set = function(info, r, g, b, a)
+                                    Aptechka.db.profile.absorbColor = {r,g,b,a}
+                                    Aptechka:ReconfigureUnprotected()
+                                end,
+                            },
                             rangeAlpha = {
                                 name = L"Out of Range Alpha"..newFeatureIcon,
                                 type = "range",
