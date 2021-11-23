@@ -3008,7 +3008,8 @@ local function IndicatorAurasPostUpdate(frame, unit)
                         isKnown = missingOpts.isKnownCheck(unit)
                     end
                     if isKnown then
-                        FrameSetJob(frame, missingOpts, true)
+                        local duration, expirationTime, count, icon, spellID, caster = 0, 0, 0, GetSpellTexture(missingRealID), missingRealID
+                        FrameSetJob(frame, missingOpts, true, "AURA", duration, expirationTime, count, icon, spellID, caster)
                     end
                 end
             end
