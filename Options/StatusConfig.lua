@@ -24,6 +24,7 @@ function ns.MakeStatusConfig()
         "DispelStatus",
         "InVehicleStatus",
         "LOSStatus",
+        "UnitNameStatus",
         "HealthTextStatus",
         "DeadStatus",
         "GhostStatus",

@@ -57,7 +57,7 @@ config.AwayStatus = { name = "AFK", assignto = set("text2","text3"), color = {0.
 config.IncomingHealStatus = { name = "IncHealText", assignto = set(), color = { 0, 1, 0}, priority = 15 }
 -- config.AbsorbTextStatus = { name = "AbsorbText", assignto = set("text2"), color = { 0.7, 0.7, 1 }, priority = 11, formatType = "PERCENTAGE" }
 config.HealthTextStatus = { name = "HealthText", assignto = set("text2"), color = { 54/255, 201/255, 99/256 }, priority = 10, formatType = "MISSING_VALUE_SHORT" }
-config.UnitNameStatus = { name = "UnitName", assignto = set("text1"), classcolor = true, priority = 20 }
+config.UnitNameStatus = { name = "UnitName", assignto = set("text1"), classcolor = true, priority = 5 }
 config.HealthBarColor = { name = "HealthBar", assignto = set("health"), color = {1, .3, .3}, classcolor = true, priority = 10 }
 config.PowerBarColor = { name = "PowerBar", assignto = set("power"), color = {.5,.5,1}, priority = 20 }
 config.InVehicleStatus = { name = "InVehicle", assignto = set("vehicle"), color = {0.3,1,0.3}, priority = 21 }
