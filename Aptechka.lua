@@ -3052,6 +3052,9 @@ end
 local UnitAuraUniversal -- If available it's using slots API, otherwise just normal UnitAura
 if apiLevel <= 2 then
     UnitAuraUniversal = UnitAura
+    if LibClassicDurations then
+        UnitAuraUniversal = LibClassicDurations.UnitAuraWrapper
+    end
     ForEachAura = function(frame, unit, filter, batchSize, func)
         for i=1,100 do
             local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, i, filter)
