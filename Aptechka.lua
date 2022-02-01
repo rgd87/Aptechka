@@ -3516,7 +3516,7 @@ function Aptechka.TestDebuffSlotsForUnit(frame, unit)
 
         if fill <= debuffLineLength then
             shown = shown + 1
-            frame.debuffIcons:SetDebuffIcon(frame, unit, shown, name, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
+            frame.debuffIcons:SetDebuffIcon(frame, unit, shown, "HARMFUL", i, name, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, name)
         else
             break
         end
