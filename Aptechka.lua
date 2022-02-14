@@ -3580,6 +3580,13 @@ function Aptechka.TestDebuffSlotsForUnit(frame, unit)
     -- EffectListPostUpdate(frame, unit)
     -- CCListBits = 0
 end
+function Aptechka:TestBuffGains()
+    local randomIDs = { 5211, 19577, 172, 408, 15286, 853, 980, 589, 118, 605 }
+    for i=1,3 do
+        local spellID = randomIDs[math.random(#randomIDs)]
+        Aptechka:ForEachUnitFrame("player", FrameLaunchFloatingIcon, spellID)
+    end
+end
 
 function Aptechka:TestCastBars()
     Aptechka:ForEachFrame(Aptechka.TestCastBar)

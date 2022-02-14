@@ -563,6 +563,14 @@ function ns.WidgetForms.FloatingIcon.Create(form)
     local range = ns.AddSlider(form, 0.46, L"Range", "range", 45, 0, 200, 1, callbackUpdateForm)
     local animDuration = ns.AddSlider(form, 0.46, L"Anim Length", "animDuration", 1.5, 0, 10, 0.1, callbackUpdateForm)
 
+    local test = AceGUI:Create("Button")
+    test:SetText(L"Test Icons")
+    test:SetRelativeWidth(0.46)
+    test:SetCallback("OnClick", function(self, event)
+        Aptechka:TestBuffGains()
+    end)
+    form:AddChild(test)
+
     return form
 end
 
