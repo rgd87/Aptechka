@@ -376,7 +376,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if config.enableIncomingHeals then
         if apiLevel <= 2 then
             HealComm = LibStub:GetLibrary("LibHealComm-4.0",true);
-            local incomingHealIgnoreHots = true
+            local incomingHealIgnoreHots = false
             if HealComm then
                 if incomingHealIgnoreHots then
                     HealComm.AptechkaHealType = HealComm.CASTED_HEALS
@@ -1020,7 +1020,7 @@ if apiLevel <= 2 then
         end
     end
 
-    local incomingHealTimeframe = 3
+    local incomingHealTimeframe = 3.5
 
     GetIncomingHealsCustom = function (unit, excludePlayer)
         local guid = UnitGUID(unit)
