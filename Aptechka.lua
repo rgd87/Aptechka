@@ -781,11 +781,16 @@ function Aptechka:CreatePetGroup()
     if lastHeader.isPetGroup then return end -- already exists
     local pets  = Aptechka:CreateHeader(9,true)
     table.insert(group_headers, pets)
+    group_headers.pet = pets
     pets:Show()
 end
 function Aptechka:UpdatePetGroupConfig()
     if self.db.profile.petGroup then
         Aptechka:CreatePetGroup()
+    end
+
+    if group_headers.pet then
+        group_headers.pet:UpdateVisibility()
     end
 end
 
@@ -2135,6 +2140,67 @@ function AptechkaHeader.UpdateVisibility(header)
     end
 end
 
+local function MakeUnitGapOffsets(unitGrowth)
+    local xgap = AptechkaDB.profile.unitGap or config.unitGap
+    local ygap = AptechkaDB.profile.unitGap or config.unitGap
+    local unitgr = reverse(unitGrowth)
+    if unitgr == "RIGHT" then
+        xgap = -xgap
+    elseif unitgr == "TOP" then
+        ygap = -ygap
+    end
+    return xgap, ygap
+end
+function AptechkaHeader.UpdatePoints(hdr, unitGrowth, groupGrowth, maxGroupsInRow, prevRowIndex)
+    local groupIndex = hdr:GetID()
+
+    local anchorpoint = Aptechka:GetAnchorpointFromDirections(unitGrowth, groupGrowth)
+
+    local xgap, ygap = MakeUnitGapOffsets(unitGrowth)
+
+    local groupRowGrowth = unitGrowth
+    local reverseUnitGrowth, unitDirection = reverse(unitGrowth)
+    local reverseGroupGrowth, groupDirection = reverse(groupGrowth)
+
+    if Aptechka.db.global.singleHeaderMode or hdr.isPetGroup then
+        hdr:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
+        hdr:SetAttribute("unitsPerColumn", 5*maxGroupsInRow)
+        local columnAnchorPoint = reverseGroupGrowth
+        if hdr.isPetGroup then
+            columnAnchorPoint = groupGrowth
+        end
+        hdr:SetAttribute("columnAnchorPoint", columnAnchorPoint) -- the anchor point of each new column (ie. use LEFT for the columns to grow to the right)
+        -- point attr controls unit growth: SetPoint(LEFT, prevButton or hdr, reverse(LEFT), xOffset, yOffset)
+        -- columnAnchorPoint controls group/column growth: SetPoint(BOTTOM, prevColumnButton1, reverse(BOTTOM), 0, yOffset)
+    end
+    -- group header doesn't clear points when attribute value changes
+    -- so it's important to manually clear them before setting the last attribte that affects what points are set
+    for _,button in ipairs{ hdr:GetChildren() } do
+        button:ClearAllPoints()
+    end
+    hdr:SetAttribute("point", reverseUnitGrowth)
+    hdr:SetAttribute("xOffset", xgap)
+    hdr:SetAttribute("yOffset", ygap)
+
+    hdr:ClearAllPoints()
+    if groupIndex == 1 then
+        hdr:SetPoint(anchorpoint, anchors[1], reverse(anchorpoint),0,0)
+    elseif hdr.isPetGroup then
+        hdr:SetPoint(AptechkaHeader.MakePoints(group_headers[1], nil, unitGrowth, reverseGroupGrowth))
+    else
+        if groupIndex >= prevRowIndex + maxGroupsInRow then
+            local prevRowHeader = group_headers[prevRowIndex]
+            hdr:SetPoint(AptechkaHeader.MakePoints(prevRowHeader, nil, unitGrowth, groupGrowth))
+            prevRowIndex = groupIndex
+        else
+            local prevHeader = group_headers[groupIndex-1]
+            hdr:SetPoint(AptechkaHeader.MakePoints(prevHeader, nil, groupGrowth, groupRowGrowth))
+        end
+    end
+
+    return prevRowIndex
+end
+
 function AptechkaHeader:UpdateSortingMethod()
     -- setAttributesWithoutResponse skips OnAttrChanged callback
     if Aptechka.db.profile.sortMethod == "ROLE" then
@@ -2207,14 +2273,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
         SecureHandlerSetFrameRef(f, 'clickcast_header', Clique.header)
     end
 
-    local xgap = AptechkaDB.profile.unitGap or config.unitGap
-    local ygap = AptechkaDB.profile.unitGap or config.unitGap
-    local unitgr = reverse(AptechkaDB.profile.unitGrowth or config.unitGrowth)
-    if unitgr == "RIGHT" then
-        xgap = -xgap
-    elseif unitgr == "TOP" then
-        ygap = -ygap
-    end
+    local xgap, ygap = MakeUnitGapOffsets(AptechkaDB.profile.unitGrowth)
+    local reverseUnitGrowth = reverse(AptechkaDB.profile.unitGrowth)
 
     if petgroup then
         f.isPetGroup = true
@@ -2235,7 +2295,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetID(group)
     Mixin(f, AptechkaHeader)
 
-    f:SetAttribute("point", unitgr)
+    f:SetAttribute("point", reverseUnitGrowth)
     f:SetAttribute("xOffset", xgap)
     f:SetAttribute("yOffset", ygap)
 
@@ -2318,16 +2378,9 @@ end
 do -- this function supposed to be called from layout switchers
     function Aptechka:SetGrowth(headers, unitGrowth, groupGrowth)
 
-        local anchorpoint = self:SetAnchorpoint(unitGrowth, groupGrowth)
+        local anchorpoint = self:GetAnchorpointFromDirections(unitGrowth, groupGrowth)
 
-        local xgap = AptechkaDB.profile.unitGap or config.unitGap
-        local ygap = AptechkaDB.profile.unitGap or config.unitGap
-        local unitgr = reverse(unitGrowth)
-        if unitgr == "RIGHT" then
-            xgap = -xgap
-        elseif unitgr == "TOP" then
-            ygap = -ygap
-        end
+        local xgap, ygap = MakeUnitGapOffsets(unitGrowth)
 
         local maxGroupsInRow = self.db.profile.groupsInRow
 
@@ -2337,8 +2390,8 @@ do -- this function supposed to be called from layout switchers
         local prevRowIndex = 1
 
         local groupRowGrowth = unitGrowth
-        local _, unitDirection = reverse(unitGrowth)
-        local _, groupDirection = reverse(groupGrowth)
+        local reverseUnitGrowth, unitDirection = reverse(unitGrowth)
+        local reverseGroupGrowth, groupDirection = reverse(groupGrowth)
         -- Group Growth within a single row is typically the same as unit growth, but
         -- if for some reason both directions are on the same axis we use the other axis
         if unitDirection == groupDirection then
@@ -2349,47 +2402,14 @@ do -- this function supposed to be called from layout switchers
 
             local hdr = headers[groupIndex]
 
-            if Aptechka.db.global.singleHeaderMode or hdr.isPetGroup then
-                hdr:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
-                hdr:SetAttribute("unitsPerColumn", 5*maxGroupsInRow)
-                local columnAnchorPoint = reverse(groupGrowth)
-                if hdr.isPetGroup then
-                    columnAnchorPoint = groupGrowth
-                end
-                hdr:SetAttribute("columnAnchorPoint", columnAnchorPoint) -- the anchor point of each new column (ie. use LEFT for the columns to grow to the right)
-                -- point attr controls unit growth: SetPoint(LEFT, prevButton or hdr, reverse(LEFT), xOffset, yOffset)
-                -- columnAnchorPoint controls group/column growth: SetPoint(BOTTOM, prevColumnButton1, reverse(BOTTOM), 0, yOffset)
-            end
-            -- group header doesn't clear points when attribute value changes
-            -- so it's important to manually clear them before setting the last attribte that affects what points are set
-            for _,button in ipairs{ hdr:GetChildren() } do
-                button:ClearAllPoints()
-            end
-            hdr:SetAttribute("point", unitgr)
-            hdr:SetAttribute("xOffset", xgap)
-            hdr:SetAttribute("yOffset", ygap)
+            prevRowIndex = hdr:UpdatePoints(unitGrowth, groupGrowth, maxGroupsInRow, prevRowIndex)
 
-            hdr:ClearAllPoints()
-            if groupIndex == 1 then
-                hdr:SetPoint(anchorpoint, anchors[groupIndex], reverse(anchorpoint),0,0)
-            elseif hdr.isPetGroup then
-                hdr:SetPoint(AptechkaHeader.MakePoints(headers[1], nil, unitGrowth, reverse(groupGrowth)))
-            else
-                if groupIndex >= prevRowIndex + maxGroupsInRow then
-                    local prevRowHeader = headers[prevRowIndex]
-                    hdr:SetPoint(AptechkaHeader.MakePoints(prevRowHeader, nil, unitGrowth, groupGrowth))
-                    prevRowIndex = groupIndex
-                else
-                    local prevHeader = headers[groupIndex-1]
-                    hdr:SetPoint(AptechkaHeader.MakePoints(prevHeader, nil, groupGrowth, groupRowGrowth))
-                end
-            end
             groupIndex = groupIndex + 1
         end
     end
 end
 
-function Aptechka:SetAnchorpoint(unitGrowth, groupGrowth)
+function Aptechka:GetAnchorpointFromDirections(unitGrowth, groupGrowth)
     local ug = unitGrowth or config.unitGrowth
     local gg = groupGrowth or config.groupGrowth
     local rug, ud = reverse(ug)
@@ -4442,7 +4462,7 @@ do
         local groupGrowth = Aptechka.db.profile.groupGrowth
         local fwidth = pixelperfect(Aptechka.db.profile.width)
         local fheight = pixelperfect(Aptechka.db.profile.height)
-        local anchorpoint = Aptechka:SetAnchorpoint(unitGrowth, groupGrowth)
+        local anchorpoint = Aptechka:GetAnchorpointFromDirections(unitGrowth, groupGrowth)
         local xm, ym = helpers.GetMultipliersFromPoint(anchorpoint)
         -- local offset = 7
         local unitGap = Aptechka.db.profile.unitGap
