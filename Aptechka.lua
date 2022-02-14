@@ -209,9 +209,19 @@ local defaults = {
         y = 0,
         width = 55,
         height = 55,
-        petwidth = 55,
-        petheight = 55,
-        petscale = 0.8,
+
+        petGroup = false,
+        petGroupAnchorEnabled = true,
+        petGroupAnchor = {
+            point = "CENTER",
+            x = 0,
+            y = 0,
+        },
+        -- petwidth = 55,
+        -- petheight = 55,
+        petScale = 0.8,
+        petUnitGrowth = "RIGHT",
+        petGroupGrowth = "TOP",
 
         powerSize = 4,
         healthOrientation = "VERTICAL",
@@ -230,7 +240,6 @@ local defaults = {
         showGroupCasts = false,
         showAggro = true,
         showCCList = false,
-        petGroup = false,
         showRaidIcons = true,
         showDispels = true,
         showSeparator = false,
@@ -576,7 +585,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         group_headers[i] = f
         i = i + 1
     end
-    self:CreateAnchor(group_headers[1], 1)
+    self:CreateAnchor(1)
+    self:CreateAnchor(2)
+    self:RepositionAnchors()
     -- self.border = self:CreateBorder("AptechkaBorder")
     self:UpdatePetGroupConfig()
 
@@ -917,7 +928,7 @@ end
 function Aptechka:ReconfigureProtected()
     if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
 
-    self:RepositionAnchor()
+    self:RepositionAnchors()
     self:UpdatePetGroupConfig()
     self:ReconfigureTestHeaders()
 
@@ -933,7 +944,7 @@ function Aptechka:ReconfigureProtected()
         if header.isPetGroup then
             -- width = pixelperfect(AptechkaDB.profile.petwidth)
             -- height = pixelperfect(AptechkaDB.profile.petheight)
-            scale = scale * AptechkaDB.profile.petscale
+            scale = scale * AptechkaDB.profile.petScale
         end
 
         if header:CanChangeAttribute() then
@@ -2161,6 +2172,11 @@ function AptechkaHeader.UpdatePoints(hdr, unitGrowth, groupGrowth, maxGroupsInRo
     local groupRowGrowth = unitGrowth
     local reverseUnitGrowth, unitDirection = reverse(unitGrowth)
     local reverseGroupGrowth, groupDirection = reverse(groupGrowth)
+    -- Group Growth within a single row is typically the same as unit growth, but
+    -- if for some reason both directions are on the same axis we use the other axis
+    if unitDirection == groupDirection then
+        groupRowGrowth = groupDirection == "VERTICAL" and "RIGHT" or "TOP"
+    end
 
     if Aptechka.db.global.singleHeaderMode or hdr.isPetGroup then
         hdr:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
@@ -2186,7 +2202,11 @@ function AptechkaHeader.UpdatePoints(hdr, unitGrowth, groupGrowth, maxGroupsInRo
     if groupIndex == 1 then
         hdr:SetPoint(anchorpoint, anchors[1], reverse(anchorpoint),0,0)
     elseif hdr.isPetGroup then
-        hdr:SetPoint(AptechkaHeader.MakePoints(group_headers[1], nil, unitGrowth, reverseGroupGrowth))
+        if Aptechka.db.profile.petGroupAnchorEnabled then
+            hdr:SetPoint(anchorpoint, anchors[2], reverse(anchorpoint),0,0)
+        else
+            hdr:SetPoint(AptechkaHeader.MakePoints(group_headers[1], nil, unitGrowth, reverseGroupGrowth))
+        end
     else
         if groupIndex >= prevRowIndex + maxGroupsInRow then
             local prevRowHeader = group_headers[prevRowIndex]
@@ -2318,7 +2338,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     if f.isPetGroup then
         -- width = pixelperfect(AptechkaDB.profile.petwidth)
         -- height = pixelperfect(AptechkaDB.profile.petheight)
-        scale = scale * AptechkaDB.profile.petscale
+        scale = scale * AptechkaDB.profile.petScale
     end
     f:SetAttribute("frameWidth", width)
     f:SetAttribute("frameHeight", height)
@@ -2386,21 +2406,19 @@ do -- this function supposed to be called from layout switchers
 
         local numGroups = #headers
 
+        local isPetGroupGrowthOverride = self.db.profile.petGroupAnchorEnabled
+
         local groupIndex = 1
         local prevRowIndex = 1
 
-        local groupRowGrowth = unitGrowth
-        local reverseUnitGrowth, unitDirection = reverse(unitGrowth)
-        local reverseGroupGrowth, groupDirection = reverse(groupGrowth)
-        -- Group Growth within a single row is typically the same as unit growth, but
-        -- if for some reason both directions are on the same axis we use the other axis
-        if unitDirection == groupDirection then
-            groupRowGrowth = groupDirection == "VERTICAL" and "RIGHT" or "TOP"
-        end
-
         while groupIndex <= numGroups do
-
             local hdr = headers[groupIndex]
+
+            if hdr.isPetGroup and isPetGroupGrowthOverride then
+                -- pet group is always on the last index 9 so it's fine to overwrite normal unit growth at this point
+                unitGrowth = self.db.profile.petUnitGrowth
+                groupGrowth = self.db.profile.petGroupGrowth
+            end
 
             prevRowIndex = hdr:UpdatePoints(unitGrowth, groupGrowth, maxGroupsInRow, prevRowIndex)
 
@@ -2410,8 +2428,8 @@ do -- this function supposed to be called from layout switchers
 end
 
 function Aptechka:GetAnchorpointFromDirections(unitGrowth, groupGrowth)
-    local ug = unitGrowth or config.unitGrowth
-    local gg = groupGrowth or config.groupGrowth
+    local ug = unitGrowth
+    local gg = groupGrowth
     local rug, ud = reverse(ug)
     local rgg, gd = reverse(gg)
     if ud == gd then return rug
@@ -2427,16 +2445,28 @@ function Aptechka:GetSpecRole()
     return role
 end
 
-function Aptechka:RepositionAnchor()
-    -- local role = self:GetSpecRole()
-    local anchorTable = AptechkaDB.profile
+function Aptechka:RepositionAnchors()
+    local anchorTable, san
+
+    -- Main Anchor
+    anchorTable = self.db.profile
     anchors[1].san = anchorTable
-    local san = anchorTable
+    san = anchorTable
     anchors[1]:ClearAllPoints()
     anchors[1]:SetPoint(san.point,UIParent,san.point,san.x,san.y)
+
+    -- Pet Group Anchor
+    anchorTable = self.db.profile.petGroupAnchor
+    anchors[2].san = anchorTable
+    san = anchorTable
+    anchors[2]:ClearAllPoints()
+    anchors[2]:SetPoint(san.point,UIParent,san.point,san.x,san.y)
+    if not self.db.profile.petGroupAnchorEnabled then
+        anchors[2]:Hide()
+    end
 end
 
-function Aptechka.CreateAnchor(self,hdr,num)
+function Aptechka.CreateAnchor(self, num)
     local f = CreateFrame("Frame","NugRaidAnchor"..num,UIParent)
     f:SetFrameStrata("HIGH")
 
@@ -2468,7 +2498,6 @@ function Aptechka.CreateAnchor(self,hdr,num)
 
     anchors[num] = f
     f:Hide()
-    self:RepositionAnchor()
 
     f:SetScript("OnDragStart",function(self) self:StartMoving() end)
     f:SetScript("OnDragStop",function(self)
@@ -3658,6 +3687,9 @@ end
 
 function Aptechka:Unlock()
     anchors[1]:Show()
+    if Aptechka.db.profile.petGroupAnchorEnabled then
+        anchors[2]:Show()
+    end
 end
 
 function Aptechka:ToggleUnlock()

@@ -276,31 +276,6 @@ function ns.MakeProfileSettings()
                         end,
                         order = 18.2,
                     },
-                    petGroup = {
-                        name = L"Enable Pet Group",
-                        type = "toggle",
-                        width = 1.5,
-                        get = function(info) return Aptechka.db.profile.petGroup end,
-                        set = function(info, v)
-                            Aptechka.db.profile.petGroup = not Aptechka.db.profile.petGroup
-                            Aptechka:UpdatePetGroupConfig()
-                            Aptechka:ReconfigureProtected()
-                        end,
-                        order = 18.4,
-                    },
-                    petScale = {
-                        name = L"Pet Scale",
-                        type = "range",
-                        get = function(info) return Aptechka.db.profile.petscale end,
-                        set = function(info, v)
-                            Aptechka.db.profile.petscale = v
-                            Aptechka:ReconfigureProtected()
-                        end,
-                        min = 0.3,
-                        max = 1,
-                        step = 0.01,
-                        order = 18.41,
-                    },
                     maxGroups = {
                         name = L"Max Groups",
                         type = "range",
@@ -328,6 +303,86 @@ function ns.MakeProfileSettings()
                         get = function(info) return Aptechka.db.profile.sortMethod end,
                         set = function( info, v )
                             Aptechka.db.profile.sortMethod = v
+                            Aptechka:ReconfigureProtected()
+                        end,
+                    },
+                }
+            },
+
+            petSettings = {
+                type = "group",
+                name = " ",
+                guiInline = true,
+                order = 3.6,
+                args = {
+                    petGroup = {
+                        name = L"Enable Pet Group",
+                        type = "toggle",
+                        width = 1.5,
+                        get = function(info) return Aptechka.db.profile.petGroup end,
+                        set = function(info, v)
+                            Aptechka.db.profile.petGroup = not Aptechka.db.profile.petGroup
+                            Aptechka:UpdatePetGroupConfig()
+                            Aptechka:ReconfigureProtected()
+                        end,
+                        order = 1,
+                    },
+                    petScale = {
+                        name = L"Pet Scale",
+                        type = "range",
+                        get = function(info) return Aptechka.db.profile.petScale end,
+                        set = function(info, v)
+                            Aptechka.db.profile.petScale = v
+                            Aptechka:ReconfigureProtected()
+                        end,
+                        min = 0.3,
+                        max = 1,
+                        step = 0.01,
+                        order = 2,
+                    },
+                    petGroupAnchor = {
+                        name = L"Separate Pet Group",
+                        desc = "Moves pet group to its own anchor",
+                        type = "toggle",
+                        width = 1,
+                        get = function(info) return Aptechka.db.profile.petGroupAnchorEnabled end,
+                        set = function(info, v)
+                            Aptechka.db.profile.petGroupAnchorEnabled = not Aptechka.db.profile.petGroupAnchorEnabled
+                            Aptechka:ReconfigureProtected()
+                        end,
+                        order = 3,
+                    },
+                    petGroupGrowth = {
+                        name = L"Group Growth Direction",
+                        disabled = function() return not Aptechka.db.profile.petGroupAnchorEnabled end,
+                        type = 'select',
+                        order = 4,
+                        values = {
+                            LEFT = L"Left",
+                            RIGHT = L"Right",
+                            TOP = L"Up",
+                            BOTTOM = L"Down",
+                        },
+                        get = function(info) return Aptechka.db.profile.petGroupGrowth end,
+                        set = function( info, v )
+                            Aptechka.db.profile.petGroupGrowth = v
+                            Aptechka:ReconfigureProtected()
+                        end,
+                    },
+                    petUnitGrowth = {
+                        name = L"Unit Growth Direction",
+                        disabled = function() return not Aptechka.db.profile.petGroupAnchorEnabled end,
+                        type = 'select',
+                        order = 6,
+                        values = {
+                            LEFT = L"Left",
+                            RIGHT = L"Right",
+                            TOP = L"Up",
+                            BOTTOM = L"Down",
+                        },
+                        get = function(info) return Aptechka.db.profile.petUnitGrowth end,
+                        set = function( info, v )
+                            Aptechka.db.profile.petUnitGrowth = v
                             Aptechka:ReconfigureProtected()
                         end,
                     },
