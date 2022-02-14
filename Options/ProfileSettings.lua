@@ -265,7 +265,7 @@ function ns.MakeProfileSettings()
                         order = 18.1,
                     },
                     clampIncomingHeal = {
-                        name = L"Clamp Incoming Heal"..newFeatureIcon,
+                        name = L"Clamp Inc.Heal"..newFeatureIcon,
                         type = "toggle",
                         get = function(info) return Aptechka.db.profile.clampIncomingHeal end,
                         set = function(info, v)
