@@ -225,7 +225,7 @@ function ns.MakeProfileSettings()
                         order = 12,
                     },
                     damageEffect = {
-                        name = L"Damage Effect"..newFeatureIcon,
+                        name = L"Damage Effect",
                         type = "toggle",
                         get = function(info) return Aptechka.db.profile.damageEffect end,
                         set = function(info, v)
@@ -235,7 +235,7 @@ function ns.MakeProfileSettings()
                         order = 16,
                     },
                     auraUpdateEffect = {
-                        name = L"Aura Update Effect"..newFeatureIcon,
+                        name = L"Aura Update Effect",
                         type = "toggle",
                         get = function(info) return Aptechka.db.profile.auraUpdateEffect end,
                         set = function(info, v)
@@ -245,7 +245,7 @@ function ns.MakeProfileSettings()
                         order = 17,
                     },
                     floatingIcon = {
-                        name = L"Buff Gain Floating Icons"..newFeatureIcon,
+                        name = L"Buff Gain Floating Icons",
                         type = "toggle",
                         get = function(info) return Aptechka.db.profile.showFloatingIcons end,
                         set = function(info, v)
@@ -255,7 +255,7 @@ function ns.MakeProfileSettings()
                         order = 18,
                     },
                     CCList = {
-                        name = L"CC List (PvP)"..newFeatureIcon,
+                        name = L"CC List (PvP)",
                         type = "toggle",
                         get = function(info) return Aptechka.db.profile.showCCList end,
                         set = function(info, v)
@@ -263,6 +263,16 @@ function ns.MakeProfileSettings()
                             Aptechka:UpdateDebuffScanningMethod()
                         end,
                         order = 18.1,
+                    },
+                    clampIncomingHeal = {
+                        name = L"Clamp Incoming Heal"..newFeatureIcon,
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.profile.clampIncomingHeal end,
+                        set = function(info, v)
+                            Aptechka.db.profile.clampIncomingHeal = not Aptechka.db.profile.clampIncomingHeal
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        order = 18.12,
                     },
                     targetedCount = {
                         name = L"Enemy Counter"..newFeatureIcon,

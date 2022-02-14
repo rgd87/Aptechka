@@ -211,7 +211,7 @@ local defaults = {
         height = 55,
 
         petGroup = false,
-        petGroupAnchorEnabled = true,
+        petGroupAnchorEnabled = false,
         petGroupAnchor = {
             point = "CENTER",
             x = 0,
@@ -244,6 +244,7 @@ local defaults = {
         showDispels = true,
         showSeparator = false,
         showFloatingIcons = true,
+        clampIncomingHeal = true,
         healthTexture = "Gradient",
         powerTexture = "Gradient",
         damageEffect = true,

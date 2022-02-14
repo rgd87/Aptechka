@@ -2276,6 +2276,15 @@ end
 --------------------
 -- INCOMING HEAL
 --------------------
+local UnclampedSetValue = function(self, p, health)
+    if p < 0.005 then
+        self:Hide()
+        return
+    end
+
+    self:Show()
+    self:UpdatePosition(p, health, self.parent)
+end
 local function CreateIncomingHealBar(hp)
     local hpi = hp:CreateTexture(nil, "ARTWORK", nil, -5)
 
@@ -2907,6 +2916,13 @@ local function Reconf(self)
         self.health.incoming:SetVertexColor(unpack(db.incHealColor))
     end
 
+    local hpi = self.health.incoming
+    if db.clampIncomingHeal then
+        hpi.SetValue = AbsorbSetValue
+    else
+        hpi.SetValue = UnclampedSetValue
+    end
+
     if isVertical then
         self.health:SetOrientation("VERTICAL")
         self.power:SetOrientation("VERTICAL")
@@ -3066,6 +3082,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     hp:SetMinMaxValues(0,100)
     hp:SetOrientation("VERTICAL")
+    hp:SetValue(0.5) -- needed to sort of initialize the points on main mask region, that other regions attach to
     hp.parent = self
     hp.SetJob = SetJob_HealthBar
     hp.SetColor = HealthBarSetColorFG
