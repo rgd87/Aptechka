@@ -2129,6 +2129,7 @@ end
 
 
 local AptechkaHeader = {}
+helpers.AptechkaHeader = AptechkaHeader
 function AptechkaHeader.MakePoints(prv_group, notreverse, unitGrowth, groupGrowth)
         local p1, p2
         local xgap = 0

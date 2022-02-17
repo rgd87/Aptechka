@@ -3696,8 +3696,10 @@ local function FakeHeader_Arrange(hdr)
     end
 end
 
-function Aptechka:CreateFakeGroupHeader()
+function Aptechka:CreateFakeGroupHeader(id)
     local frame = CreateFrame("Frame", nil, UIParent)
+    frame:SetID(id)
+    Mixin(frame, helpers.AptechkaHeader)
     frame:SetFrameStrata("BACKGROUND")
     frame.children = {}
     for i=1,5 do
@@ -3719,7 +3721,7 @@ function Aptechka:CreateFakeGroupHeaders()
     if Aptechka.testGroupHeaders then return end
     Aptechka.testGroupHeaders = {}
     for i=1,8 do
-        Aptechka.testGroupHeaders[i] = self:CreateFakeGroupHeader()
+        Aptechka.testGroupHeaders[i] = self:CreateFakeGroupHeader(i)
     end
 end
 
