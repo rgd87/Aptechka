@@ -2282,6 +2282,10 @@ local UnclampedSetValue = function(self, p, health)
         return
     end
 
+    if p + health > 2 then
+        p = 2 - health
+    end
+
     self:Show()
     self:UpdatePosition(p, health, self.parent)
 end
