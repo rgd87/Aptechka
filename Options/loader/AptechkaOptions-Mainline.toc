@@ -1,4 +1,4 @@
-## Interface: 90100
+## Interface: 90200
 ## Title: AptechkaOptions
 ## Notes: Options module for Aptechka
 ## Author: d87
