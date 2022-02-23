@@ -611,6 +611,9 @@ config.MapIDs = {
     [751] = "Black Rook Hold",
 }
 
+
+-- Getting Spell IDs from Encounter Journal:
+-- Mouseover the spell and use this macro /dump GetMouseFocus():GetParent().spellID
 config.defaultDebuffHighlights = {
     ["PvP"] = {
         [207736] = { 207736, 3, "Shadowy Duel" },
@@ -679,6 +682,9 @@ config.defaultDebuffHighlights = {
         [332797] = { 332797, 1, "Sire Denathrius, Fatal Finesse" },
     },
     ["Tazavesh"] = {
+        [345990] = { 345990, 4, "Zo'phex, Interrogation" },
+        [349627] = { 349627, 2, "The Grand Menagerie, Gluttony" },
+        [349934] = { 349934, 4, "The Grand Menagerie, Flagellation Protocol" },
     },
     ["Halls of Atonement"] = {
         [326607] = { 326607, 3, "Stoneborn Reaver, Turn to Stone" },
