@@ -587,6 +587,9 @@ config.MapIDs = {
     [1581] = "Ny'alotha",
     [1600] = "Mythic+ 8.3",
 
+    [1660] = "Castle Nathria",
+    [1661] = "Sanctum of Domination",
+
     [1663] = "Halls of Atonement",
     [1666] = "The Necrotic Wake",
     [1669] = "Mists of Tirna Scithe",
@@ -595,12 +598,11 @@ config.MapIDs = {
     [1679] = "De Other Side",
     [1683] = "Theater of Pain",
     [1693] = "Spires of Ascension",
+    [1698] = "Tazavesh",
 
     [1701] = "PvP",
 
-    [1735] = "Castle Nathria",
-
-    [1998] = "Sanctum of Domination",
+    [2000] = "Sepulcher of the First Ones",
 
     [704] = "Halls of Valor",
     [706] = "Maw of Souls",
@@ -614,6 +616,9 @@ config.defaultDebuffHighlights = {
         [207736] = { 207736, 3, "Shadowy Duel" },
         [212183] = { 212183, 3, "Smoke Bomb" },
         [33786] = { 33786, 3, "Cyclone" },
+    },
+    ["Sepulcher of the First Ones"] = {
+        -- [25163] = { 25163, 3, "Placeholder Disgusting Oozeling" },
     },
     ["Sanctum of Domination"] = {
         [358610] = { 358610, 1, "Eye of the Jailer, Desolation Beam" },
@@ -629,7 +634,6 @@ config.defaultDebuffHighlights = {
         [348508] = { 348508, 4, "Painsmith Raznal, Reverberating Hammer" },
         [355568] = { 355568, 4, "Painsmith Raznal, Cruciform Axe" },
         [355778] = { 355778, 4, "Painsmith Raznal, Dualblade Scythe" },
-
     },
     ["Castle Nathria"] = {
 
@@ -673,8 +677,8 @@ config.defaultDebuffHighlights = {
         [341732] = { 341732, 3, "Sire Denathrius, Searing Censure" },
         [332794] = { 332794, 1, "Sire Denathrius, Fatal Finesse" },
         [332797] = { 332797, 1, "Sire Denathrius, Fatal Finesse" },
-
-        -- [25163] = { 25163, 3, "Placeholder Disgusting Oozeling" },
+    },
+    ["Tazavesh"] = {
     },
     ["Halls of Atonement"] = {
         [326607] = { 326607, 3, "Stoneborn Reaver, Turn to Stone" },
@@ -726,9 +730,9 @@ config.defaultDebuffHighlights = {
         [332605] = { 332605, 1, "Atal'ai Hoodoo Hexxer, Hex" },
         [334505] = { 334505, 3, "Shimmerdust Sleep" },
     },
-    ["Mythic+ 8.3"] = {
-        [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
-    },
+    -- ["Mythic+ 8.3"] = {
+        -- [314308] = { 314308, 1, "Spirit Breaker, increase all damage taken by 100% for 8 sec." },
+    -- },
     ["Horrific Visions"] = {
         [306965] = { 306965, 1, "Madness: Dark Delusions Stun" },
         [306545] = { 306545, 2, "Madness: Haunting Shadows Fear" },
@@ -808,6 +812,39 @@ config.defaultDebuffHighlights = {
 
     ["Siege of Boralus"] = {
         [272571] = { 272571, 1, "Choking Waters" },
+    },
+
+    ["Black Rook Hold"] = {
+        [194966] = { 194966, 2, "Amalgam of Souls, Soul Echoes" },
+        [200261] = { 200261, 1, "Stun, Soul-Torn Champion" },
+        [197974] = { 197974, 1, "Stun, Soul-Torn Vanguard" },
+        [197546] = { 197546, 1, "Illysanna Ravencrest, Brutal Glaive" },
+        [197687] = { 197687, 4, "Illysanna Ravencrest, Eye Beams" },
+        [198079] = { 198079, 4, "Smashspite, Hateful Gaze" },
+        [214002] = { 214002, 1, "Risen Lancers, Raven's Dive" },
+    },
+    ["Darkheart Thicket"] = {
+        [225484] = { 225484, 1, "Frenzied Nightclaw, Grievous Rip" },
+        [198477] = { 198477, 4, "Nightmare Abomination, Fixate" },
+        [196376] = { 196376, 1, "Archdruid Glaidalis, Grievous Tear" },
+        [198904] = { 198904, 1, "Rotheart Dryads, Poison Spear" },
+        [201842] = { 201842, 1, "Taintheart Summoners, Curse of Isolation" },
+        [204611] = { 204611, 1, "Oakheart, Crushing Grip" },
+        [200238] = { 200238, 4, "Shade of Xavius, Feed on the Weak" },
+        [200289] = { 200289, 1, "Shade of Xavius, Growing Paranoia" },
+    },
+    ["Neltharion's Lair"] = {
+        [202181] = { 202181, 1, "Basilisks, Stone Gaze" },
+        [199705] = { 199705, 1, "Naraxas, Devouring" },
+        [200154] = { 200154, 4, "Colossal Charskin, Burning Hatred (Fixate)" },
+        [193585] = { 193585, 1, "Rockbound Trapper, Bound" },
+    },
+    ["Maw of Souls"] = {
+        [200208] = { 200208, 1, "Seacursed Soulkeeper, Brackwater Blast" },
+    },
+    ["Halls of Valor"] = {
+        [198599] = { 198599, 1, "Valarjar Thundercaller, Thunderstrike" },
+        [196838] = { 196838, 4, "Fenrir, Scent of Blood" },
     },
 
     --[[
