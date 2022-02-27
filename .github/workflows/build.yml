@@ -28,5 +28,5 @@ jobs:
         if: '!contains( github.ref, ''beta'')'
 
       - name: Create Pre-Release Package
-        run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -p 0 -w 0;
+        run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -p 0 -w 0 -a 0;
         if: 'contains( github.ref, ''beta'')'

@@ -729,6 +729,45 @@ function ns.MakeProfileSettings()
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
+                            powerColor = {
+                                name = L"Power Color",
+                                type = 'color',
+                                width = 3,
+                                order = 7.21,
+                                get = function(info)
+                                    local r,g,b = unpack(Aptechka.db.profile.powerColor)
+                                    return r,g,b
+                                end,
+                                set = function(info, r, g, b)
+                                    Aptechka.db.profile.powerColor = {r,g,b}
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                            },
+                            usePowerBGColor = {
+                                name = L"Use Separate power Background Color",
+                                type = "toggle",
+                                width = 2,
+                                get = function(info) return Aptechka.db.profile.useCustomBackgroundColorPower end,
+                                set = function(info, v)
+                                    Aptechka.db.profile.useCustomBackgroundColorPower = not Aptechka.db.profile.useCustomBackgroundColorPower
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                                order = 7.22,
+                            },
+                            powerbgColor = {
+                                name = L"Power BG Color",
+                                type = 'color',
+                                order = 7.23,
+                                disabled = function() return not Aptechka.db.profile.useCustomBackgroundColorPower end,
+                                get = function(info)
+                                    local r,g,b = unpack(Aptechka.db.profile.customBackgroundColorPower)
+                                    return r,g,b
+                                end,
+                                set = function(info, r, g, b)
+                                    Aptechka.db.profile.customBackgroundColorPower = {r,g,b}
+                                    Aptechka:RefreshAllUnitsColors()
+                                end,
+                            },
                             nameColorClassColor = {
                                 name = L"Use Name Class Color",
                                 type = "toggle",

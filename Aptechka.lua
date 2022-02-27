@@ -263,6 +263,9 @@ local defaults = {
         nameColorByClass = true,
         useCustomBackgroundColor = false,
         customBackgroundColor = {1,0,0},
+        powerColor = {0.5, 0.5, 1},
+        useCustomBackgroundColorPower = false,
+        customBackgroundColorPower = {0.5, 0.5, 1},
         petColor = {1, 0.5, 0.5},
         alphaOutOfRange = 0.45,
 

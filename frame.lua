@@ -617,6 +617,30 @@ local SetJob_HealthBar = function(self, job, state, contentType, ...)
         self.bg:SetColor(r2,g2,b2, bgAlpha,mulBG)
     end
 end
+local SetJob_PowerBar = function(self, job, state, contentType, ...)
+    local profile = Aptechka.db.profile
+    local r,g,b,a
+    local r2,g2,b2
+    if contentType == "PowerBar" then
+        r,g,b = unpack(profile.powerColor)
+        if profile.useCustomBackgroundColorPower then
+            r2,g2,b2 = unpack(profile.customBackgroundColorPower)
+        else
+            r2,g2,b2 = r,g,b
+        end
+    else
+        local timerType, cur, max, count, icon, text, rC,gC,bC, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
+        r,g,b,a = rC,gC,bC,1
+        r2,g2,b2 = r,g,b
+    end
+    if b then
+        local mulFG = profile.fgColorMultiplier or 1
+        local mulBG = profile.bgColorMultiplier or 0.2
+        local bgAlpha = profile.bgAlpha
+        self:SetColor(r,g,b,a,mulFG)
+        self.bg:SetColor(r2,g2,b2, bgAlpha,mulBG)
+    end
+end
 
 local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
     local self = powerbar:GetParent()
@@ -3064,7 +3088,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     powerbar:SetMinMaxValues(0,100)
     powerbar:SetOrientation("VERTICAL")
     -- powerbar:SetStatusBarColor(0.5,0.5,1)
-    powerbar.SetJob = SetJob_HealthBar
+    powerbar.SetJob = SetJob_PowerBar
     powerbar.OnPowerTypeChange = PowerBar_OnPowerTypeChange
     powerbar.SetColor = HealthBarSetColorFG
 
