@@ -2221,7 +2221,7 @@ function AptechkaHeader.UpdatePoints(hdr, unitGrowth, groupGrowth, maxGroupsInRo
         hdr:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
         hdr:SetAttribute("unitsPerColumn", 5*maxGroupsInRow)
         local columnAnchorPoint = reverseGroupGrowth
-        if hdr.isPetGroup then
+        if hdr.isPetGroup and not Aptechka.db.profile.petGroupAnchorEnabled then
             columnAnchorPoint = groupGrowth
         end
         hdr:SetAttribute("columnAnchorPoint", columnAnchorPoint) -- the anchor point of each new column (ie. use LEFT for the columns to grow to the right)
@@ -2345,7 +2345,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
         f:SetAttribute("columnSpacing", AptechkaDB.profile.unitGap)
         local groupGrowth = AptechkaDB.profile.groupGrowth
         local columnAnchorPoint = reverse(groupGrowth)
-        if f.isPetGroup then
+        if f.isPetGroup and not Aptechka.db.profile.petGroupAnchorEnabled then
             columnAnchorPoint = groupGrowth
         end
         f:SetAttribute("columnAnchorPoint", columnAnchorPoint)
