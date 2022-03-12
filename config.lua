@@ -621,6 +621,25 @@ config.defaultDebuffHighlights = {
         [33786] = { 33786, 3, "Cyclone" },
     },
     ["Sepulcher of the First Ones"] = {
+        [366393] = { 366393, 1, "Vigilant Guardian, Searing Ablation" },
+        [367571] = { 367571, 1, "Vigilant Guardian, Sear" },
+        [364522] = { 364522, 1, "Skolex, Devouring Blood" },
+        [364030] = { 364030, 1, "Artificer Xy'mox, Debilitating Ray" },
+        [360687] = { 360687, 1, "Prototype Pantheon, Runecarver's Deathtouch" },
+        [364073] = { 364073, 1, "Lihuvim, Degeneration Automa, Degenerate" },
+
+        [364031] = { 364031, 3, "Anduin Wrynn, Gloom" },
+        [366849] = { 366849, 1, "Anduin Wrynn, Domination Word: Pain" },
+
+        -- [360012] = { 360012, 1, "Lords of Dread, Cloud of Carrion" },
+        [360148] = { 360148, 1, "Lords of Dread, Bursting Dread" },
+        [360241] = { 360241, 1, "Lords of Dread, Unsettling Dreams (Sleep)" },
+
+        [362806] = { 362806, 1, "Rygelon, Dark Eclipse" },
+        [364386] = { 364386, 4, "Rygelon, Gravitational Collapse" },
+
+        [365153] = { 365153, 3, "Jailer, Dominating Will" },
+        [365219] = { 365219, 1, "Jailer, Chains of Anguish" },
         -- [25163] = { 25163, 3, "Placeholder Disgusting Oozeling" },
     },
     ["Sanctum of Domination"] = {
