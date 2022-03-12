@@ -704,6 +704,8 @@ config.defaultDebuffHighlights = {
         [345990] = { 345990, 4, "Zo'phex, Interrogation" },
         [349627] = { 349627, 2, "The Grand Menagerie, Gluttony" },
         [349934] = { 349934, 4, "The Grand Menagerie, Flagellation Protocol" },
+        [356031] = { 356031, 3, "Interrogation Specialist, Stasis Beam" },
+        [355642] = { 355642, 4, "Veteran Sparkcaster, Hyperlight Salvo" },
     },
     ["Halls of Atonement"] = {
         [326607] = { 326607, 3, "Stoneborn Reaver, Turn to Stone" },
