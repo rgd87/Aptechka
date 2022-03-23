@@ -247,7 +247,7 @@ function ns.MakeGlobalSettings()
                         name = L"Use LibCLHealth",
                         desc = L"More frequent health updates based combat log",
                         type = "toggle",
-                        disabled = not isClassic,
+                        disabled = true,--not isClassic,
                         width = "full",
                         order = 18,
                         get = function(info) return isClassic and Aptechka.db.global.useCombatLogHealthUpdates end,

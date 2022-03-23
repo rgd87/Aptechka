@@ -571,6 +571,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
 
     -- AptechkaDB.global.useCombatLogHealthUpdates = false
+    --[[
     if isClassic and AptechkaDB.global.useCombatLogHealthUpdates then
         local CLH = LibStub("LibCombatLogHealth-1.0")
         UnitHealth = CLH.UnitHealth
@@ -582,6 +583,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             -- return Aptechka:COMBAT_LOG_HEALTH(nil, unit, health)
         end)
     end
+    ]]
 
     self:RegisterEvent("UNIT_AURA")
     self:RegisterEvent("SPELLS_CHANGED")
