@@ -243,6 +243,19 @@ function ns.MakeGlobalSettings()
                             Aptechka:UpdateDebuffScanningMethod()
                         end
                     },
+                    useHealComm = {
+                        name = L"Use LibHealComm"..newFeatureIcon,
+                        desc = L"Gives hots in incoming healing, may cause errors",
+                        type = "toggle",
+                        disabled = not isClassic,
+                        width = "full",
+                        order = 17,
+                        get = function(info) return Aptechka.db.global.useHealComm end,
+                        set = function(info, v)
+                            Aptechka.db.global.useHealComm = not Aptechka.db.global.useHealComm
+                            Aptechka:PrintReloadUIWarning()
+                        end
+                    },
                     useCLH = {
                         name = L"Use LibCLHealth",
                         desc = L"More frequent health updates based combat log",

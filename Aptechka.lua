@@ -37,7 +37,6 @@ if apiLevel <= 2 then
     UnitHasVehicleUI = dummyFalse
     UnitInVehicle = dummyFalse
     UnitUsingVehicle = dummyFalse
-    UnitGetIncomingHeals = dummy0
     UnitGetTotalAbsorbs = dummy0
     UnitGetTotalHealAbsorbs = dummy0
     UnitPhaseReason = dummyFalse
@@ -140,6 +139,7 @@ local tankUnits = {}
 local staggerUnits = {}
 local LibTranslit = LibStub("LibTranslit-1.0")
 
+local GetIncomingHealsCustom -- upvalue to swap based on HealComm usage
 -- Classic things
 local HealComm
 local LibClassicDurations = LibStub("LibClassicDurations", true)
@@ -159,6 +159,7 @@ _G.BINDING_NAME_APTECHKA_DEBUFF_TOOLTIP_HOLD = L"Debuff Tooltip Toggle(Hold)"
 
 local defaults = {
     global = {
+        useHealComm = false,
         disableBlizzardPlayer = false,
         disableBlizzardParty = true,
         hideBlizzardRaid = true,
@@ -377,7 +378,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     if config.enableIncomingHeals then
-        if apiLevel <= 2 then
+        if apiLevel <= 2 and Aptechka.db.global.useHealComm then
             HealComm = LibStub:GetLibrary("LibHealComm-4.0",true);
             local incomingHealIgnoreHots = false
             if HealComm then
@@ -389,6 +390,32 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 end
                 HealComm.RegisterCallback(self, "HealComm_HealStarted", "HealUpdated");
                 HealComm.RegisterCallback(self, "HealComm_HealStopped", "HealUpdated");
+            end
+
+            function Aptechka:HealUpdated(event, casterGUID, spellID, healType, endTime, ...)
+                for i=1,select('#', ...) do
+                    local targetGUID = select(i, ...)
+                    local unit = guidMap[targetGUID]
+                    if unit then
+                        Aptechka:UNIT_HEAL_PREDICTION(nil, unit, targetGUID)
+                    end
+                end
+            end
+
+            local incomingHealTimeframe = 3.5
+
+            GetIncomingHealsCustom = function (unit, excludePlayer)
+                local guid = UnitGUID(unit)
+                local heal = HealComm:GetHealAmount(guid, HealComm.AptechkaHealType, GetTime()+incomingHealTimeframe)
+                return heal or 0
+            end
+
+            function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
+                self:UNIT_HEALTH(event, unit)
+
+                local heal = GetIncomingHealsCustom(unit, false)
+                local showHeal = (heal and heal > threshold)
+                SetJob(unit, config.IncomingHealStatus, showHeal, "INCOMING_HEAL", heal)
             end
         else
             self:RegisterEvent("UNIT_HEAL_PREDICTION")
@@ -999,7 +1026,7 @@ function Aptechka:ReconfigureProtected()
     Aptechka:UpdateBorder()
 end
 
-local function GetIncomingHealsCustom(unit, excludePlayer)
+GetIncomingHealsCustom = function(unit, excludePlayer)
     local heal = UnitGetIncomingHeals(unit)
     if excludePlayer then
         local myheal = UnitGetIncomingHeals(unit, "player")
@@ -1014,33 +1041,6 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
     self:UNIT_HEALTH(event, unit)
 end
 
-if apiLevel <= 2 then
-    function Aptechka:HealUpdated(event, casterGUID, spellID, healType, endTime, ...)
-        for i=1,select('#', ...) do
-            local targetGUID = select(i, ...)
-            local unit = guidMap[targetGUID]
-            if unit then
-                Aptechka:UNIT_HEAL_PREDICTION(nil, unit, targetGUID)
-            end
-        end
-    end
-
-    local incomingHealTimeframe = 3.5
-
-    GetIncomingHealsCustom = function (unit, excludePlayer)
-        local guid = UnitGUID(unit)
-        local heal = HealComm:GetHealAmount(guid, HealComm.AptechkaHealType, GetTime()+incomingHealTimeframe)
-        return heal or 0
-    end
-
-    function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
-        self:UNIT_HEALTH(event, unit)
-
-        local heal = GetIncomingHealsCustom(unit, false)
-        local showHeal = (heal and heal > threshold)
-        SetJob(unit, config.IncomingHealStatus, showHeal, "INCOMING_HEAL", heal)
-    end
-end
 function Aptechka:GetIncomingHeals(...)
     return GetIncomingHealsCustom(...)
 end
