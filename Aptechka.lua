@@ -379,6 +379,17 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     if config.enableIncomingHeals then
         if apiLevel <= 2 and Aptechka.db.global.useHealComm then
+
+            function Aptechka:HealUpdated(event, casterGUID, spellID, healType, endTime, ...)
+                for i=1,select('#', ...) do
+                    local targetGUID = select(i, ...)
+                    local unit = guidMap[targetGUID]
+                    if unit then
+                        Aptechka:UNIT_HEAL_PREDICTION(nil, unit, targetGUID)
+                    end
+                end
+            end
+
             HealComm = LibStub:GetLibrary("LibHealComm-4.0",true);
             local incomingHealIgnoreHots = false
             if HealComm then
@@ -392,15 +403,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
                 HealComm.RegisterCallback(self, "HealComm_HealStopped", "HealUpdated");
             end
 
-            function Aptechka:HealUpdated(event, casterGUID, spellID, healType, endTime, ...)
-                for i=1,select('#', ...) do
-                    local targetGUID = select(i, ...)
-                    local unit = guidMap[targetGUID]
-                    if unit then
-                        Aptechka:UNIT_HEAL_PREDICTION(nil, unit, targetGUID)
-                    end
-                end
-            end
+
 
             local incomingHealTimeframe = 3.5
 
