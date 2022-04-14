@@ -33,21 +33,7 @@ DRAW LAYERS
 -8 powerbar bg
 -8 healthbar bg
 ]]
-local FRAMELEVEL = {
-    -- BASEFRAME = 3,
-    HEALTH = 4,
-    POWER = 4,
-    BORDER = 5,
-    BAR = 8,
-    INDICATOR = 8,
-    DEBUFFICON = 10,
-    ICON = 11,
-    TEXT = 6,
-    TEXTURE = 13,
-    OVERLAY = 15, -- Mind Control, Vehicle
-    PROGRESSICON = 17,
-    FLASH = 19,
-}
+local FRAMELEVEL = helpers.FRAMELEVEL
 
 Aptechka.Widget = {}
 
@@ -2493,7 +2479,7 @@ local Text_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
 end)
 
 Aptechka.Widget.Text = {}
-Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", width = 10, height = 10, x = 0, y = 0, justify = "CENTER", font = config.defaultFont, textsize = 13, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0 }
+Aptechka.Widget.Text.default = { type = "Text", point = "TOPLEFT", width = 10, height = 10, x = 0, y = 0, zorder = 0, justify = "CENTER", font = config.defaultFont, textsize = 13, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0 }
 function Aptechka.Widget.Text.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
 
@@ -2512,6 +2498,10 @@ function Aptechka.Widget.Text.Create(parent, popts, gopts)
 
     AddBlinkAnimation(f)
     f.StartTrace = Text_StartTrace
+
+    local zOrderMod = opts.zorder or 0
+    f:SetFrameLevel(math.max(FRAMELEVEL.TEXT+zOrderMod, 0))
+
     return WrapFrameAsWidget(f)
 end
 
@@ -2557,6 +2547,9 @@ function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
         f.text:SetShadowOffset(0,0)
     end
     f.text:SetFont(font, opts.textsize, flags)
+
+    local zOrderMod = opts.zorder or 0
+    f:SetFrameLevel(math.max(FRAMELEVEL.TEXT+zOrderMod, 0))
 end
 
 Aptechka.Widget.StaticText = CopyTable(Aptechka.Widget.Text)

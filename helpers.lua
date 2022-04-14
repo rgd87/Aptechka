@@ -16,6 +16,23 @@ function helpers.GetAPILevel()
     return APILevel
 end
 
+-- default framelevels for elements
+helpers.FRAMELEVEL = {
+    -- BASEFRAME = 3,
+    HEALTH = 4,
+    POWER = 4,
+    BORDER = 5,
+    BAR = 8,
+    INDICATOR = 8,
+    DEBUFFICON = 10,
+    ICON = 11,
+    TEXT = 6,
+    TEXTURE = 13,
+    OVERLAY = 15, -- Mind Control, Vehicle
+    PROGRESSICON = 17,
+    FLASH = 19,
+}
+
 if APILevel == 1 then
     helpers.spellNameToID = {}
     helpers.AddSpellNameRecognition = function(lastRankID)

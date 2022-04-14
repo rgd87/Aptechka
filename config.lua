@@ -81,7 +81,8 @@ config.TargetedCountStatus = { name = "TargetedCount", assignto = set("EnemyCoun
 config.MindControlStatus = { name = "MIND_CONTROL", assignto = set("border", "mindcontrol", "innerglow"), color = {0.5,0,1}, priority = 52 }
 -- config.UnhealableStatus = { name = "UNHEALABLE", assignto = set("unhealable"), color = {0.5,0,1}, priority = 50 }
 
-local DEFAULT_TEXLEVEL = 13
+local FRAMELEVEL = helpers.FRAMELEVEL
+local DEFAULT_TEXLEVEL = FRAMELEVEL.TEXTURE
 config.DefaultWidgets = {
     raidbuff = { type = "IndicatorArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, growth = "DOWN", max = 5 },
     mitigation = { type = "Bar", width=22, height=4, point="BOTTOMLEFT", x=4, y=-5, vertical = false},

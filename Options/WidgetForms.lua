@@ -474,6 +474,7 @@ function ns.WidgetForms.Text.Create(form)
     local bgAlpha = ns.AddSlider(form, 0.46, L"Background Alpha", "bgAlpha", 0.5, 0, 1, 0.05, callbackUpdateForm)
     local padding = ns.AddSlider(form, 0.46, L"Padding", "padding", 0, 0, 10, 0.5, callbackUpdateForm)
     local justify = ns.AddDropdown(form, 0.46, L"Justify", "justify", "CENTER", justifyDirections, callbackUpdateForm)
+    local zorder = ns.AddSlider(form, 0.46, L"Z-Order", "zorder", 0, -10, 10, 1, callbackUpdateForm)
 
     return form
 end
@@ -490,6 +491,7 @@ function ns.WidgetForms.Text.Fill(form, name, opts, popts, gopts)
     Control_SetValue(form, "bgAlpha", opts, gopts)
     Control_SetValue(form, "padding", opts, gopts)
     Control_SetValue(form, "justify", opts, gopts)
+    Control_SetValue(form, "zorder", opts, gopts)
 end
 
 ns.WidgetForms.TextArray = {}
