@@ -161,28 +161,39 @@ local CompositeBorder_Set = function(self, left, right, top, bottom)
     tleft:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", -left, 0)
     tleft:SetPoint("TOPRIGHT", frame, "TOPLEFT", 0, top)
 end
+local CompositeBorder_SetColor = function(self, r,g,b,a)
+    local ttop = self[1]
+    ttop:SetVertexColor(r,g,b,a)
+
+    local tright = self[2]
+    tright:SetVertexColor(r,g,b,a)
+
+    local tbot = self[3]
+    tbot:SetVertexColor(r,g,b,a)
+
+    local tleft = self[4]
+    tleft:SetVertexColor(r,g,b,a)
+end
 local MakeCompositeBorder = function(frame, tex, left, right, top, bottom, drawLayer, level)
     local ttop = frame:CreateTexture(nil, drawLayer, nil, level)
     ttop:SetTexture(tex)
-    ttop:SetVertexColor(0,0,0,1)
 
     local tright = frame:CreateTexture(nil, drawLayer, nil, level)
     tright:SetTexture(tex)
-    tright:SetVertexColor(0,0,0,1)
 
     local tbot = frame:CreateTexture(nil, drawLayer, nil, level)
     tbot:SetTexture(tex)
-    tbot:SetVertexColor(0,0,0,1)
 
     local tleft = frame:CreateTexture(nil, drawLayer, nil, level)
     tleft:SetTexture(tex)
-    tleft:SetVertexColor(0,0,0,1)
 
     local border = { ttop, tright, tbot, tleft, frame }
     border.parent = frame
     border.Set = CompositeBorder_Set
+    border.SetColor = CompositeBorder_SetColor
 
     border:Set(left, right, top, bottom)
+    border:SetColor(0,0,0, 1)
 
     return border
 end
@@ -2792,6 +2803,7 @@ local Border_SetJob = function(self, job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
     self:SetBackdropBorderColor(r,g,b, 0.5)
+    -- self.outline:SetColor(r,g,b, 0.5)
 
     if self.currentJob ~= self.previousJob then
         if job.pulse then
@@ -2802,6 +2814,7 @@ end
 local Border_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
     local r,g,b,a = GetColor(job)
     self:SetBackdropBorderColor(r,g,b, 0.5)
+    -- self.outline:SetColor(r,g,b, 0.5)
 end)
 
 
@@ -3251,6 +3264,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local alphaWidget = CreateAlphaWidget(self)
     self.frameAlpha = alphaWidget
 
+    -- old backdrop border
     local p4 = outlineSize + pixelperfect(2)
     local border = CreateFrame("Frame", nil, self, BackdropTemplateMixin and "BackdropTemplate" or nil)
     border:SetFrameLevel(FRAMELEVEL.BORDER)
@@ -3258,6 +3272,16 @@ AptechkaDefaultConfig.GridSkin = function(self)
     border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
     border:SetBackdrop(border_backdrop)
     border:SetBackdropBorderColor(1, 1, 1, 0.5)
+
+    -- new composite border
+    -- local border = CreateFrame("Frame", nil, self)
+    -- local borderInset = 0
+    -- border:SetFrameLevel(FRAMELEVEL.BORDER)
+    -- border:SetPoint("TOPLEFT", self, "TOPLEFT", -outlineSize+borderInset, outlineSize-borderInset)
+    -- border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", outlineSize-borderInset, -outlineSize+borderInset)
+    -- local borderWidth = pixelperfect(2) + pixelperfect(2)*0.1
+    -- border.outline = MakeCompositeBorder(border, "Interface\\BUTTONS\\WHITE8X8", borderWidth, borderWidth, borderWidth, borderWidth, "ARTWORK", 0)
+
     AddPulseAnimation(border)
     border.SetJob = Border_SetJob
 
