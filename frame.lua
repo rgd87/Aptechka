@@ -2796,9 +2796,16 @@ end
 
 
 local border_backdrop = {
-    edgeFile = "Interface\\Addons\\Aptechka\\border", tileEdge = true, edgeSize = 14,
-    insets = {left = -2, right = -2, top = -2, bottom = -2},
+    edgeFile = "Interface\\Addons\\Aptechka\\border", tileEdge = true, edgeSize = 7,
 }
+local function Border_SetSize(parent, border, borderWidth, outboundRange)
+    border.backdropInfo.edgeSize = 3.5 * borderWidth
+    local outlineSize = pixelperfect(Aptechka.db.global.borderWidth)
+    local p4 = outlineSize + pixelperfect(2) + outboundRange
+    border:SetPoint("TOPLEFT", parent, "TOPLEFT", -p4, p4)
+    border:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", p4, -p4)
+    border:ApplyBackdrop()
+end
 local Border_SetJob = function(self, job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
@@ -2922,6 +2929,8 @@ local function Reconf(self)
     else
         if self.power.separator then self.power.separator:Hide() end
     end
+
+    Border_SetSize(self, self.border, db.selBorderWidth, db.selBorderInset)
 
     if not db.fgShowMissing then
         -- Blizzard's StatusBar SetFillStyle is bad, because even if it reverses direction,
@@ -3271,6 +3280,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
     border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
     border:SetBackdrop(border_backdrop)
+    Border_SetSize(self, border, db.selBorderWidth, db.selBorderInset)
     border:SetBackdropBorderColor(1, 1, 1, 0.5)
 
     -- new composite border

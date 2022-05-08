@@ -606,6 +606,32 @@ function ns.MakeProfileSettings()
                         end,
                         order = 14.7,
                     },
+                    selBorderWidth = {
+                        name = L"Sel.Border Width",
+                        type = "range",
+                        get = function(info) return Aptechka.db.profile.selBorderWidth end,
+                        set = function(info, v)
+                            Aptechka.db.profile.selBorderWidth = v
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        min = 1,
+                        max = 10,
+                        step = 0.1,
+                        order = 14.71,
+                    },
+                    selBorderInset = {
+                        name = L"Sel.Border Inset",
+                        type = "range",
+                        get = function(info) return Aptechka.db.profile.selBorderInset end,
+                        set = function(info, v)
+                            Aptechka.db.profile.selBorderInset = v
+                            Aptechka:ReconfigureUnprotected()
+                        end,
+                        min = 0,
+                        max = 7,
+                        step = 0.1,
+                        order = 14.72,
+                    },
 
 
                     healthColorGroup = {

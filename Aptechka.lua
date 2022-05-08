@@ -269,6 +269,8 @@ local defaults = {
         customBackgroundColorPower = {0.5, 0.5, 1},
         petColor = {1, 0.5, 0.5},
         alphaOutOfRange = 0.45,
+        selBorderWidth = 2,
+        selBorderInset = 0,
 
         scale = 1, --> into
         debuffBossScale = 1.3,
