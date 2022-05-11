@@ -2113,7 +2113,7 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
     end
     Aptechka.FrameCheckRoles(self, unit)
-    if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION(nil,unit) end
+    if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION("UNIT_HEAL_PREDICTION",unit) end
 end
 
 local delayedUpdateTimer = C_Timer.NewTicker(5, function()
@@ -2822,9 +2822,11 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
         contentType = contentType or jobName
         local isChanged = OrderedHashMap_Add(widgetState, jobName, opts, contentType, ...)
         if not isChanged then
-            -- print("|cff55ff55Quitting|r", frame:GetName(), jobName, contentType, ...)
+            -- print("|cff55ff55    Quitting|r", frame:GetName(), jobName, contentType, ...)
             -- If job was already assigned and it's args are the same as the new ones
             return
+        -- else
+            -- print("|cff55ff55Accept Change|r", frame:GetName(), jobName, contentType, ...)
         end
 
         if contentType == "AURA" and opts.realID and not opts.isMissing then
@@ -2833,8 +2835,10 @@ local AssignToSlot = function(frame, opts, enabled, slot, contentType, ...)
     else
         local isChanged = OrderedHashMap_Remove(widgetState, jobName)
         if not isChanged then
-            -- print("|cffff5555Quitting|r", frame:GetName(), jobName, contentType, ...)
+            -- print("|cffff5555    Quitting|r", frame:GetName(), jobName, contentType, ...)
             return
+        -- else
+            -- print("|cffff5555Accept Change|r", frame:GetName(), jobName, contentType, ...)
         end
     end
 

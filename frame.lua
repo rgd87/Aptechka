@@ -602,7 +602,7 @@ local SetJob_HealthBar = function(self, job, state, contentType, ...)
             r2,g2,b2 = r,g,b
         end
     else
-        local timerType, cur, max, count, icon, text, rC,gC,bC, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
+        local rC,gC,bC = GetColor(job)
         r,g,b,a = rC,gC,bC,1
         r2,g2,b2 = r,g,b
     end
