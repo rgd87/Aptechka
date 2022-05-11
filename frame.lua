@@ -222,22 +222,50 @@ local function GetSpellColorTable(job, caster, count)
     return { 1,1,1 }
 end
 
-local function GetClassOrTextColor(job, state)
-    local c = (job.classcolor and state.classColor) or job.textcolor or job.color
-    if c then return unpack(c) end
-    return 1,1,1
-end
+
 
 local function GetColor(job)
+    local r,g,b, a, tr,tg,tb
+
     local c = job.color
-    if c then return unpack(c) end
-    return 1,1,1
+    r = c[1]
+    g = c[2]
+    b = c[3]
+    a = c[4] or 1
+
+    tr,tg,tb = r,g,b
+    return r,g,b, a, tr,tg,tb
 end
 
 local function GetTextColor(job)
-    local c = job.textcolor or job.color
-    if c then return unpack(c) end
-    return 1,1,1
+    if not job.textcolor then
+        return GetColor(job)
+    end
+
+    local r,g,b, a, tr,tg,tb
+
+    tr,tg,tb = unpack(job.textcolor)
+
+    local c = job.color
+    r = c[1]
+    g = c[2]
+    b = c[3]
+    a = c[4] or 1
+    return r,g,b, a, tr,tg,tb
+end
+
+local function GetClassOrTextColor(job, state)
+    local cc = (job.classcolor and state.classColor)
+    if not cc then return GetTextColor(job) end
+
+    local r,g,b, a, tr,tg,tb
+    r = cc[1]
+    g = cc[2]
+    b = cc[3]
+    a = 1
+    tr,tg,tb = r,g,b
+
+    return r,g,b, a, tr,tg,tb
 end
 
 local function formatMissingHealth(mh)
@@ -302,23 +330,23 @@ end
 
 local contentNormalizers = {}
 function contentNormalizers.HealthText(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local incomingHeal
     cur, max, incomingHeal = ...
     text = FormatText(job, cur, max, incomingHeal)
-    r,g,b = GetClassOrTextColor(job, state)
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    r,g,b, a, tr,tg,tb = GetClassOrTextColor(job, state)
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 -- contentNormalizers.AbsorbText = contentNormalizers.HealthText
 function contentNormalizers.INCOMING_HEAL(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     cur = ...
     text = string_format("+%d", cur)
-    r,g,b = GetTextColor(job)
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    r,g,b, a, tr,tg,tb = GetTextColor(job)
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.AURA(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local duration, expirationTime, count1, icon1, spellID, caster = ...
 
     count = count1
@@ -334,38 +362,40 @@ function contentNormalizers.AURA(job, state, contentType, ...)
     end
     icon = icon1
     r,g,b = GetSpellColor(job, caster, count)
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    a, tr,tg,tb = 1,r,g,b
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.TIMER(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     timerType = "FORWARD"
     local startTime = ...
     cur = startTime
     text = job.text or job.name
-    r,g,b = GetTextColor(job)
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    r,g,b, a, tr,tg,tb = GetTextColor(job)
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.Stagger(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local stagger = state.stagger
 
     text = stagger and string_format("%.0f%%", stagger*100) or ""
 
     r,g,b = helpers.PercentColor(stagger)
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    a, tr,tg,tb = 1,r,g,b
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.PROGRESS(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local c, m, perc = ...
     cur = c
     max = m
-    r,g,b = GetTextColor(job)
+    r,g,b, a, tr,tg,tb = GetTextColor(job)
     -- r,g,b = helpers.PercentColor(perc)
     text = FormatText(job, cur, max)
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.UnitName(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     text = state.name
     local db = Aptechka.db.profile
     local c = (db.nameColorByClass and state.classColor) or db.nameColor
@@ -374,40 +404,42 @@ function contentNormalizers.UnitName(job, state, contentType, ...)
     r = r*m
     g = g*m
     b = b*m
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    a, tr,tg,tb = 1,r,g,b
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.TEXTURE(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     texture, texCoords = ...
     text = job.name
     r,g,b = 1,1,1
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    a, tr,tg,tb = 1,r,g,b
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 local phaseIconCoords = {0.15625, 0.84375, 0.15625, 0.84375}
 function contentNormalizers.PHASED(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, alpha
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     texture = "Interface\\TargetingFrame\\UI-PhasingIcon"
     texCoords = phaseIconCoords
-    alpha = job.color[4] or 1
+
+    r,g,b, a, tr,tg,tb = GetTextColor(job)
     text = job.name
-    r,g,b = 0.3,1,1
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, alpha
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 local roleCoords = {
     TANK = { 0, 19/64, 22/64, 41/64 },
     HEALER = { 20/64, 39/64, 1/64, 20/64 },
 }
 function contentNormalizers.ROLE(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local role = ...
     texture = "Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES"
     texCoords = roleCoords[role]
     text = job.name
     r,g,b = 1,1,1
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.READY_CHECK(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local status = ...
     if status == 'ready' then
         texture = READY_CHECK_READY_TEXTURE
@@ -418,14 +450,15 @@ function contentNormalizers.READY_CHECK(job, state, contentType, ...)
     end
     text = job.name
     r,g,b = 1,1,1
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.OUTOFRANGE(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, alpha
-    alpha = ...
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
+    a = ...
     text = job.name
     r,g,b = 1,1,1
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, alpha
+    tr,tg,tb = 1,1,1
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 local DT_TextureCoords = {
     Magic = { 0.90234375, 0.97265625, 0.109375, 0.390625 },
@@ -441,30 +474,30 @@ local DT_Icons = {
     Disease = 132100,
 }
 function contentNormalizers.DEBUFF_HIGHLIGHT(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
-    r,g,b = GetColor(job)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
+    r,g,b, a, tr,tg,tb = GetColor(job)
     text = "!!!"
     texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
     icon = 132094
     texCoords = DT_TextureCoords.DANGER
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.TARGET_COUNT(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     count = ...
 
     cur = count
     max = 10
 
-    r,g,b = GetTextColor(job)
+    r,g,b, a, tr,tg,tb = GetTextColor(job)
     text = count
     -- texture = nil
     icon = 458723
     -- texCoords = nil
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local debuffType, duration, expirationTime, count1, icon1, spellID, caster = ...
     local color = helpers.DebuffTypeColors[debuffType]
 
@@ -474,14 +507,15 @@ function contentNormalizers.DISPELTYPE(job, state, contentType, ...)
     count = count1
 
     r,g,b = unpack(color)
+    a, tr,tg,tb = 1,r,g,b
     text = debuffType
     texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
     icon = icon1 -- DT_Icons[debuffType]
     texCoords = DT_TextureCoords[debuffType]
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.CCEFFECT(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local debuffType, duration, expirationTime, count1, icon1, spellID, caster = ...
 
     debuffType = debuffType or "Physical"
@@ -493,22 +527,23 @@ function contentNormalizers.CCEFFECT(job, state, contentType, ...)
     count = count1
 
     r,g,b = unpack(color)
+    a, tr,tg,tb = 1,r,g,b
     text = job.text
     texture = "Interface\\EncounterJournal\\UI-EJ-Icons"
     icon = icon1 -- DT_Icons[debuffType]
     texCoords = DT_TextureCoords[debuffType]
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.LEADER(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
-    r,g,b = GetColor(job)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
+    r,g,b, a, tr,tg,tb = GetTextColor(job)
     text = "L"
     texture = "Interface\\GroupFrame\\UI-Group-LeaderIcon"
     icon = APILevel <= 3 and 132768 or 1670850
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.CAST(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed
 
     local castType, name, duration, expirationTime, count1, icon1, spellID = ...
 
@@ -524,10 +559,11 @@ function contentNormalizers.CAST(job, state, contentType, ...)
         r,g,b = 1, 0.65, 0
         isReversed = true
     end
+    a, tr,tg,tb = 1,r,g,b
     text = name
     icon = icon1
 
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed
 end
 local RaidTargetCoords = {
     { 0, 0.25, 0, 0.25, },
@@ -540,19 +576,20 @@ local RaidTargetCoords = {
     { 0.75, 1, 0.25, 0.5 },
 }
 function contentNormalizers.RAIDTARGET(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local raidTargetIndex = ...
     r,g,b = 1,1,1
+    a, tr,tg,tb = 1,r,g,b
     text = job.name
     texture = "Interface\\TargetingFrame\\UI-RaidTargetingIcons"
     texCoords = RaidTargetCoords[raidTargetIndex]
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.Default(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     text = job.text or job.name
-    r,g,b = GetColor(job)
-    return timerType, cur, max, count, icon, text, r,g,b, texture, texCoords
+    r,g,b, a, tr,tg,tb = GetTextColor(job)
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 
 
@@ -560,6 +597,7 @@ local function NormalizeContent(job, state, contentType, ...)
     local handler = contentNormalizers[contentType] or contentNormalizers["Default"]
     return handler(job, state, contentType, ...)
 end
+
 function Aptechka:NormalizeWidgetContent(...)
     NormalizeContent(...)
 end
@@ -602,8 +640,8 @@ local SetJob_HealthBar = function(self, job, state, contentType, ...)
             r2,g2,b2 = r,g,b
         end
     else
-        local rC,gC,bC = GetColor(job)
-        r,g,b,a = rC,gC,bC,1
+        local timerType, cur, max, count, icon, text, _,_,_, _, tr,tg,tb, texture, texCoords, isReversed
+        timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
         r2,g2,b2 = r,g,b
     end
     if b then
@@ -626,8 +664,8 @@ local SetJob_PowerBar = function(self, job, state, contentType, ...)
             r2,g2,b2 = r,g,b
         end
     else
-        local timerType, cur, max, count, icon, text, rC,gC,bC, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
-        r,g,b,a = rC,gC,bC,1
+        local timerType, cur, max, count, icon, text, _,_,_, _, tr,tg,tb, texture, texCoords, isReversed
+        timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
         r2,g2,b2 = r,g,b
     end
     if b then
@@ -968,7 +1006,7 @@ local SetJob_Indicator = function(self, job, state, contentType, ...)
         end
     end
 
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
     self.color:SetVertexColor(r,g,b)
     if timerType == "TIMER" then
@@ -1117,7 +1155,7 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
     if self.traceJob then return end -- widget is busy with animation
     local t = self.texture
 
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
     local tex
     if texture and not self.disableOverrides then
@@ -1238,7 +1276,7 @@ local StatusBarOnUpdate = function(self, time)
     self:SetValue(timeLeft)
 end
 local SetJob_StatusBar = function(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
     self:SetStatusBarColor(r,g,b)
     self.bg:SetVertexColor(r*0.25, g*0.25, b*0.25)
@@ -1397,7 +1435,7 @@ Aptechka.Widget.IconArray.Reconf = Aptechka.Widget.BarArray.Reconf
 ----------------------------------------------------------
 
 local SetJob_Icon = function(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
     if timerType == "TIMER" then
         local duration, expirationTime = cur, max
@@ -1845,7 +1883,7 @@ local function BarIcon_OnUpdate(self)
 end
 
 local function BarIcon_SetJob(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
     if self.currentJob ~= self.previousJob then
         self:SetScript("OnUpdate", nil)
@@ -2017,7 +2055,7 @@ Aptechka.Widget.BarIconArray.Reconf = Aptechka.Widget.BarArray.Reconf
 ----------------------------------------------------------
 
 local SetJob_ProgressIcon = function(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
 
     --[[== Copy of SetJob_Icon ==]]
     if timerType == "TIMER" then
@@ -2101,7 +2139,7 @@ local function FloatingIcon_SetJob(self, job, state, contentType, ...)
 
     -- self.cd:SetReverse(job.reverseDuration)
 
-    -- local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    -- local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
     -- if not b then
     --     r,g,b = 0.75, 1, 0.2
@@ -2430,13 +2468,9 @@ local SetJob_Text = function(self, job, state, contentType, ...)
         self:SetScript("OnUpdate", nil)
     end
 
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
-    if job.textcolor then
-        r,g,b = unpack(job.textcolor)
-    end
-
-    self.text:SetTextColor(r,g,b)
+    self.text:SetTextColor(tr,tg,tb)
     self.text:SetText(text)
 
     if timerType == "TIMER" then
@@ -2452,7 +2486,7 @@ local SetJob_Text = function(self, job, state, contentType, ...)
             if job.refreshColor then
                 self.refreshColor = job.refreshColor
             else
-                self.refreshColor = { r*0.75, g*0.75, b*0.75 }
+                self.refreshColor = { tr*0.75, tg*0.75, tb*0.75 }
             end
         end
 
@@ -2465,23 +2499,19 @@ local SetJob_Text = function(self, job, state, contentType, ...)
 end
 
 local SetJob_StaticText = function(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
-
-    if job.textcolor then
-        r,g,b = unpack(job.textcolor)
-    end
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
     if timerType == "TIMER" then
         text = tostring(count)
     end
 
-    self.text:SetTextColor(r,g,b)
+    self.text:SetTextColor(tr,tg,tb)
     self.text:SetText(text)
 end
 
 local Text_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
-    local r,g,b,a = GetTextColor(job)
-    self.text:SetTextColor(r,g,b,a)
+    local r,g,b,a, tr,tg,tb = GetTextColor(job)
+    self.text:SetTextColor(tr,tg,tb,a)
 
     local scale = job.scale or 1
     self:SetScale(scale)
@@ -2609,7 +2639,7 @@ local function CreateMouseoverHighlight(parent)
 end
 
 local SetJob_InnerGlow = function(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords = NormalizeContent(job, state, contentType, ...)
     self:SetVertexColor(r,g,b)
 end
 local CreateInnerGlow = function(parent)
@@ -2625,7 +2655,7 @@ local CreateInnerGlow = function(parent)
 end
 
 local SetJob_Flash = function(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords = NormalizeContent(job, state, contentType, ...)
     self.texture:SetVertexColor(r,g,b)
 end
 local CreateFlash = function(parent)
@@ -2807,7 +2837,7 @@ local function Border_SetSize(parent, border, borderWidth, outboundRange)
     border:ApplyBackdrop()
 end
 local Border_SetJob = function(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords = NormalizeContent(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
     self:SetBackdropBorderColor(r,g,b, 0.5)
     -- self.outline:SetColor(r,g,b, 0.5)
@@ -2826,8 +2856,7 @@ end)
 
 
 local function Alpha_SetJob(self, job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, texture, texCoords, alpha = NormalizeContent(job, state, contentType, ...)
-    local a = alpha or 1
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords = NormalizeContent(job, state, contentType, ...)
     self:GetParent():SetAlpha(a)
 end
 local function Alpha_Restore(self)
