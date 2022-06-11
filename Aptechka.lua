@@ -1345,6 +1345,8 @@ end
 
 function Aptechka:PLAYER_ENTERING_WORLD(event)
     Aptechka:LayoutUpdate()
+    RosterUpdateOccured = GetTime() -- delayed second update to fix incorrect info during loading screen
+
     self:ForEachFrame(Aptechka.FrameUpdateIncomingSummon)
     Aptechka:ForEachFrame(purgeOldAuraEvents)
 end
@@ -1629,6 +1631,8 @@ Aptechka.OnRangeUpdate = function (self, time)
         if RosterUpdateOccured + 3 < GetTime() then
             if not InCombatLockdown() then
                 RosterUpdateOccured = nil
+
+                Aptechka:LayoutUpdate() -- to refresh the profile after getting incorrect data during loading screens
 
                 for i,hdr in pairs(group_headers) do
                     hdr:CycleAttribute()
