@@ -76,7 +76,7 @@ AG{ id = 23333, type = "HELPFUL", assignto = set("raidbuff"), scale = 1.7, color
 AG{ id = 23335, type = "HELPFUL", assignto = set("raidbuff"), scale = 1.7, color = {0,0,1}, priority = 95, global = true, } --Silverwing Flag
 
 -- Soulstone Resurrection
-AG{ id = { 20707, 20762, 20763, 20764, 20765, 27239 }, type = "HELPFUL", global = true, assignto = set("raidbuff"), color = { 0.6, 0, 1 }, priority = 20 }
+AG{ id = { 20707, 20762, 20763, 20764, 20765, 27239, 47883 }, type = "HELPFUL", global = true, assignto = set("raidbuff"), color = { 0.6, 0, 1 }, priority = 20 }
 
 AG{ id = {
     430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
@@ -84,8 +84,8 @@ AG{ id = {
     27089, 46755, -- BC mage water
 }, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
--- Stealth, Prowl, Shadowmeld
-AG{ id = {1784, 5215, 20580}, assignto = set("text2"), color = {0.2, 1, 0.3}, text = "STEALTH", priority = 20 }
+-- Stealth, Prowl
+AG{ id = {1784, 5215 }, assignto = set("text2"), color = {0.2, 1, 0.3}, text = "STEALTH", priority = 20 }
 
 AG{ id = 5384, assignto = set("text2"), color = {0, 0.7, 1}, text = "FD", global = true, priority = 75 } -- Feign Death
 
@@ -100,12 +100,12 @@ local manaClasses = {
 }
 if playerClass == "PRIEST" then
     -- Power Word: Fortitude and Prayer of Fortitude
-    A{ id = { 1243, 1244, 1245, 2791, 10937, 10938, 25389,  21562, 21564, 25392 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1243) end }
+    A{ id = { 1243, 1244, 1245, 2791, 10937, 10938, 25389, 48161,     21562, 21564, 25392, 48162 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1243) end }
     -- Prayer of Shadow Protection
-    -- A{ id = { 976, 10957, 10958, 27683 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 151/255, 86/255, 168/255 }, priority = 80, isMissing = true, isKnownCheck = function() return IsPlayerSpell(976) end }
+    -- A{ id = { 976, 10957, 10958, 25433, 48169,   27683, 39374, 48170 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 151/255, 86/255, 168/255 }, priority = 80, isMissing = true, isKnownCheck = function() return IsPlayerSpell(976) end }
 
     -- Prayer of Spirit, Divine Spirit
-    A{ id = { 14752, 14818, 14819, 25312, 27841,  27681, 32999 }, type = "HELPFUL", assignto = set("raidbuff"), color = {52/255, 172/255, 114/255}, priority = 90, isMissing = true,
+    A{ id = { 14752, 14818, 14819, 25312, 27841, 48073,   27681, 32999, 48074 }, type = "HELPFUL", assignto = set("raidbuff"), color = {52/255, 172/255, 114/255}, priority = 90, isMissing = true,
         isKnownCheck = function(unit)
             local isKnown = IsPlayerSpell(14752)
             local isSpiritClass = manaClasses[select(2,UnitClass(unit))]
@@ -117,26 +117,26 @@ if playerClass == "PRIEST" then
     -- Abolish Disease
     A{ id = 552, type = "HELPFUL", assignto = set("bars"), priority = 30, color = { 118/255, 69/255, 50/255} , infoType = "DURATION" }
     -- Renew
-    A{ id = { 139, 6074, 6075, 6076, 6077, 6078, 10927, 10928, 10929, 25221, 25222, 25315 }, type = "HELPFUL", isMine = true, assignto = set("bars"), priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, infoType = "DURATION" }
+    A{ id = { 139, 6074, 6075, 6076, 6077, 6078, 10927, 10928, 10929, 25221, 25222, 25315, 48067, 48068 }, type = "HELPFUL", isMine = true, assignto = set("bars"), priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, infoType = "DURATION" }
     -- Lightwell Renew
-    A{ id = { 7001, 27873, 27874, 28276 }, type = "HELPFUL", assignto = set("bars"), priority = 20, color = { 0.5, 0.7, 0}, infoType = "DURATION" }
+    A{ id = { 7001, 27873, 27874, 28276, 48084, 48085 }, type = "HELPFUL", assignto = set("bars"), priority = 20, color = { 0.5, 0.7, 0}, infoType = "DURATION" }
     -- Power Word: Shield
-    A{ id = { 17, 592, 600, 3747, 6065, 6066, 10898, 10899, 10900, 10901, 25217, 25218 }, type = "HELPFUL", assignto = set("bars"), priority = 90, color = { 1, 0.85, 0}, foreigncolor = {0.4, 0.35, 0.1}, infoType = "DURATION" }
+    A{ id = { 17, 592, 600, 3747, 6065, 6066, 10898, 10899, 10900, 10901, 25217, 25218, 48065, 48066 }, type = "HELPFUL", assignto = set("bars"), priority = 90, color = { 1, 0.85, 0}, foreigncolor = {0.4, 0.35, 0.1}, infoType = "DURATION" }
     -- Weakened Soul
     A{ id = 6788, type = "HARMFUL", assignto = set("spell3"), priority = 70, color = { 0.8, 0, 0}, infoType = "DURATION" }
     --Prayer of Mending
-    A{ id = 41635, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
+    A{ id = { 41635, 48110, 48111 }, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
 
     -- Prayer of Healing
-    Trace{id = { 596, 996, 10960, 10961, 25308, 25316 }, template = "HealTrace", color = { .5, .5, 1} }
+    Trace{id = { 596, 996, 10960, 10961, 25308, 25316, 48072 }, template = "HealTrace", color = { .5, .5, 1} }
     -- Flash Heal
-    Trace{id = { 2061, 9472, 9473, 9474, 10915, 10916, 10917, 25233, 25235 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
+    Trace{id = { 2061, 9472, 9473, 9474, 10915, 10916, 10917, 25233, 25235, 48070, 48071 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
     -- Greater Heal, Heal, Lesser heal
-    Trace{id = { 2060, 10963, 10964, 10965, 25210, 25213, 25314,  2054, 2055, 6063, 6064,  2050, 2052, 2053 }, template = "HealTrace", color = { 0.7, 1, 0.7} }
+    Trace{id = { 2060, 10963, 10964, 10965, 25210, 25213, 25314, 48062, 48063,   2054, 2055, 6063, 6064,   2050, 2052, 2053 }, template = "HealTrace", color = { 0.7, 1, 0.7} }
 
     -- Circle of Healing
-    Trace{id = { 34861, 34863, 34864, 34865, 34866 }, template = "HealTrace", color = { 1, 0.7, 0.35} }
-    -- Prayer of Mending
+    Trace{id = { 34861, 34863, 34864, 34865, 34866, 48088, 48089 }, template = "HealTrace", color = { 1, 0.7, 0.35} }
+    -- Prayer of Mending // NOT UPDATED
     Trace{id = 33110, template = "HealTrace", color = { 1, 0.3, 0.55 }, fade = 0.5, priority = 95 }
 
 
@@ -154,18 +154,18 @@ end
 
 if playerClass == "DRUID" then
     -- Mark of the Wild, Gift of the Wild
-    A{ id = { 1126, 5232, 5234, 6756, 8907, 9884, 9885, 26990, 21849, 21850, 26991 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.2, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1126) end }
+    A{ id = { 1126, 5232, 5234, 6756, 8907, 9884, 9885, 26990, 48469,   21849, 21850, 26991, 48470 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.2, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1126) end }
     -- Rejuvenation
-    A{ id = { 774, 1058, 1430, 2090, 2091, 3627, 8910, 9839, 9840, 9841, 25299, 26981, 26982 }, type = "HELPFUL", assignto = set("bars"), isMine = true, priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, infoType = "DURATION" }
+    A{ id = { 774, 1058, 1430, 2090, 2091, 3627, 8910, 9839, 9840, 9841, 25299, 26981, 26982, 48440, 48441 }, type = "HELPFUL", assignto = set("bars"), isMine = true, priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, infoType = "DURATION" }
     -- Regrowth
-    A{ id = { 8936, 8938, 8939, 8940, 8941, 9750, 9856, 9857, 9858, 26980 }, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2}, priority = 50, infoType = "DURATION" }
+    A{ id = { 8936, 8938, 8939, 8940, 8941, 9750, 9856, 9857, 9858, 26980, 48442, 48443 }, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2}, priority = 50, infoType = "DURATION" }
     -- Abolish Poison
     A{ id = 2893, type = "HELPFUL", assignto = set("bars"), priority = 30, color = {15/255, 78/255, 60/255} , infoType = "DURATION", isMine = false }
     -- Lifebloom
-    A{ id = 33763, type = "HELPFUL", assignto = set("bar4", "bar4text"), priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
+    A{ id = { 33763, 48450, 48451 }, type = "HELPFUL", assignto = set("bar4", "bar4text"), priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
 
     -- Healing Touch
-    Trace{id = { 5185, 5186, 5187, 5188, 5189, 6778, 8903, 9758, 9888, 9889, 25297, 26978, 26979 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
+    Trace{id = { 5185, 5186, 5187, 5188, 5189, 6778, 8903, 9758, 9888, 9889, 25297, 26978, 26979, 48377, 48378 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(5185),
@@ -184,12 +184,18 @@ if playerClass == "PALADIN" then
     -- Forbearance
     A{ id = 25771, type = "HARMFUL", assignto = set("bars"), infoType = "DURATION", color = { 0.8, 0, 0 } }
     -- Blessing of Freedom
-    -- A{ id = 1044, type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 1, 0.4, 0.2} }
+    A{ id = 1044, type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 1, 0.4, 0.2} }
+
+    A{ id = 53563, type = "HELPFUL", assignto = set("bar4"), infoType = "DURATION",
+                                                                            isMine = true,
+                                                                            color = { 0, 0.9,0 },
+                                                                            foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
+                                                                        } -- Beacon of Light
 
     -- Holy Light
-    Trace{id = { 635, 639, 647, 1026, 1042, 3472, 10328, 10329, 25292, 27135, 27136 } , template = "HealTrace", color = { 1, 1, 0.6} }
+    Trace{id = { 635, 639, 647, 1026, 1042, 3472, 10328, 10329, 25292, 27135, 27136, 48781, 48782 } , template = "HealTrace", color = { 1, 1, 0.6} }
     -- Flash of Light
-    Trace{id = { 19750, 19939, 19940, 19941, 19942, 19943, 27137 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
+    Trace{id = { 19939, 19940, 19941, 19942, 19943, 27137, 48784, 48785 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
 
 
     config.UnitInRangeFunctions = {
@@ -211,16 +217,11 @@ end
 
 if playerClass == "SHAMAN" then
 
-    -- Healing Way
-    A{ id = 29203, type = "HELPFUL", assignto = set("bars"), maxCount = 3, infoType = "DURATION", scale = 0.7, --color = {38/255, 221/255, 163/255},
-        stackcolor =   {
-            [1] = {27/255, 158/255, 117/255},
-            [2] = {32/255, 186/255, 137/255},
-            [3] = {38/255, 221/255, 163/255},
-        },
-    }
+    -- Earth Shield
+    A{ id = { 974, 32593, 32594, 49283, 49284 } , type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 6, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
+    --Riptide
+    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.3, isMine = true, color = { 0.4 , 0.4, 1} }
 
-    A{ id = { 974, 32593, 32594 } , type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 6, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
 
     local prioWater = 75
     local prioAir = 74
@@ -244,15 +245,15 @@ if playerClass == "SHAMAN" then
     A{ id = { 10596, 10598, 10599, 25573 }, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = {52/255, 172/255, 114/255} }  -- Nature Resistance Totem
     A{ id = 2895, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = { 216/255, 24/256, 76/256 } }  -- Wrath of Air
 
-    -- Ancestral Healing
+    -- Ancestral Fortitude
     A{ id = { 16177, 16236, 16237 }, type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", color = { 1, 0.85, 0} }
 
     -- Chain Heal
-    Trace{id = { 1064, 10622, 10623, 25422, 25423 }, template = "HealTrace", color = { 1, 1, 0 } }
+    Trace{id = { 1064, 10622, 10623, 25422, 25423, 55458, 55459 }, template = "HealTrace", color = { 1, 1, 0 } }
     -- Healing Wave
-    Trace{id = { 331, 332, 547, 913, 939, 959, 8005, 10395, 10396, 25357, 25391, 25396 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
+    Trace{id = { 331, 332, 547, 913, 939, 959, 8005, 10395, 10396, 25357, 25391, 25396, 49272, 49273 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
     -- Lesser Healing Wave
-    Trace{id = { 8004, 8008, 8010, 10466, 10467, 10468, 25420 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
+    Trace{id = { 8004, 8008, 8010, 10466, 10467, 10468, 25420, 49275, 49276 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(331),
@@ -269,16 +270,16 @@ end
 if playerClass == "MAGE" then
 
     -- Arcane Intellect and Brilliance
-    A{ id = { 1459, 1460, 1461, 10156, 10157, 27126, 23028, 27127 }, type = "HELPFUL", assignto = set("raidbuff"), color = { .4 , .4, 1 }, priority = 50, isMissing = true,
+    A{ id = { 1459, 1460, 1461, 10156, 10157, 27126, 42995,    23028, 27127, 43002 }, type = "HELPFUL", assignto = set("raidbuff"), color = { .4 , .4, 1 }, priority = 50, isMissing = true,
         isKnownCheck = function(unit)
             local isKnown = IsPlayerSpell(1459)
             local isSpiritClass = manaClasses[select(2,UnitClass(unit))]
             return isKnown and isSpiritClass
         end }
     -- Dampen Magic
-    A{ id = { 604, 8450, 8451, 10173, 10174, 33944 }, type = "HELPFUL", assignto = set("spell3"), color = {52/255, 172/255, 114/255}, priority = 80 }
+    A{ id = { 604, 8450, 8451, 10173, 10174, 33944, 43015 }, type = "HELPFUL", assignto = set("spell3"), color = {52/255, 172/255, 114/255}, priority = 80 }
     -- Amplify Magic
-    A{ id = { 1008, 8455, 10169, 10170, 27130, 33946 }, type = "HELPFUL", assignto = set("spell3"), color = {1,0.7,0.5}, priority = 80 }
+    A{ id = { 1008, 8455, 10169, 10170, 27130, 33946, 43017 }, type = "HELPFUL", assignto = set("spell3"), color = {1,0.7,0.5}, priority = 80 }
 
 
     if IsPlayerSpell(1459) then
@@ -295,9 +296,16 @@ end
 if playerClass == "WARRIOR" then
 
     -- Battle Shout
-    A{ id = { 5242, 6192, 6673, 11549, 11550, 11551, 25289, 2048 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, .4 , .4}, priority = 50 }
+    A{ id = { 5242, 2048, 6192, 6673, 11549, 11550, 11551, 25289, 47436 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, .4 , .4}, priority = 50 }
     -- Commanding Shout
-    A{ id = 469, type = "HELPFUL", assignto = set("raidbuff"), color = { 0.4, 0.4 , 1}, priority = 49 }
+    A{ id = { 469, 47439, 47440 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 0.4, 0.4 , 1}, priority = 49 }
+
+end
+
+if playerClass == "DEATHKNIGHT" then
+
+    -- Horn of Winter
+    A{ id = { 57330, 57623 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 0.6, 0, 1 }, priority = 50 }
 
 end
 
