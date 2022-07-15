@@ -30,21 +30,22 @@ local COMBATLOG_OBJECT_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
 local COMBATLOG_OBJECT_AFFILIATION_UPTORAID = COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE
 
 local dummyNil = function() return nil end
-if apiLevel <= 2 then
-    local dummyFalse = function() return false end
-    local dummy0 = function() return 0 end
-
-    UnitHasVehicleUI = dummyFalse
-    UnitInVehicle = dummyFalse
-    UnitUsingVehicle = dummyFalse
-    UnitGetTotalAbsorbs = dummy0
-    UnitGetTotalHealAbsorbs = dummy0
-    UnitPhaseReason = dummyFalse
-    UnitGroupRolesAssigned = function(unit) if GetPartyAssignment("MAINTANK", unit) then return "TANK" end end
+local dummyFalse = function() return false end
+local dummy0 = function() return 0 end
+if apiLevel <= 3 then
     GetSpecialization = function() return 1 end
     GetSpecializationInfo = function() return "DAMAGER" end
     GetSpecializationRole = function(spec) return AptechkaDB_Char.forcedClassicRole end
+    UnitGetTotalAbsorbs = dummy0
+    UnitGetTotalHealAbsorbs = dummy0
+    UnitPhaseReason = dummyFalse
     HasIncomingSummon = dummyNil
+end
+if apiLevel <= 2 then
+    UnitHasVehicleUI = dummyFalse
+    UnitInVehicle = dummyFalse
+    UnitUsingVehicle = dummyFalse
+    UnitGroupRolesAssigned = function(unit) if GetPartyAssignment("MAINTANK", unit) then return "TANK" end end
 end
 
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
@@ -432,7 +433,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         UnitAura = LibClassicDurations.UnitAuraWrapper
         Aptechka:UpdateSpellNameToIDTable()
     end
-    if apiLevel <= 2 then
+    if apiLevel <= 3 then
         function Aptechka:SetClassicClickcastAttributes(f)
             if f:CanChangeAttribute() then
                 -- this is only for classic, because its SGH doesn't have _initialAttributeNames
@@ -522,13 +523,13 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.PARTY_MEMBER_DISABLE = self.UNIT_PHASE
     ]]
 
-    if not isClassic then
+    if isMainline then
         self:RegisterEvent("INCOMING_SUMMON_CHANGED")
     end
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("CINEMATIC_STOP")
 
-    if not isClassic then
+    if isMainline then
         self:RegisterEvent("UNIT_TARGETABLE_CHANGED")
     end
 
@@ -592,7 +593,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end)
     -- end
 
-    if not isClassic then
+    if isMainline then
         self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
         self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
     end
@@ -1013,7 +1014,7 @@ function Aptechka:ReconfigureProtected()
         for _, f in ipairs({ header:GetChildren() }) do
             f:SetWidth(width)
             f:SetHeight(height)
-            if apiLevel <= 2 then Aptechka:SetClassicClickcastAttributes(f) end
+            if apiLevel <= 3 then Aptechka:SetClassicClickcastAttributes(f) end
         end
 
         header:UpdateVisibility() -- checks if group is enabled in group filter
@@ -3153,7 +3154,7 @@ end
 -- Ordered
 ---------------------------
 local UnitAuraUniversal -- If available it's using slots API, otherwise just normal UnitAura
-if apiLevel <= 2 then
+if apiLevel <= 3 then
     UnitAuraUniversal = UnitAura
     if LibClassicDurations then
         UnitAuraUniversal = LibClassicDurations.UnitAuraWrapper

@@ -366,7 +366,7 @@ function helpers.DisableBlizzPlayerFrame()
     frame.manabar:UnregisterAllEvents()
 
     if not isClassic then
-        -- Aspparently ыome issues if these events are disable
+        -- Aspparently some issues if these events are disabled
         frame:RegisterEvent('PLAYER_ENTERING_WORLD')
         frame:RegisterEvent('UNIT_ENTERING_VEHICLE')
         frame:RegisterEvent('UNIT_ENTERED_VEHICLE')
