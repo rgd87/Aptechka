@@ -600,8 +600,10 @@ config.MapIDs = {
     [1683] = "Theater of Pain",
     [1693] = "Spires of Ascension",
     [1698] = "Tazavesh",
+    [1700] = "Iron Docks",
+    [1701] = "Grimrail Depot",
 
-    [1701] = "PvP",
+    [1900] = "PvP",
 
     [2000] = "Sepulcher of the First Ones",
 
@@ -610,6 +612,8 @@ config.MapIDs = {
     [731] = "Neltharion's Lair",
     [733] = "Darkheart Thicket",
     [751] = "Black Rook Hold",
+    [770] = "Return to Karazhan: Lower",
+    [771] = "Return to Karazhan: Upper",
 }
 
 
@@ -620,6 +624,34 @@ config.defaultDebuffHighlights = {
         [207736] = { 207736, 3, "Shadowy Duel" },
         [212183] = { 212183, 3, "Smoke Bomb" },
         [33786] = { 33786, 3, "Cyclone" },
+    },
+    ["Return to Karazhan: Lower"] = {
+        [228239] = { 228239, 3, "Forlorn Spirit, Terrifying Wail" },
+        -- [227981] = { 227981, 1, "uppercut" },
+        [227985] = { 227985, 3, "Coggleston, Dent Armor" },
+        [227917] = { 227917, 3, "Ghostly Understudy, Poetry Slam" },
+        [228164] = { 228164, 1, "Phantom Crew, Hammer Down" },
+        [228277] = { 228277, 1, "Undying Servant, Shackles of Servitude" },
+        [86545] = { 86545, 3, "Reformed Maiden, Seduction" },
+        [29684] = { 29684, 1, "Phantom Guardsman, Shield Slam" },
+        [114628] = { 114628, 1, "Skeletal Waiter, Brittle Bones" },
+        -- [227832] = { 227832, 1, "Moroes, Coat Check" },
+        [6016] = { 6016, 1, "Spectral Stable Hand, Pierce Armor" },
+    },
+    ["Return to Karazhan: Upper"] = {
+        [229693] = { 229693, 1, "Rat, Poison Fang" },
+        [229159] = { 229159, 1, "Viz'aduum, Chaotic Shadows" },
+    },
+    ["Iron Docks"] = {
+        [164837] = { 164837, 4, "Fleshrender Nok'gar, Savage Mauling" },
+        [164504] = { 164504, 3, "Fleshrender Nok'gar, Intimidated" },
+        [162415] = { 162415, 4, "Oshir, Time to Feed" },
+    },
+    ["Grimrail Depot"] = {
+        [176025] = { 176025, 1, "Grom'kar Cinderseer, Lava Wreath" },
+        [160681] = { 160681, 1, "Nitrogg Thundertower, Suppressive Fire" },
+        [162066] = { 162066, 3, "Skylord Tovra, Freezing Snare" },
+        [163447] = { 163447, 1, "Skylord Tovra, Hunter's Mark" },
     },
     ["Sepulcher of the First Ones"] = {
         [366393] = { 366393, 1, "Vigilant Guardian, Searing Ablation" },
@@ -1062,6 +1094,12 @@ helpers.auraBlacklist = {
 }
 
 helpers.importantTargetedCasts = {
+    -- Return to Karazhan: Lower
+    [227776] = true, -- Opera, Galindre, Magic Magnificent
+    [227628] = true, -- Shade of Medivh, Piercing Missiles
+    [229693] = true, -- Poison Fang, Rat
+    [229608] = true, -- Erudite Slayer, Mighty Swing
+
     -- Castle Nathria
     [325877] = true, -- Sun King's Salvation, Shade, Ember Blast
     [325361] = true, -- Xy'mox, Glyph of Destruction
