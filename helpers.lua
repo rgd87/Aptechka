@@ -253,6 +253,15 @@ function helpers.AddDebuff(index, data)
     config.DebuffDisplay[index] = data
 end
 
+helpers.customBossAuras = {}
+function helpers.BossAura(...)
+    local n = select('#', ...)
+    for i=1,n do
+        local spellID = select(i, ...)
+        helpers.customBossAuras[spellID] = true
+    end
+end
+
 
 function helpers.MakeTables(rootTable, ...)
     local n = select("#", ...)

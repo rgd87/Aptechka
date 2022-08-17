@@ -5,6 +5,7 @@ local A = helpers.AddAura
 local AG = helpers.AddAuraGlobal
 local DT = helpers.AddDispellType
 local D = helpers.AddDebuff
+local BossAura = helpers.BossAura
 local Trace = helpers.AddTrace
 local pixelperfect = helpers.pixelperfect
 local config = AptechkaDefaultConfig
@@ -28,7 +29,7 @@ end
 local color1 = { 0.9, 0, 0 }
 
 -- WARLOCK
-AG{ id = { 6229, 11739, 11740, 28610 }, template = "SurvivalCD" } -- Shadow Ward
+AG{ id = { 6229, 11739, 11740, 28610, 47891 }, template = "SurvivalCD" } -- Shadow Ward
 
 -- DRUID
 AG{ id = 22812,  template = "SurvivalCD" } -- Barkskin
@@ -40,13 +41,13 @@ AG{ id = 33206, template = "TankCD", priority = 93 } --Pain Suppression
 
 -- MAGE
 AG{ id = 11958,  template = "TankCD" } -- Ice Block
-AG{ id = { 543, 8457, 8458, 10223, 10225, 27128 },  template = "SurvivalCD" } -- Fire Ward
-AG{ id = { 6143, 8461, 8462, 10177, 28609, 32796 },  template = "SurvivalCD" } -- Frost Ward
+AG{ id = { 543, 8457, 8458, 10223, 10225, 27128, 43010 },  template = "SurvivalCD" } -- Fire Ward
+AG{ id = { 6143, 8461, 8462, 10177, 28609, 32796, 43012 },  template = "SurvivalCD" } -- Frost Ward
 
 -- PALADIN
-AG{ id = { 498, 5573, 642, 1020 }, template = "TankCD", priority = 95 } -- Divine Shield
-AG{ id = { 1022, 5599, 10278 }, template = "SurvivalCD" } -- Blessing of Protection
-AG{ id = 1044, template = "SurvivalCD", priority = 40 } -- Blessing of Freedom
+AG{ id = { 498, 642 }, template = "TankCD", priority = 95 } -- Divine Shield
+AG{ id = { 1022, 5599, 10278 }, template = "SurvivalCD" } -- Hand of Protection
+AG{ id = 1044, template = "SurvivalCD", priority = 40 } -- Hand of Freedom
 
 -- HUNTER
 AG{ id = 19263, template = "SurvivalCD" } -- Deterrence
@@ -58,7 +59,7 @@ AG{ id = 871,   template = "TankCD" } --Shield Wall 40%
 
 -- ROGUE
 AG{ id = { 5277, 26669 }, template = "SurvivalCD" } -- Evasion
-AG{ id = { 1856, 1857 }, template = "TankCD" } -- Vanish
+AG{ id = { 1856, 1857, 26889 }, template = "TankCD" } -- Vanish
 AG{ id = 45182,  template = "TankCD" } -- Cheating Death
 AG{ id = 31224,  template = "SurvivalCD", priority = 91 } -- Cloak of Shadows
 
@@ -67,6 +68,10 @@ AG{ id = { 6229, 11739, 11740, 28610 },  template = "SurvivalCD" } -- Shadow War
 
 -- SHAMAN
 AG{ id = 30823,  template = "SurvivalCD" } -- Shamanistic Rage
+
+-- DEATH KNIGHT
+AG{ id = 48792, template = "TankCD" } -- Icebound Fortitude
+AG{ id = 55233, template = "SurvivalCD" } -- Vampiric Blood
 
 -- Healing Reduction
 -- AG{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, template = "bossDebuff", global = true, } --Mortal Strike
@@ -82,6 +87,8 @@ AG{ id = {
     430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
     34291, 43183, 43182, 43706, -- BC & WotLK water,
     27089, 46755, -- BC mage water
+    52911, 57073, 61830, 64356, -- WotLK
+    24707, 26263, 66041, -- % Food
 }, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
 -- Stealth, Prowl
@@ -262,7 +269,7 @@ if playerClass == "SHAMAN" then
     }
 
     config.DispelBitmasks = {
-        DispelTypes("Poison", "Disease")
+        DispelTypes("Poison", "Disease", "Curse")
     }
 
 end
@@ -362,6 +369,8 @@ helpers.auraBlacklist = {
     [25771] = true, -- Forbearance
     [6788] = true, -- Weakened Soul
     [11196] = true, -- Recently Bandaged
+    [57723] = true, -- Exhaustion (Bloodlust)
+    [57724] = true, -- Sated (Heroism)
 
     [26680] = true, -- Adored (Love is in the Air)
 
@@ -412,17 +421,6 @@ helpers.customBossAuras = {
     [6798] = true,
     [8983] = true,
 
-    [339] = true, -- Entangling Roots
-    [1062] = true,
-    [5195] = true,
-    [5196] = true,
-    [9852] = true,
-    [9853] = true,
-
-    [9005] = true, -- Pounce Stun
-    [9823] = true,
-    [9827] = true,
-
     [18469] = true, -- Silence (Improved Counterspell)
 
     [118] = true, -- Polymorph 7 variants
@@ -434,12 +432,6 @@ helpers.customBossAuras = {
     [28272] = true,
 
     [12494] = true, -- Frostbite
-
-    [122] = true, -- Frost Nova 4 rank
-    [865] = true,
-    [6131] = true,
-    [10230] = true,
-
 
     [15487] = true, -- Silence (Priest)
 
@@ -463,8 +455,14 @@ helpers.customBossAuras = {
     [23694] = true, -- Improved Hamstring Root
     [676] = true, -- Disarm
     [12809] = true, -- Concussion Blow
-
 }
+
+BossAura(30153, 30195, 30197, 47995) -- Felguard Intercept
+BossAura(9005, 9823, 9827, 27006, 49803) -- Pounce Stun
+BossAura(6789, 17925, 17926, 27223, 47859, 47860) -- Death Coil
+BossAura(122, 865, 6131, 10230, 27088, 42917) -- Frost Nova
+BossAura(30108, 30404, 30405, 47841, 47843) -- Unstable Affliction
+BossAura(339, 1062, 5195, 5196, 9852, 9853, 26989, 53308) -- Entangling Roots
 
 do
     local AURA = helpers.BuffGainTypes.AURA
@@ -474,12 +472,19 @@ do
         [27237] = HEAL, -- Master Healthstone
         [27236] = HEAL,
         [27235] = HEAL,
-        [28495] = HEAL, -- Super Healing Potion (TBC)
 
-        [7744] = AURA, -- Will of the Forsaken
+        [47877] = HEAL, -- Fel Healthstone
+        [47876] = HEAL,
+        [47875] = HEAL,
+
+        [28495] = HEAL, -- Super Healing Potion (TBC)
+        [43185] = HEAL, -- Runic Healing Potion (Wrath)
+
+        [7744] = CAST, -- Will of the Forsaken
 
         -- WARLOCK
         [27239] = AURA, -- Soulstone
+        [47241] = AURA, -- Metamorphosis
 
         -- PRIEST
         [10060] = AURA, -- Power Infusion
