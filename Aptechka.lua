@@ -23,7 +23,6 @@ local UnitThreatSituation = UnitThreatSituation
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local UnitPhaseReason = UnitPhaseReason
 local GetSpecialization = GetSpecialization
-local GetSpecializationInfo = GetSpecializationInfo
 local GetSpecializationRole = GetSpecializationRole
 local HasIncomingSummon = C_IncomingSummon and C_IncomingSummon.HasIncomingSummon
 local COMBATLOG_OBJECT_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
@@ -34,14 +33,17 @@ local dummyFalse = function() return false end
 local dummy0 = function() return 0 end
 if apiLevel <= 3 then
     GetSpecialization = function() return 1 end
-    GetSpecializationInfo = function() return "DAMAGER" end
-    GetSpecializationRole = function(spec) return AptechkaDB_Char.forcedClassicRole end
+    GetSpecializationRole = function(spec)
+        local tg = GetActiveTalentGroup()
+        return GetTalentGroupRole(tg)
+    end
     UnitGetTotalAbsorbs = dummy0
     UnitGetTotalHealAbsorbs = dummy0
     UnitPhaseReason = dummyFalse
     HasIncomingSummon = dummyNil
 end
 if apiLevel <= 2 then
+    GetSpecializationRole = function(spec) return AptechkaDB_Char.forcedClassicRole end
     UnitHasVehicleUI = dummyFalse
     UnitInVehicle = dummyFalse
     UnitUsingVehicle = dummyFalse

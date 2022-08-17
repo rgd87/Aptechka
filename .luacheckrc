@@ -238,4 +238,8 @@ globals = {
     "UnitChannelInfo",
     "GetRaidRosterInfo",
     "CreateFramePool",
+
+    -- Wrath dual spec
+    "GetActiveTalentGroup",
+    "GetTalentGroupRole",
 }
