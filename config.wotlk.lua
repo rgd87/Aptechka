@@ -33,11 +33,12 @@ AG{ id = { 6229, 11739, 11740, 28610, 47891 }, template = "SurvivalCD" } -- Shad
 
 -- DRUID
 AG{ id = 22812,  template = "SurvivalCD" } -- Barkskin
-AG{ id = 29166,  template = "SurvivalCD" } -- Innervate
+-- AG{ id = 29166,  template = "SurvivalCD" } -- Innervate
 
 -- PRIEST
-AG{ id = 15286,  template = "SurvivalCD" } -- Vampiric Embrace
 AG{ id = 33206, template = "TankCD", priority = 93 } --Pain Suppression
+AG{ id = 47585, template = "SurvivalCD" } -- Dispersion
+AG{ id = 47788, template = "SurvivalCD", priority = 90 } --Guardian Spirit
 
 -- MAGE
 AG{ id = 11958,  template = "TankCD" } -- Ice Block
@@ -45,9 +46,11 @@ AG{ id = { 543, 8457, 8458, 10223, 10225, 27128, 43010 },  template = "SurvivalC
 AG{ id = { 6143, 8461, 8462, 10177, 28609, 32796, 43012 },  template = "SurvivalCD" } -- Frost Ward
 
 -- PALADIN
-AG{ id = { 498, 642 }, template = "TankCD", priority = 95 } -- Divine Shield
+AG{ id = { 498, 642 }, template = "TankCD", priority = 95 } -- Divine Shield, Divine Protection
+AG{ id = 19752, template = "TankCD", priority = 95 } -- Divine Intervention
 AG{ id = { 1022, 5599, 10278 }, template = "SurvivalCD" } -- Hand of Protection
 AG{ id = 1044, template = "SurvivalCD", priority = 40 } -- Hand of Freedom
+AG{ id = 6940, template = "SurvivalCD" } -- Hand of Sacrifice
 
 -- HUNTER
 AG{ id = 19263, template = "SurvivalCD" } -- Deterrence
@@ -59,7 +62,7 @@ AG{ id = 871,   template = "TankCD" } --Shield Wall 40%
 
 -- ROGUE
 AG{ id = { 5277, 26669 }, template = "SurvivalCD" } -- Evasion
-AG{ id = { 1856, 1857, 26889 }, template = "TankCD" } -- Vanish
+AG{ id = { 1856, 1857, 26888 }, template = "SurvivalCD" } -- Vanish
 AG{ id = 45182,  template = "TankCD" } -- Cheating Death
 AG{ id = 31224,  template = "SurvivalCD", priority = 91 } -- Cloak of Shadows
 
@@ -489,7 +492,7 @@ do
         -- PRIEST
         [10060] = AURA, -- Power Infusion
         [28276] = AURA, -- Lightwell Renew, 70lvl rank
-
+        [64843] = CAST, -- Divine Hymn
 
         -- ROGUE
         [2983] = AURA, -- Sprint
@@ -499,7 +502,8 @@ do
         --[[DUP]] [5277] = AURA, -- Evasion
         [26669] = AURA,
         --[[DUP]] [31224] = AURA, -- Cloak of Shadows
-        [1787] = AURA, -- Stealth last rank
+        [1784] = AURA, -- Stealth last rank
+        [13750] = AURA, -- Adrenaline Rush
 
         -- WARRIOR
         [12292] = AURA, -- Death Wish
@@ -514,6 +518,10 @@ do
         [66] = AURA, -- Invisiblity Fade
         [32612] = AURA, -- Invisibility
 
+        -- DEATHKNIGHT
+        --[[DUP]] [55233] = AURA, -- Vampiric Blood
+        --[[DUP]] [48792] = AURA, -- Icebound Fortitude
+
         -- PALADIN
         [31884] = AURA, -- Avenging Wrath
         --[[DUP]] [498] = AURA, -- Divine Protection
@@ -524,12 +532,15 @@ do
         [10278] = AURA,
         [1044] = AURA, -- Blessing of Freedom
 
+
         -- DRUID
-        [9913] = AURA, -- Prowl 60 lvl rank
+        [5215] = AURA, -- Prowl 60 lvl rank
         --[[DUP]] [22812] = AURA, -- Barkskin
         --[[DUP]] [1850] = AURA, -- Dash
+        [29166] = AURA, -- Innervate
         [9821] = AURA,
         [33357] = AURA,
+        [48447] = CAST, -- Tranquility
 
         -- HUNTER
         [19574] = AURA, -- Bestial Wrath
