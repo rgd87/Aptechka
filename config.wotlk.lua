@@ -20,12 +20,6 @@ if not isWrath then return end
 
 config.HealthTextStatus.formatType = "MISSING_HEALING_SHORT"
 
-if apiLevel <= 3 then
-    config.DefaultWidgets.totemCluster1 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(6), y = 0 }
-    config.DefaultWidgets.totemCluster2 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(12), y = 0 }
-    config.DefaultWidgets.totemCluster3 = { type = "Indicator", width = 5, height = 5, point = "TOPLEFT", x = pixelperfect(19), y = 0 }
-end
-
 local color1 = { 0.9, 0, 0 }
 
 -- WARLOCK
@@ -230,30 +224,7 @@ if playerClass == "SHAMAN" then
     -- Earth Shield
     A{ id = { 974, 32593, 32594, 49283, 49284 } , type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 6, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
     --Riptide
-    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.3, isMine = true, color = { 0.4 , 0.4, 1} }
-
-
-    local prioWater = 75
-    local prioAir = 74
-    local prioEarth = 73
-    local prioFire = 72
-    -- Earth
-    A{ id = { 8072, 8156, 8157, 10403, 10404, 10405, 25506, 25507 }, type = "HELPFUL", assignto = set("totemCluster2"), priority = prioEarth, isMine = true, color = { 162/255, 77/255, 48/255 } }  -- Stoneskin Totem
-    A{ id = { 8076, 8162, 8163, 10441, 25362, 25527 }, type = "HELPFUL", assignto = set("totemCluster2"), priority = prioEarth, isMine = true, color = { 0.1, 0.8, 0.1 } }  -- Strength of Earth Totem
-    -- Fire
-    A{ id = { 8182, 10476, 10477, 25559 }, type = "HELPFUL", assignto = set("raidbuff"), priority = prioFire, isMine = true, color = { 206/255, 4/256, 56/256 } }  -- Frost Resistance Totem
-    A{ id = 30708, type = "HELPFUL", assignto = set("raidbuff"), priority = prioFire, isMine = true, color = { 1,0.2,0.2} }  -- Totem of Wrath
-    -- Water
-    A{ id = 16191, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = {38/255, 221/255, 163/255} }  -- Mana Tide Totem
-    A{ id = { 5677, 10491, 10493, 10494, 25569 }, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = { 187/255, 75/255, 128/255 } }  -- Mana Spring Totem
-    A{ id = { 5672, 6371, 6372, 10460, 10461, 25566 }, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = { 0.63, 0.8, 0.35 } }  -- Healing Stream Totem
-    A{ id = { 8185, 10534, 10535, 25562 }, type = "HELPFUL", assignto = set("totemCluster1"), priority = prioWater, isMine = true, color = { 65/255, 110/255, 1 } }  -- Fire Resistance Totem
-    -- Air
-    A{ id = 8178, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = { 0.6, 0, 1 } }  -- Grounding Totem
-    A{ id = 25909, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = {149/255, 121/255, 214/255} }  -- Tranquil Air Totem
-    A{ id = { 8836, 10626, 25360 }, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = { 65/255, 110/255, 1 } }  -- Grace of Air Totem
-    A{ id = { 10596, 10598, 10599, 25573 }, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = {52/255, 172/255, 114/255} }  -- Nature Resistance Totem
-    A{ id = 2895, type = "HELPFUL", assignto = set("totemCluster3"), priority = prioAir, isMine = true, color = { 216/255, 24/256, 76/256 } }  -- Wrath of Air
+    A{ id = { 61295, 61299, 61300, 61301 },  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.3, isMine = true, color = { 0.4 , 0.4, 1} }
 
     -- Ancestral Fortitude
     A{ id = { 16177, 16236, 16237 }, type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", color = { 1, 0.85, 0} }
@@ -370,6 +341,7 @@ helpers.auraBlacklist = {
     [26013] = true, -- PVP Deserter
     [8326] = true, -- Ghost
     [25771] = true, -- Forbearance
+    [41425] = true, -- Hypothermia
     [6788] = true, -- Weakened Soul
     [11196] = true, -- Recently Bandaged
     [57723] = true, -- Exhaustion (Bloodlust)
@@ -541,11 +513,14 @@ do
         [9821] = AURA,
         [33357] = AURA,
         [48447] = CAST, -- Tranquility
+        [50334] = AURA, -- Berserk
 
         -- HUNTER
         [19574] = AURA, -- Bestial Wrath
 
         -- SHAMAN
         [2894] = CAST, -- Fire Elemental Totem
+        [16166] = AURA, -- Elemental Mastery
+        [51533] = CAST, -- Feral Spirit
     }
     end
