@@ -295,28 +295,11 @@ end
 -------------------------
 
 config.MapIDs = {
-    [257] = "Auchenai Crypts",
-    [258] = "Sethekk Halls",
-    [260] = "Shadow Labyrinth",
-    [256] = "Mana Tombs", --272
+    [99] = "Karazhan",
+    [100] = "Naxxramas",
 
-    [261] = "The Blood Furnace",
-    [246] = "The Shattered Halls",
-
-    [262] = "The Underbog",
-    [263] = "The Steamvault",
-    [265] = "The Slave Pens",
-
-    [266] = "The Botanica",
-    [267] = "The Mechanar",
-    [269] = "The Arcatraz",
-
-    [273] = "Black Morass",
-    [274] = "Old Hillsbrad Foothills",
-
-    [347] = "Hellfire Ramparts",
-    [349] = "Magisters' Terrace",
-    [350] = "Karazhan",
+    [111] = "Utgarde Keep",
+    [112] = "The Culling of Stratholme",
 
     [1701] = "PvP",
 }
@@ -329,6 +312,16 @@ config.defaultDebuffHighlights = {
         [29522] = { 29522, 1, "Maiden of Virtue, Holy Fire" },
         [34694] = { 34694, 1, "Moroes, Blind" },
         [30898] = { 30898, 1, "Prince Malchezaar, Shadow Word: Pain" },
+    },
+    ["Naxxramas"] = {
+        [27808] = { 27808, 3, "Kel'Thuzad, Frost Blast" },
+        [28622] = { 28622, 1, "Maexxna, Web Wrap" },
+    },
+    ["Utgarde Keep"] = {
+        [48400] = { 48400, 3, "Keleseth, Frost Tomb" },
+    },
+    ["The Culling of Stratholme"] = {
+        [58849] = { 58849, 1, "Mal'Ganis, Sleep" },
     },
 }
 
