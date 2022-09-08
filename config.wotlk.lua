@@ -167,6 +167,8 @@ if playerClass == "DRUID" then
     A{ id = 2893, type = "HELPFUL", assignto = set("bars"), priority = 30, color = {15/255, 78/255, 60/255} , infoType = "DURATION", isMine = false }
     -- Lifebloom
     A{ id = { 33763, 48450, 48451 }, type = "HELPFUL", assignto = set("bar4", "bar4text"), priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
+    -- Wild Growth
+    A{ id = { 48438, 53248, 53249, 53251} , type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, infoType = "DURATION", isMine = true }
 
     -- Healing Touch
     Trace{id = { 5185, 5186, 5187, 5188, 5189, 6778, 8903, 9758, 9888, 9889, 25297, 26978, 26979, 48377, 48378 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
