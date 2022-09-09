@@ -243,6 +243,7 @@ function ns.MakeGlobalSettings()
                             Aptechka:UpdateDebuffScanningMethod()
                         end
                     },
+                    --[[
                     useHealComm = {
                         name = L"Use LibHealComm"..newFeatureIcon,
                         desc = L"Gives hots in incoming healing, may cause errors",
@@ -269,6 +270,7 @@ function ns.MakeGlobalSettings()
                             Aptechka:PrintReloadUIWarning()
                         end
                     },
+                    ]]
                 }
             },
         },
