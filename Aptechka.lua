@@ -171,6 +171,7 @@ local defaults = {
         singleHeaderMode = false,
         enableNickTag = false,
         showAFK = false,
+        enableRoles = apiLevel ~= 3,
         translitCyrillic = false,
         enableMouseoverStatus = true,
         customBlacklist = {},
@@ -1758,11 +1759,11 @@ function Aptechka.FrameCheckRoles(self, unit )
         tankUnits[unit] = nil
     end
 
-    if config.MainTankStatus then
+    if Aptechka.db.global.enableRoles and config.displayRoles and config.MainTankStatus then
         FrameSetJob(self, config.MainTankStatus, isAnyTank)
     end
 
-    if config.displayRoles then
+    if Aptechka.db.global.enableRoles and config.displayRoles then
         local isLeader = UnitIsGroupLeader(unit)
         local role = UnitGroupRolesAssigned(unit)
 

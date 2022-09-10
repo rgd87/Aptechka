@@ -243,6 +243,18 @@ function ns.MakeGlobalSettings()
                             Aptechka:UpdateDebuffScanningMethod()
                         end
                     },
+                    enableRoles = {
+                        name = L"Display Roles"..newFeatureIcon,
+                        desc = L"Disable role icons for WotLK",
+                        type = "toggle",
+                        width = "full",
+                        order = 17,
+                        get = function(info) return Aptechka.db.global.useHealComm end,
+                        set = function(info, v)
+                            Aptechka.db.global.enableRoles = not Aptechka.db.global.enableRoles
+                            Aptechka:PrintReloadUIWarning()
+                        end
+                    },
                     --[[
                     useHealComm = {
                         name = L"Use LibHealComm"..newFeatureIcon,
