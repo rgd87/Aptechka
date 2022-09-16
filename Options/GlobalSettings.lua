@@ -249,7 +249,7 @@ function ns.MakeGlobalSettings()
                         type = "toggle",
                         width = "full",
                         order = 17,
-                        get = function(info) return Aptechka.db.global.useHealComm end,
+                        get = function(info) return Aptechka.db.global.enableRoles end,
                         set = function(info, v)
                             Aptechka.db.global.enableRoles = not Aptechka.db.global.enableRoles
                             Aptechka:PrintReloadUIWarning()
