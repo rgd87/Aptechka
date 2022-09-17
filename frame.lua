@@ -617,7 +617,8 @@ end
 
 local SetJob_HealthBar = function(self, job, state, contentType, ...)
     local profile = Aptechka.db.profile
-    local r,g,b,a
+    local r,g,b
+    local a = 1
     local r2,g2,b2
     -- TODO: Move to content handlers?
     if contentType == "HealthBar" then
