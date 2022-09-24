@@ -131,6 +131,8 @@ if playerClass == "PRIEST" then
     --Prayer of Mending
     A{ id = { 41635, 48110, 48111 }, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
 
+    -- Penance
+    Trace{id = { 47750, 53005, 53006, 53007 }, template = "HealTrace", color = { 52/255, 172/255, 114/255 } }
     -- Prayer of Healing
     Trace{id = { 596, 996, 10960, 10961, 25308, 25316, 48072 }, template = "HealTrace", color = { .5, .5, 1} }
     -- Flash Heal
