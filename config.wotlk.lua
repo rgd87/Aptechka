@@ -201,9 +201,13 @@ if playerClass == "PALADIN" then
                                                                         } -- Beacon of Light
 
     -- Holy Light
-    Trace{id = { 635, 639, 647, 1026, 1042, 3472, 10328, 10329, 25292, 27135, 27136, 48781, 48782 } , template = "HealTrace", color = { 1, 1, 0.6} }
+    Trace{id = { 635, 639, 647, 1026, 1042, 3472, 10328, 10329, 25292, 27135, 27136, 48781, 48782 } , template = "HealTrace", color = { 1, 0.3, 0.55 } }
     -- Flash of Light
     Trace{id = { 19939, 19940, 19941, 19942, 19943, 27137, 48784, 48785 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
+    -- Holy Shock
+    Trace{id = { 20473, 20929, 20930, 27174, 33072, 48824, 48825 }, template = "HealTrace", color = { 1, 0.6, 0.3 } }
+    -- Glyph of Holy Light
+    Trace{id = 54968, template = "HealTrace", color = { 1, 0.7, 0.2} }
 
 
     config.UnitInRangeFunctions = {
