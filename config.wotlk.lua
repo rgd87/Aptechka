@@ -132,7 +132,7 @@ if playerClass == "PRIEST" then
     A{ id = { 41635, 48110, 48111 }, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
 
     -- Penance
-    Trace{id = { 47750, 53005, 53006, 53007 }, template = "HealTrace", color = { 52/255, 172/255, 114/255 } }
+    Trace{id = { 47750, 52983, 52984, 52985 }, template = "HealTrace", color = { 52/255, 172/255, 114/255 } }
     -- Prayer of Healing
     Trace{id = { 596, 996, 10960, 10961, 25308, 25316, 48072 }, template = "HealTrace", color = { .5, .5, 1} }
     -- Flash Heal
@@ -205,7 +205,7 @@ if playerClass == "PALADIN" then
     -- Flash of Light
     Trace{id = { 19939, 19940, 19941, 19942, 19943, 27137, 48784, 48785 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
     -- Holy Shock
-    Trace{id = { 20473, 20929, 20930, 27174, 33072, 48824, 48825 }, template = "HealTrace", color = { 1, 0.6, 0.3 } }
+    Trace{id = { 25914, 25913, 25903, 27175, 33074, 48820, 48821 }, template = "HealTrace", color = { 1, 0.6, 0.3 } }
     -- Glyph of Holy Light
     Trace{id = 54968, template = "HealTrace", color = { 1, 0.7, 0.2} }
 
