@@ -162,7 +162,7 @@ _G.BINDING_NAME_APTECHKA_DEBUFF_TOOLTIP_HOLD = L"Debuff Tooltip Toggle(Hold)"
 
 local defaults = {
     global = {
-        useHealComm = false,
+        useHealComm = true,
         disableBlizzardPlayer = false,
         disableBlizzardParty = true,
         hideBlizzardRaid = true,
@@ -384,7 +384,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     if config.enableIncomingHeals then
-        if apiLevel <= 2 and Aptechka.db.global.useHealComm then
+        if apiLevel == 3 and Aptechka.db.global.useHealComm then
 
             function Aptechka:HealUpdated(event, casterGUID, spellID, healType, endTime, ...)
                 for i=1,select('#', ...) do

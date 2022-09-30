@@ -26,6 +26,8 @@ Libs\LibAuraTypes\LibAuraTypes.lua
 Libs\LibTargetedCasts\LibTargetedCasts.lua
 Libs\LibTargeted\LibTargeted.lua
 
+Libs\LibHealComm-4.0\LibHealComm-4.0.xml
+
 helpers.lua
 config.lua
 config.wotlk.lua

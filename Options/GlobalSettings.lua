@@ -255,7 +255,6 @@ function ns.MakeGlobalSettings()
                             Aptechka:PrintReloadUIWarning()
                         end
                     },
-                    --[[
                     useHealComm = {
                         name = L"Use LibHealComm"..newFeatureIcon,
                         desc = L"Gives hots in incoming healing, may cause errors",
@@ -269,6 +268,7 @@ function ns.MakeGlobalSettings()
                             Aptechka:PrintReloadUIWarning()
                         end
                     },
+                    --[[
                     useCLH = {
                         name = L"Use LibCLHealth",
                         desc = L"More frequent health updates based combat log",
