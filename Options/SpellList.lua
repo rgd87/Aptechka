@@ -750,7 +750,7 @@ local function AuraForm_Fill(Form, class, category, id, opts, isEmptyForm)
 
     Form_FillAssignments(controls, opts)
     controls.name:SetText(opts.name or "")
-    controls.name:SetDisabled(true)
+    controls.name:SetDisabled(false)
     controls.priority:SetText(opts.priority)
     controls.extend_below:SetText(opts.extend_below)
     controls.isMine:SetValue(opts.isMine)

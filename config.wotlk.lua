@@ -200,6 +200,11 @@ if playerClass == "PALADIN" then
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Light
 
+    -- Sacred Shield
+    A{ id = 53601, type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", priority = 86, scale = 0.5, isMine = true, color = { 1 , 0.9, 0} }
+    -- Sacred Shield Proc
+    A{ id = 58597, type = "HELPFUL", name = "SacredShieldProc", assignto = set("bars"), infoType = "DURATION", priority = 85, scale = 1, isMine = true, color = { 1 , 0.7, 0} }
+
     -- Holy Light
     Trace{id = { 635, 639, 647, 1026, 1042, 3472, 10328, 10329, 25292, 27135, 27136, 48781, 48782 } , template = "HealTrace", color = { 1, 0.3, 0.55 } }
     -- Flash of Light
