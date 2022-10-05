@@ -268,12 +268,11 @@ function ns.MakeGlobalSettings()
                             Aptechka:PrintReloadUIWarning()
                         end
                     },
-                    --[[
                     useCLH = {
                         name = L"Use LibCLHealth",
                         desc = L"More frequent health updates based combat log",
                         type = "toggle",
-                        disabled = true,--not isClassic,
+                        disabled = not isClassic,
                         width = "full",
                         order = 18,
                         get = function(info) return isClassic and Aptechka.db.global.useCombatLogHealthUpdates end,
@@ -282,7 +281,6 @@ function ns.MakeGlobalSettings()
                             Aptechka:PrintReloadUIWarning()
                         end
                     },
-                    ]]
                 }
             },
         },
