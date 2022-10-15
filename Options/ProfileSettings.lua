@@ -415,7 +415,7 @@ function ns.MakeProfileSettings()
                         end,
                         min = 10,
                         max = 200,
-                        step = 1,
+                        step = 0.1,
                         order = 1,
                     },
                     height = {
@@ -428,7 +428,7 @@ function ns.MakeProfileSettings()
                         end,
                         min = 10,
                         max = 150,
-                        step = 1,
+                        step = 0.1,
                         order = 2,
                     },
                     scale = {
