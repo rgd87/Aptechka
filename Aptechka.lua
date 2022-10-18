@@ -347,7 +347,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if AptechkaDB.global.disableBlizzardPlayer then
         Aptechka:SafeCallDirect(helpers.DisableBlizzPlayerFrame)
     end
-    if AptechkaDB.global.disableBlizzardParty then
+    if apiLevel < 10 and AptechkaDB.global.disableBlizzardParty then
         helpers.DisableBlizzParty()
     end
     if AptechkaDB.global.hideBlizzardRaid then
