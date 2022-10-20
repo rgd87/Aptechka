@@ -1862,6 +1862,7 @@ end
 ----------------------------------------------------------
 
 local min = math.min
+local max = math.max
 local function BarIcon_OnUpdate(self)
     local timeLeft = self.endTime - GetTime()
 
@@ -1878,7 +1879,7 @@ local function BarIcon_OnUpdate(self)
     end
 
     -- self.spark:UpdatePos(timeLeft/duration)
-    local a = min(timeLeft, 2)
+    local a = max(min(timeLeft, 2), 0)
     self.spark:SetAlpha(a/2)
     self:SetValue(timeLeft)
 end
