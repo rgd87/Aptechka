@@ -247,6 +247,10 @@ AG{ id = 204293, template = "SurvivalCD" } -- Spirit Link (PvP)
 -- AG{ id = 207498, template = "AreaDR", priority = 60 } -- Ancestral Protection Totem
 -- AG{ id = 210918, template = "SurvivalCD" } -- Ethereal Form
 
+-- EVOKER
+AG{ id = 363916, template = "SurvivalCD" } -- Obsidian Scales
+AG{ id = 374348, template = "SurvivalCD" } -- Renewing Blaze
+AG{ id = 357170, template = "SurvivalCD" } -- Time Dilation
 
 -- Stealth, Prowl, Camo, Shadowmeld
 AG{ id = {1784, 5215, 199483, 58984}, assignto = set("text2"), color = {0.2, 1, 0.3}, text = "STEALTH", priority = 20 }
@@ -327,7 +331,7 @@ if playerClass == "MONK" then
     --Soothing Mist
     A{ id = 115175, type = "HELPFUL", assignto = set("bars"), isMine = true, infoType = "DURATION", color = { 0, .8, 0}, priority = 80 }
     --Bonedust Brew
-    A{ id = 325216, type = "HELPFUL", assignto = set("bars"), isMine = true, infoType = "DURATION", color = { 0.3, 0.35, 0.5}, scale = 0.5, priority = 80 }
+    A{ id = 386276, type = "HELPFUL", assignto = set("bars"), isMine = true, infoType = "DURATION", color = { 0.3, 0.35, 0.5}, scale = 0.8, priority = 80 }
     --Statue's Soothing Mist
     -- A{ id = 198533, type = "HELPFUL", name = "Statue Mist", assignto = set("spell3"), isMine = true, color = { 0.4, 1, 0.4}, priority = 50 }
 
@@ -471,12 +475,14 @@ if playerClass == "HUNTER" then
     A{ id = 136, template = "SurvivalCD" } -- Mend Pet
 end
 if playerClass == "DRUID" then
-    --A{ id = 1126,  type = "HELPFUL", assignto = set("raidbuff"), color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
+    A{ id = 1126,  type = "HELPFUL", assignto = set("raidbuff"), color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
 
     -- A{ id = 327037,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Protection
-    A{ id = 327071,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Focus
+    -- A{ id = 327071,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Focus
     -- A{ id = 327022,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Empowerment
-    A{ id = 325748,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Adaptive Swarm
+
+    -- Adaptive Swarm
+    A{ id = 391891,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} }
 
     -- Tranquility
     --[[
@@ -510,6 +516,7 @@ if playerClass == "DRUID" then
     A{ id = 48438, type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, infoType = "DURATION", isMine = true }
 
     Trace{id = 8936, template = "HealTrace", color = { 0, 0.8, 0.2 } } -- Regrowth
+    Trace{id = 50464, template = "HealTrace", color = { 0.6, 0.2, 0.4 } } -- Nourish
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(8936),
@@ -525,6 +532,45 @@ if playerClass == "DRUID" then
         DispelTypes("Magic", "Curse", "Poison"),
     }
 end
+
+
+if playerClass == "EVOKER" then
+    -- Blessing of the Bronze
+    A{ id = 381748, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.6, 0}, priority = 50, isMissing = true }
+
+    -- Lifebind talent
+    A{ id = 373267, type = "HELPFUL", assignto = set("bars" ), scale = 0.8, color = { 1, 0, 0.4}, priority = 30, infoType = "DURATION", isMine = true }
+
+    -- Reversion
+    A{ id = 366155, type = "HELPFUL", assignto = set("bars"), scale = 1.25, refreshTime = 3.6, priority = 90, color = { 1, 0.9, 0.2}, refreshColor = { 1, 0.1, 0.1}, foreigncolor = { 0.4, 0, 0.4 }, infoType = "DURATION", isMine = true }
+    -- Echo'd Reversion
+    A{ id = 367364, type = "HELPFUL", assignto = set("bars"), name = "Echo Reversion", scale = 0.75, refreshTime = 3.6, priority = 89.5, color = { 1, 0.9, 0.2}, refreshColor = { 1, 0.1, 0.1}, foreigncolor = { 0.4, 0, 0.4 }, infoType = "DURATION", isMine = true }
+
+    -- Dream Breath
+    A{ id = 355941, type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, infoType = "DURATION", isMine = true }
+
+    -- Dream Flight
+    A{ id = 363502, type = "HELPFUL", assignto = set("bars"), priority = 50, color = { 0, 1, 0}, infoType = "DURATION", isMine = true }
+    Trace{id = 363502, template = "HealTrace", color = { 0, 0.8, 0.2 } }
+
+    -- Echo
+    A{ id = 364343, type = "HELPFUL", assignto = set("bar4"), priority = 55, scale = 1, color = { 1, 0.55, 0 }, infoType = "DURATION", isMine = true }
+
+    Trace{id = 367231, template = "HealTrace", color = {38/255, 221/255, 163/255} } -- Spiritbloom
+    Trace{id = 355916, template = "HealTrace", color = { 1, 0.3, 0.55} } -- Emerald Blossom
+
+
+    config.UnitInRangeFunctions = {
+        RangeCheckBySpell(361469),
+        RangeCheckBySpell(361469),
+    }
+
+    config.DispelBitmasks = {
+        DispelTypes("Poison"),
+        DispelTypes("Magic", "Poison", "Curse", "Disease"),
+    }
+end
+
 
 if playerClass == "WARRIOR" then
     -- Battle Shout
