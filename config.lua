@@ -136,8 +136,8 @@ if not isMainline then return end
 AG{ id = 324092, template = "AreaDR" } -- Sanguine Depths, Shining Radiance (Naaru thing)
 
 -- ESSENCES
-AG{ id = 296094, template = "TankCD" } --Standstill (Artifice of Time)
-AG{ id = 296230, template = "SurvivalCD" } --Vitality Conduit
+-- AG{ id = 296094, template = "TankCD" } --Standstill (Artifice of Time)
+-- AG{ id = 296230, template = "SurvivalCD" } --Vitality Conduit
 
 -- ACTIVE MITIGATION
 AG{ id = 132404, template = "ActiveMitigation" } -- Shield Block
@@ -146,7 +146,7 @@ AG{ id = 203819, template = "ActiveMitigation" } -- Demon Spikes
 AG{ id = 192081, template = "ActiveMitigation" } -- Ironfur
 
 -- COVENANT
-AG{ id = 330749, template = "SurvivalCD" } -- Phial of Serenity (Patience, overtime soulbind trait from pelagos)
+-- AG{ id = 330749, template = "SurvivalCD" } -- Phial of Serenity (Patience, overtime soulbind trait from pelagos)
 
 -- MONK
 AG{ id = 122783, template = "SurvivalCD" } -- Diffuse Magic
@@ -380,7 +380,11 @@ if playerClass == "PALADIN" then
     --Glimmer of Light
     A{ id = 287280,type = "HELPFUL", assignto = set("bars"), color = { 1, .3, .3}, infoType = "DURATION", isMine = true}
 
-    A{ id = { 328282, 328620, 328622, 328281 },  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Blessing of Seasons
+    -- Barrier of FAith
+    A{ id = 148039, type = "HELPFUL", assignto = set("bars"), color = { 1, 0.7, 0}, infoType = "DURATION", isMine = true}
+
+    -- A{ id = { 328282, 328620, 328622, 328281 },  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Blessing of Seasons
+    A{ id = { 388007, 388010, 388011, 388013 },  type = "HELPFUL", priority = 50, assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Blessing of Seasons
 
     --Tyr's Deliverance
     A{ id = 200654, type = "HELPFUL", assignto = set("spell3"), color = { 1, .8, 0}, priority = 70, infoType = "DURATION", isMine = true }
