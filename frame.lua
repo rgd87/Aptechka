@@ -1633,7 +1633,7 @@ local function DebuffIcon_SetJob(self, debuffType, expirationTime, duration, ico
     self.texture:SetTexture(icon)
     self.spellID = spellID
 
-    if count then self.stacktext:SetText(count > 1 and count) end
+    if count then self.stacktext:SetText(count > 1 and count or "") end
 
     local color
     if debuffType == "Helpful" then

@@ -1024,6 +1024,7 @@ helpers.auraBlacklist = {
     [219521] = true, -- Shadow Covenant (Disc Priest Talent)
     [139485] = true, -- Throne of Thudner passive debuff
     [57724] = true, -- Sated (BL)
+    [390435] = true, -- Exhaustion (Evoker's BL debuff)
     [80354] = true, -- Temporal Displacement (Mage BL)
     [95809] = true, -- Insanity (old Hunter BL, Ancient Hysteria)
     [57723] = true, -- Drums BL debuff, and Heroism?
