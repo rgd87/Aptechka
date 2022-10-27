@@ -3789,7 +3789,7 @@ function Aptechka:CreateFakeGroupHeader(id)
     frame:SetFrameStrata("BACKGROUND")
     frame.children = {}
     for i=1,5 do
-        local t = frame:CreateTexture(nil, "BACKGROUND", -5)
+        local t = frame:CreateTexture(nil, "BACKGROUND", nil, -5)
         t:SetTexture("Interface\\BUTTONS\\WHITE8X8")
         t:SetVertexColor(0,0,0)
         t:SetAlpha(0.5)
