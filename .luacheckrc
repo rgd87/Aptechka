@@ -242,4 +242,13 @@ globals = {
     -- Wrath dual spec
     "GetActiveTalentGroup",
     "GetTalentGroupRole",
+
+    -- Disarm Blizz raid
+    "PartyFrame",
+    "UnregisterUnitWatch",
+    "CompactPartyFrame",
+    "CompactRaidFrameContainer",
+    "CompactRaidFrameManager_GetSetting",
+    "CompactRaidFrameManager_SetSetting",
+    "CompactRaidFrameContainer",
 }

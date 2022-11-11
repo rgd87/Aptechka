@@ -411,6 +411,107 @@ function helpers.DisableBlizzParty(self)
     end
 end
 
+function helpers.DisableBlizzRaid()
+    -- disable Blizzard party & raid frame if our Raid Frames are loaded
+    -- InterfaceOptionsFrameCategoriesButton11:SetScale(0.00001)
+    -- InterfaceOptionsFrameCategoriesButton11:SetAlpha(0)
+    -- raid
+    local hider = CreateFrame("Frame")
+    hider:Hide()
+    if CompactRaidFrameManager and CompactUnitFrameProfiles then
+        CompactRaidFrameManager:SetParent(hider)
+        -- CompactRaidFrameManager:UnregisterAllEvents()
+        CompactUnitFrameProfiles:UnregisterAllEvents()
+
+        local disableCompactRaidFrameUnitButton = function(self)
+            if self:IsForbidden() then return end
+            -- for some reason CompactUnitFrame_OnLoad also gets called for nameplates, so ignoring that
+            local frameName = self:GetName()
+            if not frameName then return end
+            if string.sub(frameName, 1, 16) == "CompactRaidFrame" then
+                -- print(frameName)
+                self:UnregisterAllEvents()
+            end
+        end
+
+        for i=1,60 do
+            local crf = _G["CompactRaidFrame"..i]
+            if not crf then break end
+            disableCompactRaidFrameUnitButton(crf)
+        end
+        hooksecurefunc("CompactUnitFrame_OnLoad", disableCompactRaidFrameUnitButton)
+        hooksecurefunc("CompactUnitFrame_UpdateUnitEvents", disableCompactRaidFrameUnitButton)
+    end
+end
+
+
+if APILevel >= 10 then
+
+    local hiddenFrame
+
+	local function rehide(self)
+		if not InCombatLockdown() then self:Hide() end
+	end
+
+	local function unregister(f)
+		if f then f:UnregisterAllEvents() end
+	end
+
+	local function hideFrame(frame)
+		if frame then
+			UnregisterUnitWatch(frame)
+			frame:Hide()
+			frame:UnregisterAllEvents()
+			frame:SetParent(hiddenFrame)
+			frame:HookScript("OnShow", rehide)
+			unregister(frame.healthbar)
+			unregister(frame.manabar)
+			unregister(frame.powerBarAlt)
+			unregister(frame.spellbar)
+		end
+	end
+
+	-- party frames
+	function helpers.DisableBlizzParty()
+		hiddenFrame = hiddenFrame or CreateFrame('Frame')
+		hiddenFrame:Hide()
+		if PartyFrame then
+			hideFrame(PartyFrame)
+			for frame in PartyFrame.PartyMemberFramePool:EnumerateActive() do
+				hideFrame(frame)
+				hideFrame(frame.HealthBar)
+				hideFrame(frame.ManaBar)
+			end
+			PartyFrame.PartyMemberFramePool:ReleaseAll()
+		end
+		hideFrame(CompactPartyFrame)
+		UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE") -- used by compact party frame
+	end
+
+	-- raid frames
+	function helpers.DisableBlizzRaid()
+		if not CompactRaidFrameManager then return end
+		local function HideFrames()
+			CompactRaidFrameManager:UnregisterAllEvents()
+			CompactRaidFrameContainer:UnregisterAllEvents()
+			if not InCombatLockdown() then
+				CompactRaidFrameManager:Hide()
+				local shown = CompactRaidFrameManager_GetSetting('IsShown')
+				if shown and shown ~= '0' then
+					CompactRaidFrameManager_SetSetting('IsShown', '0')
+				end
+			end
+		end
+		hiddenFrame = hiddenFrame or CreateFrame('Frame')
+		hiddenFrame:Hide()
+		hooksecurefunc('CompactRaidFrameManager_UpdateShown', HideFrames)
+		CompactRaidFrameManager:HookScript('OnShow', HideFrames)
+		CompactRaidFrameContainer:HookScript('OnShow', HideFrames)
+		HideFrames()
+	end
+end
+
+
 local MIRROR_POINTS = {
 	["TOPLEFT"] = "BOTTOMRIGHT",
 	["LEFT"] = "RIGHT",

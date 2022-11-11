@@ -347,40 +347,11 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if AptechkaDB.global.disableBlizzardPlayer then
         Aptechka:SafeCallDirect(helpers.DisableBlizzPlayerFrame)
     end
-    if apiLevel < 10 and AptechkaDB.global.disableBlizzardParty then
+    if AptechkaDB.global.disableBlizzardParty then
         helpers.DisableBlizzParty()
     end
     if AptechkaDB.global.hideBlizzardRaid then
-        -- disable Blizzard party & raid frame if our Raid Frames are loaded
-        -- InterfaceOptionsFrameCategoriesButton11:SetScale(0.00001)
-        -- InterfaceOptionsFrameCategoriesButton11:SetAlpha(0)
-        -- raid
-        local hider = CreateFrame("Frame")
-        hider:Hide()
-        if CompactRaidFrameManager and CompactUnitFrameProfiles then
-            CompactRaidFrameManager:SetParent(hider)
-            -- CompactRaidFrameManager:UnregisterAllEvents()
-            CompactUnitFrameProfiles:UnregisterAllEvents()
-
-            local disableCompactRaidFrameUnitButton = function(self)
-                if self:IsForbidden() then return end
-                -- for some reason CompactUnitFrame_OnLoad also gets called for nameplates, so ignoring that
-                local frameName = self:GetName()
-                if not frameName then return end
-                if string.sub(frameName, 1, 16) == "CompactRaidFrame" then
-                    -- print(frameName)
-                    self:UnregisterAllEvents()
-                end
-            end
-
-            for i=1,60 do
-                local crf = _G["CompactRaidFrame"..i]
-                if not crf then break end
-                disableCompactRaidFrameUnitButton(crf)
-            end
-            hooksecurefunc("CompactUnitFrame_OnLoad", disableCompactRaidFrameUnitButton)
-            hooksecurefunc("CompactUnitFrame_UpdateUnitEvents", disableCompactRaidFrameUnitButton)
-        end
+        helpers.DisableBlizzRaid()
     end
 
     if config.enableIncomingHeals then
