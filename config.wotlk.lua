@@ -458,8 +458,17 @@ do
         [47876] = HEAL,
         [47875] = HEAL,
 
+        [26297] = AURA, -- Berserking
+        [33697] = AURA, -- Blood Fury Shaman
+        [33702] = AURA, -- Blood Fury Caster
+        [20572] = AURA, -- Blood Fury Melee
+
         [28495] = HEAL, -- Super Healing Potion (TBC)
         [43185] = HEAL, -- Runic Healing Potion (Wrath)
+
+        -- POTIONS
+        [53909] = AURA, -- Potion of Wild Magic
+        [53908] = AURA, -- Potion of Speed
 
         [7744] = CAST, -- Will of the Forsaken
 
@@ -520,6 +529,8 @@ do
         [33357] = AURA,
         [48447] = CAST, -- Tranquility
         [50334] = AURA, -- Berserk
+        [48518] = AURA, -- Lunar Eclipse
+        -- [48517] = AURA, -- Solar Eclipse
 
         -- HUNTER
         [19574] = AURA, -- Bestial Wrath
