@@ -249,6 +249,7 @@ local defaults = {
         showRaidIcons = true,
         showDispels = true,
         showSeparator = false,
+        showIconCooldownCount = false,
         showFloatingIcons = true,
         clampIncomingHeal = true,
         healthTexture = "Gradient",

@@ -1593,8 +1593,10 @@ function Aptechka.Widget.Icon.Create(parent, popts, gopts)
     icon:Hide()
 
     local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
-    icd.noCooldownCount = true -- disable OmniCC for this cooldown
-    icd:SetHideCountdownNumbers(true)
+    if not Aptechka.db.global.showIconCooldownCount then
+        icd.noCooldownCount = true -- disable OmniCC for this cooldown
+        icd:SetHideCountdownNumbers(true)
+    end
     icd:SetReverse(true)
     icd:SetAllPoints(icon.texture)
     icon.cd = icd
