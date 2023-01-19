@@ -310,6 +310,7 @@ end
 config.MapIDs = {
     [99] = "Karazhan",
     [100] = "Naxxramas",
+    [121] = "Ulduar",
 
     [111] = "Utgarde Keep",
     [112] = "The Culling of Stratholme",
@@ -325,6 +326,19 @@ config.defaultDebuffHighlights = {
         [29522] = { 29522, 1, "Maiden of Virtue, Holy Fire" },
         [34694] = { 34694, 1, "Moroes, Blind" },
         [30898] = { 30898, 1, "Prince Malchezaar, Shadow Word: Pain" },
+    },
+    ["Ulduar"] = {
+        [64125] = { 64125, 1, "Squeeze, Yogg-Saron 10" },
+        [64126] = { 64126, 1, "Squeeze, Yogg-Saron 25" },
+        [65722] = { 65722, 1, "Slag Pot, Ignis 10" },
+        [65723] = { 65723, 1, "Slag Pot, Ignis 25" },
+        [61903] = { 61903, 4, "Fusion Punch, Assembly of Iron 10" },
+        [63493] = { 63493, 4, "Fusion Punch, Assembly of Iron 25" },
+        [64290] = { 64290, 1, "Stone Grip, Kologarn 10" },
+        [64292] = { 64292, 1, "Stone Grip, Kologarn 25" },
+        [63018] = { 63018, 1, "Searing Light, XT-002 10" },
+        [65121] = { 65121, 1, "Searing Light, XT-002 25" },
+
     },
     ["Naxxramas"] = {
         [27808] = { 27808, 3, "Kel'Thuzad, Frost Blast" },
