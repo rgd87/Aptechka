@@ -540,7 +540,7 @@ end
 
 if playerClass == "EVOKER" then
     -- Blessing of the Bronze
-    A{ id = 381748, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.6, 0}, priority = 50, isMissing = true }
+    A{ id = { 381748, 381732, 381741, 381746, 381749, 381750, 381751, 381752, 381753, 381754, 381756, 381757, 381758 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.6, 0}, priority = 50, isMissing = true }
 
     -- Lifebind talent
     A{ id = 373267, type = "HELPFUL", assignto = set("bars" ), scale = 0.8, color = { 1, 0, 0.4}, priority = 30, infoType = "DURATION", isMine = true }
