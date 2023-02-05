@@ -255,14 +255,14 @@ local defaults = {
         showRaidIcons = true,
         showDispels = true,
         showSeparator = false,
-        showIconCooldownCount = false,
+        showIconCooldownCount = true,
         showFloatingIcons = true,
         showPowerTypesTank = false,
         showPowerTypesDamage = false,
         clampIncomingHeal = true,
         healthTexture = "Gradient",
         powerTexture = "Gradient",
-        damageEffect = true,
+        damageEffect = false,
         auraUpdateEffect = true,
         gradientHealthColor = false,
         healthColorByClass = true,
@@ -1172,7 +1172,8 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     end
     incomingHeal = mergedIncomingHealing and incomingHeal or 0
     -- h-hm-incomingHeal-h is not the missing+incoming, but kind of a flag if either deviate more than 5% from max
-    FrameSetJob(self, config.HealthTextStatus, ((h-hm-incomingHeal) < hm*-0.05), nil, h, hm, incomingHeal)
+    -- FrameSetJob(self, config.HealthTextStatus, ((h-hm-incomingHeal) < hm*-0.05), nil, h, hm, incomingHeal)
+    FrameSetJob(self, config.HealthTextStatus, ((h-hm-incomingHeal) < hm), nil, h, hm, incomingHeal)
 
     if not event then return end -- no death checks on CLH
 

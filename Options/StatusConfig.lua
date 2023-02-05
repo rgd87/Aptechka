@@ -177,7 +177,8 @@ function ns.MakeStatusConfig()
                     PERCENTAGE_NOSIGN = L"Percentage No Sign",
                     MISSING_VALUE_SHORT = L"Missing Value",
                     MISSING_HEALING_SHORT = L"Missing Health excl. Incoming Healing",
-                    -- VALUE_SHORT = L"Value",
+                    VALUE_SHORT = L"Value short",
+                    VALUE = L"Value",
                 },
                 get = function() return AptechkaConfigMerged[status].formatType end,
                 set = function(info, value)

@@ -1131,7 +1131,7 @@ function Aptechka.Widget.Indicator.Create(parent, popts, gopts)
         icd:SetSwipeColor(0, 0, 0);
         icd:SetDrawEdge(false);
         -- icd:SetDrawSwipe(true);
-        icd:SetHideCountdownNumbers(true);
+        icd:SetHideCountdownNumbers(false);
 
 
     icd:SetReverse(true)
@@ -1584,7 +1584,7 @@ local function AddStackText(parent, anchorRegion)
     local stacktext = stackframe:CreateFontString(nil,"ARTWORK")
     stacktext:SetDrawLayer("ARTWORK",1)
     stacktext:SetJustifyH"RIGHT"
-    stacktext:SetPoint("BOTTOMRIGHT", anchorRegion, "BOTTOMRIGHT", 3,-1)
+    stacktext:SetPoint("BOTTOMRIGHT", anchorRegion, "BOTTOMRIGHT", 8,-8)
     stacktext:SetTextColor(1,1,1)
     return stacktext
 end
@@ -1661,7 +1661,7 @@ function Aptechka.Widget.Icon.Create(parent, popts, gopts)
 
     local icd = CreateFrame("Cooldown",nil,icon, "CooldownFrameTemplate")
     if not Aptechka.db.global.showIconCooldownCount then
-        icd.noCooldownCount = true -- disable OmniCC for this cooldown
+        icd.noCooldownCount = false -- disable OmniCC for this cooldown
         icd:SetHideCountdownNumbers(true)
     end
     icd:SetReverse(true)
@@ -1720,7 +1720,7 @@ local function DebuffIcon_SetJob(self, debuffType, expirationTime, duration, ico
 end
 
 local debuff_border_backdrop = {
-    edgeFile = "Interface\\AddOns\\Aptechka\\border_3px", edgeSize = 8, tileEdge = false,
+    edgeFile = "Interface\\AddOns\\Aptechka\\border_3px", edgeSize = 12, tileEdge = false,
 }
 
 local function DebuffIcon_SetDebuffStyle(self, opts)
@@ -1776,8 +1776,8 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         self.border = true
         self:SetBackdrop(debuff_border_backdrop)
         self:SetBackdropBorderColor(1,0,0)
-        it:SetSize(w-6*p,h-6*p)
-        it:SetPoint("TOPLEFT", self, "TOPLEFT", p*3, -p*3)
+        it:SetSize(w-8*p,h-8*p)
+        it:SetPoint("TOPLEFT", self, "TOPLEFT", p*4, -p*4)
         cd:SetAllPoints(self)
         dtt:Hide()
     elseif style == "STRIP_BOTTOM" then
