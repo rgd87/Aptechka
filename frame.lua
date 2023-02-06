@@ -10,6 +10,8 @@ local LSM = LibStub("LibSharedMedia-3.0")
 LSM:Register("statusbar", "Gradient", [[Interface\AddOns\Aptechka\gradient.tga]])
 LSM:Register("font", "AlegreyaSans-Medium", [[Interface\AddOns\Aptechka\AlegreyaSans-Medium.ttf]],  GetLocale() ~= "enUS" and 15)
 
+local ShadowTexture = "Interface\\BUTTONS\\WHITE8X8"
+
 local APILevel = math.floor(select(4,GetBuildInfo())/10000)
 
 local string_format = string.format
@@ -197,6 +199,27 @@ local MakeCompositeBorder = function(frame, tex, left, right, top, bottom, drawL
 
     return border
 end
+
+--- from Tukui
+local CreateShadow = function(self, ShadowScale)
+	if (self.Shadow) then
+		return
+	end
+
+	local Level = (self:GetFrameLevel() - 1 >= 0 and self:GetFrameLevel() - 1) or (0)
+	local Scale = ShadowScale or 1
+	local Shadow = CreateFrame("Frame", nil, self, "BackdropTemplate")
+
+	Shadow:SetBackdrop({edgeFile = ShadowTexture, edgeSize = pixelperfect(4)})
+	Shadow:SetFrameLevel(Level)
+	Shadow:SetOutside(self, pixelperfect(3), pixelperfect(3))
+	Shadow:SetBackdropBorderColor(0, 0, 0, .8)
+	Shadow:SetScale(pixelperfect(Scale))
+
+	frame.Shadow = Shadow
+end
+
+
 
 local function GetSpellColor(job, caster, count)
     local color
@@ -949,7 +972,7 @@ end
 
 local function ArrayHeader_Arrange(hdr, startIndex)
     local numChildren = #hdr.children
-    local gap = pixelperfect(1)
+    local gap = pixelperfect(3)
 
     local point, relativeTo, relativePoint, _, _ = hdr:GetPoint(1)
     local alignH = helpers.GetHorizontalAlignmentFromPoint(point)
@@ -1671,6 +1694,8 @@ function Aptechka.Widget.Icon.Create(parent, popts, gopts)
     AddBlinkAnimation(icon)
     icon.StartTrace = Icon_StartTrace
 
+    icon:CreateShadow()
+
     Aptechka.Widget.Icon.Reconf(parent, icon, popts, gopts)
 
     return WrapFrameAsWidget(icon)
@@ -1720,7 +1745,7 @@ local function DebuffIcon_SetJob(self, debuffType, expirationTime, duration, ico
 end
 
 local debuff_border_backdrop = {
-    edgeFile = "Interface\\AddOns\\Aptechka\\border_3px", edgeSize = 12, tileEdge = false,
+    edgeFile = "Interface\\AddOns\\Aptechka\\border_3px", edgeSize = pixelperfect(3), tileEdge = false,
 }
 
 local function DebuffIcon_SetDebuffStyle(self, opts)
@@ -1776,8 +1801,8 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         self.border = true
         self:SetBackdrop(debuff_border_backdrop)
         self:SetBackdropBorderColor(1,0,0)
-        it:SetSize(w-8*p,h-8*p)
-        it:SetPoint("TOPLEFT", self, "TOPLEFT", p*4, -p*4)
+        it:SetSize(pixelperfect(w-2*p), pixelperfect(h-2*p))
+        it:SetPoint("TOPLEFT", self, "TOPLEFT", p, -p)
         cd:SetAllPoints(self)
         dtt:Hide()
     elseif style == "STRIP_BOTTOM" then
@@ -3180,6 +3205,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.ReconfigureUnitFrame = Reconf
 
     local outline = MakeCompositeBorder(self, "Interface\\BUTTONS\\WHITE8X8", outlineSize, outlineSize, outlineSize, outlineSize, "BACKGROUND", -2)
+    outline.parent:CreateShadow()
     -- outline:Set(1,1,1,1)
 
     -- local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
