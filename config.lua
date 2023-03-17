@@ -699,7 +699,7 @@ config.defaultDebuffHighlights = {
     },
     ["Ruby Life Pools"] = {
         [372047] = { 372047, 4, "Defiler Draghar, Steel Barrage" },
-    }
+    },
 
     ["Return to Karazhan: Lower"] = {
         [228239] = { 228239, 3, "Forlorn Spirit, Terrifying Wail" },
