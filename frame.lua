@@ -268,10 +268,12 @@ local function GetClassOrTextColor(job, state)
     return r,g,b, a, tr,tg,tb
 end
 
+local math_abs = math.abs
 local function formatMissingHealth(mh)
-    if mh < 1000 then
+    local amh = math_abs(mh)
+    if amh < 1000 then
         return "%d", mh
-    elseif mh < 10000 then
+    elseif amh < 10000 then
         return "%.1fk", mh / 1000
     else
         return "%.0fk", mh / 1000
@@ -279,9 +281,10 @@ local function formatMissingHealth(mh)
 end
 
 local function formatShorten(v)
-    if v < 1000 then
+    local av = math_abs(v)
+    if av < 1000 then
         return "%d", v
-    elseif v < 10000 then
+    elseif av < 10000 then
         return "%.1fk", v / 1000
     else
         return "%.0fk", v / 1000
@@ -300,6 +303,7 @@ end
 
 local TextFormatters = {
     MISSING_VALUE_SHORT = function(cur, max)
+        print(cur-max, formatMissingHealth(cur-max))
         return string_format(formatMissingHealth(cur-max))
     end,
     MISSING_HEALING_SHORT = function(cur, max, incomingHeal)
@@ -324,6 +328,7 @@ local TextFormatters = {
     end,
 }
 local function FormatText(job, ...)
+    print(job.formatType)
     local formattter = TextFormatters[job.formatType] or TextFormatters.VALUE
     return formattter(...)
 end
