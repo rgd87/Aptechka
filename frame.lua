@@ -303,7 +303,6 @@ end
 
 local TextFormatters = {
     MISSING_VALUE_SHORT = function(cur, max)
-        print(cur-max, formatMissingHealth(cur-max))
         return string_format(formatMissingHealth(cur-max))
     end,
     MISSING_HEALING_SHORT = function(cur, max, incomingHeal)
