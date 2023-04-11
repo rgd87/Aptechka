@@ -327,7 +327,6 @@ local TextFormatters = {
     end,
 }
 local function FormatText(job, ...)
-    print(job.formatType)
     local formattter = TextFormatters[job.formatType] or TextFormatters.VALUE
     return formattter(...)
 end
