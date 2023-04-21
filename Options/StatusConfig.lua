@@ -17,6 +17,7 @@ function ns.MakeStatusConfig()
     local configurableWidgets = {
         "AggroStatus",
         "TargetStatus",
+        "FocusStatus",
         "MouseoverStatus",
         "MainTankStatus",
         "LeaderStatus",

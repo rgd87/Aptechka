@@ -525,6 +525,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self.previousTarget = "player"
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
     end
+    if config.FocusStatus then
+        self.previousFocus = "player"
+        self:RegisterEvent("PLAYER_FOCUS_CHANGED")
+    end
 
     if config.VoiceChatStatus then
         self:RegisterEvent("VOICE_CHAT_CHANNEL_ACTIVATED")
@@ -1907,9 +1911,13 @@ function Aptechka:UpdateTargetStatusConfig()
     if not self.db.global.enableTargetStatus then
         Aptechka:ForEachFrame(function(self) SetJob(self, config.TargetStatus, false) end)
         Aptechka:UnregisterEvent("PLAYER_TARGET_CHANGED")
+        Aptechka:ForEachFrame(function(self) SetJob(self, config.FocusStatus, false) end)
+        Aptechka:UnregisterEvent("PLAYER_FOCUS_CHANGED")
     else
         Aptechka:PLAYER_TARGET_CHANGED()
         Aptechka:RegisterEvent("PLAYER_TARGET_CHANGED")
+        Aptechka:PLAYER_FOCUS_CHANGED()
+        Aptechka:RegisterEvent("PLAYER_FOCUS_CHANGED")
     end
 end
 --Target Indicator
@@ -1921,6 +1929,16 @@ function Aptechka.PLAYER_TARGET_CHANGED(self, event)
         Aptechka.previousTarget = newTargetUnit
     else
         SetJob(Aptechka.previousTarget, config.TargetStatus, false)
+    end
+end
+function Aptechka.PLAYER_FOCUS_CHANGED(self, event)
+    local newFocusUnit = guidMap[UnitGUID("focus")]
+    if newFocusUnit and Roster[newFocusUnit] then
+        SetJob(Aptechka.previousFocus, config.FocusStatus, false)
+        SetJob(newFocusUnit, config.FocusStatus, true)
+        Aptechka.previousFocus = newFocusUnit
+    else
+        SetJob(Aptechka.previousFocus, config.FocusStatus, false)
     end
 end
 

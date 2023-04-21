@@ -34,6 +34,7 @@ config.enableVehicleSwap = true
 config.enableAbsorbBar = true
 config.RangeStatus = { name = "OutOfRange", assignto = set("frameAlpha"), color = {0,0,0,0.65}, priority = 90 }
 config.TargetStatus = { name = "Target", assignto = set("border"), color = {0.7,0.2,0.5}, priority = 65 }
+config.FocusStatus = { name = "Focus", assignto = set("border"), color = {0.9,0.1,0.8}, priority = 60 }
 config.MouseoverStatus = { name = "Mouseover", assignto = set("border", "mouseoverHighlight"), color = {1,0.5,0.8}, priority = 66 }
 config.AggroStatus = { name = "Aggro", assignto = set("raidbuff"),  color = { 0.7, 0, 0},priority = 85 }
 config.RCReady = { name = "RCReady", priority = 90, assignto = set("statusIcon"), color = { 0, 1, 0}, text = "READY" }
