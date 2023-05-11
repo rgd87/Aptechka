@@ -1771,7 +1771,9 @@ end
 function Aptechka:UpdateDispelBitmask()
     local spec = GetSpecialization() or 1
     if config.DispelBitmasks and config.DispelBitmasks[spec] then
-        BITMASK_DISPELLABLE = config.DispelBitmasks[spec]
+        local mask = config.DispelBitmasks[spec]
+        if type(mask) == "function" then mask = mask(spec) end
+        BITMASK_DISPELLABLE = mask
     else
         BITMASK_DISPELLABLE = 0
     end

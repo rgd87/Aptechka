@@ -470,10 +470,17 @@ if playerClass == "SHAMAN" then
         RangeCheckBySpell(8004),
     }
 
+    local DynamicDispelTypes = function(...)
+        if IsPlayerSpell(383013) then -- Poison Cleansing Totem
+            return DispelTypes("Poison", ...)
+        end
+        return DispelTypes(...)
+    end
+
     config.DispelBitmasks = {
-        DispelTypes("Curse"),
-        DispelTypes("Curse"),
-        DispelTypes("Magic", "Curse"),
+        DynamicDispelTypes("Curse", "Poison"),
+        DynamicDispelTypes("Curse", "Poison"),
+        DynamicDispelTypes("Magic", "Curse", "Poison"),
     }
 end
 if playerClass == "HUNTER" then
