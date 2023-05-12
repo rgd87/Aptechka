@@ -1785,6 +1785,7 @@ end
 local roleCoords = {
     TANK = { 0, 19/64, 22/64, 41/64 },
     HEALER = { 20/64, 39/64, 1/64, 20/64 },
+    DAMAGER = { 20/64, 39/64, 22/64, 41/64 },
 }
 function Aptechka.FrameCheckRoles(self, unit )
 
@@ -1830,7 +1831,7 @@ function Aptechka.FrameCheckRoles(self, unit )
             FrameSetJob(self, config.AssistStatus, isAssistant)
         end
 
-        if role == "HEALER" or role == "TANK" then
+        if role == "HEALER" or role == "TANK" or role == "DAMAGER" then
             FrameSetJob(self, config.RoleStatus, true, "ROLE", role)
         else
             FrameSetJob(self, config.RoleStatus, false)

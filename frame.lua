@@ -479,6 +479,7 @@ end
 local roleCoords = {
     TANK = { 0, 19/64, 22/64, 41/64 },
     HEALER = { 20/64, 39/64, 1/64, 20/64 },
+    DAMAGER = { 20/64, 39/64, 22/64, 41/64 },
 }
 local roleColors = {
     TANK = { 0.4, 0.4, 1 },
@@ -1795,7 +1796,7 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         self:SetSize(w,h)
         if not self.SetBackdrop then
             -- if BackdropTemplateMixin then
-                Mixin( self, BackdropTemplateMixin)
+                Mixin(self, BackdropTemplateMixin)
             -- end
         end
         self.border = true
@@ -1803,7 +1804,7 @@ local function DebuffIcon_SetDebuffStyle(self, opts)
         self:SetBackdropBorderColor(1,0,0)
         it:SetSize(pixelperfect(w-2*p), pixelperfect(h-2*p))
         it:SetPoint("TOPLEFT", self, "TOPLEFT", p, -p)
-        cd:SetAllPoints(self)
+        -- cd:SetAllPoints(self)
         dtt:Hide()
     elseif style == "STRIP_BOTTOM" then
         local dttLen = h*0.25
