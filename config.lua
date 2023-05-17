@@ -696,6 +696,10 @@ config.defaultDebuffHighlights = {
 
     -- ["Vault of the Incarnates"] = {
     -- },
+    ["Uldaman"] = {
+        [369365] = { 369365, 1, "Earthen Warder, Curse of Stone" },
+        [369366] = { 369366, 3, "Earthen Warder, Trapped in Stone" },
+    },
     ["The Azure Vault"] = {
         [386549] = { 386549, 3, "Arcane Elemental, Waking Bane" },
         [384978] = { 384978, 4, "Umbrelskul, Dragon Strike" },
