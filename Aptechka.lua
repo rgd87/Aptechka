@@ -1461,6 +1461,7 @@ do
         SHAMAN = true,
         PALADIN = true,
         MONK = true,
+        EVOKER = true,
     }
     local showHybridMana = false
     function Aptechka.FrameUpdateDisplayPower(frame, unit, isDead)
