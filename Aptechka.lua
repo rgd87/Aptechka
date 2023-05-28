@@ -2739,7 +2739,16 @@ end
 local function OrderedHashMap_Add(t, dataID, job, ...)
     local existingIndex = t[dataID]
     if existingIndex then
-        local isChanged = updateTable(t[existingIndex], ...)
+        local existingData = t[existingIndex]
+        if not existingData then -- apparently this can happen
+            local newData = { ... }
+            newData.job = job
+            t[existingIndex] = newData
+            local isChanged = true
+            return isChanged
+        end
+
+        local isChanged = updateTable(existingData, ...)
         if not isChanged then
             return false
         end
