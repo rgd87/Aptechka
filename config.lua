@@ -250,7 +250,9 @@ AG{ id = 204293, template = "SurvivalCD" } -- Spirit Link (PvP)
 
 -- EVOKER
 AG{ id = 363916, template = "SurvivalCD" } -- Obsidian Scales
+AG{ id = 406732, template = "SurvivalCD" } -- Spatial Paradox (Move Cast)
 AG{ id = 374348, template = "SurvivalCD" } -- Renewing Blaze
+AG{ id = 370960, template = "SurvivalCD" } -- Emerald Communion
 AG{ id = 357170, template = "SurvivalCD" } -- Time Dilation
 
 -- Stealth, Prowl, Camo, Shadowmeld
@@ -572,7 +574,17 @@ if playerClass == "EVOKER" then
     Trace{id = 355916, template = "HealTrace", color = { 1, 0.3, 0.55} } -- Emerald Blossom
 
 
+    -- Ebon Might
+    A{ id = { 395152 }, type = "HELPFUL", assignto = set("bars"), extend_below = 10, color = { 1, .3, .3}, priority = 90 }
+
+    -- Prescience
+    A{ id = { 409311 }, type = "HELPFUL", assignto = set("bars"), color = { 1, .3, .3}, priority = 80 }
+
+    -- Blistering Scales
+    A{ id = { 360827 }, type = "HELPFUL", assignto = set("bar4"), color = { 0.6, 0.6, 0.4}, priority = 82 }
+
     config.UnitInRangeFunctions = {
+        RangeCheckBySpell(361469),
         RangeCheckBySpell(361469),
         RangeCheckBySpell(361469),
     }
@@ -1639,6 +1651,7 @@ helpers.buffGainWhitelist = {
     [81256] = AURA, -- Dancing Rune Weapon
 
     -- MAGE
+    [80353] = CAST, -- Time Warp
     [324220] = AURA, -- Deathborne (Necrolord)
     --[[DUP]] [110909] = AURA, -- Alter Time
     [12042] = AURA, -- Arcane Power
@@ -1692,6 +1705,7 @@ helpers.buffGainWhitelist = {
     --[[DUP]] [196718] = CAST, -- Darkness
 
     -- HUNTER
+    -- [264667] = CAST, -- Primal Rage (from pet)
     [266779] = AURA, -- Coordinated Assault
     [19574] = AURA, -- Bestial Wrath
     [288613] = AURA, -- Trueshot
@@ -1699,6 +1713,8 @@ helpers.buffGainWhitelist = {
     --[[DUP]] [264735] = AURA, -- Survival of the Fittest
 
     -- SHAMAN
+    [2825] = CAST, -- Bloodlust
+    [32182] = CAST, -- Heroism
     --[[DUP]] [108271] = AURA, -- Astral Shift
     [58875] = AURA, -- Spirit Walk
     [51533] = CAST, -- Feral Spirit
@@ -1706,5 +1722,18 @@ helpers.buffGainWhitelist = {
     [204336] = CAST, -- Grounding Totem
     [98008] = CAST, -- Spirit Link Totem
     [108280] = CAST, -- Healing Tide Totem
+
+    -- EVOKER
+    [375087] = CAST, -- Dragonrage
+
+    [403631] = CAST, -- Breath of Eons
+    [404977] = CAST, -- Time Skip
+    [363916] = AURA, -- Obsidian Scales
+    [374348] = AURA, -- Renewing Blaze
+    [363534] = CAST, -- Rewind
+    [370960] = CAST, -- Emerald Communion
+    [374227] = CAST, -- Zephyr
+
+    [390386] = CAST, -- Fury of the Aspects
 }
 end
