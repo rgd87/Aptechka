@@ -428,6 +428,14 @@ function contentNormalizers.PHASED(job, state, contentType, ...)
     text = job.name
     return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
+function contentNormalizers.RESURRECTION(job, state, contentType, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
+    texture = "Interface\\RaidFrame\\Raid-Icon-Rez"
+
+    r,g,b, a, tr,tg,tb = GetTextColor(job)
+    text = job.name
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
+end
 local roleCoords = {
     TANK = { 0, 19/64, 22/64, 41/64 },
     HEALER = { 20/64, 39/64, 1/64, 20/64 },
@@ -441,18 +449,29 @@ function contentNormalizers.ROLE(job, state, contentType, ...)
     r,g,b = 1,1,1
     return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
+
+
+local READY_CHECK_READY_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-Ready"
+local READY_CHECK_NOT_READY_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-NotReady"
+local READY_CHECK_WAITING_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-Waiting"
 function contentNormalizers.READY_CHECK(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local status = ...
+    -- texCoords = "ATLAS"
     if status == 'ready' then
         texture = READY_CHECK_READY_TEXTURE
+        -- texture = "UI-LFG-ReadyMark"
+        r,g,b = 0,1,0
     elseif status == 'notready' then
         texture = READY_CHECK_NOT_READY_TEXTURE
+        -- texture = "UI-LFG-DeclineMark"
+        r,g,b = 1,0,0
     elseif status == 'waiting' then
         texture = READY_CHECK_WAITING_TEXTURE
+        -- texture = "UI-LFG-PendingMark"
+        r,g,b = 1,1,0
     end
     text = job.name
-    r,g,b = 1,1,1
     return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 function contentNormalizers.OUTOFRANGE(job, state, contentType, ...)
@@ -1163,13 +1182,19 @@ local SetJob_Texture = function(self, job, state, contentType, ...)
 
     local tex
     if texture and not self.disableOverrides then
+
         t.usingCustomTexture = true
-        t:SetTexture(texture)
+
         r,g,b = 1,1,1
-        if texCoords then
-            t:SetTexCoord(unpack(texCoords))
+        if texCoords == "ATLAS" then
+            t:SetAtlas(texture, false)
         else
-            t:SetTexCoord(0,1,0,1)
+            t:SetTexture(texture)
+            if texCoords then
+                t:SetTexCoord(unpack(texCoords))
+            else
+                t:SetTexCoord(0,1,0,1)
+            end
         end
     else
         t.usingCustomTexture = nil

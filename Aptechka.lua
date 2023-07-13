@@ -1187,7 +1187,7 @@ function Aptechka.UNIT_HEALTH(self, event, unit)
 end
 
 function Aptechka.FrameUpdateIncomingRes(frame, unit)
-    FrameSetJob(frame, config.IncResStatus, UnitHasIncomingResurrection(unit), "TEXTURE", "Interface\\RaidFrame\\Raid-Icon-Rez")
+    FrameSetJob(frame, config.IncResStatus, UnitHasIncomingResurrection(unit), "RESURRECTION")
 end
 function Aptechka.INCOMING_RESURRECT_CHANGED(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateIncomingRes)
