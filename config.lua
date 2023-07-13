@@ -578,7 +578,7 @@ if playerClass == "EVOKER" then
     A{ id = { 395152 }, type = "HELPFUL", assignto = set("bars"), extend_below = 10, color = { 1, .3, .3}, priority = 90 }
 
     -- Prescience
-    A{ id = { 409311 }, type = "HELPFUL", assignto = set("bars"), color = { 1, .3, .3}, priority = 80 }
+    A{ id = { 410089 }, type = "HELPFUL", assignto = set("bars"), color = { 1, .3, .3}, priority = 80 }
 
     -- Blistering Scales
     A{ id = { 360827 }, type = "HELPFUL", assignto = set("bar4"), color = { 0.6, 0.6, 0.4}, priority = 82 }
