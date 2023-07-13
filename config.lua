@@ -578,7 +578,7 @@ if playerClass == "EVOKER" then
 
 
     -- Ebon Might
-    A{ id = { 395152 }, type = "HELPFUL", assignto = set("bars"), extend_below = 10, infoType = "DURATION", isMine = true, color = { 1, .3, .3}, priority = 90 }
+    A{ id = { 395296 }, type = "HELPFUL", assignto = set("bars"), extend_below = 10, infoType = "DURATION", isMine = true, color = { 1, .3, .3}, priority = 90 }
 
     -- Prescience
     A{ id = { 410089 }, type = "HELPFUL", assignto = set("bars"), color = { 1, .3, .3}, infoType = "DURATION", isMine = true, priority = 80 }
