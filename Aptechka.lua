@@ -356,7 +356,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     if config.enableIncomingHeals then
-        if apiLevel == 3 and Aptechka.db.global.useHealComm then
+        if false then
 
             function Aptechka:HealUpdated(event, casterGUID, spellID, healType, endTime, ...)
                 for i=1,select('#', ...) do
@@ -1763,7 +1763,7 @@ end
 function Aptechka:UpdateRangeChecker()
     local spec = GetSpecialization() or 1
     if config.UnitInRangeFunctions and config.UnitInRangeFunctions[spec] then
-        uir = config.UnitInRangeFunctions[spec]
+        uir = UnitInRange
     else
         uir = UnitInRange
     end
