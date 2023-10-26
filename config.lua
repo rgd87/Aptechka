@@ -111,7 +111,7 @@ config.DefaultWidgets = {
     raidTargetIcon = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = -10, y = 10, texture = nil, rotation = 0, zorder = 16-DEFAULT_TEXLEVEL, alpha = 0.3, blendmode = "BLEND", disableOverrides = false },
     healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 7-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
     debuffHighlight = { type = "Texture", width = 12, height = 15, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 13-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
-    CCList = { type = "TextArray", point="BOTTOMLEFT", width = 60, height = 12, x=0, y=-15, font = config.defaultFont, textsize = 10, effect = "NONE", bg = true, bgAlpha = 0.7, padding = 1.5, growth = "DOWN", max = 4, justify = "LEFT" },
+    CCList = { type = "TextArray", point="BOTTOMLEFT", width = 60, height = 12, x=0, y=-15, zorder = 0, font = config.defaultFont, textsize = 10, effect = "NONE", bg = true, bgAlpha = 0.7, padding = 1.5, growth = "DOWN", max = 4, justify = "LEFT" },
     EnemyCounter = { type = "Text", point="TOPLEFT", width = 20, height = 15, x=19, y=6, zorder=0, font = config.defaultFont, textsize = 13, effect = "OUTLINE", bg = false, bgAlpha = 0.5, padding = 0, justify = "CENTER" },
 }
 
