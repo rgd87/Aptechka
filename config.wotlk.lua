@@ -311,6 +311,8 @@ config.MapIDs = {
     [99] = "Karazhan",
     [100] = "Naxxramas",
     [121] = "Ulduar",
+    [131] = "Trial of the Grand Crusader",
+    [141] = "Icecrown Citadel",
 
     [111] = "Utgarde Keep",
     [112] = "The Culling of Stratholme",
@@ -340,6 +342,25 @@ config.defaultDebuffHighlights = {
         [65121] = { 65121, 1, "Searing Light, XT-002 25" },
 
     },
+    ["Trial of the Grand Crusader"] = {
+        [66237] = { 66237, 1, "Incinerate Flesh, Lord Jaraxxus" },
+        [66013] = { 66013, 1, "Penetrating Cold, Anub'arak" },
+        [67281] = { 67281, 1, "Touch of Darkness, Twin Val'kyrs" },
+        [67296] = { 67296, 2, "Touch of Light, Twin Val'kyrs" },
+    },
+    ["Icecrown Citadel"] = {
+        [72670] = { 72670, 1, "Impale, Lord Marrowgar" },
+        [72385] = { 72385, 1, "Boiling Blood, Deathbringer Saurfang" },
+        [72293] = { 72293, 2, "Mark of the Fallen Champion, Deathbringer Saurfang" },
+        -- [69279] = { 69279, 1, "Gas Spore, Festergut" },
+        [72272] = { 72272, 3, "Vile Gas, Festergut" },
+        [69674] = { 69674, 3, "Mutated Infection, Rotface" },
+        [70157] = { 70157, 3, "Ice Tomb, Sindragosa" },
+
+        [70338] = { 70338, 1, "Necrotic Plague, Lich King" },
+        [68980] = { 68980, 2, "Harvest Soul, Lich King" },
+        [69409] = { 69409, 4, "Soul Reaper, Lich King" },
+    },
     ["Naxxramas"] = {
         [27808] = { 27808, 3, "Kel'Thuzad, Frost Blast" },
         [28622] = { 28622, 1, "Maexxna, Web Wrap" },
@@ -357,6 +378,13 @@ config.defaultDebuffHighlights = {
 -------------------------
 
 helpers.auraBlacklist = {
+    [72145] = true, -- Green Blight Residue (Weekly Quest debuff)
+    [72144] = true, -- Orange Blight Residue (Weekly Quest debuff)
+    [71041] = true, -- Dungeon Deserter
+    [71387] = true, -- Frost Aura
+    [70084] = true, -- Frost Aura
+    [69127] = true, -- Chill of the Throne
+
     [51120] = true, -- Tinnitus
     [26013] = true, -- PVP Deserter
     [8326] = true, -- Ghost
