@@ -874,7 +874,7 @@ function Aptechka.GetWidgetList()
     local list = Aptechka.GetWidgetListRaw()
     list["statusIcon"] = nil
     list["raidTargetIcon"] = nil
-    list["roleIcon"] = nil
+    -- list["roleIcon"] = nil
     list["debuffIcons"] = nil
     list["mindcontrol"] = nil
     -- list["unhealable"] = nil

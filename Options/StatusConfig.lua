@@ -30,6 +30,7 @@ function ns.MakeStatusConfig()
         "DeadStatus",
         "GhostStatus",
         "OfflineStatus",
+        "RoleStatus",
         "RunicPowerStatus",
         "AltPowerStatus",
         "DebuffAlert1",

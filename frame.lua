@@ -440,13 +440,17 @@ local roleCoords = {
     TANK = { 0, 19/64, 22/64, 41/64 },
     HEALER = { 20/64, 39/64, 1/64, 20/64 },
 }
+local roleColors = {
+    TANK = { 0.4, 0.4, 1 },
+    HEALER = { 0.4, 1, 0.4 },
+}
 function contentNormalizers.ROLE(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local role = ...
     texture = "Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES"
     texCoords = roleCoords[role]
-    text = job.name
-    r,g,b = 1,1,1
+    text = role
+    r,g,b = unpack(roleColors[role])
     return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 
