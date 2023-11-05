@@ -356,50 +356,45 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     end
 
     if config.enableIncomingHeals then
-        if false then
-
-            function Aptechka:HealUpdated(event, casterGUID, spellID, healType, endTime, ...)
-                for i=1,select('#', ...) do
-                    local targetGUID = select(i, ...)
-                    local unit = guidMap[targetGUID]
-                    if unit then
-                        Aptechka:UNIT_HEAL_PREDICTION(nil, unit, targetGUID)
-                    end
+        function Aptechka:HealUpdated(event, casterGUID, spellID, healType, endTime, ...)
+            for i=1,select('#', ...) do
+                local targetGUID = select(i, ...)
+                local unit = guidMap[targetGUID]
+                if unit then
+                    Aptechka:UNIT_HEAL_PREDICTION(nil, unit, targetGUID)
                 end
             end
+        end
 
-            HealComm = LibStub:GetLibrary("LibHealComm-4.0",true);
-            local incomingHealIgnoreHots = false
-            if HealComm then
-                if incomingHealIgnoreHots then
-                    HealComm.AptechkaHealType = HealComm.CASTED_HEALS
-                else
-                    HealComm.AptechkaHealType = HealComm.ALL_HEALS
-                    HealComm.RegisterCallback(self, "HealComm_HealUpdated", "HealUpdated");     -- hots
-                end
-                HealComm.RegisterCallback(self, "HealComm_HealStarted", "HealUpdated");
-                HealComm.RegisterCallback(self, "HealComm_HealStopped", "HealUpdated");
+        HealComm = LibStub:GetLibrary("LibHealComm-4.0",true);
+        local incomingHealIgnoreHots = false
+        if HealComm then
+            if incomingHealIgnoreHots then
+                HealComm.AptechkaHealType = HealComm.CASTED_HEALS
+            else
+                HealComm.AptechkaHealType = HealComm.ALL_HEALS
+                HealComm.RegisterCallback(self, "HealComm_HealUpdated", "HealUpdated");     -- hots
             end
+            HealComm.RegisterCallback(self, "HealComm_HealStarted", "HealUpdated");
+            HealComm.RegisterCallback(self, "HealComm_HealStopped", "HealUpdated");
+        end
 
 
 
-            local incomingHealTimeframe = 3.5
+        local incomingHealTimeframe = 3.5
 
-            GetIncomingHealsCustom = function (unit, excludePlayer)
-                local guid = UnitGUID(unit)
-                local heal = HealComm:GetHealAmount(guid, HealComm.AptechkaHealType, GetTime()+incomingHealTimeframe)
-                return heal or 0
-            end
+        GetIncomingHealsCustom = function (unit, excludePlayer)
+            local guid = UnitGUID(unit)
+            local heal = HealComm:GetHealAmount(guid, HealComm.AptechkaHealType, GetTime()+incomingHealTimeframe)
+            return heal or 0
+        end
 
-            function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
-                self:UNIT_HEALTH(event, unit)
+        function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
+            self:UNIT_HEALTH(event, unit)
 
-                local heal = GetIncomingHealsCustom(unit, false)
-                local showHeal = (heal and heal > threshold)
-                SetJob(unit, config.IncomingHealStatus, showHeal, "INCOMING_HEAL", heal)
-            end
-        else
-            self:RegisterEvent("UNIT_HEAL_PREDICTION")
+            local heal = GetIncomingHealsCustom(unit, false)
+            local showHeal = (heal and heal > threshold)
+            SetJob(unit, config.IncomingHealStatus, showHeal, "INCOMING_HEAL", heal)
         end
     end
 
