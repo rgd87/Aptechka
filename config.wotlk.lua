@@ -313,6 +313,7 @@ config.MapIDs = {
     [121] = "Ulduar",
     [131] = "Trial of the Grand Crusader",
     [141] = "Icecrown Citadel",
+    [142] = "The Ruby Sanctum",
 
     [111] = "Utgarde Keep",
     [112] = "The Culling of Stratholme",
@@ -345,8 +346,6 @@ config.defaultDebuffHighlights = {
     ["Trial of the Grand Crusader"] = {
         [66237] = { 66237, 1, "Incinerate Flesh, Lord Jaraxxus" },
         [66013] = { 66013, 1, "Penetrating Cold, Anub'arak" },
-        [67281] = { 67281, 1, "Touch of Darkness, Twin Val'kyrs" },
-        [67296] = { 67296, 2, "Touch of Light, Twin Val'kyrs" },
     },
     ["Icecrown Citadel"] = {
         [72670] = { 72670, 1, "Impale, Lord Marrowgar" },
@@ -356,10 +355,15 @@ config.defaultDebuffHighlights = {
         [72272] = { 72272, 3, "Vile Gas, Festergut" },
         [69674] = { 69674, 3, "Mutated Infection, Rotface" },
         [70157] = { 70157, 3, "Ice Tomb, Sindragosa" },
+        [70126] = { 70126, 4, "Frost Beacon, Sindragosa" },
 
         [70338] = { 70338, 1, "Necrotic Plague, Lich King" },
         [68980] = { 68980, 2, "Harvest Soul, Lich King" },
         [69409] = { 69409, 4, "Soul Reaper, Lich King" },
+    },
+    ["The Ruby Sanctum"] = {
+        [74562] = { 74562, 1, "Fiery Combustion, Halion" },
+        [74792] = { 74792, 2, "Soul Consumption, Halion" },
     },
     ["Naxxramas"] = {
         [27808] = { 27808, 3, "Kel'Thuzad, Frost Blast" },
