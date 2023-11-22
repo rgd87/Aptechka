@@ -264,9 +264,13 @@ function ns.MakeProfileSelection()
                 healer = {
                     name = L"Healer",
                     type = "toggle",
-                    get = function(info) return AptechkaDB_Char.forcedClassicRole == "HEALER" end,
+                    get = function(info)
+                        local tg = GetActiveTalentGroup()
+                        return AptechkaDB_Char.forcedClassicRole and AptechkaDB_Char.forcedClassicRole[tg] == "HEALER"
+                    end,
                     set = function(info, v)
                         local tg = GetActiveTalentGroup()
+                        AptechkaDB_Char.forcedClassicRole = AptechkaDB_Char.forcedClassicRole or {}
                         AptechkaDB_Char.forcedClassicRole[tg] = "HEALER"
                         Aptechka:OnRoleChanged()
                     end,
@@ -275,9 +279,13 @@ function ns.MakeProfileSelection()
                 damager = {
                     name = L"Damager/Tank",
                     type = "toggle",
-                    get = function(info) return AptechkaDB_Char.forcedClassicRole == "DAMAGER" end,
+                    get = function(info)
+                        local tg = GetActiveTalentGroup()
+                        return AptechkaDB_Char.forcedClassicRole and AptechkaDB_Char.forcedClassicRole[tg] == "DAMAGER"
+                    end,
                     set = function(info, v)
                         local tg = GetActiveTalentGroup()
+                        AptechkaDB_Char.forcedClassicRole = AptechkaDB_Char.forcedClassicRole or {}
                         AptechkaDB_Char.forcedClassicRole[tg] = "DAMAGER"
                         Aptechka:OnRoleChanged()
                     end,
