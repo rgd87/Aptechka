@@ -24,6 +24,7 @@ local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local UnitPhaseReason = UnitPhaseReason
 local GetSpecialization = GetSpecialization
 local GetSpecializationRole = GetSpecializationRole
+local GetActiveTalentGroup = GetActiveTalentGroup
 local HasIncomingSummon = C_IncomingSummon and C_IncomingSummon.HasIncomingSummon
 local COMBATLOG_OBJECT_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
 local COMBATLOG_OBJECT_AFFILIATION_UPTORAID = COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE
@@ -33,9 +34,14 @@ local dummyFalse = function() return false end
 local dummy0 = function() return 0 end
 if apiLevel <= 3 then
     GetSpecialization = function() return 1 end
+    -- GetSpecializationRole = function(spec)
+    --     local tg = GetActiveTalentGroup()
+    --     return GetTalentGroupRole(tg)
+    -- end
     GetSpecializationRole = function(spec)
         local tg = GetActiveTalentGroup()
-        return GetTalentGroupRole(tg)
+        if not AptechkaDB_Char.forcedClassicRole then return "DAMAGER" end
+        return AptechkaDB_Char.forcedClassicRole[tg]
     end
     UnitGetTotalAbsorbs = dummy0
     UnitGetTotalHealAbsorbs = dummy0
@@ -43,7 +49,7 @@ if apiLevel <= 3 then
     HasIncomingSummon = dummyNil
 end
 if apiLevel <= 2 then
-    GetSpecializationRole = function(spec) return AptechkaDB_Char.forcedClassicRole end
+    GetActiveTalentGroup = function() return 1 end
     UnitHasVehicleUI = dummyFalse
     UnitInVehicle = dummyFalse
     UnitUsingVehicle = dummyFalse
@@ -304,6 +310,12 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local firstTimeUse = AptechkaDB_Global == nil
     AptechkaDB_Global = AptechkaDB_Global or {}
     AptechkaDB_Char = AptechkaDB_Char or {}
+    if apiLevel <= 3 then
+        if type(AptechkaDB_Char.forcedClassicRole) == "string" then
+            local oldRole = AptechkaDB_Char.forcedClassicRole
+            AptechkaDB_Char.forcedClassicRole = { [1] = oldRole }
+        end
+    end
     self:DoMigrations(AptechkaDB_Global)
     self.db = LibStub("AceDB-3.0"):New("AptechkaDB_Global", defaults, "Default") -- Create a DB using defaults and using a shared default profile
     AptechkaDB = self.db
@@ -3838,14 +3850,17 @@ Aptechka.Commands = {
         end
     end,
     ["setrole"] = function(v) -- Classic and BCC manual role selection
-        if apiLevel >= 3 then return end
         v = string.upper(v)
-        if v == "HEALER" then
-            AptechkaDB_Char.forcedClassicRole = v
-        else
-            AptechkaDB_Char.forcedClassicRole = "DAMAGER"
+        if not AptechkaDB_Char.forcedClassicRole then
+            AptechkaDB_Char.forcedClassicRole = {}
         end
-        print("Role changed to", AptechkaDB_Char.forcedClassicRole)
+        local tg = GetActiveTalentGroup()
+        if v == "HEALER" then
+            AptechkaDB_Char.forcedClassicRole[tg] = v
+        else
+            AptechkaDB_Char.forcedClassicRole[tg] = "DAMAGER"
+        end
+        print("Talent Group's Role changed to", AptechkaDB_Char.forcedClassicRole[tg])
         Aptechka:OnRoleChanged()
     end,
     ["createpets"] = function()
