@@ -88,6 +88,12 @@ local manaClasses = {
     PALADIN = true
 }
 if playerClass == "PRIEST" then
+    -- Season of Discovery
+    -- Prayer of Mending
+    A{ id = 401859, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
+
+
+
     -- Power Word: Fortitude and Prayer of Fortitude
     A{ id = { 1243, 1244, 1245, 2791, 10937, 10938, 21562, 21564 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1243) end }
     -- Prayer of Shadow Protection
@@ -134,6 +140,12 @@ if playerClass == "PRIEST" then
 end
 
 if playerClass == "DRUID" then
+    -- Season of Discovery
+    -- Lifebloom
+    A{ id = 408124, type = "HELPFUL", assignto = set("bar4", "bar4text"), priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, foreigncolor =  { 0.1, 0.5, 0.1} }
+    -- Wild Growth
+    A{ id = 408120, type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, infoType = "DURATION", isMine = true, foreigncolor =  { 0, 0.45, 0.35}}
+
     -- Mark of the Wild, Gift of the Wild
     A{ id = { 1126, 5232, 5234, 6756, 8907, 9884, 9885, 21849, 21850 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.2, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1126) end }
 
@@ -160,6 +172,12 @@ end
 
 
 if playerClass == "PALADIN" then
+    -- Season of Discovery
+    -- Beacon of Light
+    A{ id = 407613, type = "HELPFUL", assignto = set("bar4"), infoType = "DURATION", isMine = true, color = { 0,.9,0 }, foreigncolor = { 0.96/2, 0.55/2, 0.73/2 }, }
+    -- Horn of Lordaeron
+    A{ id = 425600, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, .4 , 1}, priority = 50 }
+
 
     -- Forbearance
     A{ id = 25771, type = "HARMFUL", assignto = set("bars"), showDuration = true, color = { 0.8, 0, 0 } }
@@ -235,6 +253,15 @@ if playerClass == "SHAMAN" then
 end
 
 if playerClass == "MAGE" then
+    -- Season of Discovery
+    -- Regeneration
+    A{ id = 401417, type = "HELPFUL", assignto = set("bars"), priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, infoType = "DURATION", }
+    -- Mass Regeneration
+    A{ id = 412510, type = "HELPFUL", assignto = set("bars"), priority = 51, color = { 0, 0.9, 0}, foreigncolor = {0.1, 0.4, 0.1}, infoType = "DURATION", }
+    -- Temporal Beacon
+    A{ id = 400735, type = "HELPFUL", assignto = set("bar4"), extend_below = 30, color = { 1, .3, .3}, infoType = "DURATION", isMine = true}
+
+
 
     -- Arcane Intellect and Brilliance
     A{ id = { 1459, 1460, 1461, 10156, 10157, 23028 }, type = "HELPFUL", assignto = set("raidbuff"), color = { .4 , .4, 1 }, priority = 50, isMissing = true,
@@ -249,11 +276,11 @@ if playerClass == "MAGE" then
     A{ id = { 1008, 8455, 10169, 10170 }, type = "HELPFUL", assignto = set("spell3"), color = {1,0.7,0.5}, priority = 80 }
 
 
-    if IsPlayerSpell(1459) then
-        config.UnitInRangeFunctions = {
-            RangeCheckBySpell(1459), -- Arcane Intellect, 30yd range
-        }
-    end
+    -- if IsPlayerSpell(1459) then
+    --     config.UnitInRangeFunctions = {
+    --         RangeCheckBySpell(1459), -- Arcane Intellect, 30yd range
+    --     }
+    -- end
 
     config.DispelBitmasks = {
         DispelTypes("Curse")
@@ -301,6 +328,7 @@ config.defaultDebuffHighlights = {
 -------------------------
 
 helpers.auraBlacklist = {
+    [432069] = true, -- Tangled Causality (Season of Discovery Mage Healing debuff)
     [26013] = true, -- PVP Deserter
     [8326] = true, -- Ghost
     [25771] = true, -- Forbearance
