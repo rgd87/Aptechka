@@ -25,5 +25,3 @@ externals:
   Libs/LibDataBroker-1.1: https://github.com/tekkub/libdatabroker-1-1.git
   Libs/LibDBIcon-1.0: https://repos.wowace.com/wow/libdbicon-1-0/trunk/LibDBIcon-1.0
   Libs/LibTranslit-1.0: https://github.com/Vardex/LibTranslit.git
-  Libs/LibHealComm-4.0: https://github.com/Azilroka/LibHealComm-4.0.git
-  Libs/LibClassicDurations: https://repos.curseforge.com/wow/libclassicdurations

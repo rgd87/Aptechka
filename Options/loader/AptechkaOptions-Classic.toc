@@ -1,4 +1,4 @@
-## Interface: 11307
+## Interface: 11500
 ## Title: AptechkaOptions
 ## Notes: Options module for Aptechka
 ## Author: d87

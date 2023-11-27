@@ -151,7 +151,6 @@ local LibTranslit = LibStub("LibTranslit-1.0")
 local GetIncomingHealsCustom -- upvalue to swap based on HealComm usage
 -- Classic things
 local HealComm
-local LibClassicDurations = LibStub("LibClassicDurations", true)
 local spellNameToID = helpers.spellNameToID
 
 local L = setmetatable({}, {
@@ -415,11 +414,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end
     end
 
-    if LibClassicDurations then
-        LibClassicDurations:RegisterFrame(self)
-        UnitAura = LibClassicDurations.UnitAuraWrapper
-        Aptechka:UpdateSpellNameToIDTable()
-    end
     if apiLevel <= 3 then
         function Aptechka:SetClassicClickcastAttributes(f)
             if f:CanChangeAttribute() then
@@ -756,10 +750,6 @@ function Aptechka:GenerateMergedConfig()
     config.GLOBAL = nil
     config[class] = nil
 
-    if apiLevel == 1 then
-        Aptechka.spellNameToID = helpers.spellNameToID
-        Aptechka:UpdateSpellNameToIDTable()
-    end
 
     -- Template application
     helpers.UnwrapConfigTemplates(AptechkaConfigMerged.traces)
@@ -3015,60 +3005,6 @@ local function SetDebuffIcon(frame, unit, index, debuffType, expirationTime, dur
     end
 end
 
-if apiLevel == 1 then
-    local spellNameBasedCategories = { "traces" }
-    function Aptechka:UpdateSpellNameToIDTable()
-        local mergedConfig = AptechkaConfigMerged
-        local visited = {}
-
-        for _, catName in ipairs(spellNameBasedCategories) do
-            local category = mergedConfig[catName]
-            if category then
-                for spellID, opts in pairs(category) do
-                    if not visited[opts] then
-                        local lastRankID
-                        local clones = opts.clones
-                        if clones and next(clones)then
-                            lastRankID = spellID
-                            for sid in pairs(clones) do
-                                if lastRankID < sid then
-                                    lastRankID = sid
-                                end
-                            end
-                        else
-                            lastRankID = spellID
-                        end
-                        helpers.AddSpellNameRecognition(lastRankID)
-
-                        visited[opts] = true
-                    end
-                end
-            end
-        end
-    end
-
-
-    SetDebuffIcon = function (frame, unit, index, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, spellName)
-        local iconFrame = frame.debuffIcons[index]
-        if debuffType == false then
-            iconFrame:Hide()
-        else
-            iconFrame:SetJob(debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
-            iconFrame:Show()
-
-            local refreshTimestamp = frame.auraEvents[spellName]
-            local now = GetTime()
-            if refreshTimestamp and now - refreshTimestamp < 0.1 then
-                frame.auraEvents[spellName] = nil
-
-                iconFrame.eyeCatcher:Stop()
-                iconFrame.eyeCatcher:Play()
-            end
-        end
-    end
-end
-
-
 local encountered = {}
 
 local function IndicatorAurasProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID )
@@ -3169,9 +3105,6 @@ end
 local UnitAuraUniversal -- If available it's using slots API, otherwise just normal UnitAura
 if apiLevel <= 3 then
     UnitAuraUniversal = UnitAura
-    if LibClassicDurations then
-        UnitAuraUniversal = LibClassicDurations.UnitAuraWrapper
-    end
     ForEachAura = function(frame, unit, filter, batchSize, func)
         for i=1,100 do
             local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, i, filter)

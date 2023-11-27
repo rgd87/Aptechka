@@ -4,8 +4,6 @@ local L = Aptechka.L
 
 local LSM = LibStub("LibSharedMedia-3.0")
 
-local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-
 local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
 
 local AceGUI = LibStub("AceGUI-3.0")
@@ -352,10 +350,6 @@ local function form_save(form)
                 end
                 AptechkaConfigMerged[category][spellID] = delta
                 delta.isAdded = true
-            end
-
-            if LibStub("LibClassicDurations", true) then
-                Aptechka:UpdateSpellNameToIDTable()
             end
 
             local originalSpell = AptechkaConfigMerged[category][spellID]
