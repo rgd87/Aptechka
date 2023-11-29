@@ -190,6 +190,7 @@ local defaults = {
         debuffTooltip_bindCtrl = true,
         useDebuffOrdering = true, -- On always?
         customDebuffHighlights = {},
+        forceShamanColor = true,
         borderWidth = 1,
         enableProfileSwitching = true,
         profileSelection = {
@@ -319,6 +320,16 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.db = LibStub("AceDB-3.0"):New("AptechkaDB_Global", defaults, "Default") -- Create a DB using defaults and using a shared default profile
     AptechkaDB = self.db
 
+    if apiLevel == 1 and self.db.global.forceShamanColor and not CUSTOM_CLASS_COLORS then
+        customColors = {
+            SHAMAN = {
+                b=0.86666476726532,
+                g=0.4392147064209,
+                r=0,
+            }
+        }
+    end
+
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
     colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
 
@@ -341,7 +352,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.db.RegisterCallback(self, "OnProfileChanged", "Reconfigure")
     self.db.RegisterCallback(self, "OnProfileCopied", "Reconfigure")
     self.db.RegisterCallback(self, "OnProfileReset", "Reconfigure")
-
 
     local customBlacklist = AptechkaDB.global.customBlacklist
     blacklist = setmetatable({}, {

@@ -58,7 +58,7 @@ function ns.MakeGlobalSettings()
                         order = 8.3,
                     },
                     singleHeaderMode = {
-                        name = L"Merge Groups"..newFeatureIcon,
+                        name = L"Merge Groups",
                         desc = L"Lose distinction between groups, but sorting will work across the whole raid",
                         width = "full",
                         type = "toggle",
@@ -243,8 +243,22 @@ function ns.MakeGlobalSettings()
                             Aptechka:UpdateDebuffScanningMethod()
                         end
                     },
+                    forceShamanColor = {
+                        name = "Retail Shaman Color",
+                        desc = "Use the usual blue color for shamans. Overriden by ClassColors addon if present",
+                        type = "toggle",
+                        disabled = APILevel > 1,
+                        confirm = true,
+						confirmText = "Warning: Requires UI reloading.",
+                        get = function(info) return Aptechka.db.global.forceShamanColor end,
+                        set = function(info, v)
+                            Aptechka.db.global.forceShamanColor = not Aptechka.db.global.forceShamanColor
+                            ReloadUI()
+                        end,
+                        order = 15.8,
+                    },
                     enableRoles = {
-                        name = L"Display Roles"..newFeatureIcon,
+                        name = L"Display Roles",
                         desc = L"Disable role icons for WotLK",
                         type = "toggle",
                         width = "full",
@@ -255,8 +269,9 @@ function ns.MakeGlobalSettings()
                             Aptechka:PrintReloadUIWarning()
                         end
                     },
+                    --[[
                     useHealComm = {
-                        name = L"Use LibHealComm"..newFeatureIcon,
+                        name = L"Use LibHealComm",
                         desc = L"Gives hots in incoming healing, may cause errors",
                         type = "toggle",
                         disabled = not isClassic,
@@ -267,7 +282,7 @@ function ns.MakeGlobalSettings()
                             Aptechka.db.global.useHealComm = not Aptechka.db.global.useHealComm
                             Aptechka:PrintReloadUIWarning()
                         end
-                    },
+                    },]]
                     useCLH = {
                         name = L"Use LibCLHealth",
                         desc = L"More frequent health updates based combat log",
