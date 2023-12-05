@@ -90,7 +90,7 @@ local manaClasses = {
 if playerClass == "PRIEST" then
     -- Season of Discovery
     -- Prayer of Mending
-    A{ id = 401859, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
+    A{ id = { 401859, 402832, 401882, 401880, 401877, 401863 }, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
 
 
 
