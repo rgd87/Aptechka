@@ -209,6 +209,7 @@ globals = {
     "UnitClass",
     "UnitIsTapDenied",
     "UnitReaction",
+    "UnitInPhase",
     "IsPlayerSpell",
     "GetShapeshiftForm",
     "CanAccessObject",

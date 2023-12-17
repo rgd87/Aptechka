@@ -91,7 +91,10 @@ if playerClass == "PRIEST" then
     -- Season of Discovery
     -- Prayer of Mending
     A{ id = { 401859, 402832, 401882, 401880, 401877, 401863 }, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
-
+    -- Penance
+    Trace{id = 402289, template = "HealTrace", color = { 52/255, 172/255, 114/255 } }
+    -- Circle of Healing
+    Trace{id = 401946, template = "HealTrace", color = { 1, 0.7, 0.35} }
 
 
     -- Power Word: Fortitude and Prayer of Fortitude
@@ -300,6 +303,7 @@ end
 
 config.MapIDs = {
     -- Classic semi-random map ids, there's no maps in classic anyway
+    [100] = "Blackfathom Deeps",
     [232] = "Molten Core",
     [233] = "Zul'Gurub",
     [247] = "Ruins of Ahn'Qiraj",
@@ -311,6 +315,9 @@ config.MapIDs = {
 }
 
 config.defaultDebuffHighlights = {
+    ["Blackfathom Deeps"] = {
+        [404806] = { 404806, 1, "Baron Aquanis, Depth Charge" },
+    },
     ["Naxxramas"] = {
         [27808] = { 27808, 3, "Kel'Thuzad, Frost Blast" },
         [28622] = { 28622, 1, "Maexxna, Web Wrap" },

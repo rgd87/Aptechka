@@ -45,7 +45,7 @@ if apiLevel <= 3 then
     end
     UnitGetTotalAbsorbs = dummy0
     UnitGetTotalHealAbsorbs = dummy0
-    UnitPhaseReason = dummyFalse
+    UnitPhaseReason = function(unit) return not UnitInPhase(unit) end
     HasIncomingSummon = dummyNil
 end
 if apiLevel <= 2 then
