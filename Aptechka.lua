@@ -1476,7 +1476,7 @@ do
         EVOKER = true,
     }
     local showHybridMana = false
-    function Aptechka.FrameUpdateDisplayPower(frame, unit, isDead)
+    function Aptechka.FrameUpdateDisplayPower(frame, unit)
         if frame.power and frame.power.OnPowerTypeChange then
             local tnum, tname = UnitPowerType(unit)
             local _, unitClass = UnitClass(unit)
@@ -1491,8 +1491,12 @@ do
         FrameSetJob(frame, config.PowerBarColor,true, nil, makeUnique())
     end
 end
-function Aptechka.UNIT_DISPLAYPOWER(self, event, unit, isDead)
-    self:ForEachUnitFrame(unit, Aptechka.FrameUpdateDisplayPower, isDead)
+function Aptechka.UNIT_DISPLAYPOWER(self, event, unit)
+    self:ForEachUnitFrame(unit, Aptechka.FrameUpdateDisplayPower)
+    if apiLevel <= 3 then
+        local pnum, ptype = UnitPowerType(unit)
+        self:ForEachUnitFrame(unit, Aptechka.FrameUpdatePower, ptype)
+    end
 end
 
 local vehicleHack = function (self, time)
@@ -3735,7 +3739,7 @@ function Aptechka:ListSpellsForWidget(widgetName)
         -- print(string.upper(cat))
         for spellID, opts in pairs(spellList) do
             if not AptechkaConfigMerged.spellClones[spellID] then
-                if opts.assignto[widgetName] then
+                if opts.assignto and opts.assignto[widgetName] then
                     local name
                     local icon
                     if type(spellID) == "number" then
