@@ -240,8 +240,11 @@ if playerClass == "SHAMAN" then
 
     -- Chain Heal
     Trace{id = { 1064, 10622, 10623 }, template = "HealTrace", color = { 1, 1, 0 } }
-    -- Healing Wave incl Lesser Wave
-    Trace{id = { 331, 332, 547, 913, 939, 959, 8004, 8005, 8008, 8010, 10395, 10396, 10466, 10467, 10468, 25357 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
+    -- Healing Wave
+    Trace{id = { 331, 332, 547, 913, 939, 959, 8005, 10395, 10396, 25357 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
+    -- Lesser Healing Wave
+    Trace{id = { 8004, 8008, 8010, 10466, 10467, 10468 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
+
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(331),
