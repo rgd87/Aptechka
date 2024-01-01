@@ -1486,7 +1486,7 @@ do
             if isMainline and not healerClasses[unitClass] then
                 tnum, tname = 4, "HAPPINESS"
             end
-            frame.power:OnPowerTypeChange(tname, isDead)
+            frame.power:OnPowerTypeChange(tname)
         end
         FrameSetJob(frame, config.PowerBarColor,true, nil, makeUnique())
     end
@@ -3822,6 +3822,34 @@ Aptechka.Commands = {
                 end)
                 f:RegisterEvent("PLAYER_REGEN_ENABLED")
             end
+        end
+    end,
+    ["debug"] = function()
+        if not Aptechka.debug then
+            Aptechka.debug = CreateFrame("Frame")
+            Aptechka.debug:SetScript("OnEvent",function( self, event )
+                local timestamp, eventType, hideCaster,
+                srcGUID, srcName, srcFlags, srcFlags2,
+                dstGUID, dstName, dstFlags, dstFlags2,
+                spellID, spellName, spellSchool, auraType, amount = CombatLogGetCurrentEventInfo()
+                local isSrcPlayer = (bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE)
+                if isSrcPlayer then
+                    if string.sub(eventType, 1, 5) == "SPELL" then
+                        print ("ID:", spellID, string.format("|cffff8800%s|r",spellName), eventType, srcFlags, srcGUID,"|cff00ff00==>|r", dstGUID, dstFlags, amount)
+                    else
+                        print ("ID:", spellID, spellName, eventType, srcFlags, srcGUID,"|cff00ff00==>|r", dstGUID, dstFlags, amount)
+                    end
+                end
+            end)
+        end
+        if not Aptechka.debug.enabled then
+            Aptechka.debug:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+            Aptechka.debug.enabled = true
+            print("[Aptechka] Enabled combat log event display")
+        else
+            Aptechka.debug:UnregisterAllEvents()
+            Aptechka.debug.enabled = false
+            print("[Aptechka] Disabled combat log event display")
         end
     end,
     ["show"] = function()
