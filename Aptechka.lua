@@ -257,6 +257,8 @@ local defaults = {
         showSeparator = false,
         showIconCooldownCount = false,
         showFloatingIcons = true,
+        showPowerTypesTank = false,
+        showPowerTypesDamage = false,
         clampIncomingHeal = true,
         healthTexture = "Gradient",
         powerTexture = "Gradient",
@@ -1542,6 +1544,14 @@ do
         FrameSetJob(frame, config.PowerBarColor, true, "POWERCOLOR", pname, makeUnique())
     end
 end
+
+-- Aux function for GUI
+function Aptechka.FrameUpdateDisplayPowerAndRefresh(frame, unit)
+    Aptechka.FrameUpdateDisplayPower(frame, unit)
+    local pnum, ptype = UnitPowerType(unit)
+    Aptechka.FrameUpdatePower(frame, unit, ptype)
+end
+
 function Aptechka.UNIT_DISPLAYPOWER(self, event, unit)
     self:ForEachUnitFrame(unit, Aptechka.FrameUpdateDisplayPower)
     local pnum, ptype = UnitPowerType(unit)
