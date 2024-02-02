@@ -921,7 +921,7 @@ function Aptechka.FrameUpdateUnitColor(frame, unit)
     Aptechka.FrameColorize(frame, unit)
     FrameSetJob(frame, config.UnitNameStatus, true, nil, makeUnique())
     FrameSetJob(frame, config.HealthBarColor, true, nil, makeUnique())
-    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true, nil, makeUnique()) end
+    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true, "POWERCOLOR", frame.state.powerType, makeUnique()) end
 end
 function Aptechka:RefreshAllUnitsColors()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateName)
@@ -1427,31 +1427,51 @@ function Aptechka.UNIT_CONNECTION(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateConnection)
 end
 
-local Enum_RunicPower = Enum.PowerType.RunicPower
-local Enum_Alternate = Enum.PowerType.Alternate
-function Aptechka.FrameUpdatePower(frame, unit, ptype)
-    if ptype == "MANA" then-- not frame.power.disabled then
-        local powerMax = UnitPowerMax(unit, 0)
-        local power = UnitPower(unit, 0)
+local function MakePowerHandlerForType(powerTypeIndex)
+    return function(frame, unit, ptype)
+        local powerMax = UnitPowerMax(unit, powerTypeIndex)
+        local power = UnitPower(unit, powerTypeIndex)
         if powerMax == 0 then
             power = 1
             powerMax = 1
         end
         local manaPercent = GetForegroundSeparation(power, powerMax, fgShowMissing)
         frame.power:SetValue(manaPercent*100)
-    elseif ptype == "RUNIC_POWER" then
+    end
+end
+local function MakeForcedPowerHandlerForType(powerTypeIndex)
+    return function(frame, unit, ptype)
+        local powerMax = UnitPowerMax(unit, powerTypeIndex)
+        local power = UnitPower(unit, powerTypeIndex)
+        if powerMax == 0 then
+            power = 1
+            powerMax = 1
+        end
+        local manaPercent = GetForegroundSeparation(power, powerMax, false)
+        frame.power:SetValue(manaPercent*100)
+    end
+end
+
+
+
+local Enum_RunicPower = Enum.PowerType.RunicPower
+local Enum_Alternate = Enum.PowerType.Alternate
+
+local SpecialPowerTypeHandlers = {
+    RUNIC_POWER = function(frame, unit, ptype)
+        local powerMax = UnitPowerMax(unit, Enum_RunicPower)
+        local power = UnitPower(unit, Enum_RunicPower)
         if not Aptechka:UnitIsTank(unit) then
             return FrameSetJob(frame, config.RunicPowerStatus, false)
         end
-        local powerMax = UnitPowerMax(unit, Enum_RunicPower)
-        local power = UnitPower(unit, Enum_RunicPower)
         if power > 40 then
             local p = power/powerMax
             FrameSetJob(frame, config.RunicPowerStatus, true, "PROGRESS", power, powerMax, p)
         else
             FrameSetJob(frame, config.RunicPowerStatus, false)
         end
-    elseif ptype == "ALTERNATE" then
+    end,
+    ALTERNATE = function(frame, unit, ptype)
         local powerMax = UnitPowerMax(unit, Enum_Alternate)
         local power = UnitPower(unit, Enum_Alternate)
         if power > 0 then
@@ -1460,6 +1480,25 @@ function Aptechka.FrameUpdatePower(frame, unit, ptype)
         else
             FrameSetJob(frame, config.AltPowerStatus, false)
         end
+    end,
+}
+local PowerTypeHandlers = {
+    MANA = MakePowerHandlerForType(Enum.PowerType.Mana),
+    RAGE = MakeForcedPowerHandlerForType(Enum.PowerType.Rage),
+    FOCUS = MakePowerHandlerForType(Enum.PowerType.Focus),
+    ENERGY = MakePowerHandlerForType(Enum.PowerType.Energy),
+    RUNIC_POWER = MakeForcedPowerHandlerForType(Enum.PowerType.RunicPower),
+    FURY = MakeForcedPowerHandlerForType(Enum.PowerType.Fury),
+    PAIN = MakeForcedPowerHandlerForType(Enum.PowerType.Fury), -- Pain was merged with Fury in DF
+}
+
+function Aptechka.FrameUpdatePower(frame, unit, ptype)
+    local special = SpecialPowerTypeHandlers[ptype]
+    if special then special(frame, unit, ptype) end
+
+    if ptype == frame.state.powerType then
+        local handler = PowerTypeHandlers[ptype]
+        if handler then handler(frame, unit, ptype) end
     end
 end
 function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
@@ -1477,26 +1516,36 @@ do
     }
     local showHybridMana = false
     function Aptechka.FrameUpdateDisplayPower(frame, unit)
-        if frame.power and frame.power.OnPowerTypeChange then
-            local tnum, tname = UnitPowerType(unit)
-            local _, unitClass = UnitClass(unit)
-            if showHybridMana and healerClasses[unitClass] then
-                tnum, tname = 0, "MANA"
-            end
-            if isMainline and not healerClasses[unitClass] then
-                tnum, tname = 4, "HAPPINESS"
-            end
-            frame.power:OnPowerTypeChange(tname)
+        local pindex, pname = UnitPowerType(unit)
+        local _, unitClass = UnitClass(unit)
+        if showHybridMana and healerClasses[unitClass] then
+            pindex, pname = 0, "MANA"
         end
-        FrameSetJob(frame, config.PowerBarColor,true, nil, makeUnique())
+
+        local showPowerTypesTank = Aptechka.db.profile.showPowerTypesTank
+        local showPowerTypesDamage = Aptechka.db.profile.showPowerTypesDamage
+
+        local showPowerBar = config.allowedPowerTypes[pname]
+        if showPowerTypesTank then
+            showPowerBar = showPowerBar or config.allowedPowerTypesTank[pname]
+        end
+        if showPowerTypesDamage then
+            showPowerBar = showPowerBar or config.allowedPowerTypesDamage[pname]
+        end
+        if isMainline then
+            if not healerClasses[unitClass] and pname == "MANA" then showPowerBar = false end
+        end
+
+        frame.power:OnPowerTypeChange(pname, not showPowerBar)
+        frame.state.powerType = showPowerBar and pname or "NONE"
+
+        FrameSetJob(frame, config.PowerBarColor, true, "POWERCOLOR", pname, makeUnique())
     end
 end
 function Aptechka.UNIT_DISPLAYPOWER(self, event, unit)
     self:ForEachUnitFrame(unit, Aptechka.FrameUpdateDisplayPower)
-    if apiLevel <= 3 then
-        local pnum, ptype = UnitPowerType(unit)
-        self:ForEachUnitFrame(unit, Aptechka.FrameUpdatePower, ptype)
-    end
+    local pnum, ptype = UnitPowerType(unit)
+    self:ForEachUnitFrame(unit, Aptechka.FrameUpdatePower, ptype)
 end
 
 local vehicleHack = function (self, time)
@@ -2114,10 +2163,9 @@ local function updateUnitButton(self, unit)
     if not config.disableManaBar then
         Aptechka.FrameUpdateDisplayPower(self, unit)
         local ptype = select(2,UnitPowerType(owner))
-        Aptechka.FrameUpdatePower(self, unit, ptype)
         Aptechka.FrameUpdatePower(self, unit, "RUNIC_POWER")
         Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
-        FrameSetJob(self,config.PowerBarColor,true, nil, makeUnique())
+        Aptechka.FrameUpdatePower(self, unit, ptype)
     end
     Aptechka.FrameUpdateThreat(self, unit)
     Aptechka.FrameUpdateMindControl(self, unit)
@@ -2714,7 +2762,7 @@ function Aptechka.SetupFrame(header, frameName)
         Aptechka:UnregisterEvent("UNIT_POWER_UPDATE")
         Aptechka:UnregisterEvent("UNIT_MAXPOWER")
         Aptechka:UnregisterEvent("UNIT_DISPLAYPOWER")
-        if f.power and f.power.OnPowerTypeChange then f.power:OnPowerTypeChange("none") end
+        if f.power and f.power.OnPowerTypeChange then f.power:OnPowerTypeChange("MANA", true) end
         f.power = nil
     end
 

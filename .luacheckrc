@@ -239,6 +239,7 @@ globals = {
     "UnitChannelInfo",
     "GetRaidRosterInfo",
     "CreateFramePool",
+    "PowerBarColor",
 
     -- Wrath dual spec
     "GetActiveTalentGroup",

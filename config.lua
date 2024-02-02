@@ -63,7 +63,7 @@ config.IncomingHealStatus = { name = "IncHealText", assignto = set(), color = { 
 config.HealthTextStatus = { name = "HealthText", assignto = set("text2"), color = { 54/255, 201/255, 99/256 }, priority = 10, formatType = "MISSING_VALUE_SHORT" }
 config.UnitNameStatus = { name = "UnitName", assignto = set("text1"), classcolor = true, priority = 5 }
 config.HealthBarColor = { name = "HealthBar", assignto = set("health"), color = {1, .3, .3}, classcolor = true, priority = 10 }
-config.PowerBarColor = { name = "PowerBar", assignto = set("power"), color = {.5,.5,1}, priority = 20 }
+config.PowerBarColor = { name = "PowerBarColor", assignto = set("power"), color = {.5,.5,1}, priority = 20 }
 config.InVehicleStatus = { name = "InVehicle", assignto = set("vehicle"), color = {0.3,1,0.3}, priority = 21 }
 config.LOSStatus = { name = "OutOfSight", assignto = set("healfeedback"), scale = 1.6, color = {1,0.1,0.1}, priority = 95, fade = 0.3 }
 config.DispelStatus = { name = "Dispel", assignto = set("debuffHighlight"), scale = 1, pulse = 2, spin = true, priority = 86 }
@@ -131,6 +131,25 @@ config.templates = {
     AreaDR = { assignto = set("buffIcons"), infoType = "DURATION", priority = 89, color = { 0.4, 1, 0.4} },
     ActiveMitigation = { assignto = set("mitigation"), infoType = "DURATION", color = {0.7, 0.7, 0.7}, priority = 80 },
     HealTrace = { assignto = set("healfeedback"), color = { 1, 0.7, 0.35}, fade = 0.7, priority = 96 },
+}
+
+config.allowedPowerTypes = {
+    MANA = true,
+}
+config.allowedPowerTypesTank = {
+    RAGE = true,
+    PAIN = true,
+    RUNIC_POWER = true,
+}
+config.allowedPowerTypesDamage = {
+    INSANITY = true,
+    RAGE = true,
+    RUNIC_POWER = true,
+    FURY = true,
+    ENERGY = true,
+    FOCUS = true,
+    LUNAR_POWER = true,
+    MAELSTROM = true,
 }
 
 local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE

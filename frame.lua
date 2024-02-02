@@ -348,6 +348,23 @@ function contentNormalizers.INCOMING_HEAL(job, state, contentType, ...)
     r,g,b, a, tr,tg,tb = GetTextColor(job)
     return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
+
+local PowerBarColor = PowerBarColor
+function contentNormalizers.POWERCOLOR(job, state, contentType, pname, ...)
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
+    local db = Aptechka.db.profile
+    local showPowerTypeColors = true
+    if showPowerTypeColors and pname ~= "MANA" then
+        local c = PowerBarColor[pname] -- getting default color from a globalr2
+        r,g,b = c.r, c.g, c.b
+    else
+        r,g,b = unpack(db.powerColor)
+    end
+    a = 1
+    text = job.text
+
+    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
+end
 function contentNormalizers.AURA(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local duration, expirationTime, count1, icon1, spellID, caster = ...
@@ -681,18 +698,11 @@ local SetJob_HealthBar = function(self, job, state, contentType, ...)
 end
 local SetJob_PowerBar = function(self, job, state, contentType, ...)
     local profile = Aptechka.db.profile
-    local r,g,b,a
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
     local r2,g2,b2
-    if contentType == "PowerBar" then
-        r,g,b = unpack(profile.powerColor)
-        if profile.useCustomBackgroundColorPower then
-            r2,g2,b2 = unpack(profile.customBackgroundColorPower)
-        else
-            r2,g2,b2 = r,g,b
-        end
+    if profile.useCustomBackgroundColorPower then
+        r2,g2,b2 = unpack(profile.customBackgroundColorPower)
     else
-        local timerType, cur, max, count, icon, text, _,_,_, _, tr,tg,tb, texture, texCoords, isReversed
-        timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
         r2,g2,b2 = r,g,b
     end
     if b then
@@ -704,15 +714,35 @@ local SetJob_PowerBar = function(self, job, state, contentType, ...)
     end
 end
 
-local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
+local forcedStandardFillPowerTypes = {
+    RAGE = true,
+    FURY = true,
+    RUNIC_POWER = true,
+}
+
+local PowerBar_OnPowerTypeChange = function(powerbar, powerType, hidePower)
     local self = powerbar:GetParent()
-    powerType = powerType or self.power.powerType
-    self.power.powerType = powerType
+
+    local isInverted = Aptechka.db.profile.fgShowMissing
+    if not isInverted then
+        self.power:SetFillStyleLock(false)
+        self.power:SetFillStyle("STANDARD")
+    else
+        if forcedStandardFillPowerTypes[powerType] then
+            self.power:SetFillStyle("STANDARD")
+            self.power:SetFillStyleLock(true)
+        else
+            self.power:SetFillStyleLock(false)
+            self.power:SetFillStyle("REVERSE")
+        end
+    end
+
 
     local isVertical = Aptechka.db.profile.healthOrientation == "VERTICAL"
-    if powerType ~= "MANA" or isDead then
+    if hidePower then
         self.power.disabled = true
         self.power:Hide()
+        -- self.power.powerType = "NONE"
         if isVertical then
             -- self.health:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
             self.health:SetPoint("TOPRIGHT", self, "TOPRIGHT",0,0)
@@ -723,6 +753,7 @@ local PowerBar_OnPowerTypeChange = function(powerbar, powerType, isDead)
     else
         self.power.disabled = nil
         self.power:Show()
+        -- self.power.powerType = powerType
         if isVertical then
             self.health:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
             self.health:SetPoint("TOPRIGHT", self.power, "TOPLEFT",0,0)
@@ -3470,9 +3501,12 @@ function MaskStatusBar.SetMinMaxValues(self, min, max)
 end
 
 function MaskStatusBar.SetFillStyle(self, fillStyle)
-    if self._fillStyle == fillStyle then return end
+    if self._fillStyle == fillStyle or self._locked then return end
     self._fillStyle = fillStyle
     self:_Configure()
+end
+function MaskStatusBar.SetFillStyleLock(self, state)
+    self._locked = state
 end
 function MaskStatusBar.SetOrientation(self, orientation)
     if self._orientation == orientation then return end
@@ -3610,9 +3644,12 @@ function CoordStatusBar.GetSeparationRegionAttachmentPoints(self)
     return region
 end
 function CoordStatusBar.SetFillStyle(self, fillStyle)
-    if self._fillStyle == fillStyle then return end
+    if self._fillStyle == fillStyle or self._locked then return end
     self._fillStyle = fillStyle
     self:_Configure()
+end
+function CoordStatusBar.SetFillStyleLock(self, state)
+    self._locked = state
 end
 function CoordStatusBar.SetOrientation(self, orientation)
     if self._orientation == orientation then return end
