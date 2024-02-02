@@ -1492,6 +1492,9 @@ local PowerTypeHandlers = {
     RUNIC_POWER = MakeForcedPowerHandlerForType(Enum.PowerType.RunicPower),
     FURY = MakeForcedPowerHandlerForType(Enum.PowerType.Fury),
     PAIN = MakeForcedPowerHandlerForType(Enum.PowerType.Fury), -- Pain was merged with Fury in DF
+    INSANITY = MakeForcedPowerHandlerForType(Enum.PowerType.Insanity),
+    LUNAR_POWER = MakeForcedPowerHandlerForType(Enum.PowerType.LunarPower),
+    MAELSTROM = MakeForcedPowerHandlerForType(Enum.PowerType.Maelstrom),
 }
 
 function Aptechka.FrameUpdatePower(frame, unit, ptype)

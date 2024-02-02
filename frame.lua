@@ -717,7 +717,11 @@ end
 local forcedStandardFillPowerTypes = {
     RAGE = true,
     FURY = true,
+    PAIN = true,
     RUNIC_POWER = true,
+    INSANITY = true,
+    MAELSTROM = true,
+    LUNAR_POWER = true,
 }
 
 local PowerBar_OnPowerTypeChange = function(powerbar, powerType, hidePower)
