@@ -538,7 +538,7 @@ local function form_color(form)
     color:SetLabel(L"Color")
     color:SetRelativeWidth(0.15)
     color:SetHasAlpha(true)
-    color:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
+    color:SetCallback("OnValueChanged", function(self, event, r,g,b,a)
         self.parent.opts["color"] = {r,g,b, a}
     end)
     form.controls.color = color
@@ -825,7 +825,7 @@ local function AuraForm_Create(self)
     foreigncolor:SetLabel(L"Others' Color")
     foreigncolor:SetRelativeWidth(0.27)
     foreigncolor:SetHasAlpha(false)
-    foreigncolor:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
+    foreigncolor:SetCallback("OnValueChanged", function(self, event, r,g,b,a)
         self.parent.opts["foreigncolor"] = {r,g,b}
     end)
     Form.controls.foreigncolor = foreigncolor
@@ -895,7 +895,7 @@ local function AuraForm_Create(self)
     refreshColor:SetLabel(L"Refresh Color")
     refreshColor:SetRelativeWidth(0.27)
     refreshColor:SetHasAlpha(false)
-    refreshColor:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
+    refreshColor:SetCallback("OnValueChanged", function(self, event, r,g,b,a)
         self.parent.opts["refreshColor"] = {r,g,b}
     end)
     Form.controls.refreshColor = refreshColor
