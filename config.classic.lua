@@ -115,7 +115,7 @@ if playerClass == "PRIEST" then
     -- Abolish Disease
     A{ id = 552, type = "HELPFUL", assignto = set("bars"), priority = 30, color = { 118/255, 69/255, 50/255} , showDuration = true }
     -- Renew
-    A{ id = { 139, 6074, 6075, 6076, 6077, 6078, 10927, 10928, 10929, 25315 },   type = "HELPFUL", assignto = set("bars"), priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, showDuration = true }
+    A{ id = { 139, 6074, 6075, 6076, 6077, 6078, 10927, 10928, 10929, 25315, 425268, 425269, 425270, 425271, 425272, 425273, 425274, 425275, 425276, 425277 },   type = "HELPFUL", assignto = set("bars"), priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, showDuration = true }
     -- Lightwell Renew
     A{ id = { 7001, 27873, 27874 }, type = "HELPFUL", assignto = set("bars"), priority = 20, color = { 0.5, 0.7, 0}, showDuration = true }
     -- Power Word: Shield
