@@ -32,6 +32,7 @@ AG{ id = { 6229, 11739, 11740, 28610 }, template = "SurvivalCD" } -- Shadow Ward
 -- DRUID
 AG{ id = 22812,  template = "SurvivalCD" } -- Barkskin
 AG{ id = 29166,  template = "SurvivalCD" } -- Innervate
+AG{ id = 408024,  template = "SurvivalCD" } -- Survival Instincts[SoD]
 
 
 -- MAGE
@@ -51,6 +52,7 @@ AG{ id = 19263, template = "SurvivalCD" } -- Deterrence
 AG{ id = 20230, template = "SurvivalCD" } -- Retaliation
 AG{ id = 12976, template = "SurvivalCD", priority = 85 } --Last Stand
 AG{ id = 871,   template = "TankCD" } --Shield Wall 40%
+AG{ id = 402913, template = "SurvivalCD" } -- Enraged Regeneration[SoD]
 
 -- ROGUE
 AG{ id = 5277, template = "SurvivalCD" } -- Evasion
@@ -58,6 +60,11 @@ AG{ id = { 1856, 1857 }, template = "TankCD" } -- Vanish
 
 -- WARLOCK
 AG{ id = { 6229, 11739, 11740, 28610 },  template = "SurvivalCD" } -- Shadow Ward
+
+-- PRIEST [SOD]
+AG{ id = { 402004 },  template = "TankCD" } -- Pain Suppression
+AG{ id = { 425294 },  template = "SurvivalCD" } -- Dispersion
+
 
 -- Healing Reduction
 -- AG{ id = { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, template = "bossDebuff", global = true, } --Mortal Strike
@@ -95,6 +102,9 @@ if playerClass == "PRIEST" then
     Trace{id = 402289, template = "HealTrace", color = { 52/255, 172/255, 114/255 } }
     -- Circle of Healing
     Trace{id = 401946, template = "HealTrace", color = { 1, 0.7, 0.35} }
+    -- Emp Renew
+    A{ id = { 425268, 425269, 425270, 425271, 425272, 425273, 425274, 425275, 425276, 425277 }, type = "HELPFUL", isMine = true, assignto = set("bars"), priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, showDuration = true }
+
 
 
     -- Power Word: Fortitude and Prayer of Fortitude
@@ -180,6 +190,11 @@ if playerClass == "PALADIN" then
     A{ id = 407613, type = "HELPFUL", assignto = set("bar4"), infoType = "DURATION", isMine = true, color = { 0,.9,0 }, foreigncolor = { 0.96/2, 0.55/2, 0.73/2 }, }
     -- Horn of Lordaeron
     A{ id = 425600, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, .4 , 1}, priority = 50 }
+    -- Sacred Shield
+    A{ id = 412019, type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", priority = 86, scale = 0.5, isMine = true, color = { 1 , 0.9, 0} }
+    -- Sacred Shield Proc
+    A{ id = 412018, type = "HELPFUL", name = "SacredShieldProc", assignto = set("bars"), infoType = "DURATION", priority = 85, scale = 1, isMine = true, color = { 1 , 0.7, 0} }
+
 
 
     -- Forbearance
@@ -211,6 +226,9 @@ end
 -- end
 
 if playerClass == "SHAMAN" then
+    -- SoD
+    A{ id = 408696, type = "HELPFUL", assignto = set("spell3"), color = { 1, .4 , 1}, priority = 50 } -- Spirit of the Alpha
+
 
     -- Healing Way
     A{ id = 29203, type = "HELPFUL", assignto = set("bar4"), showStacks = 3, color = {38/255, 221/255, 163/255} }
