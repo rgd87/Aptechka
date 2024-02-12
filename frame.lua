@@ -354,7 +354,7 @@ function contentNormalizers.POWERCOLOR(job, state, contentType, pname, ...)
     local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local db = Aptechka.db.profile
     local showPowerTypeColors = true
-    if showPowerTypeColors and pname ~= "MANA" then
+    if showPowerTypeColors and (pname ~= "MANA" and pname ~= "NONE") then
         local c = PowerBarColor[pname] -- getting default color from a globalr2
         r,g,b = c.r, c.g, c.b
     else
