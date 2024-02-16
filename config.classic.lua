@@ -158,6 +158,12 @@ if playerClass == "DRUID" then
     A{ id = 408124, type = "HELPFUL", assignto = set("bar4", "bar4text"), priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, foreigncolor =  { 0.1, 0.5, 0.1} }
     -- Wild Growth
     A{ id = 408120, type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, infoType = "DURATION", isMine = true, foreigncolor =  { 0, 0.45, 0.35}}
+    -- Rejuvenation with Enhanced Restoration
+    A{ id = { 417057, 417058, 417059, 417060, 417061, 417062, 417063, 417064, 417065, 417066, 417068 }, name = "EnhancedRejuvenation", type = "HELPFUL", assignto = set("bars"), isMine = true, priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, showDuration = true }
+    -- Regrowth with Enhanced Restoration
+    A{ id = { 436937, 436938, 436939, 436940, 436942, 436943, 436944, 436945, 436946 }, name = "EnhancedRegrowth", type = "HELPFUL", assignto = set("bars"), isMine = true, priority = 80, color = { 0.4, 1, 0.4}, foreigncolor = { 0.1, 0.4, 0.1 }, showDuration = true }
+
+
 
     -- Mark of the Wild, Gift of the Wild
     A{ id = { 1126, 5232, 5234, 6756, 8907, 9884, 9885, 21849, 21850 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.2, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1126) end }
