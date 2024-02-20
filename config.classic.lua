@@ -62,8 +62,9 @@ AG{ id = { 1856, 1857 }, template = "TankCD" } -- Vanish
 AG{ id = { 6229, 11739, 11740, 28610 },  template = "SurvivalCD" } -- Shadow Ward
 
 -- PRIEST [SOD]
-AG{ id = { 402004 },  template = "TankCD" } -- Pain Suppression
-AG{ id = { 425294 },  template = "SurvivalCD" } -- Dispersion
+AG{ id = 402004,  template = "TankCD" } -- Pain Suppression [SoD]
+AG{ id = 425294,  template = "SurvivalCD" } -- Dispersion [SoD]
+AG{ id = 425284,  template = "SurvivalCD" } -- Spirit of the Redeemer[SoD]
 
 
 -- Healing Reduction
@@ -521,8 +522,11 @@ do
         -- WARRIOR
         [12292] = AURA, -- Death Wish
         [1719] = AURA, -- Recklessness
+        --[[DUP]] [20230] = AURA, -- Retaliation
+        --[[DUP]] [871] = AURA, -- Shield Wall
         --[[DUP]] [23920] = AURA, -- Spell Reflect
         --[[DUP]] [402913] = AURA, -- Enraged Regeneration[SoD]
+        [426490] = CAST, -- Rallying Cry
 
         -- MAGE
         [12042] = AURA, -- Arcane Power
@@ -552,6 +556,7 @@ do
         --[[DUP]] [1850] = AURA, -- Dash
         [9821] = AURA,
         [33357] = AURA,
+
         [417141] = AURA, -- Berserk[SoD]
         --[[DUP]] [408024] = AURA, -- Survival Instincts[SoD]
 
