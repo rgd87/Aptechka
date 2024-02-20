@@ -462,11 +462,12 @@ do
     local AURA = helpers.BuffGainTypes.AURA
     local CAST = helpers.BuffGainTypes.CAST
     local HEAL = helpers.BuffGainTypes.HEAL
+    local POTION = helpers.BuffGainTypes.POTION
     helpers.buffGainWhitelist = {
         [27237] = HEAL, -- Master Healthstone
         [27236] = HEAL,
         [27235] = HEAL,
-        [28495] = HEAL, -- Super Healing Potion (TBC)
+        [28495] = POTION, -- Super Healing Potion (TBC)
 
         [7744] = AURA, -- Will of the Forsaken
 

@@ -1320,8 +1320,9 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
         if spell.events[eventType] then
             local GUID = spell.target == "SRC" and srcGUID or dstGUID
             local unit = guidMap[GUID]
+            local iconSpellID = spell.forceIcon or spellID
             if unit then
-                Aptechka:ForEachUnitFrame(unit, FrameLaunchFloatingIcon, spellID)
+                Aptechka:ForEachUnitFrame(unit, FrameLaunchFloatingIcon, iconSpellID)
             end
         end
     end

@@ -470,4 +470,96 @@ helpers.customBossAuras = {
 
 }
 
-    helpers.importantTargetedCasts = {}
+do
+    local AURA = helpers.BuffGainTypes.AURA
+    local CAST = helpers.BuffGainTypes.CAST
+    local HEAL = helpers.BuffGainTypes.HEAL
+    local POTION = helpers.BuffGainTypes.POTION
+    helpers.buffGainWhitelist = {
+        [23477] = HEAL, -- Major Healthstone
+        [11732] = HEAL,
+        [23476] = HEAL,
+
+        [5723] = HEAL, -- Greater Healthstone
+        [23474] = HEAL,
+        [23475] = HEAL,
+
+        [5720] = HEAL, -- Healthstone
+        [23472] = HEAL,
+        [23473] = HEAL,
+
+        [441] = POTION, -- Healing Potion
+        [2024] = POTION, -- Greater Healing Potion
+        [4042] = POTION, -- Superior Healing Potion
+        [17534] = POTION, -- Major Healing Potion
+
+
+        [7744] = AURA, -- Will of the Forsaken
+
+        -- WARLOCK
+        [20763] = AURA, -- Soulstone lvl 40 Rank
+        [20764] = AURA, -- Soulstone lvl 50 Rank
+        [20765] = AURA, -- Soulstone lvl 60 Rank
+
+        -- PRIEST
+        [10060] = AURA, -- Power Infusion
+
+        [402004] = AURA, -- Pain Suppression SoD
+        [425294] = AURA, -- DIspersion SoD
+
+
+        -- ROGUE
+        [2983] = AURA, -- Sprint
+        [8696] = AURA,
+        [11305] = AURA,
+
+        --[[DUP]] [5277] = AURA, -- Evasion
+        [26669] = AURA,
+        --[[DUP]] [31224] = AURA, -- Cloak of Shadows
+        [1787] = AURA, -- Stealth last rank
+
+        -- WARRIOR
+        [12292] = AURA, -- Death Wish
+        [1719] = AURA, -- Recklessness
+        --[[DUP]] [23920] = AURA, -- Spell Reflect
+        --[[DUP]] [402913] = AURA, -- Enraged Regeneration[SoD]
+
+        -- MAGE
+        [12042] = AURA, -- Arcane Power
+        [12472] = AURA, -- Icy Veins
+        [28682] = AURA, -- Combustion
+        [11958] = AURA, -- Ice Block
+        -- [66] = AURA, -- Invisiblity Fade
+        -- [32612] = AURA, -- Invisibility
+
+        [425169] = AURA, -- Icy Veins [SoD]
+
+        -- PALADIN
+        [31884] = AURA, -- Avenging Wrath
+        --[[DUP]] [498] = AURA, -- Divine Protection
+        --[[DUP]] [642] = AURA, -- Divine Shield
+        --[[DUP]] [1020] = AURA,
+        [1022] = AURA, -- Blessing of Protection
+        [5599] = AURA,
+        [10278] = AURA,
+        [1044] = AURA, -- Blessing of Freedom
+
+        -- DRUID
+        [5215] = AURA, -- Prowl 20 lvl rank
+        [6783] = AURA, -- Prowl 40 lvl rank
+        [9913] = AURA, -- Prowl 60 lvl rank
+        --[[DUP]] [22812] = AURA, -- Barkskin
+        --[[DUP]] [1850] = AURA, -- Dash
+        [9821] = AURA,
+        [33357] = AURA,
+        [417141] = AURA, -- Berserk[SoD]
+        --[[DUP]] [408024] = AURA, -- Survival Instincts[SoD]
+
+        -- HUNTER
+        [19574] = AURA, -- Bestial Wrath
+
+    }
+end
+
+
+helpers.importantTargetedCasts = {}

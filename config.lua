@@ -123,6 +123,7 @@ helpers.BuffGainTypes = {
     AURA = { events = set("SPELL_AURA_APPLIED", "SPELL_AURA_REFRESH"), target = "DST", scale = 1 },
     CAST = { events = set("SPELL_CAST_SUCCESS"), target = "SRC", scale = 1 },
     HEAL = { events = set("SPELL_HEAL"), target = "DST", scale = 1 },
+    POTION = { events = set("SPELL_HEAL"), target = "DST", scale = 1.2, forceIcon = 3447 },  -- 3447 - Healing Potion SPELL
 }
 
 config.templates = {
