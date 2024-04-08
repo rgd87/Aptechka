@@ -211,7 +211,7 @@ AG{ id = 132413, template = "SurvivalCD" } -- Shadow Bulwark
 
 -- DRUID
 -- local druidColor = { RAID_CLASS_COLORS.DRUID:GetRGB() }
-AG{ id = 22812,  template = "SurvivalCD" } -- Barkskin
+AG{ id = { 22812, 428713} ,  template = "SurvivalCD" } -- Barkskin, Barkskin (SoD)
 AG{ id = 102342, template = "TankCD", priority = 93 } --Ironbark
 AG{ id = 61336,  template = "TankCD" } --Survival Instincts 50% (Feral & Guardian)
 AG{ id = 236696,  template = "SurvivalCD" } -- Thorns

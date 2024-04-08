@@ -235,7 +235,8 @@ end
 if playerClass == "SHAMAN" then
     -- SoD
     A{ id = 408696, type = "HELPFUL", assignto = set("spell3"), color = { 1, .4 , 1}, priority = 50 } -- Spirit of the Alpha
-
+    -- Riptide SoD
+    A{ id = 408521,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.3, isMine = true, color = { 0.4 , 0.4, 1} }
 
     -- Healing Way
     A{ id = 29203, type = "HELPFUL", assignto = set("bar4"), showStacks = 3, color = {38/255, 221/255, 163/255} }
