@@ -30,7 +30,7 @@ local color1 = { 0.9, 0, 0 }
 AG{ id = { 6229, 11739, 11740, 28610 }, template = "SurvivalCD" } -- Shadow Ward
 
 -- DRUID
-AG{ id = 22812,  template = "SurvivalCD" } -- Barkskin
+AG{ id = { 22812, 428713 } ,  template = "SurvivalCD" } -- Barkskin
 AG{ id = 29166,  template = "SurvivalCD" } -- Innervate
 AG{ id = 408024,  template = "SurvivalCD" } -- Survival Instincts[SoD]
 
