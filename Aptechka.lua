@@ -32,7 +32,7 @@ local COMBATLOG_OBJECT_AFFILIATION_UPTORAID = COMBATLOG_OBJECT_AFFILIATION_RAID 
 local dummyNil = function() return nil end
 local dummyFalse = function() return false end
 local dummy0 = function() return 0 end
-if apiLevel <= 3 then
+if apiLevel <= 4 then
     GetSpecialization = function() return 1 end
     -- GetSpecializationRole = function(spec)
     --     local tg = GetActiveTalentGroup()
@@ -176,7 +176,7 @@ local defaults = {
         singleHeaderMode = false,
         enableNickTag = false,
         showAFK = false,
-        enableRoles = apiLevel ~= 3,
+        enableRoles = true,
         translitCyrillic = false,
         enableMouseoverStatus = true,
         customBlacklist = {},
@@ -312,7 +312,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local firstTimeUse = AptechkaDB_Global == nil
     AptechkaDB_Global = AptechkaDB_Global or {}
     AptechkaDB_Char = AptechkaDB_Char or {}
-    if apiLevel <= 3 then
+    if apiLevel <= 4 then
         if type(AptechkaDB_Char.forcedClassicRole) == "string" then
             local oldRole = AptechkaDB_Char.forcedClassicRole
             AptechkaDB_Char.forcedClassicRole = { [1] = oldRole }
@@ -426,10 +426,12 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         end
     end
 
+    --[=[
     if apiLevel <= 3 then
         function Aptechka:SetClassicClickcastAttributes(f)
             if f:CanChangeAttribute() then
                 -- this is only for classic, because its SGH doesn't have _initialAttributeNames
+                -- Update: I think they fixed that across all classic versions
                 f:SetAttribute("_onenter",[[
                     local snippet = self:GetAttribute('clickcast_onenter'); if snippet then self:Run(snippet) end
                     self:CallMethod("onenter")
@@ -442,6 +444,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             end
         end
     end
+    ]=]
 
     -- local tbind
     -- if config.TargetBinding == nil then tbind = "*type1"
@@ -3184,7 +3187,7 @@ end
 -- Ordered
 ---------------------------
 local UnitAuraUniversal -- If available it's using slots API, otherwise just normal UnitAura
-if apiLevel <= 3 then
+if apiLevel <= 4 then
     UnitAuraUniversal = UnitAura
     ForEachAura = function(frame, unit, filter, batchSize, func)
         for i=1,100 do
