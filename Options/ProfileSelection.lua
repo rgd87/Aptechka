@@ -13,6 +13,17 @@ function ns.GetProfileList(db)
 end
 local GetProfileList = ns.GetProfileList
 
+local function ClassicDisableByRole(role)
+    local APILevel = Aptechka.util.GetAPILevel()
+    return function()
+        if APILevel <= 4 then
+            return AptechkaDB_Char.forcedClassicRole and AptechkaDB_Char.forcedClassicRole[GetActiveTalentGroup()] ~= role
+        end
+    end
+end
+local healerDisabled = ClassicDisableByRole("HEALER")
+local damagerDisabled = ClassicDisableByRole("DAMAGER")
+
 function ns.MakeProfileSelection()
     local opt = {
         type = 'group',
@@ -41,6 +52,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 1,
                         width = 1.6,
+                        disabled = healerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -55,6 +67,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 2,
                         width = 1.6,
+                        disabled = damagerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -71,6 +84,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 3,
                         width = 1.6,
+                        disabled = healerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -85,6 +99,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 4,
                         width = 1.6,
+                        disabled = damagerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -100,6 +115,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 4.1,
                         width = 1.6,
+                        disabled = healerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -114,6 +130,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 4.2,
                         width = 1.6,
+                        disabled = damagerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -130,6 +147,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 5,
                         width = 1.6,
+                        disabled = healerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -144,6 +162,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 6,
                         width = 1.6,
+                        disabled = damagerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -160,6 +179,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 7,
                         width = 1.6,
+                        disabled = healerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -174,6 +194,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 8,
                         width = 1.6,
+                        disabled = damagerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -190,6 +211,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 9,
                         width = 1.6,
+                        disabled = healerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -204,6 +226,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 10,
                         width = 1.6,
+                        disabled = damagerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -219,6 +242,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 11,
                         width = 1.6,
+                        disabled = healerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -233,6 +257,7 @@ function ns.MakeProfileSelection()
                         type = 'select',
                         order = 12,
                         width = 1.6,
+                        disabled = damagerDisabled,
                         values = function()
                             return GetProfileList(Aptechka.db)
                         end,
@@ -247,9 +272,10 @@ function ns.MakeProfileSelection()
         },
     }
 
-    if Aptechka.util.GetAPILevel() <= 3 then
+    if Aptechka.util.GetAPILevel() <= 4 then
         local GetActiveTalentGroup = GetActiveTalentGroup
-        if Aptechka.util.GetAPILevel() <= 2 then
+        local SeasonOfDiscovery = true
+        if Aptechka.util.GetAPILevel() <= 2 and not SeasonOfDiscovery then
             GetActiveTalentGroup = function() return 1 end
         end
 

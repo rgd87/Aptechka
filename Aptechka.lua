@@ -49,7 +49,10 @@ if apiLevel <= 4 then
     HasIncomingSummon = dummyNil
 end
 if apiLevel <= 2 then
-    -- GetActiveTalentGroup = function() return 1 end
+    local SeasonOfDiscovery = true
+    if not SeasonOfDiscovery then
+        GetActiveTalentGroup = function() return 1 end
+    end
     UnitHasVehicleUI = dummyFalse
     UnitInVehicle = dummyFalse
     UnitUsingVehicle = dummyFalse
