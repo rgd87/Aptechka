@@ -49,7 +49,7 @@ if apiLevel <= 4 then
     HasIncomingSummon = dummyNil
 end
 if apiLevel <= 2 then
-    GetActiveTalentGroup = function() return 1 end
+    -- GetActiveTalentGroup = function() return 1 end
     UnitHasVehicleUI = dummyFalse
     UnitInVehicle = dummyFalse
     UnitUsingVehicle = dummyFalse
@@ -1014,7 +1014,7 @@ function Aptechka:ReconfigureProtected()
         for _, f in ipairs({ header:GetChildren() }) do
             f:SetWidth(width)
             f:SetHeight(height)
-            if apiLevel <= 3 then Aptechka:SetClassicClickcastAttributes(f) end
+            -- if apiLevel <= 3 then Aptechka:SetClassicClickcastAttributes(f) end
         end
 
         header:UpdateVisibility() -- checks if group is enabled in group filter
@@ -2724,7 +2724,7 @@ function Aptechka.SetupFrame(header, frameName)
 
     if not InCombatLockdown() then
         f:SetSize(width, height)
-        if apiLevel <= 3 then Aptechka:SetClassicClickcastAttributes(f) end
+        -- if apiLevel <= 3 then Aptechka:SetClassicClickcastAttributes(f) end
     end
 
     f.onenter = onenter

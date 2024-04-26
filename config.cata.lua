@@ -27,12 +27,14 @@ AG{ id = { 6229, 11739, 11740, 28610, 47891 }, template = "SurvivalCD" } -- Shad
 
 -- DRUID
 AG{ id = 22812,  template = "SurvivalCD" } -- Barkskin
+AG{ id = 44203,  template = "SurvivalCD" } -- Tranquility
 -- AG{ id = 29166,  template = "SurvivalCD" } -- Innervate
 
 -- PRIEST
 AG{ id = 33206, template = "TankCD", priority = 93 } --Pain Suppression
 AG{ id = 47585, template = "SurvivalCD" } -- Dispersion
 AG{ id = 47788, template = "SurvivalCD", priority = 90 } --Guardian Spirit
+AG{ id = 64843, template = "SurvivalCD" } -- Hymn of Hope
 
 -- MAGE
 AG{ id = 11958,  template = "TankCD" } -- Ice Block
@@ -65,6 +67,7 @@ AG{ id = { 6229, 11739, 11740, 28610 },  template = "SurvivalCD" } -- Shadow War
 
 -- SHAMAN
 AG{ id = 30823,  template = "SurvivalCD" } -- Shamanistic Rage
+AG{ id = 98007, template = "AreaDR" } -- Spirit Link Totem
 
 -- DEATH KNIGHT
 AG{ id = 48792, template = "TankCD" } -- Icebound Fortitude
@@ -91,65 +94,51 @@ AG{ id = {
 -- Stealth, Prowl
 AG{ id = {1784, 5215 }, assignto = set("text2"), color = {0.2, 1, 0.3}, text = "STEALTH", priority = 20 }
 
-AG{ id = 5384, assignto = set("text2"), color = {0, 0.7, 1}, text = "FD", global = true, priority = 75 } -- Feign Death
+-- AG{ id = 5384, assignto = set("text2"), color = {0, 0.7, 1}, text = "FD", global = true, priority = 75 } -- Feign Death
 
-local manaClasses = {
-    HUNTER = true,
-    MAGE = true,
-    DRUID = true,
-    PRIEST = true,
-    SHAMAN = true,
-    WARLOCK = true,
-    PALADIN = true
-}
 if playerClass == "PRIEST" then
-    -- Power Word: Fortitude and Prayer of Fortitude
-    A{ id = { 1243, 1244, 1245, 2791, 10937, 10938, 25389, 48161,     21562, 21564, 25392, 48162 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1243) end }
-    -- Prayer of Shadow Protection
-    -- A{ id = { 976, 10957, 10958, 25433, 48169,   27683, 39374, 48170 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 151/255, 86/255, 168/255 }, priority = 80, isMissing = true, isKnownCheck = function() return IsPlayerSpell(976) end }
+    -- Power Word: Fortitude
+    A{ id = 79105, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
 
-    -- Prayer of Spirit, Divine Spirit
-    A{ id = { 14752, 14818, 14819, 25312, 27841, 48073,   27681, 32999, 48074 }, type = "HELPFUL", assignto = set("raidbuff"), color = {52/255, 172/255, 114/255}, priority = 90, isMissing = true,
-        isKnownCheck = function(unit)
-            local isKnown = IsPlayerSpell(14752)
-            local isSpiritClass = manaClasses[select(2,UnitClass(unit))]
-            return isKnown and isSpiritClass
-        end }
+    -- Prayer of Shadow Protection
+    A{ id = 79107 , type = "HELPFUL", assignto = set("raidbuff"), color = { 151/255, 86/255, 168/255 }, priority = 80, isMissing = true, isKnownCheck = function() return IsPlayerSpell(27683) end }
 
     A{ id = 6346, type = "HELPFUL", assignto = set("bar4"), priority = 30, color = { 1, 0.7, 0} , infoType = "DURATION" } -- Fear Ward
 
     -- Abolish Disease
     A{ id = 552, type = "HELPFUL", assignto = set("bars"), priority = 30, color = { 118/255, 69/255, 50/255} , infoType = "DURATION" }
     -- Renew
-    A{ id = { 139, 6074, 6075, 6076, 6077, 6078, 10927, 10928, 10929, 25221, 25222, 25315, 48067, 48068 }, type = "HELPFUL", isMine = true, assignto = set("bars"), priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, infoType = "DURATION" }
+    A{ id = 139, type = "HELPFUL", isMine = true, assignto = set("bars"), priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, infoType = "DURATION" }
     -- Lightwell Renew
-    A{ id = { 7001, 27873, 27874, 28276, 48084, 48085 }, type = "HELPFUL", assignto = set("bars"), priority = 20, color = { 0.5, 0.7, 0}, infoType = "DURATION" }
+    A{ id = 7001, type = "HELPFUL", assignto = set("bars"), priority = 20, color = { 0.5, 0.7, 0}, infoType = "DURATION" }
     -- Power Word: Shield
-    A{ id = { 17, 592, 600, 3747, 6065, 6066, 10898, 10899, 10900, 10901, 25217, 25218, 48065, 48066 }, type = "HELPFUL", assignto = set("bars"), priority = 90, color = { 1, 0.85, 0}, foreigncolor = {0.4, 0.35, 0.1}, infoType = "DURATION" }
+    A{ id = 17, type = "HELPFUL", assignto = set("bars"), priority = 90, color = { 1, 0.85, 0}, foreigncolor = {0.4, 0.35, 0.1}, infoType = "DURATION" }
     -- Weakened Soul
     A{ id = 6788, type = "HARMFUL", assignto = set("spell3"), priority = 70, color = { 0.8, 0, 0}, infoType = "DURATION" }
     --Prayer of Mending
-    A{ id = { 41635, 48110, 48111 }, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
+    A{ id = 41635, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
 
     -- Penance
-    Trace{id = { 47750, 52983, 52984, 52985 }, template = "HealTrace", color = { 52/255, 172/255, 114/255 } }
+    Trace{id = 47750, template = "HealTrace", color = { 52/255, 172/255, 114/255 } }
     -- Prayer of Healing
-    Trace{id = { 596, 996, 10960, 10961, 25308, 25316, 48072 }, template = "HealTrace", color = { .5, .5, 1} }
+    Trace{id = 596, template = "HealTrace", color = { .5, .5, 1} }
     -- Flash Heal
-    Trace{id = { 2061, 9472, 9473, 9474, 10915, 10916, 10917, 25233, 25235, 48070, 48071 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
-    -- Greater Heal, Heal, Lesser heal
-    Trace{id = { 2060, 10963, 10964, 10965, 25210, 25213, 25314, 48062, 48063,   2054, 2055, 6063, 6064,   2050, 2052, 2053 }, template = "HealTrace", color = { 0.7, 1, 0.7} }
+    Trace{id = 2061, template = "HealTrace", color = { 0.6, 1, 0.6} }
+    -- Greater Heal
+    Trace{id = 2060, template = "HealTrace", color = { 0.7, 1, 0.7} }
+    -- Heal
+    Trace{id = 2050, template = "HealTrace", color = { 0.7, 1, 0.7} }
 
     -- Circle of Healing
-    Trace{id = { 34861, 34863, 34864, 34865, 34866, 48088, 48089 }, template = "HealTrace", color = { 1, 0.7, 0.35} }
-    -- Prayer of Mending // NOT UPDATED
+    Trace{id = 34861, template = "HealTrace", color = { 1, 0.7, 0.35} }
+    -- Prayer of Mending
     Trace{id = 33110, template = "HealTrace", color = { 1, 0.3, 0.55 }, fade = 0.5, priority = 95 }
 
 
     config.UnitInRangeFunctions = {
-        RangeCheckBySpell(2050), -- Lesser Heal Rank 1
-        RangeCheckBySpell(2050),
-        RangeCheckBySpell(2050),
+        RangeCheckBySpell(2061), -- Flash Heal
+        RangeCheckBySpell(2061),
+        RangeCheckBySpell(2061),
     }
 
     config.DispelBitmasks = {
@@ -159,21 +148,25 @@ if playerClass == "PRIEST" then
 end
 
 if playerClass == "DRUID" then
-    -- Mark of the Wild, Gift of the Wild
-    A{ id = { 1126, 5232, 5234, 6756, 8907, 9884, 9885, 26990, 48469,   21849, 21850, 26991, 48470 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.2, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1126) end }
+    -- Mark of the Wild
+    A{ id = 79061, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.2, 1}, priority = 100, isMissing = true, isKnownCheck = function() return IsPlayerSpell(1126) end }
+
+
     -- Rejuvenation
-    A{ id = { 774, 1058, 1430, 2090, 2091, 3627, 8910, 9839, 9840, 9841, 25299, 26981, 26982, 48440, 48441 }, type = "HELPFUL", assignto = set("bars"), isMine = true, priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, infoType = "DURATION" }
+    A{ id = 774, type = "HELPFUL", assignto = set("bars"), isMine = true, priority = 90, color = { 1, 0.2, 1}, foreigncolor = { 0.4, 0.1, 0.4 }, infoType = "DURATION" }
     -- Regrowth
-    A{ id = { 8936, 8938, 8939, 8940, 8941, 9750, 9856, 9857, 9858, 26980, 48442, 48443 }, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2}, priority = 50, infoType = "DURATION" }
+    A{ id = 8936, type = "HELPFUL", assignto = set("bars"), isMine = true, scale = 0.5, color = { 0, 0.8, 0.2}, priority = 50, infoType = "DURATION" }
     -- Abolish Poison
     A{ id = 2893, type = "HELPFUL", assignto = set("bars"), priority = 30, color = {15/255, 78/255, 60/255} , infoType = "DURATION", isMine = false }
     -- Lifebloom
-    A{ id = { 33763, 48450, 48451 }, type = "HELPFUL", assignto = set("bar4", "bar4text"), priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
+    A{ id = 33763, type = "HELPFUL", assignto = set("bar4", "bar4text"), priority = 60, infoType = "DURATION", isMine = true, color = { 0.2, 1, 0.2}, }
     -- Wild Growth
-    A{ id = { 48438, 53248, 53249, 53251} , type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, infoType = "DURATION", isMine = true }
+    A{ id = 48438, type = "HELPFUL", assignto = set("bars"), color = { 0, 0.9, 0.7}, priority = 60, infoType = "DURATION", isMine = true }
 
     -- Healing Touch
-    Trace{id = { 5185, 5186, 5187, 5188, 5189, 6778, 8903, 9758, 9888, 9889, 25297, 26978, 26979, 48377, 48378 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
+    Trace{id = 5185, template = "HealTrace", color = { 0.6, 1, 0.6} }
+    Trace{id = 8936, template = "HealTrace", color = { 0, 0.8, 0.2 } } -- Regrowth
+    Trace{id = 50464, template = "HealTrace", color = { 0.6, 0.2, 0.4 } } -- Nourish
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(5185),
@@ -200,19 +193,13 @@ if playerClass == "PALADIN" then
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Light
 
-    -- Sacred Shield
-    A{ id = 53601, type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", priority = 86, scale = 0.5, isMine = true, color = { 1 , 0.9, 0} }
-    -- Sacred Shield Proc
-    A{ id = 58597, type = "HELPFUL", name = "SacredShieldProc", assignto = set("bars"), infoType = "DURATION", priority = 85, scale = 1, isMine = true, color = { 1 , 0.7, 0} }
-
-    -- Holy Light
-    Trace{id = { 635, 639, 647, 1026, 1042, 3472, 10328, 10329, 25292, 27135, 27136, 48781, 48782 } , template = "HealTrace", color = { 1, 0.3, 0.55 } }
+    Trace{id = 225311, template = "HealTrace", color = { 1, 0.7, 0.2} } -- Light of Dawn
     -- Flash of Light
-    Trace{id = { 19939, 19940, 19941, 19942, 19943, 27137, 48784, 48785 } , template = "HealTrace", color = { 0.6, 1, 0.6} }
+    Trace{id = 19750, template = "HealTrace", color = { 0.6, 1, 0.6} }
+    -- Holy Light
+    Trace{id = 82326, template = "HealTrace", color = { 1, 0.3, 0.55 } }
     -- Holy Shock
-    Trace{id = { 25914, 25913, 25903, 27175, 33074, 48820, 48821 }, template = "HealTrace", color = { 1, 0.6, 0.3 } }
-    -- Glyph of Holy Light
-    Trace{id = 54968, template = "HealTrace", color = { 1, 0.7, 0.2} }
+    Trace{id = 25914, template = "HealTrace", color = { 1, 0.6, 0.3 } }
 
 
     config.UnitInRangeFunctions = {
@@ -235,19 +222,17 @@ end
 if playerClass == "SHAMAN" then
 
     -- Earth Shield
-    A{ id = { 974, 32593, 32594, 49283, 49284 } , type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 6, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
+    A{ id = 974, type = "HELPFUL", assignto = set("bar4"), infoType = "COUNT", maxCount = 6, color = {0.2, 1, 0.2}, foreigncolor = {0, 0.5, 0} }
     --Riptide
-    A{ id = { 61295, 61299, 61300, 61301 },  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.3, isMine = true, color = { 0.4 , 0.4, 1} }
+    A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.3, refreshTime = 5.4, refreshColor = { 1, 0.1, 0.1}, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
 
     -- Ancestral Fortitude
     A{ id = { 16177, 16236, 16237 }, type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", color = { 1, 0.85, 0} }
 
-    -- Chain Heal
-    Trace{id = { 1064, 10622, 10623, 25422, 25423, 55458, 55459 }, template = "HealTrace", color = { 1, 1, 0 } }
-    -- Healing Wave
-    Trace{id = { 331, 332, 547, 913, 939, 959, 8005, 10395, 10396, 25357, 25391, 25396, 49272, 49273 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
-    -- Lesser Healing Wave
-    Trace{id = { 8004, 8008, 8010, 10466, 10467, 10468, 25420, 49275, 49276 }, template = "HealTrace", color = { 0.5, 1, 0.5 } }
+    Trace{id = 77472, template = "HealTrace", color = { 0.5, 1, 0.4 } } -- Greater Healing Wave
+    Trace{id = 331, template = "HealTrace", color = { 0.5, 1, 0.4 } } -- Healing Wave
+    Trace{id = 8004, template = "HealTrace", color = { 0.5, 1, 0.4 } } -- Healing Surge
+    Trace{id = 1064, template = "HealTrace", color = { 0.9, 0.7, 0.1} } -- Chain Heal
 
     config.UnitInRangeFunctions = {
         RangeCheckBySpell(331),
@@ -256,7 +241,7 @@ if playerClass == "SHAMAN" then
     }
 
     config.DispelBitmasks = {
-        DispelTypes("Poison", "Disease", "Curse")
+        DispelTypes("Magic", "Curse")
     }
 
 end
@@ -264,23 +249,7 @@ end
 if playerClass == "MAGE" then
 
     -- Arcane Intellect and Brilliance
-    A{ id = { 1459, 1460, 1461, 10156, 10157, 27126, 42995,    23028, 27127, 43002 }, type = "HELPFUL", assignto = set("raidbuff"), color = { .4 , .4, 1 }, priority = 50, isMissing = true,
-        isKnownCheck = function(unit)
-            local isKnown = IsPlayerSpell(1459)
-            local isSpiritClass = manaClasses[select(2,UnitClass(unit))]
-            return isKnown and isSpiritClass
-        end }
-    -- Dampen Magic
-    A{ id = { 604, 8450, 8451, 10173, 10174, 33944, 43015 }, type = "HELPFUL", assignto = set("spell3"), color = {52/255, 172/255, 114/255}, priority = 80 }
-    -- Amplify Magic
-    A{ id = { 1008, 8455, 10169, 10170, 27130, 33946, 43017 }, type = "HELPFUL", assignto = set("spell3"), color = {1,0.7,0.5}, priority = 80 }
-
-
-    if IsPlayerSpell(1459) then
-        config.UnitInRangeFunctions = {
-            RangeCheckBySpell(1459), -- Arcane Intellect, 30yd range
-        }
-    end
+    A{ id = 79058, type = "HELPFUL", assignto = set("raidbuff"), color = { .4 , .4, 1 }, priority = 50, isMissing = true }
 
     config.DispelBitmasks = {
         DispelTypes("Curse")
@@ -290,16 +259,16 @@ end
 if playerClass == "WARRIOR" then
 
     -- Battle Shout
-    A{ id = { 5242, 2048, 6192, 6673, 11549, 11550, 11551, 25289, 47436 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, .4 , .4}, priority = 50 }
+    -- A{ id = 6673, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, .4 , .4}, priority = 50 }
     -- Commanding Shout
-    A{ id = { 469, 47439, 47440 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 0.4, 0.4 , 1}, priority = 49 }
+    -- A{ id = 469, type = "HELPFUL", assignto = set("raidbuff"), color = { 0.4, 0.4 , 1}, priority = 49 }
 
 end
 
 if playerClass == "DEATHKNIGHT" then
 
     -- Horn of Winter
-    A{ id = { 57330, 57623 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 0.6, 0, 1 }, priority = 50 }
+    A{ id = 57330, type = "HELPFUL", assignto = set("raidbuff"), color = { 0.6, 0, 1 }, priority = 50 }
 
 end
 
@@ -318,6 +287,14 @@ config.MapIDs = {
     [111] = "Utgarde Keep",
     [112] = "The Culling of Stratholme",
 
+    [773] = "TotFW",
+    [754] = "Blackwing Descent",
+    [757] = "Bastion of Twilight",
+    [780] = "ZulAman",
+    [792] = "ZulGurub",
+    [799] = "Firelands",
+    [824] = "DragonSoul",
+
     [1701] = "PvP",
 }
 
@@ -325,6 +302,98 @@ config.defaultDebuffHighlights = {
     ["PvP"] = {
         [33786] = { 33786, 3, "Cyclone" },
     },
+
+
+
+    ["DragonSoul"] = {
+        [100460] = { 100460, 1, "Disrupting Shadows, Warlord Zon'ozz" },
+
+        [109325] = { 109325, 1, "Frostflake, Hagara the Stormbinder" },
+        [104451] = { 104451, 3, "Ice Tomb, Hagara the Stormbinder" },
+        [105369] = { 105369, 2, "Lightning Conduit, Hagara the Stormbinder" },
+        [105927] = { 105927, 1, "Faded into Twilight, Hagara the Stormbinder" },
+
+        [107558] = { 107558, 2, "Degeneration, Warmaster Blackhorn" },
+        [107567] = { 107567, 2, "Brutal Strike, Warmaster Blackhorn" },
+        [108043] = { 108043, 1, "Sunder Armor, Warmaster Blackhorn" },
+
+        [105479] = { 105479, 2, "Searing Plasma, Spine of Deathwing" },
+        [105490] = { 105490, 1, "Fiery Grip, Spine of Deathwing" },
+
+        [106730] = { 106730, 1, "Tetanus, Madness of Deathwing" },
+    },
+    ["Firelands"] = {
+        [98981] = { 98981, 1, "Lava Bolt, Ragnaros" },
+        [100460] = { 100460, 2, "Blazing Heat, Ragnaros" },
+
+        [98443] = { 98443, 1, "Fiery Cyclone, Majordomo Staghelm" },
+        [98450] = { 98450, 2, "Searing Seeds, Majordomo Staghelm" },
+
+        [99516] = { 99516, 2, "Countdown, Baleroc" },
+        [99403] = { 99403, 4, "Tormented, Baleroc" },
+        [99256] = { 99256, 1, "Torment, Baleroc" },
+
+        [99936] = { 99936, 1, "Jagged Tear, Shannox" },
+        [99837] = { 99837, 3, "Crystal Prison Trap Effect, Shannox" },
+        [101208] = { 101208, 2, "Immolation Trap, Shannox" },
+
+        [99308] = { 99308, 1, "Gushing Wound, Alysrazor" },
+
+        [98492] = { 98492, 1, "Eruption, Lord Rhyolith" },
+
+        --[97202] = { 97202, 1, "Fiery Web Spin, Cinderweb Spinner, Beth'tilac" },
+        [49026] = { 49026, 1, "Fixate, Cinderweb Drone, Beth'tilac" },
+    },
+
+    ["ZulGurub"] = {
+        [96776] = { 96776, 1, "Bloodletting, Mandokir" },
+        [96478] = { 96478, 2, "Toxis Link, Venoxis" },
+    },
+
+    ["ZulAman"] = {
+        [97300] = { 97300, 1, "Electrical Storm, Akil'zon" },
+
+        [97811] = { 97811, 2, "Lacerating Slash, Nalorakk" },
+        [42402] = { 42402, 1, "Surge, Nalorakk" },
+
+        [97490] = { 97490, 2, "Flame Shock, Halazzi" },
+        [99284] = { 99284, 1, "Fixate, Halazzi" },
+
+        [97639] = { 97639, 1, "Grievous Throw, Daakara" },
+        [97672] = { 97672, 2, "Claw Rage, Daakara" },
+        -- [97639] = { 97639, 1, "Lynx Rush, Daakara (dot)" },
+        -- [42402] = { 42402, 1, "Surge, Daakara" },
+    },
+
+    ["Bastion of Twilight"] = {
+        [86788] = { 86788, 3, "Blackout, Valiona" },
+        [86013] = { 86013, 2, "Twilight Meteorite, Valiona" },
+
+
+        --Magic--
+        [81836] = { 81836, 1, "Corruption: Accelerated, Cho'gall" },
+        -- [93202] = { 93202, 2, "Corruption: Sickness, Cho'gall" },
+        [91303] = { 91303, 3, "Conversion, Cho'gall" },
+        -- [93133] = { 93133, 1, "Debilitating Beam,Cho'gall" },
+
+        [89421] = { 89421, 2, "Wrack, Lady Sinestra" },
+    },
+
+    ["Blackwing Descent"] = {
+        [79589] = { 79589, 4, "Constricting Chains, Drakonid Chainwielder" },
+        [77786] = { 77786, 4, "Consuming Flames, Maloriak" },
+        [79889] = { 79889, 1, "Lightning Conductor, Omnitron Defense System" },
+        [80011] = { 80011, 2, "Soaked In Poison, Omnitron Defense System" },
+        [77699] = { 77699, 3, "Flash Freeze, Maloriak" },
+    },
+
+    ["TotFW"] = {
+        [89666] = { 89666, 1, "Lightning Rod" },
+    },
+
+
+
+    -- Wrath
     ["Karazhan"] = {
         [29522] = { 29522, 1, "Maiden of Virtue, Holy Fire" },
         [34694] = { 34694, 1, "Moroes, Blind" },
@@ -582,8 +651,11 @@ do
         [19574] = AURA, -- Bestial Wrath
 
         -- SHAMAN
+        [2825] = CAST, -- Bloodlust
+        [32182] = CAST, -- Heroism
         [2894] = CAST, -- Fire Elemental Totem
         [16166] = AURA, -- Elemental Mastery
         [51533] = CAST, -- Feral Spirit
+        [98008] = CAST, -- Spirit Link Totem
     }
     end
