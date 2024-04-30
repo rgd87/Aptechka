@@ -330,12 +330,12 @@ config.defaultDebuffHighlights = {
         [98450] = { 98450, 2, "Searing Seeds, Majordomo Staghelm" },
 
         [99516] = { 99516, 2, "Countdown, Baleroc" },
-        [99403] = { 99403, 4, "Tormented, Baleroc" },
+        -- [99403] = { 99403, 4, "Tormented, Baleroc" },
         [99256] = { 99256, 1, "Torment, Baleroc" },
 
         [99936] = { 99936, 1, "Jagged Tear, Shannox" },
         [99837] = { 99837, 3, "Crystal Prison Trap Effect, Shannox" },
-        [101208] = { 101208, 2, "Immolation Trap, Shannox" },
+        -- [101208] = { 101208, 2, "Immolation Trap, Shannox" },
 
         [99308] = { 99308, 1, "Gushing Wound, Alysrazor" },
 
@@ -347,22 +347,20 @@ config.defaultDebuffHighlights = {
 
     ["ZulGurub"] = {
         [96776] = { 96776, 1, "Bloodletting, Mandokir" },
-        [96478] = { 96478, 2, "Toxis Link, Venoxis" },
+        [96475] = { 96475, 2, "Toxis Link, Venoxis" },
     },
 
     ["ZulAman"] = {
-        [97300] = { 97300, 1, "Electrical Storm, Akil'zon" },
+        [43657] = { 43657, 1, "Electrical Storm, Akil'zon" },
 
-        [97811] = { 97811, 2, "Lacerating Slash, Nalorakk" },
-        [42402] = { 42402, 1, "Surge, Nalorakk" },
+        -- [97811] = { 97811, 2, "Lacerating Slash, Nalorakk" },
+        -- [42402] = { 42402, 1, "Surge, Nalorakk" },
 
-        [97490] = { 97490, 2, "Flame Shock, Halazzi" },
-        [99284] = { 99284, 1, "Fixate, Halazzi" },
+        -- [188389] = { 188389, 2, "Flame Shock, Halazzi" },
+        [78617] = { 78617, 1, "Fixate, Halazzi" },
 
-        [97639] = { 97639, 1, "Grievous Throw, Daakara" },
-        [97672] = { 97672, 2, "Claw Rage, Daakara" },
-        -- [97639] = { 97639, 1, "Lynx Rush, Daakara (dot)" },
-        -- [42402] = { 42402, 1, "Surge, Daakara" },
+        [43093] = { 43093, 1, "Grievous Throw, Daakara" },
+        [43150] = { 43150, 4, "Claw Rage, Daakara" },
     },
 
     ["Bastion of Twilight"] = {
