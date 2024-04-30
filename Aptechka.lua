@@ -793,7 +793,10 @@ function Aptechka:GenerateMergedConfig()
                 for additionalSpellID, enabled in pairs(opts.clones) do
                     -- if clone spell ID is at the same time a root ID of another spell
                     if config[category][additionalSpellID] then
-                        print(string.format("[Aptechka] Conflicting spell IDs: %d (%s) already exists as root ID", additionalSpellID, GetSpellInfo(additionalSpellID)))
+                        local spellName = GetSpellInfo(additionalSpellID)
+                        if spellName then
+                            print(string.format("[Aptechka] Conflicting spell IDs: %d (%s) already exists as root ID", additionalSpellID, spellName))
+                        end
                     else
                         if enabled then
                             tempTable[additionalSpellID] = opts
