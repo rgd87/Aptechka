@@ -175,7 +175,7 @@ if playerClass == "DRUID" then
     }
 
     config.DispelBitmasks = {
-        DispelTypes("Curse", "Poison")
+        DispelTypes("Magic", "Curse", "Poison")
     }
 end
 
