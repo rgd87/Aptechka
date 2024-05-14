@@ -25,6 +25,8 @@ Libs\LibAuraTypes\LibAuraTypes.lua
 Libs\LibTargetedCasts\LibTargetedCasts.lua
 Libs\LibTargeted\LibTargeted.lua
 
+Libs\LibAbsorbCounter\LibAbsorbCounter.lua
+
 helpers.lua
 config.lua
 config.cata.lua

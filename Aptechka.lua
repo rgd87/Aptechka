@@ -600,6 +600,15 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
         self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
     end
+    if apiLevel == 4 then
+        local LAC = LibStub("LibAbsorbCounter")
+        UnitGetTotalAbsorbs = function(unit)
+            return LAC:UnitGetTotalAbsorbs(unit)
+        end
+        LAC.RegisterCallback(self, "UNIT_ABSORB_AMOUNT_CHANGED", function(event, unit)
+            self:UNIT_ABSORB_AMOUNT_CHANGED(event, unit)
+        end)
+    end
 
     self:UpdateTargetedCountConfig()
     self:UpdateIncomingCastsConfig()
