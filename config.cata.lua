@@ -88,6 +88,7 @@ AG{ id = {
     34291, 43183, 43182, 43706, -- BC & WotLK water,
     27089, 46755, -- BC mage water
     52911, 57073, 61830, 64356, -- WotLK
+    80166, 80167, 87959, 105232, 118358, -- Cata
     24707, 26263, 66041, -- % Food
 }, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
