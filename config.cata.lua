@@ -176,7 +176,13 @@ if playerClass == "DRUID" then
     }
 
     config.DispelBitmasks = {
-        DispelTypes("Magic", "Curse", "Poison")
+        function(spec)
+            if IsPlayerSpell(88423) then -- Nature's Cure
+                return DispelTypes("Magic", "Curse", "Poison")
+            else
+                return DispelTypes("Curse", "Poison")
+            end
+        end
     }
 end
 
@@ -210,7 +216,13 @@ if playerClass == "PALADIN" then
     }
 
     config.DispelBitmasks = {
-        DispelTypes("Magic", "Disease", "Poison")
+        function(spec)
+            if IsPlayerSpell(53551) then -- Sacred Cleansing
+                return DispelTypes("Magic", "Disease", "Poison")
+            else
+                return DispelTypes("Disease", "Poison")
+            end
+        end
     }
 
 end
@@ -242,7 +254,13 @@ if playerClass == "SHAMAN" then
     }
 
     config.DispelBitmasks = {
-        DispelTypes("Magic", "Curse")
+        function(spec)
+            if IsPlayerSpell(77130) then -- Improved Cleanse Spirit
+                return DispelTypes("Magic", "Curse")
+            else
+                return DispelTypes("Curse")
+            end
+        end
     }
 
 end
