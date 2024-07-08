@@ -200,7 +200,7 @@ if playerClass == "PALADIN" then
                                                                             foreigncolor = { 0.96/2, 0.55/2, 0.73/2 },
                                                                         } -- Beacon of Light
 
-    Trace{id = 225311, template = "HealTrace", color = { 1, 0.7, 0.2} } -- Light of Dawn
+    Trace{id = 85222, template = "HealTrace", color = { 1, 0.7, 0.2} } -- Light of Dawn
     -- Flash of Light
     Trace{id = 19750, template = "HealTrace", color = { 0.6, 1, 0.6} }
     -- Holy Light
