@@ -189,6 +189,9 @@ end
 
 if playerClass == "PALADIN" then
 
+
+    -- Holy Radiance
+    A{ id = 82327, type = "HARMFUL", assignto = set("bars"), infoType = "DURATION", color = { 0, 0.9, 0.7 } }
     -- Forbearance
     A{ id = 25771, type = "HARMFUL", assignto = set("bars"), infoType = "DURATION", color = { 0.8, 0, 0 } }
     -- Blessing of Freedom

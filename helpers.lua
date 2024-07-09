@@ -779,7 +779,7 @@ helpers.Set = Set
 
 
 function helpers.ShakeAssignments(newOpts, defaultOpts)
-    if newOpts.assignto and defaultOpts.assignto then
+    if newOpts.assignto and defaultOpts and defaultOpts.assignto then
         local toRemove = {}
         for slot, enabled in pairs(newOpts.assignto) do
                 local defSlot = defaultOpts.assignto[slot]
@@ -787,6 +787,16 @@ function helpers.ShakeAssignments(newOpts, defaultOpts)
                     table.insert(toRemove, slot)
                 end
                 if enabled and defSlot == true then
+                    table.insert(toRemove, slot)
+                end
+        end
+        for _, slot in ipairs(toRemove) do
+            newOpts.assignto[slot] = nil
+        end
+    elseif newOpts.assignto then
+        local toRemove = {}
+        for slot, enabled in pairs(newOpts.assignto) do
+                if not enabled then
                     table.insert(toRemove, slot)
                 end
         end

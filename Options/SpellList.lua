@@ -302,6 +302,7 @@ local function form_save(form)
                 Aptechka.util.MergeTable(finalOpts, delta)
                 AptechkaConfigMerged[category][spellID] = finalOpts
             else
+                Aptechka.util.ShakeAssignments(delta, nil)
                 AptechkaConfigMerged[category][spellID] = delta
                 delta.isAdded = true
             end
