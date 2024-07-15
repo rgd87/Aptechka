@@ -4,6 +4,7 @@ local L = Aptechka.L
 
 local defaultDebuffHighlights = AptechkaDefaultConfig.defaultDebuffHighlights
 
+local GetSpellName = Aptechka.util.GetSpellName
 local function IsSpellInList(list, id)
     for cat, spells in pairs(list) do
         for spellId, opts in pairs(spells) do
@@ -233,7 +234,7 @@ function AptechkaHybridScrollMixin:RefreshLayout()
                 button.categoryMiddle:Hide();
 
                 local spellId, prio, commentText = unpack(item)
-                local spellName, _, tex = GetSpellInfo(spellId)
+                local spellName, _, tex = GetSpellName(spellId)
                 button.spellId = spellId
                 icon:SetPoint("LEFT", 15, 0)
                 icon:SetTexture(tex);
@@ -279,7 +280,7 @@ function ns.CreateSpellDataPanel()
     spellID:SetRelativeWidth(0.13)
     spellID:SetCallback("OnTextChanged", function(self, event, value)
         local v = tonumber(value)
-        if v and v > 0 and GetSpellInfo(v) then
+        if v and v > 0 and GetSpellName(v) then
             self.parent.opts["spellID"] = v
             self.editbox:SetTextColor(1,1,1)
             self.parent.controls.save:SetDisabled(false)

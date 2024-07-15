@@ -5,7 +5,8 @@ local L = Aptechka.L
 local LSM = LibStub("LibSharedMedia-3.0")
 
 local newFeatureIcon = "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:0:0:0:-1|t"
-
+local GetSpellName = Aptechka.util.GetSpellName
+local GetSpellTexture = Aptechka.util.GetSpellTexture
 local AceGUI = LibStub("AceGUI-3.0")
 local rootFrame
 local FORM_CACHE = {}
@@ -68,7 +69,7 @@ function ns.GenerateCategoryTree(self, settingsClass, category)
             if isTemplate or defaultSpellList[spellID] or customSpellList[spellID] then
                 local name
                 if type(spellID) == "number" then
-                    name = (GetSpellInfo(spellID) or "<Unknown>") or opts.name
+                    name = (GetSpellName(spellID) or "<Unknown>") or opts.name
                 else
                     name = spellID
                 end
@@ -220,18 +221,18 @@ local function form_save(form)
                 --invalid spell id string
                 return
             end
-            if not GetSpellInfo(spellID) then
+            if not GetSpellName(spellID) then
                 return -- spell doesn't exist
             end
 
             -- if not opts.name then
-                -- opts.name = GetSpellInfo(spellID)
+                -- opts.name = GetSpellName(spellID)
             -- end
             opts.spellID = nil
         end
 
         if not opts.name then
-            opts.name = GetSpellInfo(spellID)
+            opts.name = GetSpellName(spellID)
             if category == "traces" then
                 opts.name = opts.name.."Trace"
             end
@@ -449,7 +450,7 @@ local function form_spellID(form)
     spellID:SetRelativeWidth(0.2)
     spellID:SetCallback("OnTextChanged", function(self, event, value)
         local v = tonumber(value)
-        if v and v > 0 and GetSpellInfo(v) then
+        if v and v > 0 and GetSpellName(v) then
             self.parent.opts["spellID"] = v
             self.editbox:SetTextColor(1,1,1)
         else

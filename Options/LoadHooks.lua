@@ -110,7 +110,7 @@ function f.Open()
             WIDGETCONFIG = widgetsFrame,
         }
 
-
+        treegroup.text = "123"
         treegroup:SetCallback("OnGroupSelected", function(self, event, group)
 
             if self.customPanel then

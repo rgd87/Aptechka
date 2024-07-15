@@ -9,6 +9,7 @@ local _, playerClass = UnitClass("player")
 config["GLOBAL"] = { auras = {}, traces = {}, }
 config[playerClass] = { auras = {}, traces = {}, }
 
+
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local APILevel = math.floor(select(4,GetBuildInfo())/10000)
@@ -33,10 +34,25 @@ helpers.FRAMELEVEL = {
     FLASH = 19,
 }
 
+if C_Spell.GetSpellInfo then
+    local C_Spell_GetSpellInfo = C_Spell.GetSpellInfo
+    helpers.GetSpellName = function(spellId)
+        local info = C_Spell_GetSpellInfo(spellId)
+        if info then
+            return info.name, info.iconID
+        end
+    end
+    helpers.GetSpellTexture = C_Spell.GetSpellTexture
+else
+    helpers.GetSpellName = _G.GetSpellInfo
+    helpers.GetSpellTexture = _G.GetSpellTexture
+end
+local GetSpellName = helpers.GetSpellName
+
 if APILevel == 1 then
     helpers.spellNameToID = {}
     helpers.AddSpellNameRecognition = function(lastRankID)
-        helpers.spellNameToID[GetSpellInfo(lastRankID)] = lastRankID
+        helpers.spellNameToID[GetSpellName(lastRankID)] = lastRankID
     end
 end
 
@@ -154,7 +170,7 @@ function helpers.UnwrapConfigTemplates(configCategory)
 end
 
 function helpers.AddLoadableAura(data, todefault)
-    if data.id then data.name = GetSpellInfo(data.id) end
+    if data.id then data.name = GetSpellName(data.id) end
     if data.name == nil then print (data.id.." spell id missing") return end
 
     if data.prototype then
@@ -182,7 +198,7 @@ local function PrepareAuraOpts(data)
         data.clones = t
     end
 
-    if data.id and not data.name then data.name = GetSpellInfo(data.id) end
+    if data.id and not data.name then data.name = GetSpellName(data.id) end
     if data.name == nil then
         -- print(string.format("[Aptechka] %d spell id missing", data.id))
         return
@@ -235,7 +251,7 @@ function helpers.AddTrace(data)
         data.clones = t
     end
 
-    if data.id then data.name = GetSpellInfo(data.id) or data.name end
+    if data.id then data.name = GetSpellName(data.id) or data.name end
     if not config.traces then config.traces = {} end
     if not data.name then
         -- print(string.format("[Aptechka] %d spell id missing", data.id))
@@ -279,7 +295,7 @@ end
 helpers.ClickMacro = function(macro)
     if AptechkaUserConfig then config = AptechkaUserConfig else config = AptechkaDefaultConfig end
     if not config.enableClickCasting then return end
-    config.ClickCastingMacro = macro:gsub("spell:(%d+)",GetSpellInfo):gsub("([ \t]+)/",'/')
+    config.ClickCastingMacro = macro:gsub("spell:(%d+)",GetSpellName):gsub("([ \t]+)/",'/')
 end
 
 helpers.BindTarget = function(str)
@@ -592,15 +608,15 @@ function helpers.GetHorizontalAlignmentFromPoint(p1)
 end
 
 
-local UnitAuraSlots = UnitAuraSlots
-local UnitAuraBySlot = UnitAuraBySlot
+local GetAuraSlots = C_UnitAuras.GetAuraSlots
+local GetAuraDataBySlot = C_UnitAuras.GetAuraDataBySlot
 
 local function ForEachAuraHelper(frame, unit, index, filter, func, continuationToken, ...)
-    -- continuationToken is the first return value of UnitAuraSlots()
+    -- continuationToken is the first return value of GetAuraSlots()
     local n = select('#', ...);
     for i=1, n do
         local slot = select(i, ...);
-        local result = func(frame, unit, index, slot, filter, UnitAuraBySlot(unit, slot))
+        local result = func(frame, unit, index, slot, filter, GetAuraDataBySlot(unit, slot))
 
         if result == -1 then
             -- if func returns -1 then no further slots are needed, so don't return continuationToken
@@ -620,7 +636,7 @@ function helpers.ForEachAura(frame, unit, filter, maxCount, func)
     local index = 1
     repeat
         -- continuationToken is the first return value of UnitAuraSltos
-        continuationToken, index = ForEachAuraHelper(frame, unit, index, filter, func, UnitAuraSlots(unit, filter, maxCount, continuationToken));
+        continuationToken, index = ForEachAuraHelper(frame, unit, index, filter, func, GetAuraSlots(unit, filter, maxCount, continuationToken));
     until continuationToken == nil;
 
     return index
@@ -629,7 +645,7 @@ end
 do
     local IsSpellInRange = _G.IsSpellInRange
     function helpers.RangeCheckBySpell(spellID)
-        local spellName = GetSpellInfo(spellID)
+        local spellName = GetSpellName(spellID)
         return function(unit)
             return (IsSpellInRange(spellName,unit) == 1)
         end

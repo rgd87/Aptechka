@@ -245,6 +245,11 @@ globals = {
     "GetActiveTalentGroup",
     "GetTalentGroupRole",
 
+    "C_Spell",
+    "C_UnitAuras",
+    "C_AddOns",
+    "Settings",
+
     -- Disarm Blizz raid
     "PartyFrame",
     "UnregisterUnitWatch",

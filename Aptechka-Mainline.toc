@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 110000
 ## Title: Aptechka
 ## Notes: Raid Frames
 ## Version: @project-version@

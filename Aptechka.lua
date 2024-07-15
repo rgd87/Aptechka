@@ -22,6 +22,8 @@ local UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs
 local UnitThreatSituation = UnitThreatSituation
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local UnitPhaseReason = UnitPhaseReason
+local GetSpellName = helpers.GetSpellName
+local GetSpellTexture = helpers.GetSpellTexture
 local GetSpecialization = GetSpecialization
 local GetSpecializationRole = GetSpecializationRole
 local GetActiveTalentGroup = GetActiveTalentGroup
@@ -802,7 +804,7 @@ function Aptechka:GenerateMergedConfig()
                 for additionalSpellID, enabled in pairs(opts.clones) do
                     -- if clone spell ID is at the same time a root ID of another spell
                     if config[category][additionalSpellID] then
-                        local spellName = GetSpellInfo(additionalSpellID)
+                        local spellName = GetSpellName(additionalSpellID)
                         if spellName then
                             print(string.format("[Aptechka] Conflicting spell IDs: %d (%s) already exists as root ID", additionalSpellID, spellName))
                         end
@@ -3201,20 +3203,7 @@ end
 ---------------------------
 -- Ordered
 ---------------------------
-local UnitAuraUniversal -- If available it's using slots API, otherwise just normal UnitAura
-if apiLevel <= 4 then
-    UnitAuraUniversal = UnitAura
-    ForEachAura = function(frame, unit, filter, batchSize, func)
-        for i=1,100 do
-            local name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura = UnitAura(unit, i, filter)
-            if not name then break end
-            func(frame, unit, i, nil, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
-        end
-    end
-else
-    UnitAuraUniversal = UnitAuraBySlot
-    -- ForEachAura = helpers.ForEachAura -- This one is using Slots API
-end
+local UnitAuraUniversal = C_UnitAuras.UnitAuraBySlot
 
 local BITMASK_DISEASE = helpers.BITMASK_DISEASE
 local BITMASK_POISON = helpers.BITMASK_POISON
@@ -3503,17 +3492,35 @@ function Aptechka.DispelTypePostUpdate(frame, unit)
 end
 function Aptechka.DummyFunction() end
 
-local handleBuffs = function(frame, unit, index, slot, filter, ...)
-    IndicatorAurasProc(frame, unit, index, slot, filter, ...)
-    BuffProc(frame, unit, index, slot, filter, ...)
+
+local function UnpackAuraData(auraData)
+    return
+        auraData.name,
+        auraData.icon,
+        auraData.charges,
+        auraData.dispelName,
+        auraData.duration,
+        auraData.expirationTime,
+        auraData.sourceUnit,
+        nil,
+        nil,
+        auraData.spellId
 end
 
-local handleDebuffs = function(frame, unit, index, slot, filter, ...)
-    IndicatorAurasProc(frame, unit, index, slot, filter, ...)
-    DebuffProc(frame, unit, index, slot, filter, ...)
-    HighlightProc(frame, unit, index, slot, filter, ...)
-    DispelTypeProc(frame, unit, index, slot, filter, ...)
-    EffectListProc(frame, unit, index, slot, filter, ...)
+local handleBuffs = function(frame, unit, index, slot, filter, auraData)
+    local name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID = UnpackAuraData(auraData)
+
+    IndicatorAurasProc(frame, unit, index, slot, filter,    name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
+    BuffProc(frame, unit, index, slot, filter,    name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
+end
+
+local handleDebuffs = function(frame, unit, index, slot, filter, auraData)
+    local name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID = UnpackAuraData(auraData)
+    IndicatorAurasProc(frame, unit, index, slot, filter,      name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
+    DebuffProc(frame, unit, index, slot, filter,      name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
+    HighlightProc(frame, unit, index, slot, filter,      name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
+    DispelTypeProc(frame, unit, index, slot, filter,      name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
+    EffectListProc(frame, unit, index, slot, filter,      name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
 end
 
 function Aptechka.FrameScanAuras(frame, unit)
@@ -3652,7 +3659,7 @@ function Aptechka.TestDebuffSlotsForUnit(frame, unit)
     local randomIDs = { 5211, 19577, 172, 408, 15286, 853, 980, 589, 118, 605 }
     for i=1,6 do
         local spellID = randomIDs[math.random(#randomIDs)]
-        local name, _, icon = GetSpellInfo(spellID)
+        local name, _, icon = GetSpellName(spellID)
         local duration = math.random(20)+5
         local hasCount = math.random(3) == 1
         local count = hasCount and math.random(18) or 0
@@ -3695,7 +3702,7 @@ function Aptechka.TestCastBar(frame, unit)
     local spellID = 172
     local srcGUID = UnitGUID("player")
     local castType = "CAST"
-    local name, _, icon = GetSpellInfo(spellID)
+    local name, _, icon = GetSpellName(spellID)
     local dstGUID = srcGUID
     local totalCasts = math.random(5)
     local duration = math.random(20)+5
@@ -3784,8 +3791,8 @@ function Aptechka:RemoveWidget(wname)
 end
 
 function Aptechka:OpenGUI()
-    if not IsAddOnLoaded("AptechkaOptions") then
-        LoadAddOn("AptechkaOptions")
+    if not C_AddOns.IsAddOnLoaded("AptechkaOptions") then
+        C_AddOns.LoadAddOn("AptechkaOptions")
     end
     AptechkaOptions.Open()
     -- InterfaceOptionsFrame_OpenToCategory("Aptechka")
@@ -3828,7 +3835,7 @@ function Aptechka:ListSpellsForWidget(widgetName)
                     local name
                     local icon
                     if type(spellID) == "number" then
-                        name = GetSpellInfo(spellID) or "<Unknown>"
+                        name = GetSpellName(spellID) or "<Unknown>"
                         icon = GetSpellTexture(spellID)
                     else
                         name = spellID
@@ -4187,7 +4194,7 @@ Aptechka.Commands = {
             local spellID = tonumber(args)
             if spellID then
                 Aptechka.db.global.customBlacklist[spellID] = true
-                local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
+                local spellName = GetSpellName(spellID) or "<Unknown spell>"
                 print(string.format("%s (%d) added to debuff blacklist", spellName, spellID))
             end
         elseif cmd == "del" then
@@ -4196,18 +4203,18 @@ Aptechka.Commands = {
                 local val = nil
                 if defaultBlacklist[spellID] then val = false end -- if nil it'll fallback on __index
                 Aptechka.db.global.customBlacklist[spellID] = val
-                local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
+                local spellName = GetSpellName(spellID) or "<Unknown spell>"
                 print(string.format("%s (%d) removed from debuff blacklist", spellName, spellID))
             end
         else
             print("Default blacklist:")
             for spellID in pairs(defaultBlacklist) do
-                local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
+                local spellName = GetSpellName(spellID) or "<Unknown spell>"
                 print(string.format("    %s (%d)", spellName, spellID))
             end
             print("Custom blacklist:")
             for spellID in pairs(Aptechka.db.global.customBlacklist) do
-                local spellName = GetSpellInfo(spellID) or "<Unknown spell>"
+                local spellName = GetSpellName(spellID) or "<Unknown spell>"
                 print(string.format("    %s (%d)", spellName, spellID))
             end
         end
@@ -4444,10 +4451,41 @@ end
 Aptechka.UNIT_SPELLCAST_INTERRUPTED = Aptechka.UNIT_SPELLCAST_FAILED
 
 
+
+function Aptechka.InterfaceOptions_AddCategory(frame, addOn, position)
+	-- cancel is no longer a default option. May add menu extension for this.
+	frame.OnCommit = frame.okay;
+	frame.OnDefault = frame.default;
+	frame.OnRefresh = frame.refresh;
+
+	if frame.parent then
+		local category = Settings.GetCategory(frame.parent);
+		local subcategory, layout = Settings.RegisterCanvasLayoutSubcategory(category, frame, frame.name, frame.name);
+		subcategory.ID = frame.name;
+		return subcategory, category;
+	else
+		local category, layout = Settings.RegisterCanvasLayoutCategory(frame, frame.name, frame.name);
+		category.ID = frame.name;
+		Settings.RegisterAddOnCategory(category);
+		return category;
+	end
+end
+
+-- Deprecated. Use Settings.OpenToCategory().
+function Aptechka.InterfaceOptionsFrame_OpenToCategory(categoryIDOrFrame)
+	if type(categoryIDOrFrame) == "table" then
+		local categoryID = categoryIDOrFrame.name;
+		return Settings.OpenToCategory(categoryID);
+	else
+		return Settings.OpenToCategory(categoryIDOrFrame);
+	end
+end
+
+
 function Aptechka:CreateBlizzOptionsPanel()
     local f = CreateFrame('Frame', "AptechkaBlizzOptionsPanel", InterfaceOptionsFrame)
     f.name = "Aptechka"
-    InterfaceOptions_AddCategory(f);
+    Aptechka.InterfaceOptions_AddCategory(f);
 
     local content = CreateFrame("Frame", "$parentContent", f)
     content:SetPoint("TOPLEFT", 10, -10)
@@ -4542,7 +4580,7 @@ do
             local tooltip = self.tooltipPool:Acquire()
             tooltip:SetOwner(frame, "ANCHOR_NONE")
 
-            local name,_, texture = GetSpellInfo(spellID)
+            local name, _, texture = GetSpellName(spellID)
             tooltip.iconTexture:SetTexture(texture)
             tooltip:SetUnitAura(icon.unit, icon.index, icon.filter)
 

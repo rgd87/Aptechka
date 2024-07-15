@@ -34,7 +34,7 @@ function Aptechka:CreteMinimapIcon()
             end
 
 
-            LoadAddOn('AptechkaOptions')
+            C_AddOns.LoadAddOn('AptechkaOptions')
             Aptechka:OpenGUI()
             --[[
             InterfaceOptionsFrame_OpenToCategory("Aptechka")
@@ -57,7 +57,7 @@ function Aptechka:CreteMinimapIcon()
 		OnTooltipShow = function(tooltip)
 			if not tooltip or not tooltip.AddLine then return end
 
-            GameTooltip_SetTitle(tooltip, string.format("%s    %s",addonName, GetAddOnMetadata(addonName, "version")))
+            GameTooltip_SetTitle(tooltip, string.format("%s    %s",addonName, C_AddOns.GetAddOnMetadata(addonName, "version")))
             GameTooltip_AddInstructionLine(tooltip, string.format("LeftClick - %s", L"Profile Settings"))
             GameTooltip_AddInstructionLine(tooltip, string.format("|cffc9e06cCtrl-LeftClick - %s|r", L"Unlock"))
             --[[
