@@ -3203,7 +3203,35 @@ end
 ---------------------------
 -- Ordered
 ---------------------------
-local UnitAuraUniversal = C_UnitAuras.UnitAuraBySlot
+local function UnpackAuraData(auraData)
+    return
+        auraData.name,
+        auraData.icon,
+        auraData.charges,
+        auraData.dispelName,
+        auraData.duration,
+        auraData.expirationTime,
+        auraData.sourceUnit,
+        nil,
+        nil,
+        auraData.spellId
+end
+
+local GetAuraDataUniversal -- If available it's using slots API, otherwise just normal UnitAura
+if apiLevel <= 4 then
+    GetAuraDataUniversal = C_UnitAuras.GetAuraDataByIndex
+    ForEachAura = function(frame, unit, filter, batchSize, func)
+        for i=1,100 do
+            local auraData = GetAuraDataUniversal(unit, i, filter)
+            if not auraData then break end
+            func(frame, unit, i, nil, filter, auraData)
+        end
+    end
+else
+    GetAuraDataUniversal = C_UnitAuras.GetAuraDataBySlot
+    -- ForEachAura = helpers.ForEachAura -- This one is using Slots API
+end
+
 
 local BITMASK_DISEASE = helpers.BITMASK_DISEASE
 local BITMASK_POISON = helpers.BITMASK_POISON
@@ -3267,7 +3295,8 @@ function Aptechka.OrderedDebuffPostUpdate(frame, unit)
         local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
         local slotOrIndex = slot or index
         if slotOrIndex >= 0 then
-            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraUniversal(unit, slotOrIndex, auraFilter)
+            local auraData = GetAuraDataUniversal(unit, slotOrIndex, auraFilter)
+            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnpackAuraData(auraData)
             if auraFilter == "HELPFUL" then
                 debuffType = "Helpful"
             end
@@ -3431,7 +3460,8 @@ function Aptechka.EffectListPostUpdate(frame, unit)
 
                 local indexOrSlot =  effectData[i]
 
-                local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAuraUniversal(unit, indexOrSlot, "HARMFUL")
+                local auraData = GetAuraDataUniversal(unit, indexOrSlot, "HARMFUL")
+                local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnpackAuraData(auraData)
 
                 -- local duration = 15
                 -- local expirationTime = GetTime()+20
@@ -3485,27 +3515,14 @@ function Aptechka.DispelTypePostUpdate(frame, unit)
         end
     else
         local indexOrSlot = maxIndexOrSlot
-        local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnitAuraUniversal(unit, indexOrSlot, "HARMFUL")
+        local auraData = GetAuraDataUniversal(unit, indexOrSlot, "HARMFUL")
+        local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnpackAuraData(auraData)
         FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", dt, duration, expirationTime, count, icon, spellID, caster)
     end
     frame.debuffTypeMask = debuffTypeMaskDispellable
 end
 function Aptechka.DummyFunction() end
 
-
-local function UnpackAuraData(auraData)
-    return
-        auraData.name,
-        auraData.icon,
-        auraData.charges,
-        auraData.dispelName,
-        auraData.duration,
-        auraData.expirationTime,
-        auraData.sourceUnit,
-        nil,
-        nil,
-        auraData.spellId
-end
 
 local handleBuffs = function(frame, unit, index, slot, filter, auraData)
     local name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID = UnpackAuraData(auraData)
