@@ -3205,16 +3205,19 @@ end
 ---------------------------
 local function UnpackAuraData(auraData)
     return
+     -- name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
         auraData.name,
         auraData.icon,
-        auraData.charges,
+        auraData.applications,
         auraData.dispelName,
         auraData.duration,
         auraData.expirationTime,
         auraData.sourceUnit,
         nil,
         nil,
-        auraData.spellId
+        auraData.spellId,
+        nil,
+        auraData.isBossAura
 end
 
 local GetAuraDataUniversal -- If available it's using slots API, otherwise just normal UnitAura
