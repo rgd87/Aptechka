@@ -2302,7 +2302,7 @@ function Aptechka.Widget.FloatingIcon.Create(parent, popts, gopts)
     f:SetSize(10, 10)
     f:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
 
-    local iconPool = CreateTexturePool(f, "ARTWORK", 2)
+    local iconPool = helpers.CreateTexturePool(f, "ARTWORK", 2)
     f.iconPool = iconPool
     f.opts = opts
     iconPool.creationFunc = FloatingIcon_CreationFunc
@@ -3241,7 +3241,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- HEALTH LOST EFFECT
     ----------------------
 
-    local flashPool = CreateTexturePool(hp, "ARTWORK", -5)
+    local flashPool = helpers.CreateTexturePool(hp, "ARTWORK", -5)
     flashPool.StopEffect = function(self, flash)
         flash.ag:Finish()
     end

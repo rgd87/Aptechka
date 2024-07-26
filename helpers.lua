@@ -821,3 +821,77 @@ function helpers.ShakeAssignments(newOpts, defaultOpts)
         end
     end
 end
+
+
+
+local ObjectPool = {
+    -- creationFunc = function(self)
+    --     return self.parent:CreateMaskTexture()
+    -- end,
+    -- resetterFunc = function(self, mask)
+    --     mask:Hide()
+    --     mask:ClearAllPoints()
+    -- end,
+    AddObject = function(self, object)
+        local dummy = true
+        self.activeObjects[object] = dummy
+        self.activeObjectCount = self.activeObjectCount + 1
+    end,
+    ReclaimObject = function(self, object)
+        tinsert(self.inactiveObjects, object)
+        self.activeObjects[object] = nil
+        self.activeObjectCount = self.activeObjectCount - 1
+    end,
+    Release = function(self, object)
+        local active = self.activeObjects[object] ~= nil
+        if active then
+            self:resetterFunc(object)
+            self:ReclaimObject(object)
+        end
+        return active
+    end,
+    Acquire = function(self)
+        local object = tremove(self.inactiveObjects)
+        local new = object == nil
+        if new then
+            object = self:creationFunc()
+            self:resetterFunc(object, new)
+        end
+        self:AddObject(object)
+        return object, new
+    end,
+    ReleaseAll = function(self)
+        for obj in pairs(self.activeObjects) do
+            self:Release(obj);
+        end
+    end,
+    Init = function(self, parent)
+        self.activeObjects = {}
+        self.inactiveObjects = {}
+        self.activeObjectCount = 0
+        self.parent = parent
+    end
+}
+
+local function Pool_HideAndClearAnchors(framePool, frame)
+	frame:Hide();
+	frame:ClearAllPoints();
+end
+local TextureDefaultReset = Pool_HideAndClearAnchors
+local TextureDefaultCreate = function(texturePool)
+    return texturePool.parent:CreateTexture(nil, texturePool.layer, texturePool.textureTemplate, texturePool.subLayer);
+end
+-- local FrameDefaultResetter = Pool_HideAndClearAnchors
+
+function helpers.CreateTexturePool(parent, layer, subLayer, textureTemplate, resetterFunc)
+	local texturePool = setmetatable({}, { __index = ObjectPool })
+    texturePool:Init(parent)
+
+	texturePool.layer = layer;
+	texturePool.subLayer = subLayer;
+	texturePool.textureTemplate = textureTemplate;
+    texturePool.creationFunc = TextureDefaultCreate
+    texturePool.resetterFunc = TextureDefaultReset
+
+	return texturePool;
+end
