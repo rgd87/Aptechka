@@ -895,3 +895,12 @@ function helpers.CreateTexturePool(parent, layer, subLayer, textureTemplate, res
 
 	return texturePool;
 end
+
+function helpers.CreateFramePool(frameType, parent, frameTemplate, resetterFunc)
+    local framePool = setmetatable({}, { __index = ObjectPool })
+    framePool:Init(parent)
+    framePool.frameType = frameType;
+	framePool.frameTemplate = frameTemplate;
+    framePool.resetterFunc = resetterFunc or Pool_HideAndClearAnchors
+    return framePool
+end

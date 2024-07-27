@@ -4625,7 +4625,7 @@ do
     end
 
     function Aptechka:CreateDebuffTooltips()
-        local tooltipPool = CreateFramePool("GameTooltip", UIParent, "GameTooltipTemplate")
+        local tooltipPool = helpers.CreateFramePool("GameTooltip", UIParent, "GameTooltipTemplate")
         tooltipPool.resetterFunc = Tooltip_resetterFunc
         tooltipPool.creationFunc = Tooltip_creationFunc
         self.tooltipPool = tooltipPool
