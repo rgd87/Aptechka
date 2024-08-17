@@ -125,6 +125,7 @@ globals = {
 
     "InitiateRolePoll",
     "Mixin",
+    "FindSpellBookSlotBySpellID",
     "C_IncomingSummon",
     "C_VoiceChat",
     "C_Map",

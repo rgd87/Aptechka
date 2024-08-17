@@ -315,7 +315,14 @@ if playerClass == "MAGE" then
     -- end
 
     config.DispelBitmasks = {
-        DispelTypes("Curse")
+        -- DispelTypes("Curse")
+        function(spec)
+            if FindSpellBookSlotBySpellID(412113) then -- SoD: Remove Greater Curse from Advanced Warding Rune
+                return DispelTypes("Magic", "Curse")
+            else
+                return DispelTypes("Curse")
+            end
+        end
     }
 end
 
