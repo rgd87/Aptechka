@@ -13,6 +13,7 @@ LSM:Register("font", "AlegreyaSans-Medium", [[Interface\AddOns\Aptechka\Alegreya
 local APILevel = math.floor(select(4,GetBuildInfo())/10000)
 
 local string_format = string.format
+local GetSpellTexture = helpers.GetSpellTexture
 --[[
 DRAW LAYERS
 2 shield icon border
