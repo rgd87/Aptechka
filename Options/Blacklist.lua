@@ -1,7 +1,7 @@
 local addonName, ns = ...
 
 local L = Aptechka.L
-
+local GetSpellInfo = Aptechka.util.GetSpellInfo
 local defaultBlacklist = Aptechka.util.auraBlacklist
 
 
