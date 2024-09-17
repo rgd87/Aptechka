@@ -42,9 +42,11 @@ if C_Spell.GetSpellInfo then
             return info.name, info.iconID
         end
     end
+    helpers.GetSpellInfo = helpers.GetSpellName
     helpers.GetSpellTexture = C_Spell.GetSpellTexture
 else
     helpers.GetSpellName = _G.GetSpellInfo
+    helpers.GetSpellInfo = _G.GetSpellInfo
     helpers.GetSpellTexture = _G.GetSpellTexture
 end
 local GetSpellName = helpers.GetSpellName
