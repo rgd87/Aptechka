@@ -79,6 +79,7 @@ AG{ id = { 20707, 20762, 20763, 20764, 20765 }, type = "HELPFUL", global = true,
 
 AG{ id = {
     430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
+    468767, -- SoD
 }, assignto = set("text2"), color = {0.7, 0.7, 1}, text = "DRINKING", global = true, priority = 30 }
 
 -- Stealth, Prowl, Shadowmeld
