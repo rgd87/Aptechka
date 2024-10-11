@@ -4522,7 +4522,7 @@ function Aptechka:CreateBlizzOptionsPanel()
     optionsButton:SetPoint("TOPLEFT", 10, -60)
     optionsButton:GetFontString():SetText("Open Options Panel")
     optionsButton:SetScript("OnClick", function()
-        LoadAddOn('AptechkaOptions')
+        C_AddOns.LoadAddOn('AptechkaOptions')
         Aptechka:OpenGUI()
     end)
 end
