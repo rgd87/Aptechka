@@ -54,11 +54,11 @@ if apiLevel <= 2 then
     local SeasonOfDiscovery = true
     if not SeasonOfDiscovery then
         GetActiveTalentGroup = function() return 1 end
+        UnitGroupRolesAssigned = function(unit) if GetPartyAssignment("MAINTANK", unit) then return "TANK" end end
     end
     UnitHasVehicleUI = dummyFalse
     UnitInVehicle = dummyFalse
     UnitUsingVehicle = dummyFalse
-    UnitGroupRolesAssigned = function(unit) if GetPartyAssignment("MAINTANK", unit) then return "TANK" end end
 end
 
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
@@ -2370,15 +2370,15 @@ end
 function AptechkaHeader:UpdateSortingMethod()
     -- setAttributesWithoutResponse skips OnAttrChanged callback
     if Aptechka.db.profile.sortMethod == "ROLE" then
-        if apiLevel <= 2 then
-            helpers.setAttributesWithoutResponse(self,
-                            "groupingOrder", "MAINTANK,MAINASSIST",
-                            "groupBy", "ROLE")
-        else
+        -- if apiLevel <= 2 then -- Roles are in Classic Era now
+        --     helpers.setAttributesWithoutResponse(self,
+        --                     "groupingOrder", "MAINTANK,MAINASSIST",
+        --                     "groupBy", "ROLE")
+        -- else
             helpers.setAttributesWithoutResponse(self,
                                 "groupingOrder", "TANK,HEALER,DAMAGER,NONE",
                                 "groupBy", "ASSIGNEDROLE")
-        end
+        -- end
         self:SetAttribute("sortMethod", "INDEX")
     elseif Aptechka.db.profile.sortMethod == "NAME" then
         helpers.setAttributesWithoutResponse(self,
