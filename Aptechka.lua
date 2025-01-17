@@ -51,10 +51,9 @@ if apiLevel <= 4 then
     HasIncomingSummon = dummyNil
 end
 if apiLevel <= 2 then
-    local SeasonOfDiscovery = true
-    if not SeasonOfDiscovery then
-        GetActiveTalentGroup = function() return 1 end
-        UnitGroupRolesAssigned = function(unit) if GetPartyAssignment("MAINTANK", unit) then return "TANK" end end
+    UnitGroupRolesAssigned = function(unit)
+        if GetPartyAssignment("MAINTANK", unit) then return "TANK" end
+        return _G.UnitGroupRolesAssigned(unit)
     end
     UnitHasVehicleUI = dummyFalse
     UnitInVehicle = dummyFalse
