@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       CF_API_KEY: ${{ secrets.CF_API_KEY }}
       GITHUB_OAUTH: ${{ secrets.GH_OAUTH }}
