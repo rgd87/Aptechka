@@ -906,3 +906,7 @@ function helpers.CreateFramePool(frameType, parent, frameTemplate, resetterFunc)
     framePool.resetterFunc = resetterFunc or Pool_HideAndClearAnchors
     return framePool
 end
+
+function helpers.IsWidgetArray(opts)
+    return string.find(opts.type, "Array")
+end

@@ -951,6 +951,11 @@ end
 local function ArrayHeader_Arrange(hdr, startIndex)
     local numChildren = #hdr.children
     local gap = pixelperfect(1)
+    local itemGap = 0
+
+    if hdr.itemGap ~= nil then
+        itemGap = pixelperfect(hdr.itemGap)
+    end
 
     local point, relativeTo, relativePoint, _, _ = hdr:GetPoint(1)
     local alignH = helpers.GetHorizontalAlignmentFromPoint(point)
@@ -966,13 +971,13 @@ local function ArrayHeader_Arrange(hdr, startIndex)
             local growthDirection = hdr.growthDirection:upper()
             local prevWidget = hdr.children[i-1]
             if growthDirection == "DOWN" then
-                widget:SetPoint("TOP"..alignH, prevWidget, "BOTTOM"..alignH, 0, -gap)
+                widget:SetPoint("TOP"..alignH, prevWidget, "BOTTOM"..alignH, 0, -gap -itemGap)
             elseif growthDirection == "LEFT" then
-                widget:SetPoint(alignV.."RIGHT", prevWidget, alignV.."LEFT", -gap, 0)
+                widget:SetPoint(alignV.."RIGHT", prevWidget, alignV.."LEFT", -gap -itemGap, 0)
             elseif growthDirection == "RIGHT" then
-                widget:SetPoint(alignV.."LEFT", prevWidget, alignV.."RIGHT", gap, 0)
+                widget:SetPoint(alignV.."LEFT", prevWidget, alignV.."RIGHT", gap +itemGap, 0)
             else
-                widget:SetPoint("BOTTOM"..alignH, prevWidget, "TOP"..alignH, 0, gap)
+                widget:SetPoint("BOTTOM"..alignH, prevWidget, "TOP"..alignH, 0, gap +itemGap)
             end
         end
     end
@@ -1015,6 +1020,10 @@ local function CreateArrayHeader(childType, parent, opts)
     hdr.maxChildren = opts.max or 5
     hdr.template = barTemplate
     hdr.growthDirection = opts.growth
+    if opts.itemGap ~= nil then
+        hdr.itemGap = opts.itemGap
+    end
+
     hdr:SetScript("OnHide", ArrayHeader_OnHide)
 
     hdr.Add = ArrayHeader_Add
@@ -1023,6 +1032,45 @@ local function CreateArrayHeader(childType, parent, opts)
     hdr.SetJob = SetJob_Array
 
     return WrapFrameAsWidget(hdr)
+end
+
+-- virtual Array widget to bypass multipe Array types like IconArray, IndicatorArray ...
+Aptechka.Widget.Array = {}
+Aptechka.Widget.Array.default = { type = "Array" }
+
+function Aptechka.Widget.Array.Reconf(parent, f, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    local gap = pixelperfect(1)
+    local itemGap = 0
+
+    if opts.itemGap ~= nil then
+        f.itemGap = opts.itemGap
+        itemGap = pixelperfect(opts.itemGap)
+    end
+
+    local point, relativeTo, relativePoint, _, _ = f:GetPoint(1)
+    local alignH = helpers.GetHorizontalAlignmentFromPoint(point)
+    local alignV = helpers.GetVerticalAlignmentFromPoint(point)
+
+    for i=1, #f.children do
+        local widget = f.children[i]
+        widget:ClearAllPoints()
+        if i == 1 then
+            widget:SetPoint(point, f, point, 0,0)
+        else
+            local growthDirection = f.growthDirection:upper()
+            local prevWidget = f.children[i-1]
+            if growthDirection == "DOWN" then
+                widget:SetPoint("TOP"..alignH, prevWidget, "BOTTOM"..alignH, 0, -gap -itemGap)
+            elseif growthDirection == "LEFT" then
+                widget:SetPoint(alignV.."RIGHT", prevWidget, alignV.."LEFT", -gap -itemGap, 0)
+            elseif growthDirection == "RIGHT" then
+                widget:SetPoint(alignV.."LEFT", prevWidget, alignV.."RIGHT", gap +itemGap, 0)
+            else
+                widget:SetPoint("BOTTOM"..alignH, prevWidget, "TOP"..alignH, 0, gap +itemGap)
+            end
+        end
+    end
 end
 
 -------------------------------------------------------------------------------------------

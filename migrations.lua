@@ -1,7 +1,7 @@
 local addonName, helpers = ...
 
 do
-    local CURRENT_DB_VERSION = 15
+    local CURRENT_DB_VERSION = 16
     function Aptechka:DoMigrations(db)
         if not next(db) or db.DB_VERSION == CURRENT_DB_VERSION then -- skip if db is empty or current
             db.DB_VERSION = CURRENT_DB_VERSION
@@ -429,6 +429,30 @@ do
             end
 
             db.DB_VERSION = 15
+        end
+
+        if db.DB_VERSION == 15 then
+            local func = function(opts, wname, profileName)
+                if opts.type ~= nil then
+                    if helpers.IsWidgetArray(opts) then
+                        opts.itemGap = 0
+                    end
+                end
+            end
+
+            for wname, opts in pairs(db.global.widgetConfig) do
+                func(opts, wname, "global")
+            end
+
+            for profileName, profile in pairs(db.profiles) do
+                if profile.widgetConfig then
+                    for wname, opts in pairs(profile.widgetConfig) do
+                        func(opts, wname, profileName)
+                    end
+                end
+            end
+
+            db.DB_VERSION = 16
         end
 
         db.DB_VERSION = CURRENT_DB_VERSION

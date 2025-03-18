@@ -964,6 +964,11 @@ function Aptechka:ReconfigureWidget(widgetName)
     local gopts = Aptechka.db.global.widgetConfig[widgetName]
     local popts = Aptechka.db.profile.widgetConfig[widgetName]
     local reconfFunc = Aptechka.Widget[gopts.type].Reconf
+
+    if helpers.IsWidgetArray(gopts) then
+        reconfFunc = Aptechka.Widget["Array"].Reconf
+    end
+
     if reconfFunc then
         Aptechka:ForEachFrame(function(frame)
             local widget = frame[widgetName]

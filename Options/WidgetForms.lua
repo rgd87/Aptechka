@@ -241,10 +241,12 @@ local growthDirections = {
 local function CreateArraySettings(form)
     local growth = ns.AddDropdown(form, 0.46, L"Growth Direction", "growth", "UP", growthDirections, callbackUpdateForm)
     local max = ns.AddSlider(form, 0.46, L"Max Size", "max", 4, 0, 10, 1, callbackUpdateForm)
+    local itemGap = ns.AddSlider(form, 0.95, L"Item gap", "itemGap", 0, 0, 10, 1, callbackUpdateForm)
 end
 local function FillArraySettings(form, opts, popts, gopts)
     Control_SetValue(form, "growth", opts, gopts)
     Control_SetValue(form, "max", opts, gopts)
+    Control_SetValue(form, "itemGap", opts, gopts)
 end
 
 -- Icon
