@@ -950,7 +950,7 @@ end
 
 local function ArrayHeader_Arrange(hdr, startIndex)
     local numChildren = #hdr.children
-    local gap = pixelperfect(1)
+    local gap = pixelperfect(hdr.gap)
 
     local point, relativeTo, relativePoint, _, _ = hdr:GetPoint(1)
     local alignH = helpers.GetHorizontalAlignmentFromPoint(point)
@@ -1014,6 +1014,7 @@ local function CreateArrayHeader(childType, parent, opts)
     hdr.children = {}
     hdr.maxChildren = opts.max or 5
     hdr.template = barTemplate
+    hdr.gap = opts.gap
     hdr.growthDirection = opts.growth
     hdr:SetScript("OnHide", ArrayHeader_OnHide)
 
@@ -1023,6 +1024,21 @@ local function CreateArrayHeader(childType, parent, opts)
     hdr.SetJob = SetJob_Array
 
     return WrapFrameAsWidget(hdr)
+end
+
+local function ArrayReconf(parent, hdr, popts, gopts)
+    local opts = InheritGlobalOptions(popts, gopts)
+    hdr:ClearAllPoints()
+    hdr:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
+    hdr.maxChildren = opts.max or 5
+    hdr.gap = opts.gap
+    hdr.template = opts
+    hdr.growthDirection = opts.growth
+    for i, widget in ipairs(hdr.children) do
+        Aptechka.Widget[hdr.childType].Reconf(hdr, widget, nil, opts) -- Ruins anchors until the following :Arrange()
+    end
+    hdr:Arrange()
+    CheckDisabled(hdr, opts.disabled)
 end
 
 -------------------------------------------------------------------------------------------
@@ -1453,51 +1469,39 @@ end
 
 
 Aptechka.Widget.BarArray = {}
-Aptechka.Widget.BarArray.default = { type = "BarArray", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 }
+Aptechka.Widget.BarArray.default = { type = "BarArray", width = 10, height = 6, point = "TOPLEFT", x = 0, y = 0, vertical = false, growth = "UP", max = 7, gap = 1 }
 function Aptechka.Widget.BarArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateArrayHeader("Bar", parent, opts)
 end
 
-function Aptechka.Widget.BarArray.Reconf(parent, hdr, popts, gopts)
-    local opts = InheritGlobalOptions(popts, gopts)
-    hdr:ClearAllPoints()
-    hdr:SetPoint(opts.point, parent, opts.point, opts.x, opts.y)
-    hdr.maxChildren = opts.max or 5
-    hdr.template = opts
-    hdr.growthDirection = opts.growth
-    for i, widget in ipairs(hdr.children) do
-        Aptechka.Widget[hdr.childType].Reconf(hdr, widget, nil, opts) -- Ruins anchors until the following :Arrange()
-    end
-    hdr:Arrange()
-    CheckDisabled(hdr, opts.disabled)
-end
+ Aptechka.Widget.BarArray.Reconf = ArrayReconf
 
 ------------------------------------------------------------------------------------------
 -- Indicator Array
 ------------------------------------------------------------------------------------------
 
 Aptechka.Widget.IndicatorArray = {}
-Aptechka.Widget.IndicatorArray.default = { type = "IndicatorArray", width = 7, height = 7, point = "TOPRIGHT", x = 0, y = 0, growth = "LEFT", max = 3 }
+Aptechka.Widget.IndicatorArray.default = { type = "IndicatorArray", width = 7, height = 7, point = "TOPRIGHT", x = 0, y = 0, growth = "LEFT", max = 3, gap = 1 }
 function Aptechka.Widget.IndicatorArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateArrayHeader("Indicator", parent, opts)
 end
 
-Aptechka.Widget.IndicatorArray.Reconf = Aptechka.Widget.BarArray.Reconf
+Aptechka.Widget.IndicatorArray.Reconf = ArrayReconf
 
 ----------------------------------------------------------
 -- Icon Array
 ----------------------------------------------------------
 
 Aptechka.Widget.IconArray = {}
-Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3 }
+Aptechka.Widget.IconArray.default = { type = "IconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 10, outline = true, edge = true, growth = "LEFT", max = 3, gap = 1 }
 function Aptechka.Widget.IconArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateArrayHeader("Icon", parent, opts)
 end
 
-Aptechka.Widget.IconArray.Reconf = Aptechka.Widget.BarArray.Reconf
+Aptechka.Widget.IconArray.Reconf = ArrayReconf
 
 ----------------------------------------------------------
 -- Base Icon
@@ -1907,6 +1911,7 @@ local DebuffIconArray_default = CopyTable(Aptechka.Widget.DebuffIcon.default)
 DebuffIconArray_default.type = "DebuffIconArray"
 DebuffIconArray_default.growth = "UP"
 DebuffIconArray_default.max = 4
+DebuffIconArray_default.gap = 1
 Aptechka.Widget.DebuffIconArray = {}
 Aptechka.Widget.DebuffIconArray.default = DebuffIconArray_default
 
@@ -2114,13 +2119,13 @@ end
 ----------------------------------------------------------
 
 Aptechka.Widget.BarIconArray = {}
-Aptechka.Widget.BarIconArray.default = { type = "BarIconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 10, outline = true, edge = true, vertical = true, growth = "LEFT", max = 3 }
+Aptechka.Widget.BarIconArray.default = { type = "BarIconArray", width = 15, height = 15, point = "TOPRIGHT", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 10, outline = true, edge = true, vertical = true, growth = "LEFT", max = 3, gap = 1 }
 function Aptechka.Widget.BarIconArray.Create(parent, popts, gopts)
     local opts = InheritGlobalOptions(popts, gopts)
     return CreateArrayHeader("BarIcon", parent, opts)
 end
 
-Aptechka.Widget.BarIconArray.Reconf = Aptechka.Widget.BarArray.Reconf
+Aptechka.Widget.BarIconArray.Reconf = ArrayReconf
 
 ----------------------------------------------------------
 -- Progress Icon
@@ -2673,6 +2678,7 @@ local TextArray_default = CopyTable(Aptechka.Widget.Text.default)
 TextArray_default.type = "TextArray"
 TextArray_default.growth = "LEFT"
 TextArray_default.max = 3
+TextArray_default.gap = 1
 Aptechka.Widget.TextArray.default = TextArray_default
 
 function Aptechka.Widget.TextArray.Create(parent, popts, gopts)
@@ -2680,7 +2686,7 @@ function Aptechka.Widget.TextArray.Create(parent, popts, gopts)
     return CreateArrayHeader("Text", parent, opts)
 end
 
-Aptechka.Widget.TextArray.Reconf = Aptechka.Widget.BarArray.Reconf
+Aptechka.Widget.TextArray.Reconf = ArrayReconf
 
 
 local function CreateUnhealableOverlay(parent)

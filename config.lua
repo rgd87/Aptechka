@@ -88,7 +88,7 @@ config.MindControlStatus = { name = "MIND_CONTROL", assignto = set("border", "mi
 local FRAMELEVEL = helpers.FRAMELEVEL
 local DEFAULT_TEXLEVEL = FRAMELEVEL.TEXTURE
 config.DefaultWidgets = {
-    raidbuff = { type = "IndicatorArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, growth = "DOWN", max = 5 },
+    raidbuff = { type = "IndicatorArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, growth = "DOWN", max = 5, gap = 1 },
     mitigation = { type = "Bar", width=22, height=4, point="BOTTOMLEFT", x=4, y=-5, vertical = false},
     -- icon = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = true, edge = true },
     icon = { type = "BarIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = true, edge = true, vertical = true },
@@ -97,21 +97,21 @@ config.DefaultWidgets = {
     spell3 = { type = "Indicator", width = 9, height = 8, point = "TOPRIGHT", x = 0, y = 0, },
     bar4 = { type = "Bar", width=21, height=5, point="TOPRIGHT", x=0, y=2, vertical = false},
     bar4text = { type = "StaticText", point="TOPRIGHT", width = 30, height = 10, x=-23, y=5, zorder=0, font = config.defaultFont, textsize = 12, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0, justify = "RIGHT" },
-    buffIcons = { type = "BarIconArray", width = 12, height = 18, point = "TOPRIGHT", x = 5, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, vertical = true, font = config.defaultFont, textsize = 12 },
-    bars = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7 },
+    buffIcons = { type = "BarIconArray", width = 12, height = 18, point = "TOPRIGHT", x = 5, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, vertical = true, font = config.defaultFont, textsize = 12, gap = 1 },
+    bars = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7, gap = 1 },
     vbar1 = { type = "Bar", width=4, height=20, point="TOPRIGHT", x=-9, y=2, vertical = true},
     text1 = { type = "StaticText", point="CENTER", width = 60, height = 16, x=0, y=0, zorder=0, font = config.defaultFont, textsize = 12, effect = "SHADOW", bg = false, bgAlpha = 0.5, padding = 0, justify = "CENTER" },
     text2 = { type = "StaticText", point="CENTER", width = 60, height = 10, x=0, y=-11, zorder=0, font = config.defaultFont, textsize = 10, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0, justify = "CENTER" },
     text3 = { type = "Text", point="TOPLEFT", width = 30, height = 10, x=2, y=0, zorder=0, font = config.defaultFont, textsize = 9, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0, justify = "LEFT" },
     incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false },
-    debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = config.defaultFont, textsize = 12, bigscale = 1.3 },
+    debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = config.defaultFont, textsize = 12, bigscale = 1.3, gap = 1 },
     floatingIcon = { type = "FloatingIcon", width = 16, height = 16, point = "TOPLEFT", x = 15, y = -5, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false, angle = 60, range = 45, spreadArc = 30, animDuration = 2 },
     statusIcon = { type = "Texture", width = 20, height = 20, point = "CENTER", x = 0, y = 14, texture = nil, rotation = 0, zorder = 6-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
     roleIcon = { type = "Texture", width = 13, height = 13, point = "BOTTOMLEFT", x = -8, y = -8, texture = nil, rotation = 0, zorder = 6-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
     raidTargetIcon = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = -10, y = 10, texture = nil, rotation = 0, zorder = 16-DEFAULT_TEXLEVEL, alpha = 0.3, blendmode = "BLEND", disableOverrides = false },
     healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 7-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
     debuffHighlight = { type = "Texture", width = 12, height = 15, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 13-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
-    CCList = { type = "TextArray", point="BOTTOMLEFT", width = 60, height = 12, x=0, y=-15, zorder = 0, font = config.defaultFont, textsize = 10, effect = "NONE", bg = true, bgAlpha = 0.7, padding = 1.5, growth = "DOWN", max = 4, justify = "LEFT" },
+    CCList = { type = "TextArray", point="BOTTOMLEFT", width = 60, height = 12, x=0, y=-15, zorder = 0, font = config.defaultFont, textsize = 10, effect = "NONE", bg = true, bgAlpha = 0.7, padding = 1.5, growth = "DOWN", max = 4, justify = "LEFT", gap = 1 },
     EnemyCounter = { type = "Text", point="TOPLEFT", width = 20, height = 15, x=19, y=6, zorder=0, font = config.defaultFont, textsize = 13, effect = "OUTLINE", bg = false, bgAlpha = 0.5, padding = 0, justify = "CENTER" },
 }
 
