@@ -249,6 +249,7 @@ globals = {
     "C_Spell",
     "C_UnitAuras",
     "C_AddOns",
+    "C_SpecializationInfo",
     "Settings",
 
     -- Disarm Blizz raid

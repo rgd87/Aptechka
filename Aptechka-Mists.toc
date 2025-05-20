@@ -1,0 +1,36 @@
+## Interface: 50500
+## Title: Aptechka
+## Notes: Raid Frames
+## Version: @project-version@
+## Author: d87
+## SavedVariablesPerCharacter: AptechkaDB_Char
+## SavedVariables: AptechkaDB_Global, AptechkaConfigCustom
+## OptionalDeps: Clique, Details
+
+## X-Website: https://github.com/rgd87/Aptechka
+## X-WoWI-ID: 14339
+## X-Curse-Project-ID: 280790
+## X-Wago-ID: 5bGoY160
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\LibCustomGlow\LibCustomGlow-1.0.xml
+Libs\LibSharedMedia-3.0\lib.xml
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+Libs\LibTranslit-1.0\LibTranslit-1.0.lua
+Libs\LibSpellLocks\LibSpellLocks.lua
+Libs\LibAuraTypes\LibAuraTypes.lua
+Libs\LibTargetedCasts\LibTargetedCasts.lua
+Libs\LibTargeted\LibTargeted.lua
+
+Libs\LibAbsorbCounter\LibAbsorbCounter.lua
+
+helpers.lua
+config.lua
+config.mists.lua
+Aptechka.lua
+migrations.lua
+frame.lua
+launcher.lua

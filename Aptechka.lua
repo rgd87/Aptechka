@@ -24,7 +24,7 @@ local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local UnitPhaseReason = UnitPhaseReason
 local GetSpellName = helpers.GetSpellName
 local GetSpellTexture = helpers.GetSpellTexture
-local GetSpecialization = GetSpecialization
+local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or _G.GetSpecialization
 local GetSpecializationRole = GetSpecializationRole
 local GetActiveTalentGroup = GetActiveTalentGroup
 local HasIncomingSummon = C_IncomingSummon and C_IncomingSummon.HasIncomingSummon
@@ -34,6 +34,12 @@ local COMBATLOG_OBJECT_AFFILIATION_UPTORAID = COMBATLOG_OBJECT_AFFILIATION_RAID 
 local dummyNil = function() return nil end
 local dummyFalse = function() return false end
 local dummy0 = function() return 0 end
+if apiLevel <= 5 then
+    UnitGetTotalAbsorbs = dummy0
+    UnitGetTotalHealAbsorbs = dummy0
+    UnitPhaseReason = function(unit) return not UnitInPhase(unit) end
+    HasIncomingSummon = dummyNil
+end
 if apiLevel <= 4 then
     GetSpecialization = function() return 1 end
     -- GetSpecializationRole = function(spec)
@@ -45,10 +51,6 @@ if apiLevel <= 4 then
         if not AptechkaDB_Char.forcedClassicRole then return "DAMAGER" end
         return AptechkaDB_Char.forcedClassicRole[tg]
     end
-    UnitGetTotalAbsorbs = dummy0
-    UnitGetTotalHealAbsorbs = dummy0
-    UnitPhaseReason = function(unit) return not UnitInPhase(unit) end
-    HasIncomingSummon = dummyNil
 end
 if apiLevel <= 2 then
     UnitGroupRolesAssigned = function(unit)
