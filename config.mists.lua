@@ -85,7 +85,7 @@ AG{ id = 23333, type = "HELPFUL", assignto = set("raidbuff"), scale = 1.7, color
 AG{ id = 23335, type = "HELPFUL", assignto = set("raidbuff"), scale = 1.7, color = {0,0,1}, priority = 95, global = true, } --Silverwing Flag
 
 -- Soulstone Resurrection
-AG{ id = { 20707, 20762, 20763, 20764, 20765, 27239, 47883 }, type = "HELPFUL", global = true, assignto = set("raidbuff"), color = { 0.6, 0, 1 }, priority = 20 }
+AG{ id = 20707, type = "HELPFUL", global = true, assignto = set("raidbuff"), color = { 0.6, 0, 1 }, priority = 20 }
 
 AG{ id = {
     430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
@@ -105,6 +105,14 @@ if playerClass == "PRIEST" then
     -- Power Word: Fortitude
     A{ id = 79105, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
 
+    -- Grace
+    A{ id = 77613, type = "HELPFUL", scale = 0.75, assignto = set("bars", "bar4text"), priority = 60, infoType = "DURATION", isMine = true, color = { 0.7,0.8,1 }, }
+    -- Serenity
+    A{ id = 88684, type = "HELPFUL", scale = 0.75, assignto = set("bars"), priority = 80, infoType = "DURATION", isMine = true, color = { 0.7,0.8,1 }, }
+
+    -- Spirit Shell Absorb
+    A{ id = { 109964, 114908 } ,type = "HELPFUL", assignto = set("bars"), scale = 1.3, priority = 82, color = { 188/255, 37/255, 186/255 }, foreigncolor = { 164/255, 125/255, 169/255}, infoType = "DURATION" } --Spirit Shell absorb
+
     -- Prayer of Shadow Protection
     A{ id = 79107 , type = "HELPFUL", assignto = set("raidbuff"), color = { 151/255, 86/255, 168/255 }, priority = 80, isMissing = true, isKnownCheck = function() return IsPlayerSpell(27683) end }
 
@@ -116,10 +124,12 @@ if playerClass == "PRIEST" then
     A{ id = 139, type = "HELPFUL", isMine = true, assignto = set("bars"), priority = 50, color = { 0, 1, 0}, foreigncolor = {0.1, 0.4, 0.1}, infoType = "DURATION" }
     -- Lightwell Renew
     A{ id = 7001, type = "HELPFUL", assignto = set("bars"), priority = 20, color = { 0.5, 0.7, 0}, infoType = "DURATION" }
+    -- Lightspring Renew
+    A{ id = 126154, type = "HELPFUL", assignto = set("bars"), priority = 20, color = { 0.5, 0.7, 0}, infoType = "DURATION" }
     -- Power Word: Shield
     A{ id = 17, type = "HELPFUL", assignto = set("bars"), priority = 90, color = { 1, 0.85, 0}, foreigncolor = {0.4, 0.35, 0.1}, infoType = "DURATION" }
     -- Weakened Soul
-    A{ id = 6788, type = "HARMFUL", assignto = set("spell3"), priority = 70, color = { 0.8, 0, 0}, infoType = "DURATION" }
+    A{ id = 6788, type = "HARMFUL", assignto = set("bar4"), priority = 70, color = { 0.8, 0, 0}, infoType = "DURATION" }
     --Prayer of Mending
     A{ id = 41635, type = "HELPFUL", assignto = set("bar4"), priority = 70, isMine = true, color = { 1, 0, 102/255 }, maxCount = 5, infoType = "COUNT" }
 
@@ -148,10 +158,39 @@ if playerClass == "PRIEST" then
 
     config.DispelBitmasks = {
         DispelTypes("Magic", "Disease", "Poison"),
-        DispelTypes("Disease", "Poison"),
+        DispelTypes("Magic", "Disease", "Poison"),
         DispelTypes("Disease", "Poison"),
     }
+end
 
+
+if playerClass == "MONK" then
+    --Renewing Mist
+    A{ id = 119611, type = "HELPFUL", assignto = set("bar4"), refreshTime = 20*0.3, extend_below = 20, isMine = true, color = {38/255, 221/255, 163/255}, infoType = "DURATION" }
+    --Enveloping Mist
+    A{ id = 132120, type = "HELPFUL", assignto = set("bars"), refreshTime = 6*0.3, isMine = true, infoType = "DURATION", color = { 1,1,0 }, priority = 75 }
+    --Soothing Mist
+    A{ id = 115175, type = "HELPFUL", assignto = set("bars"), isMine = true, infoType = "DURATION", color = { 0, .8, 0}, priority = 80 }
+    --Zen Sphere
+    A{ id = 124081, type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", color = {0.7,0.8,1}, priority = 88 }
+
+    Trace{id = 116670, template = "HealTrace", color = {38/255, 221/255, 163/255} } -- Uplift/Vivify
+    Trace{id = 116695, template = "HealTrace", color = {38/255, 221/255, 163/255} } -- Surging Mist
+    Trace{id = 115464, template = "HealTrace", color = { 140/255, 221/255, 163/255} } -- Healing Sphere
+    Trace{id = 343819, template = "HealTrace", color = { 1, 0.3, 0.55} } -- Gust of Mists
+
+    config.UnitInRangeFunctions = {
+        RangeCheckBySpell(115921), -- Legacy of the Emperor
+        RangeCheckBySpell(115921),
+        RangeCheckBySpell(115921),
+    }
+
+
+    config.DispelBitmasks = {
+        DispelTypes("Disease", "Poison"),
+        DispelTypes("Magic", "Disease", "Poison"),
+        DispelTypes("Disease", "Poison"),
+    }
 end
 
 if playerClass == "DRUID" then
@@ -193,8 +232,6 @@ end
 
 
 if playerClass == "PALADIN" then
-
-
     -- Holy Radiance
     A{ id = 82327, type = "HARMFUL", assignto = set("bars"), infoType = "DURATION", color = { 0, 0.9, 0.7 } }
     -- Forbearance
@@ -202,6 +239,8 @@ if playerClass == "PALADIN" then
     -- Blessing of Freedom
     A{ id = 1044, type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 1, 0.4, 0.2} }
 
+    A{ id = 114163, type = "HELPFUL", assignto = set("bars"), color = { 1, .8, 0}, priority = 70, infoType = "DURATION", isMine = true } --Eternal Flame
+    A{ id = 114917, type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 1 , .9, 0} } --Stay of Execution
     A{ id = 53563, type = "HELPFUL", assignto = set("bar4"), infoType = "DURATION",
                                                                             isMine = true,
                                                                             color = { 0, 0.9,0 },
@@ -322,6 +361,10 @@ config.MapIDs = {
     [799] = "Firelands",
     [824] = "DragonSoul",
 
+    [850] = "Shado Pan Monastery",
+    [851] = "Heart of Fear",
+    [852] = "Terrace of Endless Spring",
+
     [1701] = "PvP",
 }
 
@@ -330,7 +373,19 @@ config.defaultDebuffHighlights = {
         [33786] = { 33786, 3, "Cyclone" },
     },
 
-
+    ["Terrace of Endless Spring"] = {
+        [111850] = { 111850, 1, "Lightning Prison" },
+    },
+    ["Heart of Fear"] = {
+        [125390] = { 125390, 1, "Fixate, Empress, Windblades" },
+        [124862] = { 124862, 1, "Visions of demise, Empress" },
+        [122370] = { 122370, 1, "Abomination" },
+        [122740] = { 122740, 1, "Zor'Loc MC" },
+    },
+    ["Shado Pan Monastery"] = {
+        [115509] = { 115509, 1, "Thundering Fist, first adds" },
+        [106872] = { 106872, 1, "Sha of Violence, Disorient" },
+    },
 
     ["DragonSoul"] = {
         [100460] = { 100460, 1, "Disrupting Shadows, Warlord Zon'ozz" },
