@@ -1,4 +1,4 @@
-## Interface: 20504
+## Interface: 20505
 ## Title: AptechkaOptions
 ## Notes: Options module for Aptechka
 ## Author: d87

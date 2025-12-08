@@ -413,6 +413,7 @@ function helpers.DisableBlizzParty(self)
     for i=1,4 do
         local party = "PartyMemberFrame"..i
         local frame = _G[party]
+        if not frame then break end
 
         frame:UnregisterAllEvents()
         frame:Hide()
