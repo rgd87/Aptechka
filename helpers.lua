@@ -410,56 +410,88 @@ function helpers.DisableBlizzParty(self)
     helpers.hiddenParent = hiddenParent
     hiddenParent:SetAllPoints()
     hiddenParent:Hide()
-    for i=1,4 do
-        local party = "PartyMemberFrame"..i
-        local frame = _G[party]
-        if not frame then break end
+
+    local function HideFrame(frame)
+        if not frame then return end
 
         frame:UnregisterAllEvents()
         frame:Hide()
         frame:SetParent(hiddenParent)
-        -- hooksecurefunc("ShowPartyFrame", HidePartyFrame)
-        -- hooksecurefunc("PartyMemberFrame_UpdateMember", function(self)
-            -- if not InCombatLockdown() then
-                -- self:Hide()
-            -- end
-        -- end)
 
-        _G[party..'HealthBar']:UnregisterAllEvents()
-        _G[party..'ManaBar']:UnregisterAllEvents()
+        local health = frame.healthBar or frame.healthbar
+        if health then
+            health:UnregisterAllEvents()
+        end
+
+        local power = frame.manabar
+        if power then
+            power:UnregisterAllEvents()
+        end
+
+        local spell = frame.castBar or frame.spellbar
+        if spell then
+            spell:UnregisterAllEvents()
+        end
+
+        local altpowerbar = frame.powerBarAlt
+        if altpowerbar then
+            altpowerbar:UnregisterAllEvents()
+        end
+
+        local buffFrame = frame.BuffFrame
+        if buffFrame then
+            buffFrame:UnregisterAllEvents()
+        end
+
+        local petFrame = frame.PetFrame
+        if petFrame then
+            petFrame:UnregisterAllEvents()
+        end
+    end
+
+    _G.UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE")
+
+    if _G.CompactPartyFrame then
+        _G.CompactPartyFrame:UnregisterAllEvents()
+    end
+
+    if _G.PartyFrame then
+        _G.PartyFrame:UnregisterAllEvents()
+        _G.PartyFrame:SetScript("OnShow", nil)
+        for frame in _G.PartyFrame.PartyMemberFramePool:EnumerateActive() do
+            HideFrame(frame)
+        end
+        HideFrame(_G.PartyFrame)
+    else
+        for i = 1, 4 do
+            HideFrame(_G["PartyMemberFrame"..i])
+            HideFrame(_G["CompactPartyMemberFrame"..i])
+        end
+        HideFrame(_G.PartyMemberBackground)
     end
 end
 
 function helpers.DisableBlizzRaid()
-    -- disable Blizzard party & raid frame if our Raid Frames are loaded
-    -- InterfaceOptionsFrameCategoriesButton11:SetScale(0.00001)
-    -- InterfaceOptionsFrameCategoriesButton11:SetAlpha(0)
-    -- raid
-    local hider = CreateFrame("Frame")
-    hider:Hide()
-    if CompactRaidFrameManager and CompactUnitFrameProfiles then
-        CompactRaidFrameManager:SetParent(hider)
-        -- CompactRaidFrameManager:UnregisterAllEvents()
-        CompactUnitFrameProfiles:UnregisterAllEvents()
+    local hiddenParent = helpers.hiddenParent or CreateFrame('Frame', nil, UIParent)
+    helpers.hiddenParent = hiddenParent
+    hiddenParent:SetAllPoints()
+    hiddenParent:Hide()
 
-        local disableCompactRaidFrameUnitButton = function(self)
-            if self:IsForbidden() then return end
-            -- for some reason CompactUnitFrame_OnLoad also gets called for nameplates, so ignoring that
-            local frameName = self:GetName()
-            if not frameName then return end
-            if string.sub(frameName, 1, 16) == "CompactRaidFrame" then
-                -- print(frameName)
-                self:UnregisterAllEvents()
-            end
-        end
+    -- Hide Raid
+    _G.UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE")
 
-        for i=1,60 do
-            local crf = _G["CompactRaidFrame"..i]
-            if not crf then break end
-            disableCompactRaidFrameUnitButton(crf)
-        end
-        hooksecurefunc("CompactUnitFrame_OnLoad", disableCompactRaidFrameUnitButton)
-        hooksecurefunc("CompactUnitFrame_UpdateUnitEvents", disableCompactRaidFrameUnitButton)
+    if _G.CompactRaidFrameContainer then
+        _G.CompactRaidFrameContainer:UnregisterAllEvents()
+        _G.CompactRaidFrameContainer:SetParent(hiddenParent)
+    end
+    -- Hide Manager
+    if CompactRaidFrameManager_SetSetting then
+        CompactRaidFrameManager_SetSetting("IsShown", "0")
+    end
+
+    if _G.CompactRaidFrameManager then
+        _G.CompactRaidFrameManager:UnregisterAllEvents()
+        _G.CompactRaidFrameManager:SetParent(hiddenParent)
     end
 end
 
