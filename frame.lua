@@ -1616,7 +1616,7 @@ end
 local function UpdateFontStringSettings(text, fontName, fontSize, effect)
     fontName = fontName or config.defaultFont
     local font = LSM:Fetch("font",  fontName)
-    local flags = effect == "OUTLINE" and "OUTLINE"
+    local flags = effect == "OUTLINE" and "OUTLINE" or ""
     if effect == "SHADOW" then
         text:SetShadowOffset(1,-1)
     else
@@ -2658,7 +2658,7 @@ function Aptechka.Widget.Text.Reconf(parent, f, popts, gopts)
 
     -- f.text:SetJustifyH(opts.justify:upper())
     local font = LSM:Fetch("font",  opts.font) or LSM:Fetch("font", config.defaultFont)
-    local flags = opts.effect == "OUTLINE" and "OUTLINE"
+    local flags = opts.effect == "OUTLINE" and "OUTLINE" or ""
     if opts.effect == "SHADOW" then
         f.text:SetShadowOffset(1,-1)
     else
