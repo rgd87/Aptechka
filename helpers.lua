@@ -66,7 +66,9 @@ end
 local res = GetCVar("gxWindowedResolution")
 if res then
     local w,h = string.match(res, "(%d+)x(%d+)")
-    pmult = (768/h) / UIParent:GetScale()
+    if h then
+        pmult = (768/h) / UIParent:GetScale()
+    end
 end
 
 helpers.PercentColor = function(percent)
