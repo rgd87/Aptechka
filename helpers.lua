@@ -107,6 +107,7 @@ end
 
 helpers.DebuffTypeColors = {
     Physical = { 1, 0.3 ,0.3 }, -- Used in CC List
+    none = { 1, 0.3 ,0.3 },
 
     Magic = { 0.2, 0.6, 1},
     Curse = { 0.6, 0, 1},

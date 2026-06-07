@@ -1685,7 +1685,7 @@ end
 -- Debuff Icon
 ----------------------------------------------------------
 
-local DebuffTypeColor = DebuffTypeColor
+local DebuffTypeColors = helpers.DebuffTypeColors
 local helpful_color = { r = 0, g = 1, b = 0}
 
 local function DebuffIcon_SetDebuffColor(self, r,g,b)
@@ -1713,9 +1713,9 @@ local function DebuffIcon_SetJob(self, debuffType, expirationTime, duration, ico
     if debuffType == "Helpful" then
         color = helpful_color
     else
-        color = debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor["none"]
+        color = debuffType and DebuffTypeColors[debuffType] or DebuffTypeColors["none"]
     end
-    self:SetDebuffColor(color.r, color.g, color.b)
+    self:SetDebuffColor(color[1], color[2], color[3])
 
     if isBossAura then
         self:SetScale(Aptechka._BossDebuffScale)
