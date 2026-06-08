@@ -3894,7 +3894,7 @@ function Aptechka:CreateFakeGroupHeaders()
 end
 
 do
-    local groupSizes = { 1, 4, 6, 8 }
+    local groupSizes = { 1, 2, 4, 5, 6, 8 }
     local sizeIndex = 1
     function Aptechka:CycleTestMode()
         if not self.testGroupHeaders then
