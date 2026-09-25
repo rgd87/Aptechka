@@ -589,14 +589,14 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         [LibAuraTypes.E_BADTHING] = 11,
     }
     -- if AptechkaDB.global.useDebuffOrdering then
-        LibSpellLocks = LibStub("LibSpellLocks")
+        -- LibSpellLocks = LibStub("LibSpellLocks")
 
-        LibSpellLocks.RegisterCallback("Aptechka", "UPDATE_INTERRUPT", function(event, guid)
-            local unit = guidMap[guid]
-            if unit then
-                Aptechka.ScanAuras(unit)
-            end
-        end)
+        -- LibSpellLocks.RegisterCallback("Aptechka", "UPDATE_INTERRUPT", function(event, guid)
+        --     local unit = guidMap[guid]
+        --     if unit then
+        --         Aptechka.ScanAuras(unit)
+        --     end
+        -- end)
     -- end
 
     if isMainline then
@@ -691,7 +691,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UI_ERROR_MESSAGE")
     end
 
-    self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    -- self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
     if not self.db.global.LDBData.hide then
         Aptechka:CreteMinimapIcon()
@@ -1122,11 +1122,11 @@ function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealAbsorb)
 end
 
-local function GetForegroundSeparation(health, healthMax, showMissing)
+local function GetForegroundSeparation(unit, showMissing)
     if showMissing then
-        return (healthMax - health)/healthMax, health/healthMax
+        return UnitHealthPercent("player", false, CurveConstants.Reverse), UnitHealthPercent(unit)
     else
-        return health/healthMax, health/healthMax
+        return UnitHealthMissing(unit), UnitHealthPercent(unit)
     end
 end
 
@@ -1145,9 +1145,9 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     -- healabsorb = hm*0.20
     -- incomingHeal = hm*0.10
     if hm == 0 then return end
-    local foregroundValue, perc = GetForegroundSeparation(h, hm, fgShowMissing)
+    local foregroundValue, perc = GetForegroundSeparation(unit, fgShowMissing)
     local state = self.state
-    self.health:SetValue(foregroundValue*100)
+    self.health:SetValue(foregroundValue)
     self.healabsorb:SetValue(healabsorb/hm, perc)
     self.absorb2:SetValue(shields/hm, perc)
     self.absorb:SetValue(shields/hm, perc)
@@ -1464,8 +1464,8 @@ local function MakePowerHandlerForType(powerTypeIndex)
             power = 1
             powerMax = 1
         end
-        local manaPercent = GetForegroundSeparation(power, powerMax, fgShowMissing)
-        frame.power:SetValue(manaPercent*100)
+        -- local manaPercent = GetForegroundSeparation(power, powerMax, fgShowMissing)
+        -- frame.power:SetValue(manaPercent*100)
     end
 end
 local function MakeForcedPowerHandlerForType(powerTypeIndex)
@@ -1476,8 +1476,8 @@ local function MakeForcedPowerHandlerForType(powerTypeIndex)
             power = 1
             powerMax = 1
         end
-        local manaPercent = GetForegroundSeparation(power, powerMax, false)
-        frame.power:SetValue(manaPercent*100)
+        -- local manaPercent = GetForegroundSeparation(power, powerMax, false)
+        -- frame.power:SetValue(manaPercent*100)
     end
 end
 
