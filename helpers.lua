@@ -21,6 +21,8 @@ end
 helpers.FRAMELEVEL = {
     -- BASEFRAME = 3,
     HEALTH = 4,
+    HEALTHFADE = 3,
+    TEMPLOSS = 2,
     POWER = 4,
     BORDER = 5,
     BAR = 8,

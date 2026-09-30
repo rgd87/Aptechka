@@ -374,63 +374,15 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka.Roster = Roster
 
-    if AptechkaDB.global.disableBlizzardPlayer then
-        Aptechka:SafeCallDirect(helpers.DisableBlizzPlayerFrame)
-    end
-    if AptechkaDB.global.disableBlizzardParty then
-        helpers.DisableBlizzParty()
-    end
-    if AptechkaDB.global.hideBlizzardRaid then
-        helpers.DisableBlizzRaid()
-    end
-
-    if config.enableIncomingHeals then
-        if false then
-
-            function Aptechka:HealUpdated(event, casterGUID, spellID, healType, endTime, ...)
-                for i=1,select('#', ...) do
-                    local targetGUID = select(i, ...)
-                    local unit = guidMap[targetGUID]
-                    if unit then
-                        Aptechka:UNIT_HEAL_PREDICTION(nil, unit, targetGUID)
-                    end
-                end
-            end
-
-            HealComm = LibStub:GetLibrary("LibHealComm-4.0",true);
-            local incomingHealIgnoreHots = false
-            if HealComm then
-                if incomingHealIgnoreHots then
-                    HealComm.AptechkaHealType = HealComm.CASTED_HEALS
-                else
-                    HealComm.AptechkaHealType = HealComm.ALL_HEALS
-                    HealComm.RegisterCallback(self, "HealComm_HealUpdated", "HealUpdated");     -- hots
-                end
-                HealComm.RegisterCallback(self, "HealComm_HealStarted", "HealUpdated");
-                HealComm.RegisterCallback(self, "HealComm_HealStopped", "HealUpdated");
-            end
-
-
-
-            local incomingHealTimeframe = 3.5
-
-            GetIncomingHealsCustom = function (unit, excludePlayer)
-                local guid = UnitGUID(unit)
-                local heal = HealComm:GetHealAmount(guid, HealComm.AptechkaHealType, GetTime()+incomingHealTimeframe)
-                return heal or 0
-            end
-
-            function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
-                self:UNIT_HEALTH(event, unit)
-
-                local heal = GetIncomingHealsCustom(unit, false)
-                local showHeal = (heal and heal > threshold)
-                SetJob(unit, config.IncomingHealStatus, showHeal, "INCOMING_HEAL", heal)
-            end
-        else
-            self:RegisterEvent("UNIT_HEAL_PREDICTION")
-        end
-    end
+    -- if AptechkaDB.global.disableBlizzardPlayer then
+    --     Aptechka:SafeCallDirect(helpers.DisableBlizzPlayerFrame)
+    -- end
+    -- if AptechkaDB.global.disableBlizzardParty then
+    --     helpers.DisableBlizzParty()
+    -- end
+    -- if AptechkaDB.global.hideBlizzardRaid then
+    --     helpers.DisableBlizzRaid()
+    -- end
 
     --[=[
     if apiLevel <= 3 then
@@ -505,10 +457,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:UpdateHighlightedDebuffsHashMap()
 
     self:RegisterEvent("UNIT_HEALTH")
-    if not isMainline then self:RegisterEvent("UNIT_HEALTH_FREQUENT") end
     self:RegisterEvent("UNIT_MAXHEALTH")
-    Aptechka.UNIT_HEALTH_FREQUENT = Aptechka.UNIT_HEALTH
     self:RegisterEvent("UNIT_CONNECTION")
+    self:RegisterEvent("UNIT_MAX_HEALTH_MODIFIERS_CHANGED")
+    self:RegisterEvent("UNIT_HEAL_PREDICTION")
     if AptechkaDB.global.showAFK then
         self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- UNIT_AFK_CHANGED
     end
@@ -539,7 +491,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("UNIT_POWER_UPDATE")
         self:RegisterEvent("UNIT_MAXPOWER")
         self:RegisterEvent("UNIT_DISPLAYPOWER")
-        Aptechka.UNIT_MAXPOWER = Aptechka.UNIT_POWER_UPDATE
     end
 
     Aptechka:UpdateAggroConfig()
@@ -617,20 +568,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self:UpdateIncomingCastsConfig()
     self:UpdateOutgoingCastsConfig()
 
-
-    -- AptechkaDB.global.useCombatLogHealthUpdates = false
-
-    if apiLevel <= 3 and AptechkaDB.global.useCombatLogHealthUpdates then
-        local CLH = LibStub("LibCombatLogHealth-1.0")
-        UnitHealth = CLH.UnitHealth
-        self:UnregisterEvent("UNIT_HEALTH")
-        if not isMainline then self:UnregisterEvent("UNIT_HEALTH_FREQUENT") end
-        -- table.insert(config.HealthBarColor.assignto, "health2")
-        CLH.RegisterCallback(self, "COMBAT_LOG_HEALTH", function(event, unit, eventType)
-            return Aptechka:UNIT_HEALTH(eventType, unit)
-            -- return Aptechka:COMBAT_LOG_HEALTH(nil, unit, health)
-        end)
-    end
 
     self:RegisterEvent("UNIT_AURA")
     self:RegisterEvent("SPELLS_CHANGED")
@@ -1061,12 +998,15 @@ GetIncomingHealsCustom = function(unit, excludePlayer)
     return heal or 0
 end
 
-function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
-    self:UNIT_HEALTH(event, unit)
-end
+function Aptechka.FrameUpdateHealPrediction(frame, unit)
+    local healCalc = frame.health.healCalc
+    UnitGetDetailedHealPrediction(unit, nil, healCalc)
 
-function Aptechka:GetIncomingHeals(...)
-    return GetIncomingHealsCustom(...)
+    local incomingHeal = healCalc:GetIncomingHeals()
+    frame.health.incoming:SetValue(incomingHeal)
+end
+function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealPrediction)
 end
 
 local AbsorbBarDisable = function(f)
@@ -1090,33 +1030,21 @@ function Aptechka:UpdateAbsorbBarConfig()
     end
 end
 function Aptechka.FrameUpdateAbsorb(frame, unit)
-    local a,hm = UnitGetTotalAbsorbs(unit), UnitHealthMax(unit)
-    local h = UnitHealth(unit)
-    local ch, p = 0, 0
-    if hm ~= 0 then
-        p = a/hm
-        ch = h/hm
-    end
-    frame.absorb:SetValue(p, ch)
-    frame.absorb2:SetValue(p, ch)
+    local healCalc = frame.health.healCalc
+    UnitGetDetailedHealPrediction(unit, nil, healCalc)
 
-    -- if true then
-    --     FrameSetJob(frame, config.AbsorbTextStatus, a + h > hm, nil, a, hm )
-    -- end
+    local absorb, isOverabsorb = healCalc:GetDamageAbsorbs()
+    frame.absorb:SetValue(absorb)
 end
 function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateAbsorb)
 end
 function Aptechka.FrameUpdateHealAbsorb(frame, unit)
-    local a = UnitGetTotalHealAbsorbs(unit)
-    local hm = UnitHealthMax(unit)
-    local h = UnitHealth(unit)
-    local ch, p = 0, 0
-    if hm ~= 0 then
-        ch = (h/hm)
-        p = a/hm
-    end
-    frame.healabsorb:SetValue(p, ch)
+    local healCalc = frame.health.healCalc
+    UnitGetDetailedHealPrediction(unit, nil, healCalc)
+
+    local healAbsorb, isHealOverabsorb = healCalc:GetHealAbsorbs()
+    frame.healabsorb:SetValue(healAbsorb)
 end
 function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealAbsorb)
@@ -1130,51 +1058,50 @@ local function GetForegroundSeparation(unit, showMissing)
     end
 end
 
-function Aptechka:UNIT_MAXHEALTH(event, unit)
-    if unit == "player" then
-        threshold = UnitHealthMax("player")*0.04 -- 4% of player max health
-    end
-    return Aptechka:UNIT_HEALTH(event, unit)
+function Aptechka.FrameUpdateHealthMaxModifiersChanged(self, unit, event, mod)
+    local healthMaxMod = GetUnitMaxHealthModifier(unit)
+    self.health.temploss:SetValue(healthMaxMod)
 end
+function Aptechka:UNIT_MAX_HEALTH_MODIFIERS_CHANGED(event, unit, mod)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealthMax, event, mod)
+end
+
+
+function Aptechka.FrameUpdateHealthMax(self, unit, event)
+    local hm = UnitHealthMax(unit)
+
+    self.healabsorb:SetMinMaxValues(0, hm)
+    self.absorb:SetMinMaxValues(0, hm)
+    self.health:SetMinMaxValues(0, hm)
+    self.health.fade:SetMinMaxValues(0, hm)
+    self.health.incoming:SetMinMaxValues(0, hm)
+end
+function Aptechka:UNIT_MAXHEALTH(event, unit)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealthMax, event)
+end
+
+local healthTextCurve = C_CurveUtil.CreateCurve();
+healthTextCurve:SetType(Enum.LuaCurveType.Step)
+healthTextCurve:AddPoint(0.0, 1);
+healthTextCurve:AddPoint(0.95, 0);
+healthTextCurve:AddPoint(1.0, 0);
 function Aptechka.FrameUpdateHealth(self, unit, event)
-    local h,hm = UnitHealth(unit), UnitHealthMax(unit)
-    local shields = UnitGetTotalAbsorbs(unit)
-    local healabsorb = UnitGetTotalHealAbsorbs(unit)
-    local incomingHeal = GetIncomingHealsCustom(unit, ignoreplayer)
-    -- shields = hm*0.25
-    -- healabsorb = hm*0.20
-    -- incomingHeal = hm*0.10
-    if hm == 0 then return end
-    local foregroundValue, perc = GetForegroundSeparation(unit, fgShowMissing)
-    local state = self.state
-    self.health:SetValue(foregroundValue)
-    self.healabsorb:SetValue(healabsorb/hm, perc)
-    self.absorb2:SetValue(shields/hm, perc)
-    self.absorb:SetValue(shields/hm, perc)
-    self.health.incoming:SetValue(incomingHeal/hm, perc)
+    local healCalc = self.health.healCalc
+    UnitGetDetailedHealPrediction(unit, nil, healCalc)
+    local h = healCalc:GetCurrentHealth()
+    local incomingHeal = healCalc:GetIncomingHeals()
+    local healthPercent = healCalc:GetCurrentHealthPercent()
+    local healthMissing = healCalc:GetMissingHealth()
+    local absorb, isOverabsorb = healCalc:GetDamageAbsorbs()
+    local healAbsorb, isHealOverabsorb = healCalc:GetHealAbsorbs()
 
-    if damageEffect then
-        local diff = perc - (state.healthPercent or perc)
-        local flashes = state.flashes
-        if not flashes then
-            state.flashes = {}
-            flashes = state.flashes
-        end
-
-        if diff < -0.02 then -- Damage taken is more than 2%
-            local flash = self.flashPool:Acquire()
-            local oldPerc = perc + (-diff)
-            if self.flashPool:FireEffect(flash, diff, perc, state, oldPerc) then
-                flashes[oldPerc] = flash
-            end
-        elseif diff > 0 then -- Heals
-            for oldPerc, flash in pairs(flashes) do
-                if perc >= oldPerc then
-                    self.flashPool:StopEffect(flash)
-                end
-            end
-        end
-    end
+    self.health:SetValue(h)
+    self.health.fade:SetValue(h, 1)
+    self.health.incoming:SetValue(incomingHeal)
+    self.healabsorb:SetValue(healAbsorb)
+    self.absorb:SetValue(absorb)
+    -- self.health.temploss:SetValue(0.15)
+    -- self.health.incoming:SetValue(incomingHeal/hm, perc)
 
     --[[
     if enableLowHealthStatus then
@@ -1187,17 +1114,23 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     end
     ]]
 
+
+    local state = self.state
     state.healthPercent = perc
     if gradientHealthColor then
         FrameSetJob(self, config.HealthBarColor, true, "HealthBar", h)
     end
     incomingHeal = mergedIncomingHealing and incomingHeal or 0
     -- h-hm-incomingHeal-h is not the missing+incoming, but kind of a flag if either deviate more than 5% from max
-    FrameSetJob(self, config.HealthTextStatus, ((h-hm-incomingHeal) < hm*-0.05), nil, h, hm, incomingHeal)
+    -- ((h-hm-incomingHeal) < hm*-0.05)
+
+
+    local healthTextAlpha = UnitHealthPercent(unit, nil, healthTextCurve)
+    FrameSetJob(self, config.HealthTextStatus, true, nil, healthMissing, healthPercent, healthTextAlpha)
 
     if not event then return end -- no death checks on CLH
 
-    local isDead = UnitIsDeadOrGhost(unit) or h == 0
+    local isDead = UnitIsDeadOrGhost(unit) --or h == 0
     if isDead then
         FrameSetJob(self, config.AggroStatus, false)
         local isGhost = UnitIsGhost(unit)
@@ -1458,59 +1391,49 @@ end
 
 local function MakePowerHandlerForType(powerTypeIndex)
     return function(frame, unit, ptype)
-        local powerMax = UnitPowerMax(unit, powerTypeIndex)
+        -- this one should abide by missing/inverted rules
         local power = UnitPower(unit, powerTypeIndex)
-        if powerMax == 0 then
-            power = 1
-            powerMax = 1
-        end
-        -- local manaPercent = GetForegroundSeparation(power, powerMax, fgShowMissing)
-        -- frame.power:SetValue(manaPercent*100)
+        frame.power:SetValue(power)
     end
 end
 local function MakeForcedPowerHandlerForType(powerTypeIndex)
     return function(frame, unit, ptype)
-        local powerMax = UnitPowerMax(unit, powerTypeIndex)
+        -- this one always goes into one direction
         local power = UnitPower(unit, powerTypeIndex)
-        if powerMax == 0 then
-            power = 1
-            powerMax = 1
-        end
-        -- local manaPercent = GetForegroundSeparation(power, powerMax, false)
-        -- frame.power:SetValue(manaPercent*100)
+        frame.power:SetValue(power)
     end
 end
 
 
 
-local Enum_RunicPower = Enum.PowerType.RunicPower
-local Enum_Alternate = Enum.PowerType.Alternate
+-- local Enum_RunicPower = Enum.PowerType.RunicPower
+-- local Enum_Alternate = Enum.PowerType.Alternate
 
-local SpecialPowerTypeHandlers = {
-    RUNIC_POWER = function(frame, unit, ptype)
-        local powerMax = UnitPowerMax(unit, Enum_RunicPower)
-        local power = UnitPower(unit, Enum_RunicPower)
-        if not Aptechka:UnitIsTank(unit) then
-            return FrameSetJob(frame, config.RunicPowerStatus, false)
-        end
-        if power > 40 then
-            local p = power/powerMax
-            FrameSetJob(frame, config.RunicPowerStatus, true, "PROGRESS", power, powerMax, p)
-        else
-            FrameSetJob(frame, config.RunicPowerStatus, false)
-        end
-    end,
-    ALTERNATE = function(frame, unit, ptype)
-        local powerMax = UnitPowerMax(unit, Enum_Alternate)
-        local power = UnitPower(unit, Enum_Alternate)
-        if power > 0 then
-            local p = power/powerMax
-            FrameSetJob(frame, config.AltPowerStatus, true, "PROGRESS", power, powerMax, p)
-        else
-            FrameSetJob(frame, config.AltPowerStatus, false)
-        end
-    end,
-}
+-- local SpecialPowerTypeHandlers = {
+--     RUNIC_POWER = function(frame, unit, ptype)
+--         local powerMax = UnitPowerMax(unit, Enum_RunicPower)
+--         local power = UnitPower(unit, Enum_RunicPower)
+--         if not Aptechka:UnitIsTank(unit) then
+--             return FrameSetJob(frame, config.RunicPowerStatus, false)
+--         end
+--         if power > 40 then
+--             local p = power/powerMax
+--             FrameSetJob(frame, config.RunicPowerStatus, true, "PROGRESS", power, powerMax, p)
+--         else
+--             FrameSetJob(frame, config.RunicPowerStatus, false)
+--         end
+--     end,
+--     ALTERNATE = function(frame, unit, ptype)
+--         local powerMax = UnitPowerMax(unit, Enum_Alternate)
+--         local power = UnitPower(unit, Enum_Alternate)
+--         if power > 0 then
+--             local p = power/powerMax
+--             FrameSetJob(frame, config.AltPowerStatus, true, "PROGRESS", power, powerMax, p)
+--         else
+--             FrameSetJob(frame, config.AltPowerStatus, false)
+--         end
+--     end,
+-- }
 local PowerTypeHandlers = {
     MANA = MakePowerHandlerForType(Enum.PowerType.Mana),
     RAGE = MakeForcedPowerHandlerForType(Enum.PowerType.Rage),
@@ -1525,8 +1448,8 @@ local PowerTypeHandlers = {
 }
 
 function Aptechka.FrameUpdatePower(frame, unit, ptype)
-    local special = SpecialPowerTypeHandlers[ptype]
-    if special then special(frame, unit, ptype) end
+    -- local special = SpecialPowerTypeHandlers[ptype]
+    -- if special then special(frame, unit, ptype) end
 
     if ptype == frame.state.powerType then
         local handler = PowerTypeHandlers[ptype]
@@ -1535,6 +1458,16 @@ function Aptechka.FrameUpdatePower(frame, unit, ptype)
 end
 function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdatePower, ptype)
+end
+
+function Aptechka.FrameUpdatePowerMax(frame, unit, ptype)
+    if ptype == frame.state.powerType then
+        local powerMax = UnitPowerMax(unit, powerTypeIndex)
+        frame.power:SetMinMaxValues(0, powerMax)
+    end
+end
+function Aptechka.UNIT_MAXPOWER(self, event, unit, ptype)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdatePowerMax, ptype)
 end
 
 do
@@ -1579,12 +1512,14 @@ end
 function Aptechka.FrameUpdateDisplayPowerAndRefresh(frame, unit)
     Aptechka.FrameUpdateDisplayPower(frame, unit)
     local pnum, ptype = UnitPowerType(unit)
+    Aptechka.FrameUpdatePowerMax(frame, unit, ptype)
     Aptechka.FrameUpdatePower(frame, unit, ptype)
 end
 
 function Aptechka.UNIT_DISPLAYPOWER(self, event, unit)
     self:ForEachUnitFrame(unit, Aptechka.FrameUpdateDisplayPower)
     local pnum, ptype = UnitPowerType(unit)
+    self:ForEachUnitFrame(unit, Aptechka.FrameUpdatePowerMax, ptype)
     self:ForEachUnitFrame(unit, Aptechka.FrameUpdatePower, ptype)
 end
 
@@ -1611,8 +1546,9 @@ local vehicleHack = function (self, time)
             if frame.power then
                 Aptechka.FrameUpdateDisplayPower(frame, owner)
                 local ptype = select(2,UnitPowerType(owner))
+                Aptechka.FrameUpdatePowerMax(frame, owner, ptype)
                 Aptechka.FrameUpdatePower(frame, owner, ptype)
-                Aptechka.FrameUpdatePower(frame, owner, "ALTERNATE")
+                -- Aptechka.FrameUpdatePower(frame, owner, "ALTERNATE")
             end
             if frame.absorb then
                 Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
@@ -1688,13 +1624,17 @@ local function FrameResetRangeAlpha(frame, unit)
 end
 ]]
 local function FrameUpdateRangeAlpha(frame, unit)
-    if not AptechkaUnitInRange(unit) then
-        frame:SetAlpha(alphaOutOfRange)
-    elseif frame.state.isPhased then
-        frame:SetAlpha(alphaOutOfRange)
-    else
-        frame:SetAlpha(1)
-    end
+    local inRange = AptechkaUnitInRange(unit)
+    local targetAlpha = C_CurveUtil.EvaluateColorValueFromBoolean(inRange, 1, alphaOutOfRange)
+    frame:SetAlpha(targetAlpha)
+    -- if AptechkaUnitInRange(unit) then
+    -- if UnitInRange(unit) then
+    --     frame:SetAlpha(1)
+    -- else
+    --     frame:SetAlpha(alphaOutOfRange)
+    -- elseif frame.state.isPhased then
+    --     frame:SetAlpha(alphaOutOfRange)
+
 end
 local function FrameResetRangeAlpha(frame, unit)
     frame:SetAlpha(1)
@@ -1799,10 +1739,6 @@ function Aptechka:UpdateStagger()
     end
 end
 
-function Aptechka:UnitIsTank(unit)
-    return tankUnits[unit]
-end
-
 local roleCoords = {
     TANK = { 0, 19/64, 22/64, 41/64 },
     HEALER = { 20/64, 39/64, 1/64, 20/64 },
@@ -1822,20 +1758,14 @@ function Aptechka.FrameCheckRoles(self, unit )
     ]]
     local isAnyTank = isRaidMaintank or isTankRoleAssigned
 
-    if isAnyTank and select(2, UnitClass(unit)) == "MONK" then
-        staggerUnits[unit] = true
-        enableStagger = true
-    elseif staggerUnits[unit] then
-        staggerUnits[unit] = nil
-        enableStagger = next(staggerUnits) ~= nil
-        FrameSetJob(self, config.StaggerStatus, false)
-    end
-
-    if isAnyTank then
-        tankUnits[unit] = true
-    else
-        tankUnits[unit] = nil
-    end
+    -- if isAnyTank and select(2, UnitClass(unit)) == "MONK" then
+    --     staggerUnits[unit] = true
+    --     enableStagger = true
+    -- elseif staggerUnits[unit] then
+    --     staggerUnits[unit] = nil
+    --     enableStagger = next(staggerUnits) ~= nil
+    --     FrameSetJob(self, config.StaggerStatus, false)
+    -- end
 
     if Aptechka.db.global.enableRoles and config.displayRoles and config.MainTankStatus then
         FrameSetJob(self, config.MainTankStatus, isAnyTank)
@@ -2095,7 +2025,7 @@ function Aptechka.FrameColorize(frame, unit)
     else
         local _,class = UnitClass(unit)
         if class then
-            local color = colors[class]
+            local color = C_ClassColor.GetClassColor(class)
             state.classColor = {color.r,color.g,color.b}
         end
     end
@@ -2189,6 +2119,7 @@ local function updateUnitButton(self, unit)
         self[1] = -1 -- reset range state to undefined
     end
     state.wasDead = nil
+    Aptechka.FrameUpdateHealthMax(self, unit, "UNIT_MAXHEALTH")
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
     Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
     Aptechka.FrameUpdateConnection(self, owner)
@@ -2203,8 +2134,9 @@ local function updateUnitButton(self, unit)
     if not config.disableManaBar then
         Aptechka.FrameUpdateDisplayPower(self, unit)
         local ptype = select(2,UnitPowerType(owner))
-        Aptechka.FrameUpdatePower(self, unit, "RUNIC_POWER")
-        Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
+        -- Aptechka.FrameUpdatePower(self, unit, "RUNIC_POWER")
+        -- Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
+        Aptechka.FrameUpdatePowerMax(self, unit, ptype)
         Aptechka.FrameUpdatePower(self, unit, ptype)
     end
     Aptechka.FrameUpdateThreat(self, unit)
@@ -2214,7 +2146,7 @@ local function updateUnitButton(self, unit)
         Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
     end
     Aptechka.FrameCheckRoles(self, unit)
-    if config.enableIncomingHeals then Aptechka:UNIT_HEAL_PREDICTION("UNIT_HEAL_PREDICTION",unit) end
+    Aptechka:UNIT_HEAL_PREDICTION("UNIT_HEAL_PREDICTION",unit)
 end
 
 local delayedUpdateTimer = C_Timer.NewTicker(5, function()
@@ -2435,7 +2367,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
 
     f:SetFrameStrata("BACKGROUND")
 
-    f:SetAttribute("template", "SecureUnitButtonTemplate, SecureHandlerStateTemplate, SecureHandlerEnterLeaveTemplate")
+    f:SetAttribute("template", "SecureUnitButtonTemplate, SecureHandlerStateTemplate, SecureHandlerEnterLeaveTemplate, PingableUnitFrameTemplate")
     if(Clique) then
         SecureHandlerSetFrameRef(f, 'clickcast_header', Clique.header)
     end
@@ -2491,6 +2423,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetAttribute("frameHeight", height)
     f:SetScale(scale)
 
+    f:SetAttribute("auraContainerTemplate", "CustomAuraContainerTemplate")
     f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange,_onstate-vehicleui')
     f:SetAttribute('_initialAttribute-_onenter', [[
         local snippet = self:GetAttribute('clickcast_onenter')
@@ -2819,7 +2752,7 @@ local updateTable = function(tbl, ...)
     local isChanged = false
     for i=1, numArgs do
         local newVal = select(i, ...)
-        if tbl[i] ~= newVal then
+        if issecretvalue(newVal) or tbl[i] ~= newVal then
             tbl[i] = newVal
             isChanged = true
         end
