@@ -1,0 +1,21 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Button name="NugRaidUnitButtonTemplate" virtual="true" inherits="SecureUnitButtonTemplate">
+        <Size x="50" y="50"/>
+        <Frames>
+            <AuraContainer parentKey="DebuffContainer" inherits="CustomAuraContainerTemplate">
+                <Size x="1" y="1"/>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT"/>
+                </Anchors>
+            </AuraContainer>
+            <AuraContainer parentKey="BuffContainer" inherits="CustomAuraContainerTemplate">
+                <Size x="50" y="50"/>
+                <Anchors>
+                    <!-- <Anchor point="ALL"/> -->
+                    <Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+            </AuraContainer>
+        </Frames>
+    </Button>
+</Ui>

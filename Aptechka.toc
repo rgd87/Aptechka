@@ -27,6 +27,7 @@ Libs\LibTargeted\LibTargeted.lua
 
 helpers.lua
 config.lua
+Aptechka.xml
 Aptechka.lua
 migrations.lua
 frame.lua

@@ -2147,6 +2147,8 @@ local function updateUnitButton(self, unit)
     end
     Aptechka.FrameCheckRoles(self, unit)
     Aptechka:UNIT_HEAL_PREDICTION("UNIT_HEAL_PREDICTION",unit)
+    self.BuffContainer:SetUnit(unit)
+    self.DebuffContainer:SetUnit(unit)
 end
 
 local delayedUpdateTimer = C_Timer.NewTicker(5, function()
@@ -2367,7 +2369,8 @@ function Aptechka.CreateHeader(self,group,petgroup)
 
     f:SetFrameStrata("BACKGROUND")
 
-    f:SetAttribute("template", "SecureUnitButtonTemplate, SecureHandlerStateTemplate, SecureHandlerEnterLeaveTemplate, PingableUnitFrameTemplate")
+    -- NugRaidUnitButtonTemplate is SecureUnitButtonTemplate with precreated 2 AuraContainers
+    f:SetAttribute("template", "NugRaidUnitButtonTemplate, SecureHandlerStateTemplate, SecureHandlerEnterLeaveTemplate, PingableUnitFrameTemplate")
     if(Clique) then
         SecureHandlerSetFrameRef(f, 'clickcast_header', Clique.header)
     end
@@ -2423,7 +2426,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetAttribute("frameHeight", height)
     f:SetScale(scale)
 
-    f:SetAttribute("auraContainerTemplate", "CustomAuraContainerTemplate")
+    -- f:SetAttribute("auraContainerTemplate", "CustomAuraContainerTemplate") -- not using it because we have to use 2 separate containers from UnitButtonTemplate
     f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange,_onstate-vehicleui')
     f:SetAttribute('_initialAttribute-_onenter', [[
         local snippet = self:GetAttribute('clickcast_onenter')
@@ -3478,6 +3481,7 @@ local handleDebuffs = function(frame, unit, index, slot, filter, auraData)
 end
 
 function Aptechka.FrameScanAuras(frame, unit)
+    --[[
     -- indicator cleanup
     table_wipe(encountered)
     debuffTypeMask = 0
@@ -3500,6 +3504,7 @@ function Aptechka.FrameScanAuras(frame, unit)
     DispelTypePostUpdate(frame, unit)
     EffectListPostUpdate(frame, unit)
     HighlightPostUpdate(frame, unit)
+    ]]
 end
 function Aptechka.ScanAuras(unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameScanAuras)

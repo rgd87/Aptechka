@@ -61,16 +61,10 @@ if APILevel == 1 then
 end
 
 local pmult = 1
-function helpers.pixelperfect(size)
-    return floor(size/pmult + 0.5)*pmult
-end
 
-local res = GetCVar("gxWindowedResolution")
-if res then
-    local w,h = string.match(res, "(%d+)x(%d+)")
-    if h then
-        pmult = (768/h) / UIParent:GetScale()
-    end
+local GetNearestPixelSize = PixelUtil.GetNearestPixelSize
+function helpers.pixelperfect(size)
+    return GetNearestPixelSize(size, UIParent:GetEffectiveScale())
 end
 
 helpers.PercentColor = function(percent)

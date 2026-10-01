@@ -153,8 +153,75 @@ config.allowedPowerTypesDamage = {
     MAELSTROM = true,
 }
 
+
+config.auraContainers = {
+    bars = {
+        widgetOptions = {
+            sampleRect = {0.20, 0.35, 0.05, 0.02}, -- x,y,w,h
+        },
+        includeSpellIDs = {}
+    },
+    bar4 = {
+        widgetOptions = {
+            color = {0,1,0,1},
+        },
+        includeSpellIDs = {}
+    },
+    drink = {
+        includeSpellIDs = {}
+    },
+    PersonalDefensive = {
+    },
+    BigDefensive = {
+        includeSpellIDs = {}
+    },
+}
+local function AddAuraToContainer(slotName, spellIDs)
+    if not config.auraContainers[slotName] then return end
+    local slotConfig = config.auraContainers[slotName]
+
+    if type(spellIDs) == "table" then
+        for _, id in ipairs(spellIDs) do
+            slotConfig.includeSpellIDs[id] = true
+        end
+    end
+end
+
+local function ChangeWidgetColorForContainer(slotName, r,g,b,a)
+    if not config.auraContainers[slotName] then return end
+    local slotConfig = config.auraContainers[slotName]
+    slotConfig.widgetOptions = slotConfig.widgetOptions or {}
+    if not a then a = 1 end
+    slotConfig.widgetOptions.color = {r,g,b,a}
+end
+
 local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 if not isMainline then return end
+
+
+AddAuraToContainer("BigDefensive", {
+    115176, -- Zen Meditation
+    120954, -- Fortifying Brew (Brewmaster)
+
+    871, -- Shield Wall
+    45182, -- Cheat Death
+
+    102342, -- Ironbark
+    61336, -- Survival Instincts
+
+    47788, -- Guardian Spirit
+    33206, -- Pain Suppression
+    213602, -- Greater Fade
+    329543, -- Divine Ascension
+
+    642, -- Divine Shield
+    86659, -- Guardian of the Ancient Kings
+
+    55233, -- Vampiric Blood
+    48792, -- Icebound Fortitude 50%
+
+    45438, -- Ice Block
+})
 
 -- DUNGEON MECHANICS
 AG{ id = 324092, template = "AreaDR" } -- Sanguine Depths, Shining Radiance (Naaru thing)
@@ -299,6 +366,21 @@ AG{ id = {
 
 
 if playerClass == "PRIEST" then
+
+    AddAuraToContainer("bars", {
+        139, -- Renew
+        17, -- Power Word: Shield
+        6788, -- Weakened Soul
+        10060, -- Power Infusion
+        271466, -- Luminous Barrier
+    })
+
+    AddAuraToContainer("bar4", {
+        41635, -- Prayer of Mending
+        194384 -- Atonement
+    })
+    ChangeWidgetColorForContainer("bar4",  1, .3, .3)
+
     -- Power Word: Fortitude
     A{ id = 21562, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
 
@@ -350,6 +432,20 @@ if playerClass == "PRIEST" then
 end
 
 if playerClass == "MONK" then
+    AddAuraToContainer("bars", {
+        124682, -- Enveloping Mist
+        115175, -- Soothing Mist
+
+        191840, -- Essence Font
+        344006, -- Essence Font
+    })
+
+    AddAuraToContainer("bar4", {
+        119611, -- Renewing Mist
+    })
+    ChangeWidgetColorForContainer("bar4",  38/255, 221/255, 163/255)
+
+
     --Renewing Mist
     A{ id = 119611, type = "HELPFUL", assignto = set("bar4"), refreshTime = 20*0.3, extend_below = 20, isMine = true, color = {38/255, 221/255, 163/255}, infoType = "DURATION" }
     --Enveloping Mist
@@ -402,6 +498,21 @@ if playerClass == "WARLOCK" then
 end
 
 if playerClass == "PALADIN" then
+    AddAuraToContainer("bars", {
+        287280, -- Glimmer of Light
+        148039, -- Barrier of FAith
+        -- Forbearance??
+
+        191840, -- Essence Font
+        344006, -- Essence Font
+    })
+
+    AddAuraToContainer("bar4", {
+        200025, -- Beacon of Virtue
+        53563, -- Beacon of Light
+        156910, -- Beacon of Faith
+    })
+    ChangeWidgetColorForContainer("bar4",  0.96/2, 0.55/2, 0.73/2)
 
     --Glimmer of Light
     A{ id = 287280,type = "HELPFUL", assignto = set("bars"), color = { 1, .3, .3}, infoType = "DURATION", isMine = true}
@@ -461,6 +572,15 @@ if playerClass == "PALADIN" then
     }
 end
 if playerClass == "SHAMAN" then
+    AddAuraToContainer("bars", {
+        61295, -- Riptide
+    })
+
+    AddAuraToContainer("bar4", {
+        974, -- Earth Shield
+    })
+    ChangeWidgetColorForContainer("bar4",  0.2, 1, 0.2)
+
     -- config.useCombatLogFiltering = false -- Earth Shield got problems with combat log
 
     A{ id = 61295,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", scale = 1.3, refreshTime = 5.4, refreshColor = { 1, 0.1, 0.1}, isMine = true, color = { 0.4 , 0.4, 1} } --Riptide
@@ -512,6 +632,19 @@ if playerClass == "HUNTER" then
     A{ id = 136, template = "SurvivalCD" } -- Mend Pet
 end
 if playerClass == "DRUID" then
+
+    AddAuraToContainer("bars", {
+        774, -- Rejuvenation
+        155777, -- Germination
+        8936, -- Regrowth
+        48438 -- Wild Growth
+    })
+
+    AddAuraToContainer("bar4", {
+        33763 -- Lifebloom
+    })
+    ChangeWidgetColorForContainer("bar4", 0.2, 1, 0.2)
+
     A{ id = 1126,  type = "HELPFUL", assignto = set("raidbuff"), color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
 
     -- A{ id = 327037,  type = "HELPFUL", assignto = set("bars"), infoType = "DURATION", isMine = true, color = { 0.4 , 0.4, 1} } -- Kindred Protection
@@ -572,6 +705,24 @@ end
 
 
 if playerClass == "EVOKER" then
+
+    AddAuraToContainer("bars", {
+        373267, -- Lifebind talent
+        366155, -- Reversion
+        367364, -- Echo'd Reversion
+        355941, -- Dream Breath
+        363502, -- Dream Flight
+
+        395296, -- Ebon Might
+        410089, -- Prescience
+    })
+
+    AddAuraToContainer("bar4", {
+        364343, -- Echo
+        360827, -- Blistering Scales
+    })
+    ChangeWidgetColorForContainer("bar4", 1, 0.55, 0)
+
     -- Blessing of the Bronze
     A{ id = { 381748, 381732, 381741, 381746, 381749, 381750, 381751, 381752, 381753, 381754, 381756, 381757, 381758 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.6, 0}, priority = 50, isMissing = true }
 
