@@ -2677,13 +2677,15 @@ end
 local function CreateAuraButtonIconBar(parent, widgetOptions, createText)
     local f = CreateFrame("StatusBar",nil,parent)
 
+    parent:SetFrameLevel(FRAMELEVEL.BAR)
+
     local sampleRect = widgetOptions.sampleRect or {0.20, 0.35, 0.05, 0.02}
 
     f:SetAllPoints(parent)
 
     -- Aptechka.Widget.Bar.Reconf(parent, f, popts, gopts)
 
-    local border = PixelUtil.ConvertPixelsToUI(1, 1.0)
+    local border = pixelperfect(1)
 
     local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
     outline:SetVertexColor(0,0,0)
@@ -2733,11 +2735,11 @@ end
 
 
 local function GetAdaptiveCroppedTexCoord(parentFrame)
-    local baseCrop = 0.05 -- The 5% outer boundary constraint
+    local baseCrop = 0.1 -- The 10% outer boundary constraint
     local maxCoord = 1.0 - baseCrop
 
     -- Establish the maximum available texture canvas space after safety cropping
-    local canvasSize = maxCoord - baseCrop -- 0.90
+    local canvasSize = maxCoord - baseCrop
 
     local left, right = baseCrop, maxCoord
     local top, bottom = baseCrop, maxCoord
@@ -2774,9 +2776,11 @@ end
 local function CreateAuraButtonBarIcon(parent, widgetOptions)
     local f = CreateFrame("StatusBar",nil,parent)
 
+    f:SetFrameLevel(FRAMELEVEL.ICON)
+
     f:SetAllPoints(parent)
 
-    local border = PixelUtil.ConvertPixelsToUI(1, 1.0)
+    local border = pixelperfect(1)
 
     local outline = MakeBorder(f, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
     outline:SetVertexColor(0,0,0)
@@ -2818,6 +2822,83 @@ local function CreateAuraButtonBarIcon(parent, widgetOptions)
 
     return f
 end
+
+local function CreateAuraButtonCornerIndicator(button, rotation)
+    local t = button:CreateTexture(nil,"ARTWORK")
+    t:SetTexture("Interface\\AddOns\\Aptechka\\corner")
+    t.RotateCoords = Texture_RotateCoords
+    if rotation then
+        t:RotateCoords(rotation)
+    end
+    t:SetAllPoints(button)
+    button.texture = t
+end
+
+local function CreateAuraButtonDebuffIcon(button, widgetOptions)
+    local pixel = pixelperfect(1)
+
+    button:SetFrameLevel(FRAMELEVEL.DEBUFFICON)
+
+    local outline = MakeBorder(button, "Interface\\BUTTONS\\WHITE8X8", -pixel*2, -pixel, -pixel, -pixel, -2)
+    outline:SetVertexColor(0,0,0)
+
+    -- local bar = CreateFrame("StatusBar",nil,button)
+    -- bar:SetOrientation("VERTICAL")
+    -- bar:SetReverseFill(true)
+    -- bar:SetStatusBarTexture[[Interface\BUTTONS\WHITE8X8]]
+    -- bar:SetStatusBarColor(0,0,0, 0.5)
+    -- bar:SetPoint("TOPLEFT", button, "TOPLEFT")
+    -- bar:SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT")
+    -- bar:SetWidth(pixelperfect(3))
+    -- button.bar = bar
+
+    local dttex = button:CreateTexture(nil, "ARTWORK", nil, -2)
+    dttex:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
+    dttex:SetTexCoord(0, 1, 1, 0)
+    dttex:SetPoint("TOPLEFT", button, "TOPLEFT", -pixel*1, 0)
+    dttex:SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT")
+    dttex:SetWidth(pixel*3)
+    button.debuffTypeTexture = dttex
+
+    local icon = button:CreateTexture(nil,"ARTWORK",nil,-3)
+    icon:SetTexture[[Interface\BUTTONS\WHITE8X8]]
+    icon:SetPoint("TOPLEFT", dttex, "TOPRIGHT")
+    icon:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT")
+    icon:SetTexCoord(GetAdaptiveCroppedTexCoord(icon))
+    button.icon = icon
+
+    local icd = CreateFrame("Cooldown",nil, button, "CooldownFrameTemplate")
+    if not Aptechka.db.global.showIconCooldownCount then
+        icd.noCooldownCount = true -- disable OmniCC for this cooldown
+        icd:SetHideCountdownNumbers(true)
+    end
+    icd:SetReverse(true)
+    icd:SetAllPoints(icon)
+    button.cd = icd
+
+    -- local spark = f:CreateTexture(nil, "ARTWORK", nil, 5)
+    -- spark:SetTexture("Interface/AddOns/Aptechka/spark")
+    -- spark:SetBlendMode("ADD")
+    -- spark:SetVertexColor(1,0.7,0)
+    -- spark:SetTexCoord(1,1,0,1,1,0,0,0)
+    -- spark:SetHeight(parent:GetHeight())
+    -- spark:SetPoint("LEFT", statusBarTexture, "BOTTOMLEFT")
+    -- spark:SetPoint("RIGHT", statusBarTexture, "BOTTOMRIGHT")
+    -- f.spark = spark
+
+    return button
+end
+
+local function CreateSimplePhasedIcon(f)
+    local t = f:CreateTexture(nil, "ARTWORK", nil, 7)
+    t:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon")
+    t:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375)
+    t:SetSize(20,20)
+    t:SetPoint("CENTER", f, "CENTER", 0, 14)
+    t:Hide()
+    return t
+end
+
 
 
 local function CreateUnhealableOverlay(parent)
@@ -3371,7 +3452,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hpfade:SetFrameLevel(FRAMELEVEL.HEALTHFADE)
     hpfade:SetOrientation("VERTICAL")
     hpfade:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
-    hpfade:SetStatusBarColor(1,0,0)
+    hpfade:SetStatusBarColor(1,0.8,0.8)
     hpfade:SetAllPoints(hp)
     hp.fade = hpfade
 
@@ -3399,7 +3480,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local buffs = self.BuffContainer
 
 
-    buffs:AddAuraGroup("bars", "HELPFUL|PLAYER|RAID_IN_COMBAT", {
+    buffs:AddAuraGroup("bars", "HELPFUL|PLAYER", {
         maxFrameCount = 4,
         candidateFilters = {
             includeSpellIDs = config.auraContainers["bars"].includeSpellIDs
@@ -3407,6 +3488,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             local pixel = pixelperfect(1)
             button:SetSize(pixelperfect(21), pixelperfect(5));
+            button:SetHideTooltipInCombat(true)
 
             local bar = CreateAuraButtonIconBar(button, config.auraContainers["bars"].widgetOptions)
             button:SetIcon(bar.icon)
@@ -3422,7 +3504,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
         end,
     });
     buffs:SetFlowLayoutAnchorPoint("TOPRIGHT")
-    buffs:SetAuraGroupLayout("bars", { elementSpacing = 1 })
+    buffs:SetAuraGroupLayout("bars", { elementSpacing = pixelperfect(1) })
     buffs:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Vertical)
 
     -- local testtex = buffs:CreateTexture(nil,"OVERLAY",nil,0)
@@ -3437,6 +3519,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             local pixel = pixelperfect(1)
             button:SetSize(pixelperfect(21), pixelperfect(5));
+            button:SetHideTooltipInCombat(true)
 
             local bar = CreateAuraButtonIconBar(button, config.auraContainers["bar4"].widgetOptions, true)
             -- button:SetIcon(bar.icon)
@@ -3475,6 +3558,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             local pixel = pixelperfect(1)
             button:SetSize(pixelperfect(12), pixelperfect(18));
+            -- button:SetHideTooltipInCombat(true)
 
             local bar = CreateAuraButtonBarIcon(button)
             button:SetIcon(bar.icon)
@@ -3492,6 +3576,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             local pixel = pixelperfect(1)
             button:SetSize(pixelperfect(24), pixelperfect(24));
+            button:SetHideTooltipInCombat(true)
 
             local bar = CreateAuraButtonBarIcon(button)
             button:SetIcon(bar.icon)
@@ -3504,6 +3589,65 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
 
     local debuffs = self.DebuffContainer
+
+
+    local dispelOptions = {
+        style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
+        showWithoutDispelType = true,
+        showAlways = true,
+        showWhenHarmful = true,
+		showWhenHelpful = true,
+        -- customDispelColorMap = {
+        --     ["Magic"]   = { 0.2, 0.6, 1.0 }, -- Blue
+        --     ["Curse"]   = { 0.6, 0.0, 1.0 }, -- Purple
+        --     ["Disease"] = { 0.6, 0.4, 0.0 }, -- Brownish/Yellow
+        --     ["Poison"]  = { 0.0, 0.6, 0.0 }, -- Green
+        --     ["Bleed"]   = { 1.0, 0.1, 0.1 }, -- Red (Midnight expansion additions)
+        --     ["None"]    = { 1, 0.3 ,0.3 }, -- Fallback color if showWithoutDispelType is true
+        -- }
+    }
+    debuffs:AddAuraGroup("debuffIcons", "HARMFUL", { --"HELPFUL|RAID_IN_COMBAT", {
+        maxFrameCount = 4,
+        -- candidateFilters = {
+            -- includeSpellIDs = config.auraContainers["bars"].includeSpellIDs
+        -- },
+        initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
+            local pixel = pixelperfect(1)
+            button:SetSize(pixelperfect(18), pixelperfect(15));
+            -- button:SetHideTooltipInCombat(true)
+
+            CreateAuraButtonDebuffIcon(button)
+            button:SetIcon(button.icon)
+            -- button:SetDurationBar(button.bar)
+            button:SetDurationCooldown(button.cd)
+            button:AddDispelTypeTexture(button.debuffTypeTexture, dispelOptions)
+
+            -- button.Icon = button:CreateTexture(nil, "OVERLAY");
+            -- button.Icon:SetAllPoints(button);
+            -- button:SetIcon(button.Icon);
+
+            -- button.Text = button:CreateFontString(nil, "ARTWORK", "GameFontNormal");
+            -- button.Text:SetPoint("TOP", button, "BOTTOM", 0, -5);
+            -- button:SetDurationText(button.Text);
+        end,
+    });
+    debuffs:SetFlowLayoutAnchorPoint("TOPRIGHT")
+    debuffs:SetAuraGroupLayout("debuffIcons", { elementSpacing = pixelperfect(1) })
+    debuffs:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Vertical)
+
+    debuffs:AddAuraSlot("dispelIndicator", "HARMFUL|RAID", { --"HELPFUL|RAID_IN_COMBAT", {
+        maxFrameCount = 1,
+        initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
+            local pixel = pixelperfect(1)
+            button:SetSize(pixelperfect(14), pixelperfect(17));
+            button:SetHideTooltipInCombat(true)
+
+            CreateAuraButtonCornerIndicator(button, 180)
+            button:AddDispelTypeTexture(button.texture, dispelOptions)
+
+            button:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
+        end,
+    });
 
     ------------------------
     -- Mouseover highlight
@@ -3574,6 +3718,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local text2_opts = Aptechka:GetWidgetsOptionsMerged("text2")
     local text2 = Aptechka.Widget.Text.Create(self, nil, text2_opts)
+
+    self.incomingCastIcon = Aptechka.Widget.ProgressIcon.Create(self, nil, Aptechka:GetWidgetsOptionsMerged("incomingCastIcon"))
+
+    self.phasedIcon = CreateSimplePhasedIcon(hp)
 
 
     local raidicon = CreateFrame("Frame",nil,self)

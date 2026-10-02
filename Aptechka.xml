@@ -4,7 +4,7 @@
         <Size x="50" y="50"/>
         <Frames>
             <AuraContainer parentKey="DebuffContainer" inherits="CustomAuraContainerTemplate">
-                <Size x="1" y="1"/>
+                <Size x="50" y="50"/>
                 <Anchors>
                     <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT"/>
                 </Anchors>

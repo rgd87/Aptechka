@@ -1,8 +1,0 @@
-## Interface: 30400
-## Title: AptechkaOptions
-## Notes: Options module for Aptechka
-## Author: d87
-## RequiredDeps: Aptechka
-## LoadOnDemand: 1
-
-..\Aptechka\Options\includes.xml

@@ -24,10 +24,10 @@ highlightingFrame.name = highlightingName
 highlightingFrame.parent = "Aptechka"
 -- InterfaceOptions_AddCategory(highlightingFrame);
 
-local _, widgetsName, widgetsFrame = ns.CreateWidgetConfig(L"Widgets"..newFeatureIcon, "Aptechka")
-widgetsFrame.name = widgetsName
-widgetsFrame.parent = "Aptechka"
-f.widgetConfig = widgetsFrame.rootFrame
+-- local _, widgetsName, widgetsFrame = ns.CreateWidgetConfig(L"Widgets"..newFeatureIcon, "Aptechka")
+-- widgetsFrame.name = widgetsName
+-- widgetsFrame.parent = "Aptechka"
+-- f.widgetConfig = widgetsFrame.rootFrame
 -- InterfaceOptions_AddCategory(f.widgetConfig.frame);
 
 local spellListOptName, spellListName, spellListFrame = ns.CreateSpellList()
@@ -35,7 +35,7 @@ spellListFrame.name = spellListName
 spellListFrame.parent = "Aptechka"
 -- InterfaceOptions_AddCategory(f.spellList);
 
-local statusOptName, statusName, statusFrame = ns.MakeStatusConfig()
+-- local statusOptName, statusName, statusFrame = ns.MakeStatusConfig()
 -- statusFrame = AceConfigDialog:AddToBlizOptions("AptechkaStatusConfig", L"Status List", "Aptechka")
 
 local blacklistOptName, blacklistName, blacklistFrame = ns.MakeBlacklist()

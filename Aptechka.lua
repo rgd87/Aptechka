@@ -503,11 +503,14 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self.previousTarget = "player"
         self:RegisterEvent("PLAYER_TARGET_CHANGED")
     end
+    --[[
     if config.FocusStatus then
         self.previousFocus = "player"
         self:RegisterEvent("PLAYER_FOCUS_CHANGED")
     end
+    ]]
 
+    --[[
     if config.VoiceChatStatus then
         self:RegisterEvent("VOICE_CHAT_CHANNEL_ACTIVATED")
         self:RegisterEvent("VOICE_CHAT_CHANNEL_DEACTIVATED")
@@ -515,15 +518,18 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:VOICE_CHAT_CHANNEL_ACTIVATED()
         end
     end
+    ]]
 
     self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
 
+    --[[
     NickTag = LibStub("NickTag-1.0", true)
     if NickTag then
         NickTag.RegisterCallback("Aptechka", "NickTag_Update", function()
             Aptechka:ForEachUnitFrame("player", Aptechka.FrameUpdateName)
         end)
     end
+    ]]
 
     LibAuraTypes = LibStub("LibAuraTypes")
     EffectIndices = {
@@ -550,26 +556,15 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         -- end)
     -- end
 
-    if isMainline then
-        self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
-        self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
-    end
-    if apiLevel == 4 then
-        local LAC = LibStub("LibAbsorbCounter")
-        UnitGetTotalAbsorbs = function(unit)
-            return LAC:UnitGetTotalAbsorbs(unit)
-        end
-        LAC.RegisterCallback(self, "UNIT_ABSORB_AMOUNT_CHANGED", function(event, unit)
-            self:UNIT_ABSORB_AMOUNT_CHANGED(event, unit)
-        end)
-    end
+    self:RegisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+    self:RegisterEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED")
 
-    self:UpdateTargetedCountConfig()
+    -- self:UpdateTargetedCountConfig()
     self:UpdateIncomingCastsConfig()
-    self:UpdateOutgoingCastsConfig()
+    -- self:UpdateOutgoingCastsConfig()
 
 
-    self:RegisterEvent("UNIT_AURA")
+    -- self:RegisterEvent("UNIT_AURA")
     self:RegisterEvent("SPELLS_CHANGED")
     self:RegisterEvent("GROUP_ROSTER_UPDATE")
 
@@ -609,9 +604,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         Aptechka.Commands.unlock()
     end
 
-    Aptechka:CreateDebuffTooltips()
-    Aptechka.tooltipPool.modchecks:MakeFromDB()
-    self:RegisterEvent("MODIFIER_STATE_CHANGED")
+    -- Aptechka:CreateDebuffTooltips()
+    -- Aptechka.tooltipPool.modchecks:MakeFromDB()
+    -- self:RegisterEvent("MODIFIER_STATE_CHANGED")
 
     SLASH_APTECHKA1= "/aptechka"
     SLASH_APTECHKA2= "/apt"
@@ -624,7 +619,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     SlashCmdList["APTROLEPOLL"] = InitiateRolePoll
 
     if config.LOSStatus then
-        self:RegisterEvent("UNIT_SPELLCAST_SENT")
+        -- self:RegisterEvent("UNIT_SPELLCAST_SENT")
         self:RegisterEvent("UI_ERROR_MESSAGE")
     end
 
@@ -1181,9 +1176,17 @@ function Aptechka.FrameCheckPhase(frame, unit)
         frame.centericon.texture:SetTexCoord(0,1,0,1);
         frame.centericon:Show()
     ]]
-    local isPhased = UnitIsPlayer(unit) and UnitPhaseReason(unit) and not frame.state.isInVehicle
-    frame.state.isPhased = isPhased
-    FrameSetJob(frame, config.PhasedStatus, isPhased, "PHASED")
+    if not UnitIsPlayer(unit) then
+        frame.phasedIcon:Hide()
+    else
+        if UnitPhaseReason(unit) then -- it's secret but nil check should work in combat
+            frame.phasedIcon:Show()
+        else
+            frame.phasedIcon:Hide()
+        end
+    end
+    -- frame.state.isPhased = isPhased
+    -- FrameSetJob(frame, config.PhasedStatus, isPhased, "PHASED")
 end
 end
 
@@ -1192,6 +1195,7 @@ function Aptechka.UNIT_PHASE(self, event, unit)
 end
 
 function Aptechka.FrameUpdateMindControl(frame, unit)
+    --[[
     -- local currentUnit = SecureButton_GetModifiedUnit(frame)
     local ownerUnit = SecureButton_GetUnit(frame)
     -- if a button is currently overridden by pet(vehicle) unit, it'll report as charmed
@@ -1199,6 +1203,7 @@ function Aptechka.FrameUpdateMindControl(frame, unit)
     local isMindControlled = UnitIsCharmed(ownerUnit)
 
     FrameSetJob(frame, config.MindControlStatus, isMindControlled)
+    ]]
 end
 function Aptechka:UpdateMindControl(unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateMindControl)
@@ -1231,7 +1236,7 @@ local function FrameLaunchFloatingIcon(frame, unit, spellID)
         widget:StartTrace(nil, spellID)
     end
 end
-
+--[[
 function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
     local timestamp, eventType, hideCaster,
     srcGUID, srcName, srcFlags, srcFlags2,
@@ -1281,6 +1286,7 @@ function Aptechka:COMBAT_LOG_EVENT_UNFILTERED(event)
         end
     end
 end
+]]
 
 function Aptechka.UNIT_FACTION(self, event, unit)
     self:UpdateMindControl(unit)
@@ -1341,6 +1347,7 @@ end
 
 local afkPlayerTable = {}
 function Aptechka.FrameUpdateAFK(frame, unit)
+    --[[
     local guid = UnitGUID(unit)
     if UnitIsAFK(unit) then
         local startTime = afkPlayerTable[guid]
@@ -1356,6 +1363,7 @@ function Aptechka.FrameUpdateAFK(frame, unit)
         end
         FrameSetJob(frame, config.AwayStatus, false)
     end
+    ]]
 end
 function Aptechka.UNIT_AFK_CHANGED(self, event, unit)
     self:ForEachUnitFrame(unit, Aptechka.FrameUpdateAFK)
@@ -1563,6 +1571,7 @@ local vehicleHack = function (self, time)
 end
 
 function Aptechka.FrameOnEnteredVehicle(frame, unit)
+    --[[
     local state = frame.state
     if not state.isInVehicle then
         local vehicleUnit = SecureButton_GetModifiedUnit(frame)
@@ -1600,6 +1609,7 @@ function Aptechka.FrameOnEnteredVehicle(frame, unit)
             Aptechka.FrameColorize(frame, frame.unitOwner)
         end
     end
+    ]]
 end
 function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameOnEnteredVehicle)
@@ -1625,26 +1635,21 @@ end
 ]]
 local function FrameUpdateRangeAlpha(frame, unit)
     local inRange = AptechkaUnitInRange(unit)
-    local targetAlpha = C_CurveUtil.EvaluateColorValueFromBoolean(inRange, 1, alphaOutOfRange)
-    frame:SetAlpha(targetAlpha)
-    -- if AptechkaUnitInRange(unit) then
-    -- if UnitInRange(unit) then
-    --     frame:SetAlpha(1)
-    -- else
-    --     frame:SetAlpha(alphaOutOfRange)
-    -- elseif frame.state.isPhased then
-    --     frame:SetAlpha(alphaOutOfRange)
-
+    frame:SetAlphaFromBoolean(inRange, 1, alphaOutOfRange)
+    frame.health.fade:SetAlphaFromBoolean(inRange, 1, 0)
 end
 local function FrameResetRangeAlpha(frame, unit)
     frame:SetAlpha(1)
+    frame.health.fade:SetAlpha(1)
 end
 --Range check
 Aptechka.OnRangeUpdate = function (self, time)
 
+    --[[
     if enableStagger then
         Aptechka:UpdateStagger()
     end
+    ]]
 
     if not IsInGroup() then --UnitInRange returns false when not grouped
         Aptechka:ForEachFrame(FrameResetRangeAlpha)
@@ -1711,13 +1716,12 @@ local SpellFailedErrorMessages = {
 }
 function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
     if SpellFailedErrorMessages[errtext] then
-        if LastCastSentTime > GetTime() - 0.5 then
-            for unit in pairs(Roster) do
-                if UnitName(unit) == LastCastTargetName then
-                    Aptechka:ForEachUnitFrame(unit, FrameStartTrace, config.LOSStatus)
-                    return
-                end
-            end
+        if Aptechka.currentMouseoverFrame then
+            local frame = Aptechka.currentMouseoverFrame
+            FrameSetJob(frame, FrameStartTrace, config.LOSStatus)
+        elseif Aptechka.previousTarget then
+            local unit = Aptechka.previousTarget
+            Aptechka:ForEachUnitFrame(unit, FrameStartTrace, config.LOSStatus)
         end
     end
 end
@@ -1949,24 +1953,33 @@ function Aptechka:UpdateTargetStatusConfig()
     if not self.db.global.enableTargetStatus then
         Aptechka:ForEachFrame(function(self) SetJob(self, config.TargetStatus, false) end)
         Aptechka:UnregisterEvent("PLAYER_TARGET_CHANGED")
-        Aptechka:ForEachFrame(function(self) SetJob(self, config.FocusStatus, false) end)
-        Aptechka:UnregisterEvent("PLAYER_FOCUS_CHANGED")
+        -- Aptechka:ForEachFrame(function(self) SetJob(self, config.FocusStatus, false) end)
+        -- Aptechka:UnregisterEvent("PLAYER_FOCUS_CHANGED")
     else
         Aptechka:PLAYER_TARGET_CHANGED()
         Aptechka:RegisterEvent("PLAYER_TARGET_CHANGED")
-        Aptechka:PLAYER_FOCUS_CHANGED()
-        Aptechka:RegisterEvent("PLAYER_FOCUS_CHANGED")
+        -- Aptechka:PLAYER_FOCUS_CHANGED()
+        -- Aptechka:RegisterEvent("PLAYER_FOCUS_CHANGED")
     end
 end
 --Target Indicator
 function Aptechka.PLAYER_TARGET_CHANGED(self, event)
-    local newTargetUnit = guidMap[UnitGUID("target")]
+    local newTargetUnit
+    -- UnitGUID is secret when the unit isn't player-controlled or in the party/raid
+    if not issecretvalue(UnitGUID("target")) then
+        if UnitInParty("target") or UnitInRaid("target") or UnitIsUnit("target", "player") then
+            newTargetUnit = guidMap[UnitGUID("target")]
+        end
+    end
     if newTargetUnit and Roster[newTargetUnit] then
         SetJob(Aptechka.previousTarget, config.TargetStatus, false)
         SetJob(newTargetUnit, config.TargetStatus, true)
         Aptechka.previousTarget = newTargetUnit
     else
-        SetJob(Aptechka.previousTarget, config.TargetStatus, false)
+        if Aptechka.previousTarget then
+            SetJob(Aptechka.previousTarget, config.TargetStatus, false)
+            Aptechka.previousTarget = nil
+        end
     end
 end
 function Aptechka.PLAYER_FOCUS_CHANGED(self, event)
@@ -2589,13 +2602,9 @@ function Aptechka.CreateAnchor(self, num)
     end)
 end
 
-local currentMouseoverFrame
 local onenter = function(self)
     if self.OnMouseEnterFunc then self:OnMouseEnterFunc() end
-    currentMouseoverFrame = self
-    if Aptechka.tooltipPool.modchecks:CheckAND() then
-        Aptechka:ShowDebuffTooltips(self)
-    end
+    Aptechka.currentMouseoverFrame = self
     if AptechkaDB.global.enableMouseoverStatus then
         FrameSetJob(self, config.MouseoverStatus, true)
     end
@@ -2605,29 +2614,10 @@ local onenter = function(self)
 end
 local onleave = function(self)
     if self.OnMouseLeaveFunc then self:OnMouseLeaveFunc() end
-    currentMouseoverFrame = nil
-    Aptechka:HideDebuffTooltips(self)
+    Aptechka.currentMouseoverFrame = nil
     FrameSetJob(self, config.MouseoverStatus, false)
     UnitFrame_OnLeave(self)
     self:SetScript("OnUpdate", nil)
-end
-
-function Aptechka:ShowDebuffTooltipsOnMouseover()
-    if currentMouseoverFrame then
-        Aptechka:HideDebuffTooltips()
-        Aptechka:ShowDebuffTooltips(currentMouseoverFrame)
-    end
-end
-
-function Aptechka:MODIFIER_STATE_CHANGED(event)
-    if currentMouseoverFrame then
-        if Aptechka.tooltipPool.modchecks:CheckAND() then
-            Aptechka:HideDebuffTooltips()
-            Aptechka:ShowDebuffTooltips(currentMouseoverFrame)
-        else
-            Aptechka:HideDebuffTooltips()
-        end
-    end
 end
 
 do
@@ -4133,17 +4123,17 @@ Aptechka.Commands = {
         local unit = v
         local h = false
         for i=1, 100 do
-            local name, _,_,_,duration,_,_,_,_, spellID = UnitAura(unit, i, "HELPFUL")
-            if not name then break end
+            local aura = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL")
+            if not aura then break end
             if not h then print("BUFFS:"); h = true; end
-            print(string.format("    %s (id: %d) Duration: %s", name, spellID, duration or "none" ))
+            print(string.format("    %s (id: %d) Duration: %s", aura.name, aura.spellID, aura.duration or "none" ))
         end
         h = false
         for i=1, 100 do
-            local name, _,_,_,duration,_,_,_,_, spellID = UnitAura(unit, i, "HARMFUL")
-            if not name then break end
+            local aura = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
+            if not aura then break end
             if not h then print("DEBUFFS:"); h = true; end
-            print(string.format("    %s (id: %d) Duration: %s", name, spellID, duration or "none" ))
+            print(string.format("    %s (id: %d) Duration: %s", aura.name, aura.spellID, aura.duration or "none" ))
         end
 
     end,
@@ -4229,6 +4219,7 @@ function Aptechka:VOICE_CHAT_CHANNEL_MEMBER_SPEAKING_STATE_CHANGED(event, member
 end
 
 function Aptechka:UpdateTargetedCountConfig()
+    --[[
     LibTargeted = LibStub("LibTargeted", true)
     if LibTargeted then
         if AptechkaDB.profile.showTargetedCount then
@@ -4243,6 +4234,7 @@ function Aptechka:UpdateTargetedCountConfig()
             end
         end
     end
+    ]]
 end
 
 function Aptechka.FrameUpdateTargetedCount(frame, unit, newCount)
@@ -4280,34 +4272,27 @@ function Aptechka:UpdateIncomingCastsConfig()
 end
 
 function Aptechka.FrameUpdateIncomingCast(frame, unit)
-    local minSrcGUID
-    local minTime
-    local totalCasts = 0
-    for i, castInfo in ipairs(LibTargetedCasts:GetUnitIncomingCastsTable(unit)) do
-        local srcGUID, dstGUID, castType, name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = unpack(castInfo)
-
-        local isImportant = importantTargetedCasts[spellID]
-        if not blacklist[spellID] then
-            totalCasts = totalCasts + 1
-            -- endTime here is used only for the purpose of finding the most important cast with least remaining time
-            -- in the form of caster's srcGUID
-            if castType == "CHANNEL" then endTime = endTime - 5 end -- prioritizing channels
-            if isImportant then endTime = endTime - 100 end
-
-            if not minTime or endTime < minTime then
-                minSrcGUID = srcGUID
-                minTime = endTime
-            end
+    local srcUnit, dstGUID, castType, name, text, texture, startTime, duration, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetUnitIncomingCast(unit)
+    if srcUnit then
+        if castType == "CHANNEL" then
+            r,g,b = 0.8, 1, 0.3
+            isReversed = false
+        else
+            r,g,b = 1, 0.65, 0
+            isReversed = true
         end
-    end
+        frame.incomingCastIcon:Show()
+        local icon = frame.incomingCastIcon
+        icon.cd:SetReverse(isReversed)
+        icon.cd:SetCooldownFromDurationObject(duration)
+        icon.cd:Show()
+        icon.cd:SetSwipeColor(r,g,b)
 
-    local icon = frame.incomingCastIcon
-    if minSrcGUID then
-        local srcGUID, dstGUID, castType, name, text, icon, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetCastInfoBySourceGUID(minSrcGUID)
-        local duration = endTime-startTime
-        FrameSetJob(frame, config.IncomingCastStatus, true, "CAST", castType, name, duration, endTime, totalCasts, icon, spellID, castID)
+        icon.texture:SetTexture(texture)
+        -- FrameSetJob(frame, config.IncomingCastStatus, true, "CAST", castType, name, duration, endTime, totalCasts, texture, spellID, castID)
     else
-        FrameSetJob(frame, config.IncomingCastStatus, false)
+        frame.incomingCastIcon:Hide()
+        -- FrameSetJob(frame, config.IncomingCastStatus, false)
     end
 end
 

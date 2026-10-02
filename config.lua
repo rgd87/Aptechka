@@ -444,7 +444,7 @@ if playerClass == "MONK" then
         119611, -- Renewing Mist
     })
     ChangeWidgetColorForContainer("bar4",  38/255, 221/255, 163/255)
-
+    config.auraContainers.bars.widgetOptions.sampleRect = {0.40, 0.45, 0.05, 0.02}
 
     --Renewing Mist
     A{ id = 119611, type = "HELPFUL", assignto = set("bar4"), refreshTime = 20*0.3, extend_below = 20, isMine = true, color = {38/255, 221/255, 163/255}, infoType = "DURATION" }
