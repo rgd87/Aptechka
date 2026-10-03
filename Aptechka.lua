@@ -8,16 +8,17 @@ end)
 
 --- Compatibility with Classic
 local apiLevel = math.floor(select(4,GetBuildInfo())/10000)
-local isClassic = apiLevel <= 2
+local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local isBC = apiLevel == 2
 -- local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+local isForever = WOW_PROJECT_ID == WOW_PROJECT_CAMELOT
 
 local UnitHasVehicleUI = UnitHasVehicleUI
 local UnitInVehicle = UnitInVehicle
 local UnitUsingVehicle = UnitUsingVehicle
 local UnitGetIncomingHeals = UnitGetIncomingHeals
-local UnitGetTotalAbsorbs = UnitGetTotalAbsorbs
+local UnitHealthPercent = UnitHealthPercent
 local UnitGetTotalHealAbsorbs = UnitGetTotalHealAbsorbs
 local UnitThreatSituation = UnitThreatSituation
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
@@ -26,32 +27,28 @@ local GetSpellName = helpers.GetSpellName
 local GetSpellTexture = helpers.GetSpellTexture
 local GetSpecialization = C_SpecializationInfo and C_SpecializationInfo.GetSpecialization or _G.GetSpecialization
 local GetSpecializationRole = GetSpecializationRole
-local GetActiveTalentGroup = GetActiveTalentGroup
+local GetActiveSpecGroup = C_SpecializationInfo.GetActiveSpecGroup
 local HasIncomingSummon = C_IncomingSummon and C_IncomingSummon.HasIncomingSummon
-local COMBATLOG_OBJECT_AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
+local UnitGetDetailedHealPrediction = UnitGetDetailedHealPrediction
 local COMBATLOG_OBJECT_AFFILIATION_UPTORAID = COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY + COMBATLOG_OBJECT_AFFILIATION_MINE
 
 local dummyNil = function() return nil end
 local dummyFalse = function() return false end
 local dummy0 = function() return 0 end
-if apiLevel <= 5 then
-    UnitGetTotalAbsorbs = dummy0
-    UnitGetTotalHealAbsorbs = dummy0
-    UnitPhaseReason = function(unit) return not UnitInPhase(unit) end
-    HasIncomingSummon = dummyNil
-end
+
 if apiLevel <= 4 then
     GetSpecialization = function() return 1 end
     -- GetSpecializationRole = function(spec)
-    --     local tg = GetActiveTalentGroup()
+    --     local tg = GetActiveSpecGroup()
     --     return GetTalentGroupRole(tg)
     -- end
     GetSpecializationRole = function(spec)
-        local tg = GetActiveTalentGroup()
+        local tg = GetActiveSpecGroup()
         if not AptechkaDB_Char.forcedClassicRole then return "DAMAGER" end
         return AptechkaDB_Char.forcedClassicRole[tg]
     end
 end
+--[[
 if apiLevel <= 2 then
     UnitGroupRolesAssigned = function(unit)
         if GetPartyAssignment("MAINTANK", unit) then return "TANK" end
@@ -61,6 +58,7 @@ if apiLevel <= 2 then
     UnitInVehicle = dummyFalse
     UnitUsingVehicle = dummyFalse
 end
+]]
 
 -- AptechkaUserConfig = setmetatable({},{ __index = function(t,k) return AptechkaDefaultConfig[k] end })
 -- When AptechkaUserConfig __empty__ field is accessed, it will return AptechkaDefaultConfig field
@@ -131,7 +129,6 @@ local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
 local GetAuraHash = helpers.GetAuraHash
 local AptechkaDB
-local NickTag
 local LibSpellLocks
 local LibAuraTypes
 local LibTargeted
@@ -152,7 +149,6 @@ local alphaOutOfRange = 0.45
 local debuffLimit
 local tankUnits = {}
 local staggerUnits = {}
-local LibTranslit = LibStub("LibTranslit-1.0")
 
 local GetIncomingHealsCustom -- upvalue to swap based on HealComm usage
 -- Classic things
@@ -180,7 +176,6 @@ local defaults = {
         RMBClickthrough = false,
         stayUnlocked = false,
         singleHeaderMode = false,
-        enableNickTag = false,
         showAFK = false,
         enableRoles = true,
         translitCyrillic = false,
@@ -318,7 +313,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     local firstTimeUse = AptechkaDB_Global == nil
     AptechkaDB_Global = AptechkaDB_Global or {}
     AptechkaDB_Char = AptechkaDB_Char or {}
-    if apiLevel <= 4 then
+    if isForever then
         if type(AptechkaDB_Char.forcedClassicRole) == "string" then
             local oldRole = AptechkaDB_Char.forcedClassicRole
             AptechkaDB_Char.forcedClassicRole = { [1] = oldRole }
@@ -328,6 +323,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.db = LibStub("AceDB-3.0"):New("AptechkaDB_Global", defaults, "Default") -- Create a DB using defaults and using a shared default profile
     AptechkaDB = self.db
 
+    --[[
     if apiLevel == 1 and self.db.global.forceShamanColor and not CUSTOM_CLASS_COLORS then
         customColors = {
             SHAMAN = {
@@ -338,8 +334,10 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         }
     end
 
+
     -- CUSTOM_CLASS_COLORS is from phanx's ClassColors addons
     colors = setmetatable(customColors or {},{ __index = function(t,k) return (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[k] end })
+    ]]
 
     AptechkaConfigCustom = AptechkaConfigCustom or {}
 
@@ -449,13 +447,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka:SPELLS_CHANGED() -- Does the following:
     -- Aptechka:UpdateRangeChecker()
-    -- Aptechka:UpdateDispelBitmask()
     -- self:LayoutUpdate()
     -- Switches to proper profile for the role
     -- Reconf from it won't run until initialization is finished
-    self:UpdateDebuffScanningMethod()
-    self:UpdateHighlightedDebuffsHashMap()
-
     self:RegisterEvent("UNIT_HEALTH")
     self:RegisterEvent("UNIT_MAXHEALTH")
     self:RegisterEvent("UNIT_CONNECTION")
@@ -522,29 +516,6 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     self:RegisterEvent("INCOMING_RESURRECT_CHANGED")
 
-    --[[
-    NickTag = LibStub("NickTag-1.0", true)
-    if NickTag then
-        NickTag.RegisterCallback("Aptechka", "NickTag_Update", function()
-            Aptechka:ForEachUnitFrame("player", Aptechka.FrameUpdateName)
-        end)
-    end
-    ]]
-
-    LibAuraTypes = LibStub("LibAuraTypes")
-    EffectIndices = {
-        [LibAuraTypes.E_SLOW] = 1,
-        [LibAuraTypes.E_ROOT] = 2,
-        [LibAuraTypes.E_DISORIENT] = 3,
-        [LibAuraTypes.E_DISARM] = 4,
-        [LibAuraTypes.E_SILENCE] = 5,
-        [LibAuraTypes.E_INCAP] = 6,
-        [LibAuraTypes.E_FEAR] = 7,
-        [LibAuraTypes.E_STUN] = 8,
-        [LibAuraTypes.E_ANTIDISPEL] = 9,
-        [LibAuraTypes.E_PHASED] = 10,
-        [LibAuraTypes.E_BADTHING] = 11,
-    }
     -- if AptechkaDB.global.useDebuffOrdering then
         -- LibSpellLocks = LibStub("LibSpellLocks")
 
@@ -813,11 +784,7 @@ end
 function Aptechka.FrameUpdateName(frame, unit)
     local name = frame.state.nameFull
     if Aptechka.db.global.translitCyrillic then
-        name = LibTranslit:Transliterate(name)
-    end
-    if NickTag and Aptechka.db.global.enableNickTag then
-        local nickname = NickTag:GetNickname(name, nil, true) -- name, default, silent
-        if nickname then name = nickname end
+        -- name = LibTranslit:Transliterate(name)
     end
     frame.state.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
     FrameSetJob(frame, config.UnitNameStatus, true, nil, frame.state.name, makeUnique())
@@ -1111,14 +1078,10 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
 
 
     local state = self.state
-    state.healthPercent = perc
+    -- state.healthPercent = perc
     if gradientHealthColor then
         FrameSetJob(self, config.HealthBarColor, true, "HealthBar", h)
     end
-    incomingHeal = mergedIncomingHealing and incomingHeal or 0
-    -- h-hm-incomingHeal-h is not the missing+incoming, but kind of a flag if either deviate more than 5% from max
-    -- ((h-hm-incomingHeal) < hm*-0.05)
-
 
     local healthTextAlpha = UnitHealthPercent(unit, nil, healthTextCurve)
     FrameSetJob(self, config.HealthTextStatus, true, nil, healthMissing, healthPercent, healthTextAlpha)
@@ -1138,7 +1101,6 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     elseif state.wasDead ~= isDead then
         state.isDead = nil
         state.isGhost = nil
-        Aptechka.FrameScanAuras(self, unit)
         FrameSetJob(self, config.GhostStatus, false)
         FrameSetJob(self, config.DeadStatus, false)
         Aptechka.FrameUpdateDisplayPower(self, unit, false)
@@ -1470,7 +1432,7 @@ end
 
 function Aptechka.FrameUpdatePowerMax(frame, unit, ptype)
     if ptype == frame.state.powerType then
-        local powerMax = UnitPowerMax(unit, powerTypeIndex)
+        local powerMax = UnitPowerMax(unit, ptype)
         frame.power:SetMinMaxValues(0, powerMax)
     end
 end
@@ -1561,7 +1523,6 @@ local vehicleHack = function (self, time)
             if frame.absorb then
                 Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
             end
-            Aptechka.FrameScanAuras(frame, owner)
             Aptechka.FrameUpdateMindControl(frame, owner)
 
             -- Stop periodic checks
@@ -1808,17 +1769,6 @@ function Aptechka:UpdateRangeChecker()
     end
 end
 
-function Aptechka:UpdateDispelBitmask()
-    local spec = GetSpecialization() or 1
-    if config.DispelBitmasks and config.DispelBitmasks[spec] then
-        local mask = config.DispelBitmasks[spec]
-        if type(mask) == "function" then mask = mask(spec) end
-        BITMASK_DISPELLABLE = mask
-    else
-        BITMASK_DISPELLABLE = 0
-    end
-end
-
 function Aptechka.GROUP_ROSTER_UPDATE(self,event,arg1)
     RosterUpdateOccured = GetTime()
 
@@ -1843,7 +1793,6 @@ do
     local currentRole
     function Aptechka:SPELLS_CHANGED()
         Aptechka:UpdateRangeChecker()
-        Aptechka:UpdateDispelBitmask()
         Aptechka:ForEachUnitFrame("player", Aptechka.FrameCheckRoles)
         -- enableLowHealthStatus = IsPlayerSpell(265259)
 
@@ -2127,7 +2076,6 @@ local function updateUnitButton(self, unit)
 
     -- HealthBar color update needs some unique value to force update
     FrameSetJob(self,config.HealthBarColor,true, nil, makeUnique())
-    Aptechka.FrameScanAuras(self, unit)
     if #self > 0 then
         self[1] = -1 -- reset range state to undefined
     end
@@ -3009,562 +2957,6 @@ function Aptechka:ForEachFrameOptsWidget(frame, opts, func, ...)
     end
 end
 
-local GetRealID = function(id) return type(id) == "table" and id[1] or id end
------------------------
--- AURAS
------------------------
-
-local function SetDebuffIcon(frame, unit, index, debuffType, expirationTime, duration, icon, count, isBossAura, spellID, spellName)
-    local iconFrame = frame.debuffIcons[index]
-    if debuffType == false then
-        iconFrame:Hide()
-    else
-        iconFrame:SetJob(debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
-        iconFrame:Show()
-
-        local refreshTimestamp = frame.auraEvents[spellID]
-        local now = GetTime()
-        if refreshTimestamp and now - refreshTimestamp < 0.1 then
-            frame.auraEvents[spellID] = nil
-
-            iconFrame.eyeCatcher:Stop()
-            iconFrame.eyeCatcher:Play()
-        end
-    end
-end
-
-local encountered = {}
-
-local function IndicatorAurasProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID )
-    -- local name, icon, count, _, duration, expirationTime, caster, _,_, spellID = UnitAura(unit, i, auraType)
-
-    local opts = auras[spellID] or loadedAuras[spellID]
-    if opts and not opts.disabled then
-        local anySource = not opts.isMine
-        if caster == "player" or anySource then
-            local realID = GetRealID(opts.id)
-            opts.realID = realID
-
-            if anySource then
-                local alreadyEncounteredCaster = encountered[realID]
-                if alreadyEncounteredCaster and alreadyEncounteredCaster == "player" then
-                    return
-                end
-            end
-
-            encountered[realID] = caster or true
-
-            local status = true
-            if opts.isMissing then status = false end
-
-            local minduration = opts.extend_below
-            if minduration and duration < minduration then
-                duration = minduration
-            end
-            -- local hash = GetAuraHash(spellID, duration, expirationTime, count, caster)
-
-            FrameSetJob(frame, opts, status, "AURA", duration, expirationTime, count, icon, spellID, caster)
-        end
-    end
-end
-
-local function IndicatorAurasPostUpdate(frame, unit)
-            for realID, opts in pairs(frame.activeAuras) do
-                if not encountered[realID] then
-                    FrameSetJob(frame, opts, false)
-                    frame.activeAuras[realID] = nil
-                end
-            end
-            for missingRealID, missingOpts in pairs(missingFlagSpells) do
-                local isPresent
-                for realID, _ in pairs(encountered) do
-                    if missingRealID == realID then
-                        isPresent = true
-                        break
-                    end
-                end
-                if not isPresent then
-                    local isKnown = true
-                    if missingOpts.isKnownCheck then
-                        isKnown = missingOpts.isKnownCheck(unit)
-                    end
-                    if isKnown then
-                        local duration, expirationTime, count, icon, spellID, caster = 0, 0, 0, GetSpellTexture(missingRealID), missingRealID
-                        FrameSetJob(frame, missingOpts, true, "AURA", duration, expirationTime, count, icon, spellID, caster)
-                    end
-                end
-            end
-end
-
------------------------
--- Debuff Handling
------------------------
-
-local debuffList = {}
-local sortfunc = function(a,b)
-    return a[2] > b[2]
-end
-local visType = "RAID_OUTOFCOMBAT"
-
-local function UtilShouldDisplayDebuff(spellId, unitCaster, visType)
-    if spellId == 212183 then -- smoke bomb
-        local reaction = unitCaster and UnitReaction("player", unitCaster) or 0
-        return reaction <= 4 -- display enemy smoke bomb, hide friendly
-    end
-    local hasCustom, alwaysShowMine, showForMySpec = SpellGetVisibilityInfo(spellId, visType);
-    if ( hasCustom ) then
-        return showForMySpec or (alwaysShowMine and (unitCaster == "player" or unitCaster == "pet" or unitCaster == "vehicle") );	--Would only be "mine" in the case of something like forbearance.
-    else
-        return true;
-    end
-end
-
-local function SpellLocksProc(unit)
-    -- local spellLocked = LibSpellLocks:GetSpellLockInfo(unit)
-    local spellID, name, icon, duration, expirationTime = LibSpellLocks:GetSpellLockInfo(unit)
-    if spellID then
-        tinsert(debuffList, { -1, LibAuraTypes.GetAuraTypePriority("SILENCE", "ALLY")})
-    end
-end
-
----------------------------
--- Ordered
----------------------------
-local function UnpackAuraData(auraData)
-    return
-     -- name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
-        auraData.name,
-        auraData.icon,
-        auraData.applications,
-        auraData.dispelName,
-        auraData.duration,
-        auraData.expirationTime,
-        auraData.sourceUnit,
-        nil,
-        nil,
-        auraData.spellId,
-        nil,
-        auraData.isBossAura
-end
-
-local GetAuraDataUniversal -- If available it's using slots API, otherwise just normal UnitAura
-if apiLevel <= 4 then
-    GetAuraDataUniversal = C_UnitAuras.GetAuraDataByIndex
-    ForEachAura = function(frame, unit, filter, batchSize, func)
-        for i=1,100 do
-            local auraData = GetAuraDataUniversal(unit, i, filter)
-            if not auraData then break end
-            func(frame, unit, i, nil, filter, auraData)
-        end
-    end
-else
-    GetAuraDataUniversal = C_UnitAuras.GetAuraDataBySlot
-    -- ForEachAura = helpers.ForEachAura -- This one is using Slots API
-end
-
-
-local BITMASK_DISEASE = helpers.BITMASK_DISEASE
-local BITMASK_POISON = helpers.BITMASK_POISON
-local BITMASK_CURSE = helpers.BITMASK_CURSE
-local BITMASK_MAGIC = helpers.BITMASK_MAGIC
-local function GetDebuffTypeBitmask(debuffType)
-    if debuffType == "Magic" then
-        return BITMASK_MAGIC
-    elseif debuffType == "Poison" then
-        return BITMASK_POISON
-    elseif debuffType == "Disease" then
-        return BITMASK_DISEASE
-    elseif debuffType == "Curse" then
-        return BITMASK_CURSE
-    end
-    return 0
-end
-
-function Aptechka.OrderedDebuffProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
-    if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
-        local prio, spellType = LibAuraTypes.GetAuraInfo(spellID, "ALLY")
-        if not prio then
-            prio = (isBossAura and 60) or 0
-        end
-        if debuffType then
-            local mask = GetDebuffTypeBitmask(debuffType)
-            if bit_band( mask, BITMASK_DISPELLABLE ) > 0 then
-                prio = prio + 15
-            end
-        end
-        tinsert(debuffList, { slot, index, prio, filter })
-        -- tinsert(debuffList, { index, prio, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura })
-        return 1
-    end
-    return 0
-end
-
-function Aptechka.OrderedBuffProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
-    if isBossAura and not blacklist[spellID] then
-        local prio = 60
-        tinsert(debuffList, { slot, index, prio, filter })
-        return 1
-    end
-    return 0
-end
-
-function Aptechka.OrderedDebuffPostUpdate(frame, unit)
-    local debuffIcons = frame.debuffIcons
-    local debuffLineLength = debuffIcons.maxChildren
-    local shown = 0
-    local fill = 0
-
-    if LibSpellLocks then
-        SpellLocksProc(unit)
-    end
-
-    tsort(debuffList, sortfunc)
-
-    for i, debuffIndexCont in ipairs(debuffList) do
-        local slot, index, prio, auraFilter = unpack(debuffIndexCont)
-        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura
-        local slotOrIndex = slot or index
-        if slotOrIndex >= 0 then
-            local auraData = GetAuraDataUniversal(unit, slotOrIndex, auraFilter)
-            name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnpackAuraData(auraData)
-            if auraFilter == "HELPFUL" then
-                debuffType = "Helpful"
-            end
-
-            if prio >= 50 then -- 50 is roots
-                isBossAura = true
-            end
-        else
-            spellID, name, icon, duration, expirationTime = LibSpellLocks:GetSpellLockInfo(unit)
-            count = 0
-            isBossAura = true
-        end
-
-        fill = fill + (isBossAura and Aptechka._BossDebuffScale or 1)
-
-        if fill <= debuffLineLength then
-            shown = shown + 1
-            debuffIcons:SetDebuffIcon(frame, unit, shown, auraFilter, index, name, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
-        else
-            break
-        end
-    end
-
-    for i=shown+1, debuffLineLength do
-        debuffIcons:SetDebuffIcon(frame, unit, i, nil)
-    end
-end
-
----------------------------
--- Simple
----------------------------
---[[
-function Aptechka.SimpleDebuffProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
-    if UtilShouldDisplayDebuff(spellID, caster, visType) and not blacklist[spellID] then
-        if isBossAura then
-            tinsert(debuffList, 1, slot or index)
-        else
-            tinsert(debuffList, slot or index)
-        end
-    end
-end
-
-function Aptechka.SimpleBuffProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID, canApplyAura, isBossAura)
-    -- Uncommen when moving to Slot API
-    if isBossAura then
-        tinsert(debuffList, 1, slot or index)
-    end
-end
-
-function Aptechka.SimpleDebuffPostUpdate(frame, unit)
-    local shown = 0
-    local fill = 0
-    local debuffIcons = frame.debuffIcons
-    local debuffLineLength = debuffIcons.maxChildren
-
-    for i, indexOrSlot in ipairs(debuffList) do
-        local name, icon, count, debuffType, duration, expirationTime, caster, _,_, spellID, canApplyAura, isBossAura = UnitAuraUniversal(unit, indexOrSlot, "HARMFUL")
-
-        fill = fill + (isBossAura and Aptechka._BossDebuffScale or 1)
-
-        if fill <= debuffLineLength then
-            shown = shown + 1
-            debuffIcons:SetDebuffIcon(frame, unit, shown, name, debuffType, expirationTime, duration, icon, count, isBossAura, spellID)
-        else
-            break
-        end
-    end
-
-    for i=shown+1, debuffLineLength do
-        debuffIcons:SetDebuffIcon(frame, unit, i, nil)
-    end
-end
-]]
----------------------------
--- Debuff Highlight
----------------------------
-local highlightedDebuffsBits -- Resets to 0 at the start of every aura scan
-function Aptechka.HighlightProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID)
-    if highlightedDebuffs[spellID] then
-        local opts = highlightedDebuffs[spellID]
-        local priority = opts[2]
-        highlightedDebuffsBits = helpers.SetBit( highlightedDebuffsBits, priority)
-        return true
-    end
-end
-
-function Aptechka.HighlightPostUpdate(frame, unit)
-    if frame.state.highlightedDebuffsBits ~= highlightedDebuffsBits then
-        FrameSetJob(frame, config.DebuffAlert1, helpers.CheckBit(highlightedDebuffsBits, 1), "DEBUFF_HIGHLIGHT")
-        FrameSetJob(frame, config.DebuffAlert2, helpers.CheckBit(highlightedDebuffsBits, 2), "DEBUFF_HIGHLIGHT")
-        FrameSetJob(frame, config.DebuffAlert3, helpers.CheckBit(highlightedDebuffsBits, 3), "DEBUFF_HIGHLIGHT")
-        FrameSetJob(frame, config.DebuffAlert4, helpers.CheckBit(highlightedDebuffsBits, 4), "DEBUFF_HIGHLIGHT")
-        FrameSetJob(frame, config.DebuffAlert5, helpers.CheckBit(highlightedDebuffsBits, 5), "DEBUFF_HIGHLIGHT")
-        frame.state.highlightedDebuffsBits = highlightedDebuffsBits
-    end
-end
-local HighlightProc = Aptechka.HighlightProc
-local HighlightPostUpdate = Aptechka.HighlightPostUpdate
-
----------------------------
--- Effect List
----------------------------
-local CCListBits -- Resets to 0 at the start of every aura scan
--- local EffectIndices = {
---     [LibAuraTypes.E_SLOW] = 1,
---     [LibAuraTypes.E_ROOT] = 2,
---     [LibAuraTypes.E_DISORIENT] = 3,
---     [LibAuraTypes.E_DISARM] = 4,
---     [LibAuraTypes.E_SILENCE] = 5,
---     [LibAuraTypes.E_INCAP] = 6,
---     [LibAuraTypes.E_FEAR] = 7,
---     [LibAuraTypes.E_STUN] = 8,
---     [LibAuraTypes.E_ANTIDISPEL] = 9,
---     [LibAuraTypes.E_PHASED] = 10,
---     [LibAuraTypes.E_BADTHING] = 11,
--- }
-
-local EffectOpts = {
-    { name = "E_SLOW", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Slow ", priority = 10 },
-    { name = "E_ROOT", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Root ", priority = 20 },
-    { name = "E_DISORIENT", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Disorient ", priority = 30 },
-    { name = "E_DISARM", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Disarm ", priority = 40 },
-    { name = "E_SILENCE", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Silence ", priority = 50 },
-    { name = "E_INCAP", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Incap ", priority = 60 },
-    { name = "E_FEAR", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Fear ", priority = 70 },
-    { name = "E_STUN", assignto = helpers.set("CCList"), infoType = "DURATION", text = "Stun ", priority = 80 },
-    { name = "E_ANTIDISPEL", assignto = helpers.set("CCList"), color = { 1,0,1 }, infoType = "DURATION", text = "Anti-Dispel ", priority = 90 },
-    { name = "E_PHASED", assignto = helpers.set("CCList"), color = { 1,0,1 }, infoType = "DURATION", text = "Phased ", priority = 100 },
-    { name = "E_BADTHING", assignto = helpers.set("CCList"), color = { 1,0,1 }, infoType = "DURATION", text = "BadThing ", priority = 110 },
-}
-
-local effectData = { 1,2,3,4,5,6,8,9,10,11 }
-local effectDataPrio = { 1,2,3,4,5,6,8,9,10,11 }
-local function table_fill(tbl, num)
-    for i=1,#tbl do
-        tbl[i] = num
-    end
-end
-
-function Aptechka.EffectListProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID)
-    local prio, spellType, _sid, effectType = LibAuraTypes.GetAuraInfo(spellID, "ALLY")
-    if effectType then
-        local effectIndex = EffectIndices[effectType]
-        CCListBits = helpers.SetBit( CCListBits, effectIndex)
-
-        local currentPrio = effectDataPrio[effectIndex] or -100
-        if prio >= currentPrio then
-            effectData[effectIndex] = slot or index
-            effectDataPrio[effectIndex] = prio
-        end
-    end
-end
-
-function Aptechka.EffectListPostUpdate(frame, unit)
-
-    -- While some effects are present update info on them continuously
-    if CCListBits > 0 then
-        for i=1,11 do
-            if helpers.CheckBit(CCListBits, i) then
-                local opts = EffectOpts[i]
-
-                local indexOrSlot =  effectData[i]
-
-                local auraData = GetAuraDataUniversal(unit, indexOrSlot, "HARMFUL")
-                local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnpackAuraData(auraData)
-
-                -- local duration = 15
-                -- local expirationTime = GetTime()+20
-                -- local count = 1
-                -- local icon = 136202
-                -- local spellID = 17
-
-                FrameSetJob(frame, opts, true, "CCEFFECT", dt, duration, expirationTime, count, icon, spellID, caster)
-            end
-        end
-    end
-
-    -- When something is changed in the list remove all the now missing statuses
-    if CCListBits ~= frame.CCListBits then
-        -- local bitsNow = CCListBits
-        -- local bitsBefore = frame.CCListBits or 0
-
-        for i=1,11 do
-            if not helpers.CheckBit(CCListBits, i) then
-                local opts = EffectOpts[i]
-                FrameSetJob(frame, opts, false)
-            end
-        end
-    end
-    frame.CCListBits = CCListBits
-end
-
----------------------------
--- Dispel Type Indicator
----------------------------
-local debuffTypeMask -- Resets to 0 at the start of every aura scan
-local maxDispelType = 0
-local maxIndexOrSlot
-function Aptechka.DispelTypeProc(frame, unit, index, slot, filter, name, icon, count, debuffType, duration, expirationTime, caster, isStealable, nameplateShowSelf, spellID)
-    if debuffType and not blacklist[spellID] then
-        local DTconst = GetDebuffTypeBitmask(debuffType)
-        debuffTypeMask = bit_bor( debuffTypeMask, DTconst)
-        if DTconst >= maxDispelType and bit_band( DTconst, BITMASK_DISPELLABLE) > 0 then
-            maxDispelType = DTconst
-            maxIndexOrSlot = slot or index
-        end
-    end
-end
-
-function Aptechka.DispelTypePostUpdate(frame, unit)
-    local debuffTypeMaskDispellable = bit_band( debuffTypeMask, BITMASK_DISPELLABLE )
-
-    if debuffTypeMaskDispellable == 0 then
-        if frame.debuffTypeMask ~= debuffTypeMaskDispellable then -- Only disable once
-            FrameSetJob(frame, config.DispelStatus, false)
-        end
-    else
-        local indexOrSlot = maxIndexOrSlot
-        local auraData = GetAuraDataUniversal(unit, indexOrSlot, "HARMFUL")
-        local name, icon, count, dt, duration, expirationTime, caster, _,_, spellID = UnpackAuraData(auraData)
-        FrameSetJob(frame, config.DispelStatus, true, "DISPELTYPE", dt, duration, expirationTime, count, icon, spellID, caster)
-    end
-    frame.debuffTypeMask = debuffTypeMaskDispellable
-end
-function Aptechka.DummyFunction() end
-
-
-local handleBuffs = function(frame, unit, index, slot, filter, auraData)
-    local name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID = UnpackAuraData(auraData)
-
-    IndicatorAurasProc(frame, unit, index, slot, filter,    name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
-    BuffProc(frame, unit, index, slot, filter,    name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
-end
-
-local handleDebuffs = function(frame, unit, index, slot, filter, auraData)
-    local name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID = UnpackAuraData(auraData)
-    IndicatorAurasProc(frame, unit, index, slot, filter,      name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
-    DebuffProc(frame, unit, index, slot, filter,      name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
-    HighlightProc(frame, unit, index, slot, filter,      name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
-    DispelTypeProc(frame, unit, index, slot, filter,      name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
-    EffectListProc(frame, unit, index, slot, filter,      name, icon, count, debuffType, duration, expirationTime, caster, _, _, spellID)
-end
-
-function Aptechka.FrameScanAuras(frame, unit)
-    --[[
-    -- indicator cleanup
-    table_wipe(encountered)
-    debuffTypeMask = 0
-    maxDispelType = 0
-    highlightedDebuffsBits = 0
-    -- debuffs cleanup
-    table_wipe(debuffList)
-    CCListBits = 0
-    table_fill(effectDataPrio, -100)
-
-
-    visType = UnitAffectingCombat("player") and "RAID_INCOMBAT" or "RAID_OUTOFCOMBAT"
-
-    -- New API (Universal)
-    ForEachAura(frame, unit, "HELPFUL", 5, handleBuffs)
-    ForEachAura(frame, unit, "HARMFUL", 5, handleDebuffs)
-
-    IndicatorAurasPostUpdate(frame, unit)
-    DebuffPostUpdate(frame, unit)
-    DispelTypePostUpdate(frame, unit)
-    EffectListPostUpdate(frame, unit)
-    HighlightPostUpdate(frame, unit)
-    ]]
-end
-function Aptechka.ScanAuras(unit)
-    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameScanAuras)
-end
-
-local debugprofilestop = debugprofilestop
-function Aptechka.UNIT_AURA(self, event, unit)
-    if not Roster[unit] then return end
-    -- local beginTime1 = debugprofilestop();
-    Aptechka.ScanAuras(unit)
-    -- local timeUsed1 = debugprofilestop();
-    -- print("ScanAuras", timeUsed1 - beginTime1)
-end
-
-
-function Aptechka:UpdateDebuffScanningMethod()
-    local useOrdering = AptechkaDB.global.useDebuffOrdering
-    --[[
-    if AptechkaDB.global.useDebuffOrdering  then
-        local numMembers = GetNumGroupMembers()
-        local _, instanceType = GetInstanceInfo()
-        local isBattleground = instanceType == "arena" or instanceType == "pvp"
-        useOrdering = not IsInRaid() or (isBattleground and numMembers <= 15)
-    end
-    ]]
-    -- if useOrdering then
-        DebuffProc = Aptechka.OrderedDebuffProc
-        BuffProc = Aptechka.OrderedBuffProc
-        DebuffPostUpdate = Aptechka.OrderedDebuffPostUpdate
-    -- else
-    --     DebuffProc = Aptechka.SimpleDebuffProc
-    --     BuffProc = Aptechka.SimpleBuffProc
-    --     DebuffPostUpdate = Aptechka.SimpleDebuffPostUpdate
-    -- end
-    if AptechkaDB.profile.showDispels then
-        DispelTypeProc = Aptechka.DispelTypeProc
-        DispelTypePostUpdate = Aptechka.DispelTypePostUpdate
-    else
-        DispelTypeProc = Aptechka.DummyFunction
-        DispelTypePostUpdate = Aptechka.DummyFunction
-    end
-    local useCCList = Aptechka.db.profile.showCCList
-    if useCCList then
-        EffectListProc = Aptechka.EffectListProc
-        EffectListPostUpdate = Aptechka.EffectListPostUpdate
-    else
-        EffectListProc = Aptechka.DummyFunction
-        EffectListPostUpdate = Aptechka.DummyFunction
-    end
-end
-
-function Aptechka:UpdateHighlightedDebuffsHashMap()
-    table.wipe(highlightedDebuffs)
-    for cat, spells in pairs(config.defaultDebuffHighlights) do
-        for spellId, opts in pairs(spells) do
-            highlightedDebuffs[spellId] = opts
-        end
-    end
-    for cat, spells in pairs(self.db.global.customDebuffHighlights) do
-        for spellId, opts in pairs(spells) do
-            if opts == false then
-                highlightedDebuffs[spellId] = nil
-            else
-                highlightedDebuffs[spellId] = opts
-            end
-        end
-    end
-end
-
-
 function Aptechka:TestProfileSwaps()
     local numMembers = math.random(40)
     local fakeRole = math.random(2) == 2 and "HEALER" or "DAMAGER"
@@ -3842,7 +3234,7 @@ Aptechka.Commands = {
         if not AptechkaDB_Char.forcedClassicRole then
             AptechkaDB_Char.forcedClassicRole = {}
         end
-        local tg = GetActiveTalentGroup()
+        local tg = GetActiveSpecGroup()
         if v == "HEALER" then
             AptechkaDB_Char.forcedClassicRole[tg] = v
         else
@@ -4274,6 +3666,7 @@ end
 function Aptechka.FrameUpdateIncomingCast(frame, unit)
     local srcUnit, dstGUID, castType, name, text, texture, startTime, duration, isTradeSkill, castID, notInterruptible, spellID = LibTargetedCasts:GetUnitIncomingCast(unit)
     if srcUnit then
+        local r,g,b, isReversed
         if castType == "CHANNEL" then
             r,g,b = 0.8, 1, 0.3
             isReversed = false

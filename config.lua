@@ -176,7 +176,7 @@ config.auraContainers = {
         includeSpellIDs = {}
     },
 }
-local function AddAuraToContainer(slotName, spellIDs)
+function helpers.AddAuraToContainer(slotName, spellIDs)
     if not config.auraContainers[slotName] then return end
     local slotConfig = config.auraContainers[slotName]
 
@@ -186,14 +186,16 @@ local function AddAuraToContainer(slotName, spellIDs)
         end
     end
 end
+local AddAuraToContainer = helpers.AddAuraToContainer
 
-local function ChangeWidgetColorForContainer(slotName, r,g,b,a)
+function helpers.ChangeWidgetColorForContainer(slotName, r,g,b,a)
     if not config.auraContainers[slotName] then return end
     local slotConfig = config.auraContainers[slotName]
     slotConfig.widgetOptions = slotConfig.widgetOptions or {}
     if not a then a = 1 end
     slotConfig.widgetOptions.color = {r,g,b,a}
 end
+local ChangeWidgetColorForContainer = helpers.ChangeWidgetColorForContainer
 
 local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 if not isMainline then return end

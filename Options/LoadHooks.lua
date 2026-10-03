@@ -80,6 +80,7 @@ function f.Open()
                 value = profileSelOptName,
                 text = profileSelName,
             },
+            --[[
             {
                 value = "HIGHLIGHTS",
                 text = highlightingName,
@@ -97,6 +98,7 @@ function f.Open()
                 value = "SPELLLIST",
                 text = spellListName,
             },
+            ]]
             {
                 value = "BLACKLIST",
                 text = blacklistName,
@@ -107,7 +109,7 @@ function f.Open()
             HIGHLIGHTS = highlightingFrame,
             BLACKLIST = blacklistFrame,
             SPELLLIST = spellListFrame,
-            WIDGETCONFIG = widgetsFrame,
+            -- WIDGETCONFIG = widgetsFrame,
         }
 
         treegroup.text = "123"
@@ -141,6 +143,6 @@ function f.Open()
         window.treegroup = treegroup
     end
 
-    window:Show()
-    window.treegroup:SelectByPath(profileOptName)
+    -- window:Show()
+    -- window.treegroup:SelectByPath(profileOptName)
 end

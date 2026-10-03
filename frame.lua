@@ -337,9 +337,9 @@ end
 
 local contentNormalizers = {}
 function contentNormalizers.HealthText(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
+    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, _
     local perc
-    r,g,b, a, tr,tg,tb = GetClassOrTextColor(job, state)
+    r,g,b, _, tr,tg,tb = GetClassOrTextColor(job, state)
 
     cur, perc, a = ...
     text = cur --FormatText(job, cur, max, incomingHeal)
@@ -3613,7 +3613,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
         -- },
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             local pixel = pixelperfect(1)
-            button:SetSize(pixelperfect(18), pixelperfect(15));
+            button:SetSize(pixelperfect(16), pixelperfect(13));
             -- button:SetHideTooltipInCombat(true)
 
             CreateAuraButtonDebuffIcon(button)
@@ -3757,7 +3757,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.raidicon = raidicon
     self.healabsorb = healAbsorb
     self.absorb = absorb
-    self.absorb2 = absorb2
+    -- self.absorb2 = absorb2
 
     self.OnMouseEnterFunc = OnMouseEnterFunc
     self.OnMouseLeaveFunc = OnMouseLeaveFunc

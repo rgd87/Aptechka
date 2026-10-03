@@ -260,4 +260,18 @@ globals = {
     "CompactRaidFrameManager_GetSetting",
     "CompactRaidFrameManager_SetSetting",
     "CompactRaidFrameContainer",
+
+    "CreateUnitHealPredictionCalculator",
+    "AnchorUtil",
+    "PixelUtil",
+    "UnitGetDetailedHealPrediction",
+    "UnitInParty",
+    "UnitInRaid",
+    "C_CurveUtil",
+    "CurveConstants",
+    "C_ClassColor",
+    "issecretvalue",
+    "UnitHealthMissing",
+    "UnitHealthPercent",
+    "GetUnitMaxHealthModifier",
 }
