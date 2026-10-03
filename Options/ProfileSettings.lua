@@ -215,6 +215,7 @@ function ns.MakeProfileSettings()
                     },
                     showCasts = {
                         name = L"Show Incoming Casts",
+                        desc = "Openworld only",
                         disabled = isClassic,
                         type = "toggle",
                         get = function(info) return Aptechka.db.profile.showCasts end,
@@ -224,6 +225,7 @@ function ns.MakeProfileSettings()
                         end,
                         order = 12,
                     },
+                    --[[
                     damageEffect = {
                         name = L"Damage Effect",
                         type = "toggle",
@@ -233,58 +235,6 @@ function ns.MakeProfileSettings()
                             Aptechka:UpdateUnprotectedUpvalues()
                         end,
                         order = 16,
-                    },
-                    auraUpdateEffect = {
-                        name = L"Aura Update Effect",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.profile.auraUpdateEffect end,
-                        set = function(info, v)
-                            Aptechka.db.profile.auraUpdateEffect = not Aptechka.db.profile.auraUpdateEffect
-                            Aptechka:UpdateUnprotectedUpvalues()
-                        end,
-                        order = 17,
-                    },
-                    floatingIcon = {
-                        name = L"Buff Gain Floating Icons",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.profile.showFloatingIcons end,
-                        set = function(info, v)
-                            Aptechka.db.profile.showFloatingIcons = not Aptechka.db.profile.showFloatingIcons
-                            Aptechka:UpdateUnprotectedUpvalues()
-                        end,
-                        order = 18,
-                    },
-                    CCList = {
-                        name = L"CC List (PvP)",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.profile.showCCList end,
-                        set = function(info, v)
-                            Aptechka.db.profile.showCCList = not Aptechka.db.profile.showCCList
-                            Aptechka:UpdateDebuffScanningMethod()
-                        end,
-                        order = 18.1,
-                    },
-                    clampIncomingHeal = {
-                        name = L"Clamp Inc.Heal"..newFeatureIcon,
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.profile.clampIncomingHeal end,
-                        set = function(info, v)
-                            Aptechka.db.profile.clampIncomingHeal = not Aptechka.db.profile.clampIncomingHeal
-                            Aptechka:ReconfigureUnprotected()
-                        end,
-                        order = 18.12,
-                    },
-                    targetedCount = {
-                        name = L"Enemy Counter"..newFeatureIcon,
-                        desc = "Shows how many enemies target a unit, mostly for PvP",
-                        type = "toggle",
-                        width = "full",
-                        get = function(info) return Aptechka.db.profile.showTargetedCount end,
-                        set = function(info, v)
-                            Aptechka.db.profile.showTargetedCount = not Aptechka.db.profile.showTargetedCount
-                            Aptechka:UpdateTargetedCountConfig()
-                        end,
-                        order = 18.2,
                     },
                     showPowerTypesTank = {
                         name = L"Show Tank Power"..newFeatureIcon,
@@ -310,6 +260,7 @@ function ns.MakeProfileSettings()
                         end,
                         order = 18.4,
                     },
+                    ]]
                     maxGroups = {
                         name = L"Max Groups",
                         type = "range",

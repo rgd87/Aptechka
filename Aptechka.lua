@@ -784,10 +784,10 @@ end
 function Aptechka.FrameUpdateName(frame, unit)
     local name = frame.state.nameFull
     if Aptechka.db.global.translitCyrillic then
-        -- name = LibTranslit:Transliterate(name)
+        name = name and C_Intl.Transliterate(name, "Any-Latin")
     end
-    frame.state.name = name and utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
-    FrameSetJob(frame, config.UnitNameStatus, true, nil, frame.state.name, makeUnique())
+    frame.text1.text:SetText(name)
+    -- FrameSetJob(frame, config.UnitNameStatus, true, nil, frame.state.name, makeUnique())
 end
 
 function Aptechka.GetWidgetListRaw()
@@ -832,11 +832,9 @@ function Aptechka:Reconfigure()
     self:ReconfigureUnprotected()
     self:ReconfigureAllWidgets()
 
-    self:UpdateDebuffScanningMethod()
     self:UpdateRaidIconsConfig()
     self:UpdateAggroConfig()
     self:UpdateIncomingCastsConfig()
-    self:UpdateOutgoingCastsConfig()
 end
 function Aptechka:RefreshAllUnitsHealth()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateHealth)
@@ -846,8 +844,6 @@ function Aptechka:RefreshAllUnitsHealth()
 end
 function Aptechka.FrameUpdateUnitColor(frame, unit)
     Aptechka.FrameColorize(frame, unit)
-    FrameSetJob(frame, config.UnitNameStatus, true, nil, makeUnique())
-    FrameSetJob(frame, config.HealthBarColor, true, nil, makeUnique())
     if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true, "POWERCOLOR", frame.state.powerType, makeUnique()) end
 end
 function Aptechka:RefreshAllUnitsColors()
@@ -1976,33 +1972,42 @@ end
 --applying UnitButton color
 
 function Aptechka.FrameColorize(frame, unit)
-    local hdr = frame:GetParent()
+    -- if gradientHealthColor then
+        -- frame.health:SetColor
+        -- state.healthColor1 = profile.healthColor1
+        -- end
 
-    local state = frame.state
+        -- state.gradientHealthColor = profile.gradientHealthColor
+        -- if profile.gradientHealthColor then
+        --     state.healthColor2 = profile.healthColor2
+        --     state.healthColor3 = profile.healthColor3
+        -- end
+    -- else
+        local hdr = frame:GetParent()
+        local profile = Aptechka.db.profile
 
-    local profile = Aptechka.db.profile
-
-    if hdr.isPetGroup then
-        state.classColor = profile.petColor
-    else
         local _,class = UnitClass(unit)
-        if class then
-            local color = C_ClassColor.GetClassColor(class)
-            state.classColor = {color.r,color.g,color.b}
+        local color = C_ClassColor.GetClassColor(class)
+
+        if hdr.isPetGroup then
+            color = CreateColor(unpack(profile.petColor))
         end
-    end
 
-    if profile.healthColorByClass then
-        state.healthColor1 = state.classColor
-    else
-        state.healthColor1 = profile.healthColor1
-    end
+        local r,g,b = color:GetRGB()
 
-    state.gradientHealthColor = profile.gradientHealthColor
-    if profile.gradientHealthColor then
-        state.healthColor2 = profile.healthColor2
-        state.healthColor3 = profile.healthColor3
-    end
+        local mulFG = profile.fgColorMultiplier or 1
+        local mulBG = profile.bgColorMultiplier or 0.2
+        if fgShowMissing then
+            frame.health.bg:SetColor(r,g,b, mulFG)
+            frame.health:SetColor(r,g,b, mulBG)
+        else
+            frame.health:SetColor(r,g,b, mulFG)
+            frame.health.bg:SetColor(r,g,b, mulBG)
+        end
+
+        frame.health:SetColor(r, g, b, 0.2)
+        frame.text1.text:SetTextColor(r, g, b)
+    -- end
 end
 
 function Aptechka.Colorize(self, event, unit)
@@ -2057,7 +2062,7 @@ local function updateUnitButton(self, unit)
     if not unit then return end
 
     local name, realm = UnitName(owner)
-    if name == UNKNOWNOBJECT or name == nil then
+    if canaccessvalue(name) and name == UNKNOWNOBJECT or name == nil then
         has_unknowns = true
     end
 
@@ -2075,7 +2080,6 @@ local function updateUnitButton(self, unit)
     Aptechka.FrameUpdateName(self, owner)
 
     -- HealthBar color update needs some unique value to force update
-    FrameSetJob(self,config.HealthBarColor,true, nil, makeUnique())
     if #self > 0 then
         self[1] = -1 -- reset range state to undefined
     end
@@ -3518,14 +3522,14 @@ Aptechka.Commands = {
             local aura = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL")
             if not aura then break end
             if not h then print("BUFFS:"); h = true; end
-            print(string.format("    %s (id: %d) Duration: %s", aura.name, aura.spellID, aura.duration or "none" ))
+            print(string.format("    %s (id: %d) Duration: %s", aura.name, aura.spellId, aura.duration or "none" ))
         end
         h = false
         for i=1, 100 do
             local aura = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
             if not aura then break end
             if not h then print("DEBUFFS:"); h = true; end
-            print(string.format("    %s (id: %d) Duration: %s", aura.name, aura.spellID, aura.duration or "none" ))
+            print(string.format("    %s (id: %d) Duration: %s", aura.name, aura.spellId, aura.duration or "none" ))
         end
 
     end,

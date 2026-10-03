@@ -342,7 +342,7 @@ function contentNormalizers.HealthText(job, state, contentType, ...)
     r,g,b, _, tr,tg,tb = GetClassOrTextColor(job, state)
 
     cur, perc, a = ...
-    text = cur --FormatText(job, cur, max, incomingHeal)
+    text = string.format("-%d", cur) --FormatText(job, cur, max, incomingHeal)
     return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 -- contentNormalizers.AbsorbText = contentNormalizers.HealthText
@@ -663,6 +663,7 @@ local HealthBarSetColorBG = function(self, r,g,b, mul)
     self:SetVertexColor(r*mul, g*mul, b*mul, 1)
 end
 
+--[[
 local SetJob_HealthBar = function(self, job, state, contentType, ...)
     local profile = Aptechka.db.profile
     local r,g,b
@@ -706,6 +707,9 @@ local SetJob_HealthBar = function(self, job, state, contentType, ...)
         -- end
     end
 end
+]]
+
+
 local SetJob_PowerBar = function(self, job, state, contentType, ...)
     local profile = Aptechka.db.profile
     local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
@@ -737,17 +741,14 @@ local forcedStandardFillPowerTypes = {
 local PowerBar_OnPowerTypeChange = function(powerbar, powerType, hidePower)
     local self = powerbar:GetParent()
 
-    local isInverted = Aptechka.db.profile.fgShowMissing
-    if not isInverted then
-        self.power:SetFillStyleLock(false)
-        self.power:SetFillStyle("STANDARD")
+    local fgShowMissing = Aptechka.db.profile.fgShowMissing
+    if not fgShowMissing then
+        self.power:SetFillStyle(Enum.StatusBarFillStyle.Standard)
     else
         if forcedStandardFillPowerTypes[powerType] then
-            self.power:SetFillStyle("STANDARD")
-            -- self.power:SetFillStyleLock(true)
+            self.power:SetFillStyle(Enum.StatusBarFillStyle.Reverse)
         else
-            -- self.power:SetFillStyleLock(false)
-            self.power:SetFillStyle("REVERSE")
+            self.power:SetFillStyle(Enum.StatusBarFillStyle.Standard)
         end
     end
 
@@ -776,15 +777,6 @@ local PowerBar_OnPowerTypeChange = function(powerbar, powerType, hidePower)
             self.health:SetPoint("BOTTOMLEFT", self.power, "TOPLEFT",0,0)
         end
     end
-
-    -- if self.healfeedbackpassive then
-    --     self.healfeedbackpassive:ClearAllPoints()
-    --     if self.power:IsShown() and Aptechka.db.profile.healthOrientation == "VERTICAL" then
-    --         self.healfeedbackpassive:SetPoint("TOPRIGHT", self.power, "TOPLEFT", 0,0)
-    --     else
-    --         self.healfeedbackpassive:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0,0)
-    --     end
-    -- end
 end
 ------------------------------------------------------------
 -- Animations
@@ -3715,6 +3707,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local text1_opts = Aptechka:GetWidgetsOptionsMerged("text1")
     local text = Aptechka.Widget.Text.Create(self, nil, text1_opts)
+    text:Show()
 
     local text2_opts = Aptechka:GetWidgetsOptionsMerged("text2")
     local text2 = Aptechka.Widget.Text.Create(self, nil, text2_opts)
