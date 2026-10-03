@@ -372,15 +372,15 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
 
     Aptechka.Roster = Roster
 
-    -- if AptechkaDB.global.disableBlizzardPlayer then
-    --     Aptechka:SafeCallDirect(helpers.DisableBlizzPlayerFrame)
-    -- end
-    -- if AptechkaDB.global.disableBlizzardParty then
-    --     helpers.DisableBlizzParty()
-    -- end
-    -- if AptechkaDB.global.hideBlizzardRaid then
-    --     helpers.DisableBlizzRaid()
-    -- end
+    if AptechkaDB.global.disableBlizzardPlayer then
+        Aptechka:SafeCallDirect(helpers.DisableBlizzPlayerFrame)
+    end
+    if AptechkaDB.global.disableBlizzardParty then
+        helpers.DisableBlizzParty()
+    end
+    if AptechkaDB.global.hideBlizzardRaid then
+        helpers.DisableBlizzRaid()
+    end
 
     --[=[
     if apiLevel <= 3 then

@@ -375,98 +375,90 @@ function helpers.utf8sub(str, start, numChars)
     return str:sub(start, currentIndex - 1)
 end
 
+-- sourced from Blizzard_UnitFrame/Mainline/TargetFrame.lua
+local MAX_BOSS_FRAMES = _G.MAX_BOSS_FRAMES or 5
+
+-- sourced from Blizzard_FrameXMLBase/Shared/Constants.lua
+local MEMBERS_PER_RAID_GROUP = _G.MEMBERS_PER_RAID_GROUP or 5
+
+local isArenaHooked = false
+local isBossHooked = false
+local isPartyHooked = false
+
+local function handleFrame(baseName)
+	local frame
+	if(type(baseName) == 'string') then
+		frame = _G[baseName]
+	else
+		frame = baseName
+	end
+
+	if(frame) then
+		frame:UnregisterAllEvents()
+		frame:SetRolesets('alwaysBlocked')
+
+		local health = frame.healthBar or frame.healthbar or frame.HealthBar or (frame.HealthBarsContainer and frame.HealthBarsContainer.healthBar)
+		if(health) then
+			health:UnregisterAllEvents()
+		end
+
+		local power = frame.manabar or frame.ManaBar
+		if(power) then
+			power:UnregisterAllEvents()
+		end
+
+		local castbar = frame.castBar or frame.spellbar or frame.CastingBarFrame or (frame.CastBarsContainer and frame.CastBarsContainer.castBar)
+		if(castbar) then
+			castbar:UnregisterAllEvents()
+		end
+
+		local altpowerbar = frame.powerBarAlt or frame.PowerBarAlt
+		if(altpowerbar) then
+			altpowerbar:UnregisterAllEvents()
+		end
+
+		local buffFrame = frame.BuffFrame or frame.AurasFrame
+		if(buffFrame) then
+			buffFrame:UnregisterAllEvents()
+		end
+
+		local petFrame = frame.petFrame or frame.PetFrame
+		if(petFrame) then
+			petFrame:UnregisterAllEvents()
+		end
+
+		local totFrame = frame.totFrame
+		if(totFrame) then
+			totFrame:UnregisterAllEvents()
+		end
+
+		local ccRemoverFrame = frame.CcRemoverFrame
+		if(ccRemoverFrame) then
+			ccRemoverFrame:UnregisterAllEvents()
+		end
+
+		local debuffFrame = frame.DebuffFrame
+		if(debuffFrame) then
+			debuffFrame:UnregisterAllEvents()
+		end
+	end
+end
+
+
+
 function helpers.DisableBlizzPlayerFrame()
-    local hiddenParent = helpers.hiddenParent or CreateFrame('Frame', nil, UIParent)
-    helpers.hiddenParent = hiddenParent
-    hiddenParent:SetAllPoints()
-    hiddenParent:Hide()
-
-    local frame = PlayerFrame
-
-    frame:SetParent(hiddenParent)
-
-    frame:UnregisterAllEvents()
-    frame:Hide()
-
-    frame.healthbar:UnregisterAllEvents()
-    frame.manabar:UnregisterAllEvents()
-
-    if not isClassic then
-        -- Aspparently some issues if these events are disabled
-        frame:RegisterEvent('PLAYER_ENTERING_WORLD')
-        frame:RegisterEvent('UNIT_ENTERING_VEHICLE')
-        frame:RegisterEvent('UNIT_ENTERED_VEHICLE')
-        frame:RegisterEvent('UNIT_EXITING_VEHICLE')
-        frame:RegisterEvent('UNIT_EXITED_VEHICLE')
-    end
-
-    frame:SetUserPlaced(true)
-	frame:SetDontSavePosition(true)
+    handleFrame(PlayerFrame)
 end
 
 function helpers.DisableBlizzParty(self)
-    local hiddenParent = helpers.hiddenParent or CreateFrame('Frame', nil, UIParent)
-    helpers.hiddenParent = hiddenParent
-    hiddenParent:SetAllPoints()
-    hiddenParent:Hide()
+    handleFrame(PartyFrame)
 
-    local function HideFrame(frame)
-        if not frame then return end
-
-        frame:UnregisterAllEvents()
-        frame:Hide()
-        frame:SetParent(hiddenParent)
-
-        local health = frame.healthBar or frame.healthbar
-        if health then
-            health:UnregisterAllEvents()
-        end
-
-        local power = frame.manabar
-        if power then
-            power:UnregisterAllEvents()
-        end
-
-        local spell = frame.castBar or frame.spellbar
-        if spell then
-            spell:UnregisterAllEvents()
-        end
-
-        local altpowerbar = frame.powerBarAlt
-        if altpowerbar then
-            altpowerbar:UnregisterAllEvents()
-        end
-
-        local buffFrame = frame.BuffFrame
-        if buffFrame then
-            buffFrame:UnregisterAllEvents()
-        end
-
-        local petFrame = frame.PetFrame
-        if petFrame then
-            petFrame:UnregisterAllEvents()
-        end
+    for frame in PartyFrame.PartyMemberFramePool:EnumerateActive() do
+        handleFrame(frame)
     end
 
-    _G.UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE")
-
-    if _G.CompactPartyFrame then
-        _G.CompactPartyFrame:UnregisterAllEvents()
-    end
-
-    if _G.PartyFrame then
-        _G.PartyFrame:UnregisterAllEvents()
-        _G.PartyFrame:SetScript("OnShow", nil)
-        for frame in _G.PartyFrame.PartyMemberFramePool:EnumerateActive() do
-            HideFrame(frame)
-        end
-        HideFrame(_G.PartyFrame)
-    else
-        for i = 1, 4 do
-            HideFrame(_G["PartyMemberFrame"..i])
-            HideFrame(_G["CompactPartyMemberFrame"..i])
-        end
-        HideFrame(_G.PartyMemberBackground)
+    for i = 1, MEMBERS_PER_RAID_GROUP do
+        handleFrame('CompactPartyFrameMember' .. i)
     end
 end
 
