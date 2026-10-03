@@ -3370,12 +3370,12 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.ReconfigureUnitFrame = Reconf
 
-    local outline = MakeCompositeBorder(self, "Interface\\BUTTONS\\WHITE8X8", outlineSize, outlineSize, outlineSize, outlineSize, "BACKGROUND", -2)
+    -- local outline = MakeCompositeBorder(self, "Interface\\BUTTONS\\WHITE8X8", outlineSize, outlineSize, outlineSize, outlineSize, "BACKGROUND", -2)
     -- outline:Set(1,1,1,1)
 
-    -- local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
-    -- outline:SetVertexColor(0,0,0,1)
-    -- outline:SetDrawLayer("BACKGROUND", -1)
+    local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
+    outline:SetVertexColor(0,0,0,1)
+    outline:SetDrawLayer("BACKGROUND", -1)
 
     -- local outlineMask = self:CreateMaskTexture(nil, "BACKGROUND", nil, 0)
     -- outlineMask:SetTexture("Interface\\Addons\\Aptechka\\tmask", "CLAMPTOWHITE", "CLAMPTOWHITE")

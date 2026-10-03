@@ -471,9 +471,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     self.PARTY_MEMBER_DISABLE = self.UNIT_PHASE
     ]]
 
-    if isMainline then
-        self:RegisterEvent("INCOMING_SUMMON_CHANGED")
-    end
+    self:RegisterEvent("INCOMING_SUMMON_CHANGED")
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("CINEMATIC_STOP")
 
@@ -1089,6 +1087,9 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
         FrameSetJob(self, config.AggroStatus, false)
         local isGhost = UnitIsGhost(unit)
         local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
+        self.health.bg:Hide()
+        self.health:Hide()
+        self.health.fade:Hide()
         FrameSetJob(self, deadorghost, true)
         FrameSetJob(self,config.HealthTextStatus, false )
         state.isDead = true
@@ -1097,6 +1098,9 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     elseif state.wasDead ~= isDead then
         state.isDead = nil
         state.isGhost = nil
+        self.health.bg:Show()
+        self.health:Show()
+        self.health.fade:Show()
         FrameSetJob(self, config.GhostStatus, false)
         FrameSetJob(self, config.DeadStatus, false)
         Aptechka.FrameUpdateDisplayPower(self, unit, false)
