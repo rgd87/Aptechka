@@ -3190,7 +3190,7 @@ Aptechka:RegisterWidget("pixelGlow", CreatePixelGlow)
 Aptechka:RegisterWidget("autocastGlow", CreateAutocastGlow)
 Aptechka:RegisterWidget("mindcontrol", CreateMindControlIcon)
 Aptechka:RegisterWidget("vehicle", CreateVehicleIcon)
-Aptechka:RegisterWidget("innerglow", CreateInnerGlow)
+-- Aptechka:RegisterWidget("innerglow", CreateInnerGlow)
 Aptechka:RegisterWidget("unhealable", CreateUnhealableOverlay)
 Aptechka:RegisterWidget("flash", CreateFlash)
 
@@ -3418,7 +3418,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp:SetOrientation("VERTICAL")
     hp:SetValue(0.5) -- needed to sort of initialize the points on main mask region, that other regions attach to
     hp.parent = self
-    hp.SetJob = SetJob_HealthBar
     hp.SetColor = HealthBarSetColorFG
     --hp:SetValue(0)
 
@@ -3598,11 +3597,12 @@ AptechkaDefaultConfig.GridSkin = function(self)
         --     ["None"]    = { 1, 0.3 ,0.3 }, -- Fallback color if showWithoutDispelType is true
         -- }
     }
-    debuffs:AddAuraGroup("debuffIcons", "HARMFUL", { --"HELPFUL|RAID_IN_COMBAT", {
+    debuffs:AddAuraGroup("debuffIcons", "HARMFUL|RAID_IN_COMBAT", { --"HELPFUL|RAID_IN_COMBAT", {
         maxFrameCount = 4,
-        -- candidateFilters = {
-            -- includeSpellIDs = config.auraContainers["bars"].includeSpellIDs
-        -- },
+        candidateFilters = {
+            excludeSpellIDs = helpers.auraBlacklist,
+            -- maxDuration = 60*20,
+        },
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             local pixel = pixelperfect(1)
             button:SetSize(pixelperfect(16), pixelperfect(13));
@@ -3627,7 +3627,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     debuffs:SetAuraGroupLayout("debuffIcons", { elementSpacing = pixelperfect(1) })
     debuffs:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Vertical)
 
-    debuffs:AddAuraSlot("dispelIndicator", "HARMFUL|RAID", { --"HELPFUL|RAID_IN_COMBAT", {
+    debuffs:AddAuraSlot("dispelIndicator", "HARMFUL|RAID", {
         maxFrameCount = 1,
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             local pixel = pixelperfect(1)
@@ -3640,6 +3640,21 @@ AptechkaDefaultConfig.GridSkin = function(self)
             button:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
         end,
     });
+
+    debuffs:AddAuraSlot("CCGlow", "HARMFUL|CROWD_CONTROL", {
+        maxFrameCount = 1,
+        initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
+            local tex = button:CreateTexture(nil, "ARTWORK", nil, -4)
+            button:SetFrameLevel(FRAMELEVEL.HEALTH+1)
+            tex:SetTexture("Interface\\AddOns\\Aptechka\\innerglow")
+            tex:SetAlpha(0.6)
+            tex:SetVertexColor(1,0,0)
+            button:SetAllPoints(self)
+            tex:SetAllPoints(button)
+        end,
+    });
+
+
 
     ------------------------
     -- Mouseover highlight

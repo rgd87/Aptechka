@@ -364,6 +364,8 @@ end
 -------------------------
 
 helpers.auraBlacklist = {
+    [1229451] = true, -- Boosted Rest
+
     [432069] = true, -- Tangled Causality (Season of Discovery Mage Healing debuff)
     [26013] = true, -- PVP Deserter
     [8326] = true, -- Ghost

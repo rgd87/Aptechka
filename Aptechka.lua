@@ -1260,15 +1260,10 @@ function Aptechka.UNIT_FLAGS(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealth, event)
 end
 
-local purgeOldAuraEvents = function(frame)
-    table.wipe(frame.auraEvents)
-end
-
 function Aptechka:PLAYER_ENTERING_WORLD(event)
     Aptechka:LayoutUpdate()
 
     self:ForEachFrame(Aptechka.FrameUpdateIncomingSummon)
-    Aptechka:ForEachFrame(purgeOldAuraEvents)
 end
 
 function Aptechka:CINEMATIC_STOP(event)
