@@ -14,8 +14,8 @@ local IsPlayerSpell = IsPlayerSpell
 local AddAuraToContainer = helpers.AddAuraToContainer
 local ChangeWidgetColorForContainer = helpers.ChangeWidgetColorForContainer
 
-local apiLevel = math.floor(select(4,GetBuildInfo())/10000)
-if not apiLevel == 1 then return end
+local isForever = WOW_PROJECT_ID == WOW_PROJECT_CAMELOT
+if not isForever then return end
 
 
 AddAuraToContainer("BigDefensive", {

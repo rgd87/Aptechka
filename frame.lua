@@ -3122,14 +3122,7 @@ end
 local Border_SetJob = function(self, job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
-    self:SetBackdropBorderColor(r,g,b, 0.5)
-    -- self.outline:SetColor(r,g,b, 0.5)
-
-    if self.currentJob ~= self.previousJob then
-        if job.pulse then
-            Pulse_PlayAnim(self, job)
-        end
-    end
+    self:SetVertexColor(r,g,b, 0.35)
 end
 local Border_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
     local r,g,b,a = GetColor(job)
@@ -3241,8 +3234,6 @@ local function Reconf(self)
     else
         if self.power.separator then self.power.separator:Hide() end
     end
-
-    Border_SetSize(self, self.border, db.selBorderWidth, db.selBorderInset)
 
     if not db.fgShowMissing then
         self.health.absorb:SetStatusBarColor(0.7,0.7,1, 0.65)
@@ -3444,7 +3435,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hpfade:SetFrameLevel(FRAMELEVEL.HEALTHFADE)
     hpfade:SetOrientation("VERTICAL")
     hpfade:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
-    hpfade:SetStatusBarColor(1,0.8,0.8)
+    hpfade:SetStatusBarColor(1,0.3,0.3)
     hpfade:SetAllPoints(hp)
     hp.fade = hpfade
 
@@ -3728,24 +3719,12 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local alphaWidget = CreateAlphaWidget(self)
     self.frameAlpha = alphaWidget
 
-    -- old backdrop border
     local p4 = outlineSize + pixelperfect(2)
-    local border = CreateFrame("Frame", nil, self, BackdropTemplateMixin and "BackdropTemplate" or nil)
-    border:SetFrameLevel(FRAMELEVEL.BORDER)
+    local border = self:CreateTexture(nil, "BACKGROUND", nil, -6)
+    border:SetTexture("Interface\\BUTTONS\\WHITE8X8")
     border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
     border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
-    border:SetBackdrop(border_backdrop)
-    Border_SetSize(self, border, db.selBorderWidth, db.selBorderInset)
-    border:SetBackdropBorderColor(1, 1, 1, 0.5)
-
-    -- new composite border
-    -- local border = CreateFrame("Frame", nil, self)
-    -- local borderInset = 0
-    -- border:SetFrameLevel(FRAMELEVEL.BORDER)
-    -- border:SetPoint("TOPLEFT", self, "TOPLEFT", -outlineSize+borderInset, outlineSize-borderInset)
-    -- border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", outlineSize-borderInset, -outlineSize+borderInset)
-    -- local borderWidth = pixelperfect(2) + pixelperfect(2)*0.1
-    -- border.outline = MakeCompositeBorder(border, "Interface\\BUTTONS\\WHITE8X8", borderWidth, borderWidth, borderWidth, borderWidth, "ARTWORK", 0)
+    border:SetVertexColor(1, 1, 1, 0.5)
 
     AddPulseAnimation(border)
     border.SetJob = Border_SetJob
