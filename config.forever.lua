@@ -30,6 +30,60 @@ AddAuraToContainer("BigDefensive", {
 })
 
 
+AddAuraToContainer("PersonalDefensive", {
+    -- WARLOCK
+    6229, 11739, 11740, 28610, -- Shadow Ward
+
+    -- DRUID
+    22812, 428713, -- Barkskin
+    29166, -- Innervate
+    408024, -- Survival Instincts[SoD]
+
+
+    -- MAGE
+    543, 8457, 8458, 10223, 10225, -- Fire Ward
+    6143, 8461, 8462, 10177, 28609, -- Frost Ward
+
+    -- PALADIN
+    1022, 5599, 10278, -- Blessing of Protection
+    1044, -- Blessing of Freedom
+
+    -- HUNTER
+    19263, -- Deterrence
+
+    -- WARRIOR
+    20230, -- Retaliation
+    12976, --Last Stand
+    -- 402913, -- Enraged Regeneration[SoD]
+
+    -- ROGUE
+    5277, -- Evasion
+
+    -- WARLOCK
+    6229, 11739, 11740, 28610, -- Shadow Ward
+
+
+    -- Healing Reduction
+    -- { 12294, 21551, 21552, 21553 }, color = { 147/255, 54/255, 115/255 }, template = "bossDebuff", global = true, } --Mortal Strike
+
+    -- Battleground
+    23333, --Warsong Flag
+    23335, --Silverwing Flag
+
+
+    1784, 5215, 20580, -- Stealth, Prowl, Shadowmeld
+
+    5384, -- Feign Death
+})
+
+
+
+-- Used for Water on Forever
+AddAuraToContainer("OffensiveCD", {
+    430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
+    468767, -- SoD
+})
+
 --[[
 -- WARLOCK
 AG{ id = { 6229, 11739, 11740, 28610 }, template = "SurvivalCD" } -- Shadow Ward

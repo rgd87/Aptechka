@@ -781,13 +781,14 @@ end
 
 function Aptechka.FrameUpdateName(frame, unit)
     local name = frame.state.nameFull
-    if Aptechka.db.global.translitCyrillic then
-        if canaccessvalue(name) and name then
+
+    if canaccessvalue(name) and name then
+        if Aptechka.db.global.translitCyrillic then
             name = C_Intl.Transliterate(name, "Russian-Latin/BGN; Any-Latin; Latin-ASCII")
-            frame.state.name = utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
-        else
-            frame.state.name = name
         end
+        frame.state.name = utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
+    else
+        frame.state.name = name
     end
     frame.text1.text:SetText(frame.state.name)
     -- FrameSetJob(frame, config.UnitNameStatus, true, nil, frame.state.name, makeUnique())

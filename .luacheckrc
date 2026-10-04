@@ -275,6 +275,7 @@ globals = {
     "issecretvalue",
     "canaccessvalue",
     "UnitHealthMissing",
+    "AuraContainerSortMethod",
     "UnitHealthPercent",
     "GetUnitMaxHealthModifier",
 }
