@@ -2377,7 +2377,7 @@ local function CreateAbsorbBar(frame, hp)
     local db = Aptechka.db.profile
     local absorb = CreateFrame("StatusBar", nil, frame)
 
-    absorb:SetFrameLevel(FRAMELEVEL.HEALTH+2)
+    absorb:SetFrameLevel(FRAMELEVEL.HEALTH)
     absorb:SetOrientation("VERTICAL")
     local hpEdgeTexture = hp:GetStatusBarTexture()
     absorb:SetPoint("BOTTOMLEFT", hpEdgeTexture, "TOPLEFT")
@@ -2694,7 +2694,7 @@ local function CreateAuraButtonIconBar(parent, widgetOptions, createText)
     icon:SetTexCoord(GetRectTexCoords(unpack(sampleRect)))
     icon:SetAllPoints(f)
 
-    if widgetOptions.color then
+    if not widgetOptions.sampleRect and widgetOptions.color then
         icon:SetVertexColor(unpack(widgetOptions.color))
     else
         local dodge = f:CreateTexture(nil,"ARTWORK",nil,-2)
@@ -2816,6 +2816,7 @@ local function CreateAuraButtonBarIcon(parent, widgetOptions)
 end
 
 local function CreateAuraButtonCornerIndicator(button, rotation)
+    button:SetFrameLevel(FRAMELEVEL.TEXTURE)
     local t = button:CreateTexture(nil,"ARTWORK")
     t:SetTexture("Interface\\AddOns\\Aptechka\\corner")
     t.RotateCoords = Texture_RotateCoords
@@ -3494,9 +3495,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
             -- button:SetDurationText(button.Text);
         end,
     });
-    buffs:SetFlowLayoutAnchorPoint("TOPRIGHT")
-    buffs:SetAuraGroupLayout("bars", { elementSpacing = pixelperfect(1) })
+    buffs:SetAuraGroupSortMethod("bars", AuraContainerSortMethod.AuraInstanceIDOnly, 0)
+    buffs:SetFlowLayoutAnchorPoint("BOTTOMRIGHT")
     buffs:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Vertical)
+    buffs:SetFlowLayoutGrowthDirection(AnchorUtil.FlowDirection.Left, AnchorUtil.FlowDirection.Up)
+    buffs:SetAuraGroupLayout("bars", { elementSpacing = pixelperfect(1) })
 
     -- local testtex = buffs:CreateTexture(nil,"OVERLAY",nil,0)
     -- testtex:SetAllPoints(buffs)
@@ -3521,30 +3524,13 @@ AptechkaDefaultConfig.GridSkin = function(self)
         end,
     });
 
-    local defensive = self.DefensiveContainer
-    --[[
-    defensive:AddAuraSlot("icon", "HELPFUL|EXTERNAL_DEFENSIVE", {
-        maxFrameCount = 1,
-        -- candidateFilters = {
-            -- includeSpellIDs = config.auraContainers["bars"].includeSpellIDs
-        -- },
-        initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
-            local pixel = pixelperfect(1)
-            button:SetSize(pixelperfect(24), pixelperfect(24));
+    -- In theory the filter here should be HELPFUL|BIG_DEFENSIVE but blizzard's filters are buggy and unfilled on Forever.
+    -- So manual whitelist it is
 
-            local bar = CreateAuraButtonBarIcon(button)
-            button:SetIcon(bar.icon)
-            button:SetDurationBar(bar)
-
-            button:SetPoint("CENTER", self, "CENTER", 0, 0)
-        end,
-    });
-        ]]
-
-    buffs:AddAuraSlot("PersonalDefensive", "HELPFUL|BIG_DEFENSIVE", {
-        maxFrameCount = 3,
+    buffs:AddAuraSlot("PersonalDefensive", "HELPFUL", {
         candidateFilters = {
-            excludeSpellIDs = config.auraContainers["BigDefensive"].includeSpellIDs
+            includeSpellIDs = config.auraContainers["PersonalDefensive"].includeSpellIDs
+            -- excludeSpellIDs = config.auraContainers["BigDefensive"].includeSpellIDs
         },
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             local pixel = pixelperfect(1)
@@ -3556,6 +3542,23 @@ AptechkaDefaultConfig.GridSkin = function(self)
             button:SetDurationBar(bar)
 
             button:SetPoint("TOPRIGHT", self, "TOPRIGHT", 5, -6)
+        end,
+    });
+
+    buffs:AddAuraSlot("OffensiveCD", "HELPFUL", {
+        candidateFilters = {
+            includeSpellIDs = config.auraContainers["OffensiveCD"].includeSpellIDs
+        },
+        initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
+            local pixel = pixelperfect(1)
+            button:SetSize(pixelperfect(12), pixelperfect(18));
+            -- button:SetHideTooltipInCombat(true)
+
+            local bar = CreateAuraButtonBarIcon(button)
+            button:SetIcon(bar.icon)
+            button:SetDurationBar(bar)
+
+            button:SetPoint("TOPRIGHT", self, "TOPRIGHT", 5-pixelperfect(13), -6)
         end,
     });
 
@@ -3574,6 +3577,23 @@ AptechkaDefaultConfig.GridSkin = function(self)
             button:SetDurationBar(bar)
 
             button:SetPoint("CENTER", self, "CENTER", 0, 0)
+        end,
+    });
+
+    buffs:AddAuraSlot("ActiveMitigation", "HELPFUL", {
+        maxFrameCount = 1,
+        candidateFilters = {
+            includeSpellIDs = config.auraContainers["ActiveMitigation"].includeSpellIDs
+        },
+        initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
+            local pixel = pixelperfect(1)
+            button:SetSize(pixelperfect(21), pixelperfect(4));
+
+            local bar = CreateAuraButtonIconBar(button, config.auraContainers["ActiveMitigation"].widgetOptions)
+            button:SetIcon(bar.icon)
+            button:SetDurationBar(bar)
+
+            button:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 5, -4*pixel)
         end,
     });
 
@@ -3597,15 +3617,17 @@ AptechkaDefaultConfig.GridSkin = function(self)
         --     ["None"]    = { 1, 0.3 ,0.3 }, -- Fallback color if showWithoutDispelType is true
         -- }
     }
-    debuffs:AddAuraGroup("debuffIcons", "HARMFUL|RAID_IN_COMBAT", { --"HELPFUL|RAID_IN_COMBAT", {
+
+    local debuffIconWidth, debuffIconHeight = 16, 13
+    -- debuffs:SetAuraProcessingPolicy(CustomAuraContainerAuraProcessingPolicy.ProcessAura) -- Default is none
+    debuffs:AddAuraGroup("debuffIconsBIG", "HARMFUL", {
         maxFrameCount = 4,
         candidateFilters = {
-            excludeSpellIDs = helpers.auraBlacklist,
-            -- maxDuration = 60*20,
+            isBossOrRoleAura = true,
         },
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             local pixel = pixelperfect(1)
-            button:SetSize(pixelperfect(16), pixelperfect(13));
+            button:SetSize(pixelperfect(debuffIconWidth*1.3), pixelperfect(debuffIconHeight*1.3));
             -- button:SetHideTooltipInCombat(true)
 
             CreateAuraButtonDebuffIcon(button)
@@ -3613,19 +3635,33 @@ AptechkaDefaultConfig.GridSkin = function(self)
             -- button:SetDurationBar(button.bar)
             button:SetDurationCooldown(button.cd)
             button:AddDispelTypeTexture(button.debuffTypeTexture, dispelOptions)
-
-            -- button.Icon = button:CreateTexture(nil, "OVERLAY");
-            -- button.Icon:SetAllPoints(button);
-            -- button:SetIcon(button.Icon);
-
-            -- button.Text = button:CreateFontString(nil, "ARTWORK", "GameFontNormal");
-            -- button.Text:SetPoint("TOP", button, "BOTTOM", 0, -5);
-            -- button:SetDurationText(button.Text);
         end,
     });
-    debuffs:SetFlowLayoutAnchorPoint("TOPRIGHT")
-    debuffs:SetAuraGroupLayout("debuffIcons", { elementSpacing = pixelperfect(1) })
+    debuffs:SetAuraGroupLayout("debuffIconsBIG", { elementSpacing = pixelperfect(1) })
+
+    debuffs:AddAuraGroup("debuffIcons", "HARMFUL", {
+        maxFrameCount = 4,
+        candidateFilters = {
+            -- excludeSpellIDs = helpers.auraBlacklist, -- this just doesn't work because secret bullshit
+            isBossOrRoleAura = false,
+            -- maxDuration = 60*20, -- can't do it because some it also filters out debuffs without duration
+        },
+        initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
+            local pixel = pixelperfect(1)
+            button:SetSize(pixelperfect(debuffIconWidth), pixelperfect(debuffIconHeight));
+            -- button:SetHideTooltipInCombat(true)
+
+            CreateAuraButtonDebuffIcon(button)
+            button:SetIcon(button.icon)
+            -- button:SetDurationBar(button.bar)
+            button:SetDurationCooldown(button.cd)
+            button:AddDispelTypeTexture(button.debuffTypeTexture, dispelOptions)
+        end,
+    });
+    debuffs:SetFlowLayoutAnchorPoint("BOTTOMLEFT")
+    debuffs:SetAuraGroupLayout("debuffIcons", { elementSpacing = pixelperfect(1), groupSpacing = pixelperfect(1) })
     debuffs:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Vertical)
+    debuffs:SetFlowLayoutGrowthDirection(AnchorUtil.FlowDirection.Right, AnchorUtil.FlowDirection.Up)
 
     debuffs:AddAuraSlot("dispelIndicator", "HARMFUL|RAID", {
         maxFrameCount = 1,
@@ -3743,8 +3779,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     local text3_opts = Aptechka:GetWidgetsOptionsMerged("text3")
     local text3 = Aptechka.Widget.Text.Create(self, nil, text3_opts)
-
-    self.debuffIcons = Aptechka.Widget.DebuffIconArray.Create(self, Aptechka:GetWidgetsOptions("debuffIcons"))
 
     -- local brcorner = CreateCorner(self, 21, 21, "BOTTOMRIGHT", self, "BOTTOMRIGHT",0,0)
     -- local bossdebuff = CreateCorner(self, 17, 17, "TOPLEFT", self, "TOPLEFT",0,0, "TOPLEFT") --last arg changes orientation

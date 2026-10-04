@@ -220,8 +220,8 @@ local defaults = {
         point = "CENTER",
         x = 0,
         y = 0,
-        width = 55,
-        height = 55,
+        width = 62,
+        height = 62,
 
         petGroup = false,
         petGroupAnchorEnabled = false,
@@ -782,9 +782,14 @@ end
 function Aptechka.FrameUpdateName(frame, unit)
     local name = frame.state.nameFull
     if Aptechka.db.global.translitCyrillic then
-        name = name and C_Intl.Transliterate(name, "Any-Latin")
+        if canaccessvalue(name) and name then
+            name = C_Intl.Transliterate(name, "Russian-Latin/BGN; Any-Latin; Latin-ASCII")
+            frame.state.name = utf8sub(name,1, AptechkaDB.profile.cropNamesLen) or "Unknown"
+        else
+            frame.state.name = name
+        end
     end
-    frame.text1.text:SetText(name)
+    frame.text1.text:SetText(frame.state.name)
     -- FrameSetJob(frame, config.UnitNameStatus, true, nil, frame.state.name, makeUnique())
 end
 
@@ -898,20 +903,22 @@ function Aptechka:ReconfigureProtected()
     self:UpdatePetGroupConfig()
     self:ReconfigureTestHeaders()
 
-    local _width = pixelperfect(AptechkaDB.profile.width or config.width)
-    local _height = pixelperfect(AptechkaDB.profile.height or config.height)
     local _scale = AptechkaDB.profile.scale or config.scale
     -- local strata = config.frameStrata or "LOW"
     -- self.initConfSnippet = self.makeConfSnippet(width, height, strata)
     for groupId, header in ipairs(group_headers) do
-        local width = _width
-        local height = _height
         local scale = _scale
         if header.isPetGroup then
             -- width = pixelperfect(AptechkaDB.profile.petwidth)
             -- height = pixelperfect(AptechkaDB.profile.petheight)
             scale = scale * AptechkaDB.profile.petScale
         end
+
+
+        header:SetScale(scale)
+        helpers.SetPixelPerfectScaleRegion(header)
+        local width = pixelperfect(AptechkaDB.profile.width or config.width)
+        local height = pixelperfect(AptechkaDB.profile.height or config.height)
 
         if header:CanChangeAttribute() then
             -- header:SetAttribute("frameWidth", width)
@@ -921,7 +928,6 @@ function Aptechka:ReconfigureProtected()
                             "frameHeight", height)
 
         end
-        header:SetScale(scale)
         for _, f in ipairs({ header:GetChildren() }) do
             f:SetWidth(width)
             f:SetHeight(height)

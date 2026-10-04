@@ -4,16 +4,15 @@
         <Size x="50" y="50"/>
         <Frames>
             <AuraContainer parentKey="DebuffContainer" inherits="CustomAuraContainerTemplate">
-                <Size x="50" y="50"/>
                 <Anchors>
-                    <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT"/>
+                    <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                    <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
                 </Anchors>
             </AuraContainer>
             <AuraContainer parentKey="BuffContainer" inherits="CustomAuraContainerTemplate">
-                <Size x="50" y="50"/>
                 <Anchors>
-                    <!-- <Anchor point="ALL"/> -->
-                    <Anchor point="BOTTOMRIGHT" relativeTo="$parent" relativePoint="BOTTOMRIGHT"/>
+                    <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+                    <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
                 </Anchors>
             </AuraContainer>
         </Frames>

@@ -88,31 +88,31 @@ config.MindControlStatus = { name = "MIND_CONTROL", assignto = set("border", "mi
 local FRAMELEVEL = helpers.FRAMELEVEL
 local DEFAULT_TEXLEVEL = FRAMELEVEL.TEXTURE
 config.DefaultWidgets = {
-    raidbuff = { type = "IndicatorArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, growth = "DOWN", max = 5, gap = 1 },
-    mitigation = { type = "Bar", width=22, height=4, point="BOTTOMLEFT", x=4, y=-5, vertical = false},
+    -- raidbuff = { type = "IndicatorArray", width = 5, height = 5, point = "TOPLEFT", x = 0, y = 0, growth = "DOWN", max = 5, gap = 1 },
+    -- mitigation = { type = "Bar", width=22, height=4, point="BOTTOMLEFT", x=4, y=-5, vertical = false},
     -- icon = { type = "Icon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = true, edge = true },
-    icon = { type = "BarIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = true, edge = true, vertical = true },
-    spell1 = { type = "Indicator", width = 9, height = 8, point = "BOTTOMRIGHT", x = 0, y = 0, },
+    -- icon = { type = "BarIcon", width = 24, height = 24, point = "CENTER", x = 0, y = 0, alpha = 1, font = config.defaultFont, textsize = 12, outline = true, edge = true, vertical = true },
+    -- spell1 = { type = "Indicator", width = 9, height = 8, point = "BOTTOMRIGHT", x = 0, y = 0, },
     -- spell2 = { type = "Indicator", width = 9, height = 8, point = "TOP", x = 0, y = 0, },
-    spell3 = { type = "Indicator", width = 9, height = 8, point = "TOPRIGHT", x = 0, y = 0, },
-    bar4 = { type = "Bar", width=21, height=5, point="TOPRIGHT", x=0, y=2, vertical = false},
-    bar4text = { type = "StaticText", point="TOPRIGHT", width = 30, height = 10, x=-23, y=5, zorder=0, font = config.defaultFont, textsize = 12, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0, justify = "RIGHT" },
-    buffIcons = { type = "BarIconArray", width = 12, height = 18, point = "TOPRIGHT", x = 5, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, vertical = true, font = config.defaultFont, textsize = 12, gap = 1 },
-    bars = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7, gap = 1 },
-    vbar1 = { type = "Bar", width=4, height=20, point="TOPRIGHT", x=-9, y=2, vertical = true},
+    -- spell3 = { type = "Indicator", width = 9, height = 8, point = "TOPRIGHT", x = 0, y = 0, },
+    -- bar4 = { type = "Bar", width=21, height=5, point="TOPRIGHT", x=0, y=2, vertical = false},
+    -- bar4text = { type = "StaticText", point="TOPRIGHT", width = 30, height = 10, x=-23, y=5, zorder=0, font = config.defaultFont, textsize = 12, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0, justify = "RIGHT" },
+    -- buffIcons = { type = "BarIconArray", width = 12, height = 18, point = "TOPRIGHT", x = 5, y = -6, alpha = 1, growth = "LEFT", max = 3, edge = true, outline = true, vertical = true, font = config.defaultFont, textsize = 12, gap = 1 },
+    -- bars = { type = "BarArray", width = 21, height = 5, point = "BOTTOMRIGHT", x = 0, y = 0, vertical = false, growth = "UP", max = 7, gap = 1 },
+    -- vbar1 = { type = "Bar", width=4, height=20, point="TOPRIGHT", x=-9, y=2, vertical = true},
     text1 = { type = "StaticText", point="CENTER", width = 60, height = 16, x=0, y=0, zorder=0, font = config.defaultFont, textsize = 12, effect = "SHADOW", bg = false, bgAlpha = 0.5, padding = 0, justify = "CENTER" },
     text2 = { type = "StaticText", point="CENTER", width = 60, height = 10, x=0, y=-11, zorder=0, font = config.defaultFont, textsize = 10, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0, justify = "CENTER" },
     text3 = { type = "Text", point="TOPLEFT", width = 30, height = 10, x=2, y=0, zorder=0, font = config.defaultFont, textsize = 9, effect = "NONE", bg = false, bgAlpha = 0.5, padding = 0, justify = "LEFT" },
     incomingCastIcon = { type = "ProgressIcon", width = 18, height = 18, point = "TOPLEFT", x = -3, y = 3, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false },
-    debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = config.defaultFont, textsize = 12, bigscale = 1.3, gap = 1 },
-    floatingIcon = { type = "FloatingIcon", width = 16, height = 16, point = "TOPLEFT", x = 15, y = -5, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false, angle = 60, range = 45, spreadArc = 30, animDuration = 2 },
+    -- debuffIcons = { type = "DebuffIconArray", width = 13, height = 13, point = "BOTTOMLEFT", x = 0, y = 0, style = "STRIP_RIGHT", animdir = "LEFT", alpha = 1, growth = "UP", max = 4, edge = true, outline = true, font = config.defaultFont, textsize = 12, bigscale = 1.3, gap = 1 },
+    -- floatingIcon = { type = "FloatingIcon", width = 16, height = 16, point = "TOPLEFT", x = 15, y = -5, alpha = 1, font = config.defaultFont, textsize = 12, outline = false, edge = false, angle = 60, range = 45, spreadArc = 30, animDuration = 2 },
     statusIcon = { type = "Texture", width = 20, height = 20, point = "CENTER", x = 0, y = 14, texture = nil, rotation = 0, zorder = 6-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
     roleIcon = { type = "Texture", width = 13, height = 13, point = "BOTTOMLEFT", x = -8, y = -8, texture = nil, rotation = 0, zorder = 6-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = false },
     raidTargetIcon = { type = "Texture", width = 20, height = 20, point = "TOPLEFT", x = -10, y = 10, texture = nil, rotation = 0, zorder = 16-DEFAULT_TEXLEVEL, alpha = 0.3, blendmode = "BLEND", disableOverrides = false },
-    healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 7-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
-    debuffHighlight = { type = "Texture", width = 12, height = 15, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 13-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
-    CCList = { type = "TextArray", point="BOTTOMLEFT", width = 60, height = 12, x=0, y=-15, zorder = 0, font = config.defaultFont, textsize = 10, effect = "NONE", bg = true, bgAlpha = 0.7, padding = 1.5, growth = "DOWN", max = 4, justify = "LEFT", gap = 1 },
-    EnemyCounter = { type = "Text", point="TOPLEFT", width = 20, height = 15, x=19, y=6, zorder=0, font = config.defaultFont, textsize = 13, effect = "OUTLINE", bg = false, bgAlpha = 0.5, padding = 0, justify = "CENTER" },
+    -- healfeedback = { type = "Texture", width = 16, height = 30, point = "TOPRIGHT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 270, zorder = 7-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
+    -- debuffHighlight = { type = "Texture", width = 12, height = 15, point = "TOPLEFT", x = 0, y = 0, texture = "Interface\\AddOns\\Aptechka\\corner", rotation = 180, zorder = 13-DEFAULT_TEXLEVEL, alpha = 1, blendmode = "BLEND", disableOverrides = true },
+    -- CCList = { type = "TextArray", point="BOTTOMLEFT", width = 60, height = 12, x=0, y=-15, zorder = 0, font = config.defaultFont, textsize = 10, effect = "NONE", bg = true, bgAlpha = 0.7, padding = 1.5, growth = "DOWN", max = 4, justify = "LEFT", gap = 1 },
+    -- EnemyCounter = { type = "Text", point="TOPLEFT", width = 20, height = 15, x=19, y=6, zorder=0, font = config.defaultFont, textsize = 13, effect = "OUTLINE", bg = false, bgAlpha = 0.5, padding = 0, justify = "CENTER" },
 }
 
 -- default priority is 80
@@ -163,6 +163,7 @@ config.auraContainers = {
     },
     bar4 = {
         widgetOptions = {
+            -- sampleRect = {0.20, 0.35, 0.05, 0.02},
             color = {0,1,0,1},
         },
         includeSpellIDs = {}
@@ -171,10 +172,20 @@ config.auraContainers = {
         includeSpellIDs = {}
     },
     PersonalDefensive = {
+        includeSpellIDs = {}
     },
     BigDefensive = {
         includeSpellIDs = {}
     },
+    ActiveMitigation = {
+        widgetOptions = {
+            sampleRect = {0.20, 0.35, 0.05, 0.02}, -- x,y,w,h
+        },
+        includeSpellIDs = {}
+    },
+    OffensiveCD = {
+        includeSpellIDs = {}
+    }
 }
 function helpers.AddAuraToContainer(slotName, spellIDs)
     if not config.auraContainers[slotName] then return end
@@ -217,12 +228,220 @@ AddAuraToContainer("BigDefensive", {
     329543, -- Divine Ascension
 
     642, -- Divine Shield
+    1022, 1309794,-- Blessing of Protection
+    204018, -- Blessing of Spellwarding
     86659, -- Guardian of the Ancient Kings
 
     55233, -- Vampiric Blood
     48792, -- Icebound Fortitude 50%
 
     45438, -- Ice Block
+
+    187827, -- Vengeance Meta
+
+    -- HUNTER
+    53480, -- Roar of Sacrifice
+
+    357170, -- Time Dilation
+})
+
+AddAuraToContainer("PersonalDefensive", {
+    324092, -- Sanguine Depths, Shining Radiance (Naaru thing)
+
+    -- DEATH KNIGHT
+    194679, -- Rune Tap
+    81256, -- Dancing Rune Weapon
+    145629, -- Anti-Magic Zone (AreaDR)
+    48707, -- Anti-Magic Shell
+    -- 48792, -- Icebound Fortitude (Big Icon)
+    -- 49039, -- Lichborne
+    -- 55233, -- Vampiric Blood
+    -- 101568, -- Dark Simulacrum
+
+
+    -- MAGE
+    110909, 342246, -- Alter Time
+    -- 235313, -- Blazing Barrier
+    -- 11426, -- Ice Barrier
+    -- 45438, -- Ice Block
+    414658, -- Mass Barrier
+    -- 235450, -- Prismatic Barrier
+    449336, -- Ice Cold
+    1309793, -- Amplified Refraction
+
+
+    -- DEMONHUNTER
+    -- 442715, -- Sigil of Doom
+    212800, -- Blur
+    -- 1266616, 394933, -- Demon Muzzle
+    -- 427912, 258920, -- Sigil of Spite
+    207771, -- Last Resort
+    209426, -- Darkness (AreaDR)
+
+    -- DRUID
+    22812, -- Barkskin
+    22842, -- Frenzied Regeneration
+    -- 192081, -- Ironfur
+    -- 61336, -- Survival Instincts (Big)
+    -- 393903, -- Ursoc's Spirit
+    1261872, -- Heart of the Wild
+
+    -- EVOKER
+    404381, -- Abundant Growth
+    363916, -- Obsidian Scales
+    374349, -- Renewing Blaze
+    -- 406732, -- Spatial Paradox (Move Cast)
+    370960, -- Emerald Communion (pvp)
+
+    -- HUNTER
+    186265, -- Aspect of the Turtle
+    -- 472708, -- Hunter's Avoidance
+    264735, -- Survival of the Fittest
+
+
+    -- MONK
+    122783, -- Diffuse Magic
+    122278, -- Dampen Harm
+    132578, -- Invoke Niuzao
+    243435, -- Fortifying Brew (Mistweaver/Windwalker)
+    125174, -- Touch of Karma
+    116849, -- Life Cocoon
+    -- 432180, -- Healing Elixir
+    322507, -- Celestial Brew
+    1241059, -- Celestial Infusion
+
+
+    -- PALADIN
+    498, 403876, -- Divine Protection
+    31850, -- Ardent Defender
+    -- 86659, -- Guardian of Ancient Kings (big)
+    212641, -- Guardian of Ancient Kings (Holy Variant)
+    6940, -- Blessing of Sacrifce
+    1044, -- Blessing of Freedom
+    184662, -- Shield of Vengeance
+    205191, -- Eye for an Eye
+
+    -- PREST
+    -- 114214, -- Angelic Bulwark
+    -- 45242, 426401, -- Focused Will
+    193065, -- Masochism
+    27827, -- Spirit of Redemption
+    -- 10060, -- Power Infusion
+    19236, -- Desperate Prayer
+    15286, -- Vampiric Embrace
+    586, -- Fade
+    47585, -- Dispersion
+    81782, -- Power Word: Barrier (AreaDR)
+    -----
+    213610, -- Holy Ward (PVP)
+    289655, -- Holy Word: Concentration
+
+
+    -- ROGUE
+    31224, -- Cloak of Shadows
+    5277, -- Evasion
+    1966, -- Feint
+    185311, -- Crimson Vial
+    11327, -- Vanish
+
+    -- SHAMAN
+    108271, -- Astral Shift
+    260881, -- Spirit Wolf
+    325174, -- Spirit Link Totem (AreaDR)
+    204293, -- Spirit Link (PvP)
+
+    -- WARLOCK
+    108416, -- Dark Pact
+    104773, -- Unending Resolve
+    132413, -- Shadow Bulwark
+    387636, -- Soul Keeper
+    -- 389614, -- Fiendish Stride
+
+    -- WARRIOR
+    190456, 1277297, -- Ignore Pain
+    184364, -- Enraged Regeneration
+    118038, -- Die by the Sword
+    -- 202147 -- Second Wind
+    12975, --Last Stand
+    -- 107574, --Avatar (duplicated in offensive)
+    385391, -- Spell Relection DR
+    23920, -- Spell Reflection (Actual Reflect)
+
+})
+
+AddAuraToContainer("OffensiveCD", {
+    -- POTION
+    1236998, -- Draught of Rampant Abandon
+    1236616, -- Light's Potential
+    1239479, -- Potion of Devoured Dreams
+    1236994, -- Potion of Recklessness
+
+    -- WARRIOR
+    1719, -- Battle Shout
+    107574, -- Avatar
+
+    -- WARLOCK
+    1276166, -- Dominion of Argus
+    417282, -- Crashing Chaos
+    442726, -- Malevolence
+    266087, -- Rain of Chaos
+
+    -- PRIEST
+    10060, -- Power Infusion
+    194249, -- Voidform
+
+    -- ROGUE
+    13750, -- Adrenaline Rush
+    1249810, -- Finish the Job
+    -- 185422, -- Shadow Dance
+    121471, -- Shadow Blades
+
+    -- PALADIN
+    31884, 231895, 454351, 216331, -- Avenging Wrath
+
+    -- DRUID
+    50334, 102558, -- Berserk
+    106951, 102543, -- Berserk: Incarnation
+    194223, 102560, -- Celestial Alignment
+
+    -- SHAMAN
+    114050, 114051, 114052, 1219480, -- Ascendance
+    466772, -- Ancestral Guidance
+
+    -- MONK
+    1249625, -- Zenith
+
+    -- DEATHKNIGHT
+    42650, -- Army of the Dead
+    51271, -- Pillar of Frost
+    152279, 1249658, -- Breath of Sindragosa
+
+    -- MAGE
+    1247908, -- Splinterstorm
+    365350, 365362,  -- Arcane Surge
+    190319, -- Combustion
+
+    -- HUNTER
+    1250646, 1251703, -- Takedown
+    288613, -- Trueshot
+    19574, 186254, 1235388, 1285912, -- Bestial Wrath
+
+    -- DH
+    162264, -- Havoc Metamorphosis
+    -- 187827, -- Vengeance Meta
+    1217607, -- Void Metamorphosis
+
+    -- EVOKER
+    375087, -- Dragonrage
+})
+
+
+AddAuraToContainer("ActiveMitigation", {
+    132404, -- Shield Block
+    132403, -- Shield of the Righteousness
+    203819, -- Demon Spikes
+    192081, -- Ironfur
+    77535, -- Blood Shield (from Death Strike)
 })
 
 -- DUNGEON MECHANICS
@@ -372,15 +591,17 @@ if playerClass == "PRIEST" then
     AddAuraToContainer("bars", {
         139, -- Renew
         17, -- Power Word: Shield
-        6788, -- Weakened Soul
-        10060, -- Power Infusion
+        -- 6788, -- Weakened Soul
         271466, -- Luminous Barrier
+
+        1253593, -- Void Shield
     })
 
     AddAuraToContainer("bar4", {
         41635, -- Prayer of Mending
         194384 -- Atonement
     })
+    -- config.auraContainers.bar4.widgetOptions.sampleRect = {0.750, 0.55, 0.05, 0.02}
     ChangeWidgetColorForContainer("bar4",  1, .3, .3)
 
     -- Power Word: Fortitude
@@ -438,8 +659,8 @@ if playerClass == "MONK" then
         124682, -- Enveloping Mist
         115175, -- Soothing Mist
 
-        191840, -- Essence Font
-        344006, -- Essence Font
+        1292922, -- Coalescence
+        450769, 450521, 450711, 450526, 450531, -- Aspect of Harmony
     })
 
     AddAuraToContainer("bar4", {
@@ -503,7 +724,11 @@ if playerClass == "PALADIN" then
     AddAuraToContainer("bars", {
         287280, -- Glimmer of Light
         148039, -- Barrier of FAith
-        -- Forbearance??
+        431381, -- Dawnlight
+        156322, -- Eternal Flame
+        461432, -- Eternal Flame
+        432502, -- Sacred Weapon (Holy Armaments)
+        469703, -- Tempered in Battle (Holy Armaments)
 
         191840, -- Essence Font
         344006, -- Essence Font
@@ -513,6 +738,7 @@ if playerClass == "PALADIN" then
         200025, -- Beacon of Virtue
         53563, -- Beacon of Light
         156910, -- Beacon of Faith
+        1244893, -- Beacon of the Savior
     })
     ChangeWidgetColorForContainer("bar4",  0.96/2, 0.55/2, 0.73/2)
 
@@ -576,6 +802,7 @@ end
 if playerClass == "SHAMAN" then
     AddAuraToContainer("bars", {
         61295, -- Riptide
+        444490, -- Hydrobubble
     })
 
     AddAuraToContainer("bar4", {
@@ -643,7 +870,8 @@ if playerClass == "DRUID" then
     })
 
     AddAuraToContainer("bar4", {
-        33763 -- Lifebloom
+        33763, -- Lifebloom
+        474750, -- Symbiotic Relationship
     })
     ChangeWidgetColorForContainer("bar4", 0.2, 1, 0.2)
 

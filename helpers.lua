@@ -29,7 +29,7 @@ helpers.FRAMELEVEL = {
     INDICATOR = 8,
     DEBUFFICON = 10,
     ICON = 11,
-    TEXT = 6,
+    TEXT = 4,
     TEXTURE = 13,
     OVERLAY = 15, -- Mind Control, Vehicle
     PROGRESSICON = 17,
@@ -63,8 +63,12 @@ end
 local pmult = 1
 
 local GetNearestPixelSize = PixelUtil.GetNearestPixelSize
+local ppScaleRegion = UIParent
+function helpers.SetPixelPerfectScaleRegion(region)
+    ppScaleRegion = region
+end
 function helpers.pixelperfect(size)
-    return GetNearestPixelSize(size, UIParent:GetEffectiveScale())
+    return GetNearestPixelSize(size, ppScaleRegion:GetEffectiveScale())
 end
 
 helpers.PercentColor = function(percent)
