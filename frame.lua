@@ -120,21 +120,6 @@ function Aptechka:FixWidgetsAfterUpgrade()
 end
 
 local reverse = helpers.Reverse
-local function AttachRegionToMask(region, parent, growth)
-    -- region:ClearAllPoints()
-    -- local mask, orientation, isReversed, p1, p2 = parent:GetSeparationRegionAttachmentPoints()
-    -- if not isReversed then growth = growth * -1 end
-    -- -- return points on the mask that currently separate health
-
-    -- if growth > 0 then -- region will grow in the same direction as mask
-
-    --     region:SetPoint(reverse(p1, orientation), mask, p1, 0, 0)
-    --     region:SetPoint(reverse(p2, orientation), mask, p2, 0, 0)
-    -- else -- opposite
-    --     region:SetPoint(p1, mask, p1, 0, 0)
-    --     region:SetPoint(p2, mask, p2, 0, 0)
-    -- end
-end
 
 local MakeBorder = function(self, tex, left, right, top, bottom, level)
     local t = self:CreateTexture(nil,"BORDER",nil,level)
@@ -354,22 +339,6 @@ function contentNormalizers.INCOMING_HEAL(job, state, contentType, ...)
     return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 
-local PowerBarColor = PowerBarColor
-function contentNormalizers.POWERCOLOR(job, state, contentType, pname, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
-    local db = Aptechka.db.profile
-    local showPowerTypeColors = true
-    if showPowerTypeColors and (pname ~= "MANA" and pname ~= "NONE") then
-        local c = PowerBarColor[pname] -- getting default color from a globalr2
-        r,g,b = c.r, c.g, c.b
-    else
-        r,g,b = unpack(db.powerColor)
-    end
-    a = 1
-    text = job.text
-
-    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
-end
 function contentNormalizers.AURA(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local duration, expirationTime, count1, icon1, spellID, caster = ...
@@ -650,19 +619,6 @@ function Aptechka:NormalizeWidgetContent(...)
     NormalizeContent(...)
 end
 
-
-
-local function multiplyColor(mul, r,g,b,a)
-    return r*mul, g*mul, b*mul, a
-end
-
-local HealthBarSetColorFG = function(self, r,g,b, mul)
-    self:SetStatusBarColor(r*mul, g*mul, b*mul, 1)
-end
-local HealthBarSetColorBG = function(self, r,g,b, mul)
-    self:SetVertexColor(r*mul, g*mul, b*mul, 1)
-end
-
 --[[
 local SetJob_HealthBar = function(self, job, state, contentType, ...)
     local profile = Aptechka.db.profile
@@ -708,25 +664,6 @@ local SetJob_HealthBar = function(self, job, state, contentType, ...)
     end
 end
 ]]
-
-
-local SetJob_PowerBar = function(self, job, state, contentType, ...)
-    local profile = Aptechka.db.profile
-    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords, isReversed = NormalizeContent(job, state, contentType, ...)
-    local r2,g2,b2
-    if profile.useCustomBackgroundColorPower then
-        r2,g2,b2 = unpack(profile.customBackgroundColorPower)
-    else
-        r2,g2,b2 = r,g,b
-    end
-    if b then
-        local mulFG = profile.fgColorMultiplier or 1
-        local mulBG = profile.bgColorMultiplier or 0.2
-        -- local bgAlpha = profile.bgAlpha
-        self.bg:SetColor(r,g,b,a, mulFG)
-        self:SetColor(r2,g2,b2, mulBG)
-    end
-end
 
 local forcedStandardFillPowerTypes = {
     RAGE = true,
@@ -2869,6 +2806,14 @@ local function CreateAuraButtonDebuffIcon(button, widgetOptions)
     icd:SetAllPoints(icon)
     button.cd = icd
 
+    local stacktext = button:CreateFontString(nil,"ARTWORK")
+    stacktext:SetDrawLayer("ARTWORK",1)
+    stacktext:SetJustifyH"RIGHT"
+    stacktext:SetPoint("BOTTOMRIGHT", anchorRegion, "BOTTOMRIGHT", 3,-1)
+    stacktext:SetTextColor(1,1,1)
+    UpdateFontStringSettings(stacktext, config.defaultFont, 12, "OUTLINE")
+    button.count = stacktext
+
     -- local spark = f:CreateTexture(nil, "ARTWORK", nil, 5)
     -- spark:SetTexture("Interface/AddOns/Aptechka/spark")
     -- spark:SetBlendMode("ADD")
@@ -3122,7 +3067,7 @@ end
 local Border_SetJob = function(self, job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords = NormalizeContent(job, state, contentType, ...)
 
-    self:SetVertexColor(r,g,b, 0.35)
+    self:SetVertexColor(r,g,b, 0.5)
 end
 local Border_StartTrace = MakeStartTraceForBlinkAnimation(function(self, job)
     local r,g,b,a = GetColor(job)
@@ -3331,15 +3276,12 @@ local function Reconf(self)
         flashPool.UpdatePosition = flashPool.UpdatePositionHorizontal
 
         local healAbsorb = self.health.healabsorb
-        AttachRegionToMask(healAbsorb, self.health, -1)
         healAbsorb.UpdatePosition = healAbsorb.UpdatePositionHorizontal
 
         local absorb2 = self.health.absorb2
-        AttachRegionToMask(absorb2, self.health, 1)
         absorb2.UpdatePosition = absorb2.UpdatePositionHorizontal
 
         local hpi = self.health.incoming
-        AttachRegionToMask(hpi, self.health, 1)
         hpi.UpdatePosition = hpi.UpdatePositionHorizontal
     end
 
@@ -3386,14 +3328,13 @@ AptechkaDefaultConfig.GridSkin = function(self)
     powerbar:SetMinMaxValues(0,100)
     powerbar:SetOrientation("VERTICAL")
     -- powerbar:SetStatusBarColor(0.5,0.5,1)
-    powerbar.SetJob = SetJob_PowerBar
+    -- powerbar.SetJob = SetJob_PowerBar
     powerbar.OnPowerTypeChange = PowerBar_OnPowerTypeChange
-    powerbar.SetColor = HealthBarSetColorFG
+    powerbar.SetColor = HealthBarSetColorInverted
 
     local pbbg = self:CreateTexture(nil,"ARTWORK",nil,-8)
     pbbg:SetAllPoints(powerbar)
     pbbg:SetTexture(powertexture)
-    pbbg.SetColor = HealthBarSetColorBG
     powerbar.bg = pbbg
 
 
@@ -3410,13 +3351,12 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp:SetOrientation("VERTICAL")
     hp:SetValue(0.5) -- needed to sort of initialize the points on main mask region, that other regions attach to
     hp.parent = self
-    hp.SetColor = HealthBarSetColorFG
+    hp.SetColor = HealthBarSetColorInverted
     --hp:SetValue(0)
 
     local hpbg = self:CreateTexture(nil,"ARTWORK",nil,-8)
     hpbg:SetAllPoints(hp)
     hpbg:SetTexture(texture)
-    hpbg.SetColor = HealthBarSetColorBG
     hp.bg = hpbg
 
 
@@ -3474,6 +3414,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
             button:SetHideTooltipInCombat(true)
 
             local bar = CreateAuraButtonIconBar(button, config.auraContainers["bars"].widgetOptions)
+            bar:SetFrameLevel(FRAMELEVEL.BAR+10)
             button:SetIcon(bar.icon)
             button:SetDurationBar(bar)
 
@@ -3588,6 +3529,26 @@ AptechkaDefaultConfig.GridSkin = function(self)
         end,
     });
 
+    buffs:AddAuraSlot("raidBuff", "HELPFUL|RAID", {
+        maxFrameCount = 1,
+        candidateFilters = {
+            includeSpellIDs = config.auraContainers["raidBuff"].includeSpellIDs
+        },
+        initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
+            local pixel = pixelperfect(1)
+            button:SetSize(1,1)
+            button:SetSize(pixelperfect(7), pixelperfect(7));
+            -- button:SetHideTooltipInCombat(true)
+
+            CreateAuraButtonCornerIndicator(button, 0)
+            button:SetFrameLevel(FRAMELEVEL.TEXTURE)
+            button.texture:SetVertexColor(unpack(config.auraContainers["raidBuff"].widgetOptions.color))
+
+            -- button:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
+            button:SetPoint("BOTTOMRIGHT", hp, "BOTTOMRIGHT",0,0)
+        end,
+    });
+
 
 
     local debuffs = self.DebuffContainer
@@ -3610,7 +3571,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     }
 
     local debuffIconWidth, debuffIconHeight = 16, 13
-    -- debuffs:SetAuraProcessingPolicy(CustomAuraContainerAuraProcessingPolicy.ProcessAura) -- Default is none
+    debuffs:SetAuraProcessingPolicy(CustomAuraContainerAuraProcessingPolicy.ProcessAura) -- Default is none
     debuffs:AddAuraGroup("debuffIconsBIG", "HARMFUL", {
         maxFrameCount = 4,
         candidateFilters = {
@@ -3620,12 +3581,14 @@ AptechkaDefaultConfig.GridSkin = function(self)
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             local pixel = pixelperfect(1)
             button:SetSize(pixelperfect(debuffIconWidth*1.3), pixelperfect(debuffIconHeight*1.3));
-            -- button:SetHideTooltipInCombat(true)
 
+            -- button:SetHideTooltipInCombat(true)
             CreateAuraButtonDebuffIcon(button)
+            button:SetFrameLevel(FRAMELEVEL.BAR+10)
             button:SetIcon(button.icon)
             -- button:SetDurationBar(button.bar)
             button:SetDurationCooldown(button.cd)
+            button:SetApplicationCount(button.count)
             button:AddDispelTypeTexture(button.debuffTypeTexture, dispelOptions)
         end,
     });
@@ -3644,9 +3607,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
             -- button:SetHideTooltipInCombat(true)
 
             CreateAuraButtonDebuffIcon(button)
+            button:SetFrameLevel(FRAMELEVEL.BAR+10)
             button:SetIcon(button.icon)
             -- button:SetDurationBar(button.bar)
             button:SetDurationCooldown(button.cd)
+            button:SetApplicationCount(button.count)
             button:AddDispelTypeTexture(button.debuffTypeTexture, dispelOptions)
         end,
     });
@@ -3659,10 +3624,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
         maxFrameCount = 1,
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             local pixel = pixelperfect(1)
-            button:SetSize(pixelperfect(14), pixelperfect(17));
+            button:SetSize(pixelperfect(15), pixelperfect(15));
             button:SetHideTooltipInCombat(true)
 
             CreateAuraButtonCornerIndicator(button, 180)
+            button:SetFrameLevel(FRAMELEVEL.TEXTURE)
             button:AddDispelTypeTexture(button.texture, dispelOptions)
 
             button:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)

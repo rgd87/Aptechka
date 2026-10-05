@@ -62,7 +62,7 @@ config.IncomingHealStatus = { name = "IncHealText", assignto = set(), color = { 
 config.HealthTextStatus = { name = "HealthText", assignto = set("text2"), color = { 54/255, 201/255, 99/256 }, priority = 10, formatType = "MISSING_VALUE_SHORT" }
 -- config.UnitNameStatus = { name = "UnitName", assignto = set("text1"), classcolor = true, priority = 5 }
 config.HealthBarColor = { name = "HealthBar", assignto = set("health"), color = {1, .3, .3}, classcolor = true, priority = 10 }
-config.PowerBarColor = { name = "PowerBarColor", assignto = set("power"), color = {.5,.5,1}, priority = 20 }
+-- config.PowerBarColor = { name = "PowerBarColor", assignto = set("power"), color = {.5,.5,1}, priority = 20 }
 config.InVehicleStatus = { name = "InVehicle", assignto = set("vehicle"), color = {0.3,1,0.3}, priority = 21 }
 config.LOSStatus = { name = "OutOfSight", assignto = set("healfeedback"), scale = 1.6, color = {1,0.1,0.1}, priority = 95, fade = 0.3 }
 config.DispelStatus = { name = "Dispel", assignto = set("debuffHighlight"), scale = 1, pulse = 2, spin = true, priority = 86 }
@@ -184,7 +184,13 @@ config.auraContainers = {
     },
     OffensiveCD = {
         includeSpellIDs = {}
-    }
+    },
+    raidBuff = {
+        widgetOptions = {
+            color = {1,1,1},
+        },
+        includeSpellIDs = {}
+    },
 }
 function helpers.AddAuraToContainer(slotName, spellIDs)
     if not config.auraContainers[slotName] then return end
@@ -402,6 +408,7 @@ AddAuraToContainer("OffensiveCD", {
     50334, 102558, -- Berserk
     106951, 102543, -- Berserk: Incarnation
     194223, 102560, -- Celestial Alignment
+    29166, -- Innervate
 
     -- SHAMAN
     114050, 114051, 114052, 1219480, -- Ascendance
@@ -602,6 +609,11 @@ if playerClass == "PRIEST" then
     })
     -- config.auraContainers.bar4.widgetOptions.sampleRect = {0.750, 0.55, 0.05, 0.02}
     ChangeWidgetColorForContainer("bar4",  1, .3, .3)
+
+    AddAuraToContainer("raidBuff", {
+        21562, -- Power Word: Fortitude
+    })
+    config.auraContainers["raidBuff"].widgetOptions.color = {1, 1, 1}
 
     -- Power Word: Fortitude
     A{ id = 21562, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
@@ -865,13 +877,18 @@ if playerClass == "DRUID" then
         774, -- Rejuvenation
         155777, -- Germination
         8936, -- Regrowth
-        48438 -- Wild Growth
+        48438, -- Wild Growth
     })
+
+    AddAuraToContainer("raidBuff", {
+        1126, -- Mark of the Wild
+    })
+    config.auraContainers["raidBuff"].widgetOptions.color = {235/255 , 145/255, 199/255}
 
     AddAuraToContainer("bar4", {
         33763, -- Lifebloom
-        474750, -- Symbiotic Relationship
     })
+    -- 474750, -- Symbiotic Relationship
     ChangeWidgetColorForContainer("bar4", 0.2, 1, 0.2)
 
     A{ id = 1126,  type = "HELPFUL", assignto = set("raidbuff"), color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
@@ -952,6 +969,11 @@ if playerClass == "EVOKER" then
     })
     ChangeWidgetColorForContainer("bar4", 1, 0.55, 0)
 
+    AddAuraToContainer("raidBuff", {
+        381748, 381732, 381741, 381746, 381749, 381750, 381751, 381752, 381753, 381754, 381756, 381757, 381758, -- Blessing of the Bronze
+    })
+    config.auraContainers["raidBuff"].widgetOptions.color = {1, 0.6, 0}
+
     -- Blessing of the Bronze
     A{ id = { 381748, 381732, 381741, 381746, 381749, 381750, 381751, 381752, 381753, 381754, 381756, 381757, 381758 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.6, 0}, priority = 50, isMissing = true }
 
@@ -1004,6 +1026,12 @@ if playerClass == "WARRIOR" then
     A{ id = 6673,  type = "HELPFUL", assignto = set("raidbuff"), color = { 1, .4 , .4}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(6673) end}
 end
 if playerClass == "MAGE" then
+    AddAuraToContainer("raidBuff", {
+        1459, -- Arcane Intellect
+    })
+    config.auraContainers["raidBuff"].widgetOptions.color = {.4 , .4, 1}
+
+
     -- Focus Magic
     A{ id = 321358,  type = "HELPFUL", assignto = set("bars"), color = { 206/255, 4/256, 56/256 }, priority = 50, isMine = true} --Arcane Intellect
 

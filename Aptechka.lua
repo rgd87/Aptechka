@@ -847,7 +847,9 @@ function Aptechka:RefreshAllUnitsHealth()
 end
 function Aptechka.FrameUpdateUnitColor(frame, unit)
     Aptechka.FrameColorize(frame, unit)
-    if not frame.power.disabled then FrameSetJob(frame, config.PowerBarColor, true, "POWERCOLOR", frame.state.powerType, makeUnique()) end
+    if not frame.power.disabled then
+        Aptechka.FrameUpdatePowerColor(frame, unit, frame.power.powerType)
+    end
 end
 function Aptechka:RefreshAllUnitsColors()
     Aptechka:ForEachFrame(Aptechka.FrameUpdateName)
@@ -1094,19 +1096,19 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
         FrameSetJob(self, config.AggroStatus, false)
         local isGhost = UnitIsGhost(unit)
         local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
-        Aptechka.UpdateHealthColor(self, unit)
+        Aptechka.FrameUpdateHealthColor(self, unit)
         FrameSetJob(self, deadorghost, true)
         FrameSetJob(self,config.HealthTextStatus, false )
         state.isDead = true
         state.isGhost = isGhost
-        Aptechka.FrameUpdateDisplayPower(self, unit, true)
+        Aptechka.FrameUpdateDisplayPower(self, unit)
     elseif state.wasDead ~= isDead then
         state.isDead = nil
         state.isGhost = nil
-        Aptechka.UpdateHealthColor(self, unit)
+        Aptechka.FrameUpdateHealthColor(self, unit)
         FrameSetJob(self, config.GhostStatus, false)
         FrameSetJob(self, config.DeadStatus, false)
-        Aptechka.FrameUpdateDisplayPower(self, unit, false)
+        Aptechka.FrameUpdateDisplayPower(self, unit)
     end
     state.wasDead = isDead
 end
@@ -1419,7 +1421,7 @@ function Aptechka.FrameUpdatePower(frame, unit, ptype)
     -- local special = SpecialPowerTypeHandlers[ptype]
     -- if special then special(frame, unit, ptype) end
 
-    if ptype == frame.state.powerType then
+    if ptype == frame.power.powerType then
         local handler = PowerTypeHandlers[ptype]
         if handler then handler(frame, unit, ptype) end
     end
@@ -1429,7 +1431,7 @@ function Aptechka.UNIT_POWER_UPDATE(self, event, unit, ptype)
 end
 
 function Aptechka.FrameUpdatePowerMax(frame, unit, ptype)
-    if ptype == frame.state.powerType then
+    if ptype == frame.power.powerType then
         local powerMax = UnitPowerMax(unit, ptype)
         frame.power:SetMinMaxValues(0, powerMax)
     end
@@ -1474,9 +1476,8 @@ do
         end
 
         frame.power:OnPowerTypeChange(pname, not showPowerBar)
-        frame.state.powerType = showPowerBar and pname or "NONE"
-
-        FrameSetJob(frame, config.PowerBarColor, true, "POWERCOLOR", pname, makeUnique())
+        frame.power.powerType = showPowerBar and pname or "NONE"
+        Aptechka.FrameUpdatePowerColor(frame, unit, frame.power.powerType)
     end
 end
 
@@ -1978,7 +1979,7 @@ end
 --applying UnitButton color
 
 
-function Aptechka.UpdateHealthColor(frame, unit)
+function Aptechka.FrameUpdateHealthColor(frame, unit)
     local profile = Aptechka.db.profile
     local r,g,b
     if UnitIsDeadOrGhost(unit) then
@@ -1991,15 +1992,39 @@ function Aptechka.UpdateHealthColor(frame, unit)
 
     local mulFG = profile.fgColorMultiplier or 1
     local mulBG = profile.bgColorMultiplier or 0.2
+
     if fgShowMissing then
-        frame.health.bg:SetColor(r,g,b, mulFG)
-        frame.health:SetColor(r,g,b, mulBG)
+        frame.health:SetStatusBarColor(r*mulBG, g*mulBG, b*mulBG, 1)
+        frame.health.bg:SetVertexColor(r*mulFG, g*mulFG, b*mulFG, 1)
+        frame.healabsorb:SetStatusBarColor(r,g,b, 0.6)
     else
-        frame.health:SetColor(r,g,b, mulFG)
-        frame.health.bg:SetColor(r,g,b, mulBG)
+        frame.health:SetStatusBarColor(r*mulFG, g*mulFG, b*mulFG, 1)
+        frame.health.bg:SetVertexColor(r*mulBG, g*mulBG, b*mulBG, 1)
+        frame.healabsorb:SetStatusBarColor(0,0,0, 1)
+    end
+end
+
+function Aptechka.FrameUpdatePowerColor(frame, unit, powerType)
+    local r,g,b
+    local showPowerTypeColors = true
+    local profile = Aptechka.db.profile
+    if showPowerTypeColors and (powerType ~= "MANA" and powerType ~= "NONE") then
+        print(powerType)
+        local c = PowerBarColor[powerType] -- Blizzard UI Global
+        r,g,b = c.r, c.g, c.b
+    else
+        r,g,b = unpack(profile.powerColor)
     end
 
-    frame.health:SetColor(r, g, b, 0.2)
+    local mulFG = profile.fgColorMultiplier or 1
+    local mulBG = profile.bgColorMultiplier or 0.2
+    if fgShowMissing then
+        frame.power:SetStatusBarColor(r*mulBG, g*mulBG, b*mulBG, 1)
+        frame.power.bg:SetVertexColor(r*mulFG, g*mulFG, b*mulFG, 1)
+    else
+        frame.power:SetStatusBarColor(r*mulFG, g*mulFG, b*mulFG, 1)
+        frame.power.bg:SetVertexColor(r*mulBG, g*mulBG, b*mulBG, 1)
+    end
 end
 function Aptechka.FrameColorize(frame, unit)
     -- if gradientHealthColor then
@@ -2024,7 +2049,7 @@ function Aptechka.FrameColorize(frame, unit)
         end
         frame.state.classcolor = color
 
-        Aptechka.UpdateHealthColor(frame, unit)
+        Aptechka.FrameUpdateHealthColor(frame, unit)
 
         frame.text1.text:SetTextColor(color.r, color.g, color.b)
     -- end
@@ -2104,6 +2129,13 @@ local function updateUnitButton(self, unit)
         self[1] = -1 -- reset range state to undefined
     end
     state.wasDead = nil
+    Aptechka.FrameUpdateDisplayPower(self, unit)
+    local ptype = select(2,UnitPowerType(owner))
+    -- Aptechka.FrameUpdatePower(self, unit, "RUNIC_POWER")
+    -- Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
+    Aptechka.FrameUpdatePowerMax(self, unit, ptype)
+    Aptechka.FrameUpdatePower(self, unit, ptype)
+
     Aptechka.FrameUpdateHealthMax(self, unit, "UNIT_MAXHEALTH")
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
     Aptechka.FrameUpdateAbsorb(self, unit)
@@ -2119,14 +2151,6 @@ local function updateUnitButton(self, unit)
     Aptechka.FrameCheckPhase(self, unit)
     Aptechka.FrameUpdateIncomingRes(self, unit)
     Aptechka.FrameReadyCheckConfirm(self, unit)
-    if not config.disableManaBar then
-        Aptechka.FrameUpdateDisplayPower(self, unit)
-        local ptype = select(2,UnitPowerType(owner))
-        -- Aptechka.FrameUpdatePower(self, unit, "RUNIC_POWER")
-        -- Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
-        Aptechka.FrameUpdatePowerMax(self, unit, ptype)
-        Aptechka.FrameUpdatePower(self, unit, ptype)
-    end
     Aptechka.FrameUpdateThreat(self, unit)
     Aptechka.FrameUpdateMindControl(self, unit)
     Aptechka:RAID_TARGET_UPDATE()
