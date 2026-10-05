@@ -700,23 +700,52 @@ local PowerBar_OnPowerTypeChange = function(powerbar, powerType, hidePower)
         self.power:Hide()
         -- self.power.powerType = "NONE"
         if isVertical then
-            -- self.health:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
-            self.health:SetPoint("TOPRIGHT", self, "TOPRIGHT",0,0)
+            self.health:SetPoint("RIGHT", self, "RIGHT",0,0)
+            self.health.temploss:SetPoint("RIGHT", self, "RIGHT",0,0)
         else
-            -- self.health:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
-            self.health:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT",0,0)
+            self.health:SetPoint("BOTTOM", self, "BOTTOM",0,0)
+            self.health.temploss:SetPoint("BOTTOM", self, "BOTTOM",0,0)
         end
     else
         self.power.disabled = nil
         self.power:Show()
         -- self.power.powerType = powerType
         if isVertical then
-            self.health:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
-            self.health:SetPoint("TOPRIGHT", self.power, "TOPLEFT",0,0)
+            self.health:SetPoint("RIGHT", self.power, "LEFT",0,0)
+            self.health.temploss:SetPoint("RIGHT", self.power, "LEFT",0,0)
         else
-            self.health:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
-            self.health:SetPoint("BOTTOMLEFT", self.power, "TOPLEFT",0,0)
+            self.health:SetPoint("BOTTOM", self.power, "TOP",0,0)
+            self.health.temploss:SetPoint("BOTTOM", self.power, "TOP",0,0)
         end
+    end
+end
+local function HealthBar_ReanchorForTempLoss(self, healthMaxMod)
+    local db = Aptechka.db.profile
+    local isVertical = db.healthOrientation == "VERTICAL"
+    if isVertical then
+        if healthMaxMod > 0 then
+            local tempLossTex = self.health.temploss:GetStatusBarTexture()
+            self.health:SetPoint("TOP", tempLossTex, "BOTTOM", 0,0)
+            -- local left, right, top, bottom = 0, 1, healthMaxMod, 1
+        else
+            self.health:SetPoint("TOP", self, "TOP", 0,0)
+        end
+        local newHealthHeight = self.health:GetHeight()
+        self.absorb:SetHeight(newHealthHeight)
+        self.healabsorb:SetHeight(newHealthHeight)
+        self.health.incoming:SetHeight(newHealthHeight)
+    else
+        if healthMaxMod > 0 then
+            local tempLossTex = self.health.temploss:GetStatusBarTexture()
+            self.health:SetPoint("RIGHT", tempLossTex, "LEFT", 0,0)
+            -- local left, right, top, bottom = 0, 1, healthMaxMod, 1
+        else
+            self.health:SetPoint("RIGHT", self, "RIGHT", 0,0)
+        end
+        local newHealthWidth = self.health:GetWidth()
+        self.absorb:SetWidth(newHealthWidth)
+        self.healabsorb:SetWidth(newHealthWidth)
+        self.health.incoming:SetWidth(newHealthWidth)
     end
 end
 ------------------------------------------------------------
@@ -2290,7 +2319,7 @@ local function CreateHealAbsorb(hp)
     -- healAbsorb:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\shieldtex")
 
     healAbsorb:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\healabsorbtex_shadow")
-    local statusBarTexture = healAbsorb:GetStatusBarTexture()
+    healAbsorb:SetRotatesTexture(true)
     -- healAbsorb:SetStatusBarTexture("RaidFrame-Absorb-Overlay")
 
     -- tex:SetTexCoord(0, 3, 0, 3)
@@ -2325,6 +2354,7 @@ local function CreateAbsorbBar(frame, hp)
     absorb:SetPoint("BOTTOMRIGHT", hpEdgeTexture, "TOPRIGHT")
     absorb:SetHeight(db.height)
     absorb:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\shieldtex")
+    -- absorb:SetRotatesTexture(true)
     absorb:SetStatusBarColor(0,0,0, 0.65)
     return absorb
 end
@@ -2343,6 +2373,7 @@ local function CreateIncomingHealBar(hp)
     hpi:SetPoint("BOTTOMRIGHT", hpEdgeTexture, "TOPRIGHT")
     hpi:SetHeight(db.height)
     hpi:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
+    hpi:GetStatusBarTexture().RotateCoords = Texture_RotateCoords
     hpi:SetStatusBarColor(0,0,0, 0.5)
 
     return hpi
@@ -3224,69 +3255,107 @@ local function Reconf(self)
 
     if isVertical then
         self.health:SetOrientation("VERTICAL")
+        self.health.fade:SetOrientation("VERTICAL")
         self.power:SetOrientation("VERTICAL")
 
         local frameLength = pixelperfect(db.height)
-        self.health.frameLength = frameLength
-
-        self.health:ClearAllPoints()
-        self.health:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
-        self.health:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-        self.health:SetHeight(frameLength)
+        local health = self.health
+        health.frameLength = frameLength
+        health:ClearAllPoints()
+        health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+        health:SetPoint("RIGHT",self,"RIGHT",0,0)
+        health:SetPoint("TOP", self, "TOP", 0,0)
 
         local power = self.power
         power:ClearAllPoints()
         power:SetWidth(powerSize)
         power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
-        power:SetHeight(frameLength)
+        power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
+
         power:OnPowerTypeChange()
 
-        local  absorb = self.health.absorb
+
+        local hpEdgeTexture = health:GetStatusBarTexture()
+
+        local temploss = health.temploss
+        temploss:SetOrientation("VERTICAL")
+        temploss:ClearAllPoints()
+        temploss:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
+        temploss:SetPoint("BOTTOM", self, "BOTTOM", 0,0)
+        temploss:SetPoint("RIGHT", self, "RIGHT", 0,0)
+
+        local  absorb = self.absorb
         absorb:SetOrientation("VERTICAL")
-        Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
+        absorb:ClearAllPoints()
+        absorb:SetPoint("BOTTOMLEFT", hpEdgeTexture, "TOPLEFT")
+        absorb:SetPoint("BOTTOMRIGHT", hpEdgeTexture, "TOPRIGHT")
+        absorb:SetHeight(frameLength)
 
         local healAbsorb = self.health.healabsorb
         healAbsorb:SetOrientation("VERTICAL")
+        healAbsorb:ClearAllPoints()
+        healAbsorb:SetPoint("TOPLEFT", hpEdgeTexture, "TOPLEFT")
+        healAbsorb:SetPoint("TOPRIGHT", hpEdgeTexture, "TOPRIGHT")
+        healAbsorb:SetHeight(frameLength)
 
         local hpi = self.health.incoming
         hpi:SetOrientation("VERTICAL")
+        hpi:ClearAllPoints()
+        hpi:SetPoint("BOTTOMLEFT", hpEdgeTexture, "TOPLEFT")
+        hpi:SetPoint("BOTTOMRIGHT", hpEdgeTexture, "TOPRIGHT")
+        hpi:SetHeight(frameLength)
     else
         self.health:SetOrientation("HORIZONTAL")
+        self.health.fade:SetOrientation("HORIZONTAL")
         self.power:SetOrientation("HORIZONTAL")
 
         local frameLength = pixelperfect(db.width)
-        self.health.frameLength = frameLength
+        local health = self.health
+        health.frameLength = frameLength
 
-        self.health:ClearAllPoints()
-        self.health:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
-        self.health:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-        self.health:SetWidth(frameLength)
+        health:ClearAllPoints()
+        health:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
+        health:SetPoint("RIGHT",self,"RIGHT",0,0)
+        health:SetPoint("BOTTOM", self, "BOTTOM", 0,0)
 
         local power = self.power
         power:ClearAllPoints()
         power:SetHeight(powerSize)
         power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-        power:SetWidth(frameLength)
+        power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
         power:OnPowerTypeChange()
 
-        local absorb = self.health.absorb
-        absorb:ClearAllPoints()
-        absorb:SetHeight(3)
-        absorb.orientation = "HORIZONTAL"
-        absorb.AlignAbsorb = AlignAbsorbHorizontal
-        Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, self.unit)
+        local hpEdgeTexture = health:GetStatusBarTexture()
 
-        local flashPool = self.flashPool
-        flashPool.UpdatePosition = flashPool.UpdatePositionHorizontal
+        local temploss = health.temploss
+        temploss:SetOrientation("HORIZONTAL")
+        temploss:ClearAllPoints()
+        temploss:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0,0)
+        temploss:SetPoint("LEFT", self, "LEFT", 0,0)
+        temploss:SetPoint("BOTTOM", self, "BOTTOM", 0,0)
+
+        local  absorb = self.absorb
+        absorb:SetOrientation("HORIZONTAL")
+        absorb:GetStatusBarTexture():SetHorizTile(true)
+        absorb:GetStatusBarTexture():SetVertTile(false)
+        absorb:ClearAllPoints()
+        absorb:SetPoint("TOPLEFT", hpEdgeTexture, "TOPRIGHT")
+        absorb:SetPoint("BOTTOMLEFT", hpEdgeTexture, "BOTTOMRIGHT")
+        absorb:SetWidth(frameLength)
 
         local healAbsorb = self.health.healabsorb
-        healAbsorb.UpdatePosition = healAbsorb.UpdatePositionHorizontal
-
-        local absorb2 = self.health.absorb2
-        absorb2.UpdatePosition = absorb2.UpdatePositionHorizontal
+        healAbsorb:SetOrientation("HORIZONTAL")
+        healAbsorb:ClearAllPoints()
+        healAbsorb:SetPoint("TOPRIGHT", hpEdgeTexture, "TOPRIGHT")
+        healAbsorb:SetPoint("BOTTOMRIGHT", hpEdgeTexture, "BOTTOMRIGHT")
+        healAbsorb:SetWidth(frameLength)
 
         local hpi = self.health.incoming
-        hpi.UpdatePosition = hpi.UpdatePositionHorizontal
+        hpi:SetOrientation("HORIZONTAL")
+        hpi:ClearAllPoints()
+        hpi:SetPoint("TOPLEFT", hpEdgeTexture, "TOPRIGHT")
+        hpi:SetPoint("BOTTOMLEFT", hpEdgeTexture, "BOTTOMRIGHT")
+        hpi:SetWidth(frameLength)
     end
 
 end
@@ -3345,9 +3414,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     hp:SetFrameLevel(FRAMELEVEL.HEALTH)
     --hp:SetAllPoints(self)
-    hp:SetPoint("TOPLEFT",self,"TOPLEFT",0,0)
-    hp:SetPoint("TOPRIGHT",powerbar,"TOPRIGHT",0,0)
-    hp:SetHeight(db.height)
+    hp:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
+    hp:SetPoint("RIGHT",self,"RIGHT",0,0)
+    hp:SetPoint("TOP", self, "TOP", 0,0)
+    self.ReanchorForTempLoss = HealthBar_ReanchorForTempLoss
     hp:SetStatusBarTexture(texture)
     hp:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
     hp:SetMinMaxValues(0,1)
@@ -3389,12 +3459,14 @@ AptechkaDefaultConfig.GridSkin = function(self)
     temploss:SetFrameLevel(FRAMELEVEL.HEALTHFADE)
     temploss:SetOrientation("VERTICAL")
     temploss:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\temploss")
-    temploss:GetStatusBarTexture():SetTexCoord(1, 0, 0, 1)
+    temploss:SetRotatesTexture(true)
     temploss:SetReverseFill(true)
     temploss:SetMinMaxValues(0, 1)
     temploss:SetValue(0)
     temploss:SetStatusBarColor(0.5,0.5,0.5)
-    temploss:SetAllPoints(hp)
+    temploss:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
+    temploss:SetPoint("BOTTOM", self, "BOTTOM", 0,0)
+    temploss:SetPoint("RIGHT", self, "RIGHT", 0,0)
     hp.temploss = temploss
 
 
@@ -3555,7 +3627,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
         -- }
     }
 
-    local debuffIconWidth, debuffIconHeight = 16, 13
     debuffs:SetAuraProcessingPolicy(CustomAuraContainerAuraProcessingPolicy.ProcessAura) -- Default is none
     debuffs:AddAuraGroup("debuffIconsBIG", "HARMFUL", {
         maxFrameCount = 4,

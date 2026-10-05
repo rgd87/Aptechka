@@ -1027,17 +1027,18 @@ end
 
 function Aptechka.FrameUpdateHealthMaxModifiersChanged(self, unit, event, mod)
     local healthMaxMod = GetUnitTotalModifiedMaxHealthPercent(unit)
+    -- healthMaxMod = 0.25
     self.health.temploss:SetValue(healthMaxMod)
+
+    self:ReanchorForTempLoss(healthMaxMod)
 end
 function Aptechka:UNIT_MAX_HEALTH_MODIFIERS_CHANGED(event, unit, mod)
-    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealthMax, event, mod)
+    Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealthMaxModifiersChanged, event, mod)
 end
 
 
 function Aptechka.FrameUpdateHealthMax(self, unit, event)
-    local healCalc = self.health.healCalc
-    UnitGetDetailedHealPrediction(unit, nil, healCalc)
-    local hm = healCalc:GetMaximumHealth()
+    local hm = UnitHealthMax(unit)
 
     self.healabsorb:SetMinMaxValues(0, hm)
     self.absorb:SetMinMaxValues(0, hm)
@@ -1072,7 +1073,6 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
 
     -- self.healabsorb:SetValue(10000)
     -- self.absorb:SetValue(10000)
-    -- self.health.temploss:SetValue(0.15)
 
     --[[
     if enableLowHealthStatus then

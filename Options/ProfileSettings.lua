@@ -510,6 +510,7 @@ function ns.MakeProfileSettings()
                             Aptechka.db.profile.healthOrientation = v
                             Aptechka:ReconfigureUnprotected()
 
+                            --[[
                             local popts = Aptechka.util.MakeTables(Aptechka.db.profile, "widgetConfig", "debuffIcons")
                             if v == "HORIZONTAL" then
                                 Aptechka:RealignDebuffIconsForProfile(popts,"RIGHT")
@@ -517,6 +518,7 @@ function ns.MakeProfileSettings()
                                 Aptechka:RealignDebuffIconsForProfile(popts,"UP")
                             end
                             Aptechka:ReconfigureWidget("debuffIcons")
+                            ]]
                         end,
                     },
 
