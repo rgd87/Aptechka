@@ -129,8 +129,8 @@ local MakeBorder = function(self, tex, left, right, top, bottom, level)
     return t
 end
 local UpdateBorder = function(self, left, right, top, bottom)
-    t:SetPoint("TOPLEFT", self, "TOPLEFT", left, -top)
-    t:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -right, bottom)
+    self.outline:SetPoint("TOPLEFT", self, "TOPLEFT", left, -top)
+    self.outline:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -right, bottom)
 end
 
 
@@ -2611,7 +2611,7 @@ local function ReconfAuraButtonIconBar(self, widgetOptions)
     self:SetSize(pixelperfect(widgetOptions.width), pixelperfect(widgetOptions.height));
 
     local border = pixelperfect(1)
-    UpdateBorder(self.outline, -border, -border, -border, -border)
+    UpdateBorder(self, -border, -border, -border, -border)
 
     local sampleRect = widgetOptions.sampleRect or {0.20, 0.35, 0.05, 0.02}
     self.icon:SetTexCoord(GetRectTexCoords(unpack(sampleRect)))
@@ -2720,7 +2720,7 @@ local function ReconfAuraButtonBarIcon(self, widgetOptions)
     self:SetSize(pixelperfect(widgetOptions.width), pixelperfect(widgetOptions.height));
 
     local border = pixelperfect(1)
-    UpdateBorder(self.outline, -border, -border, -border, -border)
+    UpdateBorder(self, -border, -border, -border, -border)
 
     self.bar.spark:SetHeight(self:GetHeight())
 end
@@ -2810,7 +2810,7 @@ local function ReconfAuraButtonDebuffIcon(self, widgetOptions)
     self:SetSize(pixelperfect(widgetOptions.width), pixelperfect(widgetOptions.height));
 
     local pixel = pixelperfect(1)
-    UpdateBorder(self.outline, -pixel*2, -pixel, -pixel, -pixel)
+    UpdateBorder(self, -pixel*2, -pixel, -pixel, -pixel)
     local dttex = self.debuffTypeTexture
     dttex:SetPoint("TOPLEFT", self, "TOPLEFT", -pixel*1, 0)
     dttex:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT")
@@ -2855,7 +2855,7 @@ local function CreateAuraButtonDebuffIcon(self, widgetOptions)
     local stacktext = self:CreateFontString(nil,"ARTWORK")
     stacktext:SetDrawLayer("ARTWORK",1)
     stacktext:SetJustifyH"RIGHT"
-    stacktext:SetPoint("BOTTOMRIGHT", anchorRegion, "BOTTOMRIGHT", 3,-1)
+    stacktext:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 3,-1)
     stacktext:SetTextColor(1,1,1)
     UpdateFontStringSettings(stacktext, config.defaultFont, 12, "OUTLINE")
     self.count = stacktext
@@ -3240,12 +3240,6 @@ local function Reconf(self)
         power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
         power:SetHeight(frameLength)
         power:OnPowerTypeChange()
-        if enableSeparator then
-            power.separator:ClearAllPoints()
-            power.separator:SetWidth(pixelperfect(1))
-            power.separator:SetPoint("BOTTOM", power, "BOTTOMLEFT",0,0)
-            power.separator:SetPoint("TOP", power, "TOPLEFT",0,0)
-        end
 
         local  absorb = self.health.absorb
         absorb:SetOrientation("VERTICAL")
@@ -3274,12 +3268,6 @@ local function Reconf(self)
         power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
         power:SetWidth(frameLength)
         power:OnPowerTypeChange()
-        if enableSeparator then
-            power.separator:ClearAllPoints()
-            power.separator:SetHeight(pixelperfect(1))
-            power.separator:SetPoint("LEFT", power, "TOPLEFT",0,0)
-            power.separator:SetPoint("RIGHT", power, "TOPRIGHT",0,0)
-        end
 
         local absorb = self.health.absorb
         absorb:ClearAllPoints()
@@ -3346,7 +3334,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     -- powerbar:SetStatusBarColor(0.5,0.5,1)
     -- powerbar.SetJob = SetJob_PowerBar
     powerbar.OnPowerTypeChange = PowerBar_OnPowerTypeChange
-    powerbar.SetColor = HealthBarSetColorInverted
 
     local pbbg = self:CreateTexture(nil,"ARTWORK",nil,-8)
     pbbg:SetAllPoints(powerbar)
@@ -3367,7 +3354,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
     hp:SetOrientation("VERTICAL")
     hp:SetValue(0.5) -- needed to sort of initialize the points on main mask region, that other regions attach to
     hp.parent = self
-    hp.SetColor = HealthBarSetColorInverted
     --hp:SetValue(0)
 
     local hpbg = self:CreateTexture(nil,"ARTWORK",nil,-8)

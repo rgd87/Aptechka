@@ -458,6 +458,9 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- UNIT_AFK_CHANGED
     end
 
+    self:RegisterEvent("PLAYER_REGEN_ENABLED")
+    self:RegisterEvent("PLAYER_REGEN_DISABLED")
+
     self:RegisterEvent("UNIT_FACTION")
     self:RegisterEvent("UNIT_FLAGS")
 
@@ -830,7 +833,7 @@ end
 
 function Aptechka:Reconfigure()
     if not self.isInitialized then return end
-    if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
+    if InCombatLockdown() then self.shouldReconfAFterCombat = true; return end
     self:ReconfigureProtected()
     self:ReconfigureUnprotected()
     self:ReconfigureAllWidgets()
@@ -899,7 +902,7 @@ function Aptechka:UpdateUnprotectedUpvalues()
     alphaOutOfRange = Aptechka.db.profile.alphaOutOfRange
 end
 function Aptechka:ReconfigureProtected()
-    if InCombatLockdown() then self:RegisterEvent("PLAYER_REGEN_ENABLED"); return end
+    if InCombatLockdown() then self.shouldReconfAFterCombat = true; return end
 
     self:RepositionAnchors()
     self:UpdatePetGroupConfig()
@@ -1757,10 +1760,22 @@ function Aptechka.FrameCheckRoles(self, unit )
     end
 end
 
+
+function Aptechka.PLAYER_REGEN_DISABLED(self,event)
+    Aptechka:ForEachFrame(function(frame, unit)
+        frame.BuffContainer:SetAuraSlotFilterString("raidBuff", "HELPFUL|RAID_IN_COMBAT")
+    end)
+end
 function Aptechka.PLAYER_REGEN_ENABLED(self,event)
-    self:LayoutUpdate()
-    self:Reconfigure()
-    self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+    Aptechka:ForEachFrame(function(frame, unit)
+        frame.BuffContainer:SetAuraSlotFilterString("raidBuff", "HELPFUL|RAID")
+    end)
+
+    if self.shouldReconfAFterCombat then
+        self:LayoutUpdate()
+        self:Reconfigure()
+        self.shouldReconfAFterCombat = nil
+    end
 end
 
 function Aptechka:UpdateRangeChecker()
