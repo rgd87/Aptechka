@@ -3614,6 +3614,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     debuffs:AddAuraGroup("debuffIconsBIG", "HARMFUL", {
         maxFrameCount = 4,
         candidateFilters = {
+            excludeSpellIDs = helpers.auraBlacklist,
             isBossOrRoleAura = true,
         },
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
@@ -3633,7 +3634,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     debuffs:AddAuraGroup("debuffIcons", "HARMFUL", {
         maxFrameCount = 4,
         candidateFilters = {
-            -- excludeSpellIDs = helpers.auraBlacklist, -- this just doesn't work because secret bullshit
+            excludeSpellIDs = helpers.auraBlacklist, -- this just doesn't work because secret bullshit
             isBossOrRoleAura = false,
             -- maxDuration = 60*20, -- can't do it because some it also filters out debuffs without duration
         },

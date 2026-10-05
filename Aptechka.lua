@@ -431,13 +431,12 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
             self:SetAttribute("*type1","target")
             self:SetAttribute("shift-type2","togglemenu")
 
-
             local ccheader = header:GetFrameRef("clickcast_header")
             if ccheader then
                 ccheader:SetAttribute("clickcast_button", self)
                 ccheader:RunAttribute("clickcast_register")
             end
-            header:CallMethod("initialConfigFunction", self:GetName())
+            header:CallMethod("SetupFrame", self:GetName())
     ]=]
 
     if config.initialConfigPostHookSnippet then
@@ -2386,7 +2385,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
 
     f:UpdateVisibility()
     f:SetAttribute("showPlayer", true)
-    f.initialConfigFunction = Aptechka.SetupFrame
+    f.SetupFrame = Aptechka.SetupFrame
     f:SetAttribute("initialConfigFunction", self.initConfSnippet)
 
     local width = pixelperfect(AptechkaDB.profile.width or config.width)
@@ -2664,8 +2663,6 @@ function Aptechka.SetupFrame(header, frameName)
         --     end
         -- end)
     end
-
-    f:RegisterForClicks(unpack(config.registerForClicks))
 
     f.state = {
         widgets = {}

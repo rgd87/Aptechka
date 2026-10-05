@@ -28,7 +28,6 @@ end
 -- /script Aptechka.SetJob("player", AptechkaDefaultConfig.MindControlStatus, true)
 -- /script Aptechka.SetJob("player", AptechkaDefaultConfig.IncResStatus, true, "RESURRECTION")
 -- /script Aptechka.SetJob("player", AptechkaDefaultConfig.RCReady, true, "READY_CHECK", status)
-config.registerForClicks = { "AnyUp" }
 config.enableIncomingHeals = true
 config.incomingHealIgnorePlayer = false
 config.displayRoles = true
