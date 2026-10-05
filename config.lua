@@ -1425,6 +1425,10 @@ config.defaultDebuffHighlights = {
 -------------------------
 
 helpers.auraBlacklist = {
+    [382912] = true, -- Well-Honed Instincts
+    [1254550] = true, -- Arcane Empowerment
+
+
     -- Castle Nathria
     [325184] = true, -- Darkvein, Loose Anima
     [334909] = true, -- The Council of Blood, Oppressive Atmosphere
@@ -1484,7 +1488,7 @@ helpers.auraBlacklist = {
     [26013] = true, -- PVP Deserter
     [71041] = true, -- Deserter
     [8326] = true, -- Ghost
-    [25771] = true, -- Forbearance
+    -- [25771] = true, -- Forbearance
     [41425] = true, -- Hypothermia (after Ice Block)
     [6788] = true, -- Weakened Soul
     [113942] = true, -- demonic gates debuff
@@ -1510,7 +1514,7 @@ helpers.auraBlacklist = {
     [279956] = true, -- Azerite Globules
 
 
-
+--[[
     -- Common
 
     -- Healing Reduction
@@ -1594,7 +1598,7 @@ helpers.auraBlacklist = {
     [270332] = true, -- Scorching Pheromones
     [132951] = true, -- Hunter Flare
 
-
+]]
 }
 
 helpers.importantTargetedCasts = {

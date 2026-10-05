@@ -1021,7 +1021,7 @@ local function GetForegroundSeparation(unit, showMissing)
 end
 
 function Aptechka.FrameUpdateHealthMaxModifiersChanged(self, unit, event, mod)
-    local healthMaxMod = GetUnitMaxHealthModifier(unit)
+    local healthMaxMod = GetUnitTotalModifiedMaxHealthPercent(unit)
     self.health.temploss:SetValue(healthMaxMod)
 end
 function Aptechka:UNIT_MAX_HEALTH_MODIFIERS_CHANGED(event, unit, mod)
@@ -1030,7 +1030,9 @@ end
 
 
 function Aptechka.FrameUpdateHealthMax(self, unit, event)
-    local hm = UnitHealthMax(unit)
+    local healCalc = self.health.healCalc
+    UnitGetDetailedHealPrediction(unit, nil, healCalc)
+    local hm = healCalc:GetMaximumHealth()
 
     self.healabsorb:SetMinMaxValues(0, hm)
     self.absorb:SetMinMaxValues(0, hm)
@@ -1051,19 +1053,21 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     local healCalc = self.health.healCalc
     UnitGetDetailedHealPrediction(unit, nil, healCalc)
     local h = healCalc:GetCurrentHealth()
-    local incomingHeal = healCalc:GetIncomingHeals()
     local healthPercent = healCalc:GetCurrentHealthPercent()
     local healthMissing = healCalc:GetMissingHealth()
-    local absorb, isOverabsorb = healCalc:GetDamageAbsorbs()
-    local healAbsorb, isHealOverabsorb = healCalc:GetHealAbsorbs()
+    -- local incomingHeal = healCalc:GetIncomingHeals()
+    -- local absorb, isOverabsorb = healCalc:GetDamageAbsorbs()
+    -- local healAbsorb, isHealOverabsorb = healCalc:GetHealAbsorbs()
 
     self.health:SetValue(h)
     self.health.fade:SetValue(h, 1)
-    self.health.incoming:SetValue(incomingHeal)
-    self.healabsorb:SetValue(healAbsorb)
-    self.absorb:SetValue(absorb)
+    -- self.health.incoming:SetValue(incomingHeal)
+    -- self.healabsorb:SetValue(healAbsorb)
+    -- self.absorb:SetValue(absorb)
+
+    -- self.healabsorb:SetValue(10000)
+    -- self.absorb:SetValue(10000)
     -- self.health.temploss:SetValue(0.15)
-    -- self.health.incoming:SetValue(incomingHeal/hm, perc)
 
     --[[
     if enableLowHealthStatus then
@@ -1079,9 +1083,6 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
 
     local state = self.state
     -- state.healthPercent = perc
-    if gradientHealthColor then
-        FrameSetJob(self, config.HealthBarColor, true, "HealthBar", h)
-    end
 
     local healthTextAlpha = UnitHealthPercent(unit, nil, healthTextCurve)
     FrameSetJob(self, config.HealthTextStatus, true, nil, healthMissing, healthPercent, healthTextAlpha)
@@ -1093,11 +1094,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
         FrameSetJob(self, config.AggroStatus, false)
         local isGhost = UnitIsGhost(unit)
         local deadorghost = isGhost and config.GhostStatus or config.DeadStatus
-        self.health.bg:Hide()
-        self.health:Hide()
-        self.health.fade:Hide()
-        self.power.bg:Hide()
-        self.power:Hide()
+        Aptechka.UpdateHealthColor(self, unit)
         FrameSetJob(self, deadorghost, true)
         FrameSetJob(self,config.HealthTextStatus, false )
         state.isDead = true
@@ -1106,11 +1103,7 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     elseif state.wasDead ~= isDead then
         state.isDead = nil
         state.isGhost = nil
-        self.health.bg:Show()
-        self.health:Show()
-        self.health.fade:Show()
-        self.power.bg:Show()
-        self.power:Show()
+        Aptechka.UpdateHealthColor(self, unit)
         FrameSetJob(self, config.GhostStatus, false)
         FrameSetJob(self, config.DeadStatus, false)
         Aptechka.FrameUpdateDisplayPower(self, unit, false)
@@ -1474,6 +1467,10 @@ do
         end
         if isMainline then
             if not healerClasses[unitClass] and pname == "MANA" then showPowerBar = false end
+        end
+
+        if UnitIsDeadOrGhost(unit) then
+            showPowerBar = false
         end
 
         frame.power:OnPowerTypeChange(pname, not showPowerBar)
@@ -1980,6 +1977,30 @@ end
 
 --applying UnitButton color
 
+
+function Aptechka.UpdateHealthColor(frame, unit)
+    local profile = Aptechka.db.profile
+    local r,g,b
+    if UnitIsDeadOrGhost(unit) then
+        r,g,b = 0.05,0.05,0.05
+    elseif not UnitIsConnected(unit) then
+        r,g,b = 0.5,0.5,0.5
+    else
+        r,g,b = frame.state.classcolor:GetRGB()
+    end
+
+    local mulFG = profile.fgColorMultiplier or 1
+    local mulBG = profile.bgColorMultiplier or 0.2
+    if fgShowMissing then
+        frame.health.bg:SetColor(r,g,b, mulFG)
+        frame.health:SetColor(r,g,b, mulBG)
+    else
+        frame.health:SetColor(r,g,b, mulFG)
+        frame.health.bg:SetColor(r,g,b, mulBG)
+    end
+
+    frame.health:SetColor(r, g, b, 0.2)
+end
 function Aptechka.FrameColorize(frame, unit)
     -- if gradientHealthColor then
         -- frame.health:SetColor
@@ -2001,21 +2022,11 @@ function Aptechka.FrameColorize(frame, unit)
         if hdr.isPetGroup then
             color = CreateColor(unpack(profile.petColor))
         end
+        frame.state.classcolor = color
 
-        local r,g,b = color:GetRGB()
+        Aptechka.UpdateHealthColor(frame, unit)
 
-        local mulFG = profile.fgColorMultiplier or 1
-        local mulBG = profile.bgColorMultiplier or 0.2
-        if fgShowMissing then
-            frame.health.bg:SetColor(r,g,b, mulFG)
-            frame.health:SetColor(r,g,b, mulBG)
-        else
-            frame.health:SetColor(r,g,b, mulFG)
-            frame.health.bg:SetColor(r,g,b, mulBG)
-        end
-
-        frame.health:SetColor(r, g, b, 0.2)
-        frame.text1.text:SetTextColor(r, g, b)
+        frame.text1.text:SetTextColor(color.r, color.g, color.b)
     -- end
 end
 
@@ -2095,7 +2106,10 @@ local function updateUnitButton(self, unit)
     state.wasDead = nil
     Aptechka.FrameUpdateHealthMax(self, unit, "UNIT_MAXHEALTH")
     Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
-    Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, unit)
+    Aptechka.FrameUpdateAbsorb(self, unit)
+    Aptechka.FrameUpdateHealAbsorb(self, unit)
+    Aptechka.FrameUpdateHealPrediction(self, unit)
+    Aptechka.FrameUpdateHealthMaxModifiersChanged(self, unit)
     Aptechka.FrameUpdateConnection(self, owner)
     Aptechka.FrameUpdateIncomingSummon(self, owner)
 

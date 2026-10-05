@@ -3774,7 +3774,6 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.border = border
 
-    self.healthColor = WrapFrameAsWidget(self.health)
     self.bossdebuff = bossdebuff
     self.raidicon = raidicon
     self.healabsorb = healAbsorb
