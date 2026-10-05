@@ -155,41 +155,41 @@ config.allowedPowerTypesDamage = {
 
 config.auraContainers = {
     bars = {
-        widgetOptions = {
-            sampleRect = {0.20, 0.35, 0.05, 0.02}, -- x,y,w,h
-        },
+        widgetOptions = { width = 21, height = 5, sampleRect = {0.20, 0.35, 0.05, 0.02}, }, -- x,y,w,h
         includeSpellIDs = {}
     },
     bar4 = {
-        widgetOptions = {
-            -- sampleRect = {0.20, 0.35, 0.05, 0.02},
-            color = {0,1,0,1},
-        },
+        widgetOptions = { width = 21, height = 5, color = {0,1,0,1}, }, -- sampleRect = {0.20, 0.35, 0.05, 0.02},
         includeSpellIDs = {}
     },
-    drink = {
-        includeSpellIDs = {}
+    debuffIcons = {
+        widgetOptions = { width = 16, height = 13 },
+    },
+    debuffIconsBIG = {
+        widgetOptions = { width = 16*1.3, height = 13*1.3 },
     },
     PersonalDefensive = {
+        widgetOptions = { width = 12, height = 18 },
         includeSpellIDs = {}
     },
     BigDefensive = {
+        widgetOptions = { width = 24, height = 24 },
         includeSpellIDs = {}
     },
     ActiveMitigation = {
-        widgetOptions = {
-            sampleRect = {0.20, 0.35, 0.05, 0.02}, -- x,y,w,h
-        },
+        widgetOptions = { width = 21, height = 4, sampleRect = {0.20, 0.35, 0.05, 0.02}, },
         includeSpellIDs = {}
     },
     OffensiveCD = {
+        widgetOptions = { width = 12, height = 18 },
         includeSpellIDs = {}
     },
     raidBuff = {
-        widgetOptions = {
-            color = {1,1,1},
-        },
+        widgetOptions = { width = 7, height = 7, rotation = 0, color = {1,1,1}, },
         includeSpellIDs = {}
+    },
+    dispelIndicator = {
+        widgetOptions = { width = 15, height = 15, rotation = 180 },
     },
 }
 function helpers.AddAuraToContainer(slotName, spellIDs)
