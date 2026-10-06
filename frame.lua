@@ -2879,6 +2879,7 @@ local function CreateAuraButtonDebuffIcon(self, widgetOptions)
         icd.noCooldownCount = true -- disable OmniCC for this cooldown
         icd:SetHideCountdownNumbers(true)
     end
+    icd:SetUsingParentLevel(true)
     icd:SetReverse(true)
     icd:SetAllPoints(icon)
     self.cd = icd
