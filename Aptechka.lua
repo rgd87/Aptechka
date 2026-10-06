@@ -9,7 +9,6 @@ end)
 --- Compatibility with Classic
 local apiLevel = math.floor(select(4,GetBuildInfo())/10000)
 local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-local isBC = apiLevel == 2
 -- local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local isForever = WOW_PROJECT_ID == WOW_PROJECT_CAMELOT
@@ -73,7 +72,6 @@ local ignoreplayer
 local fgShowMissing
 local gradientHealthColor
 local damageEffect
-local mergedIncomingHealing -- Show incoimng healing text in the same widget as missing health
 
 local config = AptechkaDefaultConfig
 Aptechka.loadedAuras = {}
@@ -114,7 +112,7 @@ local customColors
 local table_wipe = table.wipe
 local SetJob
 local FrameSetJob
-local DispelFilter
+local showRaidBuffs
 
 local pixelperfect = helpers.pixelperfect
 Aptechka.util = helpers
@@ -127,33 +125,16 @@ local pairs = pairs
 local next = next
 local utf8sub = helpers.utf8sub
 local reverse = helpers.Reverse
-local GetAuraHash = helpers.GetAuraHash
 local AptechkaDB
-local LibSpellLocks
-local LibAuraTypes
-local LibTargeted
 local LibTargetedCasts
 local tinsert = table.insert
 local tremove = table.remove
 local tsort = table.sort
-local BuffProc
-local DebuffProc, DebuffPostUpdate
-local DispelTypeProc, DispelTypePostUpdate
-local EffectListProc, EffectListPostUpdate, EffectIndices
-local enableTraceheals
-local enableAuraEvents
-local enableFloatingIcon
 local enableStagger
 local alphaOutOfRange = 0.45
 -- local enableLowHealthStatus
 local debuffLimit
-local tankUnits = {}
 local staggerUnits = {}
-
-local GetIncomingHealsCustom -- upvalue to swap based on HealComm usage
--- Classic things
-local HealComm
-local spellNameToID = helpers.spellNameToID
 
 local L = setmetatable({}, {
     __index = function(t, k)
@@ -169,7 +150,6 @@ _G.BINDING_NAME_APTECHKA_DEBUFF_TOOLTIP_HOLD = L"Debuff Tooltip Toggle(Hold)"
 
 local defaults = {
     global = {
-        useHealComm = true,
         disableBlizzardPlayer = false,
         disableBlizzardParty = true,
         hideBlizzardRaid = true,
@@ -179,19 +159,12 @@ local defaults = {
         showAFK = false,
         enableRoles = true,
         translitCyrillic = false,
+        showRaidBuffs = true,
         enableMouseoverStatus = true,
         customBlacklist = {},
         LDBData = {}, -- minimap icon settings
-        useCombatLogHealthUpdates = true,
         disableTooltip = false,
         disableAbsorbBar = false,
-        debuffTooltip = false,
-        debuffTooltip_bindAlt = false,
-        debuffTooltip_bindShift = true,
-        debuffTooltip_bindCtrl = true,
-        useDebuffOrdering = true, -- On always?
-        customDebuffHighlights = {},
-        forceShamanColor = true,
         borderWidth = 1,
         enableProfileSwitching = true,
         profileSelection = {
@@ -284,7 +257,6 @@ local defaults = {
         petColor = {1, 0.5, 0.5},
         alphaOutOfRange = 0.45,
         selBorderWidth = 2,
-        selBorderInset = 0,
 
         scale = 1, --> into
         debuffBossScale = 1.3,
@@ -458,6 +430,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
         self:RegisterEvent("PLAYER_FLAGS_CHANGED") -- UNIT_AFK_CHANGED
     end
 
+    showRaidBuffs = AptechkaDB.global.showRaidBuffs
     self:RegisterEvent("PLAYER_REGEN_ENABLED")
     self:RegisterEvent("PLAYER_REGEN_DISABLED")
 
@@ -895,10 +868,6 @@ function Aptechka:UpdateUnprotectedUpvalues()
     fgShowMissing = Aptechka.db.profile.fgShowMissing
     gradientHealthColor = Aptechka.db.profile.gradientHealthColor
     damageEffect = Aptechka.db.profile.damageEffect
-    mergedIncomingHealing = AptechkaConfigMerged.HealthTextStatus.formatType == "MISSING_HEALING_SHORT"
-    enableTraceheals = config.enableTraceHeals and next(traceheals)
-    enableAuraEvents = Aptechka.db.profile.auraUpdateEffect
-    enableFloatingIcon = Aptechka.db.profile.showFloatingIcons
     alphaOutOfRange = Aptechka.db.profile.alphaOutOfRange
 end
 function Aptechka:ReconfigureProtected()
@@ -954,16 +923,6 @@ function Aptechka:ReconfigureProtected()
     Aptechka:UpdateBorder()
 end
 
-GetIncomingHealsCustom = function(unit, excludePlayer)
-    local heal = UnitGetIncomingHeals(unit)
-    if excludePlayer then
-        local myheal = UnitGetIncomingHeals(unit, "player")
-        if heal and myheal then
-            heal = heal - myheal
-        end
-    end
-    return heal or 0
-end
 
 function Aptechka.FrameUpdateHealPrediction(frame, unit)
     local healCalc = frame.health.healCalc
@@ -1762,14 +1721,20 @@ end
 
 
 function Aptechka.PLAYER_REGEN_DISABLED(self,event)
-    Aptechka:ForEachFrame(function(frame, unit)
-        frame.BuffContainer:SetAuraSlotFilterString("raidBuff", "HELPFUL|RAID_IN_COMBAT")
-    end)
+    if showRaidBuffs then
+        Aptechka:ForEachFrame(function(frame, unit)
+            frame.BuffContainer:SetAuraSlotFilterString("raidBuff1", "HELPFUL|RAID_IN_COMBAT")
+            frame.BuffContainer:SetAuraSlotFilterString("raidBuff2", "HELPFUL|RAID_IN_COMBAT")
+        end)
+    end
 end
 function Aptechka.PLAYER_REGEN_ENABLED(self,event)
-    Aptechka:ForEachFrame(function(frame, unit)
-        frame.BuffContainer:SetAuraSlotFilterString("raidBuff", "HELPFUL|RAID")
-    end)
+    if showRaidBuffs then
+        Aptechka:ForEachFrame(function(frame, unit)
+            frame.BuffContainer:SetAuraSlotFilterString("raidBuff1", "HELPFUL|RAID")
+            frame.BuffContainer:SetAuraSlotFilterString("raidBuff2", "HELPFUL|RAID")
+        end)
+    end
 
     if self.shouldReconfAFterCombat then
         self:LayoutUpdate()
@@ -3692,23 +3657,6 @@ function Aptechka:UpdateTargetedCountConfig()
     end
     ]]
 end
-
-function Aptechka.FrameUpdateTargetedCount(frame, unit, newCount)
-    local count = newCount or LibTargeted:GetUnitTargetedCount(unit)
-    if count > 0 then
-        FrameSetJob(frame, config.TargetedCountStatus, true, "TARGET_COUNT", count)
-    else
-        FrameSetJob(frame, config.TargetedCountStatus, false)
-    end
-end
-
-function Aptechka.TARGETED_COUNT_CHANGED(event, GUID, newCount)
-    local unit = guidMap[GUID]
-    if unit then
-        Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateTargetedCount)
-    end
-end
-
 
 function Aptechka:UpdateIncomingCastsConfig()
     LibTargetedCasts = LibStub("LibTargetedCasts", true)

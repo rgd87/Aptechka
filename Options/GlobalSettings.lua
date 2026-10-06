@@ -90,6 +90,17 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 8.7,
                     },
+                    showRaidBuffs = {
+                        name = L"Show Raid Buffs",
+                        width = "full",
+                        type = "toggle",
+                        get = function(info) return Aptechka.db.global.showRaidBuffs end,
+                        set = function(info, v)
+                            Aptechka.db.global.showRaidBuffs = not Aptechka.db.global.showRaidBuffs
+                            Aptechka:PrintReloadUIWarning()
+                        end,
+                        order = 8.8,
+                    },
                     disableBlizzardPlayer = {
                         name = L"Disable Blizzard Player Frame",
                         width = "full",

@@ -2783,15 +2783,17 @@ local function CreateAuraButtonBarIcon(self, widgetOptions)
     bgicon:SetTexCoord(GetAdaptiveCroppedTexCoord(self))
     bgicon:SetAllPoints(f)
 
-    local spark = f:CreateTexture(nil, "ARTWORK", nil, 5)
-    spark:SetTexture("Interface/AddOns/Aptechka/spark")
-    spark:SetBlendMode("ADD")
-    spark:SetVertexColor(1,0.7,0)
-    spark:SetTexCoord(1,1,0,1,1,0,0,0)
-    spark:SetHeight(self:GetHeight())
-    spark:SetPoint("LEFT", statusBarTexture, "BOTTOMLEFT")
-    spark:SetPoint("RIGHT", statusBarTexture, "BOTTOMRIGHT")
-    f.spark = spark
+    if widgetOptions.spark ~= false then
+        local spark = f:CreateTexture(nil, "ARTWORK", nil, 5)
+        spark:SetTexture("Interface/AddOns/Aptechka/spark")
+        spark:SetBlendMode("ADD")
+        spark:SetVertexColor(1,0.7,0)
+        spark:SetTexCoord(1,1,0,1,1,0,0,0)
+        spark:SetHeight(self:GetHeight())
+        spark:SetPoint("LEFT", statusBarTexture, "BOTTOMLEFT")
+        spark:SetPoint("RIGHT", statusBarTexture, "BOTTOMRIGHT")
+        f.spark = spark
+    end
 
 
     local stacktext = self:CreateFontString(nil,"ARTWORK")
@@ -2806,6 +2808,31 @@ local function CreateAuraButtonBarIcon(self, widgetOptions)
     self.bar = f
 
     return f
+end
+
+local function CreateAuraButtonSimpleIcon(self, widgetOptions)
+    self:SetSize(pixelperfect(widgetOptions.width), pixelperfect(widgetOptions.height));
+    self.Reconfigure = ReconfAuraButtonBarIcon
+
+    local border = pixelperfect(1)
+    self.outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -border, -border, -border, -border, -2)
+    self.outline:SetVertexColor(0,0,0)
+
+    local icon = self:CreateTexture(nil,"ARTWORK",nil,-3)
+    icon:SetTexture[[Interface\BUTTONS\WHITE8X8]]
+    icon:SetTexCoord(GetAdaptiveCroppedTexCoord(self))
+    icon:SetAllPoints(self)
+    self.icon = icon
+
+    local icd = CreateFrame("Cooldown",nil, self, "CooldownFrameTemplate")
+    if not Aptechka.db.global.showIconCooldownCount then
+        icd.noCooldownCount = true -- disable OmniCC for this cooldown
+        icd:SetHideCountdownNumbers(true)
+    end
+    icd:SetUsingParentLevel(true)
+    icd:SetReverse(true)
+    icd:SetAllPoints(self)
+    self.cd = icd
 end
 
 
@@ -3520,6 +3547,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
         initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
             button.slotName = "bar4"
             CreateAuraButtonIconBar(button, config.auraContainers["bar4"].widgetOptions, true)
+            button:SetFrameLevel(FRAMELEVEL.BAR+20)
 
             button:SetHideTooltipInCombat(true)
             -- button:SetIcon(bar.icon)
@@ -3601,18 +3629,52 @@ AptechkaDefaultConfig.GridSkin = function(self)
         end,
     });
 
-    buffs:AddAuraSlot("raidBuff", "HELPFUL|RAID", {
+    if Aptechka.db.global.showRaidBuffs then
+    buffs:AddAuraSlot("raidBuff1", "HELPFUL|RAID", {
         candidateFilters = {
-            includeSpellIDs = config.auraContainers["raidBuff"].includeSpellIDs
+            includeSpellIDs = config.auraContainers["raidBuff1"].includeSpellIDs
         },
-        initializeFrame = function(button) -- local auraButton = CreateFrame("AuraButton", nil, container, "CustomAuraButtonTemplate");
-            CreateAuraButtonCornerIndicator(button, config.auraContainers["raidBuff"].widgetOptions)
+        initializeFrame = function(button)
+            -- CreateAuraButtonCornerIndicator(button, config.auraContainers["raidBuff"].widgetOptions)
             -- button:SetHideTooltipInCombat(true)
 
             -- button:SetPoint("TOPLEFT", self, "TOPLEFT",0,0)
-            button:SetPoint("BOTTOMRIGHT", hp, "BOTTOMRIGHT",0,0)
+            -- button:SetPoint("BOTTOMRIGHT", hp, "BOTTOMRIGHT",0,0)
+
+            button.slotName = "raidBuff1"
+            CreateAuraButtonBarIcon(button, config.auraContainers["raidBuff1"].widgetOptions)
+            -- CreateAuraButtonSimpleIcon(button, config.auraContainers["raidBuff1"].widgetOptions)
+            button:SetHideTooltipInCombat(true)
+
+            button:SetIcon(button.icon)
+            button:SetDurationBar(button.bar)
+            -- button:SetDurationCooldown(button.cd)
+
+            -- button:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
+            button:SetPoint("TOPLEFT", hp, "TOPLEFT", 0,0)
         end,
     });
+
+    buffs:AddAuraSlot("raidBuff2", "HELPFUL", {
+        candidateFilters = {
+            includeSpellIDs = config.auraContainers["raidBuff2"].includeSpellIDs
+        },
+        initializeFrame = function(button)
+            button.slotName = "raidBuff2"
+            CreateAuraButtonBarIcon(button, config.auraContainers["raidBuff2"].widgetOptions)
+            -- CreateAuraButtonSimpleIcon(button, config.auraContainers["raidBuff2"].widgetOptions)
+            button:SetHideTooltipInCombat(true)
+
+            button:SetIcon(button.icon)
+            button:SetDurationBar(button.bar)
+            -- button:SetDurationCooldown(button.cd)
+
+            -- button:SetPoint("TOPLEFT", self, "TOPLEFT", 0,0)
+            local raidBuff1Height = pixelperfect(config.auraContainers["raidBuff1"].widgetOptions.height)+pixelperfect(1)
+            button:SetPoint("TOPLEFT", hp, "TOPLEFT", 0,-raidBuff1Height)
+        end,
+    });
+    end
 
 
 

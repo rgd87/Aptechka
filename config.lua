@@ -184,12 +184,16 @@ config.auraContainers = {
         widgetOptions = { width = 12, height = 18 },
         includeSpellIDs = {}
     },
-    raidBuff = {
-        widgetOptions = { width = 7, height = 7, rotation = 0, color = {1,1,1}, },
-        includeSpellIDs = {}
-    },
     dispelIndicator = {
         widgetOptions = { width = 15, height = 15, rotation = 180 },
+    },
+    raidBuff1 = {
+        widgetOptions = { width = 11, height = 11, spark = false, rotation = 0, color = {1,1,1}, },
+        includeSpellIDs = {}
+    },
+    raidBuff2 = {
+        widgetOptions = { width = 11, height = 11, spark = false },
+        includeSpellIDs = {}
     },
 }
 function helpers.AddAuraToContainer(slotName, spellIDs)
@@ -610,10 +614,14 @@ if playerClass == "PRIEST" then
     -- config.auraContainers.bar4.widgetOptions.sampleRect = {0.750, 0.55, 0.05, 0.02}
     ChangeWidgetColorForContainer("bar4",  1, .3, .3)
 
-    AddAuraToContainer("raidBuff", {
+    AddAuraToContainer("raidBuff1", {
         21562, -- Power Word: Fortitude
     })
-    config.auraContainers["raidBuff"].widgetOptions.color = {1, 1, 1}
+    config.auraContainers["raidBuff1"].widgetOptions.color = {1, 1, 1}
+
+    -- AddAuraToContainer("raidBuff2", {
+    --     21562, -- Power Word: Fortitude
+    -- })
 
     -- Power Word: Fortitude
     A{ id = 21562, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 1, 1}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(21562) end}
@@ -723,6 +731,10 @@ if playerClass == "MONK" then
 end
 
 if playerClass == "WARLOCK" then
+    AddAuraToContainer("raidBuff1", {
+        20707, --Soulstone Resurrection
+    })
+
     A{ id = 20707, type = "HELPFUL", assignto = set("raidbuff"), color = { 180/255, 0, 1 }, priority = 81 } --Soulstone Resurrection
     config.DispelBitmasks = {
         DispelTypes("Magic"),
@@ -880,16 +892,19 @@ if playerClass == "DRUID" then
         48438, -- Wild Growth
     })
 
-    AddAuraToContainer("raidBuff", {
-        1126, -- Mark of the Wild
-    })
-    config.auraContainers["raidBuff"].widgetOptions.color = {235/255 , 145/255, 199/255}
-
     AddAuraToContainer("bar4", {
         33763, -- Lifebloom
     })
-    -- 474750, -- Symbiotic Relationship
+
     ChangeWidgetColorForContainer("bar4", 0.2, 1, 0.2)
+
+    AddAuraToContainer("raidBuff1", {
+        1126, -- Mark of the Wild
+    })
+    AddAuraToContainer("raidBuff2", {
+        474750, -- Symbiotic Relationship
+    })
+    config.auraContainers["raidBuff1"].widgetOptions.color = {235/255 , 145/255, 199/255}
 
     A{ id = 1126,  type = "HELPFUL", assignto = set("raidbuff"), color = { 235/255 , 145/255, 199/255}, isMissing = true } --Mark of the Wild
 
@@ -969,10 +984,10 @@ if playerClass == "EVOKER" then
     })
     ChangeWidgetColorForContainer("bar4", 1, 0.55, 0)
 
-    AddAuraToContainer("raidBuff", {
+    AddAuraToContainer("raidBuff1", {
         381748, 381732, 381741, 381746, 381749, 381750, 381751, 381752, 381753, 381754, 381756, 381757, 381758, -- Blessing of the Bronze
     })
-    config.auraContainers["raidBuff"].widgetOptions.color = {1, 0.6, 0}
+    config.auraContainers["raidBuff1"].widgetOptions.color = {1, 0.6, 0}
 
     -- Blessing of the Bronze
     A{ id = { 381748, 381732, 381741, 381746, 381749, 381750, 381751, 381752, 381753, 381754, 381756, 381757, 381758 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, 0.6, 0}, priority = 50, isMissing = true }
@@ -1022,14 +1037,17 @@ end
 
 
 if playerClass == "WARRIOR" then
+    AddAuraToContainer("raidBuff1", {
+        6673, -- Battle Shout
+    })
     -- Battle Shout
     A{ id = 6673,  type = "HELPFUL", assignto = set("raidbuff"), color = { 1, .4 , .4}, priority = 50, isMissing = true, isKnownCheck = function() return IsPlayerSpell(6673) end}
 end
 if playerClass == "MAGE" then
-    AddAuraToContainer("raidBuff", {
+    AddAuraToContainer("raidBuff1", {
         1459, -- Arcane Intellect
     })
-    config.auraContainers["raidBuff"].widgetOptions.color = {.4 , .4, 1}
+    config.auraContainers["raidBuff1"].widgetOptions.color = {.4 , .4, 1}
 
 
     -- Focus Magic
