@@ -3215,6 +3215,12 @@ local function Reconf(self)
     local db = Aptechka.db.profile
     local isVertical = db.healthOrientation == "VERTICAL"
 
+    local outlineSize = pixelperfect(Aptechka.db.global.borderWidth)
+    UpdateBorder(self, -outlineSize, -outlineSize, -outlineSize, -outlineSize)
+    local p4 = outlineSize + pixelperfect(Aptechka.db.profile.selBorderWidth)
+    self.border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
+    self.border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
+
     local texpath = LSM:Fetch("statusbar", db.healthTexture)
     self.health:SetStatusBarTexture(texpath)
     self.health:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
@@ -3383,6 +3389,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
     outline:SetVertexColor(0,0,0,1)
     outline:SetDrawLayer("BACKGROUND", -1)
+    self.outline = outline
 
     -- local outlineMask = self:CreateMaskTexture(nil, "BACKGROUND", nil, 0)
     -- outlineMask:SetTexture("Interface\\Addons\\Aptechka\\tmask", "CLAMPTOWHITE", "CLAMPTOWHITE")

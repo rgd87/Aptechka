@@ -143,6 +143,6 @@ function f.Open()
         window.treegroup = treegroup
     end
 
-    -- window:Show()
-    -- window.treegroup:SelectByPath(profileOptName)
+    window:Show()
+    window.treegroup:SelectByPath(profileOptName)
 end

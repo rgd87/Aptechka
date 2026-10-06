@@ -573,18 +573,8 @@ function ns.MakeProfileSettings()
                         step = 1,
                         order = 14.6,
                     },
-                    enableSeparator = {
-                        name = L"Separator Line",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.profile.showSeparator end,
-                        set = function(info, v)
-                            Aptechka.db.profile.showSeparator = not Aptechka.db.profile.showSeparator
-                            Aptechka:ReconfigureUnprotected()
-                        end,
-                        order = 14.7,
-                    },
-                    selBorderWidth = {
-                        name = L"Sel.Border Width",
+                    selectionBorderWidth = {
+                        name = L"Border Width",
                         type = "range",
                         get = function(info) return Aptechka.db.profile.selBorderWidth end,
                         set = function(info, v)
@@ -592,24 +582,10 @@ function ns.MakeProfileSettings()
                             Aptechka:ReconfigureUnprotected()
                         end,
                         min = 1,
-                        max = 10,
-                        step = 0.1,
+                        max = 5,
+                        step = 0.5,
                         order = 14.71,
                     },
-                    selBorderInset = {
-                        name = L"Sel.Border Inset",
-                        type = "range",
-                        get = function(info) return Aptechka.db.profile.selBorderInset end,
-                        set = function(info, v)
-                            Aptechka.db.profile.selBorderInset = v
-                            Aptechka:ReconfigureUnprotected()
-                        end,
-                        min = 0,
-                        max = 7,
-                        step = 0.1,
-                        order = 14.72,
-                    },
-
 
                     healthColorGroup = {
                         type = "group",
@@ -630,6 +606,7 @@ function ns.MakeProfileSettings()
                             },
                             enableClasscolor = {
                                 name = L"Use Class Color",
+                                disabled = true,
                                 type = "toggle",
                                 get = function(info) return Aptechka.db.profile.healthColorByClass end,
                                 set = function(info, v)
@@ -638,6 +615,7 @@ function ns.MakeProfileSettings()
                                 end,
                                 order = 2,
                             },
+                            --[[
                             color1 = {
                                 name = L"Base Color",
                                 type = 'color',
@@ -653,6 +631,7 @@ function ns.MakeProfileSettings()
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
+                            ]]
                             petColor = {
                                 name = L"Pet Class Color",
                                 type = 'color',
@@ -668,6 +647,7 @@ function ns.MakeProfileSettings()
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
+                            --[[
                             enableGradient = {
                                 name = L"Use Gradient Color",
                                 type = "toggle",
@@ -707,6 +687,7 @@ function ns.MakeProfileSettings()
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
+
                             useBGColor = {
                                 name = L"Use Separate Background Color",
                                 type = "toggle",
@@ -732,6 +713,7 @@ function ns.MakeProfileSettings()
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
+
                             powerColor = {
                                 name = L"Power Color",
                                 type = 'color',
@@ -848,6 +830,7 @@ function ns.MakeProfileSettings()
                                     Aptechka:ReconfigureUnprotected()
                                 end,
                             },
+                            ]]
                             rangeAlpha = {
                                 name = L"Out of Range Alpha"..newFeatureIcon,
                                 type = "range",
@@ -902,6 +885,7 @@ function ns.MakeProfileSettings()
                                 step = 0.05,
                                 order = 2,
                             },
+                            --[[
                             bgAlpha = {
                                 name = L"Background Alpha"..newFeatureIcon,
                                 type = "range",
@@ -928,6 +912,7 @@ function ns.MakeProfileSettings()
                                 step = 0.05,
                                 order = 3,
                             },
+                            ]]
                         }
                     },
                 },

@@ -86,7 +86,7 @@ function ns.MakeGlobalSettings()
                         get = function(info) return Aptechka.db.global.borderWidth == 2 end,
                         set = function(info, v)
                             Aptechka.db.global.borderWidth = (Aptechka.db.global.borderWidth == 2) and 1 or 2
-                            Aptechka:PrintReloadUIWarning()
+                            Aptechka:ReconfigureUnprotected()
                         end,
                         order = 8.7,
                     },
@@ -123,19 +123,8 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 10,
                     },
-                    supportNickTag = {
-                        name = L"Use Details Nicknames",
-                        width = "full",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.global.enableNickTag end,
-                        set = function(info, v)
-                            Aptechka.db.global.enableNickTag = not Aptechka.db.global.enableNickTag
-                            Aptechka:ReconfigureUnprotected()
-                        end,
-                        order = 10.1,
-                    },
                     translitCyrillic = {
-                        name = L"Transliterate Russian Names",
+                        name = L"Transliterate Cyrillic Names",
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.global.translitCyrillic end,
@@ -157,6 +146,7 @@ function ns.MakeGlobalSettings()
                     --     end,
                     --     order = 10.4,
                     -- },
+                    --[[
                     disableTooltip = {
                         name = L"Disable Unit Tooltips",
                         width = "full",
@@ -166,48 +156,7 @@ function ns.MakeGlobalSettings()
                             Aptechka.db.global.disableTooltip = not Aptechka.db.global.disableTooltip
                         end,
                         order = 10.8,
-                    },
-                    switches = {
-                        type = "group",
-                        name = "Debuff Tooltip Modifiers",
-                        guiInline = true,
-                        order = 10.81,
-                        args = {
-                            Ctrl = {
-                                name = "Ctrl",
-                                width = 0.3,
-                                type = "toggle",
-                                get = function(info) return Aptechka.db.global.debuffTooltip_bindCtrl end,
-                                set = function(info, v)
-                                    Aptechka.db.global.debuffTooltip_bindCtrl = not Aptechka.db.global.debuffTooltip_bindCtrl
-                                    Aptechka.tooltipPool.modchecks:MakeFromDB()
-                                end,
-                                order = 1,
-                            },
-                            Alt = {
-                                name = "Alt",
-                                width = 0.3,
-                                type = "toggle",
-                                get = function(info) return Aptechka.db.global.debuffTooltip_bindAlt end,
-                                set = function(info, v)
-                                    Aptechka.db.global.debuffTooltip_bindAlt = not Aptechka.db.global.debuffTooltip_bindAlt
-                                    Aptechka.tooltipPool.modchecks:MakeFromDB()
-                                end,
-                                order = 2,
-                            },
-                            Shift = {
-                                name = "Shift",
-                                width = 0.3,
-                                type = "toggle",
-                                get = function(info) return Aptechka.db.global.debuffTooltip_bindShift end,
-                                set = function(info, v)
-                                    Aptechka.db.global.debuffTooltip_bindShift = not Aptechka.db.global.debuffTooltip_bindShift
-                                    Aptechka.tooltipPool.modchecks:MakeFromDB()
-                                end,
-                                order = 3,
-                            },
-                        }
-                    },
+                    },]]
                     disableAbsorbBar = {
                         name = L"Disable Absorb Side Bar",
                         width = "full",
@@ -220,43 +169,7 @@ function ns.MakeGlobalSettings()
                         end,
                         order = 10.9,
                     },
-                    showAFK = {
-                        name = L"Show AFK",
-                        width = "full",
-                        type = "toggle",
-                        get = function(info) return Aptechka.db.global.showAFK end,
-                        set = function(info, v)
-                            Aptechka.db.global.showAFK = not Aptechka.db.global.showAFK
-                            Aptechka:PrintReloadUIWarning()
-                        end,
-                        order = 11,
-                    },
-                    useDebuffOrdering = {
-                        name = L"Use Debuff Ordering",
-                        desc = L"Orders CC and dispellable debuffs to be first in the list".."\n"..L"Shows spell locks as debuffs",
-                        width = "full",
-                        type = "toggle",
-                        order = 11.2,
-                        get = function(info) return Aptechka.db.global.useDebuffOrdering end,
-                        set = function(info, v)
-                            Aptechka.db.global.useDebuffOrdering = not Aptechka.db.global.useDebuffOrdering
-                            Aptechka:UpdateDebuffScanningMethod()
-                        end
-                    },
-                    forceShamanColor = {
-                        name = "Retail Shaman Color",
-                        desc = "Use the usual blue color for shamans. Overriden by ClassColors addon if present",
-                        type = "toggle",
-                        disabled = APILevel > 1,
-                        confirm = true,
-						confirmText = "Warning: Requires UI reloading.",
-                        get = function(info) return Aptechka.db.global.forceShamanColor end,
-                        set = function(info, v)
-                            Aptechka.db.global.forceShamanColor = not Aptechka.db.global.forceShamanColor
-                            ReloadUI()
-                        end,
-                        order = 15.8,
-                    },
+                    --[[
                     enableRoles = {
                         name = L"Display Roles",
                         desc = L"Disable role icons for WotLK",
@@ -268,34 +181,7 @@ function ns.MakeGlobalSettings()
                             Aptechka.db.global.enableRoles = not Aptechka.db.global.enableRoles
                             Aptechka:PrintReloadUIWarning()
                         end
-                    },
-                    --[[
-                    useHealComm = {
-                        name = L"Use LibHealComm",
-                        desc = L"Gives hots in incoming healing, may cause errors",
-                        type = "toggle",
-                        disabled = not isClassic,
-                        width = "full",
-                        order = 17,
-                        get = function(info) return Aptechka.db.global.useHealComm end,
-                        set = function(info, v)
-                            Aptechka.db.global.useHealComm = not Aptechka.db.global.useHealComm
-                            Aptechka:PrintReloadUIWarning()
-                        end
                     },]]
-                    useCLH = {
-                        name = L"Use LibCLHealth",
-                        desc = L"More frequent health updates based combat log",
-                        type = "toggle",
-                        disabled = not isClassic,
-                        width = "full",
-                        order = 18,
-                        get = function(info) return isClassic and Aptechka.db.global.useCombatLogHealthUpdates end,
-                        set = function(info, v)
-                            Aptechka.db.global.useCombatLogHealthUpdates = not Aptechka.db.global.useCombatLogHealthUpdates
-                            Aptechka:PrintReloadUIWarning()
-                        end
-                    },
                 }
             },
         },
