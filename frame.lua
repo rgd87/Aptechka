@@ -3630,7 +3630,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     });
 
     if Aptechka.db.global.showRaidBuffs then
-    buffs:AddAuraSlot("raidBuff1", "HELPFUL|RAID", {
+    buffs:AddAuraSlot("raidBuff1", "HELPFUL", {
         candidateFilters = {
             includeSpellIDs = config.auraContainers["raidBuff1"].includeSpellIDs
         },

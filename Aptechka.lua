@@ -1731,8 +1731,8 @@ end
 function Aptechka.PLAYER_REGEN_ENABLED(self,event)
     if showRaidBuffs then
         Aptechka:ForEachFrame(function(frame, unit)
-            frame.BuffContainer:SetAuraSlotFilterString("raidBuff1", "HELPFUL|RAID")
-            frame.BuffContainer:SetAuraSlotFilterString("raidBuff2", "HELPFUL|RAID")
+            frame.BuffContainer:SetAuraSlotFilterString("raidBuff1", "HELPFUL") --|RAID
+            frame.BuffContainer:SetAuraSlotFilterString("raidBuff2", "HELPFUL") --|RAID
         end)
     end
 

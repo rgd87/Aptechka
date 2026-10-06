@@ -53,9 +53,9 @@ config.LeaderStatus = { name = "Leader", priority = 59, assignto = set("text3"),
 config.VoiceChatStatus = { name = "VoiceChat", assignto = set("text3"), color = {0.3, 1, 0.3}, text = "S", priority = 99 }
 config.MainTankStatus = { name = "MainTank", priority = 60, assignto = set("border"), color = {0.6,0.6,0.6} }
 config.LowHealthStatus = { name = "LowHealth", priority = 60, assignto = set("border"), color = {1,0,0} }
-config.DeadStatus = { name = "Dead", assignto = set("text2","healthColor"), color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
-config.GhostStatus = { name = "Ghost", assignto = set("text2","healthColor"), color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
-config.OfflineStatus = { name = "Offline", assignto = set("text2","text3","healthColor"), color = {0.5,0.5,0.5}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
+config.DeadStatus = { name = "Dead", assignto = set("text2"), color = {.05,.05,.05}, textcolor = {0,1,0}, text = "DEAD", priority = 60}
+config.GhostStatus = { name = "Ghost", assignto = set("text2"), color = {.05,.05,.05},  textcolor = {0,1,0}, text = "GHOST", priority = 62}
+config.OfflineStatus = { name = "Offline", assignto = set("text2","text3"), color = {0.5,0.5,0.5}, textcolor = {0,1,0}, text = "OFFLINE",  priority = 70}
 config.AwayStatus = { name = "AFK", assignto = set("text2","text3"), color = {0.4,0.4,0.4}, textcolor = {1,0.8,0}, text = "AFK",  priority = 15}
 config.IncomingHealStatus = { name = "IncHealText", assignto = set(), color = { 0, 1, 0}, priority = 15 }
 -- config.AbsorbTextStatus = { name = "AbsorbText", assignto = set("text2"), color = { 0.7, 0.7, 1 }, priority = 11, formatType = "PERCENTAGE" }
@@ -763,7 +763,7 @@ if playerClass == "PALADIN" then
         156910, -- Beacon of Faith
         1244893, -- Beacon of the Savior
     })
-    ChangeWidgetColorForContainer("bar4",  0.96/2, 0.55/2, 0.73/2)
+    ChangeWidgetColorForContainer("bar4",  1, .3, .3)
 
     --Glimmer of Light
     A{ id = 287280,type = "HELPFUL", assignto = set("bars"), color = { 1, .3, .3}, infoType = "DURATION", isMine = true}

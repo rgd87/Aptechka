@@ -31,6 +31,9 @@ AddAuraToContainer("BigDefensive", {
 
 
 AddAuraToContainer("PersonalDefensive", {
+    -- GLOBAL
+    1289723, -- Welcoming Campfire
+
     -- WARLOCK
     6229, 11739, 11740, 28610, -- Shadow Ward
 
@@ -163,6 +166,15 @@ if playerClass == "PRIEST" then
     })
     ChangeWidgetColorForContainer("bar4",  1, .3, .3)
 
+    AddAuraToContainer("raidBuff1", {
+        1243, 1244, 1245, 2791, 10937, 10938, 21562, 21564, -- Power Word: Fortitude and Prayer of Fortitude
+    })
+    AddAuraToContainer("raidBuff2", {
+        14752, 14818, 14819, 27841, 27681, -- Prayer of Spirit, Divine Spirit
+    })
+
+
+
     --[[
     -- Season of Discovery
     -- Prayer of Mending
@@ -228,9 +240,15 @@ if playerClass == "DRUID" then
 
     AddAuraToContainer("bar4", {
         408124, -- Lifebloom
-        29166, -- Innervate
     })
     ChangeWidgetColorForContainer("bar4", 0.2, 1, 0.2)
+
+    AddAuraToContainer("raidBuff1", {
+        1126, 5232, 5234, 6756, 8907, 9884, 9885, 21849, 21850, -- MotW
+    })
+    AddAuraToContainer("raidBuff2", {
+        467, 782, 1075, 8914, 9756, 9910, -- Thorns
+    })
 
 
     --[[
@@ -277,7 +295,7 @@ if playerClass == "PALADIN" then
     AddAuraToContainer("bar4", {
         1310909, 1311593, 1311597, -- Light's Vigil
     })
-    ChangeWidgetColorForContainer("bar4",  0.96/2, 0.55/2, 0.73/2)
+    ChangeWidgetColorForContainer("bar4",  1, .3, .3)
 
     --[[
     -- Season of Discovery
@@ -373,7 +391,10 @@ if playerClass == "SHAMAN" then
 end
 
 if playerClass == "MAGE" then
-    AddAuraToContainer("bars", {
+    AddAuraToContainer("raidBuff1", {
+        1459, 1460, 1461, 10156, 10157, 23028, -- Arcane Intellect and Brilliance
+    })
+    AddAuraToContainer("raidBuff2", {
         604, 8450, 8451, 10173, 10174, -- Dampen Magic
         1008, 8455, 10169, 10170, -- Amplify Magic
     })
@@ -411,6 +432,19 @@ if playerClass == "WARRIOR" then
     -- Battle Shout
     -- A{ id = { 5242, 6192, 6673, 11549, 11550, 11551, 25289 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, .4 , .4}, priority = 50 }
 
+end
+
+if playerClass == "WARLOCK" then
+    AddAuraToContainer("raidBuff1", {
+        6307, 7804, 7805, 11766, 11767, -- Blood Pact
+    })
+    AddAuraToContainer("bars", {
+        20707, 20762, 20763, 20764, 20765, -- Soulstone Resurrection
+    })
+    AddAuraToContainer("raidBuff2", {
+        5697, -- Unending Breath
+        132, 2970, 11743, -- Detect Invisibility
+    })
 end
 
 -------------------------
