@@ -1,5 +1,6 @@
 ## Interface: 120100
 ## Title: AptechkaOptions
+## IconTexture: 135966
 ## Notes: Options module for Aptechka
 ## Author: d87
 ## RequiredDeps: Aptechka

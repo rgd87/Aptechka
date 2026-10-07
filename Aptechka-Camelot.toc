@@ -3,6 +3,7 @@
 ## Notes: Raid Frames
 ## Version: @project-version@
 ## Author: d87
+## IconTexture: 135966
 ## SavedVariablesPerCharacter: AptechkaDB_Char
 ## SavedVariables: AptechkaDB_Global, AptechkaConfigCustom
 ## OptionalDeps: Clique, Details
