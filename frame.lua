@@ -3655,7 +3655,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
     });
 
     if Aptechka.db.global.showRaidBuffs then
-    buffs:AddAuraSlot("raidBuff1", "HELPFUL", {
+    local raidBuffFilter = UnitAffectingCombat("player") and "HELPFUL|RAID_IN_COMBAT" or "HELPFUL"
+    buffs:AddAuraSlot("raidBuff1", raidBuffFilter, {
         candidateFilters = {
             includeSpellIDs = config.auraContainers["raidBuff1"].includeSpellIDs
         },
@@ -3680,7 +3681,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
         end,
     });
 
-    buffs:AddAuraSlot("raidBuff2", "HELPFUL", {
+    buffs:AddAuraSlot("raidBuff2", raidBuffFilter, {
         candidateFilters = {
             includeSpellIDs = config.auraContainers["raidBuff2"].includeSpellIDs
         },
