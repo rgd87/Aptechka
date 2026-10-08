@@ -236,11 +236,11 @@ function ns.MakeProfileSettings()
                         end,
                         order = 16,
                     },
+                    ]]
                     showPowerTypesTank = {
                         name = L"Show Tank Power"..newFeatureIcon,
-                        desc = "Display power types of tank, e.g. Rage",
+                        desc = "Display power types of tanks, e.g. Rage",
                         type = "toggle",
-                        width = 1.5,
                         get = function(info) return Aptechka.db.profile.showPowerTypesTank end,
                         set = function(info, v)
                             Aptechka.db.profile.showPowerTypesTank = not Aptechka.db.profile.showPowerTypesTank
@@ -252,7 +252,6 @@ function ns.MakeProfileSettings()
                         name = L"Show Damager Power",
                         desc = "Basically show everything",
                         type = "toggle",
-                        width = 1.5,
                         get = function(info) return Aptechka.db.profile.showPowerTypesDamage end,
                         set = function(info, v)
                             Aptechka.db.profile.showPowerTypesDamage = not Aptechka.db.profile.showPowerTypesDamage
@@ -260,7 +259,6 @@ function ns.MakeProfileSettings()
                         end,
                         order = 18.4,
                     },
-                    ]]
                     maxGroups = {
                         name = L"Max Groups",
                         type = "range",

@@ -231,7 +231,7 @@ local defaults = {
         showSeparator = false,
         showIconCooldownCount = false,
         showFloatingIcons = true,
-        showPowerTypesTank = false,
+        showPowerTypesTank = true,
         showPowerTypesDamage = false,
         clampIncomingHeal = true,
         healthTexture = "Gradient",
@@ -1993,7 +1993,6 @@ function Aptechka.FrameUpdatePowerColor(frame, unit, powerType)
     local showPowerTypeColors = true
     local profile = Aptechka.db.profile
     if showPowerTypeColors and (powerType ~= "MANA" and powerType ~= "NONE") then
-        print(powerType)
         local c = PowerBarColor[powerType] -- Blizzard UI Global
         r,g,b = c.r, c.g, c.b
     else
@@ -2002,7 +2001,7 @@ function Aptechka.FrameUpdatePowerColor(frame, unit, powerType)
 
     local mulFG = profile.fgColorMultiplier or 1
     local mulBG = profile.bgColorMultiplier or 0.2
-    if fgShowMissing then
+    if fgShowMissing and not frame.power.disableInverted then
         frame.power:SetStatusBarColor(r*mulBG, g*mulBG, b*mulBG, 1)
         frame.power.bg:SetVertexColor(r*mulFG, g*mulFG, b*mulFG, 1)
     else

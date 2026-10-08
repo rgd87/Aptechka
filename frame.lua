@@ -682,16 +682,7 @@ local forcedStandardFillPowerTypes = {
 local PowerBar_OnPowerTypeChange = function(powerbar, powerType, hidePower)
     local self = powerbar:GetParent()
 
-    local fgShowMissing = Aptechka.db.profile.fgShowMissing
-    if not fgShowMissing then
-        self.power:SetFillStyle(Enum.StatusBarFillStyle.Standard)
-    else
-        if forcedStandardFillPowerTypes[powerType] then
-            self.power:SetFillStyle(Enum.StatusBarFillStyle.Reverse)
-        else
-            self.power:SetFillStyle(Enum.StatusBarFillStyle.Standard)
-        end
-    end
+    self.power.disableInverted = forcedStandardFillPowerTypes[powerType]
 
 
     local isVertical = Aptechka.db.profile.healthOrientation == "VERTICAL"
