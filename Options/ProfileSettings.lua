@@ -509,7 +509,7 @@ function ns.MakeProfileSettings()
                         set = function( info, v )
                             Aptechka.db.profile.healthOrientation = v
                             Aptechka:ReconfigureUnprotected()
-
+                            Aptechka:PrintReloadUIWarning()
                             --[[
                             local popts = Aptechka.util.MakeTables(Aptechka.db.profile, "widgetConfig", "debuffIcons")
                             if v == "HORIZONTAL" then

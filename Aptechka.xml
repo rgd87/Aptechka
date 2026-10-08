@@ -3,7 +3,7 @@
     <Button name="NugRaidUnitButtonTemplate" virtual="true" inherits="SecureUnitButtonTemplate" registerForClicks="AnyUp">
         <Size x="50" y="50"/>
         <Frames>
-            <AuraContainer parentKey="DebuffContainer" inherits="CustomAuraContainerTemplate">
+            <AuraContainer parentKey="DebuffContainer" frameLevel="5" inherits="CustomAuraContainerTemplate">
                 <Anchors>
                     <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT" x="0" y="0"/>
                     <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
@@ -15,7 +15,7 @@
                     <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
                 </Anchors>
             </AuraContainer>
-            <Frame parentKey="pingIconFrame" inherits="UnitPingIconFrameTemplate">
+            <Frame parentKey="pingIconFrame" frameLevel="5" inherits="UnitPingIconFrameTemplate">
 				<KeyValues>
 					<KeyValue key="isRaidFrame" value="true" type="boolean"/>
 				</KeyValues>

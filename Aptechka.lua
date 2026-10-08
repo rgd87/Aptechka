@@ -936,16 +936,10 @@ function Aptechka.UNIT_HEAL_PREDICTION(self,event,unit)
 end
 
 local AbsorbBarDisable = function(f)
-    if not f.absorb._SetValue then
-        f.absorb._SetValue = f.absorb.SetValue
-    end
-    f.absorb.SetValue = dummyNil
-    f.absorb:Hide()
+    f.absorbOverflow:Hide()
 end
 local AbsorbBarEnable = function(f)
-    if f.absorb._SetValue then
-        f.absorb.SetValue = f.absorb._SetValue
-    end
+    f.absorbOverflow:Show()
 end
 function Aptechka:UpdateAbsorbBarConfig()
     if Aptechka.db.global.disableAbsorbBar then
@@ -961,6 +955,9 @@ function Aptechka.FrameUpdateAbsorb(frame, unit)
 
     local absorb, isOverabsorb = healCalc:GetDamageAbsorbs()
     frame.absorb:SetValue(absorb)
+    local unclampedAbsorb = healCalc:GetTotalDamageAbsorbs()
+    frame.absorbOverflow:SetValue(unclampedAbsorb)
+    frame.absorbOverflow:SetAlphaFromBoolean(isOverabsorb, 1, 0)
 end
 function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateAbsorb)
@@ -1001,6 +998,7 @@ function Aptechka.FrameUpdateHealthMax(self, unit, event)
 
     self.healabsorb:SetMinMaxValues(0, hm)
     self.absorb:SetMinMaxValues(0, hm)
+    self.absorbOverflow:SetMinMaxValues(0, hm)
     self.health:SetMinMaxValues(0, hm)
     self.health.fade:SetMinMaxValues(0, hm)
     self.health.incoming:SetMinMaxValues(0, hm)
@@ -1023,12 +1021,15 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     local incomingHeal = healCalc:GetIncomingHeals()
     local absorb, isOverabsorb = healCalc:GetDamageAbsorbs()
     local healAbsorb, isHealOverabsorb = healCalc:GetHealAbsorbs()
+    local unclampedAbsorb = healCalc:GetTotalDamageAbsorbs()
 
     self.health:SetValue(h)
     self.health.fade:SetValue(h, 1)
     self.health.incoming:SetValue(incomingHeal)
     self.healabsorb:SetValue(healAbsorb)
     self.absorb:SetValue(absorb)
+    self.absorbOverflow:SetValue(unclampedAbsorb)
+    self.absorbOverflow:SetAlphaFromBoolean(isOverabsorb, 1, 0)
 
     -- self.healabsorb:SetValue(10000)
     -- self.absorb:SetValue(10000)
@@ -1411,13 +1412,10 @@ do
         MONK = true,
         EVOKER = true,
     }
-    local showHybridMana = false
+    local showHybridMana = true
     function Aptechka.FrameUpdateDisplayPower(frame, unit)
         local pindex, pname = UnitPowerType(unit)
         local _, unitClass = UnitClass(unit)
-        if showHybridMana and healerClasses[unitClass] then
-            pindex, pname = 0, "MANA"
-        end
 
         local showPowerTypesTank = Aptechka.db.profile.showPowerTypesTank
         local showPowerTypesDamage = Aptechka.db.profile.showPowerTypesDamage
@@ -1431,6 +1429,12 @@ do
         end
         if isMainline then
             if not healerClasses[unitClass] and pname == "MANA" then showPowerBar = false end
+        end
+        if isForever and not showPowerBar then
+            if showHybridMana and healerClasses[unitClass] then
+                pindex, pname = 0, "MANA"
+                showPowerBar = true
+            end
         end
 
         if UnitIsDeadOrGhost(unit) then
@@ -3018,6 +3022,33 @@ end
 function Aptechka:TestDebuffSlots()
     Aptechka:ForEachFrame(Aptechka.TestDebuffSlotsForUnit)
 end
+
+function Aptechka:TestDifferentClassColor()
+    Aptechka:ForEachFrame(function(frame, unit)
+        local classes = {
+            "DEATHKNIGHT",
+            "DEMONHUNTER",
+            "DRUID",
+            "EVOKER",
+            "HUNTER",
+            "MAGE",
+            "MONK",
+            "PALADIN",
+            "PRIEST",
+            "ROGUE",
+            "SHAMAN",
+            "WARLOCK",
+            "WARRIOR",
+        }
+        local class = classes[math.random(1, #classes)]
+        local color = C_ClassColor.GetClassColor(class)
+
+        frame.state.classcolor = color
+        Aptechka.FrameUpdateHealthColor(frame, unit)
+        frame.text1.text:SetTextColor(color.r, color.g, color.b)
+    end)
+end
+
 function Aptechka.TestDebuffSlotsForUnit(frame, unit)
     local shown = 0
     local fill = 0

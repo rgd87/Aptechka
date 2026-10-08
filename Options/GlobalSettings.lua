@@ -169,7 +169,7 @@ function ns.MakeGlobalSettings()
                         order = 10.8,
                     },]]
                     disableAbsorbBar = {
-                        name = L"Disable Absorb Side Bar",
+                        name = L"Disable Overabsorb display",
                         width = "full",
                         type = "toggle",
                         get = function(info) return Aptechka.db.global.disableAbsorbBar end,

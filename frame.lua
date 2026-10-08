@@ -2366,7 +2366,7 @@ local function CreateIncomingHealBar(hp)
     local db = Aptechka.db.profile
     local hpi = CreateFrame("StatusBar", nil, hp)
 
-    hpi:SetFrameLevel(FRAMELEVEL.HEALTH)
+    hpi:SetFrameLevel(FRAMELEVEL.HEALTH+1)
     hpi:SetOrientation("VERTICAL")
     local hpEdgeTexture = hp:GetStatusBarTexture()
     hpi:SetPoint("BOTTOMLEFT", hpEdgeTexture, "TOPLEFT")
@@ -2379,60 +2379,47 @@ local function CreateIncomingHealBar(hp)
     return hpi
 end
 
+--[[
+local function CreateAbsorbOverflowBar(self)
+    local bar = CreateFrame("StatusBar", nil, self)
+    bar:SetPoint("TOPRIGHT", self, "TOPLEFT", 0, 0)
+    bar:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 0, 0)
+    bar:SetWidth(pixelperfect(3))
+    bar:SetReverseFill(true)
+    bar:SetOrientation("VERTICAL")
+    -- bar:SetUsingParentLevel(true)
 
-local AlignAbsorbVertical = function(self, absorb_height, missing_health_height)
-    self:SetHeight(absorb_height)
-    if absorb_height >= missing_health_height then
-        self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3 ,0)
-    else
-        self:SetPoint("TOPLEFT", self:GetParent(), "TOPLEFT", -3, -(missing_health_height - absorb_height))
-    end
-end
-local AlignAbsorbHorizontal = function(self, absorb_height, missing_health_height)
-    self:SetWidth(absorb_height)
-    if absorb_height >= missing_health_height then
-        self:SetPoint("BOTTOMRIGHT", self:GetParent(), "BOTTOMRIGHT", 0 ,-3)
-    else
-        self:SetPoint("BOTTOMRIGHT", self:GetParent(), "BOTTOMRIGHT", -(missing_health_height - absorb_height), -3)
-    end
-end
-local CreateAbsorbSideBar_SetValue = function(self, p, h)
-    if p > 1 then p = 1 end
-    if p < 0 then p = 0 end
-    if p <= 0.015 then self:Hide(); return; else self:Show() end
+    bar:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
+    bar:SetStatusBarColor(.7, .7, 1, 1)
 
-    local frameLength = self.parent.frameLength
-
-    local missing_health_height = (1-h)*frameLength
-    local absorb_height = p*frameLength
-
-    self:AlignAbsorb(absorb_height, missing_health_height)
-end
-
-local function CreateAbsorbSideBar(hp)
-    local absorb = CreateFrame("Frame", nil, hp)
-    absorb:SetParent(hp)
-    -- absorb:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
-    absorb:SetPoint("TOPLEFT",hp,"TOPLEFT",-3,0)
-    absorb:SetWidth(pixelperfect(3))
-
-    local at = absorb:CreateTexture(nil, "ARTWORK", nil, -4)
-    at:SetTexture[[Interface\BUTTONS\WHITE8X8]]
-    at:SetVertexColor(.7, .7, 1, 1)
-    at:SetAllPoints(absorb)
+    local barTex = bar:GetStatusBarTexture()
 
     local p = pixelperfect(1)
-    local atbg = absorb:CreateTexture(nil, "ARTWORK", nil, -5)
-    atbg:SetTexture[[Interface\BUTTONS\WHITE8X8]]
-    atbg:SetVertexColor(0,0,0,1)
-    atbg:SetPoint("TOPLEFT", at, "TOPLEFT", -p,p)
-    atbg:SetPoint("BOTTOMRIGHT", at, "BOTTOMRIGHT", p,-p)
+    local t = bar:CreateTexture(nil,"BACKGROUND",nil, 2)
+    t:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+    t:SetPoint("TOPLEFT", barTex, "TOPLEFT", -p, p)
+    t:SetPoint("BOTTOMRIGHT", barTex, "BOTTOMRIGHT", p, -p)
+    t:SetVertexColor(0,0,0,1)
+    bar.outline = t
 
-    absorb.AlignAbsorb = AlignAbsorbVertical
+    return bar
+end
+]]
 
-    absorb.SetValue = CreateAbsorbSideBar_SetValue
-    absorb:SetValue(0)
-    return absorb
+local function CreateAbsorbOverflowGlow(self)
+    local bar = CreateFrame("StatusBar", nil, self)
+    bar:SetAllPoints(self)
+    bar:SetReverseFill(true)
+    bar:SetRotatesTexture(false)
+    bar:SetOrientation("VERTICAL")
+    bar:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\overshield")
+    bar:GetStatusBarTexture():SetVertTile(true)
+    bar:GetStatusBarTexture():SetHorizTile(false)
+    bar:SetFrameLevel(FRAMELEVEL.HEALTH+2)
+    -- bar:SetBlendMode("BLEND")
+    bar:SetStatusBarColor(.7, .7, 1, 1)
+
+    return bar
 end
 
 
@@ -3320,6 +3307,8 @@ local function Reconf(self)
 
         local  absorb = self.absorb
         absorb:SetOrientation("VERTICAL")
+        absorb:GetStatusBarTexture():SetHorizTile(false)
+        absorb:GetStatusBarTexture():SetVertTile(true)
         absorb:ClearAllPoints()
         absorb:SetPoint("BOTTOMLEFT", hpEdgeTexture, "TOPLEFT")
         absorb:SetPoint("BOTTOMRIGHT", hpEdgeTexture, "TOPRIGHT")
@@ -3338,6 +3327,25 @@ local function Reconf(self)
         hpi:SetPoint("BOTTOMLEFT", hpEdgeTexture, "TOPLEFT")
         hpi:SetPoint("BOTTOMRIGHT", hpEdgeTexture, "TOPRIGHT")
         hpi:SetHeight(frameLength)
+
+
+        local overflow = self.absorbOverflow
+        overflow:SetOrientation("VERTICAL")
+        overflow:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\overshield")
+        overflow:GetStatusBarTexture():SetHorizTile(false)
+        overflow:GetStatusBarTexture():SetVertTile(true)
+        --[=[
+        -- for Absorb Side Bar
+        overflow:SetOrientation("VERTICAL")
+        overflow:ClearAllPoints()
+        overflow:SetPoint("TOPRIGHT", health, "TOPLEFT", 0, 0)
+        overflow:SetPoint("BOTTOMRIGHT", health, "BOTTOMLEFT", 0, 0)
+        overflow:SetWidth(pixelperfect(3))
+        local barTex = overflow:GetStatusBarTexture()
+        local p = pixelperfect(1)
+        overflow.outline:SetPoint("TOPLEFT", barTex, "TOPLEFT", -p, p)
+        overflow.outline:SetPoint("BOTTOMRIGHT", barTex, "BOTTOMRIGHT", p, -p)
+        ]=]
     else
         self.health:SetOrientation("HORIZONTAL")
         self.health.fade:SetOrientation("HORIZONTAL")
@@ -3370,8 +3378,8 @@ local function Reconf(self)
 
         local  absorb = self.absorb
         absorb:SetOrientation("HORIZONTAL")
-        absorb:GetStatusBarTexture():SetHorizTile(true)
-        absorb:GetStatusBarTexture():SetVertTile(false)
+        absorb:GetStatusBarTexture():SetVertTile(true)
+        absorb:GetStatusBarTexture():SetHorizTile(false)
         absorb:ClearAllPoints()
         absorb:SetPoint("TOPLEFT", hpEdgeTexture, "TOPRIGHT")
         absorb:SetPoint("BOTTOMLEFT", hpEdgeTexture, "BOTTOMRIGHT")
@@ -3390,6 +3398,23 @@ local function Reconf(self)
         hpi:SetPoint("TOPLEFT", hpEdgeTexture, "TOPRIGHT")
         hpi:SetPoint("BOTTOMLEFT", hpEdgeTexture, "BOTTOMRIGHT")
         hpi:SetWidth(frameLength)
+
+        local overflow = self.absorbOverflow
+        overflow:SetOrientation("HORIZONTAL")
+        overflow:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\overshield_horiz")
+        overflow:GetStatusBarTexture():SetVertTile(false)
+        overflow:GetStatusBarTexture():SetHorizTile(true)
+        --[=[
+        local p = pixelperfect(1)
+        overflow:SetOrientation("HORIZONTAL")
+        overflow:ClearAllPoints()
+        overflow:SetPoint("TOPLEFT", health, "TOPLEFT", 0, 0)
+        overflow:SetPoint("TOPRIGHT", health, "TOPRIGHT", 0, 0)
+        overflow:SetHeight(pixelperfect(3))
+        local barTex = overflow:GetStatusBarTexture()
+        overflow.outline:SetPoint("TOPLEFT", barTex, "TOPLEFT", -p, p)
+        overflow.outline:SetPoint("BOTTOMRIGHT", barTex, "BOTTOMRIGHT", p, -p)
+        ]=]
     end
 
 end
@@ -3776,9 +3801,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     --------------------
 
-    -- local absorb = CreateAbsorbSideBar(hp)
-    -- absorb.parent = hp
-    -- hp.absorb = absorb
+    local absorbOverflow = CreateAbsorbOverflowGlow(hp)
+    self.absorbOverflow = absorbOverflow
+    absorbOverflow:SetShown(not Aptechka.db.global.disableAbsorbBar)
 
     -------------------
 
