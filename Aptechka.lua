@@ -1395,7 +1395,8 @@ end
 
 function Aptechka.FrameUpdatePowerMax(frame, unit, ptype)
     if ptype == frame.power.powerType then
-        local powerMax = UnitPowerMax(unit, ptype)
+        local currentPowerTypeIndex = frame.power.powerTypeIndex
+        local powerMax = UnitPowerMax(unit, currentPowerTypeIndex)
         frame.power:SetMinMaxValues(0, powerMax)
     end
 end
@@ -1443,6 +1444,7 @@ do
 
         frame.power:OnPowerTypeChange(pname, not showPowerBar)
         frame.power.powerType = showPowerBar and pname or "NONE"
+        frame.power.powerTypeIndex = showPowerBar and pindex or nil
         Aptechka.FrameUpdatePowerColor(frame, unit, frame.power.powerType)
     end
 end
