@@ -155,11 +155,11 @@ config.allowedPowerTypesDamage = {
 
 config.auraContainers = {
     bars = {
-        widgetOptions = { width = 21, height = 5, sampleRect = {0.20, 0.35, 0.05, 0.02}, }, -- x,y,w,h
+        widgetOptions = { width = 21, height = 5, sampleRect = {0.20, 0.35, 0.05, 0.02}, pandemicColor = { 1, 0.1, 0.1, 0.7 }, }, -- x,y,w,h
         includeSpellIDs = {}
     },
     bar4 = {
-        widgetOptions = { width = 21, height = 5, color = {0,1,0,1}, }, -- sampleRect = {0.20, 0.35, 0.05, 0.02},
+        widgetOptions = { width = 21, height = 5, color = {0,1,0,1}, pandemicColor = { 1, 0.1, 0.1, 0.7 }, }, -- sampleRect = {0.20, 0.35, 0.05, 0.02},
         includeSpellIDs = {}
     },
     debuffIcons = {

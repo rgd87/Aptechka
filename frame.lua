@@ -2652,6 +2652,22 @@ local function CreateAuraButtonIconBar(self, widgetOptions, createText)
     icon:SetAllPoints(bar)
     self.icon = icon
 
+    local barTexture = bar:GetStatusBarTexture()
+
+    if widgetOptions.pandemicColor then
+        local pandemic = bar:CreateTexture(nil,"ARTWORK",nil,-3)
+        pandemic:SetTexture[[Interface\BUTTONS\WHITE8X8]]
+        -- pandemic:SetBlendMode("ADD")
+        pandemic:SetVertexColor(unpack(widgetOptions.pandemicColor))
+        -- pandemic:SetTexCoord(GetRectTexCoords(unpack(sampleRect)))
+        pandemic:SetPoint("TOPLEFT", self, "TOPLEFT", 0, 0)
+        pandemic:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, 0)
+        pandemic:SetPoint("RIGHT", barTexture, "LEFT", 0, 0)
+        pandemic:Hide()
+        self.pandemic = pandemic
+    end
+
+
     if not widgetOptions.sampleRect and widgetOptions.color then
         icon:SetVertexColor(unpack(widgetOptions.color))
     else
@@ -3534,6 +3550,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
             button.bar:SetFrameLevel(FRAMELEVEL.BAR+10)
             button:SetIcon(button.icon)
             button:SetDurationBar(button.bar)
+            button:AddPandemicRegion(button.pandemic)
         end,
     });
     buffs:SetAuraGroupSortMethod("bars", AuraContainerSortMethod.AuraInstanceIDOnly, 0)
@@ -3560,6 +3577,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
             -- button:SetIcon(bar.icon)
             button:SetDurationBar(button.bar)
             button:SetApplicationCount(button.text)
+            button:AddPandemicRegion(button.pandemic)
 
             button:SetPoint("TOPRIGHT", self, "TOPRIGHT", 0, pixelperfect(2))
         end,
