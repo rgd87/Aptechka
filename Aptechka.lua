@@ -1650,7 +1650,8 @@ function Aptechka.UI_ERROR_MESSAGE(self, event, errcode, errtext)
     if SpellFailedErrorMessages[errtext] then
         if Aptechka.currentMouseoverFrame then
             local frame = Aptechka.currentMouseoverFrame
-            FrameSetJob(frame, FrameStartTrace, config.LOSStatus)
+            local unit = frame.unit
+            Aptechka:ForEachUnitFrame(unit, FrameStartTrace, config.LOSStatus)
         elseif Aptechka.previousTarget then
             local unit = Aptechka.previousTarget
             Aptechka:ForEachUnitFrame(unit, FrameStartTrace, config.LOSStatus)
@@ -1860,11 +1861,12 @@ end
 
 function Aptechka.FrameUpdateRaidTarget(frame, unit)
     local index = GetRaidTargetIndex(unit)
-    if index then
-        FrameSetJob(frame, config.RaidTargetStatus, true, "RAIDTARGET", index)
-    else
-        FrameSetJob(frame, config.RaidTargetStatus, false)
-    end
+    if(index) then
+		SetRaidTargetIconTexture(frame.raidicon.texture, index)
+		frame.raidicon:Show()
+	else
+		frame.raidicon:Hide()
+	end
 end
 function Aptechka.RAID_TARGET_UPDATE(self, event)
     if not AptechkaDB.profile.showRaidIcons then return end
@@ -2712,10 +2714,6 @@ function Aptechka.SetupFrame(header, frameName)
         Aptechka:UnregisterEvent("UNIT_DISPLAYPOWER")
         if f.power and f.power.OnPowerTypeChange then f.power:OnPowerTypeChange("MANA", true) end
         f.power = nil
-    end
-
-    if f.raidicon then
-        f.raidicon.texture:SetTexture[[Interface\TargetingFrame\UI-RaidTargetingIcons]]
     end
 
     f:HookScript("OnAttributeChanged", OnAttributeChanged)

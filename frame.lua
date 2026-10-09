@@ -596,16 +596,6 @@ local RaidTargetCoords = {
     { 0.5, 0.75, 0.25, 0.5 },
     { 0.75, 1, 0.25, 0.5 },
 }
-function contentNormalizers.RAIDTARGET(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
-    local raidTargetIndex = ...
-    r,g,b = 1,1,1
-    a, tr,tg,tb = 1,r,g,b
-    text = job.name
-    texture = "Interface\\TargetingFrame\\UI-RaidTargetingIcons"
-    texCoords = RaidTargetCoords[raidTargetIndex]
-    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
-end
 function contentNormalizers.Default(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     text = job.text or job.name
@@ -3854,6 +3844,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     raidicon:SetPoint("CENTER",hp,"TOPLEFT",0,0)
     local raidicontex = raidicon:CreateTexture(nil,"OVERLAY")
     raidicontex:SetAllPoints(raidicon)
+    raidicontex:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
     raidicon.texture = raidicontex
     raidicon:SetAlpha(0.3)
 
