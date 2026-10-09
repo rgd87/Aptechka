@@ -2861,8 +2861,48 @@ local function ReconfAuraButtonDebuffIcon(self, widgetOptions)
 
     self.icon:SetTexCoord(GetAdaptiveCroppedTexCoord(self.icon))
 end
+local function AuraButtonDebuffIcon_SetDebuffIconStyle(self, style, widgetOptions)
+    local pixel = pixelperfect(1)
+    local stripSize = pixelperfect(widgetOptions.stripSize)
+    if style == "STRIP_LEFT" then
+        self:SetSize(pixelperfect(widgetOptions.width+widgetOptions.stripSize-1), pixelperfect(widgetOptions.height));
+
+        UpdateBorder(self, -pixel*2, -pixel, -pixel, -pixel)
+
+        local dttex = self.debuffTypeTexture
+        dttex:ClearAllPoints()
+        dttex:SetPoint("TOPLEFT", self, "TOPLEFT", -pixel, 0)
+        dttex:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -pixel, 0)
+        dttex:SetWidth(stripSize)
+
+        local icon = self.icon
+        icon:ClearAllPoints()
+        icon:SetPoint("TOPLEFT", dttex, "TOPRIGHT")
+        icon:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT")
+
+        self:SetAnimDirection("LEFT")
+    elseif style == "STRIP_BOTTOM" then
+        self:SetSize(pixelperfect(widgetOptions.width), pixelperfect(widgetOptions.height+widgetOptions.stripSize-1));
+
+        UpdateBorder(self, -pixel, -pixel, -pixel, -pixel*2)
+
+        local dttex = self.debuffTypeTexture
+        dttex:ClearAllPoints()
+        dttex:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, -pixel)
+        dttex:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, -pixel)
+        dttex:SetHeight(stripSize)
+
+        local icon = self.icon
+        icon:ClearAllPoints()
+        icon:SetPoint("BOTTOMLEFT", dttex, "TOPLEFT")
+        icon:SetPoint("TOPRIGHT", self, "TOPRIGHT")
+
+        self:SetAnimDirection("DOWN")
+    end
+end
 local function CreateAuraButtonDebuffIcon(self, widgetOptions)
-    self:SetSize(pixelperfect(widgetOptions.width), pixelperfect(widgetOptions.height));
+    local stripSize = pixelperfect(widgetOptions.stripSize)
+    self:SetSize(pixelperfect(widgetOptions.width+widgetOptions.stripSize-1), pixelperfect(widgetOptions.height));
 
     local pixel = pixelperfect(1)
 
@@ -2874,8 +2914,8 @@ local function CreateAuraButtonDebuffIcon(self, widgetOptions)
     local dttex = self:CreateTexture(nil, "ARTWORK", nil, -2)
     dttex:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
     dttex:SetTexCoord(0, 1, 1, 0)
-    dttex:SetPoint("TOPLEFT", self, "TOPLEFT", -pixel*1, 0)
-    dttex:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT")
+    dttex:SetPoint("TOPLEFT", self, "TOPLEFT", -pixel, 0)
+    dttex:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -pixel, 0)
     dttex:SetWidth(pixel*3)
     self.debuffTypeTexture = dttex
 
@@ -2899,7 +2939,7 @@ local function CreateAuraButtonDebuffIcon(self, widgetOptions)
     local stacktext = self:CreateFontString(nil,"ARTWORK")
     stacktext:SetDrawLayer("ARTWORK",1)
     stacktext:SetJustifyH"RIGHT"
-    stacktext:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 3,-1)
+    stacktext:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 3,-1)
     stacktext:SetTextColor(1,1,1)
     UpdateFontStringSettings(stacktext, config.defaultFont, widgetOptions.countSize, "OUTLINE")
     self.count = stacktext
@@ -2919,6 +2959,7 @@ local function CreateAuraButtonDebuffIcon(self, widgetOptions)
     ag.t2 = t2
     self.eyeCatcher = ag
 
+    self.SetDebuffIconStyle = AuraButtonDebuffIcon_SetDebuffIconStyle
     self.SetAnimDirection = DebuffIcon_SetAnimDirection
 
     return self
@@ -3374,7 +3415,7 @@ local function Reconf(self)
                 for i = 1, count do
                     local auraButton = debuffContainer:GetAuraGroupFrame(debuffGroup, i)
                     if auraButton then
-                        auraButton:SetAnimDirection("LEFT")
+                        auraButton:SetDebuffIconStyle("STRIP_LEFTLEFT", config.auraContainers[debuffGroup].widgetOptions)
                     end
                 end
             end
@@ -3459,7 +3500,7 @@ local function Reconf(self)
                 for i = 1, count do
                     local auraButton = debuffContainer:GetAuraGroupFrame(debuffGroup, i)
                     if auraButton then
-                        auraButton:SetAnimDirection("DOWN")
+                        auraButton:SetDebuffIconStyle("STRIP_BOTTOM", config.auraContainers[debuffGroup].widgetOptions)
                     end
                 end
             end

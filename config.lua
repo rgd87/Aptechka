@@ -163,10 +163,10 @@ config.auraContainers = {
         includeSpellIDs = {}
     },
     debuffIcons = {
-        widgetOptions = { width = 16, height = 13, countSize = 13 },
+        widgetOptions = { width = 13, height = 13, countSize = 13, stripSize = 3 },
     },
     debuffIconsBIG = {
-        widgetOptions = { width = 16*1.3, height = 13*1.3, countSize = 14 },
+        widgetOptions = { width = 16*1.3, height = 13*1.3, countSize = 14, stripSize = 3 },
     },
     PersonalDefensive = {
         widgetOptions = { width = 12, height = 18 },
