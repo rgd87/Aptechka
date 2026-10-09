@@ -2904,6 +2904,23 @@ local function CreateAuraButtonDebuffIcon(self, widgetOptions)
     UpdateFontStringSettings(stacktext, config.defaultFont, widgetOptions.countSize, "OUTLINE")
     self.count = stacktext
 
+    local ag = self:CreateAnimationGroup()
+    local t1 = ag:CreateAnimation("Translation")
+    t1:SetOffset(-10,0)
+    t1:SetDuration(0.1)
+    t1:SetSmoothing("OUT")
+    t1:SetOrder(1)
+    local t2 = ag:CreateAnimation("Translation")
+    t2:SetOffset(10,0)
+    t2:SetDuration(0.5)
+    t2:SetSmoothing("IN")
+    t2:SetOrder(2)
+    ag.t1 = t1
+    ag.t2 = t2
+    self.eyeCatcher = ag
+
+    self.SetAnimDirection = DebuffIcon_SetAnimDirection
+
     return self
 end
 
@@ -3222,6 +3239,8 @@ function Aptechka:CreateDynamicWidget(frame, widgetName)
     end
 end
 
+
+local debuffGroups = { "debuffIcons", "debuffIconsBIG" }
 local function Reconf(self)
     local config = AptechkaDefaultConfig
 
@@ -3344,6 +3363,23 @@ local function Reconf(self)
         overflow.outline:SetPoint("TOPLEFT", barTex, "TOPLEFT", -p, p)
         overflow.outline:SetPoint("BOTTOMRIGHT", barTex, "BOTTOMRIGHT", p, -p)
         ]=]
+
+
+        local debuffContainer = self.DebuffContainer
+        debuffContainer:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Vertical)
+        if not InCombatLockdown() then
+        for _, debuffGroup in ipairs(debuffGroups) do
+            local count = debuffContainer:GetAuraGroupFrameCount(debuffGroup)
+            if count and count > 0 then
+                for i = 1, count do
+                    local auraButton = debuffContainer:GetAuraGroupFrame(debuffGroup, i)
+                    if auraButton then
+                        auraButton:SetAnimDirection("LEFT")
+                    end
+                end
+            end
+        end
+        end
     else
         self.health:SetOrientation("HORIZONTAL")
         self.health.fade:SetOrientation("HORIZONTAL")
@@ -3413,6 +3449,22 @@ local function Reconf(self)
         overflow.outline:SetPoint("TOPLEFT", barTex, "TOPLEFT", -p, p)
         overflow.outline:SetPoint("BOTTOMRIGHT", barTex, "BOTTOMRIGHT", p, -p)
         ]=]
+
+        local debuffContainer = self.DebuffContainer
+        debuffContainer:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Horizontal)
+        if not InCombatLockdown() then
+        for _, debuffGroup in ipairs(debuffGroups) do
+            local count = debuffContainer:GetAuraGroupFrameCount(debuffGroup)
+            if count and count > 0 then
+                for i = 1, count do
+                    local auraButton = debuffContainer:GetAuraGroupFrame(debuffGroup, i)
+                    if auraButton then
+                        auraButton:SetAnimDirection("DOWN")
+                    end
+                end
+            end
+        end
+        end
     end
 
 end
@@ -3740,6 +3792,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
             button:SetDurationCooldown(button.cd)
             button:SetApplicationCount(button.count)
             button:AddDispelTypeTexture(button.debuffTypeTexture, dispelOptions)
+            button:AddAuraShownAnimation(button.eyeCatcher)
         end,
     });
     debuffs:SetAuraGroupLayout("debuffIconsBIG", { elementSpacing = pixelperfect(1) })
@@ -3761,6 +3814,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
             button:SetDurationCooldown(button.cd)
             button:SetApplicationCount(button.count)
             button:AddDispelTypeTexture(button.debuffTypeTexture, dispelOptions)
+            button:AddAuraShownAnimation(button.eyeCatcher)
         end,
     });
     debuffs:SetFlowLayoutAnchorPoint("BOTTOMLEFT")
