@@ -163,10 +163,10 @@ config.auraContainers = {
         includeSpellIDs = {}
     },
     debuffIcons = {
-        widgetOptions = { width = 16, height = 13 },
+        widgetOptions = { width = 16, height = 13, countSize = 13 },
     },
     debuffIconsBIG = {
-        widgetOptions = { width = 16*1.3, height = 13*1.3 },
+        widgetOptions = { width = 16*1.3, height = 13*1.3, countSize = 14 },
     },
     PersonalDefensive = {
         widgetOptions = { width = 12, height = 18 },
@@ -185,7 +185,7 @@ config.auraContainers = {
         includeSpellIDs = {}
     },
     dispelIndicator = {
-        widgetOptions = { width = 15, height = 15, rotation = 180 },
+        widgetOptions = { width = 17, height = 17, rotation = 180 },
     },
     raidBuff1 = {
         widgetOptions = { width = 11, height = 11, spark = false, rotation = 0, color = {1,1,1}, },

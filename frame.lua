@@ -14,6 +14,7 @@ local APILevel = math.floor(select(4,GetBuildInfo())/10000)
 
 local string_format = string.format
 local GetSpellTexture = helpers.GetSpellTexture
+local AbbreviateNumbers = AbbreviateNumbers
 --[[
 DRAW LAYERS
 2 shield icon border
@@ -331,7 +332,7 @@ function contentNormalizers.HealthText(job, state, contentType, ...)
     r,g,b, _, tr,tg,tb = GetClassOrTextColor(job, state)
 
     cur, perc, a = ...
-    text = string.format("-%d", cur) --FormatText(job, cur, max, incomingHeal)
+    text = string.format("-%s", AbbreviateNumbers(cur)) --FormatText(job, cur, max, incomingHeal)
     return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
 end
 -- contentNormalizers.AbsorbText = contentNormalizers.HealthText
@@ -2884,7 +2885,7 @@ local function CreateAuraButtonDebuffIcon(self, widgetOptions)
     stacktext:SetJustifyH"RIGHT"
     stacktext:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 3,-1)
     stacktext:SetTextColor(1,1,1)
-    UpdateFontStringSettings(stacktext, config.defaultFont, 12, "OUTLINE")
+    UpdateFontStringSettings(stacktext, config.defaultFont, widgetOptions.countSize, "OUTLINE")
     self.count = stacktext
 
     return self

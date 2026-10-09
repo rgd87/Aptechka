@@ -280,4 +280,5 @@ globals = {
     "GetUnitMaxHealthModifier",
     "CustomAuraContainerAuraProcessingPolicy",
     "GetUnitTotalModifiedMaxHealthPercent",
+    "AbbreviateNumbers",
 }
