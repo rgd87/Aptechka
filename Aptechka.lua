@@ -1298,7 +1298,6 @@ Aptechka.PLAYER_FLAGS_CHANGED = Aptechka.UNIT_AFK_CHANGED
 
 local offlinePlayerTable = {}
 function Aptechka.FrameUpdateConnection(frame, unit)
-    -- if self.unitOwner then unit = self.unitOwner end
     local name = UnitGUID(unit)
     if not UnitIsConnected(unit) then
         if name then
@@ -1464,87 +1463,90 @@ function Aptechka.UNIT_DISPLAYPOWER(self, event, unit)
     self:ForEachUnitFrame(unit, Aptechka.FrameUpdatePower, ptype)
 end
 
-local vehicleHack = function (self, time)
-    self.OnUpdateCounter = self.OnUpdateCounter + time
-    if self.OnUpdateCounter < 1 then return end
-    self.OnUpdateCounter = 0
-    local frame = self.parent
-    local owner = frame.unitOwner
-    if not ( UnitHasVehicleUI(owner) or UnitInVehicle(owner) or UnitUsingVehicle(owner) ) then
-        if Roster[frame.unit] then
-            -- Restore owner unit in the roster, delete vehicle unit
-            Roster[owner] = Roster[frame.unit]
-            Roster[frame.unit] = nil
-            frame.unit = owner
-            frame.unitOwner = nil
-            frame.guid = UnitGUID(owner)
-            frame.state.isInVehicle = nil
-
-            -- Remove vehicle status
-            SetJob(owner, config.InVehicleStatus,false)
-            -- Update unitframe back to owner's unit health, etc.
-            Aptechka.FrameUpdateHealth(frame, owner, "VEHICLE")
-            if frame.power then
-                Aptechka.FrameUpdateDisplayPower(frame, owner)
-                local ptype = select(2,UnitPowerType(owner))
-                Aptechka.FrameUpdatePowerMax(frame, owner, ptype)
-                Aptechka.FrameUpdatePower(frame, owner, ptype)
-                -- Aptechka.FrameUpdatePower(frame, owner, "ALTERNATE")
-            end
-            if frame.absorb then
-                Aptechka:UNIT_ABSORB_AMOUNT_CHANGED(nil, owner)
-            end
-            Aptechka.FrameUpdateMindControl(frame, owner)
-
-            -- Stop periodic checks
-            self:SetScript("OnUpdate",nil)
-        end
-    end
-end
-
 function Aptechka.FrameOnEnteredVehicle(frame, unit)
-    --[[
-    local state = frame.state
-    if not state.isInVehicle then
-        local vehicleUnit = SecureButton_GetModifiedUnit(frame)
-        -- local vehicleOwner = SecureButton_GetUnit(frame)
+    if not frame.vehicleUnit then
+        local vehicleUnit = SecureButton_GetModifiedUnit(frame) -- grabbing the correct vehicle unit, we can only do it now in UNIT_ENTERED_VEHICLE
+        local ownerUnit = SecureButton_GetUnit(frame)
         if unit ~= vehicleUnit then
-            state.isInVehicle = true
-            frame.unitOwner = unit --original unit
+            frame.ownerUnit = ownerUnit --original unit
+            frame.vehicleUnit = vehicleUnit
             frame.unit = vehicleUnit
 
-            frame.guid = UnitGUID(vehicleUnit)
-            if frame.guid then guidMap[frame.guid] = vehicleUnit end
+            local vehicleGUID = UnitGUID(vehicleUnit)
+            if not issecretvalue(vehicleGUID) then
+                frame.guid = UnitGUID(vehicleUnit)
+                if frame.guid then guidMap[frame.guid] = vehicleUnit end
+            end
 
-            -- Delete owner unit from Roster and add point vehicle unit to this button instead
-            Roster[frame.unit] = Roster[frame.unitOwner]
-            Roster[frame.unitOwner] = nil
-
-            -- A small frame is crated to start 1s periodic OnUpdate checks when unit has left the vehicle
-            if not frame.vehicleFrame then frame.vehicleFrame = CreateFrame("Frame", nil, frame); frame.vehicleFrame.parent = frame end
-            frame.vehicleFrame.OnUpdateCounter = -1.5
-            frame.vehicleFrame:SetScript("OnUpdate",vehicleHack)
+            --print(">>> Swapping", ownerUnit, ">>", vehicleUnit)
+            Aptechka:AddFrameToUnitRoster(frame, vehicleUnit)
+            Aptechka:RemoveFrameFromUnitRoster(frame, ownerUnit)
 
             -- Set in vehicle status
-            SetJob(frame.unit, config.InVehicleStatus,true)
+            FrameSetJob(frame, config.InVehicleStatus,true)
+            Aptechka.FrameCheckRoles(frame, ownerUnit)
             -- Update unitframe for the new vehicle unit
-            Aptechka.FrameUpdateHealth(frame, frame.unit, "VEHICLE")
-            if frame.power then Aptechka.FrameUpdatePower(frame, frame.unit) end
-            if frame.absorb then Aptechka.FrameUpdateAbsorb(frame, frame.unit) end
-            Aptechka.FrameCheckPhase(frame, frame.unit)
-            Aptechka.FrameUpdateIncomingRes(frame, frame.unit)
-            Aptechka.FrameScanAuras(frame, frame.unit)
+            Aptechka.FrameUpdateHealthMax(frame, vehicleUnit)
+            Aptechka.FrameUpdateHealth(frame, vehicleUnit)
+            Aptechka.FrameUpdateDisplayPower(frame, unit)
+            local pnum, ptype = UnitPowerType(unit)
+            Aptechka.FrameUpdatePowerMax(frame, unit, ptype)
+            Aptechka.FrameUpdatePower(frame, unit, ptype)
+            Aptechka.FrameUpdateAbsorb(frame, vehicleUnit)
+            Aptechka.FrameUpdateHealAbsorb(frame, vehicleUnit)
+            Aptechka.FrameCheckPhase(frame, vehicleUnit)
+            Aptechka.FrameUpdateIncomingRes(frame, vehicleUnit)
+            -- Aptechka.FrameScanAuras(frame, vehicleUnit)
 
-            Aptechka.FrameUpdateMindControl(frame, frame.unit) -- pet unit will be marked as 'charmed'
+            -- Aptechka.FrameUpdateMindControl(frame, vehicleUnit) -- pet unit will be marked as 'charmed'
 
             -- Except class color, it's still tied to owner
-            Aptechka.FrameColorize(frame, frame.unitOwner)
+            Aptechka.FrameColorize(frame, ownerUnit)
+            frame.BuffContainer:SetUnit(vehicleUnit)
+            frame.DebuffContainer:SetUnit(vehicleUnit)
         end
     end
-    ]]
 end
 function Aptechka.UNIT_ENTERED_VEHICLE(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameOnEnteredVehicle)
+end
+
+
+
+-- This is getting called from [unithasvehicleui] conditional attribute change, not UNIT_EXITED_VEHICLE event
+function Aptechka.FrameOnExitedVehicle(frame, unit)
+    local vehicleUnit = frame.vehicleUnit
+    if not vehicleUnit then return end
+    local owner = frame:GetAttribute("unit") -- SecureButton_GetUnit wouldn't work here
+
+    -- Restore owner unit in the roster, delete vehicle unit
+    Aptechka:RemoveFrameFromUnitRoster(frame, frame.vehicleUnit)
+    Aptechka:AddFrameToUnitRoster(frame, owner)
+    frame.ownerUnit = nil
+    frame.vehicleUnit = nil
+    frame.unit = vehicleUnit
+
+    local ownerGUID = UnitGUID(owner)
+    if not issecretvalue(ownerGUID) then
+        frame.guid = UnitGUID(ownerGUID)
+        if frame.guid then guidMap[frame.guid] = owner end
+    end
+
+    -- Remove vehicle status
+    FrameSetJob(frame, config.InVehicleStatus,false)
+    Aptechka.FrameCheckRoles(frame, owner)
+    -- Update unitframe back to owner's unit health, etc.
+    Aptechka.FrameUpdateHealthMax(frame, owner)
+    Aptechka.FrameUpdateHealth(frame, owner)
+    Aptechka.FrameUpdateDisplayPower(frame, owner)
+    local ptype = select(2,UnitPowerType(owner))
+    Aptechka.FrameUpdatePowerMax(frame, owner, ptype)
+    Aptechka.FrameUpdatePower(frame, owner, ptype)
+    Aptechka.FrameUpdateAbsorb(frame, owner)
+    Aptechka.FrameUpdateHealAbsorb(frame, owner)
+    frame.BuffContainer:SetUnit(owner)
+    frame.DebuffContainer:SetUnit(owner)
+    -- Aptechka.FrameUpdateMindControl(frame, owner)
 end
 
 --[[
@@ -2086,28 +2088,67 @@ end
 local has_unknowns = true
 local UNKNOWNOBJECT = UNKNOWNOBJECT
 
+
+--[[
+function Aptechka:RemoveFrameFromFullRoster(frame)
+    for rosterUnit, frames in pairs(Roster) do
+        if frames[frame] then
+            print ("Removing frame", frame:GetName(), rosterUnit, "=>", unit)
+            frames[frame] = nil
+        end
+    end
+end
+]]
+
+function Aptechka:RemoveFrameFromUnitRoster(frame, unit)
+    local frames = Roster[unit]
+    if not frames then return end
+    if frames[frame] then
+        frames[frame] = nil
+        return frame
+    end
+end
+function Aptechka:AddFrameToUnitRoster(frame, unit)
+    local frames = Roster[unit]
+    if not frames then
+        frames = {}
+        Roster[unit] = frames
+    end
+    frames[frame] = true
+    return true
+end
+
 local function updateUnitButton(self, unit)
     local owner = unit
     local state = self.state
 
+
+    -- For whatever reason SecureButton_GetUnit or GetModfiedUnit don't work in OnAttrChanged handlers
 
     -- Why Roster is nested:
     -- Basically because of vehicles. There'll be a moment
     -- when 2 different frames will be assigned to a single 'pet' unit
 
     -- These checks protect the frame from remapping back from vehicle swap
-    -- by a random group header update
-    if state.isInVehicle and unit and unit == self.unitOwner then -- GH update for owner unit
-        unit = self.unit
-        owner = self.unitOwner
-    elseif state.isInVehicle and unit then -- GH update is for the pet(vehicle) unit
-        owner = self.unitOwner
-    else -- update to nil or an unrelated new unit
-        if self.vehicleFrame then
-            self.vehicleFrame:SetScript("OnUpdate",nil)
-            state.isInVehicle = nil
-            FrameSetJob(self,config.InVehicleStatus,false)
-            -- print ("Killing orphan vehicle frame")
+    -- by a random group header update.
+    -- And also when vehicle swap itself happens it jiggles the unit attribute
+    -- First sets it to nil, then back to the owner unit, always owner unit
+    -- Only then UNIT_ENTERING_VEHICLE and UNIT_ENTERED_VEHICLE events happen, same with exit
+    -- So it's ok on entering, but when the frame is in a swapped state on Exiting and it randomly nils it that will cause problems
+
+    local isInVehicle = self:GetAttribute("state-vehicleui") == "vehicle"
+
+    if isInVehicle then -- which means the frame is in the swapped state
+        if unit == self.ownerUnit then -- GH update for owner unit
+            -- unit = self.ownerUnit
+            -- owner = self.ownerUnit
+            return -- we don't need it re-updating
+        elseif unit == self.vehicleUnit then -- GH update is for the pet(vehicle) unit
+            -- owner = self.ownerUnit
+            return -- not sure if this actually happens but we can skip it too
+        elseif unit == nil then
+            return -- also skipping random nils, while swapped
+            -- In theory it could be a legit nil, if unit gets removed from raid in a vehicle, but that's just gonna be a rare bug
         end
     end
 
@@ -2135,8 +2176,8 @@ local function updateUnitButton(self, unit)
     end
 
     self.unit = unit
-    Roster[unit] = Roster[unit] or {}
-    Roster[unit][self] = true
+    Aptechka:AddFrameToUnitRoster(self, unit)
+
     self.guid = UnitGUID(unit) -- is it even needed?
     if self.guid then guidMap[self.guid] = unit end
     for guid, gunit in pairs(guidMap) do
@@ -2153,14 +2194,11 @@ local function updateUnitButton(self, unit)
     end
     state.wasDead = nil
     Aptechka.FrameUpdateDisplayPower(self, unit)
-    local ptype = select(2,UnitPowerType(owner))
-    -- Aptechka.FrameUpdatePower(self, unit, "RUNIC_POWER")
-    -- Aptechka.FrameUpdatePower(self, unit, "ALTERNATE")
+    local ptype = select(2,UnitPowerType(unit))
     Aptechka.FrameUpdatePowerMax(self, unit, ptype)
     Aptechka.FrameUpdatePower(self, unit, ptype)
-
-    Aptechka.FrameUpdateHealthMax(self, unit, "UNIT_MAXHEALTH")
-    Aptechka.FrameUpdateHealth(self, unit, "UNIT_HEALTH")
+    Aptechka.FrameUpdateHealthMax(self, unit)
+    Aptechka.FrameUpdateHealth(self, unit)
     Aptechka.FrameUpdateAbsorb(self, unit)
     Aptechka.FrameUpdateHealAbsorb(self, unit)
     Aptechka.FrameUpdateHealPrediction(self, unit)
@@ -2177,13 +2215,14 @@ local function updateUnitButton(self, unit)
     Aptechka.FrameUpdateThreat(self, unit)
     Aptechka.FrameUpdateMindControl(self, unit)
     Aptechka:RAID_TARGET_UPDATE()
-    if config.enableVehicleSwap and UnitHasVehicleUI(owner) then
-        Aptechka:UNIT_ENTERED_VEHICLE(nil,owner) -- scary
-    end
     Aptechka.FrameCheckRoles(self, unit)
-    Aptechka:UNIT_HEAL_PREDICTION("UNIT_HEAL_PREDICTION",unit)
+    Aptechka.FrameUpdateHealPrediction(self, unit)
     self.BuffContainer:SetUnit(unit)
     self.DebuffContainer:SetUnit(unit)
+
+    if isInVehicle then
+        Aptechka.FrameOnEnteredVehicle(self, owner)
+    end
 end
 
 local delayedUpdateTimer = C_Timer.NewTicker(5, function()
@@ -2200,10 +2239,22 @@ function Aptechka:ShakeUnitButtons()
 end
 
 
+local function OnVehicleUpdate(frame, newstate)
+    if newstate == "novehicle" then
+        Aptechka.FrameOnExitedVehicle(frame)
+    end
+end
+
 --UnitButton initialization
-local OnAttributeChanged = function(self, attrname, unit)
+local OnAttributeChanged = function(self, attrname, newstate)
+    -- if attrname == "statehidden" then return end
+    -- if self:GetName():find("NugRaid[2-9]") then return end
+    -- print("AttrChanged", attrname, newstate)
     if attrname == "unit" then
-        updateUnitButton(self, unit)
+        updateUnitButton(self, newstate)
+    end
+    if attrname == "state-vehicleui" then
+        OnVehicleUpdate(self, newstate)
     end
 end
 
@@ -2490,22 +2541,24 @@ function Aptechka.CreateHeader(self,group,petgroup)
         --self:CallMethod("onMouseUp")
     ]==])
     ]]
-    -- f:SetAttribute('_initialAttribute-refreshUnitChange', [[
-    --     local unit = self:GetAttribute('unit')
-    --     if(unit) then
-    --         RegisterStateDriver(self, 'vehicleui', '[@' .. unit .. ',unithasvehicleui]vehicle; novehicle')
-    --     else
-    --         UnregisterStateDriver(self, 'vehicleui')
-    --     end
-    -- ]])
-    -- f:SetAttribute('_initialAttribute-_onstate-vehicleui', [[
-    --     local unit = self:GetAttribute('unit')
-    --     if(newstate == 'vehicle' and unit and UnitPlayerOrPetInRaid(unit) and not UnitTargetsVehicleInRaidUI(unit)) then
-    --         self:SetAttribute('toggleForVehicle', false)
-    --     else
-    --         self:SetAttribute('toggleForVehicle', true)
-    --     end
-    -- ]])
+    -- refreshUnitChange is a secure Snippet calleed by SecureGroupHeaderTemplate when it sets a new unit
+    -- but it doesn't fire when unit becomes nil
+    f:SetAttribute('_initialAttribute-refreshUnitChange', [[
+        local unit = self:GetAttribute('unit')
+        if(unit) then
+            RegisterStateDriver(self, 'vehicleui', '[@' .. unit .. ',unithasvehicleui]vehicle; novehicle')
+        else
+            UnregisterStateDriver(self, 'vehicleui')
+        end
+    ]])
+    f:SetAttribute('_initialAttribute-_onstate-vehicleui', [[
+        local unit = self:GetAttribute('unit')
+        if(newstate == 'vehicle' and unit and UnitPlayerOrPetInRaid(unit) and not UnitTargetsVehicleInRaidUI(unit)) then
+            self:SetAttribute('toggleForVehicle', false)
+        else
+            self:SetAttribute('toggleForVehicle', true)
+        end
+    ]])
 
     -- Buttons will be created after Show
     f:Show()

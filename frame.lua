@@ -436,15 +436,6 @@ local roleCoords = {
     TANK = { 0, 19/64, 22/64, 41/64 },
     HEALER = { 20/64, 39/64, 1/64, 20/64 },
 }
-function contentNormalizers.ROLE(job, state, contentType, ...)
-    local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
-    local role = ...
-    texture = "Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES"
-    texCoords = roleCoords[role]
-    text = role
-    r,g,b = unpack(roleColors[role])
-    return timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
-end
 
 
 local READY_CHECK_READY_TEXTURE = "Interface\\RaidFrame\\ReadyCheck-Ready"
