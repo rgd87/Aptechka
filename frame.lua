@@ -436,10 +436,6 @@ local roleCoords = {
     TANK = { 0, 19/64, 22/64, 41/64 },
     HEALER = { 20/64, 39/64, 1/64, 20/64 },
 }
-local roleColors = {
-    TANK = { 0.4, 0.4, 1 },
-    HEALER = { 0.4, 1, 0.4 },
-}
 function contentNormalizers.ROLE(job, state, contentType, ...)
     local timerType, cur, max, count, icon, text, r,g,b, a, tr,tg,tb, texture, texCoords
     local role = ...
@@ -3833,7 +3829,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
             button:SetDurationCooldown(button.cd)
             button:SetApplicationCount(button.count)
             button:AddDispelTypeTexture(button.debuffTypeTexture, dispelOptions)
-            button:AddAuraShownAnimation(button.eyeCatcher)
+            if button.AddAuraShownAnimation then
+                button:AddAuraShownAnimation(button.eyeCatcher)
+            end
         end,
     });
     debuffs:SetAuraGroupLayout("debuffIconsBIG", { elementSpacing = pixelperfect(1) })
@@ -3855,7 +3853,9 @@ AptechkaDefaultConfig.GridSkin = function(self)
             button:SetDurationCooldown(button.cd)
             button:SetApplicationCount(button.count)
             button:AddDispelTypeTexture(button.debuffTypeTexture, dispelOptions)
-            button:AddAuraShownAnimation(button.eyeCatcher)
+            if button.AddAuraShownAnimation then
+                button:AddAuraShownAnimation(button.eyeCatcher)
+            end
         end,
     });
     debuffs:SetFlowLayoutAnchorPoint("BOTTOMLEFT")
@@ -3950,6 +3950,18 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.incomingCastIcon = Aptechka.Widget.ProgressIcon.Create(self, nil, Aptechka:GetWidgetsOptionsMerged("incomingCastIcon"))
 
     self.phasedIcon = CreateSimplePhasedIcon(hp)
+
+    local roleIcon = hp:CreateTexture(nil, "OVERLAY")
+
+    roleIcon:SetSize(13,13)
+    roleIcon:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -8, -8)
+    -- local role = "DAMAGER"
+    self.optionTable = {
+        displayRaidRoleIcon = false,
+        displayRoleIcon = true,
+    }
+    roleIcon:Hide()
+    self.roleIcon = roleIcon
 
 
     local raidicon = CreateFrame("Frame",nil,self)

@@ -1681,7 +1681,38 @@ local roleCoords = {
     HEALER = { 20/64, 39/64, 1/64, 20/64 },
 }
 function Aptechka.FrameCheckRoles(self, unit )
+    local role = UnitGroupRolesAssigned(unit)
+    if UnitFrameUtil and UnitFrameUtil.UpdateUnitFrameRoleIcon then
+        UnitFrameUtil.UpdateUnitFrameRoleIcon(self)
+    else
+        if canaccessvalue(role) then
+            self.roleIcon:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES")
+            local coords = roleCoords[role]
+            if coords then
+                self.roleIcon:SetTexCoord(unpack(roleCoords[role]))
+                self.roleIcon:SetShown(true)
+            end
+        else
+            self.roleIcon:Hide()
+        end
+    end
 
+    local isLeader = UnitIsGroupLeader(unit)
+    if canaccessvalue(isLeader) then
+        FrameSetJob(self, config.LeaderStatus, isLeader, "LEADER")
+    end
+
+    if canaccessvalue(role) then
+        local isRaidMaintank = GetPartyAssignment("MAINTANK", unit)
+        local isTankRoleAssigned = role == "TANK"
+        local isAnyTank = isRaidMaintank or isTankRoleAssigned
+        if Aptechka.db.global.enableRoles and config.MainTankStatus then
+            FrameSetJob(self, config.MainTankStatus, isAnyTank)
+        end
+    end
+
+
+    --[=[
     local isRaidMaintank = GetPartyAssignment("MAINTANK", unit) -- gets updated on GROUP_ROSTER_UPDATE and PLAYER_ROLES_ASSIGNED
     local isTankRoleAssigned = UnitGroupRolesAssigned(unit) == "TANK"
     --[[
@@ -1724,6 +1755,11 @@ function Aptechka.FrameCheckRoles(self, unit )
             FrameSetJob(self, config.RoleStatus, false)
         end
     end
+    ]=]
+end
+
+function Aptechka:PLAYER_ROLES_ASSIGNED()
+    Aptechka:ForEachFrame(Aptechka.FrameCheckRoles)
 end
 
 
