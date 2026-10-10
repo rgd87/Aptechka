@@ -2511,6 +2511,7 @@ function Aptechka.CreateHeader(self,group,petgroup)
     f:SetAttribute("frameWidth", width)
     f:SetAttribute("frameHeight", height)
     f:SetScale(scale)
+    helpers.SetPixelPerfectScaleRegion(f)
 
     -- f:SetAttribute("auraContainerTemplate", "CustomAuraContainerTemplate") -- not using it because we have to use 2 separate containers from UnitButtonTemplate
     f:SetAttribute('_initialAttributeNames', '_onenter,_onleave,refreshUnitChange,_onstate-vehicleui')
