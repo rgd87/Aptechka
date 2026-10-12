@@ -4277,3 +4277,252 @@ function Aptechka:ReconfigureTestHeaders()
 
     Aptechka:SetGrowth(Aptechka.testGroupHeaders, unitGrowth, groupGrowth)
 end
+
+
+
+
+do
+
+local function CreateUIConfigPanel()
+    -- 1. Create Main Container Frame
+    local panel = CreateFrame("Frame", "AptechkaIconSampler", UIParent, "BackdropTemplate")
+    panel:SetSize(500, 280)
+    panel:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+
+    panel:SetScale(Aptechka.db.profile.scale)
+
+    -- Apply standard modern WoW dark background styling
+    panel:SetBackdrop({
+        bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+        edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+        tile = true, tileSize = 16, edgeSize = 16,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 }
+    })
+    panel:SetBackdropColor(0, 0, 0, 0.8)
+
+    -- Enable moving the panel around the screen
+    panel:SetMovable(true)
+    panel:EnableMouse(true)
+    panel:RegisterForDrag("LeftButton")
+    panel:SetScript("OnDragStart", panel.StartMoving)
+    panel:SetScript("OnDragStop", panel.StopMovingOrSizing)
+    panel.sliders = {}
+
+
+    panel.data = {}
+    local data = panel.data
+
+
+    local statusBox = CreateFrame("EditBox", "WoWMidnightStatusBox", panel, "BackdropTemplate")
+    statusBox:SetSize(200, 26)
+    statusBox:SetPoint("TOPLEFT", panel, "TOPLEFT", 25, -225)
+    statusBox:SetFontObject("GameFontHighlight") -- Standard white text
+    statusBox:SetTextInsets(8, 8, 0, 0)          -- Left/Right spacing inside the input
+
+    -- EditBox Visual Styling (Input frame background border)
+    statusBox:SetBackdrop({
+        bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        tile = true, tileSize = 12, edgeSize = 12,
+        insets = { left = 2, right = 2, top = 2, bottom = 2 }
+    })
+    statusBox:SetBackdropColor(0.1, 0.1, 0.1, 0.9)
+    statusBox:SetBackdropBorderColor(0.4, 0.4, 0.4, 1)
+
+    -- Essential behaviors to prevent key-grabbing bugs
+    statusBox:SetAutoFocus(false) -- CRITICAL: Prevents blocking game movement/chat keys
+    statusBox:SetMultiLine(false)
+
+
+    -- Clear focus when you hit Enter or Escape so your game controls resume instantly
+    statusBox:SetScript("OnEscapePressed", statusBox.ClearFocus)
+    statusBox:SetScript("OnEnterPressed", statusBox.ClearFocus)
+    statusBox:SetScript("OnTextChanged", function(self, userInput)
+        if not userInput then return end
+        local value = self:GetText()
+        -- Prepend "return " so the chunk returns the evaluated table
+        local chunk = loadstring("return " .. value)
+        local t = chunk()
+        local x,y,w,h = unpack(t)
+        panel.sliders.x:SetValue(x)
+        panel.sliders.y:SetValue(y)
+        panel.sliders.width:SetValue(w)
+        panel.sliders.height:SetValue(h)
+        -- data.x = x
+        -- data.y = y
+        -- data.width = w
+        -- data.height = x
+    end)
+
+    -- 3. Local Helper Function to Generate Sliders Rapidly
+    local function BuildSlider(name, labelText, minVal, maxVal, startVal, yOffset)
+        -- Create standard WoW options slider template
+        local slider = CreateFrame("Slider", "AptechkaIconSamplerSlider_" .. name, panel, "OptionsSliderTemplate")
+        slider:SetPoint("TOPLEFT", panel, "TOPLEFT", 25, yOffset)
+        slider:SetWidth(200)
+        slider.name = name
+        panel.sliders[name] = slider
+
+        -- Set boundaries and values
+        slider:SetMinMaxValues(minVal, maxVal)
+        slider:SetValueStep(0.01)
+        slider:SetValue(startVal)
+
+        -- Configure side and top text indicators
+        _G[slider:GetName() .. "Text"]:SetText(labelText .. ": " .. startVal)
+        _G[slider:GetName() .. "Low"]:SetText(tostring(minVal))
+        _G[slider:GetName() .. "High"]:SetText(tostring(maxVal))
+
+        panel.data[name] = startVal
+
+        -- Establish basic value updater script
+        slider:SetScript("OnValueChanged", function(self, value)
+            panel.data[name] = value
+            _G[self:GetName() .. "Text"]:SetText(labelText .. ": " .. string.format("%.2f", value))
+
+            statusBox:SetText(string.format("{ %.3f, %.3f, %.3f, %.3f }", data.x, data.y, data.width, data.height))
+
+            -- Triggers whenever a slider moves
+            if panel.OnConfigurationChanged then
+                panel:OnConfigurationChanged(panel.data)
+            end
+        end)
+
+        return slider
+    end
+
+    -- 4. Instantiate the 4 Sliders (Positioned sequentially down the panel)
+    -- Format: BuildSlider(uniqueID, label, min, max, initialDefault, topYOffset)
+    local screenWidth = math.floor(GetScreenWidth())
+    local screenHeight = math.floor(GetScreenHeight())
+
+    BuildSlider("x", "X Offset", 0, 1, 0.25, -45)
+    BuildSlider("y", "Y Offset", 0, 1, 0.25, -90)
+    BuildSlider("width", "Width", 0, 0.25, 0.05, -135)
+    BuildSlider("height", "Height", 0, 0.25, 0.05, -180)
+
+    statusBox:SetText(string.format("{ %.3f, %.3f, %.3f, %.3f }", data.x, data.y, data.width, data.height))
+
+    WoWMidnight_ControlPanel = panel
+    return panel
+end
+
+local SpellIconViewerContainer = nil
+function Aptechka:ShowBarColorSampler(spellIDList, iconSize, spacing)
+    iconSize = iconSize or 40   -- Width & Height of each icon in pixels
+    spacing = spacing or 8     -- Space between icons in pixels
+
+    -- /script Aptechka:ShowBarColorSampler({  17, 139,  1253593 }, 48, 10)
+
+    SpellIconViewerContainer = SpellIconViewerContainer or CreateUIConfigPanel()
+
+    SpellIconViewerContainer.OnConfigurationChanged = function(self, data)
+        for _, icon in pairs(self.iconParent.icons) do
+            icon.zoomOverlay:Resize(data)
+        end
+
+        for _, bar in pairs(self.barParent.bars) do
+            bar.icon:SetTexCoord(GetRectTexCoords(data.x, data.y, data.width, data.height))
+        end
+    end
+
+    if not spellIDList or #spellIDList == 0 then return end
+
+    -- 3. Create the parent frame centered on the screen
+    local parentFrame = SpellIconViewerContainer.iconParent or CreateFrame("Frame", "WoWMidnight_IconViewer", SpellIconViewerContainer)
+    parentFrame:SetPoint("LEFT", SpellIconViewerContainer, "CENTER", 0, 0)
+    SpellIconViewerContainer.iconParent = parentFrame
+
+    -- Calculate total width needed so the entire row remains perfectly centered
+    local totalWidth = (#spellIDList * iconSize) + ((#spellIDList - 1) * spacing)
+    parentFrame:SetSize(totalWidth, iconSize)
+    parentFrame.icons = parentFrame.icons or {}
+
+    -- 4. Loop through the Spell IDs and generate the icons sequentially
+    for i, spellID in ipairs(spellIDList) do
+        local textureID = C_Spell.GetSpellTexture(spellID)
+
+        local iconFrame = parentFrame.icons[i] or CreateFrame("Frame", nil, parentFrame)
+        iconFrame:SetSize(iconSize, iconSize)
+
+        -- Anchor sequentially from left to right inside the parent container
+        if i == 1 then
+            iconFrame:SetPoint("LEFT", parentFrame, "LEFT", 0, 0)
+        else
+            iconFrame:SetPoint("LEFT", parentFrame.icons[i-1], "RIGHT", spacing, 0)
+        end
+
+        -- Create the texture layer
+        local tex = iconFrame.tex or iconFrame:CreateTexture(nil, "ARTWORK")
+        tex:SetAllPoints(iconFrame)
+        iconFrame.tex = tex
+
+        -- local zoomOverlay = iconFrame.zoomOverlay or iconFrame:CreateTexture(nil, "OVERLAY")
+        -- zoomOverlay:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+        -- -- zoomOverlay:SetBlendMode("ADD")
+        -- zoomOverlay:SetVertexColor(0,0,0, 0)
+        local zoomOverlay = iconFrame.zoomOverlay or CreateFrame("Frame", nil, iconFrame)
+        local p = pixelperfect(1)
+        local outline = MakeCompositeBorder(zoomOverlay, "Interface\\BUTTONS\\WHITE8X8", p, p, p, p, "OVERLAY", 0)
+        outline:SetColor(1,0,0,1)
+
+        zoomOverlay.Resize = function(self, coordsData)
+            self:ClearAllPoints()
+            local x,y = coordsData.x, -coordsData.y
+            local w,h = coordsData.width, coordsData.height
+            self:SetPoint("TOPLEFT", x*iconSize,y*iconSize)
+            self:SetSize(w*iconSize, h*iconSize)
+        end
+        zoomOverlay:Resize({ x = 0.25, y = 0.25, width = 0.25, height = 0.25 })
+        iconFrame.zoomOverlay = zoomOverlay
+
+        -- If a valid spell ID was passed, set the icon; otherwise show a placeholder question mark
+        if textureID then
+            tex:SetTexture(textureID)
+        else
+            tex:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
+        end
+
+        table.insert(parentFrame.icons, iconFrame)
+    end
+
+
+    -- 3. Create the parent frame centered on the screen
+    local barParent = SpellIconViewerContainer.barParent or CreateFrame("Frame", "Aptechka_BarViewer", SpellIconViewerContainer)
+    barParent:SetPoint("LEFT", SpellIconViewerContainer, "CENTER", 0, -50)
+    SpellIconViewerContainer.barParent = barParent
+
+    -- Calculate total width needed so the entire row remains perfectly centered
+    -- local totalWidth = (#spellIDList * iconSize) + ((#spellIDList - 1) * spacing)
+    barParent:SetSize(5, 5)
+    barParent.bars = barParent.bars or {}
+
+    -- 4. Loop through the Spell IDs and generate the icons sequentially
+    for i, spellID in ipairs(spellIDList) do
+        local button = barParent.bars[i]
+        if not button then
+            button = CreateFrame("Frame", nil, barParent)
+            CreateAuraButtonIconBar(button, config.auraContainers["bars"].widgetOptions)
+            barParent.bars[i] = button
+        end
+
+        -- Anchor sequentially from left to right inside the parent container
+        if i == 1 then
+            button:SetPoint("TOPLEFT", barParent, "TOPLEFT", 0, 0)
+        else
+            button:SetPoint("TOPLEFT", barParent.bars[i-1], "BOTTOMLEFT", 0, -1)
+        end
+
+        button.bar:SetMinMaxValues(0,1)
+        button.bar:SetValue(0)
+
+        button.pandemic:Hide()
+        local textureID = C_Spell.GetSpellTexture(spellID)
+        button.icon:SetTexture(textureID)
+        button:Show()
+    end
+
+    -- Save frame globally to prevent immediate disappearance
+    SpellIconViewerContainer = parentFrame
+end
+end

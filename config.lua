@@ -606,12 +606,15 @@ if playerClass == "PRIEST" then
 
         1253593, -- Void Shield
     })
+    config.auraContainers.bars.widgetOptions.sampleRect = { 0.762, 0.685, 0.049, 0.054 }
+    -- /script Aptechka:ShowBarColorSampler({ 139,17, 271466, 1253593  })
 
     AddAuraToContainer("bar4", {
         41635, -- Prayer of Mending
         194384 -- Atonement
     })
-    -- config.auraContainers.bar4.widgetOptions.sampleRect = {0.750, 0.55, 0.05, 0.02}
+    -- config.auraContainers.bar4.widgetOptions.sampleRect = { 0.500, 0.136, 0.025, 0.026 }
+    -- /script Aptechka:ShowBarColorSampler({ 41635, 194384 })
     ChangeWidgetColorForContainer("bar4",  1, .3, .3)
 
     AddAuraToContainer("raidBuff1", {
@@ -682,11 +685,13 @@ if playerClass == "MONK" then
         450769, 450521, 450711, 450526, 450531, -- Aspect of Harmony
     })
 
+    -- /script Aptechka:ShowBarColorSampler({ 124682,115175, 1292922, 450769  })
+
     AddAuraToContainer("bar4", {
         119611, -- Renewing Mist
     })
     ChangeWidgetColorForContainer("bar4",  38/255, 221/255, 163/255)
-    config.auraContainers.bars.widgetOptions.sampleRect = {0.40, 0.45, 0.05, 0.02}
+    config.auraContainers.bars.widgetOptions.sampleRect = { 0.710, 0.690, 0.028, 0.028 }
 
     --Renewing Mist
     A{ id = 119611, type = "HELPFUL", assignto = set("bar4"), refreshTime = 20*0.3, extend_below = 20, isMine = true, color = {38/255, 221/255, 163/255}, infoType = "DURATION" }
@@ -745,17 +750,15 @@ end
 
 if playerClass == "PALADIN" then
     AddAuraToContainer("bars", {
-        287280, -- Glimmer of Light
         148039, -- Barrier of FAith
         431381, -- Dawnlight
         156322, -- Eternal Flame
         461432, -- Eternal Flame
         432502, -- Sacred Weapon (Holy Armaments)
         469703, -- Tempered in Battle (Holy Armaments)
-
-        191840, -- Essence Font
-        344006, -- Essence Font
     })
+    config.auraContainers.bars.widgetOptions.sampleRect = { 0.485, 0.213, 0.071, 0.074 }
+    -- /script Aptechka:ShowBarColorSampler({ 148039,431381, 156322, 432502, 469703  })
 
     AddAuraToContainer("bar4", {
         200025, -- Beacon of Virtue
@@ -763,7 +766,9 @@ if playerClass == "PALADIN" then
         156910, -- Beacon of Faith
         1244893, -- Beacon of the Savior
     })
-    ChangeWidgetColorForContainer("bar4",  1, .3, .3)
+    config.auraContainers.bar4.widgetOptions.sampleRect = { 0.797, 0.331, 0.056, 0.030 }
+    -- /script Aptechka:ShowBarColorSampler({ 200025, 53563, 156910, 1244893  })
+    -- ChangeWidgetColorForContainer("bar4",  1, .3, .3)
 
     --Glimmer of Light
     A{ id = 287280,type = "HELPFUL", assignto = set("bars"), color = { 1, .3, .3}, infoType = "DURATION", isMine = true}
@@ -827,6 +832,8 @@ if playerClass == "SHAMAN" then
         61295, -- Riptide
         444490, -- Hydrobubble
     })
+    config.auraContainers.bars.widgetOptions.sampleRect = { 0.469, 0.387, 0.047, 0.038 }
+    -- /script Aptechka:ShowBarColorSampler({ 61295, 444490  })
 
     AddAuraToContainer("bar4", {
         974, -- Earth Shield
@@ -891,6 +898,8 @@ if playerClass == "DRUID" then
         8936, -- Regrowth
         48438, -- Wild Growth
     })
+    config.auraContainers.bars.widgetOptions.sampleRect = { 0.310, 0.259, 0.011, 0.007 }
+    -- /script Aptechka:ShowBarColorSampler({ 774, 155777, 8936, 48438 })
 
     AddAuraToContainer("bar4", {
         33763, -- Lifebloom
@@ -977,11 +986,15 @@ if playerClass == "EVOKER" then
         395296, -- Ebon Might
         410089, -- Prescience
     })
+    config.auraContainers.bars.widgetOptions.sampleRect = { 0.510, 0.449, 0.010, 0.010 }
+    -- /script Aptechka:ShowBarColorSampler({ 373267, 366155, 367364, 355941, 363502, 395296, 410089, })
 
     AddAuraToContainer("bar4", {
         364343, -- Echo
         360827, -- Blistering Scales
     })
+    -- config.auraContainers.bar4.widgetOptions.sampleRect = { 0.300, 0.444, 0.010, 0.010 }
+    -- /script Aptechka:ShowBarColorSampler({ 364343, 360827 })
     ChangeWidgetColorForContainer("bar4", 1, 0.55, 0)
 
     AddAuraToContainer("raidBuff1", {
@@ -1047,8 +1060,6 @@ if playerClass == "MAGE" then
     AddAuraToContainer("raidBuff1", {
         1459, -- Arcane Intellect
     })
-    config.auraContainers["raidBuff1"].widgetOptions.color = {.4 , .4, 1}
-
 
     -- Focus Magic
     A{ id = 321358,  type = "HELPFUL", assignto = set("bars"), color = { 206/255, 4/256, 56/256 }, priority = 50, isMine = true} --Arcane Intellect
