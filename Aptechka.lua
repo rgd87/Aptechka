@@ -1470,7 +1470,6 @@ function Aptechka.FrameOnEnteredVehicle(frame, unit)
         if unit ~= vehicleUnit then
             frame.ownerUnit = ownerUnit --original unit
             frame.vehicleUnit = vehicleUnit
-            frame.unit = vehicleUnit
 
             local vehicleGUID = UnitGUID(vehicleUnit)
             if not issecretvalue(vehicleGUID) then
@@ -1483,8 +1482,16 @@ function Aptechka.FrameOnEnteredVehicle(frame, unit)
             Aptechka:RemoveFrameFromUnitRoster(frame, ownerUnit)
 
             -- Set in vehicle status
-            FrameSetJob(frame, config.InVehicleStatus,true)
             Aptechka.FrameCheckRoles(frame, ownerUnit)
+            -- UnitFrameUtil.UpdateUnitFrameRoleIcon in there checks for
+            -- UnitInVehicle(unitToken) and UnitHasVehicleUI(unitToken) to switch roleIcon to vehicle
+            -- but UnitInVehicle at this point is still false so it always fails when it's needed
+            -- So i'll just manually do what it's supposed to here
+            frame.roleIcon:SetAtlas("RaidFrame-Icon-Vehicle")
+            frame.roleIcon:SetWidth(13)
+            frame.roleIcon:Show()
+            -- FrameSetJob(frame, config.InVehicleStatus,true)
+            -- print("UnitInVehicle(unitToken) and UnitHasVehicleUI(unitToken):", UnitInVehicle(ownerUnit), UnitHasVehicleUI(ownerUnit))
             -- Update unitframe for the new vehicle unit
             Aptechka.FrameUpdateHealthMax(frame, vehicleUnit)
             Aptechka.FrameUpdateHealth(frame, vehicleUnit)
@@ -1524,7 +1531,6 @@ function Aptechka.FrameOnExitedVehicle(frame, unit)
     Aptechka:AddFrameToUnitRoster(frame, owner)
     frame.ownerUnit = nil
     frame.vehicleUnit = nil
-    frame.unit = vehicleUnit
 
     local ownerGUID = UnitGUID(owner)
     if not issecretvalue(ownerGUID) then
@@ -1533,7 +1539,7 @@ function Aptechka.FrameOnExitedVehicle(frame, unit)
     end
 
     -- Remove vehicle status
-    FrameSetJob(frame, config.InVehicleStatus,false)
+    -- FrameSetJob(frame, config.InVehicleStatus,false)
     Aptechka.FrameCheckRoles(frame, owner)
     -- Update unitframe back to owner's unit health, etc.
     Aptechka.FrameUpdateHealthMax(frame, owner)
@@ -1899,7 +1905,7 @@ end
 
 function Aptechka.FrameUpdateRaidTarget(frame, unit)
     local index = GetRaidTargetIndex(unit)
-    if(index) then
+    if index then
 		SetRaidTargetIconTexture(frame.raidicon.texture, index)
 		frame.raidicon:Show()
 	else

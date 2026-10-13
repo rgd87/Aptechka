@@ -2654,9 +2654,11 @@ local function CreateAuraButtonIconBar(self, widgetOptions, createText)
         self.pandemic = pandemic
     end
 
+    local r,g,b,a = 1,0,0,0
+    if widgetOptions.color then r,g,b,a = unpack(widgetOptions.color) end
 
     if not widgetOptions.sampleRect and widgetOptions.color then
-        icon:SetVertexColor(unpack(widgetOptions.color))
+        icon:SetVertexColor(r,g,b,a)
     else
         local dodge = bar:CreateTexture(nil,"ARTWORK",nil,-2)
         dodge:SetTexture[[Interface\BUTTONS\WHITE8X8]]
@@ -2670,7 +2672,7 @@ local function CreateAuraButtonIconBar(self, widgetOptions, createText)
         local text = bar:CreateFontString(nil, "ARTWORK")
         local font = LSM:Fetch("font", config.defaultFont)
         text:SetFont(font, 12, "OUTLINE")
-        text:SetTextColor(unpack(widgetOptions.color))
+        text:SetTextColor(r,g,b,a)
         text:SetPoint("TOPRIGHT", bar, "TOPLEFT", 1, 2)
         self.text = text
     end
@@ -3654,7 +3656,10 @@ AptechkaDefaultConfig.GridSkin = function(self)
             button:SetFrameLevel(FRAMELEVEL.BAR+20)
 
             button:SetHideTooltipInCombat(true)
-            -- button:SetIcon(bar.icon)
+            local opts = config.auraContainers["bar4"].widgetOptions
+            if opts.sampleRect then
+                button:SetIcon(button.icon)
+            end
             button:SetDurationBar(button.bar)
             button:SetApplicationCount(button.text)
             button:AddPandemicRegion(button.pandemic)
@@ -3948,8 +3953,15 @@ AptechkaDefaultConfig.GridSkin = function(self)
     roleIcon:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -8, -8)
     -- local role = "DAMAGER"
     self.optionTable = {
+        -- https://github.com/Gethe/wow-ui-source/blob/12.1.5/Interface/AddOns/Blizzard_UnitFrame/Shared/UnitFrameUtil.lua#L218
         displayRaidRoleIcon = false,
         displayRoleIcon = true,
+        textureMap = {
+            VEHICLE = "RaidFrame-Icon-Vehicle",
+            HEALER = "UI-Frame-HealerIcon",
+            TANK = "UI-Frame-TankIcon",
+            DAMAGER = "",
+        }
     }
     roleIcon:Hide()
     self.roleIcon = roleIcon
