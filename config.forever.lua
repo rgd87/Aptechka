@@ -85,6 +85,8 @@ AddAuraToContainer("PersonalDefensive", {
 AddAuraToContainer("OffensiveCD", {
     430, 431, 432, 1133, 1135, 1137, 22734, 24355, 29007, 26473, 26261, -- Classic water
     468767, -- SoD
+
+    10060, -- Power Infusion
 })
 
 --[[
@@ -156,10 +158,11 @@ if playerClass == "PRIEST" then
         139, 6074, 6075, 6076, 6077, 6078, 10927, 10928, 10929, 25315, -- Renew
         7001, 27873, 27874, -- Lightwell Renew
         17, 592, 600, 3747, 6065, 6066, 10898, 10899, 10900, 10901, -- Power Word: Shield
-        6788, -- Weakened Soul
+        -- 6788, -- Weakened Soul
         552, -- Abolish Disease
-        10060, -- Power Infusion
     })
+    config.auraContainers.bars.widgetOptions.sampleRect = { 0.790, 0.681, 0.090, 0.027 }
+    -- /script Aptechka:ShowBarColorSampler({ 139,7001, 17, 552  })
 
     AddAuraToContainer("bar4", {
         401877, 1240848, 1240849, -- Prayer of Mending
@@ -237,6 +240,9 @@ if playerClass == "DRUID" then
         2893, -- Abolish Poison
         408120, 1238214, 1238215 -- Wild Growth
     })
+    config.auraContainers.bars.widgetOptions.sampleRect = { 0.310, 0.259, 0.011, 0.007 }
+    -- /script Aptechka:ShowBarColorSampler({ 774, 2893, 8936, 408120 })
+
 
     AddAuraToContainer("bar4", {
         408124, -- Lifebloom
@@ -291,6 +297,8 @@ if playerClass == "PALADIN" then
     AddAuraToContainer("bars", {
         1044, -- Blessing of Freedom
     })
+    config.auraContainers.bars.widgetOptions.sampleRect = { 0.250, 0.468, 0.006, 0.030 }
+    -- /script Aptechka:ShowBarColorSampler({ 1044 })
 
     AddAuraToContainer("bar4", {
         1310909, 1311593, 1311597, -- Light's Vigil
@@ -337,11 +345,15 @@ if playerClass == "SHAMAN" then
     AddAuraToContainer("bars", {
         408521, 1239242, 1239243, -- Riptide
     })
+    config.auraContainers.bars.widgetOptions.sampleRect = { 0.469, 0.387, 0.047, 0.038 }
+    -- /script Aptechka:ShowBarColorSampler({ 61295, 444490  })
 
     AddAuraToContainer("bar4", {
         408514, -- Earth Shield
     })
-    ChangeWidgetColorForContainer("bar4",  0.2, 1, 0.2)
+    -- ChangeWidgetColorForContainer("bar4",  0.2, 1, 0.2)
+    config.auraContainers.bar4.widgetOptions.sampleRect = { 0.345, 0.087, 0.012, 0.048 }
+    -- /script Aptechka:ShowBarColorSampler({ 408514 })
 
     --[[
     -- SoD
@@ -428,6 +440,9 @@ if playerClass == "WARRIOR" then
     AddAuraToContainer("bars", {
         5242, 6192, 6673, 11549, 11550, 11551, 25289, -- Battle Shout
     })
+    config.auraContainers.bars.widgetOptions.sampleRect = { 0.106, 0.255, 0.133, 0.136 }
+    -- /script Aptechka:ShowBarColorSampler({ 5242 })
+
 
     -- Battle Shout
     -- A{ id = { 5242, 6192, 6673, 11549, 11550, 11551, 25289 }, type = "HELPFUL", assignto = set("raidbuff"), color = { 1, .4 , .4}, priority = 50 }
