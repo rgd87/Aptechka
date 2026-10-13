@@ -4403,11 +4403,6 @@ local function CreateUIConfigPanel()
         return slider
     end
 
-    -- 4. Instantiate the 4 Sliders (Positioned sequentially down the panel)
-    -- Format: BuildSlider(uniqueID, label, min, max, initialDefault, topYOffset)
-    local screenWidth = math.floor(GetScreenWidth())
-    local screenHeight = math.floor(GetScreenHeight())
-
     BuildSlider("x", "X Offset", 0, 1, 0.25, -45)
     BuildSlider("y", "Y Offset", 0, 1, 0.25, -90)
     BuildSlider("width", "Width", 0, 0.25, 0.05, -135)
@@ -4415,7 +4410,6 @@ local function CreateUIConfigPanel()
 
     statusBox:SetText(string.format("{ %.3f, %.3f, %.3f, %.3f }", data.x, data.y, data.width, data.height))
 
-    WoWMidnight_ControlPanel = panel
     return panel
 end
 
