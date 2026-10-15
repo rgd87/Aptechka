@@ -523,6 +523,7 @@ function ns.MakeProfileSettings()
                     healthTexture = {
                         type = "select",
                         name = L"Health Texture",
+                        width = 2,
                         order = 13,
                         get = function(info) return Aptechka.db.profile.healthTexture end,
                         set = function(info, value)
@@ -533,6 +534,7 @@ function ns.MakeProfileSettings()
                         dialogControl = "LSM30_Statusbar",
                     },
 
+                    --[[
                     powerTexture = {
                         type = "select",
                         name = L"Power Texture",
@@ -545,6 +547,7 @@ function ns.MakeProfileSettings()
                         values = LSM:HashTable("statusbar"),
                         dialogControl = "LSM30_Statusbar",
                     },
+                    ]]
                     nameLength = {
                         name = L"Name Length",
                         type = "range",
@@ -685,6 +688,7 @@ function ns.MakeProfileSettings()
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
+                            ]]
 
                             useBGColor = {
                                 name = L"Use Separate Background Color",
@@ -711,7 +715,7 @@ function ns.MakeProfileSettings()
                                     Aptechka:RefreshAllUnitsColors()
                                 end,
                             },
-
+                            --[[
                             powerColor = {
                                 name = L"Power Color",
                                 type = 'color',
@@ -883,7 +887,6 @@ function ns.MakeProfileSettings()
                                 step = 0.05,
                                 order = 2,
                             },
-                            --[[
                             bgAlpha = {
                                 name = L"Background Alpha"..newFeatureIcon,
                                 type = "range",
@@ -897,6 +900,7 @@ function ns.MakeProfileSettings()
                                 step = 0.05,
                                 order = 2.5,
                             },
+                            --[[
                             nameColor = {
                                 name = L"Name",
                                 type = "range",

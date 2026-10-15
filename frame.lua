@@ -35,6 +35,7 @@ DRAW LAYERS
 -8 powerbar bg
 -8 healthbar bg
 ]]
+local ENUM_FILLSTYLE_REVERSE = Enum.StatusBarFillStyle.Reverse
 local FRAMELEVEL = helpers.FRAMELEVEL
 local Enum = _G.Enum
 
@@ -135,7 +136,7 @@ local UpdateBorder = function(self, left, right, top, bottom)
 end
 
 
-local CompositeBorder_Set = function(self, left, right, top, bottom)
+local CompositeBorder_UpdateCompositeBorder = function(self, left, right, top, bottom)
     local frame = self[5]
     local ttop = self[1]
     ttop:SetPoint("TOPLEFT", frame, "TOPLEFT", 0, top)
@@ -166,6 +167,21 @@ local CompositeBorder_SetColor = function(self, r,g,b,a)
     local tleft = self[4]
     tleft:SetVertexColor(r,g,b,a)
 end
+local function CompositeBorder_Show(self)
+    for i=1,4 do
+        self[i]:Show()
+    end
+end
+local function CompositeBorder_Hide(self)
+    for i=1,4 do
+        self[i]:Hide()
+    end
+end
+local function CompositeBorder_SetAlpha(self, a)
+    for i=1,4 do
+        self[i]:SetAlpha(a)
+    end
+end
 local MakeCompositeBorder = function(frame, tex, left, right, top, bottom, drawLayer, level)
     local ttop = frame:CreateTexture(nil, drawLayer, nil, level)
     ttop:SetTexture(tex)
@@ -181,10 +197,14 @@ local MakeCompositeBorder = function(frame, tex, left, right, top, bottom, drawL
 
     local border = { ttop, tright, tbot, tleft, frame }
     border.parent = frame
-    border.Set = CompositeBorder_Set
+    border.UpdateCompositeBorder = CompositeBorder_UpdateCompositeBorder
     border.SetColor = CompositeBorder_SetColor
+    border.SetVertexColor = CompositeBorder_SetColor
+    border.Show = CompositeBorder_Show
+    border.Hide = CompositeBorder_Hide
+    border.SetAlpha = CompositeBorder_SetAlpha
 
-    border:Set(left, right, top, bottom)
+    border:UpdateCompositeBorder(left, right, top, bottom)
     border:SetColor(0,0,0, 1)
 
     return border
@@ -661,7 +681,11 @@ local PowerBar_OnPowerTypeChange = function(powerbar, powerType, hidePower)
     local self = powerbar:GetParent()
 
     self.power.disableInverted = forcedStandardFillPowerTypes[powerType]
-
+    local fillStyle = 0 -- Standard
+    if not self.power.disableInverted and Aptechka.db.profile.fgShowMissing then
+        fillStyle = ENUM_FILLSTYLE_REVERSE
+    end
+    self.power:SetFillStyle(fillStyle)
 
     local isVertical = Aptechka.db.profile.healthOrientation == "VERTICAL"
     if hidePower then
@@ -2284,11 +2308,11 @@ local function CreateHealAbsorb(hp)
     healAbsorb:SetPoint("TOPLEFT", hpEdgeTexture, "TOPLEFT")
     healAbsorb:SetPoint("TOPRIGHT", hpEdgeTexture, "TOPRIGHT")
     healAbsorb:SetHeight(db.height)
-    healAbsorb:SetReverseFill(true)
+    healAbsorb:SetFillStyle(ENUM_FILLSTYLE_REVERSE)
     -- healAbsorb:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\shieldtex")
 
     healAbsorb:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\healabsorbtex_shadow")
-    healAbsorb:SetRotatesTexture(true)
+    -- healAbsorb:SetRotatesTexture(true)
     -- healAbsorb:SetStatusBarTexture("RaidFrame-Absorb-Overlay")
 
     -- tex:SetTexCoord(0, 3, 0, 3)
@@ -2354,7 +2378,7 @@ local function CreateAbsorbOverflowBar(self)
     bar:SetPoint("TOPRIGHT", self, "TOPLEFT", 0, 0)
     bar:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 0, 0)
     bar:SetWidth(pixelperfect(3))
-    bar:SetReverseFill(true)
+    bar:SetFillStyle(ENUM_FILLSTYLE_REVERSE)
     bar:SetOrientation("VERTICAL")
     -- bar:SetUsingParentLevel(true)
 
@@ -2378,7 +2402,7 @@ end
 local function CreateAbsorbOverflowGlow(self)
     local bar = CreateFrame("StatusBar", nil, self)
     bar:SetAllPoints(self)
-    bar:SetReverseFill(true)
+    bar:SetFillStyle(ENUM_FILLSTYLE_REVERSE)
     bar:SetRotatesTexture(false)
     bar:SetOrientation("VERTICAL")
     bar:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\overshield")
@@ -2628,7 +2652,7 @@ local function CreateAuraButtonIconBar(self, widgetOptions, createText)
     bar:SetFrameLevel(5)
     bar:SetStatusBarTexture[[Interface\BUTTONS\WHITE8X8]]
     bar:SetStatusBarColor(0,0,0, 0.8)
-    bar:SetReverseFill(true)
+    bar:SetFillStyle(ENUM_FILLSTYLE_REVERSE)
     self.bar = bar
 
     local icon = bar:CreateTexture(nil,"ARTWORK",nil,-3)
@@ -2745,12 +2769,12 @@ local function CreateAuraButtonBarIcon(self, widgetOptions)
 
     f:SetFrameLevel(5)
     f:SetOrientation("VERTICAL")
-    f:SetReverseFill(true)
+    f:SetFillStyle(ENUM_FILLSTYLE_REVERSE)
     f:SetStatusBarTexture[[Interface\BUTTONS\WHITE8X8]]
     local statusBarTexture = f:GetStatusBarTexture()
     -- f:GetStatusBarTexture():SetTexCoord(0.1, 0.9, 0.1, 0.9)
     f:SetStatusBarColor(0,0,0, 0.6)
-    -- f:SetReverseFill(true)
+    -- f:SetFillStyle(ENUM_FILLSTYLE_REVERSE)
 
     local bgicon = self:CreateTexture(nil,"ARTWORK",nil,-3)
     bgicon:SetTexture[[Interface\BUTTONS\WHITE8X8]]
@@ -3278,30 +3302,39 @@ local function Reconf(self)
     local isVertical = db.healthOrientation == "VERTICAL"
 
     local outlineSize = pixelperfect(Aptechka.db.global.borderWidth)
-    UpdateBorder(self, -outlineSize, -outlineSize, -outlineSize, -outlineSize)
+    self.outline:UpdateCompositeBorder(outlineSize, outlineSize, outlineSize, outlineSize)
+    -- UpdateBorder(self, -outlineSize, -outlineSize, -outlineSize, -outlineSize)
     local p4 = outlineSize + pixelperfect(Aptechka.db.profile.selBorderWidth)
-    self.border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
-    self.border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
+    self.border:UpdateCompositeBorder(p4, p4, p4, p4)
 
     local texpath = LSM:Fetch("statusbar", db.healthTexture)
-    self.health:SetStatusBarTexture(texpath)
-    self.health:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
-    self.health.bg:SetTexture(texpath)
+    -- Just multiplying a texture over the whole frame surface but below widgets
+    self.textureOverlay:SetTexture(texpath)
 
-    local texpath2 = LSM:Fetch("statusbar", db.powerTexture)
-    self.power:SetStatusBarTexture(texpath2)
-    self.power:GetStatusBarTexture():SetDrawLayer("ARTWORK",-6)
-    self.power.bg:SetTexture(texpath2)
+    self.health:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
+    self.health.bg:SetTexture("Interface\\BUTTONS\\WHITE8X8")
+
+    -- local texpath2 = LSM:Fetch("statusbar", db.powerTexture)
+    self.power:SetStatusBarTexture("Interface\\BUTTONS\\WHITE8X8")
+    self.power.bg:SetTexture("Interface\\BUTTONS\\WHITE8X8")
     local bgAlpha = db.bgAlpha
     local powerSize = pixelperfect(db.powerSize)
 
     if not db.fgShowMissing then
         self.health.absorb:SetStatusBarColor(0.7,0.7,1, 0.65)
         self.health.incoming:SetStatusBarColor(0.3, 1,0.4, 0.4)
+        self.health:SetFillStyle(Enum.StatusBarFillStyle.Standard)
+        self.health.fade:SetFillStyle(Enum.StatusBarFillStyle.Standard)
+        self.power:SetFillStyle(Enum.StatusBarFillStyle.Standard)
     else
         self.health.absorb:SetStatusBarColor(0,0,0, 0.65)
         self.health.incoming:SetStatusBarColor(0,0,0, 0.4)
+        self.health:SetFillStyle(Enum.StatusBarFillStyle.Reverse)
+        self.health.fade:SetFillStyle(Enum.StatusBarFillStyle.Reverse)
+        self.power:SetFillStyle(Enum.StatusBarFillStyle.Reverse)
     end
+
+
 
     -- forcing colos
     if not db.absorbColorAuto then
@@ -3357,22 +3390,29 @@ local function Reconf(self)
         absorb:GetStatusBarTexture():SetHorizTile(false)
         absorb:GetStatusBarTexture():SetVertTile(true)
         absorb:ClearAllPoints()
-        absorb:SetPoint("BOTTOMLEFT", hpEdgeTexture, "TOPLEFT")
-        absorb:SetPoint("BOTTOMRIGHT", hpEdgeTexture, "TOPRIGHT")
+        local edgeAttachmentPointLeft = "TOPLEFT"
+        local edgeAttachmentPointRight = "TOPRIGHT"
+        if db.fgShowMissing then
+            edgeAttachmentPointLeft = "BOTTOMLEFT"
+            edgeAttachmentPointRight = "BOTTOMRIGHT"
+        end
+        absorb:SetPoint("BOTTOMLEFT", hpEdgeTexture, edgeAttachmentPointLeft)
+        absorb:SetPoint("BOTTOMRIGHT", hpEdgeTexture, edgeAttachmentPointRight)
         absorb:SetHeight(frameLength)
 
         local healAbsorb = self.health.healabsorb
         healAbsorb:SetOrientation("VERTICAL")
         healAbsorb:ClearAllPoints()
-        healAbsorb:SetPoint("TOPLEFT", hpEdgeTexture, "TOPLEFT")
-        healAbsorb:SetPoint("TOPRIGHT", hpEdgeTexture, "TOPRIGHT")
+        healAbsorb:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\healabsorbtex_shadow")
+        healAbsorb:SetPoint("TOPLEFT", hpEdgeTexture, edgeAttachmentPointLeft)
+        healAbsorb:SetPoint("TOPRIGHT", hpEdgeTexture, edgeAttachmentPointRight)
         healAbsorb:SetHeight(frameLength)
 
         local hpi = self.health.incoming
         hpi:SetOrientation("VERTICAL")
         hpi:ClearAllPoints()
-        hpi:SetPoint("BOTTOMLEFT", hpEdgeTexture, "TOPLEFT")
-        hpi:SetPoint("BOTTOMRIGHT", hpEdgeTexture, "TOPRIGHT")
+        hpi:SetPoint("BOTTOMLEFT", hpEdgeTexture, edgeAttachmentPointLeft)
+        hpi:SetPoint("BOTTOMRIGHT", hpEdgeTexture, edgeAttachmentPointRight)
         hpi:SetHeight(frameLength)
 
 
@@ -3452,6 +3492,7 @@ local function Reconf(self)
         local healAbsorb = self.health.healabsorb
         healAbsorb:SetOrientation("HORIZONTAL")
         healAbsorb:ClearAllPoints()
+        healAbsorb:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\healabsorbtex")
         healAbsorb:SetPoint("TOPRIGHT", hpEdgeTexture, "TOPRIGHT")
         healAbsorb:SetPoint("BOTTOMRIGHT", hpEdgeTexture, "BOTTOMRIGHT")
         healAbsorb:SetWidth(frameLength)
@@ -3516,12 +3557,11 @@ AptechkaDefaultConfig.GridSkin = function(self)
 
     self.ReconfigureUnitFrame = Reconf
 
-    -- local outline = MakeCompositeBorder(self, "Interface\\BUTTONS\\WHITE8X8", outlineSize, outlineSize, outlineSize, outlineSize, "BACKGROUND", -2)
-    -- outline:Set(1,1,1,1)
+    local outline = MakeCompositeBorder(self, "Interface\\BUTTONS\\WHITE8X8", outlineSize, outlineSize, outlineSize, outlineSize, "BACKGROUND", -2)
 
-    local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
-    outline:SetVertexColor(0,0,0,1)
-    outline:SetDrawLayer("BACKGROUND", -1)
+    -- local outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -outlineSize, -outlineSize, -outlineSize, -outlineSize, -2)
+    -- outline:SetVertexColor(0,0,0,1)
+    -- outline:SetDrawLayer("BACKGROUND", -1)
     self.outline = outline
 
     -- local outlineMask = self:CreateMaskTexture(nil, "BACKGROUND", nil, 0)
@@ -3600,7 +3640,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     temploss:SetOrientation("VERTICAL")
     temploss:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\temploss")
     temploss:SetRotatesTexture(true)
-    temploss:SetReverseFill(true)
+    temploss:SetFillStyle(ENUM_FILLSTYLE_REVERSE)
     temploss:SetMinMaxValues(0, 1)
     temploss:SetValue(0)
     temploss:SetStatusBarColor(0.5,0.5,0.5)
@@ -3608,6 +3648,12 @@ AptechkaDefaultConfig.GridSkin = function(self)
     temploss:SetPoint("BOTTOM", self, "BOTTOM", 0,0)
     temploss:SetPoint("RIGHT", self, "RIGHT", 0,0)
     hp.temploss = temploss
+
+    local textureOverlay = hp:CreateTexture(nil, "ARTWORK", nil, 1)
+    textureOverlay:SetAllPoints(self)
+    textureOverlay:SetTexture(texture)
+    textureOverlay:SetBlendMode("MOD")
+    self.textureOverlay = textureOverlay
 
 
     ------------------------
@@ -3921,20 +3967,15 @@ AptechkaDefaultConfig.GridSkin = function(self)
     self.frameAlpha = alphaWidget
 
     local p4 = outlineSize + pixelperfect(2)
-    local border = self:CreateTexture(nil, "BACKGROUND", nil, -6)
-    border:SetTexture("Interface\\BUTTONS\\WHITE8X8")
-    border:SetPoint("TOPLEFT", self, "TOPLEFT", -p4, p4)
-    border:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", p4, -p4)
+    local border = MakeCompositeBorder(self, "Interface\\BUTTONS\\WHITE8X8", p4, p4, p4, p4, "BACKGROUND", -6)
     border:SetVertexColor(1, 1, 1, 0.5)
-
-    AddPulseAnimation(border)
-    border.SetJob = Border_SetJob
-
-    AddBlinkAnimation(border)
-    border.StartTrace = Border_StartTrace
-
     border:Hide()
 
+    -- AddPulseAnimation(border)
+    border.SetJob = Border_SetJob
+
+    -- AddBlinkAnimation(border)
+    border.StartTrace = Border_StartTrace
 
     local text1_opts = Aptechka:GetWidgetsOptionsMerged("text1")
     local text = Aptechka.Widget.Text.Create(self, nil, text1_opts)

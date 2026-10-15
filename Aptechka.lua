@@ -101,6 +101,7 @@ local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitPower = UnitPower
+local UnitPowerMissing = UnitPowerMissing
 local UnitPowerMax = UnitPowerMax
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 local UnitAura = UnitAura
@@ -133,7 +134,6 @@ local tsort = table.sort
 local enableStagger
 local alphaOutOfRange = 0.45
 -- local enableLowHealthStatus
-local debuffLimit
 local staggerUnits = {}
 
 local L = setmetatable({}, {
@@ -1012,10 +1012,21 @@ healthTextCurve:SetType(Enum.LuaCurveType.Step)
 healthTextCurve:AddPoint(0.0, 1);
 healthTextCurve:AddPoint(0.95, 0);
 healthTextCurve:AddPoint(1.0, 0);
+
+local function UpdateHealthForeground(self, health, healthMissing)
+    if fgShowMissing then
+        self.health:SetValue(healthMissing, 1)
+        self.health.fade:SetValue(healthMissing)
+    else
+        self.health:SetValue(health)
+        self.health.fade:SetValue(health, 1)
+    end
+end
+
 function Aptechka.FrameUpdateHealth(self, unit, event)
     local healCalc = self.health.healCalc
     UnitGetDetailedHealPrediction(unit, nil, healCalc)
-    local h = healCalc:GetCurrentHealth()
+    local health = healCalc:GetCurrentHealth()
     local healthPercent = healCalc:GetCurrentHealthPercent()
     local healthMissing = healCalc:GetMissingHealth()
     local incomingHeal = healCalc:GetIncomingHeals()
@@ -1023,8 +1034,9 @@ function Aptechka.FrameUpdateHealth(self, unit, event)
     local healAbsorb, isHealOverabsorb = healCalc:GetHealAbsorbs()
     local unclampedAbsorb = healCalc:GetTotalDamageAbsorbs()
 
-    self.health:SetValue(h)
-    self.health.fade:SetValue(h, 1)
+    -- self.health:SetValue(health)
+    -- self.health.fade:SetValue(health, 1)
+    UpdateHealthForeground(self, health, healthMissing)
     self.health.incoming:SetValue(incomingHeal)
     self.healabsorb:SetValue(healAbsorb)
     self.absorb:SetValue(absorb)
@@ -1324,7 +1336,12 @@ end
 local function MakePowerHandlerForType(powerTypeIndex)
     return function(frame, unit, ptype)
         -- this one should abide by missing/inverted rules
-        local power = UnitPower(unit, powerTypeIndex)
+        local power
+        if fgShowMissing and not frame.power.disableInverted then
+            power = UnitPowerMissing(unit, powerTypeIndex)
+        else
+            power = UnitPower(unit, powerTypeIndex)
+        end
         frame.power:SetValue(power)
     end
 end
@@ -2021,19 +2038,22 @@ function Aptechka.FrameUpdateHealthColor(frame, unit)
     else
         r,g,b = frame.state.classcolor:GetRGB()
     end
+    local r2,g2,b2 = r,g,b
+    if profile.useCustomBackgroundColor then
+        r2,g2,b2 = unpack(profile.customBackgroundColor)
+    end
 
     local mulFG = profile.fgColorMultiplier or 1
     local mulBG = profile.bgColorMultiplier or 0.2
 
     if fgShowMissing then
-        frame.health:SetStatusBarColor(r*mulBG, g*mulBG, b*mulBG, 1)
-        frame.health.bg:SetVertexColor(r*mulFG, g*mulFG, b*mulFG, 1)
         frame.healabsorb:SetStatusBarColor(r,g,b, 0.6)
     else
-        frame.health:SetStatusBarColor(r*mulFG, g*mulFG, b*mulFG, 1)
-        frame.health.bg:SetVertexColor(r*mulBG, g*mulBG, b*mulBG, 1)
         frame.healabsorb:SetStatusBarColor(0,0,0, 1)
     end
+    frame.health:SetStatusBarColor(r*mulFG, g*mulFG, b*mulFG, 1)
+    frame.health.bg:SetVertexColor(r2*mulBG, g2*mulBG, b2*mulBG, profile.bgAlpha)
+
 end
 
 function Aptechka.FrameUpdatePowerColor(frame, unit, powerType)
@@ -2049,13 +2069,9 @@ function Aptechka.FrameUpdatePowerColor(frame, unit, powerType)
 
     local mulFG = profile.fgColorMultiplier or 1
     local mulBG = profile.bgColorMultiplier or 0.2
-    if fgShowMissing and not frame.power.disableInverted then
-        frame.power:SetStatusBarColor(r*mulBG, g*mulBG, b*mulBG, 1)
-        frame.power.bg:SetVertexColor(r*mulFG, g*mulFG, b*mulFG, 1)
-    else
-        frame.power:SetStatusBarColor(r*mulFG, g*mulFG, b*mulFG, 1)
-        frame.power.bg:SetVertexColor(r*mulBG, g*mulBG, b*mulBG, 1)
-    end
+    -- if fgShowMissing and not frame.power.disableInverted then
+    frame.power:SetStatusBarColor(r*mulFG, g*mulFG, b*mulFG, 1)
+    frame.power.bg:SetVertexColor(r*mulBG, g*mulBG, b*mulBG, profile.bgAlpha)
 end
 function Aptechka.FrameColorize(frame, unit)
     -- if gradientHealthColor then

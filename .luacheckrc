@@ -282,4 +282,5 @@ globals = {
     "GetUnitTotalModifiedMaxHealthPercent",
     "AbbreviateNumbers",
     "UnitFrameUtil",
+    "UnitPowerMissing",
 }
