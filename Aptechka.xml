@@ -15,13 +15,10 @@
                     <Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT" x="0" y="0"/>
                 </Anchors>
             </AuraContainer>
-            <Frame parentKey="pingIconFrame" frameLevel="5" inherits="UnitPingIconFrameTemplate">
+            <Frame parentKey="pingIconFrame" frameLevel="5" inherits="UnitPingIconFrameTemplate" setAllPoints="true">
 				<KeyValues>
 					<KeyValue key="isRaidFrame" value="true" type="boolean"/>
 				</KeyValues>
-				<Anchors>
-					<Anchor point="CENTER"/>
-				</Anchors>
 			</Frame>
         </Frames>
     </Button>

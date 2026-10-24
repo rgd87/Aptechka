@@ -2200,7 +2200,7 @@ local function updateUnitButton(self, unit)
     self.unit = unit
     Aptechka:AddFrameToUnitRoster(self, unit)
 
-    self.guid = UnitGUID(unit) -- is it even needed?
+    self.guid = UnitGUID(unit)
     if self.guid then guidMap[self.guid] = unit end
     for guid, gunit in pairs(guidMap) do
         if not Roster[gunit] or guid ~= UnitGUID(gunit) then guidMap[guid] = nil end
@@ -2771,6 +2771,10 @@ function Aptechka.SetupFrame(header, frameName)
 
     f.onenter = onenter
     f.onleave = onleave
+
+    f.pingIconFrame:SetGUIDMatch(function(guid)
+        return f.guid == guid
+    end)
 
     if AptechkaDB.global.RMBClickthrough then
         -- Another way of doing this:
@@ -3941,6 +3945,44 @@ function Aptechka.UNIT_SPELLCAST_FAILED(self, event, unit, castID)
 end
 Aptechka.UNIT_SPELLCAST_INTERRUPTED = Aptechka.UNIT_SPELLCAST_FAILED
 
+
+
+--[[
+do
+    local function PingIconOnShowPing(icon, kit)
+        if issecretvalue(kit) then return end
+        local frame = icon:GetParent()
+        local unit = frame.unit
+        if not unit then return end
+    end
+
+    local function PingIconOnClearPing(icon)
+    end
+
+    local CUFFramesHooked = {}
+
+    local HookCUFPingIcon = function(frame)
+        if CUFFramesHooked[frame] then return end
+
+        local icon = frame and frame.pingIconFrame
+        if not icon then return end
+        if icon:IsForbidden() then return end
+
+        local unit = frame.unit
+        if not unit then return end
+        if string.find(unit, "nameplate") then return end
+
+        hooksecurefunc(icon, "ShowPing", PingIconOnShowPing)
+        hooksecurefunc(icon, "ClearPing", PingIconOnClearPing)
+
+        CUFFramesHooked[frame] = true
+    end
+
+    if _G.CompactUnitFrame_SetUpFrame then
+        hooksecurefunc("CompactUnitFrame_SetUpFrame", HookCUFPingIcon)
+    end
+end
+]]
 
 
 function Aptechka.InterfaceOptions_AddCategory(frame, addOn, position)
