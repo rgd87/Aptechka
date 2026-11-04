@@ -511,6 +511,7 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     -- self:RegisterEvent("UNIT_AURA")
     self:RegisterEvent("SPELLS_CHANGED")
     self:RegisterEvent("GROUP_ROSTER_UPDATE")
+    self:RegisterEvent("PLAYER_ROLES_ASSIGNED")
 
     if AptechkaDB.profile.showRaidIcons then
         self:RegisterEvent("RAID_TARGET_UPDATE")
@@ -572,6 +573,14 @@ function Aptechka.PLAYER_LOGIN(self,event,arg1)
     if not self.db.global.LDBData.hide then
         Aptechka:CreteMinimapIcon()
     end
+
+    hooksecurefunc(EditModeManagerFrame, "EnterEditMode", function(self)
+        Aptechka:EDIT_MODE_ENTER()
+    end)
+    hooksecurefunc(EditModeManagerFrame, "ExitEditMode", function(self)
+        Aptechka:EDIT_MODE_EXIT()
+        Aptechka:PLAYER_ROLES_ASSIGNED() -- Edit Mode Applies Role icon but doesn't clear it otherwise
+    end)
 
     Aptechka:CreateBlizzOptionsPanel()
     --[[
@@ -954,9 +963,9 @@ function Aptechka.FrameUpdateAbsorb(frame, unit)
     UnitGetDetailedHealPrediction(unit, nil, healCalc)
 
     local absorb, isOverabsorb = healCalc:GetDamageAbsorbs()
-    frame.absorb:SetValue(absorb)
+    frame.absorb:SetValue(absorb, 1)
     local unclampedAbsorb = healCalc:GetTotalDamageAbsorbs()
-    frame.absorbOverflow:SetValue(unclampedAbsorb)
+    frame.absorbOverflow:SetValue(unclampedAbsorb, 1)
     frame.absorbOverflow:SetAlphaFromBoolean(isOverabsorb, 1, 0)
 end
 function Aptechka.UNIT_ABSORB_AMOUNT_CHANGED(self, event, unit)
@@ -967,7 +976,7 @@ function Aptechka.FrameUpdateHealAbsorb(frame, unit)
     UnitGetDetailedHealPrediction(unit, nil, healCalc)
 
     local healAbsorb, isHealOverabsorb = healCalc:GetHealAbsorbs()
-    frame.healabsorb:SetValue(healAbsorb)
+    frame.healabsorb:SetValue(healAbsorb, 1)
 end
 function Aptechka.UNIT_HEAL_ABSORB_AMOUNT_CHANGED(self, event, unit)
     Aptechka:ForEachUnitFrame(unit, Aptechka.FrameUpdateHealAbsorb)
@@ -3313,6 +3322,16 @@ function Aptechka:OpenGUI()
     AptechkaOptions.Open()
     -- InterfaceOptionsFrame_OpenToCategory("Aptechka")
     -- InterfaceOptionsFrame_OpenToCategory("Aptechka")
+end
+
+
+function Aptechka:EDIT_MODE_ENTER()
+    self:Unlock()
+end
+function Aptechka:EDIT_MODE_EXIT()
+    if not Aptechka.db.global.stayUnlocked then
+        self:Lock()
+    end
 end
 
 function Aptechka:Unlock()
