@@ -3916,6 +3916,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
         end,
     });
 
+
+    --[[
     debuffs:AddAuraSlot("CCGlow", "HARMFUL|CROWD_CONTROL", {
         initializeFrame = function(button)
             local tex = button:CreateTexture(nil, "ARTWORK", nil, -4)
@@ -3927,7 +3929,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
             tex:SetAllPoints(button)
         end,
     });
-
+    ]]
 
 
     ------------------------
