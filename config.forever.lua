@@ -33,6 +33,7 @@ AddAuraToContainer("BigDefensive", {
 AddAuraToContainer("PersonalDefensive", {
     -- GLOBAL
     1289723, -- Welcoming Campfire
+    1229739, -- Welcoming Campfire
 
     -- WARLOCK
     6229, 11739, 11740, 28610, -- Shadow Ward
@@ -171,6 +172,7 @@ if playerClass == "PRIEST" then
 
     AddAuraToContainer("raidBuff1", {
         1243, 1244, 1245, 2791, 10937, 10938, 21562, 21564, -- Power Word: Fortitude and Prayer of Fortitude
+        -- 1277462, -- Contingency Plan
     })
     AddAuraToContainer("raidBuff2", {
         14752, 14818, 14819, 27841, 27681, -- Prayer of Spirit, Divine Spirit
@@ -437,9 +439,9 @@ if playerClass == "MAGE" then
 end
 
 if playerClass == "WARRIOR" then
-    AddAuraToContainer("bars", {
-        5242, 6192, 6673, 11549, 11550, 11551, 25289, -- Battle Shout
-    })
+    -- AddAuraToContainer("bars", {
+        -- 5242, 6192, 6673, 11549, 11550, 11551, 25289, -- Battle Shout
+    -- })
     config.auraContainers.bars.widgetOptions.sampleRect = { 0.106, 0.255, 0.133, 0.136 }
     -- /script Aptechka:ShowBarColorSampler({ 5242 })
 

@@ -2098,6 +2098,7 @@ function Aptechka.FrameColorize(frame, unit)
         local profile = Aptechka.db.profile
 
         local _,class = UnitClass(unit)
+        if not class then class = "DRUID" end
         local color = C_ClassColor.GetClassColor(class)
 
         if hdr.isPetGroup then
