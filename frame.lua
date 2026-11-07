@@ -3480,28 +3480,35 @@ local function Reconf(self)
         temploss:SetPoint("LEFT", self, "LEFT", 0,0)
         temploss:SetPoint("BOTTOM", self, "BOTTOM", 0,0)
 
+        local edgeAttachmentPointTop = "TOPRIGHT"
+        local edgeAttachmentPointBottom = "BOTTOMRIGHT"
+        if db.fgShowMissing then
+            edgeAttachmentPointTop = "TOPLEFT"
+            edgeAttachmentPointBottom = "BOTTOMLEFT"
+        end
         local  absorb = self.absorb
         absorb:SetOrientation("HORIZONTAL")
-        absorb:GetStatusBarTexture():SetVertTile(true)
-        absorb:GetStatusBarTexture():SetHorizTile(false)
+        absorb:GetStatusBarTexture():SetVertTile(false)
+        absorb:GetStatusBarTexture():SetHorizTile(true)
         absorb:ClearAllPoints()
-        absorb:SetPoint("TOPLEFT", hpEdgeTexture, "TOPRIGHT")
-        absorb:SetPoint("BOTTOMLEFT", hpEdgeTexture, "BOTTOMRIGHT")
+        absorb:SetPoint("TOPLEFT", hpEdgeTexture, edgeAttachmentPointTop)
+        absorb:SetPoint("BOTTOMLEFT", hpEdgeTexture, edgeAttachmentPointBottom)
         absorb:SetWidth(frameLength)
 
         local healAbsorb = self.health.healabsorb
         healAbsorb:SetOrientation("HORIZONTAL")
         healAbsorb:ClearAllPoints()
         healAbsorb:SetStatusBarTexture("Interface\\AddOns\\Aptechka\\healabsorbtex")
-        healAbsorb:SetPoint("TOPRIGHT", hpEdgeTexture, "TOPRIGHT")
-        healAbsorb:SetPoint("BOTTOMRIGHT", hpEdgeTexture, "BOTTOMRIGHT")
+        healAbsorb:SetPoint("TOPRIGHT", hpEdgeTexture, edgeAttachmentPointTop)
+        healAbsorb:SetPoint("BOTTOMRIGHT", hpEdgeTexture, edgeAttachmentPointBottom)
         healAbsorb:SetWidth(frameLength)
+
 
         local hpi = self.health.incoming
         hpi:SetOrientation("HORIZONTAL")
         hpi:ClearAllPoints()
-        hpi:SetPoint("TOPLEFT", hpEdgeTexture, "TOPRIGHT")
-        hpi:SetPoint("BOTTOMLEFT", hpEdgeTexture, "BOTTOMRIGHT")
+        hpi:SetPoint("TOPLEFT", hpEdgeTexture, edgeAttachmentPointTop)
+        hpi:SetPoint("BOTTOMLEFT", hpEdgeTexture, edgeAttachmentPointBottom)
         hpi:SetWidth(frameLength)
 
         local overflow = self.absorbOverflow
