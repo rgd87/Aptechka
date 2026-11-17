@@ -297,13 +297,14 @@ end
 if playerClass == "PALADIN" then
 
     AddAuraToContainer("bars", {
+        1310909, 1311593, 1311597, -- Light's Vigil
         1044, -- Blessing of Freedom
     })
     config.auraContainers.bars.widgetOptions.sampleRect = { 0.250, 0.468, 0.006, 0.030 }
     -- /script Aptechka:ShowBarColorSampler({ 1044 })
 
     AddAuraToContainer("bar4", {
-        1310909, 1311593, 1311597, -- Light's Vigil
+        1328548, -- Oath of Light
     })
     ChangeWidgetColorForContainer("bar4",  1, .3, .3)
 
