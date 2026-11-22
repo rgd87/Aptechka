@@ -1438,7 +1438,7 @@ do
         MONK = true,
         EVOKER = true,
     }
-    local showHybridMana = true
+    local showHybridMana = false
     function Aptechka.FrameUpdateDisplayPower(frame, unit)
         local pindex, pname = UnitPowerType(unit)
         local _, unitClass = UnitClass(unit)

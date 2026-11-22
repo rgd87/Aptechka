@@ -3373,7 +3373,7 @@ local function Reconf(self)
         power:SetPoint("TOPRIGHT",self,"TOPRIGHT",0,0)
         power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
 
-        power:OnPowerTypeChange()
+        power:OnPowerTypeChange(power.powerType, power.disabled)
 
 
         local hpEdgeTexture = health:GetStatusBarTexture()
@@ -3469,7 +3469,7 @@ local function Reconf(self)
         power:SetHeight(powerSize)
         power:SetPoint("BOTTOMLEFT",self,"BOTTOMLEFT",0,0)
         power:SetPoint("BOTTOMRIGHT",self,"BOTTOMRIGHT",0,0)
-        power:OnPowerTypeChange()
+        power:OnPowerTypeChange(power.powerType, power.disabled)
 
         local hpEdgeTexture = health:GetStatusBarTexture()
 
