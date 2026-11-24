@@ -2878,66 +2878,53 @@ local function AuraButtonDebuffIcon_SetDebuffIconStyle(self, style, widgetOption
     local pixel = pixelperfect(1)
     local stripSize = pixelperfect(widgetOptions.stripSize)
     if style == "STRIP_LEFT" then
-        self:SetSize(pixelperfect(widgetOptions.width+widgetOptions.stripSize-1), pixelperfect(widgetOptions.height));
-
-        UpdateBorder(self, -pixel*2, -pixel, -pixel, -pixel)
+        UpdateBorder(self, -(pixel+stripSize), -pixel, -pixel, -pixel)
 
         local dttex = self.debuffTypeTexture
         dttex:ClearAllPoints()
-        dttex:SetPoint("TOPLEFT", self, "TOPLEFT", -pixel, 0)
-        dttex:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -pixel, 0)
+        dttex:SetPoint("TOPRIGHT", self, "TOPLEFT", 0, 0)
+        dttex:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 0, 0)
         dttex:SetWidth(stripSize)
-
-        local icon = self.icon
-        icon:ClearAllPoints()
-        icon:SetPoint("TOPLEFT", dttex, "TOPRIGHT")
-        icon:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT")
 
         self:SetAnimDirection("LEFT")
     elseif style == "STRIP_BOTTOM" then
-        self:SetSize(pixelperfect(widgetOptions.width), pixelperfect(widgetOptions.height+widgetOptions.stripSize-1));
-
-        UpdateBorder(self, -pixel, -pixel, -pixel, -pixel*2)
+        UpdateBorder(self, -pixel, -pixel, -pixel, -(pixel+stripSize))
 
         local dttex = self.debuffTypeTexture
         dttex:ClearAllPoints()
-        dttex:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", 0, -pixel)
-        dttex:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", 0, -pixel)
+        dttex:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, 0)
+        dttex:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", 0, 0)
         dttex:SetHeight(stripSize)
-
-        local icon = self.icon
-        icon:ClearAllPoints()
-        icon:SetPoint("BOTTOMLEFT", dttex, "TOPLEFT")
-        icon:SetPoint("TOPRIGHT", self, "TOPRIGHT")
 
         self:SetAnimDirection("DOWN")
     end
 end
 local function CreateAuraButtonDebuffIcon(self, widgetOptions)
     local stripSize = pixelperfect(widgetOptions.stripSize)
-    self:SetSize(pixelperfect(widgetOptions.width+widgetOptions.stripSize-1), pixelperfect(widgetOptions.height));
+    self:SetSize(pixelperfect(widgetOptions.width), pixelperfect(widgetOptions.height));
 
     local pixel = pixelperfect(1)
 
     self:SetFrameLevel(FRAMELEVEL.DEBUFFICON)
 
-    self.outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -pixel*2, -pixel, -pixel, -pixel, -2)
+    self.outline = MakeBorder(self, "Interface\\BUTTONS\\WHITE8X8", -(pixel+stripSize), -pixel, -pixel, -pixel, -2)
     self.outline:SetVertexColor(0,0,0)
+
+    local icon = self:CreateTexture(nil,"ARTWORK",nil,-3)
+    icon:SetTexture[[Interface\BUTTONS\WHITE8X8]]
+    icon:SetAllPoints()
+    -- icon:SetPoint("TOPLEFT", dttex, "TOPRIGHT")
+    -- icon:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT")
+    icon:SetTexCoord(GetAdaptiveCroppedTexCoord(icon))
+    self.icon = icon
 
     local dttex = self:CreateTexture(nil, "ARTWORK", nil, -2)
     dttex:SetTexture([[Interface\AddOns\Aptechka\debuffType]])
     dttex:SetTexCoord(0, 1, 1, 0)
-    dttex:SetPoint("TOPLEFT", self, "TOPLEFT", -pixel, 0)
-    dttex:SetPoint("BOTTOMLEFT", self, "BOTTOMLEFT", -pixel, 0)
-    dttex:SetWidth(pixel*3)
+    dttex:SetPoint("TOPRIGHT", self, "TOPLEFT", 0, 0)
+    dttex:SetPoint("BOTTOMRIGHT", self, "BOTTOMLEFT", 0, 0)
+    dttex:SetWidth(stripSize)
     self.debuffTypeTexture = dttex
-
-    local icon = self:CreateTexture(nil,"ARTWORK",nil,-3)
-    icon:SetTexture[[Interface\BUTTONS\WHITE8X8]]
-    icon:SetPoint("TOPLEFT", dttex, "TOPRIGHT")
-    icon:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT")
-    icon:SetTexCoord(GetAdaptiveCroppedTexCoord(icon))
-    self.icon = icon
 
     local icd = CreateFrame("Cooldown",nil, self, "CooldownFrameTemplate")
     if not Aptechka.db.global.showIconCooldownCount then
@@ -3437,18 +3424,23 @@ local function Reconf(self)
 
         local debuffContainer = self.DebuffContainer
         debuffContainer:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Vertical)
-        if not InCombatLockdown() then
+        local stripSize = pixelperfect(config.auraContainers["debuffIcons"].widgetOptions.stripSize)
+        debuffContainer:SetFlowLayoutPadding(pixelperfect(stripSize-1),0,0,0) -- LRTB
+        -- This badly taints in BGs for some reason, even outside combat, even if you don't resize the aura buttons
+
+        local inInstance, instanceType = IsInInstance()
+        if inInstance and (instanceType == "pvp" or instanceType == "arena") then return end
+
         for _, debuffGroup in ipairs(debuffGroups) do
             local count = debuffContainer:GetAuraGroupFrameCount(debuffGroup)
             if count and count > 0 then
                 for i = 1, count do
                     local auraButton = debuffContainer:GetAuraGroupFrame(debuffGroup, i)
                     if auraButton then
-                        auraButton:SetDebuffIconStyle("STRIP_LEFTLEFT", config.auraContainers[debuffGroup].widgetOptions)
+                        auraButton:SetDebuffIconStyle("STRIP_LEFT", config.auraContainers[debuffGroup].widgetOptions)
                     end
                 end
             end
-        end
         end
     else
         self.health:SetOrientation("HORIZONTAL")
@@ -3530,7 +3522,12 @@ local function Reconf(self)
 
         local debuffContainer = self.DebuffContainer
         debuffContainer:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Horizontal)
-        if not InCombatLockdown() then
+        local stripSize = pixelperfect(config.auraContainers["debuffIcons"].widgetOptions.stripSize)
+        debuffContainer:SetFlowLayoutPadding(0,0,0,pixelperfect(stripSize-1)) -- LRTB
+
+        local inInstance, instanceType = IsInInstance()
+        if inInstance and (instanceType == "pvp" or instanceType == "arena") then return end
+
         for _, debuffGroup in ipairs(debuffGroups) do
             local count = debuffContainer:GetAuraGroupFrameCount(debuffGroup)
             if count and count > 0 then
@@ -3541,7 +3538,6 @@ local function Reconf(self)
                     end
                 end
             end
-        end
         end
     end
 
@@ -3561,6 +3557,7 @@ AptechkaDefaultConfig.GridSkin = function(self)
     local fontsize = Aptechka.db.profile.nameFontSize
     local manabar_width = config.manabarwidth
     local outlineSize = pixelperfect(Aptechka.db.global.borderWidth)
+    local isVertical = Aptechka.db.profile.healthOrientation == "VERTICAL"
 
     self.ReconfigureUnitFrame = Reconf
 
@@ -3907,6 +3904,8 @@ AptechkaDefaultConfig.GridSkin = function(self)
             end
         end,
     });
+    local stripSize = pixelperfect(config.auraContainers["debuffIcons"].widgetOptions.stripSize)
+    debuffs:SetFlowLayoutPadding(pixelperfect(stripSize-1),0,0,0) -- LRTB
     debuffs:SetFlowLayoutAnchorPoint("BOTTOMLEFT")
     debuffs:SetAuraGroupLayout("debuffIcons", { elementSpacing = pixelperfect(1), groupSpacing = pixelperfect(1) })
     debuffs:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Vertical)
